@@ -24,27 +24,29 @@ export default async function ProfilePage({
   }
 
   const db = getDb();
+  
+  if (targetId) {
+    const targetProfile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.id, targetId),
+    });
+    if (targetProfile) {
+      redirect(`/app/profile/${targetProfile.username}`);
+    }
+  }
+
   const currentProfile = await db.query.userProfiles.findFirst({
     where: eq(userProfiles.userId, user.id),
+    with: {
+      institution: true,
+    }
   });
 
   if (!currentProfile) {
     redirect("/app/onboarding");
   }
 
-  const profileId = targetId || currentProfile.id;
-  const isOwnProfile = profileId === currentProfile.id;
-
-  const profile = await db.query.userProfiles.findFirst({
-    where: eq(userProfiles.id, profileId),
-    with: {
-      institution: true,
-    }
-  });
-
-  if (!profile) {
-    redirect("/app");
-  }
+  const profile = currentProfile;
+  const isOwnProfile = true;
 
   // Fetch posts written by this user
   const userPosts = await db.query.posts.findMany({
