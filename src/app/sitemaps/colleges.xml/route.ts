@@ -13,7 +13,13 @@ export async function GET() {
 
     let urls = "";
     for (const item of list) {
+      const slugOrId = item.slug || item.id;
       urls += `
+  <url>
+    <loc>https://campusloop.space/app/college/${slugOrId}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
   <url>
     <loc>https://campusloop.space/college/${item.id}</loc>
     <changefreq>weekly</changefreq>
