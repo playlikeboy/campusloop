@@ -99,7 +99,20 @@ export async function PATCH(req: Request) {
 
     const db = getDb();
     const body = (await req.json()) as Record<string, any>;
-    const { id, isAvailable, price, originalPrice, name, description, categoryName, imageUrl, isVeg } = body;
+    const {
+      id,
+      isAvailable,
+      price,
+      originalPrice,
+      name,
+      description,
+      categoryName,
+      imageUrl,
+      isVeg,
+      isNonVeg,
+      addons,
+      preparationTime,
+    } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
@@ -113,6 +126,10 @@ export async function PATCH(req: Request) {
     if (typeof description === "string") updatePayload.description = description.trim();
     if (typeof categoryName === "string") updatePayload.categoryName = categoryName.trim();
     if (typeof imageUrl === "string") updatePayload.imageUrl = imageUrl.trim();
+    if (typeof isVeg === "boolean") updatePayload.isVeg = isVeg;
+    if (typeof isNonVeg === "boolean") updatePayload.isNonVeg = isNonVeg;
+    if (addons !== undefined) updatePayload.addons = addons;
+    if (preparationTime !== undefined) updatePayload.preparationTime = preparationTime;
     if (typeof isVeg === "boolean") {
       updatePayload.options = [
         {
