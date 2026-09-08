@@ -1,9 +1,8 @@
-import { ArrowLeft, BookOpen, GraduationCap, Zap } from "lucide-react";
+import { ArrowLeft, GraduationCap, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { Navigation } from "@/components/ui/navigation";
-import { RightSidebar } from "@/components/ui/right-sidebar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
@@ -30,7 +29,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
   const user = await getCachedAuthUser();
   const profile = user ? await getCachedUserProfile(user.id) : null;
 
-  // If user is authenticated and completed onboarding, render standard logged-in layout
+  // If user is authenticated and completed onboarding, render standard logged-in layout without rightbar
   if (profile?.onboardingCompleted) {
     const college = profile.institution;
     const viewerMode = await isViewerProfile(profile);
@@ -44,8 +43,8 @@ export default async function AcademicsLayout({ children }: { children: React.Re
           isViewer={viewerMode}
         />
 
-        <div className="flex md:pl-64 min-h-screen max-w-full overflow-x-clip">
-          <main className="flex-1 w-full min-w-0 max-w-full min-h-screen">
+        <div className="flex md:pl-64 min-h-screen w-full">
+          <main className="flex-1 w-full min-w-0 min-h-screen">
             {viewerMode && (
               <div className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-[11px] font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
                 <span>
@@ -57,9 +56,6 @@ export default async function AcademicsLayout({ children }: { children: React.Re
             {children}
             <FirstVisitNotificationPrompt />
           </main>
-          <aside className="hidden lg:block w-80 xl:w-[350px] shrink-0 border-l border-border/30 px-4 py-3">
-            <RightSidebar />
-          </aside>
         </div>
       </div>
     );
