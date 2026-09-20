@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CampusLoop Products",
     description:
-      "The verified campus network, free student JupyterLab, and Digital Observatory.",
+      "The verified campus network and Digital Observatory — an open-source publication for research on technology and digital systems.",
     images: ["https://campusloop.space/og-image.png"],
   },
   robots: { index: true, follow: true },
