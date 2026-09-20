@@ -17,8 +17,6 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" }) {
   return <BrandLogo size={size} href="/" />;
 }
 
-export const NOTEBOOK_URL = "https://notebook.campusloop.space/";
-
 export {
   LandingBadge,
   LandingCard,
@@ -85,7 +83,6 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
     title: "Product",
     links: [
       { href: "/products", label: "All Products" },
-      { href: NOTEBOOK_URL, label: "Notebook — Free JupyterLab", external: true },
       { href: "/overview", label: "Platform Overview" },
       { href: "/demo", label: "Testing & Demo Access" },
       { href: "/app/colleges", label: "College Directory" },
