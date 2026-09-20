@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   BookOpen,
   Check,
   Code2,
@@ -16,13 +15,12 @@ import {
   ShieldCheck,
   Sparkles,
   Telescope,
-  Terminal,
 } from "lucide-react";
 import { CompanyNav } from "@/components/marketing/company-nav";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/system";
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
-import { NOTEBOOK_URL, OBSERVATORY_URL, PRODUCTS } from "@/constants/products";
+import { OBSERVATORY_URL, PRODUCTS } from "@/constants/products";
 import { cn } from "@/lib/utils";
 
 interface ProductsClientProps {
@@ -30,7 +28,6 @@ interface ProductsClientProps {
 }
 
 export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
-  const notebookProduct = PRODUCTS.find((p) => p.id === "notebook")!;
   const appProduct = PRODUCTS.find((p) => p.id === "app")!;
   const observatoryProduct = PRODUCTS.find((p) => p.id === "observatory")!;
 
@@ -71,45 +68,6 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
       colSpan: 1,
       cta: "Discover",
       ctaHref: "/app/dating",
-    },
-    {
-      id: "notebook-lab",
-      title: "CampusLoop Notebook",
-      description:
-        "Free browser-based JupyterLab sandbox for verified students. Run Python 3, PyTorch, Pandas, and bash terminal without local configuration.",
-      icon: <Terminal className="size-5 text-amber-500" />,
-      status: "Free Cloud Sandbox",
-      meta: "Zero Install",
-      tags: ["Python 3", "JupyterLab", "Terminal", "Pip Packages"],
-      colSpan: 2,
-      hasPersistentHover: true,
-      cta: "Open JupyterLab",
-      ctaHref: NOTEBOOK_URL,
-      contentNode: (
-        <div className="space-y-3 pt-2">
-          <div className="rounded-xl border border-border/50 bg-background/90 p-3 font-mono text-[11px] space-y-1.5">
-            <div className="flex items-center gap-1.5 text-muted-foreground pb-1 border-b border-border/40">
-              <span className="size-2 rounded-full bg-rose-500" />
-              <span className="size-2 rounded-full bg-amber-500" />
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <span className="ml-1 text-[10px]">bash — student@campusloop-sandbox</span>
-            </div>
-            <p className="text-emerald-500">
-              $ <span className="text-foreground">python3 -m pip install torch numpy pandas</span>
-            </p>
-            <p className="text-muted-foreground">Successfully installed PyTorch, NumPy, Pandas (2.1.0)</p>
-            <p className="text-primary">$ jupyter lab --ip=0.0.0.0 --port=8888</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-foreground/90">
-            {notebookProduct.highlights.map((h, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <Check className="size-3.5 text-amber-500 shrink-0 stroke-[2.5]" />
-                <span>{h}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ),
     },
     {
       id: "academics-vault-product",
@@ -198,8 +156,8 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
             </h1>
 
             <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
-              From our flagship verified social network to free in-browser JupyterLab compute, discover the
-              products empowering 1,350+ Indian colleges.
+              From our flagship verified social network to our open-source Digital Observatory, discover the
+              products empowering students across 1,350+ Indian colleges.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -210,15 +168,6 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
                 <span>Launch CampusLoop</span>
                 <ArrowRight className="ml-2 size-4" />
               </Link>
-              <a
-                href={NOTEBOOK_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-full border border-border/60 bg-card/80 hover:bg-muted px-6 text-sm font-bold text-foreground transition-all active:scale-98"
-              >
-                <span>Open Notebook</span>
-                <ArrowUpRight className="ml-2 size-4 text-amber-500" />
-              </a>
             </div>
           </div>
         </section>
@@ -250,7 +199,7 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
                 Architecture Comparison
               </span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                CampusLoop App vs. CampusLoop Notebook
+                CampusLoop App vs. Digital Observatory
               </h2>
             </div>
 
@@ -258,16 +207,16 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
               <div className="grid grid-cols-3 p-4 bg-muted/40 border-b border-border/40 font-mono text-xs font-bold text-foreground">
                 <div>Capability</div>
                 <div className="text-center text-[#1D9BF0]">CampusLoop App</div>
-                <div className="text-center text-amber-500">CampusLoop Notebook</div>
+                <div className="text-center text-cyan-500">Digital Observatory</div>
               </div>
 
               {[
-                { cap: "Primary Focus", app: "Campus Social & Academics", nb: "Python & Data Science" },
-                { cap: "Cost to Students", app: "100% Free", nb: "100% Free" },
-                { cap: "Authentication", app: "College Email Verification", nb: "Browser-based Sandbox" },
-                { cap: "Mobile Friendly", app: "Full PWA & Responsive Web", nb: "Desktop / Tablet Recommended" },
-                { cap: "Compute & Storage", app: "Cloud Postgres & Qdrant", nb: "Personal Sandbox Storage" },
-                { cap: "Availability", app: "1,350+ Indian Colleges", nb: "Public Beta for All Students" },
+                { cap: "Primary Focus", app: "Campus Social & Academics", nb: "Technology & Digital Research" },
+                { cap: "Cost to Students", app: "100% Free", nb: "Free & Public" },
+                { cap: "Access", app: "College Email Verification", nb: "Open Web" },
+                { cap: "Format", app: "Full PWA & Responsive Web", nb: "Research Publication" },
+                { cap: "Core Content", app: "Feeds, Communities & Academic Resources", nb: "Source-backed Research & Analysis" },
+                { cap: "Audience", app: "Students at 1,350+ Indian Colleges", nb: "Researchers, Developers & Students" },
               ].map((row, i) => (
                 <div
                   key={i}
