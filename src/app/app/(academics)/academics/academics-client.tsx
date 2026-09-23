@@ -436,8 +436,8 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSelectedBranch(e.target.value);
               }}
-              className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-            >
+                className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
                   {b === "All" ? "All Branches" : b}
@@ -450,7 +450,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
               <select
                 aria-label="Filter by semester"
                 value={selectedSemester}
-              onChange={(e) => {
+                onChange={(e) => {
                 sounds.tap();
                 setSelectedSemester(e.target.value);
               }}
