@@ -107,6 +107,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
         !(pathname.startsWith("/app/communities/") && pathname !== "/app/communities") &&
         !pathname.startsWith("/app/community/") &&
         !pathname.startsWith("/app/search") &&
+        !pathname.startsWith("/app/discover") &&
         !pathname.startsWith("/app/dating") &&
         !pathname.startsWith("/app/matching") &&
         !pathname.startsWith("/app/settings") &&
