@@ -44,7 +44,7 @@ export function FeedCardHeader({
     try {
       const res = await archivePost(post.id);
       toast.success(
-        res.isArchived ? "Post moved to your private archive 📦" : "Post restored to public feeds 🚀"
+        res.isArchived ? "Post moved to your private archive" : "Post restored to public feeds"
       );
       router.refresh();
     } catch {
