@@ -316,30 +316,30 @@ export function DiscoverFeed() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24 bg-background">
       {/* ─── Twitter/X Style Explore & Search Header ─── */}
-      <header className="sticky top-0 z-40 bg-background/85 px-4 pt-3 backdrop-blur-xl space-y-3">
-        {/* Scope Pill Switcher & Search Bar */}
-        <div className="flex items-center gap-2.5">
+      <header className="sticky top-0 z-40 border-b border-border/30 bg-background/92 px-4 pt-2.5 backdrop-blur-xl space-y-2">
+        {/* Scope */}
+        <div className="flex items-center justify-between gap-2">
           {/* Scope Selector (Around Campus vs Global) */}
           <div className="flex items-center rounded-full bg-muted/60 p-0.5 shrink-0 shadow-2xs">
             <button
               type="button"
               onClick={() => handleScopeChange("CAMPUS")}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                 scope === "CAMPUS"
-                  ? "bg-foreground text-background shadow-xs font-black"
+                  ? "bg-primary text-primary-foreground font-bold shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {collegeName.split(" ")[0]}
+              Campus
             </button>
             <button
               type="button"
               onClick={() => handleScopeChange("GLOBAL")}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
                 scope === "GLOBAL"
-                  ? "bg-foreground text-background shadow-xs font-black"
+                  ? "bg-primary text-primary-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -349,14 +349,14 @@ export function DiscoverFeed() {
           </div>
 
           {/* Unified Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search CampusLoop..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full h-9 pl-9 pr-8 rounded-full bg-muted/50 border-0 focus:ring-1 focus:ring-foreground/20 focus:bg-background text-xs font-medium placeholder:text-muted-foreground/70 outline-none transition-all shadow-2xs"
+              className="w-full h-10 pl-10 pr-9 rounded-xl bg-muted/45 border border-border/40 focus:ring-1 focus:ring-primary/30 focus:bg-background text-sm font-medium placeholder:text-muted-foreground/70 outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -366,6 +366,25 @@ export function DiscoverFeed() {
                 title="Clear search"
               >
                 <X className="size-2.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Search row */}
+        <div className="w-full -mt-0.5">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search CampusLoop..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full h-10 pl-10 pr-9 rounded-xl bg-muted/45 border border-border/40 focus:ring-1 focus:ring-primary/30 focus:bg-background text-sm font-medium placeholder:text-muted-foreground/70 outline-none transition-all shadow-2xs"
+            />
+            {searchQuery && (
+              <button type="button" onClick={handleClearSearch} className="absolute right-2.5 top-1/2 -translate-y-1/2 size-5 rounded-full bg-muted-foreground/15 text-foreground flex items-center justify-center">
+                <X className="size-3" />
               </button>
             )}
           </div>
@@ -404,7 +423,7 @@ export function DiscoverFeed() {
             })}
           </div>
         ) : (
-          <div className="flex">
+          <div className="flex gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
             {TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -412,9 +431,9 @@ export function DiscoverFeed() {
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "relative flex-1 pb-3 pt-1 text-center text-xs font-bold transition-colors cursor-pointer",
+                    "relative shrink-0 px-3 pb-2.5 pt-1 text-xs font-semibold transition-colors cursor-pointer",
                     isActive
-                      ? "text-foreground font-black"
+                      ? "text-primary font-bold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
                   )}
                 >
@@ -422,7 +441,7 @@ export function DiscoverFeed() {
                   {isActive && (
                     <motion.div
                       layoutId="discover-tab-indicator"
-                      className="absolute -bottom-px left-0 right-0 h-0.5 bg-foreground rounded-full"
+                      className="absolute -bottom-px left-2 right-2 h-0.5 bg-primary rounded-full"
                       transition={{ type: "spring", stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -647,13 +666,13 @@ export function DiscoverFeed() {
         <>
           {/* ─── TAB 1: EXPLORE VIEW ─── */}
           {activeTab === "EXPLORE" && (
-            <div className="space-y-4 pt-3">
+            <div className="space-y-5 pt-3">
               {/* Today's Campus News / Top Discussion Card */}
               {news.length > 0 && (
                 <div className="pb-3 space-y-1">
                   <div className="px-4 pb-2">
                     <h2 className="text-[17px] font-black text-foreground tracking-tight">
-                      Today&apos;s Campus Buzz
+                      Campus conversations
                     </h2>
                   </div>
                   {news.map((item) => (
