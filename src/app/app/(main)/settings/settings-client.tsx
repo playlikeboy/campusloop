@@ -9,6 +9,7 @@ import {
   School,
   ShieldCheck,
   Sliders,
+  Terminal,
   User,
   VenetianMask,
   Zap,
@@ -400,7 +401,30 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             href="/app/profile"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
           >
-            View Verification Badges & Invites →
+            View Verification Badges &amp; Invites →
+          </Link>
+        </section>
+
+        {/* Developer & MCP API Keys */}
+        <section className="rounded-3xl border border-primary/30 bg-card p-6 shadow-sm space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Terminal className="h-4 w-4 text-primary" /> Model Context Protocol (MCP) &amp; API Keys
+            </h2>
+            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
+              NEW
+            </span>
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Connect Cursor, Windsurf, Claude Desktop, and AI agents directly to your campus account with personal MCP server keys.
+          </p>
+
+          <Link
+            href="/app/developer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
+          >
+            Manage MCP Keys &amp; IDE Setup →
           </Link>
         </section>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart, Repeat2, VenetianMask } from "lucide-react";
+import { Bot, Heart, Repeat2, VenetianMask } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -56,8 +56,21 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [showLikesModal, setShowLikesModal] = useState(false);
 
-  const authorName = post.isAnonymous ? "Anonymous Student" : post.author?.displayName || "Student";
-  const authorHandle = post.isAnonymous ? post.pseudonym || "anonymous" : post.author?.username || "student";
+  const isBotPost = Boolean(
+    post.pseudonym && (post.pseudonym.startsWith("🤖") || post.pseudonym.toLowerCase().includes("bot"))
+  );
+  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/, "").trim();
+
+  const authorName = post.isAnonymous
+    ? isBotPost
+      ? cleanBotPseudonym || "Bot"
+      : "Anonymous Student"
+    : post.author?.displayName || "Student";
+  const authorHandle = post.isAnonymous
+    ? isBotPost
+      ? cleanBotPseudonym || "bot"
+      : post.pseudonym || "anonymous"
+    : post.author?.username || "student";
   const avatarFallback = post.author?.displayName?.[0] ?? "S";
   const avatarUrl = post.isAnonymous
     ? ""
@@ -305,6 +318,12 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 </svg>
               </div>
             </a>
+          ) : isBotPost ? (
+            <Avatar className="size-10 rounded-full border border-sky-500/30 bg-sky-500/10">
+              <AvatarFallback className="bg-transparent flex items-center justify-center">
+                <Bot className="size-5 text-sky-500 dark:text-sky-400" />
+              </AvatarFallback>
+            </Avatar>
           ) : !post.isAnonymous ? (
             <Link href={`/@${authorHandle}`} onClick={(e) => e.stopPropagation()}>
               <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">

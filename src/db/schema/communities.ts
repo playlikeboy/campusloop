@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { userProfiles } from "./users";
 
@@ -43,7 +43,35 @@ export const communityMembers = pgTable(
   (table) => [uniqueIndex("community_members_join_idx").on(table.communityId, table.userId)]
 );
 
+export const communityWebhooks = pgTable(
+  "community_webhooks",
+  {
+    id: id(),
+    communityId: text("community_id")
+      .notNull()
+      .references(() => communities.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    token: text("token").notNull(),
+    botName: text("bot_name").default("CampusBot").notNull(),
+    avatarUrl: text("avatar_url"),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdById: text("created_by_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    postsCount: integer("posts_count").default(0).notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    createdAt,
+    updatedAt,
+  },
+  (table) => [
+    uniqueIndex("community_webhooks_token_idx").on(table.token),
+  ]
+);
+
 export type Community = typeof communities.$inferSelect;
 export type NewCommunity = typeof communities.$inferInsert;
 export type CommunityMember = typeof communityMembers.$inferSelect;
 export type NewCommunityMember = typeof communityMembers.$inferInsert;
+export type CommunityWebhook = typeof communityWebhooks.$inferSelect;
+export type NewCommunityWebhook = typeof communityWebhooks.$inferInsert;
+

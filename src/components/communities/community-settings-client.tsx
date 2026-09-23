@@ -1,10 +1,11 @@
 "use client";
 
-import { CheckCircle2, EyeOff, Globe, Loader2, Lock, Plus, Trash2 } from "lucide-react";
+import { CheckCircle2, EyeOff, Globe, Loader2, Lock, Plus, Sliders, Trash2, Webhook } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateCommunitySettings } from "@/app/app/(main)/communities/actions";
+import { CommunityWebhooksManager } from "@/components/communities/community-webhooks-manager";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -32,6 +33,7 @@ interface CommunitySettingsClientProps {
 
 export function CommunitySettingsClient({ community }: CommunitySettingsClientProps) {
   const router = useRouter();
+  const [settingsTab, setSettingsTab] = useState<"general" | "webhooks">("general");
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState(community.name);
@@ -104,10 +106,45 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-5 select-none animate-in fade-in">
-      {/* Identity */}
-      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
-        <h2 className="text-xs font-black uppercase tracking-wider text-foreground">1. General Details</h2>
+    <div className="space-y-5 select-none animate-in fade-in">
+      {/* Settings Sub-Navigation Switcher */}
+      <div className="flex items-center p-1 rounded-full bg-muted/50 border border-border/50 gap-1">
+        <button
+          type="button"
+          onClick={() => setSettingsTab("general")}
+          className={cn(
+            "flex-1 py-2 px-3 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            settingsTab === "general"
+              ? "bg-card text-foreground shadow-2xs font-black"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Sliders className="size-3.5" />
+          <span>General Settings</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSettingsTab("webhooks")}
+          className={cn(
+            "flex-1 py-2 px-3 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            settingsTab === "webhooks"
+              ? "bg-card text-foreground shadow-2xs font-black"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Webhook className="size-3.5" />
+          <span>Webhooks &amp; Bots</span>
+        </button>
+      </div>
+
+      {settingsTab === "webhooks" ? (
+        <CommunityWebhooksManager community={community} />
+      ) : (
+        <form onSubmit={handleSave} className="space-y-5">
+          {/* Identity */}
+          <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+            <h2 className="text-xs font-black uppercase tracking-wider text-foreground">1. General Details</h2>
 
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-foreground">Community Name *</label>
@@ -304,21 +341,23 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
         </div>
       </div>
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={loading || !name.trim()}
-        className="w-full h-11 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="size-4 animate-spin" />
-            <span>Saving Settings...</span>
-          </>
-        ) : (
-          <span>Save Changes</span>
-        )}
-      </button>
-    </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading || !name.trim()}
+            className="w-full h-11 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                <span>Saving Settings...</span>
+              </>
+            ) : (
+              <span>Save Changes</span>
+            )}
+          </button>
+        </form>
+      )}
+    </div>
   );
 }

@@ -34,7 +34,7 @@ import {
   waterProducts,
   waterSubscriptions,
 } from "./commercial-marketplace";
-import { communities, communityMembers } from "./communities";
+import { communities, communityMembers, communityWebhooks } from "./communities";
 import { secretCrushes, swipes } from "./dating";
 import { eventRegistrations, events } from "./events";
 import { externalMedia, externalPosts } from "./external-content";
@@ -52,6 +52,7 @@ import { savedPosts } from "./saved-posts";
 import { stories, storyHighlights, storyLikes } from "./stories";
 import { capsuleEntries, timeCapsules } from "./time-capsule";
 import { follows, userProfiles } from "./users";
+import { mcpAuditLogs, userMcpKeys } from "./mcp";
 
 export const institutionsRelations = relations(institutions, ({ many }) => ({
   domains: many(institutionDomains),
@@ -87,6 +88,7 @@ export const userProfilesRelations = relations(userProfiles, ({ one, many }) => 
   reelBookmarks: many(reelBookmarks),
   followers: many(follows, { relationName: "profile_followers" }),
   following: many(follows, { relationName: "profile_following" }),
+  mcpKeys: many(userMcpKeys),
 }));
 
 export const savedPostsRelations = relations(savedPosts, ({ one }) => ({
@@ -261,6 +263,18 @@ export const communitiesRelations = relations(communities, ({ one, many }) => ({
   }),
   members: many(communityMembers),
   posts: many(posts),
+  webhooks: many(communityWebhooks),
+}));
+
+export const communityWebhooksRelations = relations(communityWebhooks, ({ one }) => ({
+  community: one(communities, {
+    fields: [communityWebhooks.communityId],
+    references: [communities.id],
+  }),
+  creator: one(userProfiles, {
+    fields: [communityWebhooks.createdById],
+    references: [userProfiles.id],
+  }),
 }));
 
 export const communityMembersRelations = relations(communityMembers, ({ one }) => ({
@@ -998,6 +1012,25 @@ export const reelBookmarksRelations = relations(reelBookmarks, ({ one }) => ({
   user: one(userProfiles, {
     fields: [reelBookmarks.userId],
     references: [userProfiles.id],
+  }),
+}));
+
+export const userMcpKeysRelations = relations(userMcpKeys, ({ one, many }) => ({
+  user: one(userProfiles, {
+    fields: [userMcpKeys.userId],
+    references: [userProfiles.id],
+  }),
+  auditLogs: many(mcpAuditLogs),
+}));
+
+export const mcpAuditLogsRelations = relations(mcpAuditLogs, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [mcpAuditLogs.userId],
+    references: [userProfiles.id],
+  }),
+  key: one(userMcpKeys, {
+    fields: [mcpAuditLogs.keyId],
+    references: [userMcpKeys.id],
   }),
 }));
 
