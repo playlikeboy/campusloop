@@ -202,11 +202,6 @@ export function AcademicPdfViewer({
       return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
     }
 
-    if (isDirectPdf) {
-      // Direct browser native rendering with PDF parameters
-      return `${rawUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`;
-    }
-
     // Otherwise pass raw
     return rawUrl;
   }, [
