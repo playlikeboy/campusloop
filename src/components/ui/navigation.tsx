@@ -272,10 +272,10 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   href={item.href}
                   prefetch={true}
                   className={cn(
-                    "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all cursor-pointer",
+                    "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[13px] font-semibold transition-all cursor-pointer",
                     isActive
-                      ? "text-foreground font-bold bg-primary/10 shadow-xs ring-1 ring-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/55"
+                      ? "text-primary font-bold bg-primary/12 shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   <div className="relative">
@@ -284,7 +284,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                         className={cn(
                           "size-[18px] shrink-0 transition-transform duration-200 group-hover:scale-105",
                           isActive
-                            ? "text-foreground stroke-2"
+                            ? "text-primary stroke-2"
                             : "text-muted-foreground group-hover:text-foreground stroke-2"
                         )}
                       />
@@ -295,8 +295,8 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   {item.badge && (
                     <span
                       className={cn(
-                        "ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider",
-                        item.badgeColor || "bg-primary/15 text-primary border border-primary/30"
+                        "ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider",
+                        item.badgeColor || "bg-primary/15 text-primary border border-primary/25"
                       )}
                     >
                       {item.badge}
@@ -338,7 +338,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
           ) : (
             <div className="pt-2 px-1">
               <Link href="/app/post/new" className="block">
-                <Button className="w-full h-10 bg-primary text-primary-foreground hover:opacity-90 font-bold rounded-xl text-sm cursor-pointer border-none shadow-sm transition-all flex items-center justify-center gap-2">
+                <Button className="w-full h-10.5 bg-primary text-primary-foreground hover:opacity-95 active:scale-[0.98] font-bold rounded-2xl text-sm cursor-pointer border-none shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
                   <AnimatedIcon icon={AnimatePlus} animation="pop" size={18} strokeWidth={2.5} />
                   <span>Post</span>
                 </Button>
@@ -438,7 +438,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
         !pathname.startsWith("/app/stories/new") &&
         !pathname.startsWith("/app/story/") &&
         !pathname.startsWith("/app/post/new") && (
-          <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col border-t border-border/70 bg-background/92 backdrop-blur-xl md:hidden touch-manipulation select-none pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_30px_rgba(70,60,130,0.08)]">
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col border-t border-border/40 bg-background/90 backdrop-blur-2xl md:hidden touch-manipulation select-none pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_30px_rgba(70,60,130,0.06)]">
             <div className="flex h-14 items-center justify-around px-2">
               {mobileBottomItems.map((item) => {
                 const isActive =
@@ -459,10 +459,10 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       className="flex flex-col items-center justify-center -mt-4 shrink-0 mx-1 group cursor-pointer select-none"
                       aria-label="Create post or confession"
                     >
-                      <div className="flex size-12 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 via-primary to-indigo-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] ring-4 ring-[#09090f] group-active:scale-90 transition-transform">
+                      <div className="flex size-12 items-center justify-center rounded-full bg-primary text-white shadow-[0_4px_20px_rgba(0,210,133,0.45)] ring-4 ring-background group-active:scale-90 transition-transform">
                         <AnimatedIcon icon={AnimatePlus} animation="spin" size={24} strokeWidth={2.6} />
                       </div>
-                      <span className="mt-0.5 text-[10px] font-bold text-purple-300 group-hover:text-white transition-colors">
+                      <span className="mt-0.5 text-[10px] font-bold text-primary group-hover:text-primary transition-colors">
                         Create
                       </span>
                     </Link>
@@ -497,7 +497,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                         )}
                       />
                       {item.href === "/app/notifications" && unreadNotificationsCount > 0 && (
-                        <span className="absolute -top-1 -right-1 size-2 rounded-full bg-rose-500 ring-2 ring-[#09090f] animate-pulse" />
+                        <span className="absolute -top-1 -right-1 size-2 rounded-full bg-rose-500 ring-2 ring-background animate-pulse" />
                       )}
                     </div>
                     <span
@@ -595,9 +595,9 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                         prefetch={false}
                         onClick={() => setShowMobileMenu(false)}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer",
+                          "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-colors cursor-pointer",
                           isActive
-                            ? "text-foreground bg-primary/10 font-bold ring-1 ring-primary/10"
+                            ? "text-primary bg-primary/12 font-bold shadow-2xs"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                         )}
                       >

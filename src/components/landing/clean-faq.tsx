@@ -1,56 +1,66 @@
+"use client";
+
+import { HelpCircle, Plus } from "lucide-react";
+import { sounds } from "@/lib/sounds";
+
 export function CleanFAQ() {
   const faqItems = [
     {
-      title: "How do I join my campus?",
-      content:
-        "Create an account with your institutional college email. CampusLoop checks the university domain and connects you to the appropriate campus hub.",
+      question: "How do I get verified on my campus?",
+      answer:
+        "Sign up with your college email (.edu, .ac.in, or university domain). You instantly unlock full voting, confession, DM, and notes download access.",
     },
     {
-      title: "Can I post anonymously?",
-      content:
-        "Yes. CampusLoop supports anonymous posting for eligible campus conversations, so the public post does not need to expose your student identity.",
+      question: "Is anonymous posting really anonymous?",
+      answer:
+        "Yes. Anonymous posts and confessions have zero author identity attached to the public payload. Even campus moderators cannot trace the author.",
     },
     {
-      title: "What if my college is not listed?",
-      content:
-        "Use the Colleges Directory to find your university or request a new campus hub.",
+      question: "What if my college isn't listed yet?",
+      answer:
+        "Browse the Colleges Directory to request your campus hub. Over 1,350+ Indian colleges are already indexed, and new hubs are activated within 24 hours.",
     },
     {
-      title: "What can I find in Academics?",
-      content:
-        "The academic vault can contain lecture notes, module resources, previous-year question papers, lab manuals, playlists and other student-contributed study material.",
+      question: "Are academic notes and PYQs free?",
+      answer:
+        "Yes, completely free. Everything in the Academic Vault is uploaded and peer-reviewed by students for students.",
     },
     {
-      title: "Does it cost anything to join?",
-      content:
-        "CampusLoop is free for verified students.",
+      question: "Can I explore without an account first?",
+      answer:
+        "Yes! You can explore in Viewer Mode to see campus trends, college hubs, and notes before creating an account.",
     },
   ];
 
   return (
-    <section className="border-b border-border/70 bg-background py-20 sm:py-24">
-      <div className="mx-auto max-w-3xl px-5 sm:px-6">
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">FAQ</p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
-            Clear answers before you join.
+    <section className="py-16 sm:py-24 px-4 sm:px-6 select-none relative">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border/50 text-muted-foreground text-xs font-bold">
+            <HelpCircle className="size-3.5" />
+            <span>Got Questions?</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground">
+            Fast answers before you drop in.
           </h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            No marketing language — just the basics you need to know.
-          </p>
         </div>
 
-        <div className="mt-10 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-background">
+        <div className="space-y-3">
           {faqItems.map((item) => (
-            <details key={item.title} className="group px-5 sm:px-6">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
-                <span>{item.title}</span>
-                <span className="grid size-6 shrink-0 place-items-center rounded-full border border-border text-muted-foreground transition-transform group-open:rotate-45" aria-hidden="true">
-                  +
+            <details
+              key={item.question}
+              onToggle={() => sounds.tap()}
+              className="group neo-card rounded-[24px] p-5 transition-all cursor-pointer open:ring-1 open:ring-primary/20"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xs sm:text-sm font-bold text-foreground [&::-webkit-details-marker]:hidden">
+                <span>{item.question}</span>
+                <span className="size-7 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <Plus className="size-4" />
                 </span>
               </summary>
-              <p className="max-w-2xl pb-5 pr-10 text-sm leading-6 text-muted-foreground">
-                {item.content}
+              <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {item.answer}
               </p>
             </details>
           ))}

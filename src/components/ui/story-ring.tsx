@@ -6,7 +6,7 @@ import { StoryAvatarItem } from "@/components/stories/story-avatar-item";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, formatTimeAgo } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 interface Story {
@@ -68,9 +68,9 @@ export function StoryRing({ users }: StoryRingProps) {
   }
 
   return (
-    <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar py-2.5 px-4 border-b border-border/40 select-none">
-      {/* Current User Story Item (Add Vibe / View Active Story) */}
-      <div className="flex flex-col items-center gap-1.5 shrink-0 select-none">
+    <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-3 px-4 border-b border-border/30 select-none">
+      {/* Current User Story Item (You / Add story) */}
+      <div className="flex flex-col items-center gap-1 shrink-0 select-none">
         <div className="relative group">
           {/* Avatar button */}
           <button
@@ -85,12 +85,12 @@ export function StoryRing({ users }: StoryRingProps) {
             className={cn(
               "flex items-center justify-center p-0.5 rounded-full transition-transform active:scale-95 cursor-pointer",
               myStoryGroup && myStoryGroup.stories.length > 0
-                ? "bg-linear-to-tr from-amber-500 via-rose-500 to-purple-600 shadow-sm"
+                ? "bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-sm p-[2.5px]"
                 : "bg-muted hover:scale-105"
             )}
-            aria-label={myStoryGroup?.stories?.length ? "View your story" : "Add new vibe"}
+            aria-label={myStoryGroup?.stories?.length ? "View your story" : "Add story"}
           >
-            <Avatar className="h-14 w-14 border-2 border-background">
+            <Avatar className="h-14 w-14 border-2 border-background shadow-xs">
               <AvatarImage src={profile?.avatarUrl || ""} />
               <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
                 {(profile?.displayName?.[0] || "U").toUpperCase()}
@@ -105,30 +105,36 @@ export function StoryRing({ users }: StoryRingProps) {
               e.stopPropagation();
               handleCreateStory();
             }}
-            className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-background shadow-xs hover:scale-110 active:scale-90 transition-transform cursor-pointer"
+            className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-primary text-white flex items-center justify-center border-2 border-background shadow-xs hover:scale-110 active:scale-90 transition-transform cursor-pointer"
             aria-label="Add new story"
           >
-            <Plus className="h-3 w-3 stroke-3" />
+            <Plus className="h-3.5 w-3.5 stroke-3" />
           </button>
         </div>
 
-        <span className="text-[10px] font-bold text-muted-foreground truncate max-w-[64px]">
-          {myStoryGroup?.stories?.length ? "Your vibe" : "Add vibe"}
-        </span>
+        <div className="flex flex-col items-center leading-tight">
+          <span className="text-[11px] font-bold text-foreground">You</span>
+          <span className="text-[9px] font-medium text-muted-foreground">
+            {myStoryGroup?.stories?.length ? "Active" : "Add story"}
+          </span>
+        </div>
       </div>
 
-      {/* Other Students Story Avatars Row */}
+      {/* Other Students Story Avatars Row with Timestamps */}
       {otherUsers.map((userGroup) => {
         const firstStory = userGroup.stories[0];
         if (!firstStory) return null;
 
         const allSeen = userGroup.stories.every((s) => isStorySeen(s.id));
 
+        const timeAgo = formatTimeAgo(firstStory.createdAt);
+
         return (
           <StoryAvatarItem
             key={userGroup.id}
-            displayName={userGroup.displayName}
+            displayName={userGroup.displayName.split(" ")[0]}
             avatarUrl={userGroup.avatarUrl}
+            subtitle={timeAgo}
             isFriend={userGroup.isFriend}
             hasUnseen={!allSeen}
             onClick={() => handleOpenStory(firstStory.id)}

@@ -16,10 +16,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground shadow-xs hover:opacity-90",
+        emerald:
+          "bg-[#00D285] text-white shadow-xs shadow-emerald-500/25 hover:bg-[#00be77] active:scale-95",
+        violet:
+          "bg-[#7C3AED] text-white shadow-xs shadow-purple-500/25 hover:bg-[#6D28D9] active:scale-95",
+        pillTab:
+          "bg-muted/80 text-muted-foreground hover:text-foreground hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:text-secondary-foreground font-bold rounded-full transition-all",
+        circleIcon:
+          "rounded-full bg-card border border-border/40 shadow-xs hover:shadow-sm text-muted-foreground hover:text-foreground transition-all",
         outline:
           "border-border/60 bg-transparent hover:bg-muted/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:hover:bg-input/40",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground hover:opacity-90 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "hover:bg-muted/60 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:

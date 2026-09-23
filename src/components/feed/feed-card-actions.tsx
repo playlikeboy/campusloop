@@ -95,148 +95,146 @@ export function FeedCardActions({
 
   return (
     <div
-      className="flex items-center justify-between max-w-md pt-1.5 text-muted-foreground select-none"
+      className="flex items-center justify-between pt-2 select-none"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Reply Action */}
-      <button
-        type="button"
-        onClick={onOpenComments}
-        {...reply.handlers}
-        className="flex items-center gap-1.5 text-xs hover:text-brand transition-colors group cursor-pointer"
-        aria-label="Reply"
-      >
-        <div className="size-8 rounded-full group-hover:bg-brand/10 flex items-center justify-center transition-colors">
+      {/* Floating Reaction Capsule (Matching Reference Mockup) */}
+      <div className="neo-reaction-pill">
+        {/* Like / Heart Action */}
+        <div className="flex items-center gap-1.5">
+          <motion.button
+            whileTap={{ scale: 0.8 }}
+            type="button"
+            onClick={onVote}
+            {...like.handlers}
+            className={cn(
+              "flex items-center gap-1 text-xs cursor-pointer group transition-colors",
+              isLiked ? "text-rose-500 font-bold" : "text-muted-foreground hover:text-rose-500"
+            )}
+            aria-label={isLiked ? "Unlike post" : "Like post"}
+          >
+            <AnimatedIcon
+              ref={like.ref}
+              icon={AnimateHeart}
+              animation="beat"
+              size={15}
+              animateOnHover={false}
+              playKey={isLiked}
+              iconClassName={cn(
+                "transition-colors",
+                isLiked ? "fill-rose-500 text-rose-500" : "text-muted-foreground group-hover:text-rose-500"
+              )}
+            />
+            <span
+              onClick={(e) => {
+                if (effectiveVotesCount > 0) {
+                  e.stopPropagation();
+                  onOpenLikes?.();
+                }
+              }}
+              className="tabular-nums text-xs font-bold"
+            >
+              {effectiveVotesCount > 0 ? effectiveVotesCount : 0}
+            </span>
+          </motion.button>
+        </div>
+
+        {/* Reply Action */}
+        <button
+          type="button"
+          onClick={onOpenComments}
+          {...reply.handlers}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+          aria-label="Reply"
+        >
           <AnimatedIcon
             ref={reply.ref}
             icon={AnimateMessageCircle}
             animation="pop"
-            size={18}
+            size={15}
             animateOnHover={false}
           />
-        </div>
-        {displayCommentsCount > 0 && (
-          <span className="tabular-nums text-xs font-medium">{displayCommentsCount}</span>
-        )}
-      </button>
+          <span className="tabular-nums text-xs font-bold">
+            {displayCommentsCount ?? 0}
+          </span>
+        </button>
 
-      {/* Repost Action */}
-      <button
-        type="button"
-        onClick={triggerRepostAnimation}
-        {...repost.handlers}
-        aria-pressed={hasReposted}
-        className={cn(
-          "flex items-center gap-1.5 text-xs transition-colors group cursor-pointer",
-          hasReposted ? "text-emerald-500" : "hover:text-emerald-500"
-        )}
-        aria-label={hasReposted ? "Reposted" : "Repost"}
-      >
-        <div className="size-8 rounded-full group-hover:bg-emerald-500/10 flex items-center justify-center transition-colors">
-          <AnimatedIcon
-            ref={repost.ref}
-            icon={AnimateRepeat2}
-            animation="nudge-right"
-            size={18}
-            animateOnHover={false}
-            className={cn("transition-transform duration-300 ease-out", repostSpin && "rotate-180 scale-115")}
-            iconClassName={cn(hasReposted && "text-emerald-500")}
-          />
-        </div>
-      </button>
-
-      {/* Like / Heart Action */}
-      <div className="flex items-center gap-0.5">
-        <motion.button
-          whileTap={{ scale: 0.8 }}
+        {/* Share Action */}
+        <button
           type="button"
-          onClick={onVote}
-          {...like.handlers}
-          className={cn(
-            "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer group",
-            isLiked
-              ? "text-rose-500 hover:bg-rose-500/10"
-              : "text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
-          )}
-          aria-label={isLiked ? "Unlike post" : "Like post"}
+          onClick={onShare}
+          {...share.handlers}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+          aria-label="Share"
         >
-          <AnimatedIcon
-            ref={like.ref}
-            icon={AnimateHeart}
-            animation="beat"
-            size={18}
-            animateOnHover={false}
-            playKey={isLiked}
-            iconClassName={cn(
-              "transition-colors",
-              isLiked ? "fill-rose-500 text-rose-500" : "text-muted-foreground group-hover:text-rose-500"
-            )}
-          />
-        </motion.button>
-        {effectiveVotesCount > 0 && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenLikes?.();
-            }}
-            className={cn(
-              "tabular-nums text-xs font-semibold px-1 py-0.5 rounded-md hover:underline cursor-pointer transition-colors",
-              isLiked ? "text-rose-500 font-bold" : "text-muted-foreground hover:text-foreground"
-            )}
-            title="View who liked this post"
-          >
-            {effectiveVotesCount}
-          </button>
-        )}
-      </div>
-
-      {/* Save / Bookmark Action */}
-      <motion.button
-        whileTap={{ scale: 0.8 }}
-        type="button"
-        onClick={handleToggleSave}
-        {...bookmark.handlers}
-        className={cn(
-          "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer group",
-          isSaved
-            ? "text-amber-500 hover:bg-amber-500/10"
-            : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
-        )}
-        aria-label={isSaved ? "Saved in vault" : "Save post"}
-      >
-        <AnimatedIcon
-          ref={bookmark.ref}
-          icon={AnimateBookmark}
-          animation="lift"
-          size={18}
-          animateOnHover={false}
-          playKey={isSaved}
-          iconClassName={cn(
-            "transition-colors",
-            isSaved ? "fill-amber-500 text-amber-500" : "text-muted-foreground group-hover:text-amber-500"
-          )}
-        />
-      </motion.button>
-
-      {/* Share Action */}
-      <button
-        type="button"
-        onClick={onShare}
-        {...share.handlers}
-        className="flex items-center gap-1.5 text-xs hover:text-brand transition-colors group cursor-pointer"
-        aria-label="Share"
-      >
-        <div className="size-8 rounded-full group-hover:bg-brand/10 flex items-center justify-center transition-colors">
           <AnimatedIcon
             ref={share.ref}
             icon={AnimateShare}
             animation="nudge-up"
-            size={16}
+            size={14}
             animateOnHover={false}
           />
-        </div>
-      </button>
+          <span className="tabular-nums text-xs font-bold">
+            {(post as any)?.sharesCount || (post as any)?.repostsCount || "Share"}
+          </span>
+        </button>
+      </div>
+
+      {/* Right Side Utility Actions: Repost & Bookmark */}
+      <div className="flex items-center gap-1">
+        {/* Repost Action */}
+        <button
+          type="button"
+          onClick={triggerRepostAnimation}
+          {...repost.handlers}
+          aria-pressed={hasReposted}
+          className={cn(
+            "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+            hasReposted
+              ? "text-emerald-500 bg-emerald-500/10"
+              : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
+          )}
+          aria-label={hasReposted ? "Reposted" : "Repost"}
+        >
+          <AnimatedIcon
+            ref={repost.ref}
+            icon={AnimateRepeat2}
+            animation="nudge-right"
+            size={16}
+            animateOnHover={false}
+            className={cn("transition-transform duration-300 ease-out", repostSpin && "rotate-180 scale-115")}
+            iconClassName={cn(hasReposted && "text-emerald-500")}
+          />
+        </button>
+
+        {/* Save / Bookmark Action */}
+        <motion.button
+          whileTap={{ scale: 0.8 }}
+          type="button"
+          onClick={handleToggleSave}
+          {...bookmark.handlers}
+          className={cn(
+            "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+            isSaved
+              ? "text-amber-500 bg-amber-500/10"
+              : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"
+          )}
+          aria-label={isSaved ? "Saved in vault" : "Save post"}
+        >
+          <AnimatedIcon
+            ref={bookmark.ref}
+            icon={AnimateBookmark}
+            animation="lift"
+            size={16}
+            animateOnHover={false}
+            playKey={isSaved}
+            iconClassName={cn(
+              "transition-colors",
+              isSaved ? "fill-amber-500 text-amber-500" : "text-muted-foreground hover:text-amber-500"
+            )}
+          />
+        </motion.button>
+      </div>
     </div>
   );
 }
