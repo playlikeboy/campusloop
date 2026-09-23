@@ -829,16 +829,16 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                               Zero-Login PDF
                             </span>
                             <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[10px] font-semibold border border-border/40">
-                              1,350+ Hubs
+                              1,350+ campuses
                             </span>
                           </div>
                           <Link
                             href="/app/academics/upload"
                             onClick={() => sounds.tap()}
-                            className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-95 transition-opacity cursor-pointer"
+                            className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-muted text-foreground text-xs font-semibold hover:bg-muted/80 transition-colors cursor-pointer"
                           >
                             <Plus className="size-3.5" />
-                            <span>Upload Notes (+20 LP)</span>
+                            <span>Upload notes</span>
                           </Link>
                         </div>
 
