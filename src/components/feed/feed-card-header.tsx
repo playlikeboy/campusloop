@@ -83,7 +83,7 @@ export function FeedCardHeader({
               <Link
                 href={`/@${post.author.username}`}
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold text-[15px] text-foreground hover:underline truncate max-w-[180px] sm:max-w-[240px] shrink-0"
+                className="font-semibold text-sm text-foreground hover:underline truncate max-w-[150px] sm:max-w-[220px] shrink-0"
               >
                 {authorName}
               </Link>
@@ -98,7 +98,7 @@ export function FeedCardHeader({
                 {authorName}
               </a>
             ) : (
-              <span className="font-bold text-[15px] text-foreground truncate max-w-[180px] sm:max-w-[240px] shrink-0">
+              <span className="font-semibold text-sm text-foreground truncate max-w-[150px] sm:max-w-[220px] shrink-0">
                 {authorName}
               </span>
             )}
@@ -113,7 +113,7 @@ export function FeedCardHeader({
             )}
 
             {authorHandle && (
-              <span className="text-muted-foreground text-xs truncate max-w-[90px] sm:max-w-[130px]">
+              <span className="text-muted-foreground text-[11px] truncate max-w-[80px] sm:max-w-[120px]">
                 {authorHandle}
               </span>
             )}
@@ -134,7 +134,7 @@ export function FeedCardHeader({
           </div>
 
           {/* Subtitle: Campus / Location · Time (Mockup style) */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-0.5">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-0.5">
             {institutionDisplayName && (
               <>
                 <span className="font-medium truncate max-w-[160px] sm:max-w-[220px]">
@@ -161,12 +161,12 @@ export function FeedCardHeader({
             <RedditAttribution externalPost={post.externalPost} variant="subtle" />
           )}
           {post.type === "CONFESSION" && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-secondary/10 text-secondary border-0">
               Confession
             </span>
           )}
           {post.type === "MEME" && (
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center gap-1">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0 flex items-center gap-1">
               <span>Meme</span>
             </span>
           )}
@@ -179,7 +179,7 @@ export function FeedCardHeader({
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className="size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
+              className="size-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               aria-label="More options"
             >
               <MoreHorizontal className="size-4" />
