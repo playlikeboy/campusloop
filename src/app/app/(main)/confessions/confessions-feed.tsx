@@ -11,7 +11,7 @@ import {
   VenetianMask,
   Zap,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FeedCard } from "@/components/ui/feed-card";
@@ -31,6 +31,7 @@ const CONFESSION_TABS = [
 ] as const;
 
 export function ConfessionsFeed() {
+  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { profile } = useProfile();
