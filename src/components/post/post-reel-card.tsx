@@ -431,7 +431,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
   // Reusable side actions column
   const renderSideActionRail = () => (
-    <div className="absolute right-3 sm:right-6 bottom-4 sm:bottom-6 z-30 flex flex-col items-center gap-3.5 select-none shrink-0 text-foreground">
+    <div className="absolute inset-x-3 bottom-3 sm:inset-x-auto sm:right-6 sm:bottom-6 z-30 flex flex-row sm:flex-col items-end sm:items-center justify-end gap-2 sm:gap-3.5 select-none shrink-0 text-foreground">
       {/* 1. Like */}
       <div className="flex flex-col items-center gap-1">
         <motion.button
@@ -440,7 +440,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           aria-label={userVote === 1 ? "Unlike post" : "Like post"}
           whileTap={{ scale: 0.85 }}
           className={cn(
-            "size-11 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-colors cursor-pointer group relative",
+            "size-10 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-colors cursor-pointer group relative",
             userVote === 1
               ? "border-rose-500/40 text-rose-500 bg-rose-500/15 shadow-[0_0_20px_rgba(244,63,94,0.4)]"
               : "border-white/10 text-white/80 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10"
@@ -496,7 +496,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => onOpenComments(post)}
           aria-label="Comment"
-          className="size-11 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer text-white/90 hover:text-white hover:bg-white/10"
+          className="size-10 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer text-white/90 hover:text-white hover:bg-white/10"
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={21} />
         </button>
@@ -510,7 +510,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           onClick={handleInstantRepost}
           aria-label={isReposted ? "Quoted repost" : "Loop post"}
           className={cn(
-            "size-11 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-90 cursor-pointer",
+            "size-10 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-90 cursor-pointer",
             isReposted
               ? "border-emerald-500/40 text-emerald-500 bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
               : "border-white/10 text-white/90 hover:text-white hover:bg-white/10"
@@ -538,7 +538,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         onClick={handleToggleSave}
         aria-label="Bookmark"
         className={cn(
-          "size-11 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer",
+          "size-10 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer",
           isSaved
             ? "border-primary/40 text-primary fill-primary shadow-[0_0_15px_rgba(168,85,247,0.4)]"
             : "border-white/10 text-white/90 hover:text-white hover:bg-white/10"
@@ -557,7 +557,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         type="button"
         onClick={handleShare}
         aria-label="Share"
-        className="size-11 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-110 active:scale-90"
+        className="size-10 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-110 active:scale-90"
       >
         <AnimatedIcon icon={Share2} animation="pop" size={20} />
       </button>
@@ -568,7 +568,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => setShowMoreMenu((prev) => !prev)}
           aria-label="More options"
-          className="size-11 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+          className="size-10 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-105 active:scale-95"
         >
           <MoreHorizontal className="size-5" />
         </button>
