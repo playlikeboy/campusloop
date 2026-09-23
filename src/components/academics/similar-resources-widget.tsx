@@ -1,9 +1,8 @@
 "use client";
 
-import { ArrowRight, ThumbsUp, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
-import { AcademicAiStudyBar } from "@/components/academics/academic-ai-study-bar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
@@ -73,7 +72,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
   }
 
   return (
-    <section className="space-y-3.5 pt-6 border-t border-border/25">
+    <section className="space-y-3 pt-5 border-t border-border/25">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between">
         <div>
@@ -81,7 +80,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
             Similar Notes &amp; Related PYQs
           </h3>
           <p className="text-[11px] text-muted-foreground">
-            Discovered via semantic syllabus matching
+            Matched by subject, syllabus & semester
           </p>
         </div>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/40">
@@ -99,10 +98,10 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
               key={item.id}
               href={`/app/academics/${item.id}`}
               onClick={() => sounds.tap()}
-              className="flex items-center justify-between gap-3 p-3.5 hover:bg-muted/30 transition-colors group cursor-pointer"
+              className="flex items-center justify-between gap-2.5 px-3 py-3 hover:bg-muted/30 transition-colors group cursor-pointer"
             >
               <div className="flex items-start gap-3 min-w-0 flex-1">
-                <Avatar className="size-8.5 rounded-full border border-border/40 shrink-0 mt-0.5">
+                <Avatar className="size-8 rounded-full border border-border/40 shrink-0 mt-0.5">
                   <AvatarImage src={avatar} />
                   <AvatarFallback className="text-[10px] font-bold">
                     {item.uploader.displayName?.[0] || "U"}
@@ -136,22 +135,15 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
                     <span className="truncate max-w-[100px]">{item.branch}</span>
                   </div>
 
-                  <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="pt-1"
-                  >
-                    <AcademicAiStudyBar
-                      compact
-                      title={item.title}
-                      subjectCode={item.subjectCode}
-                      department={item.branch}
-                      semester={item.semester}
-                      materialUrl={item.fileUrl || `https://campusloop.space/app/academics/${item.id}`}
-                      pageUrl={`https://campusloop.space/app/academics/${item.id}`}
-                    />
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] text-muted-foreground">
+                      {item.downloadsCount} downloads
+                    </span>
+                    <span className="text-muted-foreground/30">·</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary">
+                      <Sparkles className="size-3" />
+                      Study with AI
+                    </span>
                   </div>
                 </div>
               </div>
