@@ -345,9 +345,9 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
               </div>
             </div>
 
-            {/* About this group <span className="font-normal text-muted-foreground">(optional)</span> */}
+            {/* Description (Optional) */}
             <div className="space-y-1 pt-1">
-              <label className="text-xs font-bold text-foreground">Description (Optional)</label>
+              <label className="text-xs font-bold text-foreground">About this group <span className="font-normal text-muted-foreground">(optional)</span></label>
               <textarea
                 placeholder="What's this group about? Goals, topics, meeting times..."
                 value={description}
