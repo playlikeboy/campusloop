@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   School,
   Sliders,
+  Terminal,
 } from "lucide-react";
 import {
   AnimateBookmark,
@@ -125,6 +126,14 @@ export const BETA_HUB_ITEMS: NavItem[] = [
     label: "Campus AI Assistant",
     desc: "Ask about campus fests, study roadmaps, hostel tips & navigate CampusLoop",
     badge: "AI",
+    badgeColor: "bg-primary/15 text-primary border border-primary/30",
+  },
+  {
+    icon: Terminal,
+    href: "/app/developer",
+    label: "Developer & MCP Hub",
+    desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP server keys",
+    badge: "MCP",
     badgeColor: "bg-primary/15 text-primary border border-primary/30",
   },
 ];
@@ -287,6 +296,14 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
         href: "/app/settings",
         label: "Settings & Privacy",
         desc: "Account privacy, notification preferences & verification",
+      },
+      {
+        icon: Terminal,
+        href: "/app/developer",
+        label: "Developer & MCP Portal",
+        desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP keys",
+        badge: "MCP",
+        badgeColor: "bg-primary/15 text-primary border border-primary/30",
       },
       {
         icon: AnimateShieldCheck,

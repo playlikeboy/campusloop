@@ -25,6 +25,12 @@
       "skillPath": "skills/seo-audit/SKILL.md",
       "computedHash": "01f9f8a3feb3ea69c6c212d61189c610f96ef2cc363adc27fd314d78254bf6ae"
     },
+    "seo-project-setup": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-project-setup/SKILL.md",
+      "computedHash": "46245b1236037f9a5c596bdcf91e76b1f29e7b2942101d0ebf8690a8f8bf974f"
+    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

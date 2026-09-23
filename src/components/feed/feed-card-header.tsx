@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal } from "lucide-react";
+import { Archive, Bot, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -44,7 +44,7 @@ export function FeedCardHeader({
     try {
       const res = await archivePost(post.id);
       toast.success(
-        res.isArchived ? "Post moved to your private archive 📦" : "Post restored to public feeds 🚀"
+        res.isArchived ? "Post moved to your private archive" : "Post restored to public feeds"
       );
       router.refresh();
     } catch {
@@ -55,18 +55,32 @@ export function FeedCardHeader({
   }
 
   const isExternalReddit = Boolean(post.externalPost && post.externalPost.source === "reddit");
-  const authorName = post.isAnonymous
-    ? post.pseudonym
-      ? `@${post.pseudonym}`
-      : "Anonymous Student"
-    : post.author?.displayName || (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
-  const authorHandle = post.isAnonymous
-    ? null
-    : post.author?.username
-      ? `@${post.author.username}`
-      : null;
+  const isBotPost = Boolean(
+    post.pseudonym && (post.pseudonym.startsWith("🤖") || post.pseudonym.toLowerCase().includes("bot"))
+  );
+  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/, "").trim();
+
+  const authorName = isBotPost
+    ? cleanBotPseudonym || "Bot"
+    : post.isAnonymous
+      ? post.pseudonym
+        ? `@${post.pseudonym}`
+        : "Anonymous Student"
+      : post.author?.displayName || (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
+
+  const authorHandle = isBotPost
+    ? cleanBotPseudonym
+      ? `@${cleanBotPseudonym}`
+      : "@bot"
+    : post.isAnonymous
+      ? null
+      : post.author?.username
+        ? `@${post.author.username}`
+        : null;
+
   const isVerified = Boolean(
-    !post.isAnonymous &&
+    !isBotPost &&
+      !post.isAnonymous &&
       ((post.author?.points || 0) >= 150 || post.author?.role === "ADMIN")
   );
 
@@ -79,7 +93,7 @@ export function FeedCardHeader({
         <div className="min-w-0 flex-1">
           {/* Author Name + Badges */}
           <div className="flex items-center gap-1.5 min-w-0">
-            {!post.isAnonymous && post.author?.username ? (
+            {!isBotPost && !post.isAnonymous && post.author?.username ? (
               <Link
                 href={`/@${post.author.username}`}
                 onClick={(e) => e.stopPropagation()}
@@ -110,6 +124,13 @@ export function FeedCardHeader({
                 size={14}
                 className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
               />
+            )}
+
+            {isBotPost && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/25 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
+                <Bot className="size-2.5" />
+                <span>BOT</span>
+              </span>
             )}
 
             {authorHandle && (

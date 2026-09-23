@@ -1,9 +1,10 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
-import { communities, communityMembers, userProfiles } from "@/db/schema";
+import { communities, communityMembers, communityWebhooks, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 export interface CreateCommunityInput {
@@ -302,4 +303,286 @@ export async function recordCommunityInviteShare(communityId: string) {
     .where(eq(communities.id, communityId));
 
   return { success: true, pointsAwarded: 10 };
+}
+
+export interface CreateCommunityWebhookInput {
+  communityId: string;
+  name: string;
+  botName?: string;
+  avatarUrl?: string;
+}
+
+export async function getCommunityWebhooks(communityId: string) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: or(eq(communities.id, communityId), eq(communities.slug, communityId)),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const isCreator = comm.creatorId === profile.id;
+  const adminMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, comm.id),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+
+  if (!isCreator && !adminMembership) {
+    throw new Error("Unauthorized: Only community admins can manage webhooks");
+  }
+
+  const webhooks = await db.query.communityWebhooks.findMany({
+    where: eq(communityWebhooks.communityId, comm.id),
+    orderBy: [desc(communityWebhooks.createdAt)],
+  });
+
+  return webhooks;
+}
+
+export async function createCommunityWebhook(input: CreateCommunityWebhookInput) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const name = input.name?.trim();
+  if (!name) throw new Error("Webhook name is required");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: or(eq(communities.id, input.communityId), eq(communities.slug, input.communityId)),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const isCreator = comm.creatorId === profile.id;
+  const adminMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, comm.id),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+
+  if (!isCreator && !adminMembership) {
+    throw new Error("Unauthorized: Only community admins can create webhooks");
+  }
+
+  const token = `cl_wh_${randomUUID().replace(/-/g, "")}`;
+
+  const [newWebhook] = await db
+    .insert(communityWebhooks)
+    .values({
+      communityId: comm.id,
+      name,
+      token,
+      botName: input.botName?.trim() || "CampusBot",
+      avatarUrl: input.avatarUrl?.trim() || null,
+      isActive: true,
+      createdById: profile.id,
+      postsCount: 0,
+    })
+    .returning();
+
+  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  return newWebhook;
+}
+
+export async function toggleCommunityWebhook(webhookId: string, isActive: boolean) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const webhook = await db.query.communityWebhooks.findFirst({
+    where: eq(communityWebhooks.id, webhookId),
+  });
+  if (!webhook) throw new Error("Webhook not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: eq(communities.id, webhook.communityId),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const isCreator = comm.creatorId === profile.id;
+  const adminMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, comm.id),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+
+  if (!isCreator && !adminMembership) {
+    throw new Error("Unauthorized");
+  }
+
+  const [updated] = await db
+    .update(communityWebhooks)
+    .set({
+      isActive,
+      updatedAt: new Date(),
+    })
+    .where(eq(communityWebhooks.id, webhookId))
+    .returning();
+
+  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  return updated;
+}
+
+export async function regenerateCommunityWebhookToken(webhookId: string) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const webhook = await db.query.communityWebhooks.findFirst({
+    where: eq(communityWebhooks.id, webhookId),
+  });
+  if (!webhook) throw new Error("Webhook not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: eq(communities.id, webhook.communityId),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const isCreator = comm.creatorId === profile.id;
+  const adminMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, comm.id),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+
+  if (!isCreator && !adminMembership) {
+    throw new Error("Unauthorized");
+  }
+
+  const newToken = `cl_wh_${randomUUID().replace(/-/g, "")}`;
+
+  const [updated] = await db
+    .update(communityWebhooks)
+    .set({
+      token: newToken,
+      updatedAt: new Date(),
+    })
+    .where(eq(communityWebhooks.id, webhookId))
+    .returning();
+
+  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  return updated;
+}
+
+export async function deleteCommunityWebhook(webhookId: string) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const webhook = await db.query.communityWebhooks.findFirst({
+    where: eq(communityWebhooks.id, webhookId),
+  });
+  if (!webhook) throw new Error("Webhook not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: eq(communities.id, webhook.communityId),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const isCreator = comm.creatorId === profile.id;
+  const adminMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, comm.id),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+
+  if (!isCreator && !adminMembership) {
+    throw new Error("Unauthorized");
+  }
+
+  await db
+    .delete(communityWebhooks)
+    .where(eq(communityWebhooks.id, webhookId));
+
+  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  return { success: true };
+}
+
+export async function sendTestCommunityWebhookPost(webhookId: string) {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const webhook = await db.query.communityWebhooks.findFirst({
+    where: eq(communityWebhooks.id, webhookId),
+  });
+  if (!webhook) throw new Error("Webhook not found");
+
+  const comm = await db.query.communities.findFirst({
+    where: eq(communities.id, webhook.communityId),
+  });
+  if (!comm) throw new Error("Community not found");
+
+  const postId = randomUUID();
+
+  const [newPost] = await db
+    .insert(posts)
+    .values({
+      id: postId,
+      authorId: profile.id,
+      pseudonym: `🤖 ${webhook.botName}`,
+      institutionId: profile.institutionId,
+      type: "NORMAL",
+      scope: "CAMPUS",
+      isAnonymous: false,
+      title: "Test Webhook Signal",
+      body: `This is an automated test signal from the **${webhook.name}** webhook integration for **c/${comm.name}**. Incoming automated posts, release alerts, and bots are verified and working!`,
+      communityId: comm.id,
+      status: "PUBLISHED",
+      riskScore: 0,
+    })
+    .returning();
+
+  await db
+    .update(communityWebhooks)
+    .set({
+      postsCount: sql`${communityWebhooks.postsCount} + 1`,
+      lastUsedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(communityWebhooks.id, webhook.id));
+
+  revalidatePath(`/app/communities/${comm.slug || comm.id}`);
+  return { success: true, postId: newPost.id };
 }
