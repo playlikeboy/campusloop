@@ -155,7 +155,7 @@ export async function GET(req: Request) {
           id: p.id,
           headline: title,
           category: `Campus Buzz · ${inst}`,
-          timeAgo: "Trending now",
+          timeAgo: formatRelativeTime(p.createdAt),
           postCount: `${postTotal} interactions`,
           authorName: p.isAnonymous ? "Anonymous Student" : p.author?.displayName || "Student",
           authorAvatar: p.isAnonymous ? null : p.author?.avatarUrl || null,
