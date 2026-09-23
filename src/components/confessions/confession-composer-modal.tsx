@@ -139,7 +139,7 @@ export function ConfessionComposerModal({
               </h2>
               <p className="text-[11px] text-muted-foreground flex items-center gap-1 font-medium">
                 <Lock className="size-3 text-emerald-400" />
-                <span>100% Cryptographic Anonymity — Zero Persona Tracing</span>
+                <span>Anonymous to other students · Learn how privacy works</span>
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export function ConfessionComposerModal({
         {/* Category Pills */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-            Category Theme
+            What is this about?
           </label>
           <div className="flex flex-wrap gap-1.5">
             {CATEGORIES.map((cat) => {
@@ -207,9 +207,9 @@ export function ConfessionComposerModal({
                     setSelectedCategory(cat.id);
                   }}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer border",
+                    "min-h-9 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border",
                     isSelected
-                      ? "bg-purple-500/20 text-purple-300 border-purple-500/50 shadow-xs"
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-200 border-purple-500/60 shadow-xs ring-1 ring-purple-500/20"
                       : "bg-muted/30 text-muted-foreground border-border/40 hover:bg-muted hover:text-foreground"
                   )}
                 >
@@ -223,7 +223,7 @@ export function ConfessionComposerModal({
         {/* Scope Selector: Global vs Campus */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-            Broadcast Audience
+            Who can see this?
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -240,7 +240,7 @@ export function ConfessionComposerModal({
               )}
             >
               <Globe className="size-3.5 text-primary" />
-              <span>All India (Global)</span>
+              <span>Verified students across India</span>
             </button>
 
             <button
@@ -257,7 +257,7 @@ export function ConfessionComposerModal({
               )}
             >
               <School className="size-3.5 text-primary shrink-0" />
-              <span className="truncate">{campusName} Only</span>
+              <span className="truncate">{campusName} only</span>
             </button>
           </div>
         </div>
@@ -279,7 +279,8 @@ export function ConfessionComposerModal({
 
           <div className="space-y-1">
             <textarea
-              rows={mode === "ARTICLE" ? 7 : 4}
+              rows={mode === "ARTICLE" ? 8 : 5}
+              maxLength={mode === "ARTICLE" ? 5000 : 1000}
               placeholder={
                 mode === "ARTICLE"
                   ? "Write your long-form story, unfiltered hostel truth, placement reality, or personal essay here. Markdown formatting supported..."
@@ -293,10 +294,10 @@ export function ConfessionComposerModal({
         </div>
 
         {/* Pseudonym Guarantee Banner */}
-        <div className="flex items-center gap-2.5 rounded-2xl bg-purple-950/20 border border-purple-500/20 px-3.5 py-2 text-[11px] text-purple-300">
-          <ShieldCheck className="size-4 text-purple-400 shrink-0" />
+        <div className="flex items-start gap-2.5 rounded-2xl bg-purple-500/8 border border-purple-500/20 px-3.5 py-3 text-xs text-foreground/80">
+          <ShieldCheck className="size-4 text-purple-500 shrink-0 mt-0.5" />
           <span>
-            Identity sealed with AES-256 vault encryption. Your real profile name is never exposed to peers.
+            Your profile name is not shown with this post. Privacy is enforced by the CampusLoop publishing flow.
           </span>
         </div>
 
@@ -322,12 +323,12 @@ export function ConfessionComposerModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  <span>Sealing...</span>
+                  <span>Publishing...</span>
                 </>
               ) : (
                 <>
                   <Send className="size-3.5" />
-                  <span>{mode === "ARTICLE" ? "Publish Article" : "Spill Confession"}</span>
+                  <span>{mode === "ARTICLE" ? "Publish anonymously" : "Post anonymously"}</span>
                 </>
               )}
             </button>
