@@ -1,9 +1,12 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, BookOpen, Compass, Flame, Heart, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 
 interface MinimalLandingNavbarProps {
   isAuthenticated?: boolean;
@@ -13,81 +16,136 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Campus", href: "/colleges" },
-    { label: "Academics", href: "/app/academics" },
-    { label: "Communities", href: "/app/communities" },
-    { label: "Aspirants", href: "/aspirants" },
+    { label: "Campus Feed", href: "/app", icon: Flame },
+    { label: "Colleges", href: "/colleges", icon: Compass },
+    { label: "Academics", href: "/app/academics", icon: BookOpen },
+    { label: "Campus Match", href: "/app/dating", icon: Heart },
   ];
 
   return (
-    <header className="relative z-50 border-b border-border bg-background/95">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="CampusLoop home">
-          <span className="grid size-9 place-items-center rounded-xl bg-foreground text-sm font-black text-background">
-            C
-          </span>
-          <span className="text-[15px] font-black tracking-tight text-foreground">CampusLoop</span>
+    <div className="sticky top-2 sm:top-3 z-50 px-3 sm:px-6 max-w-6xl mx-auto w-full select-none">
+      <header className="flex h-14 sm:h-16 items-center justify-between px-3.5 sm:px-5 rounded-full border border-border/60 bg-background/85 backdrop-blur-xl shadow-xs transition-all">
+        {/* Brand Logo */}
+        <Link
+          href="/"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+          }}
+          className="flex items-center gap-2.5 group cursor-pointer"
+          aria-label="CampusLoop home"
+        >
+          <div className="size-8.5 rounded-2xl bg-gradient-to-tr from-emerald-500 via-primary to-teal-400 flex items-center justify-center shadow-xs shadow-emerald-500/30 group-hover:scale-105 transition-transform">
+            <span className="text-white text-xs font-black tracking-tight">CL</span>
+          </div>
+          <div className="flex items-center">
+            <span className="text-sm sm:text-base font-black tracking-tight text-foreground">
+              Campus<span className="text-primary font-black">Loop</span>
+            </span>
+            <span className="ml-1.5 size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
         </Link>
 
-        <nav aria-label="Primary navigation" className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
+        {/* Desktop Pill Navigation */}
+        <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/30">
+          {links.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => {
+                  sounds.tap();
+                  haptics.light();
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all cursor-pointer"
+              >
+                <Icon className="size-3.5 text-muted-foreground" />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="hidden items-center gap-2.5 sm:flex">
-          <ThemeToggle />
+        {/* Action Controls */}
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted" />
+
           <Link
             href="/app"
-            className="inline-flex h-10 items-center rounded-xl border border-border bg-background px-4 text-xs font-bold text-foreground transition hover:bg-muted"
+            onClick={() => {
+              sounds.tap();
+              haptics.medium();
+            }}
+            className="inline-flex h-9 sm:h-9.5 items-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 text-xs font-black text-white hover:opacity-90 active:scale-95 transition-all shadow-xs shadow-emerald-500/30 cursor-pointer"
           >
-            {isAuthenticated ? "Open Campus" : "Join Campus"}
+            <span>{isAuthenticated ? "Launch Campus" : "Join Free"}</span>
+            <ArrowUpRight className="size-3.5" />
           </Link>
-        </div>
 
-        <div className="flex items-center gap-2 sm:hidden">
-          <ThemeToggle />
+          {/* Mobile Menu Trigger */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            className="grid size-9 place-items-center rounded-xl border border-border bg-background text-muted-foreground transition hover:text-foreground"
+            onClick={() => {
+              sounds.tap();
+              haptics.light();
+              setMobileMenuOpen((open) => !open);
+            }}
+            className="grid size-8.5 place-items-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground md:hidden transition-colors cursor-pointer"
             aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
           </button>
         </div>
-      </div>
+      </header>
 
-      {mobileMenuOpen && (
-        <div className="border-t border-border bg-background md:hidden">
-          <nav aria-label="Mobile navigation" className="mx-auto flex max-w-7xl flex-col px-5 py-3">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-2 py-3 text-sm font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
+      {/* Mobile Drawer Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="mt-2 p-3 rounded-3xl border border-border/70 bg-background/95 backdrop-blur-2xl shadow-xl md:hidden space-y-2 select-none"
+          >
+            <div className="grid grid-cols-2 gap-2">
+              {links.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => {
+                      sounds.tap();
+                      haptics.light();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/40 hover:bg-muted/70 text-xs font-bold text-foreground transition-all cursor-pointer"
+                  >
+                    <Icon className="size-4 text-primary" />
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+
             <Link
               href="/app"
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 inline-flex h-11 items-center justify-center rounded-xl bg-foreground px-4 text-sm font-bold text-background"
+              onClick={() => {
+                sounds.tap();
+                haptics.medium();
+                setMobileMenuOpen(false);
+              }}
+              className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-white text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
             >
-              {isAuthenticated ? "Open Campus" : "Join Campus"}
+              <span>{isAuthenticated ? "Launch Campus" : "Join Your College"}</span>
+              <ArrowUpRight className="size-4" />
             </Link>
-          </nav>
-        </div>
-      )}
-    </header>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -20,7 +20,6 @@ import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { PollCard } from "./poll-card";
-import { RedditAttribution } from "@/components/reddit/reddit-attribution";
 import { RedditGallery } from "@/components/reddit/reddit-gallery";
 import { RedditVideo } from "@/components/reddit/reddit-video";
 import { ReportDialog } from "./report-dialog";
@@ -237,8 +236,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   return (
     <article
       onMouseEnter={() => router.prefetch(`/app/post/${post.id}`)}
-      onTouchStart={() => router.prefetch(`/app/post/${post.id}`)}
-      className="border-b border-border/10 hover:bg-muted/[0.08] transition-colors relative cursor-pointer select-none px-4 py-3.5"
+      className="neo-card p-4 sm:p-5 mb-3.5 mx-2 sm:mx-3 relative cursor-pointer select-none transition-all hover:-translate-y-0.5"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>

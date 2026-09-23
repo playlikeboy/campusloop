@@ -950,8 +950,31 @@ export function MessengerPane({
             </div>
           </div>
 
-          {/* Header Action Buttons */}
+          {/* Header Action Buttons (Mockup: Video & Audio call buttons prominent) */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            {!effectiveParticipant.isGroup && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleStartCall("video")}
+                  className="size-8 sm:size-9 rounded-full bg-secondary/15 text-secondary flex items-center justify-center hover:bg-secondary/25 transition-all cursor-pointer shadow-2xs"
+                  title="Start Video Call"
+                  aria-label="Start Video Call"
+                >
+                  <AnimateVideo size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartCall("audio")}
+                  className="size-8 sm:size-9 rounded-full bg-secondary/15 text-secondary flex items-center justify-center hover:bg-secondary/25 transition-all cursor-pointer shadow-2xs"
+                  title="Start Audio Call"
+                  aria-label="Start Audio Call"
+                >
+                  <AnimatePhone size={15} />
+                </button>
+              </>
+            )}
+
             <button
               type="button"
               onClick={() => setSearchInChat(!searchInChat)}
@@ -1380,8 +1403,8 @@ export function MessengerPane({
                           isDirectMedia
                             ? "p-0 bg-transparent border-0"
                             : isMe
-                              ? "bg-sky-600 dark:bg-sky-600/90 hover:bg-sky-600 text-white rounded-2xl rounded-br-xs px-4 py-2.5 shadow-sm"
-                              : "bg-neutral-100 dark:bg-[#1f2328] text-foreground rounded-2xl rounded-bl-xs px-4 py-2.5 border border-border/40 shadow-sm"
+                              ? "chat-bubble-peach text-[#1e1b2e] dark:text-[#fef3c7] px-4 py-2.5 shadow-xs border border-amber-500/10"
+                              : "chat-bubble-lilac text-[#1e1b2e] dark:text-[#ede9fe] px-4 py-2.5 shadow-xs border border-purple-500/10"
                         )}
                       >
                         {/* Group Sender Name */}
@@ -1477,20 +1500,20 @@ export function MessengerPane({
                             <div
                               className={cn(
                                 "flex items-center justify-end gap-1 text-[9.5px] font-medium select-none -mt-0.5 float-right ml-2 pt-0.5",
-                                isMe ? "text-white/80" : "text-muted-foreground"
+                                isMe ? "text-amber-900/60 dark:text-amber-200/60" : "text-muted-foreground"
                               )}
                             >
                               <span>{formatTime(msg.createdAt)}</span>
                               {isMe &&
                                 (msg.optimistic ? (
-                                  <Loader2 className="size-2.5 animate-spin text-white/70" />
+                                  <Loader2 className="size-2.5 animate-spin text-amber-700/60" />
                                 ) : msg.readAt ? (
                                   <span title="Seen">
-                                    <CheckCheck className="size-3.5 text-sky-200 font-bold" />
+                                    <CheckCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 font-bold" />
                                   </span>
                                 ) : (
                                   <span title="Delivered">
-                                    <CheckCheck className="size-3.5 text-white/80" />
+                                    <CheckCheck className="size-3.5 text-amber-900/60 dark:text-amber-200/60" />
                                   </span>
                                 ))}
                             </div>
@@ -1695,7 +1718,7 @@ export function MessengerPane({
               type="submit"
               disabled={isSending}
               aria-label="Send message"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-white hover:opacity-90 shadow-xs transition-transform active:scale-90 cursor-pointer mr-1"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-white hover:opacity-90 shadow-xs transition-transform active:scale-90 cursor-pointer mr-1"
             >
               <AnimateSend size={16} className="text-white" />
             </button>

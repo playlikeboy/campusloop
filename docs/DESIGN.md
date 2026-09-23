@@ -1,156 +1,101 @@
-# 🎨 CampusLoop Design System (Twitter / X Specification)
+# 🎨 CampusLoop Neo-Pastel Vibe Design System Specification
 
-This specification defines the exact design system, tokens, typography, component rules, and interaction patterns for CampusLoop, built directly on the modern **Twitter / X visual language**.
+This specification defines the exact design system, tokens, typography, component rules, and interaction patterns for CampusLoop, built on the modern **Neo-Pastel / Vibe mobile social visual language** (as demonstrated in the official reference mockup).
 
 ---
 
 ## 🏛️ Core Design Philosophy
 
-1. **Content First, Zero UI Clutter**: Content (posts, confessions, articles, polls) is the hero. Eliminate redundant cards, bulky headers, duplicate buttons, and decorative frames.
-2. **Flat Timeline Architecture**: Feed items are borderless vertical rows separated solely by subtle hairline dividers (`border-b border-border/40`). Avoid nesting cards within cards.
-3. **Pure High-Contrast Palette**: True OLED black (`#000000`) for dark mode, crisp clean white (`#FFFFFF`) for light mode.
-4. **Instant Scanability**: Clear visual hierarchy:
-   $$\text{Post Content} > \text{Author \& Verified Badge} > \text{Context (Campus/Tag)} > \text{Engagement Metrics} > \text{Secondary Actions}$$
-5. **Standardized Interaction Row**: Action icons (`Reply`, `Repost`, `Like`, `Views`, `Bookmark`, `Share`) placed with subtle muted gray color (`#71767b`), illuminating in signature colors on hover/active.
+1. **Airy, Cheerful & Floating**: Surfaces float smoothly with soft, multi-layered ambient drop shadows on a dreamy, luminous pastel mesh. We avoid harsh bounding borders and flat monotonous dividers.
+2. **Generous Radii & Organic Shapes**: Cards use extra-curved rounded corners (`rounded-[28px]` / `rounded-[32px]`), pill buttons (`rounded-full`), and asymmetrical speech bubbles (`fab-bubble`).
+3. **Vibrant & Harmonious Color Roles**:
+   - **Primary Action (Neo-Emerald `#00D285`)**: Used for key conversion moments (Follow, FAB, Verified Badges, Online Presence dots).
+   - **Playful Accent (Neo-Violet `#7C3AED`)**: Used for active segmented tabs (e.g. "Photos"), chat send buttons, call actions, badges.
+   - **Warm Delights (Neo-Peach `#FFF8EE` & Coral `#FF5376`)**: Used for heart reactions, warm chat bubbles, and radiant story gradient rings (`from-amber-400 via-rose-500 to-purple-600`).
+4. **Instant Scanability**: Distinct visual hierarchy:
+   $$\text{Post Visual / Body} > \text{Author \& Campus Pill} > \text{Floating Reaction Capsule} > \text{Secondary Actions}$$
+5. **Tactile Haptic Feedback**: Every tap triggers subtle micro-interactions: spring scaling (`active:scale-95`), soft audio pops, and smooth framer-motion transitions.
 
 ---
 
 ## 🎨 Semantic Color Tokens (CSS Variables)
 
-Never hardcode raw hex values in components. Always use semantic Tailwind classes backed by CSS variables in [`globals.css`](file:///Users/shaswatraj/Desktop/startups/campusloop/src/app/globals.css).
+Never hardcode arbitrary hex values. Always use semantic Tailwind classes backed by CSS variables in [`globals.css`](file:///Users/shaswatraj/Desktop/startups/campusloop/src/app/globals.css).
 
-| Token | Light Mode | Dark Mode (OLED X) | Usage |
+| Token | Light Mode (Pastel Mesh) | Dark Mode (Midnight Obsidian) | Primary Usage |
 | :--- | :--- | :--- | :--- |
-| `--background` | `#FFFFFF` | `#000000` | Main canvas and feed background |
-| `--foreground` | `#0F1419` | `#E7E9EA` | Primary text and headings |
-| `--muted` | `#F7F9F9` | `#16181C` | Input fields, pills, secondary cards |
-| `--muted-foreground` | `#536471` | `#71767B` | Handles, timestamps, icons, counters |
-| `--border` | `#EFF3F4` | `#2F3336` | Hairline dividers, subtle borders |
-| `--primary` | `#1D9BF0` | `#1D9BF0` | Accent blue, links, verified check, primary CTA |
-| `--primary-foreground` | `#FFFFFF` | `#FFFFFF` | Text on primary buttons |
-| `--card` | `#FFFFFF` | `#000000` | Main container background |
-| `--card-muted` | `#F7F9F9` | `#16181C` | Right sidebar modules ("What's happening") |
-| `--destructive` | `#F4212E` | `#F4212E` | Errors, delete actions, report |
-| `--success` | `#00BA7C` | `#00BA7C` | Repost active state, success |
-| `--like` | `#F91880` | `#F91880` | Heart / like active state |
+| `--background` | `#F8F7FD` (with pastel radial mesh) | `#0B0C13` (with luminous ambient aura) | Main canvas and screen background |
+| `--foreground` | `#101828` (deep navy-slate) | `#F1F5F9` | Primary text and headings |
+| `--card` | `#FFFFFF` (gleaming white) | `#12131D` (elevated midnight) | Floating card containers (`neo-card`) |
+| `--card-foreground`| `#101828` | `#F1F5F9` | Card headings and body text |
+| `--muted` | `#F3F4F9` | `#1A1C2B` | Search bars, input pills, inactive tabs |
+| `--muted-foreground` | `#64748B` | `#94A3B8` | Handles, timestamps, counters |
+| `--border` | `#F0F1F7` | `#222436` | Hairline dividers when necessary |
+| `--primary` | `#00D285` (Neo-Emerald) | `#00D285` | Follow button, FAB, active online dot |
+| `--secondary` | `#7C3AED` (Neo-Violet) | `#8B5CF6` | Active tab pills, chat send, call actions |
+| `--brand-peach` | `#FFF8EE` (Butter Cream) | `#2B2518` | Warm chat bubbles |
+| `--brand-coral` | `#FF5376` (Warm Coral) | `#FF5376` | Like reactions, double-tap hearts |
+| `--radius` | `1.25rem` (`20px`) | `1.25rem` (`20px`) | Base controls radius (cards use `28px`) |
 
 ---
 
 ## 🔤 Typography & Font Hierarchy
 
-CampusLoop uses system typography matching the **Chirp / Inter** geometry (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`).
+CampusLoop uses friendly, modern geometric sans-serif typography (`DM Sans` / `Outfit` / `Space Grotesk`):
 
-| Element | Font Size | Line Height | Weight | Color Class |
+| Element | Font Size | Weight | Color Class | Usage |
 | :--- | :--- | :--- | :--- | :--- |
-| **Top Bar Header** | `17px` (`text-[17px]`) | `22px` | `800` (Extra Bold) | `text-foreground font-black` |
-| **Top Tabs** | `15px` (`text-[15px]`) | `20px` | `700` (Bold) | `text-foreground` (Active: border underline) |
-| **Author Name** | `15px` (`text-[15px]`) | `20px` | `700` (Bold) | `text-foreground font-bold` |
-| **Handle / Time** | `15px` (`text-[15px]`) | `20px` | `400` (Regular) | `text-muted-foreground` |
-| **Post Body** | `15px` (`text-[15px]`) | `20px` (or `22px`) | `400` (Regular) | `text-foreground leading-normal` |
-| **Long-Read Title** | `20px` / `24px` | `28px` / `32px` | `900` (Black) | `text-foreground font-black tracking-tight` |
-| **Action Counter** | `13px` (`text-[13px]`) | `16px` | `500` (Medium) | `text-muted-foreground font-medium` |
-| **Micro Badges** | `11px` (`text-[11px]`) | `14px` | `700` (Bold) | `text-muted-foreground uppercase` |
+| **Hero Title / Feed Title** | `22px` - `26px` | `800` (Extra Bold) | `text-foreground font-black tracking-tight` | "News Feed", "Message", "Profile" |
+| **Author Name** | `15px` | `700` (Bold) | `text-foreground font-bold` | Post header, Chat contact |
+| **Campus / Handle Subtitle**| `12px` - `13px` | `500` (Medium) | `text-muted-foreground` | "Berkeley, California", "@hopeyoung" |
+| **Post Body** | `15px` | `400` (Regular) | `text-foreground leading-relaxed` | Timeline thoughts and confessions |
+| **Reaction Pill Counts** | `12px` | `700` (Bold) | `text-foreground/90 font-bold` | `1.2k`, `55`, `8K` |
+| **Stat Numbers** | `18px` - `20px` | `800` (Extra Bold) | `text-foreground font-extrabold` | `42k`, `34k`, `25k` on Profile |
+| **Stat Labels** | `12px` | `500` (Medium) | `text-muted-foreground` | Following, Followers, Likes |
 
 ---
 
-## 📐 Layout Architecture
+## 📐 Layout & Component Anatomy
 
-### 1. Three-Column Desktop Grid
-- **Left Navigation (`w-[275px]`)**:
-  - Sticky left sidebar with Twitter/X circular icons + bold navigation labels.
-  - Large pill "Post" / "Confess" button (`h-12 w-full rounded-full bg-primary font-black`).
-  - User profile bottom pill with avatar, name, handle, and overflow menu.
-- **Center Timeline (`max-w-[600px] w-full border-x border-border/40`)**:
-  - Sticky Top Bar (`h-[53px] bg-background/80 backdrop-blur-md`):
-    - Flat tabs: `For you` | `Following` / `Campus` | `India`.
-    - Active tab has a 4px primary blue pill underline centered below text.
-  - Inline Top Composer (Desktop) / Floating Action Button `+` (Mobile).
-  - Flat infinite stream of posts separated by `border-b border-border/40`.
-- **Right Sidebar (`w-[350px] pl-6 hidden lg:block`)**:
-  - Pill search bar (`h-11 rounded-full bg-muted/60 px-4 border border-transparent focus:border-primary focus:bg-background`).
-  - Card modules (`rounded-2xl bg-muted/50 border border-border/30 p-4 space-y-3`):
-    - *"What's happening on campus"* (Trending hashtags & live topics).
-    - *"Who to follow"* (Campus batchmates & verified writers).
-
-### 2. Mobile Responsive Shell
-- **Sticky Top Bar**: `CampusLoop 🔔` + `BIT Mesra ▾` + Tab Row (`For you` | `Latest` | `Viral`).
-- **Mobile Bottom Navigation (`h-14 border-t border-border/40 bg-background/90 backdrop-blur-xl`)**:
-  - 5 primary icons: `Home 🏠` | `Explore 🔎` | `+ (FAB)` | `Notifications 🔔` | `Profile 👤`.
-
----
-
-## 💬 Post Component Anatomical Rules
-
-A standard CampusLoop post follows this exact layout:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│ [Avatar]   Author Name ✓  @handle · 4d          [··· Menu]   │
-│            🏫 BIT Mesra                                      │
-│                                                              │
-│            Confession or post text goes here with crisp      │
-│            line height and natural readability...            │
-│                                                              │
-│            [Optional Poll / Image / CodeBlock / Video]       │
-│                                                              │
-│            💬 12     ↻ 4     ❤️ 84     📊 1.2K     🔖    ↗  │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Hover & Active Accent States for Actions
-- **Reply (`💬`)**: Hover `text-primary bg-primary/10`
-- **Repost (`↻`)**: Hover `text-emerald-500 bg-emerald-500/10`
-- **Like (`❤️`)**: Hover `text-rose-500 bg-rose-500/10`
-- **Views (`📊`)**: Hover `text-primary bg-primary/10`
-- **Bookmark (`🔖`)**: Hover `text-primary bg-primary/10`
-- **Share (`↗`)**: Hover `text-primary bg-primary/10`
-
----
-
-## 👤 Profile Page Architecture (Twitter / X Specification)
-
-A student profile on CampusLoop represents their verified campus identity. It must look exceptionally clean, credible, and shareable — strictly following Twitter/X profile architecture.
-
-### 1. Cover Banner & Avatar
-- **Cover Banner**: 3:1 aspect ratio (`h-36 sm:h-48 w-full`). Subtle dark canvas (`#16181C` or dark mesh), zero gaudy purple/indigo gradients.
-- **Avatar**: `size-24 sm:size-28` circular avatar overlapping banner with 4px background ring (`border-background`). Verified students carry a blue `#1D9BF0` `BadgeCheck` icon.
-- **Online Indicator**: Subtle emerald dot (`size-3.5 bg-emerald-500 ring-2 ring-background`).
-
-### 2. Action Toolbar (Right Aligned)
-- **Follow Button**: Twitter-standard high-contrast pill:
-  - *Not Following*: `bg-foreground text-background font-bold text-xs rounded-full px-5 py-2 hover:opacity-90`
-  - *Following*: `border border-border/80 bg-card text-foreground font-bold text-xs rounded-full px-5 py-2 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive`
-- **Direct Message**: Circular icon button (`size-9 rounded-full border border-border/60 hover:bg-muted/50`).
-- **Secret Crush**: Subtle rose/neutral pill (`rounded-full border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 font-bold text-xs px-3.5 py-1.5`).
-- **Share Profile**: Pill or icon button that triggers the branded QR card modal or copies profile link with haptics.
-- **Edit Profile** (Owner only): Clean pill button (`rounded-full border border-border/80 hover:bg-muted/40 font-bold text-xs px-4 py-1.5`).
-
-### 3. Identity & Academic Metadata
-- **Name & Verified Badge**: `text-xl sm:text-2xl font-black text-foreground` + `BadgeCheck` in `#1D9BF0`.
-- **Handle**: `@username` in `font-mono text-sm text-muted-foreground`.
-- **Bio**: Natural line height (`text-sm leading-relaxed text-foreground/90 font-normal`).
-- **Metadata Flex Row**:
-  - `School`: University Name (`Birla Institute of Technology, Mesra`)
-  - `GraduationCap`: Degree & Branch (`B.Tech · Electronics & Communication '26`)
-  - `MapPin`: City, State (`Ranchi, Jharkhand`)
-  - `Calendar`: Join Date (`Joined September 2024`)
-- **Follow Stats**: **12** Following · **48** Followers · **150** LP Clout.
-
-### 4. 🚫 Strict Anti-Pattern: No "Joker" Rainbow Palette Spam
-- **NEVER** render clashing multi-colored badge clusters (e.g. amber + teal + purple + rose + emerald tags). It looks like amateur clip-art.
-- **ALWAYS** use monochromatic / subtle neutral tokens for interest tags:
+### 1. Freestanding Floating Feed Card (`.neo-card`)
+- Generous outer rounding: `rounded-[28px]` or `rounded-[32px]`.
+- Ambient shadow: `box-shadow: 0 10px 30px -8px rgba(35, 25, 75, 0.06)`.
+- Author Header: Author avatar with gradient story ring, name, campus subtitle, and circular three-dots menu button.
+- Media Preview: High-aspect curved visual preview (`rounded-2xl overflow-hidden`).
+- Floating Reaction Capsule:
   ```tsx
-  <span className="px-3 py-1 rounded-full bg-muted/40 text-muted-foreground border border-border/40 hover:text-foreground hover:border-border text-xs font-medium transition-colors">
-    Tech & Coding
-  </span>
+  <div className="neo-reaction-pill">
+    <button className="flex items-center gap-1.5"><Heart className="size-4 text-rose-500 fill-rose-500" /> 1.2k</button>
+    <button className="flex items-center gap-1.5"><MessageCircle className="size-4 text-slate-500" /> 55</button>
+    <button className="flex items-center gap-1.5"><Send className="size-4 text-slate-500" /> 8K</button>
+  </div>
   ```
-- **NO Fake Glowing Emoji Circles**: Do not render default story highlights with raw emojis (`🏛️`, `💻`) and neon purple glow rings. If highlights exist, render clean hairline story bubbles.
 
-### 5. Clout & Reputation Card
-- Single-tone progress bar with `#1D9BF0` or emerald fill on `bg-muted/40` track. **NO rainbow gradients**.
-- Clean level and tier badges with earned student points.
+### 2. Stories Rail
+- "You / Add story" avatar with plus icon.
+- Student story avatars with radiant sunset gradient rings (`from-amber-400 via-rose-500 to-purple-600`).
+- Clean user label and relative timestamp ("1 min ago") underneath.
 
-### 6. Timeline Tabs
-- Flat tabs: `Posts`, `Articles`, `Academics`, `Media`, `Clout`.
-- Active tab indicator: 4px `#1D9BF0` pill underline centered below text.
+### 3. Messenger & Chat Experience
+- Active contacts story rail at top of inbox with active green status dots.
+- Outgoing chat bubble: `.chat-bubble-peach` (warm butter-cream with curved corners).
+- Incoming chat bubble: `.chat-bubble-lilac` (clean soft lilac-white).
+- Message input bar: Pill container with paperclip, mic, and vibrant violet circular send button (`bg-[#7C3AED]`).
+- Floating Green Action FAB: `.fab-bubble` with group icon in bottom right.
 
+### 4. Student Profile
+- Centered prominent avatar with vibrant circular ring/canvas.
+- 3-column stats row: `Following`, `Followers`, `Likes`.
+- Primary CTA: Neo-Emerald "Follow" pill button (`bg-primary text-white rounded-full px-8 py-3 shadow-md`).
+- Quick message button: Amber/yellow direct message button.
+- Segmented pill tabs: `Photos` (active violet `#7C3AED`), `Videos`, `Tagged`.
+- Bento photo cards with `rounded-2xl`.
+
+---
+
+## 🌙 Dark Mode Transitions
+
+In dark mode:
+- Background becomes deep midnight `#0B0C13` with soft violet/emerald ambient glowing meshes.
+- Cards elevate to rich graphite `#12131D` with subtle frosted rims (`border-white/5`).
+- Reaction pills and chat bubbles maintain distinct soft contrast without harshness.

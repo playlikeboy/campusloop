@@ -628,25 +628,26 @@ export function ProfileClientView({
                   </Link>
                 </>
               ) : (
-                <div className="flex items-center gap-2 shrink-0">
-                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} />
-                  <Link
-                    href={`/app/chat?userId=${profile.id}`}
-                    className="size-9 rounded-full border border-border/70 bg-card hover:bg-muted/60 flex items-center justify-center text-foreground transition-all cursor-pointer"
-                    title="Direct Message"
-                  >
-                    <MessageSquare className="size-4" />
-                  </Link>
+                <div className="flex items-center gap-2.5 shrink-0">
                   <FollowButton
                     username={profile.username}
                     displayName={profile.displayName}
                     initialIsFollowing={isFollowedByViewer}
+                    className="h-10 px-6 rounded-full font-bold shadow-xs"
                     onChange={(nowFollowing, counts) =>
                       setFollowers((prev) =>
                         counts ? counts.followersCount : Math.max(prev + (nowFollowing ? 1 : -1), 0)
                       )
                     }
                   />
+                  <Link
+                    href={`/app/chat?userId=${profile.id}`}
+                    className="size-10 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/20 flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                    title="Direct Message"
+                  >
+                    <MessageSquare className="size-4.5" />
+                  </Link>
+                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} />
                 </div>
               )}
             </div>
@@ -719,31 +720,31 @@ export function ProfileClientView({
             {/* Social / Portfolio Links */}
             <ProfileSocialLinks links={profile.socialLinks} />
 
-            {/* Follower Stats Row */}
-            <div className="flex items-center gap-4 text-xs sm:text-sm pt-0.5">
+            {/* 3-Column Stats Row (Mockup Architecture) */}
+            <div className="grid grid-cols-3 py-3 border-y border-border/30 my-3 text-center divide-x divide-border/20 select-none">
               <Link
                 href={`/@${profile.username}/following`}
-                className="hover:underline flex items-center gap-1 text-muted-foreground"
+                className="hover:opacity-80 transition-opacity"
               >
-                <strong className="text-foreground font-bold">{followingCount}</strong>
-                <span>Following</span>
+                <p className="text-lg font-black text-foreground">{followingCount}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Following</p>
               </Link>
 
               <Link
                 href={`/@${profile.username}/followers`}
-                className="hover:underline flex items-center gap-1 text-muted-foreground"
+                className="hover:opacity-80 transition-opacity"
               >
-                <strong className="text-foreground font-bold">{followers}</strong>
-                <span>Followers</span>
+                <p className="text-lg font-black text-foreground">{followers}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Followers</p>
               </Link>
 
               <button
                 type="button"
                 onClick={() => handleTabChange("clout")}
-                className="hover:underline flex items-center gap-1 text-muted-foreground cursor-pointer"
+                className="hover:opacity-80 transition-opacity cursor-pointer"
               >
-                <strong className="text-[#1D9BF0] font-bold">{points}</strong>
-                <span>Clout LP</span>
+                <p className="text-lg font-black text-primary">{points}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Likes</p>
               </button>
             </div>
 
@@ -977,14 +978,15 @@ export function ProfileClientView({
         )}
 
         {/* ─── Profile Navigation Underline Tabs (Twitter Style) ─── */}
-        <div className="flex border-b border-border/40 bg-background text-xs sm:text-sm font-bold mt-2 overflow-x-auto no-scrollbar">
+        {/* ─── Segmented Pill Tabs (Mockup Style) ─── */}
+        <div className="flex items-center gap-1.5 p-1.5 bg-muted/60 rounded-full mx-4 my-3 overflow-x-auto no-scrollbar">
           {[
-            { id: "posts", label: `Activity (${posts.length})` },
-            { id: "articles", label: `Articles (${userArticles.length})` },
-            { id: "academics", label: `Notes (${userAcademicsCount})` },
-            { id: "photos", label: `Gallery (${candidatePhotos.length})` },
-            { id: "clout", label: "LP Perks" },
-            ...(isOwnProfile ? [{ id: "archived", label: `Archive (${archivedPosts.length})` }] : []),
+            { id: "photos", label: "Photos" },
+            { id: "posts", label: "Posts" },
+            { id: "articles", label: "Articles" },
+            { id: "academics", label: "Notes" },
+            { id: "clout", label: "Clout" },
+            ...(isOwnProfile ? [{ id: "archived", label: "Archive" }] : []),
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -993,16 +995,13 @@ export function ProfileClientView({
                 type="button"
                 onClick={() => handleTabChange(tab.id as any)}
                 className={cn(
-                  "flex-1 py-3.5 text-center relative transition-colors cursor-pointer text-xs sm:text-sm font-bold shrink-0 px-3 hover:bg-muted/20",
+                  "px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer",
                   isActive
-                    ? "text-foreground font-bold"
-                    : "text-muted-foreground hover:text-foreground font-medium"
+                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
                 )}
               >
-                <span>{tab.label}</span>
-                {isActive && (
-                  <span className="absolute bottom-0 inset-x-4 sm:inset-x-8 h-1 rounded-full bg-[#1D9BF0]" />
-                )}
+                {tab.label}
               </button>
             );
           })}

@@ -279,7 +279,7 @@ export function MessengerView({
       {/* ─── Inbox / Conversation List (Left Column) ─── */}
       <aside
         className={cn(
-          "w-full md:w-80 lg:w-96 flex flex-col bg-card border-r border-border/30 h-full shrink-0 overflow-hidden",
+          "w-full md:w-80 lg:w-96 flex flex-col bg-card border-r border-border/30 h-full shrink-0 overflow-hidden relative",
           activeConversationId ? "hidden md:flex" : "flex"
         )}
       >
@@ -289,12 +289,12 @@ export function MessengerView({
             <div className="flex items-center gap-2.5">
               <Link
                 href="/app"
-                className="size-8 rounded-xl bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 title="Back to Campus Feed"
               >
                 <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
               </Link>
-              <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">Chats</h1>
+              <h1 className="text-xl font-black tracking-tight text-foreground">Message</h1>
               {conversations && conversations.length > 0 && (
                 <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   {conversations.length}
@@ -309,38 +309,75 @@ export function MessengerView({
                   sounds.pop();
                   haptics.medium();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95"
                 title="Meet someone unexpected in Random Loop"
               >
                 <Zap className="size-3.5 fill-amber-500 text-amber-500" />
                 <span>Random</span>
               </Link>
 
+              {/* Circular Search Trigger */}
               <button
                 type="button"
                 onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setShowCreateGroupModal(true);
+                  const input = document.getElementById("chat-search-input");
+                  input?.focus();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-all cursor-pointer shadow-2xs active:scale-95"
-                title="Create campus group or study pod"
+                className="size-9 rounded-full bg-card border border-border/50 shadow-xs flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                title="Search conversations"
               >
-                <Users2 className="size-3.5" />
-                <span>+ Group</span>
+                <Search className="size-4" />
               </button>
             </div>
           </div>
+
+          {/* Active Contacts / Story Rail (Mockup style) */}
+          {conversations && conversations.length > 0 && (
+            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5 -mx-1 select-none">
+              {conversations.slice(0, 10).map((c) => {
+                const p = c.otherParticipant;
+                if (!p) return null;
+                const isOnlineNow = p.lastSeenAt && (Date.now() - new Date(p.lastSeenAt).getTime() < 300000);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => handleSelectConversation(c.id)}
+                    className="flex flex-col items-center gap-1 shrink-0 group cursor-pointer focus:outline-none"
+                  >
+                    <div className="relative">
+                      <Avatar className="size-11 border-2 border-background shadow-xs group-hover:scale-105 transition-transform">
+                        <AvatarImage src={p.avatarUrl || ""} />
+                        <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
+                          {(p.displayName?.[0] || "U").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span
+                        className={cn(
+                          "absolute bottom-0 right-0 size-3 rounded-full border-2 border-background",
+                          isOnlineNow ? "bg-primary" : "bg-amber-400"
+                        )}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground truncate max-w-[52px]">
+                      {p.displayName.split(" ")[0]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <input
+              id="chat-search-input"
               type="text"
               placeholder="Search students or groups..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full h-9 pl-9 pr-8 rounded-xl border border-border/50 bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+              className="w-full h-9 pl-9 pr-8 rounded-full border border-border/50 bg-muted/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
             />
             {searchQuery && (
               <button
@@ -645,6 +682,21 @@ export function MessengerView({
             )}
           </div>
         )}
+
+        {/* Floating Green Curved Action Bubble (Mockup style) */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.tap();
+            haptics.medium();
+            setShowCreateGroupModal(true);
+          }}
+          className="fab-bubble absolute bottom-5 right-5 z-20 flex size-12 items-center justify-center cursor-pointer shadow-lg active:scale-95"
+          title="Create campus group or study pod"
+          aria-label="Create group"
+        >
+          <Users2 className="size-5.5 text-white" strokeWidth={2.4} />
+        </button>
       </aside>
 
       {/* ─── Active Chat Window (Right Column / Fullscreen on Mobile) ─── */}

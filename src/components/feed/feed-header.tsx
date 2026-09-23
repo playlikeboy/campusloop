@@ -46,12 +46,12 @@ export function FeedHeader({
     (visibility !== "all" ? 1 : 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 px-4 py-4 flex flex-col gap-3">
-      {/* Top Bar Header (Inspired by Reference 2 Explore header) */}
+    <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/40 px-4 py-3.5 flex flex-col gap-3">
+      {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <h1 className="text-base font-black tracking-tight text-foreground">
-            Campus <span className="text-primary">Loop</span>
+          <h1 className="text-xl font-black tracking-tight text-foreground">
+            News Feed
           </h1>
         </div>
 
@@ -61,7 +61,7 @@ export function FeedHeader({
               type="button"
               onClick={() => onRefresh()}
               disabled={isRefreshing}
-              className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer active:scale-95"
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer active:scale-95"
               title="Refresh feed"
               aria-label="Refresh feed"
             >
@@ -72,17 +72,17 @@ export function FeedHeader({
           )}
 
           {/* Scope selection pill */}
-          <div className="flex rounded-full bg-muted/50 p-1 text-[11px] font-bold">
+          <div className="flex rounded-full bg-muted/70 p-1 text-[11px] font-bold">
             <button
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
                 "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
                 scope === "CAMPUS"
-                  ? "bg-background text-foreground shadow-xs"
+                  ? "bg-card text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <School className="h-3 w-3" />
+              <School className="h-3 w-3 text-primary" />
               <span className="truncate max-w-[120px]">
                 {institutionSlug
                   ? `${institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)}`
@@ -94,20 +94,30 @@ export function FeedHeader({
               className={cn(
                 "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
                 scope === "GLOBAL"
-                  ? "bg-background text-foreground shadow-xs"
+                  ? "bg-card text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Globe className="h-3 w-3" />
+              <Globe className="h-3 w-3 text-secondary" />
               Global
             </button>
           </div>
+
+          {/* Circular Search Button matching mockup */}
+          <Link
+            href="/app/search"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card border border-border/50 shadow-xs text-muted-foreground hover:text-foreground hover:shadow-sm transition-all cursor-pointer"
+            aria-label="Search"
+            title="Search campus discussions"
+          >
+            <Search className="size-4" />
+          </Link>
         </div>
       </div>
 
-      {/* Twitter/X Style Segmented Sort Tabs */}
-      <div className="flex items-center justify-between border-t border-border/25 pt-1 -mb-4 -mx-4 px-2">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 flex-1">
+      {/* Segmented Sort Pills */}
+      <div className="flex items-center justify-between border-t border-border/20 pt-2 -mb-1 -mx-2 px-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1">
           {SORT_TABS.map((s) => {
             const isCurrent = sort === s.id;
             if (s.id === "confessions") {
@@ -115,9 +125,14 @@ export function FeedHeader({
                 <Link
                   key={s.id}
                   href="/app/confessions"
-                  className="relative px-3.5 py-3 font-bold transition-colors cursor-pointer shrink-0 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg flex items-center gap-1.5 group"
+                  className={cn(
+                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
+                    isCurrent
+                      ? "bg-secondary text-secondary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  )}
                 >
-                  <span className="group-hover:text-foreground">{s.label}</span>
+                  <span>{s.label}</span>
                   <Flame className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
                 </Link>
               );
@@ -128,10 +143,15 @@ export function FeedHeader({
                 <Link
                   key={s.id}
                   href="/app/reels"
-                  className="relative px-3.5 py-3 font-bold transition-colors cursor-pointer shrink-0 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg flex items-center gap-1.5 group"
+                  className={cn(
+                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
+                    isCurrent
+                      ? "bg-secondary text-secondary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  )}
                 >
-                  <span className="group-hover:text-foreground">{s.label}</span>
-                  <span className="flex items-center justify-center size-4 rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/30 text-[9px] font-black">
+                  <span>{s.label}</span>
+                  <span className="flex items-center justify-center size-3.5 rounded-full bg-rose-500/15 text-rose-500 text-[9px] font-black">
                     <Film className="size-2.5" />
                   </span>
                 </Link>
@@ -144,37 +164,24 @@ export function FeedHeader({
                 type="button"
                 onClick={() => onSortChange(s.id)}
                 className={cn(
-                  "relative px-4 py-3 font-bold transition-colors cursor-pointer shrink-0 text-[14px]",
+                  "px-3.5 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full",
                   isCurrent
-                    ? "text-foreground font-black"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg"
+                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 )}
               >
                 <span>{s.label}</span>
-                {isCurrent && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-primary shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                )}
               </button>
             );
           })}
         </div>
-
-        {/* Quick Search Button (matching Image 2) */}
-        <Link
-          href="/app/search"
-          className="flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer mr-1"
-          aria-label="Search"
-          title="Search campus discussions"
-        >
-          <Search className="size-4" />
-        </Link>
 
         {/* Filter button */}
         <button
           type="button"
           onClick={() => setShowFilters(!showFilters)}
           className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer mr-2",
+            "flex size-8 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ml-1",
             showFilters || activeFiltersCount > 1
               ? "bg-primary/10 text-primary"
               : "hover:bg-muted text-muted-foreground hover:text-foreground"

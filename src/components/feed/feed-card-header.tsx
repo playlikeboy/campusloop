@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal, School } from "lucide-react";
+import { Archive, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -73,86 +73,95 @@ export function FeedCardHeader({
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
 
   return (
-    <div className="space-y-0.5 min-w-0 select-none">
+    <div className="min-w-0 select-none pb-1">
       {/* Primary Author & Time Row */}
-      <div className="flex items-center justify-between gap-2 min-w-0">
-        <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-          {!post.isAnonymous && post.author?.username ? (
-            <Link
-              href={`/@${post.author.username}`}
-              onClick={(e) => e.stopPropagation()}
-              className="font-bold text-[14px] sm:text-[15px] text-foreground hover:underline truncate max-w-[140px] sm:max-w-[210px] shrink-0 sm:shrink"
-            >
-              {authorName}
-            </Link>
-          ) : !post.isAnonymous && isExternalReddit ? (
-            <a
-              href={post.externalPost?.canonicalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="font-bold text-[14px] sm:text-[15px] text-foreground hover:text-orange-500 hover:underline truncate max-w-[140px] sm:max-w-[210px] shrink-0 sm:shrink"
-            >
-              {authorName}
-            </a>
-          ) : (
-            <span className="font-bold text-[14px] sm:text-[15px] text-foreground truncate max-w-[140px] sm:max-w-[210px] shrink-0 sm:shrink">
-              {authorName}
-            </span>
-          )}
+      <div className="flex items-start justify-between gap-2 min-w-0">
+        <div className="min-w-0 flex-1">
+          {/* Author Name + Badges */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            {!post.isAnonymous && post.author?.username ? (
+              <Link
+                href={`/@${post.author.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold text-[15px] text-foreground hover:underline truncate max-w-[180px] sm:max-w-[240px] shrink-0"
+              >
+                {authorName}
+              </Link>
+            ) : !post.isAnonymous && isExternalReddit ? (
+              <a
+                href={post.externalPost?.canonicalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold text-[15px] text-foreground hover:text-orange-500 hover:underline truncate max-w-[180px] sm:max-w-[240px] shrink-0"
+              >
+                {authorName}
+              </a>
+            ) : (
+              <span className="font-bold text-[15px] text-foreground truncate max-w-[180px] sm:max-w-[240px] shrink-0">
+                {authorName}
+              </span>
+            )}
 
-          {isVerified && (
-            <AnimatedIcon
-              icon={AnimateShieldCheck}
-              animation="pop"
-              size={14}
-              className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.7)] shrink-0"
-            />
-          )}
+            {isVerified && (
+              <AnimatedIcon
+                icon={AnimateShieldCheck}
+                animation="pop"
+                size={14}
+                className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
+              />
+            )}
 
-          {authorHandle && (
-            <span className="text-muted-foreground text-xs sm:text-[13px] truncate max-w-[90px] sm:max-w-[130px] shrink-0 sm:shrink">
-              {authorHandle}
-            </span>
-          )}
+            {authorHandle && (
+              <span className="text-muted-foreground text-xs truncate max-w-[90px] sm:max-w-[130px]">
+                {authorHandle}
+              </span>
+            )}
 
-          {isExternalReddit && (
-            <a
-              href={post.externalPost?.canonicalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[10px] font-bold shrink-0 transition-colors"
-              title={`From r/${post.externalPost?.subreddit || "reddit"}`}
-            >
-              <span>r/{post.externalPost?.subreddit}</span>
-              <ExternalLink className="size-2.5 opacity-70" />
-            </a>
-          )}
+            {isExternalReddit && (
+              <a
+                href={post.externalPost?.canonicalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[10px] font-bold shrink-0 transition-colors"
+                title={`From r/${post.externalPost?.subreddit || "reddit"}`}
+              >
+                <span>r/{post.externalPost?.subreddit}</span>
+                <ExternalLink className="size-2.5 opacity-70" />
+              </a>
+            )}
+          </div>
 
-          <span className="text-muted-foreground/40 text-xs shrink-0">·</span>
-
-          <span className="text-muted-foreground text-xs shrink-0 whitespace-nowrap">
-            {formatTimeAgo(post.createdAt)}
-          </span>
-
-          {post.isEdited && (
-            <span
-              className="text-muted-foreground/60 text-[10px] italic shrink-0"
-              title={`Edited ${post.updatedAt ? formatTimeAgo(post.updatedAt) : ""}`}
-            >
-              (edited)
-            </span>
-          )}
+          {/* Subtitle: Campus / Location · Time (Mockup style) */}
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-0.5">
+            {institutionDisplayName && (
+              <>
+                <span className="font-medium truncate max-w-[160px] sm:max-w-[220px]">
+                  {institutionDisplayName}
+                </span>
+                <span className="text-muted-foreground/40">·</span>
+              </>
+            )}
+            <span className="whitespace-nowrap">{formatTimeAgo(post.createdAt)}</span>
+            {post.isEdited && (
+              <span
+                className="text-muted-foreground/60 text-[10px] italic shrink-0"
+                title={`Edited ${post.updatedAt ? formatTimeAgo(post.updatedAt) : ""}`}
+              >
+                (edited)
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Right Actions: Confession/Meme Pill, Reddit Attribution & More Menu */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {post.externalPost && (
             <RedditAttribution externalPost={post.externalPost} variant="subtle" />
           )}
           {post.type === "CONFESSION" && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
               Confession
             </span>
           )}
@@ -162,7 +171,7 @@ export function FeedCardHeader({
             </span>
           )}
 
-          {/* More Options Button */}
+          {/* Circular More Options Button */}
           <div className="relative">
             <button
               type="button"
@@ -170,7 +179,7 @@ export function FeedCardHeader({
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className="size-7 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-brand hover:bg-brand/10 transition-colors cursor-pointer"
+              className="size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
               aria-label="More options"
             >
               <MoreHorizontal className="size-4" />
