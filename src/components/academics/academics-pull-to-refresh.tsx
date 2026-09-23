@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, RotateCw } from "lucide-react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils";
 const PULL_THRESHOLD = 76;
 const MAX_PULL = 120;
 
-export function AcademicsPullToRefresh({ children }: { children: React.ReactNode }) {
+export function AcademicsPullToRefresh({ children }: { children: ReactNode }) {
   const router = useRouter();
   const startY = useRef(0);
   const pulling = useRef(false);
