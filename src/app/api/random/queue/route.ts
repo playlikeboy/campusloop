@@ -1,8 +1,9 @@
-import { and, desc, eq, ne, or } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt, ne, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { blocks, randomQueue, randomSessions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,16 @@ export async function POST(req: Request) {
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
+
+    if (await isViewerProfile(profile)) {
+      return NextResponse.json(
+        { error: "Verify your college email before joining Random Loop.", viewerMode: true },
+        { status: 403 }
+      );
+    }
+
+    const queueFreshSince = new Date(Date.now() - 2 * 60 * 1000);
+    await db.delete(randomQueue).where(lt(randomQueue.lastHeartbeat, queueFreshSince));
 
     // Check if user is already in an ACTIVE session
     const existingSession = await db.query.randomSessions.findFirst({
@@ -61,14 +72,35 @@ export async function POST(req: Request) {
       queryConditions.push(eq(randomQueue.institutionId, profile.institutionId));
     }
 
-    const candidates = await db.query.randomQueue.findMany({
-      where: and(...queryConditions),
-      orderBy: [desc(randomQueue.createdAt)],
-      limit: 20,
+    queryConditions.push(gt(randomQueue.lastHeartbeat, queueFreshSince));
+
+    const recentSessions = await db.query.randomSessions.findMany({
+      where: or(eq(randomSessions.userAId, profile.id), eq(randomSessions.userBId, profile.id)),
+      orderBy: [desc(randomSessions.createdAt)],
+      limit: 30,
     });
 
-    // Filter out blocked users
-    const validCandidates = candidates.filter((c) => !blockedUserIds.has(c.userId));
+    const recentPartnerIds = new Set<string>();
+    for (const session of recentSessions) {
+      if (session.userAId === profile.id) recentPartnerIds.add(session.userBId);
+      if (session.userBId === profile.id) recentPartnerIds.add(session.userAId);
+    }
+
+    const candidates = await db.query.randomQueue.findMany({
+      where: and(...queryConditions),
+      orderBy: [asc(randomQueue.createdAt)],
+      limit: 30,
+    });
+
+    const validCandidates = candidates.filter((candidate) => {
+      const candidateAllowsCampus =
+        candidate.mode === "ANY_CAMPUS" || candidate.institutionId === profile.institutionId;
+      return (
+        candidateAllowsCampus &&
+        !blockedUserIds.has(candidate.userId) &&
+        !recentPartnerIds.has(candidate.userId)
+      );
+    });
 
     if (validCandidates.length > 0) {
       // Pick best candidate: Prefer common interests, else first in line
@@ -161,6 +193,16 @@ export async function GET() {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
+    if (await isViewerProfile(profile)) {
+      return NextResponse.json(
+        { error: "Verify your college email before using Random Loop.", viewerMode: true },
+        { status: 403 }
+      );
+    }
+
+    const queueFreshSince = new Date(Date.now() - 2 * 60 * 1000);
+    await db.delete(randomQueue).where(lt(randomQueue.lastHeartbeat, queueFreshSince));
+
     // Check if matched into an active session
     const activeSession = await db.query.randomSessions.findFirst({
       where: and(
@@ -182,6 +224,11 @@ export async function GET() {
     });
 
     if (queueEntry) {
+      await db
+        .update(randomQueue)
+        .set({ lastHeartbeat: new Date() })
+        .where(eq(randomQueue.userId, profile.id));
+
       return NextResponse.json({
         status: "QUEUED",
         mode: queueEntry.mode,

@@ -55,6 +55,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   const [isReposting, setIsReposting] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [showLikesModal, setShowLikesModal] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const isBotPost = Boolean(
     post.pseudonym && (post.pseudonym.startsWith("🤖") || post.pseudonym.toLowerCase().includes("bot"))
@@ -224,7 +225,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       } catch {}
     } else {
       await navigator.clipboard.writeText(postUrl);
-      toast.success("Link copied to clipboard! 📋");
+      toast.success("Link copied to clipboard");
     }
   }
 
@@ -253,7 +254,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   return (
     <article
       onMouseEnter={() => router.prefetch(`/app/post/${post.id}`)}
-      className="neo-card p-4 sm:p-5 mb-3.5 mx-2 sm:mx-3 relative cursor-pointer select-none transition-all hover:-translate-y-0.5"
+      className="neo-card p-3.5 sm:p-4 mb-2.5 mx-2 sm:mx-3 relative cursor-pointer select-none transition-all hover:-translate-y-0.5"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>
@@ -358,7 +359,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
           {/* Content Body */}
           <div
-            className="text-[15px] leading-relaxed text-foreground font-normal break-words pt-1 space-y-1.5"
+            className={cn("text-[15px] leading-relaxed text-foreground font-normal break-words pt-0.5 space-y-1.5", !isExpanded && displayContent.length > 420 && "line-clamp-5")}
             onClick={(e) => handleCardClick(e)}
             onDoubleClick={handleDoubleTap}
           >
@@ -369,6 +370,19 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             )}
             {displayContent && (
               <RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} />
+            )}
+            {displayContent.length > 420 && (
+              <button
+                type="button"
+                data-no-nav
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded((value) => !value);
+                }}
+                className="mt-1 inline-flex min-h-9 items-center rounded-full px-1.5 text-[11px] font-bold text-primary hover:underline cursor-pointer"
+              >
+                {isExpanded ? "Show less" : "Read more"}
+              </button>
             )}
           </div>
 
@@ -391,23 +405,28 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             </div>
           )}
 
-          {/* Hashtags Row (matching Image 2) */}
+          {/* Compact topic metadata; the trailing hashtag block is removed from body above. */}
           {extractedHashtags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1.5" onClick={(e) => e.stopPropagation()}>
-              {extractedHashtags.map((tag, idx) => (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1" onClick={(e) => e.stopPropagation()}>
+              {extractedHashtags.slice(0, 3).map((tag, idx) => (
                 <Link
                   key={tag}
-                  href={`/app/hashtag/${tag}`}
+                  href={"/app/hashtag/" + tag}
                   className={cn(
-                    "rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors shrink-0",
+                    "min-h-7 rounded-full bg-muted/55 px-2.5 py-1 text-[10px] font-bold transition-colors shrink-0",
                     idx === 0
-                      ? "border border-purple-500/40 bg-purple-950/40 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.2)] hover:bg-purple-900/50"
-                      : "border border-border/50 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                      ? "bg-purple-500/10 text-purple-600 dark:text-purple-300"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   #{tag}
                 </Link>
               ))}
+              {extractedHashtags.length > 3 && (
+                <span className="min-h-7 rounded-full bg-muted/40 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
+                  +{extractedHashtags.length - 3}
+                </span>
+              )}
             </div>
           )}
 

@@ -605,10 +605,10 @@
   .neo-reaction-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.9rem;
-    background: rgba(246, 247, 253, 0.9);
+    gap: 0.55rem;
+    background: rgba(246, 247, 253, 0.92);
     backdrop-filter: blur(12px);
-    padding: 0.4rem 0.95rem;
+    padding: 0.22rem 0.65rem;
     border-radius: 9999px;
     border: 1px solid rgba(0, 0, 0, 0.04);
   }
