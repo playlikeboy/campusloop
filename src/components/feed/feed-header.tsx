@@ -1,6 +1,6 @@
 "use client";
 
-import { Film, Flame, Globe, ListFilter, RotateCw, School, Search } from "lucide-react";
+import { ChevronDown, ListFilter, RotateCw, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -38,226 +38,162 @@ export function FeedHeader({
   isRefreshing,
 }: FeedHeaderProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const campusLabel = institutionSlug
+    ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
+    : "Campus";
 
   const activeFiltersCount =
-    (scope !== "GLOBAL" ? 1 : 0) +
+    (scope !== "CAMPUS" ? 1 : 0) +
     (type !== "ALL" ? 1 : 0) +
     (sort !== "for_you" ? 1 : 0) +
     (visibility !== "all" ? 1 : 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/40 px-4 py-3.5 flex flex-col gap-3">
-      {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-xl font-black tracking-tight text-foreground">
-            News Feed
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {onRefresh && (
+    <header className="sticky top-0 z-40 border-b border-border/40 bg-background/92 backdrop-blur-md">
+      <div className="mx-auto max-w-3xl px-4 sm:px-5">
+        <div className="flex min-h-14 items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">News</h1>
             <button
               type="button"
-              onClick={() => onRefresh()}
-              disabled={isRefreshing}
-              className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer active:scale-95"
-              title="Refresh feed"
-              aria-label="Refresh feed"
+              onClick={() => onScopeChange(scope === "CAMPUS" ? "GLOBAL" : "CAMPUS")}
+              className="inline-flex max-w-full items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+              aria-label={`Switch feed scope. Current: ${scope === "CAMPUS" ? campusLabel : "Global"}`}
             >
-              <RotateCw
-                className={cn("size-3.5 transition-transform", isRefreshing && "animate-spin text-primary")}
-              />
-            </button>
-          )}
-
-          {/* Scope selection pill */}
-          <div className="flex rounded-full bg-muted/70 p-1 text-[11px] font-bold">
-            <button
-              onClick={() => onScopeChange("CAMPUS")}
-              className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
-                scope === "CAMPUS"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <School className="h-3 w-3 text-primary" />
-              <span className="truncate max-w-[120px]">
-                {institutionSlug
-                  ? `${institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)}`
-                  : "Campus"}
-              </span>
-            </button>
-            <button
-              onClick={() => onScopeChange("GLOBAL")}
-              className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
-                scope === "GLOBAL"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Globe className="h-3 w-3 text-secondary" />
-              Global
+              <span className="truncate">{scope === "CAMPUS" ? campusLabel : "Global"}</span>
+              <ChevronDown className="size-3.5 shrink-0" />
             </button>
           </div>
 
-          {/* Circular Search Button matching mockup */}
-          <Link
-            href="/app/search"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card border border-border/50 shadow-xs text-muted-foreground hover:text-foreground hover:shadow-sm transition-all cursor-pointer"
-            aria-label="Search"
-            title="Search campus discussions"
-          >
-            <Search className="size-4" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Segmented Sort Pills */}
-      <div className="flex items-center justify-between border-t border-border/20 pt-2 -mb-1 -mx-2 px-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1">
-          {SORT_TABS.map((s) => {
-            const isCurrent = sort === s.id;
-            if (s.id === "confessions") {
-              return (
-                <Link
-                  key={s.id}
-                  href="/app/confessions"
-                  className={cn(
-                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
-                    isCurrent
-                      ? "bg-secondary text-secondary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                  )}
-                >
-                  <span>{s.label}</span>
-                  <Flame className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                </Link>
-              );
-            }
-
-            if (s.id === "reels") {
-              return (
-                <Link
-                  key={s.id}
-                  href="/app/reels"
-                  className={cn(
-                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
-                    isCurrent
-                      ? "bg-secondary text-secondary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                  )}
-                >
-                  <span>{s.label}</span>
-                  <span className="flex items-center justify-center size-3.5 rounded-full bg-rose-500/15 text-rose-500 text-[9px] font-black">
-                    <Film className="size-2.5" />
-                  </span>
-                </Link>
-              );
-            }
-
-            return (
+          <div className="flex shrink-0 items-center gap-1">
+            {onRefresh && (
               <button
-                key={s.id}
                 type="button"
-                onClick={() => onSortChange(s.id)}
-                className={cn(
-                  "px-3.5 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full",
-                  isCurrent
-                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                )}
+                onClick={() => onRefresh()}
+                disabled={isRefreshing}
+                className="flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+                aria-label="Refresh feed"
               >
-                <span>{s.label}</span>
+                <RotateCw className={cn("size-4", isRefreshing && "animate-spin")} />
+              </button>
+            )}
+            <Link
+              href="/app/search"
+              className="flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Search campus discussions"
+            >
+              <Search className="size-5" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2">
+          {SORT_TABS.map((tab) => {
+            const active = sort === tab.id;
+            const isRoute = tab.id === "confessions" || tab.id === "reels";
+            const href = tab.id === "confessions" ? "/app/confessions" : "/app/reels";
+
+            const className = cn(
+              "shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+              active
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            );
+
+            return isRoute ? (
+              <Link key={tab.id} href={href} className={className}>
+                {tab.label}
+              </Link>
+            ) : (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onSortChange(tab.id)}
+                className={className}
+                aria-current={active ? "page" : undefined}
+              >
+                {tab.label}
               </button>
             );
           })}
-        </div>
 
-        {/* Filter button */}
-        <button
-          type="button"
-          onClick={() => setShowFilters(!showFilters)}
-          className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ml-1",
-            showFilters || activeFiltersCount > 1
-              ? "bg-primary/10 text-primary"
-              : "hover:bg-muted text-muted-foreground hover:text-foreground"
-          )}
-          aria-label="Filter feed"
-          title="Filter feed"
-        >
-          <ListFilter className="size-4" />
-        </button>
-      </div>
-
-      {/* Advanced Filters Dropdown */}
-      <div
-        className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out border-t border-transparent bg-muted/10 rounded-2xl",
-          showFilters ? "max-h-[160px] border-border/30 pb-3.5 pt-3 px-3.5 mt-2" : "max-h-0 pb-0 pt-0"
-        )}
-      >
-        <div className="grid grid-cols-2 gap-4">
-          {/* Identity filter */}
-          <div className="space-y-1">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-              Show Posts By
-            </span>
-            <div className="flex rounded-lg bg-muted/65 p-0.5 border border-border/40 text-[9px] font-bold">
-              {VISIBILITY_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => onVisibilityChange(option.id)}
-                  className={cn(
-                    "flex-1 py-1 rounded-md transition-all cursor-pointer",
-                    visibility === option.id
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Category selection */}
-          <div className="space-y-1">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-              Category
-            </span>
-            <div className="flex rounded-lg bg-muted/65 p-0.5 border border-border/40 text-[9px] font-bold">
-              {CATEGORY_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => onTypeChange(option.id)}
-                  className={cn(
-                    "flex-1 py-1 rounded-md transition-all cursor-pointer",
-                    type === option.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-end pt-3 text-[10px] font-bold">
           <button
-            onClick={() => {
-              onScopeChange("GLOBAL");
-              onTypeChange("ALL");
-              onSortChange("for_you");
-              onVisibilityChange("all");
-            }}
-            className="text-primary hover:underline cursor-pointer"
+            type="button"
+            onClick={() => setShowFilters((value) => !value)}
+            className={cn(
+              "ml-auto flex size-9 shrink-0 items-center justify-center rounded-lg",
+              showFilters || activeFiltersCount > 0
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+            aria-label={`Feed filters${activeFiltersCount ? ` (${activeFiltersCount})` : ""}`}
+            aria-expanded={showFilters}
           >
-            Reset Filters
+            <ListFilter className="size-4" />
           </button>
         </div>
+
+        {showFilters && (
+          <div className="border-t border-border/40 py-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="space-y-1.5">
+                <span className="text-[11px] font-semibold text-muted-foreground">Scope</span>
+                <select
+                  value={scope}
+                  onChange={(e) => onScopeChange(e.target.value as "CAMPUS" | "GLOBAL")}
+                  className="h-9 w-full rounded-lg bg-muted/50 px-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="CAMPUS">{campusLabel}</option>
+                  <option value="GLOBAL">Global</option>
+                </select>
+              </label>
+
+              <label className="space-y-1.5">
+                <span className="text-[11px] font-semibold text-muted-foreground">Category</span>
+                <select
+                  value={type}
+                  onChange={(e) => onTypeChange(e.target.value)}
+                  className="h-9 w-full rounded-lg bg-muted/50 px-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {CATEGORY_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="space-y-1.5">
+                <span className="text-[11px] font-semibold text-muted-foreground">Identity</span>
+                <select
+                  value={visibility}
+                  onChange={(e) => onVisibilityChange(e.target.value)}
+                  className="h-9 w-full rounded-lg bg-muted/50 px-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {VISIBILITY_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <span className="text-[11px] text-muted-foreground">
+                {activeFiltersCount ? `${activeFiltersCount} filters active` : "Showing your default feed"}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  onScopeChange("CAMPUS");
+                  onTypeChange("ALL");
+                  onSortChange("for_you");
+                  onVisibilityChange("all");
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
