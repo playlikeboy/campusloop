@@ -367,7 +367,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
       <article
         id={`academic-${item.id}`}
         className={cn(
-          "rounded-3xl border border-border/40 bg-card/75 hover:bg-card flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 select-none group relative overflow-hidden backdrop-blur-md",
+          "rounded-2xl border border-border/50 bg-card flex flex-col justify-between transition-colors select-none group relative overflow-hidden",
           accent.borderGlow,
           isHighlighted && "border-primary/50 ring-2 ring-primary/20 bg-primary/5"
         )}
@@ -393,7 +393,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
           <div className="flex items-center gap-1.5 shrink-0">
             <span
               className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border shadow-xs",
+                "inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-md border-0",
                 accent.pillBg,
                 accent.pillText
               )}
@@ -404,7 +404,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             <button
               type="button"
               onClick={handleShare}
-              className="size-6.5 rounded-full hover:bg-background/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              className="size-8 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
               title="Share link"
             >
               <AnimatedIcon icon={AnimateShare} animation="pop" size={12} />
@@ -440,9 +440,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               </div>
 
               {/* Verified Badge */}
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border-0 shrink-0">
                 <CheckCircle2 className="size-3 shrink-0" />
-                <span>{reliability}% Verified</span>
+                <span>Verified</span>
               </span>
             </div>
 
@@ -465,14 +465,14 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
 
           {/* Metadata Badges (Sem, Branch, Module) */}
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap pt-1">
-            <span className="px-2 py-0.5 rounded-lg bg-muted/60 font-semibold border border-border/30">
+            <span className="px-2 py-0.5 rounded-md bg-muted/60 font-semibold border-0">
               Sem {item.semester}
             </span>
-            <span className="px-2 py-0.5 rounded-lg bg-muted/60 font-semibold border border-border/30 truncate max-w-[140px]">
+            <span className="px-2 py-0.5 rounded-md bg-muted/60 font-semibold border-0 truncate max-w-[140px]">
               {item.branch}
             </span>
             {item.moduleOrChapter && (
-              <span className="px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20 truncate max-w-[130px]">
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border-0 truncate max-w-[130px]">
                 {item.moduleOrChapter}
               </span>
             )}
@@ -530,7 +530,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
               )
                 ? "bg-amber-500 hover:bg-amber-600 text-neutral-950 font-black shadow-amber-500/20"
-                : "bg-linear-to-r from-primary to-indigo-600 hover:opacity-95 text-primary-foreground shadow-primary/20"
+                : "bg-primary hover:opacity-90 text-primary-foreground"
             )}
           >
             {(item.fileUrl || item.driveUrl || "").match(
@@ -557,14 +557,14 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     <article
       id={`academic-${item.id}`}
       className={cn(
-        "px-4 py-3.5 border-b border-border/25 hover:bg-muted/10 transition-colors select-none",
+        "px-4 py-5 sm:px-5 border-b border-border/30 hover:bg-muted/20 transition-colors select-none",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
     >
       <div className="flex items-start gap-3">
         {/* Left Column: Author Avatar */}
         <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0 mt-0.5">
-          <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+          <Avatar className="size-9 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
             <AvatarImage src={avatar} />
             <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
               {item.uploader.displayName[0] || "U"}
@@ -579,7 +579,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               <Link
                 href={`/@${item.uploader.username}?tab=academics`}
-                className="text-sm font-bold text-foreground hover:underline truncate"
+                className="text-sm font-semibold text-foreground hover:underline truncate"
               >
                 {item.uploader.displayName}
               </Link>
@@ -591,7 +591,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                   className="text-brand shrink-0"
                 />
               )}
-              <span className="text-xs text-muted-foreground truncate">@{item.uploader.username}</span>
+              <span className="text-[11px] text-muted-foreground truncate">@{item.uploader.username}</span>
               <span className="text-[11px] text-muted-foreground/60">·</span>
               <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
             </div>
@@ -603,14 +603,14 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                   {item.recommendationReason}
                 </span>
               )}
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-md bg-primary/10 text-primary border-0">
                 {item.resourceType.replace("_", " ")}
               </span>
 
               <button
                 type="button"
                 onClick={handleShare}
-                className="size-7 rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                className="size-8 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                 title="Share or Copy Link"
               >
                 <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
@@ -637,13 +637,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 )}
               </div>
 
-              <h3 className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
+              <h3 className="text-[18px] sm:text-[19px] font-bold text-foreground group-hover:text-primary transition-colors leading-[1.3]">
                 {item.title}
               </h3>
             </Link>
 
             {item.description && (
-              <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed line-clamp-2">
+              <p className="text-sm text-muted-foreground leading-6 line-clamp-2">
                 {item.description}
               </p>
             )}
@@ -660,14 +660,14 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 <span className="truncate">{item.institution.name.split(",")[0]}</span>
               </>
             )}
-            <span className="ml-auto text-[10px] font-bold text-emerald-500 inline-flex items-center gap-1">
+            <span className="ml-auto text-[10px] font-semibold text-emerald-500 inline-flex items-center gap-1">
               <Target className="size-2.5 shrink-0" />
               <span>{reliability}% Verified</span>
             </span>
           </div>
 
           {/* Twitter Action Bar */}
-          <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between pt-2.5 text-xs text-muted-foreground">
             {/* Comments Toggle */}
             <button
               type="button"
@@ -729,7 +729,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               type="button"
               onClick={handleDownload}
               className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer active:scale-95",
                 (item.fileUrl || item.driveUrl || "").match(
                   /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
                 )
