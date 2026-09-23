@@ -264,15 +264,15 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/40 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8">
         {/* Top bar: Title & Quick Actions */}
         <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <h1 className="text-base font-black tracking-tight text-foreground sm:text-xl">Academics</h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold border border-primary/20">
-              <GraduationCap className="size-3.5" />
-              <span>1,350+ Campus Hubs</span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-1 text-[10px] font-bold text-primary border border-primary/15">
+              <GraduationCap className="size-3" />
+              1,350+ campus hubs
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1.5">
             {/* Search Toggle Icon Button */}
             <button
               type="button"
@@ -282,7 +282,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setIsSearchOpen((prev) => !prev);
               }}
               className={cn(
-                "flex size-8.5 items-center justify-center rounded-full transition-colors cursor-pointer",
+                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
                 isSearchOpen
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -301,7 +301,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setActiveTab("SAVED");
               }}
               className={cn(
-                "flex size-8.5 items-center justify-center rounded-full transition-colors cursor-pointer",
+                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
                 activeTab === "SAVED"
                   ? "bg-amber-500/15 text-amber-500"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -328,7 +328,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center gap-1 h-8 rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
+              className="flex h-9 items-center gap-1.5 rounded-xl bg-primary px-3 sm:px-3.5 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
             >
               <Plus className="size-3.5" />
               <span>Upload</span>
@@ -366,7 +366,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
         </div>
 
         {/* ─── Compact Filter Ribbon ────────────────────────────────────────── */}
-        <div className="px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
+        <div className="px-0 sm:px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
           {/* Inline Search Bar (Expanded or has text) */}
           {(isSearchOpen || searchQuery) && (
             <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -468,7 +468,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSortBy(e.target.value as any);
               }}
-              className="h-7 rounded-full bg-primary/10 border border-primary/20 px-2 text-[11px] font-bold text-primary outline-none cursor-pointer shrink-0"
+              className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
               <option value="for_you">Recommended</option>
               <option value="latest">Latest</option>
