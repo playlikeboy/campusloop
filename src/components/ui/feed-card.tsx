@@ -345,7 +345,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               </h3>
             )}
             {displayContent && (
-              <div className="line-clamp-4 sm:line-clamp-5"><RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} /></div>
+              <div className="max-h-[9rem] overflow-hidden"><RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} /></div>
             )}
           </div>
 
