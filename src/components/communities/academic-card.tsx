@@ -39,7 +39,7 @@ import {
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 
 interface AcademicCardProps {
   item: {
@@ -593,7 +593,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             )}
             <span className="text-muted-foreground/50 shrink-0">·</span>
             <span className="text-muted-foreground truncate max-w-[150px] sm:max-w-[260px]">
-              {item.institution?.name?.split(",")[0] || "Campus"}
+              {getCollegeShortName(item.institution) || "Campus"}
             </span>
             <span className="text-muted-foreground/50 shrink-0">·</span>
             <span className="text-muted-foreground/75 shrink-0">{formatTimeAgo(item.createdAt)}</span>
