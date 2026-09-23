@@ -253,6 +253,18 @@ export function MessengerView({
     if (!conversations) return [];
     let list = [...conversations];
 
+    // Keep one inbox row per direct participant while leaving group/community
+    // conversations untouched.
+    const seenDirectParticipants = new Set<string>();
+    list = list.filter((conversation) => {
+      if (conversation.isGroup || conversation.type === "GROUP" || conversation.isCommunity) return true;
+      const participantId = conversation.otherParticipant?.id;
+      if (!participantId) return true;
+      if (seenDirectParticipants.has(participantId)) return false;
+      seenDirectParticipants.add(participantId);
+      return true;
+    });
+
     if (activeFilter === "ARCHIVED") {
       return list.filter((c) => Boolean(c.isArchived));
     }
@@ -294,7 +306,7 @@ export function MessengerView({
               >
                 <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
               </Link>
-              <h1 className="text-xl font-black tracking-tight text-foreground">Message</h1>
+              <h1 className="text-xl font-black tracking-tight text-foreground">Messages</h1>
               {conversations && conversations.length > 0 && (
                 <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   {conversations.length}
@@ -331,7 +343,13 @@ export function MessengerView({
             </div>
           </div>
 
-          {/* Active Contacts / Story Rail (Mockup style) */}
+          {/* Active contacts */}
+          {conversations && conversations.length > 0 && (
+            <div className="flex items-center justify-between px-0.5 pt-0.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Active now</span>
+              <span className="text-[10px] text-muted-foreground">Recent chats</span>
+            </div>
+          )}
           {conversations && conversations.length > 0 && (
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5 -mx-1 select-none">
               {conversations.slice(0, 10).map((c) => {
@@ -676,7 +694,7 @@ export function MessengerView({
                   {activeFilter === "UNREAD" ? "No unread messages" : "No conversations yet"}
                 </p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Search above to message classmates, study buddies, or campus matches.
+                  Search for a classmate, study buddy, or campus group to start a conversation.
                 </p>
               </div>
             )}
