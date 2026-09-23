@@ -129,6 +129,10 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       return match;
     });
 
+    // Hashtags are rendered as dedicated interactive chips below the body.
+    // Remove a trailing hashtag-only block from the body so posts do not show
+    // the same tags twice.
+    cleaned = cleaned.replace(/(?:\n|\s)+(#[\w-]+(?:\s+#[\w-]+)*)\s*$/g, "").trim();
     return cleaned.trim();
   }, [post.body, post.title, post.externalPost]);
 
