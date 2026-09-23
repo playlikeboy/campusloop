@@ -379,15 +379,11 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex min-w-0 items-center gap-1.5">
                   <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
                     {profile.displayName}
                   </h2>
-                  {(profile.points || 0) >= 150 && (
-                    <span title="Verified Campus Student">
-                      <BadgeCheck className="size-5 text-[#1D9BF0] shrink-0" />
-                    </span>
-                  )}
+
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal">
@@ -449,7 +445,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
             <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <FolderPlus className="size-4 text-[#1D9BF0]" /> Shared Notes &amp; Study Materials (
+                  <FolderPlus className="size-4 text-[#1D9BF0]" /> Study Library (
                   {userAcademicResources.length + userPlaylists.length})
                 </h3>
                 <Link
