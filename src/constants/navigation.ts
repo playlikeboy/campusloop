@@ -82,8 +82,8 @@ export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/app", label: "Home" },
   { icon: AnimateCompass, href: "/app/discover", label: "Explore" },
   { icon: AnimatePlus, href: "/app/post/new", label: "Create" },
-  { icon: AnimateFlame, href: "/app/confessions", label: "Confessions" },
   { icon: AnimateGraduationCap, href: "/app/academics", label: "Academics" },
+  { icon: AnimateUser, href: "/app/profile", label: "Profile" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
