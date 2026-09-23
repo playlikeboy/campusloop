@@ -125,7 +125,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search campuses, night canteens, confessions, students..."
+            placeholder="Search campuses, students, clubs, confessions..."
             className="w-full h-11 pl-10 pr-10 rounded-2xl bg-muted/50 border border-border/60 text-xs font-bold text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-foreground outline-none transition-all"
             autoFocus
           />
@@ -141,10 +141,11 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
         </form>
 
         {/* Trending Suggestions Carousel */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1 shrink-0 pr-1">
+        <div className="relative">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 pr-6">
+          <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 shrink-0 pr-1">
             <Zap className="size-3 text-amber-500" />
-            <span>Popular:</span>
+            <span>Popular</span>
           </span>
           {TRENDING_SEARCH_SUGGESTIONS.map((term) => (
             <button
@@ -156,6 +157,8 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
               {term}
             </button>
           ))}
+          </div>
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background via-background/80 to-transparent" />
         </div>
 
         {/* Category Tabs */}
@@ -179,10 +182,10 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                   setActiveTab(tab.id as any);
                 }}
                 className={cn(
-                  "shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+                  "shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border",
                   activeTab === tab.id
-                    ? "bg-foreground text-background font-black shadow-xs"
-                    : "bg-muted/40 text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                    : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 {tab.label}
@@ -193,7 +196,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
       </header>
 
       {/* ─── Search Results Body ─── */}
-      <main className="p-4 space-y-5">
+      <main className="px-4 py-4 space-y-5">
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground space-y-2">
             <Loader2 className="size-6 animate-spin text-primary" />
@@ -202,15 +205,31 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
         )}
 
         {!isLoading && !searchQuery.trim() && (
-          <div className="text-center py-16 space-y-3">
-            <div className="size-12 mx-auto rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground">
-              <Compass className="size-6" />
+          <section className="rounded-2xl border border-border/40 bg-card/40 p-4 sm:p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="size-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Search className="size-5" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-base font-black text-foreground">Find your campus</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Search students, colleges, clubs, canteens, confessions, and academic resources.
+                </p>
+              </div>
             </div>
-            <h2 className="text-sm font-black text-foreground">Explore Campus Network</h2>
-            <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-              Search for your college hub, campus night canteens, student confessions, clubs, or classmates.
-            </p>
-          </div>
+            <div className="grid grid-cols-2 gap-2">
+              {TRENDING_SEARCH_SUGGESTIONS.slice(0, 6).map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => handleSuggestionClick(term)}
+                  className="min-w-0 rounded-xl border border-border/40 bg-muted/25 px-3 py-2.5 text-left text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  <span className="block truncate">{term}</span>
+                </button>
+              ))}
+            </div>
+          </section>
         )}
 
         {!isLoading && searchQuery.trim() && totalResults === 0 && (
