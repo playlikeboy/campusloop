@@ -197,7 +197,12 @@ export function AcademicPdfViewer({
       return rawUrl;
     }
 
-    // Direct PDFs use the browser-native renderer first to avoid Google Docs viewer size limits.\n    if (isDirectPdf) {\n      return rawUrl + "#toolbar=1&navpanes=1&scrollbar=1&view=FitH";\n    }\n\n    if (viewerEngine === "google" || isOfficeDoc) {
+    // Direct PDFs use the browser-native renderer first to avoid Google Docs viewer size limits.
+    if (isDirectPdf) {
+      return rawUrl + "#toolbar=1&navpanes=1&scrollbar=1&view=FitH";
+    }
+
+    if (viewerEngine === "google" || isOfficeDoc) {
       // Google Docs Viewer API: renders PDFs, PPTs, DOCs cleanly server-side without auto-downloads or x-frame blocks
       return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
     }
