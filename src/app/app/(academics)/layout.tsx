@@ -1,6 +1,7 @@
 import { ArrowLeft, Eye, GraduationCap, Search, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AcademicsPullToRefresh } from "@/components/academics/academics-pull-to-refresh";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { Navigation } from "@/components/ui/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -56,7 +57,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
                 </span>
               </div>
             )}
-            {children}
+            <AcademicsPullToRefresh>{children}</AcademicsPullToRefresh>
             <FirstVisitNotificationPrompt />
           </main>
         </div>
@@ -130,7 +131,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4">{children}</main>
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4"><AcademicsPullToRefresh>{children}</AcademicsPullToRefresh></main>
 
       {/* Bottom Sticky Guest Perk Callout on Mobile */}
       <div className="sticky bottom-0 z-40 border-t border-indigo-500/20 bg-background/95 backdrop-blur-md p-2.5 sm:hidden">
