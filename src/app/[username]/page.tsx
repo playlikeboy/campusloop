@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { ArrowUpRight, BadgeCheck, Download, FolderPlus, Lock, MessageSquare, School, ThumbsUp } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Download, ExternalLink, FolderPlus, Lock, MessageSquare, School, ThumbsUp } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -268,6 +268,20 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
   const institutionName = profile.institution?.name || "Indian Institute of Technology";
   const campusShort = institutionName.split(",")[0];
 
+  const cleanPostText = (body: string) =>
+    body
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/https?:\/\/\S+/g, (url) => {
+        try {
+          return new URL(url.replace(/[),.]+$/, "")).hostname.replace(/^www\./, "");
+        } catch {
+          return "external link";
+        }
+      })
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -301,7 +315,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
           </div>
           <span className="text-base font-black tracking-tight text-foreground">CampusLoop</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <Link href="/join?mode=signin">
             <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer">
               Sign In
@@ -320,7 +334,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
         <main className="flex-1 w-full max-w-2xl space-y-4">
           {/* Profile Card (Clean Twitter/X Architecture) */}
           <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 shadow-xs">
-            <div className="relative h-36 sm:h-48 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
+            <div className="relative h-28 sm:h-40 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
               {profile.bannerUrl ? (
                 <img src={profile.bannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
               ) : (
@@ -331,9 +345,9 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
             </div>
 
             <div className="px-5 pb-5 pt-0 space-y-3">
-              <div className="flex items-end justify-between -mt-12 sm:-mt-16">
+              <div className="flex items-end justify-between -mt-10 sm:-mt-12">
                 <div className="relative">
-                  <Avatar className="size-24 sm:size-28 rounded-full border-4 border-background shadow-lg bg-background">
+                  <Avatar className="size-20 sm:size-24 rounded-full border-4 border-background shadow-lg bg-background">
                     <AvatarImage src={profile.avatarUrl || ""} className="rounded-full object-cover" />
                     <AvatarFallback className="text-2xl font-black bg-muted text-foreground rounded-full">
                       {profile.displayName[0]?.toUpperCase()}
@@ -401,8 +415,8 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                     <strong className="text-foreground font-bold">{publicFollowCounts.followersCount}</strong>{" "}
                     Followers
                   </Link>
-                  <span>
-                    <strong className="text-[#1D9BF0] font-bold">{profile.points || 0}</strong> LP Clout
+                  <span title="Loop Points earned through useful campus participation and contributions">
+                    <strong className="text-[#1D9BF0] font-bold">{profile.points || 0}</strong> Loop Points
                   </span>
                 </div>
               </div>
@@ -429,16 +443,6 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
               </div>
             </div>
           </div>
-
-          {/* About Card */}
-          {profile.bio && (
-            <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">About</h3>
-              <p className="text-xs sm:text-sm text-foreground/90 font-normal leading-relaxed whitespace-pre-wrap">
-                {profile.bio}
-              </p>
-            </div>
-          )}
 
           {/* Shared Notes & Study Materials Card */}
           {(userAcademicResources.length > 0 || userPlaylists.length > 0) && (
@@ -493,7 +497,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
               {userAcademicResources.length > 0 && (
                 <div className="space-y-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Uploaded Notes &amp; Papers
+                    Uploaded resources
                   </span>
                   <div className="divide-y divide-border/20 rounded-xl border border-border/30 overflow-hidden">
                     {userAcademicResources.map((res) => (
@@ -534,9 +538,12 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
           {userPosts.length > 0 && (
             <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <MessageSquare className="size-4 text-[#1D9BF0]" /> Recent Posts &amp; Activity ({userPosts.length})
-                </h3>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <MessageSquare className="size-4 text-[#1D9BF0]" /> Recent activity
+                  </h3>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Posts and discussions shared by this student</p>
+                </div>
               </div>
               <div className="divide-y divide-border/20 rounded-xl border border-border/30 overflow-hidden">
                 {userPosts.slice(0, 5).map((p) => {
@@ -548,27 +555,60 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                       href={`/app/post/${p.id}`}
                       className="block p-3.5 hover:bg-muted/30 transition-colors space-y-1"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {ep?.source && (
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                            {ep.source}
+                          </span>
+                        )}
                         {ep?.subreddit && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                          <span className="text-[10px] font-semibold text-orange-400">
                             r/{ep.subreddit}
                           </span>
                         )}
                         {p.title && (
-                          <h4 className="text-xs font-bold text-foreground line-clamp-1">{p.title}</h4>
+                          <h4 className="text-xs font-bold text-foreground line-clamp-1 min-w-0">{cleanPostText(p.title)}</h4>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {p.body}
-                      </p>
+
+                      {ep?.media?.[0]?.thumbnailUrl || ep?.media?.[0]?.previewUrl ? (
+                        <div className="mt-2 overflow-hidden rounded-lg border border-border/30 bg-muted/20">
+                          <img
+                            src={ep.media[0].thumbnailUrl || ep.media[0].previewUrl || ""}
+                            alt=""
+                            loading="lazy"
+                            className="h-28 w-full object-cover"
+                          />
+                        </div>
+                      ) : null}
+
+                      {ep?.canonicalUrl ? (
+                        <div className="mt-2 flex items-center gap-2 rounded-lg border border-border/30 bg-muted/20 px-2.5 py-2">
+                          <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
+                          <span className="truncate text-[11px] font-medium text-muted-foreground">
+                            {(() => {
+                              try {
+                                return new URL(ep.canonicalUrl).hostname.replace(/^www\./, "");
+                              } catch {
+                                return "External source";
+                              }
+                            })()}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {cleanPostText(p.body)}
+                        </p>
+                      )}
+
                       <div className="flex items-center gap-3 text-[10px] text-muted-foreground pt-1 font-medium">
                         <span className="flex items-center gap-1 text-emerald-400 font-bold">
                           <ThumbsUp className="size-3" />
-                          <span>{votesTotal} upvotes</span>
+                          <span>{votesTotal} {votesTotal === 1 ? "upvote" : "upvotes"}</span>
                         </span>
                         <span className="flex items-center gap-1">
                           <MessageSquare className="size-3" />
-                          <span>{p.comments.length} comments</span>
+                          <span>{p.comments.length} {p.comments.length === 1 ? "comment" : "comments"}</span>
                         </span>
                       </div>
                     </Link>
