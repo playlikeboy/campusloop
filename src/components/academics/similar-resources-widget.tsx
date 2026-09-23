@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Sparkles, ThumbsUp } from "lucide-react";
+import { ArrowRight, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
