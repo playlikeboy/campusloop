@@ -1646,65 +1646,41 @@ export function MessengerPane({
           onSubmit={handleSendSubmit}
           className="max-w-3xl mx-auto w-full flex items-center gap-1.5 bg-muted/50 dark:bg-[#202327] rounded-3xl p-1.5 pl-2.5 border border-border/40 focus-within:border-brand/60 transition-all shadow-xs"
         >
-          {/* Action Attachments */}
-          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 text-brand">
-            {/* Attachment popover / Photo */}
+          {/* Primary composer action + secondary tools */}
+          <div className="flex items-center gap-1 shrink-0 text-brand">
             <button
               type="button"
               disabled={isUploadingMedia}
               onClick={() => fileInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-brand transition-colors cursor-pointer"
-              title="Attach Photo"
+              className="flex size-9 items-center justify-center rounded-full hover:bg-muted/70 text-brand transition-colors cursor-pointer active:scale-95"
+              title="Attach photo"
+              aria-label="Attach photo"
             >
               <Paperclip className="size-4" />
             </button>
 
-            {/* Video clip attachment */}
-            <button
-              type="button"
-              disabled={isUploadingMedia}
-              onClick={() => videoInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-sky-500 transition-colors cursor-pointer"
-              title="Attach Video"
-            >
-              <Video className="size-4" />
-            </button>
-
-            {/* Document / Notes attachment */}
-            <button
-              type="button"
-              disabled={isUploadingMedia}
-              onClick={() => docInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-indigo-500 transition-colors cursor-pointer"
-              title="Attach Study Notes / PDF"
-            >
-              <FileText className="size-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowGifPicker(true)}
-              className="flex h-5 px-1.5 items-center justify-center rounded border border-brand/50 text-[10px] font-black text-brand hover:bg-brand/10 transition-colors cursor-pointer leading-none"
-              title="Send GIF"
-            >
-              GIF
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowStickerPicker(true)}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-amber-500 transition-colors cursor-pointer"
-              title="Send Sticker / Emoji"
-            >
-              <Smile className="size-4" />
-            </button>
+            <details className="relative">
+              <summary
+                className="flex size-9 list-none cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors active:scale-95 [&::-webkit-details-marker]:hidden"
+                title="More attachment options"
+                aria-label="More attachment options"
+              >
+                <MoreHorizontal className="size-4" />
+              </summary>
+              <div className="absolute bottom-11 left-0 z-40 flex items-center gap-1.5 rounded-2xl border border-border/70 bg-card p-1.5 shadow-xl">
+                <button type="button" disabled={isUploadingMedia} onClick={() => videoInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-sky-500 hover:bg-muted cursor-pointer" title="Attach video" aria-label="Attach video"><Video className="size-4" /></button>
+                <button type="button" disabled={isUploadingMedia} onClick={() => docInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-indigo-500 hover:bg-muted cursor-pointer" title="Attach study notes or PDF" aria-label="Attach study notes or PDF"><FileText className="size-4" /></button>
+                <button type="button" onClick={() => setShowGifPicker(true)} className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-brand/40 px-2 text-[10px] font-black text-brand hover:bg-brand/10 cursor-pointer" title="Send GIF" aria-label="Send GIF">GIF</button>
+                <button type="button" onClick={() => setShowStickerPicker(true)} className="flex size-9 items-center justify-center rounded-xl text-amber-500 hover:bg-muted cursor-pointer" title="Send sticker or emoji" aria-label="Send sticker or emoji"><Smile className="size-4" /></button>
+              </div>
+            </details>
           </div>
 
           {/* Multi-line Auto-Expanding Textarea with Keyboard Sticker & Image Paste Support */}
           <textarea
             ref={textareaRef}
             rows={1}
-            placeholder="Start a new message..."
+            placeholder="Message..."
             value={msgText}
             onChange={(e) => setMsgText(e.target.value)}
             onKeyDown={handleKeyDown}
