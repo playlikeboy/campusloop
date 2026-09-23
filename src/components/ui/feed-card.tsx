@@ -207,7 +207,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       } catch {}
     } else {
       await navigator.clipboard.writeText(postUrl);
-      toast.success("Link copied to clipboard! 📋");
+      toast.success("Link copied to clipboard");
     }
   }
 
@@ -236,7 +236,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   return (
     <article
       onMouseEnter={() => router.prefetch(`/app/post/${post.id}`)}
-      className="neo-card p-4 sm:p-5 mb-3.5 mx-2 sm:mx-3 relative cursor-pointer select-none transition-all hover:-translate-y-0.5"
+      className="group relative mx-0 border-b border-border/35 px-4 py-5 sm:px-5 sm:py-6 cursor-pointer select-none transition-colors hover:bg-muted/20"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>
@@ -264,7 +264,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       )}
 
       {/* Twitter 2-Column Layout */}
-      <div className="flex gap-3">
+      <div className="flex gap-3.5">
         {/* Left Column: Author Avatar */}
         <div className="shrink-0 pt-0.5">
           {!post.isAnonymous && post.author?.username ? (
@@ -273,7 +273,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               onClick={(e) => e.stopPropagation()}
               className="relative block cursor-pointer group"
             >
-              <Avatar className="size-10 rounded-full border-0 shadow-2xs group-hover:opacity-90 transition-opacity">
+              <Avatar className="size-9 rounded-full border border-border/40 group-hover:opacity-90 transition-opacity">
                 <AvatarImage src={avatarUrl || ""} />
                 <AvatarFallback className="font-bold text-xs bg-muted text-foreground">
                   {avatarFallback}
@@ -307,7 +307,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             </a>
           ) : !post.isAnonymous ? (
             <Link href={`/@${authorHandle}`} onClick={(e) => e.stopPropagation()}>
-              <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+              <Avatar className="size-9 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
                 <AvatarImage src={avatarUrl || ""} />
                 <AvatarFallback className="font-bold text-xs bg-muted text-foreground">
                   {avatarFallback}
@@ -315,9 +315,9 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               </Avatar>
             </Link>
           ) : (
-            <Avatar className="size-10 rounded-full border border-purple-500/30 bg-purple-500/10">
+            <Avatar className="size-9 rounded-full border border-secondary/25 bg-secondary/10">
               <AvatarFallback className="bg-transparent flex items-center justify-center">
-                <VenetianMask className="size-5 text-purple-400" />
+                <VenetianMask className="size-4 text-secondary" />
               </AvatarFallback>
             </Avatar>
           )}
@@ -335,17 +335,17 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
           {/* Content Body */}
           <div
-            className="text-[15px] leading-relaxed text-foreground font-normal break-words pt-1 space-y-1.5"
+            className="max-w-[68ch] text-[15px] leading-7 text-foreground/95 font-normal break-words pt-2 space-y-2"
             onClick={(e) => handleCardClick(e)}
             onDoubleClick={handleDoubleTap}
           >
             {post.title && (
-              <h3 className="text-[16px] font-black text-foreground tracking-tight leading-snug">
+              <h3 className="text-[19px] sm:text-[21px] font-bold text-foreground tracking-tight leading-[1.25]">
                 {post.title}
               </h3>
             )}
             {displayContent && (
-              <RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} />
+              <div className="line-clamp-4 sm:line-clamp-5"><RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} /></div>
             )}
           </div>
 
@@ -393,7 +393,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             Boolean(post.repostComment) &&
             post.body?.trim() !== post.repostOf.body?.trim() && (
               <Link href={`/app/post/${post.repostOf.id}`} onClick={(e) => e.stopPropagation()}>
-                <div className="mt-2.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors p-3 text-xs space-y-1">
+                <div className="mt-3 rounded-xl bg-muted/35 hover:bg-muted/50 transition-colors p-3 text-xs space-y-1">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
                     <span className="font-bold text-foreground">
                       @{post.repostOf.author?.username || "student"}
