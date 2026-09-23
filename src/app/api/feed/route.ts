@@ -1,4 +1,4 @@
-import { eq, inArray, type SQL, sql } from "drizzle-orm";
+import { eq, inArray, lt, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
@@ -27,6 +27,14 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
     const hashtag = searchParams.get("hashtag");
 
+    const rawSeed = searchParams.get("seed");
+    const parsedSeed = rawSeed === null ? undefined : Number(rawSeed);
+    const seed = Number.isFinite(parsedSeed) ? Math.trunc(parsedSeed as number) : undefined;
+
+    // A scroll session keeps the same membership snapshot, preventing new posts
+    // from pushing older results between page requests.
+    const beforeParam = searchParams.get("before");
+
     const db = getDb();
 
     let profileId: string | null = null;
@@ -51,6 +59,13 @@ export async function GET(req: Request) {
       eq(posts.status, "PUBLISHED"),
       eq(posts.isSeeded, false),
     ];
+
+    if (beforeParam) {
+      const beforeDate = new Date(beforeParam);
+      if (!Number.isNaN(beforeDate.getTime())) {
+        conditions.push(lt(posts.createdAt, beforeDate));
+      }
+    }
 
     if (scope === "CAMPUS") {
       if (isViewer && targetInstitutionIds.length > 0) {
@@ -141,6 +156,7 @@ export async function GET(req: Request) {
       userInstitutionId: scope === "GLOBAL" ? null : institutionId,
       seenIds: uniqueSeenIds,
       viewerProfileId: profileId,
+      seed,
     });
     const feed = await formatApiFeedPosts(rawFeed, profileId);
     return NextResponse.json(feed);

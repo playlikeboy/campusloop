@@ -24,15 +24,19 @@ import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const CONFESSION_TABS = [
-  { id: "spicy", label: "Spicy", icon: Flame, colorClass: "text-amber-500" },
+  { id: "for_you", label: "For you", icon: Flame, colorClass: "text-primary" },
+  { id: "trending", label: "Trending", icon: Flame, colorClass: "text-orange-500" },
   { id: "viral", label: "Viral", icon: Zap, colorClass: "text-emerald-500" },
   { id: "latest", label: "Latest", icon: Clock, colorClass: "text-sky-500" },
+  { id: "most_discussed", label: "Discussed", icon: Trophy, colorClass: "text-violet-500" },
   { id: "top_voted", label: "Top", icon: Trophy, colorClass: "text-yellow-500" },
+  { id: "spicy", label: "Spicy", icon: Flame, colorClass: "text-amber-500" },
+  { id: "random", label: "Random", icon: Zap, colorClass: "text-purple-500" },
 ] as const;
 
 export function ConfessionsFeed() {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { profile } = useProfile();
 

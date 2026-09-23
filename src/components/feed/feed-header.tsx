@@ -46,7 +46,7 @@ export function FeedHeader({
     (visibility !== "all" ? 1 : 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/40 px-4 py-3.5 flex flex-col gap-3">
+    <header className="sticky top-0 z-40 bg-background/92 backdrop-blur-xl border-b border-border/35 px-3.5 py-3 sm:px-4">
       {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -116,8 +116,8 @@ export function FeedHeader({
       </div>
 
       {/* Segmented Sort Pills */}
-      <div className="flex items-center justify-between border-t border-border/20 pt-2 -mb-1 -mx-2 px-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1">
+      <div className="flex items-center justify-between border-t border-border/20 pt-2 mt-2 -mx-1 px-1">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 flex-1">
           {SORT_TABS.map((s) => {
             const isCurrent = sort === s.id;
             if (s.id === "confessions") {
@@ -126,7 +126,7 @@ export function FeedHeader({
                   key={s.id}
                   href="/app/confessions"
                   className={cn(
-                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
+                    "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
                     isCurrent
                       ? "bg-secondary text-secondary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -144,7 +144,7 @@ export function FeedHeader({
                   key={s.id}
                   href="/app/reels"
                   className={cn(
-                    "px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full flex items-center gap-1.5 group",
+                    "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
                     isCurrent
                       ? "bg-secondary text-secondary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -164,7 +164,7 @@ export function FeedHeader({
                 type="button"
                 onClick={() => onSortChange(s.id)}
                 className={cn(
-                  "px-3.5 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[13px] rounded-full",
+                  "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full",
                   isCurrent
                     ? "bg-secondary text-secondary-foreground shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
