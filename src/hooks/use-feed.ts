@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react";
 import useSWRInfinite from "swr/infinite";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { feedPagesCache, feedSizeCache, getPendingFeedPosts } from "@/lib/feed-mutations";
-import { getSeenPostIds, markPostsAsSeen } from "@/lib/seen-posts";
+import { markPostsAsSeen } from "@/lib/seen-posts";
 
 export type TopCommentPreview = {
   id: string;
@@ -71,12 +71,9 @@ export type FeedPost = Post & {
 };
 
 const feedFetcher = async <T>(url: string): Promise<T> => {
-  const seenIds = getSeenPostIds();
-  const headers: Record<string, string> = {};
-  if (seenIds.length > 0) {
-    headers["x-seen-ids"] = seenIds.slice(0, 50).join(",");
-  }
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, {
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) throw new Error("Failed to fetch feed");
   return res.json() as Promise<T>;
 };

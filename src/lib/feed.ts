@@ -251,7 +251,6 @@ const spicyScoreSql = sql<number>`(
 	((${recentVoteScoreSql} * 3.2 + ${recentCommentCountSql} * 4.8 + abs(${totalVoteScoreSql} - ${totalCommentCountSql}) * 0.7 + 1.0)
 	/ power(${hoursSinceSql} + 1.4, 1.18))
 	+ (case when ${posts.type} = 'CONFESSION' then 15.0 else 0.0 end)
-	+ (random() * 14.0)
 )`;
 
 // 🚀 Multi-Armed Bandit / Epsilon-Greedy Viral Algorithm (TikTok / Twitter Heavy Ranker inspired):
@@ -261,8 +260,7 @@ const baseViralScoreSql = sql<number>`(
 	((${recentVoteScoreSql} * 4.2 + ${recentCommentCountSql} * 5.8 + 2.0) / power(${hoursSinceSql} + 0.65, 1.28))
 	-- Log-scale engagement floor
 	+ (ln(greatest(1.0, ${totalVoteScoreSql} + ${totalCommentCountSql} * 2.2 + 1.0)) * 14.0)
-	-- Stochastic Exploration Injection (15% probability burst for worthy fresh posts < 36h)
-	+ (case when ${hoursSinceSql} < 36.0 then (random() * 28.0) else (random() * 5.0) end)
+	-- Ranking stays deterministic between infinite-scroll requests.
 	-- Cross-campus reach affinity
 	+ (case when ${posts.scope} in ('INDIA', 'GLOBAL') then 10.0 else 0.0 end)
 	-- Interactive / poll / confession bonus
@@ -341,7 +339,6 @@ function getForYouScoreSql(
 			when ${posts.type} = 'CONFESSION' then 8.0
 			else 0.0 
 		end)
-		+ (random() * 20.0)
 	)`;
 }
 
