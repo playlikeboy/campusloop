@@ -4,6 +4,7 @@ import { Loader2, RotateCw } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useSWRConfig } from "swr";
 import { cn } from "@/lib/utils";
 
 const PULL_THRESHOLD = 76;
@@ -11,6 +12,7 @@ const MAX_PULL = 120;
 
 export function AcademicsPullToRefresh({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const startY = useRef(0);
   const pulling = useRef(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -52,8 +54,15 @@ export function AcademicsPullToRefresh({ children }: { children: ReactNode }) {
       if (pullDistance >= PULL_THRESHOLD * 0.52) {
         setRefreshing(true);
         setPullDistance(PULL_THRESHOLD * 0.52);
-        router.refresh();
-        window.setTimeout(() => window.location.reload(), 350);
+        void (async () => {
+          try {
+            await mutate(() => true, undefined, { revalidate: true });
+            router.refresh();
+          } finally {
+            setRefreshing(false);
+            setPullDistance(0);
+          }
+        })();
       } else {
         setPullDistance(0);
       }
@@ -68,7 +77,7 @@ export function AcademicsPullToRefresh({ children }: { children: ReactNode }) {
       document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("touchend", onTouchEnd);
     };
-  }, [pullDistance, refreshing, router]);
+  }, [pullDistance, refreshing, router, mutate]);
 
   const progress = Math.min(1, pullDistance / (PULL_THRESHOLD * 0.52));
   const visible = pullDistance > 2 || refreshing;
