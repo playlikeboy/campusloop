@@ -78,6 +78,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
     collegeName ||
     "";
 
+  const isFocusedAcademicView =
+    pathname.startsWith("/app/academics/") && pathname !== "/app/academics";
+  const isFocusedFlow =
+    isFocusedAcademicView || pathname.startsWith("/app/academics/upload");
+
   const mobileBottomItems: NavItem[] = MOBILE_BOTTOM_ITEMS.filter((item) => {
     if (isViewer && ["/app/matching", "/app/chat"].includes(item.href)) {
       return false;
@@ -435,12 +440,13 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
       </aside>
 
       {/* ─── Mobile Bottom Floating Navigation ─── */}
-      {!pathname.startsWith("/app/chat") &&
+      {!isFocusedFlow &&
+        !pathname.startsWith("/app/chat") &&
         !pathname.startsWith("/app/stories/new") &&
         !pathname.startsWith("/app/story/") &&
         !pathname.startsWith("/app/post/new") && (
           <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col border-t border-border/35 bg-background/94 backdrop-blur-2xl md:hidden touch-manipulation select-none pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_24px_rgba(70,60,130,0.05)]">
-            <div className="flex h-[52px] items-center justify-around px-2">
+            <div className="flex h-12 items-center justify-around px-2">
               {mobileBottomItems.map((item) => {
                 const isActive =
                   pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
@@ -460,7 +466,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       className="flex flex-col items-center justify-center -mt-2 shrink-0 mx-1 group cursor-pointer select-none"
                       aria-label="Create post or confession"
                     >
-                      <div className="flex size-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_4px_16px_rgba(0,210,133,0.32)] ring-4 ring-background group-active:scale-90 transition-transform">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-[0_4px_16px_rgba(0,210,133,0.32)] ring-4 ring-background group-active:scale-90 transition-transform">
                         <AnimatedIcon icon={AnimatePlus} animation="spin" size={24} strokeWidth={2.6} />
                       </div>
                       <span className="mt-0.5 text-[10px] font-bold text-primary group-hover:text-primary transition-colors">
