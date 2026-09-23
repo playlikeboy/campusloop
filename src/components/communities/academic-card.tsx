@@ -440,9 +440,12 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               </div>
 
               {/* Verified Badge */}
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
-                <CheckCircle2 className="size-3 shrink-0" />
-                <span>{reliability}% Verified</span>
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 shrink-0"
+                title="Based on community upvotes and downvotes"
+              >
+                <Target className="size-3 shrink-0" />
+                <span>{reliability}% helpful</span>
               </span>
             </div>
 
@@ -597,7 +600,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                   Verified
                 </span>
               )}
-              <span className="text-xs text-muted-foreground truncate hidden xs:inline">@{item.uploader.username}</span>
+              <span className="text-xs text-muted-foreground truncate hidden sm:inline">@{item.uploader.username}</span>
               <span className="text-[11px] text-muted-foreground/60">·</span>
               <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
             </div>
