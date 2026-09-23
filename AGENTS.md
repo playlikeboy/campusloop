@@ -1,5 +1,22 @@
 # 🤖 AGENTS.md — CampusLoop Instructions for AI Agents & Developers
 
+## 🎨 Mandatory UI/UX Design Authority
+
+**DESIGN_PRINCIPLES.md is mandatory for all UI/UX work.**
+
+Before changing any interface, read DESIGN_PRINCIPLES.md. It is the source of truth for hierarchy, spacing, typography, responsive behavior, navigation, cards, filters, accessibility, content density, motion, and component reuse.
+
+Rules are strict:
+- Do not introduce a competing visual system.
+- Do not add one-off colors, radii, shadows, pills, or CTA styles when an existing token/primitive applies.
+- Mobile and desktop must be intentionally designed, not merely resized.
+- Content must visually outrank chrome.
+- New UI must include appropriate loading, empty, error, and accessibility states.
+- Do not use raw emoji characters in UI labels, badges, tabs, buttons, or toasts.
+- Complex academic content should use dedicated detail routes and progressively disclose metadata.
+- When a design decision conflicts with convenience, follow DESIGN_PRINCIPLES.md.
+
+
 Welcome to **CampusLoop**, a verified student-only campus social network built for Next.js 16 (App Router), Cloudflare Workers, Neon PostgreSQL, Drizzle ORM, and Hexclave Auth.
 
 ---
