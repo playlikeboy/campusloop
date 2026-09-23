@@ -93,7 +93,8 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
 
   // Video calling state in Random Loop
   const [isVideoActive, setIsVideoActive] = useState(false);
-  const [showVideoConsentModal, setShowVideoConsentModal] = useState(false);\n  const [showAllInterests, setShowAllInterests] = useState(false);
+  const [showVideoConsentModal, setShowVideoConsentModal] = useState(false);
+  const [showAllInterests, setShowAllInterests] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
