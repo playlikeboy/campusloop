@@ -39,7 +39,7 @@ interface AcademicsClientProps {
 
 // Twitter-Style Core Navigation Tabs
 const PRIMARY_TABS = [
-  { id: "for_you", label: "For You" },
+  { id: "for_you", label: "Recommended" },
   { id: "PYQ", label: "PYQs" },
   { id: "NOTES", label: "Notes" },
   { id: "PLAYLISTS", label: "Playlists" },
@@ -259,16 +259,16 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     selectedBranch !== "All" || selectedSemester !== "all" || sortBy !== "for_you" || scope !== "campus";
 
   return (
-    <div className="min-h-screen w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-28 select-none">
+    <div className="min-h-screen w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 select-none">
       {/* ─── Sticky Header ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/40 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 bg-background/96 backdrop-blur-md border-b border-border/40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
         {/* Top bar: Title & Quick Actions */}
-        <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <h1 className="text-base font-black tracking-tight text-foreground sm:text-xl">Academics</h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold border border-primary/20">
+        <div className="flex min-h-14 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">Academics</h1>
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <GraduationCap className="size-3.5" />
-              <span>1,350+ Campus Hubs</span>
+              <span>1,350+ campuses</span>
             </span>
           </div>
 
@@ -328,7 +328,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center gap-1 h-8 rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
+              className="flex items-center gap-1.5 h-9 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
             >
               <Plus className="size-3.5" />
               <span>Upload</span>
@@ -337,7 +337,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
         </div>
 
         {/* ─── Twitter Tabs (Underlined) ────────────────────────────────────── */}
-        <div className="flex border-b border-border/30">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-border/30">
           {PRIMARY_TABS.map((tab) => {
             const isSelected = activeTab === tab.id;
             return (
@@ -358,7 +358,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
               >
                 <span>{tab.label}</span>
                 {isSelected && (
-                  <div className="absolute bottom-0 left-1/4 right-1/4 h-1 rounded-full bg-primary transition-all" />
+                  <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-primary transition-all" />
                 )}
               </button>
             );
@@ -366,7 +366,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
         </div>
 
         {/* ─── Compact Filter Ribbon ────────────────────────────────────────── */}
-        <div className="px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
+        <div className="py-3 flex flex-col gap-2.5 bg-background/50 border-b border-border/20">
           {/* Inline Search Bar (Expanded or has text) */}
           {(isSearchOpen || searchQuery) && (
             <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -375,7 +375,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search subject code (CS201), topic or exam paper..."
+                placeholder="Search notes, PYQs, subjects and courses..."
                 className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
                 autoFocus={isSearchOpen}
               />
@@ -392,9 +392,9 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
           )}
 
           {/* Filter Chips Horizontal Scroll */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
             {/* Campus / Global Scope Toggle */}
-            <div className="flex items-center rounded-full bg-muted/40 p-0.5 border border-border/40 shrink-0">
+            <div className="flex items-center rounded-lg bg-muted/50 p-0.5 border border-border/40 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -402,7 +402,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   setScope("campus");
                 }}
                 className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                  "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1",
                   scope === "campus"
                     ? "bg-background text-foreground shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground"
@@ -436,7 +436,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSelectedBranch(e.target.value);
               }}
-              className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              className="h-8 rounded-lg bg-muted/50 border border-border/40 px-2.5 text-[11px] font-medium text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
@@ -468,7 +468,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSortBy(e.target.value as any);
               }}
-              className="h-7 rounded-full bg-primary/10 border border-primary/20 px-2 text-[11px] font-bold text-primary outline-none cursor-pointer shrink-0"
+              className="h-8 rounded-lg bg-primary/10 border border-primary/20 px-2.5 text-[11px] font-semibold text-primary outline-none cursor-pointer shrink-0"
             >
               <option value="for_you">Recommended</option>
               <option value="latest">Latest</option>
@@ -488,7 +488,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   setScope("campus");
                   setSearchQuery("");
                 }}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/50 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted/50 text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
                 title="Reset filters"
               >
                 <RotateCcw className="size-2.5" />
@@ -658,7 +658,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   <button
                     type="button"
                     onClick={() => setActiveTab("for_you")}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
                   >
                     <span>Browse Academic Vault</span>
                   </button>
