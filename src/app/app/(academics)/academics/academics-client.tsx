@@ -60,7 +60,7 @@ const BRANCHES = [
 ] as const;
 
 const SEMESTERS = [
-  { id: "all", label: "All Sems" },
+  { id: "all", label: "All Semesters" },
   { id: "1", label: "Sem 1" },
   { id: "2", label: "Sem 2" },
   { id: "3", label: "Sem 3" },
@@ -375,7 +375,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search subject code (CS201), topic or exam paper..."
+                placeholder="Search notes, PYQs, subjects..."
                 className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
                 autoFocus={isSearchOpen}
               />
@@ -446,20 +446,23 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             </select>
 
             {/* Semester Select */}
-            <select
-              value={selectedSemester}
+            {activeTab !== "SAVED" && (
+              <select
+                aria-label="Filter by semester"
+                value={selectedSemester}
               onChange={(e) => {
                 sounds.tap();
                 setSelectedSemester(e.target.value);
               }}
               className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
-              {SEMESTERS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+                {SEMESTERS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            )}
 
             {/* Sort Select */}
             <select
@@ -544,9 +547,9 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
         {/* ── 1. SAVED MATERIALS & PLAYLISTS TAB ───────────────────────────── */}
         {activeTab === "SAVED" ? (
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-3 sm:p-4">
             {/* Saved Mode Switcher: Notes vs Playlists */}
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-border/30 pb-2">
               <div className="flex rounded-full bg-muted/40 p-0.5 border border-border/40">
                 <button
                   type="button"
@@ -643,16 +646,16 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   </div>
                 )
               ) : (
-                <div className="py-16 text-center space-y-3 px-4 rounded-2xl border border-dashed border-border/60">
-                  <Bookmark className="size-10 text-muted-foreground/30 mx-auto" />
+                <div className="py-12 sm:py-14 text-center space-y-2.5 px-4 rounded-2xl border border-dashed border-border/60 bg-muted/5">
+                  <Bookmark className="size-8 text-muted-foreground/25 mx-auto" />
                   <div className="space-y-1">
                     <h3 className="text-sm font-bold text-foreground">
                       {savedSemesterFilter !== "all"
                         ? `No saved materials for Semester ${savedSemesterFilter}`
-                        : "Your academic locker is empty"}
+                        : "No saved materials yet"}
                     </h3>
                     <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                      Tap the bookmark icon on any exam paper or note to quickly save it to your locker.
+                      Bookmark a note or PYQ to find it here.
                     </p>
                   </div>
                   <button
@@ -660,7 +663,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                     onClick={() => setActiveTab("for_you")}
                     className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                   >
-                    <span>Browse Academic Vault</span>
+                    <span>Browse Academic Vault →</span>
                   </button>
                 </div>
               )
@@ -701,9 +704,9 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             {/* Header Action */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-black text-foreground">Semester Stacks &amp; Exam Bundles</h2>
+                <h2 className="text-sm font-black tracking-tight text-foreground">Study playlists</h2>
                 <p className="text-xs text-muted-foreground">
-                  1-click study playlists curated by verified students
+                  Curated notes, PYQs and revision material
                 </p>
               </div>
               <Link
@@ -711,7 +714,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 <Plus className="size-3" />
-                <span>New Stack</span>
+                <span>New playlist</span>
               </Link>
             </div>
 
