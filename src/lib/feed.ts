@@ -207,6 +207,17 @@ const recentCommentCountSql = sql<number>`coalesce((select count(*)::int from ${
 const totalVoteScoreSql = sql<number>`coalesce((select sum(${votes.value})::int from ${votes} where ${votes.postId} = "posts"."id"), 0)`;
 const totalCommentCountSql = sql<number>`coalesce((select count(*)::int from ${comments} where ${comments.postId} = "posts"."id" and ${comments.status} = 'PUBLISHED'), 0)`;
 const hoursSinceSql = sql<number>`(extract(epoch from (now() - ${posts.createdAt})) / 3600.0)`;
+const recentVoteScore6hSql = sql<number>`coalesce((select sum(${votes.value})::int from ${votes} where ${votes.postId} = "posts"."id" and ${votes.createdAt} > now() - interval '6 hours'), 0)`;
+const recentVoteScore24hSql = sql<number>`coalesce((select sum(${votes.value})::int from ${votes} where ${votes.postId} = "posts"."id" and ${votes.createdAt} > now() - interval '24 hours'), 0)`;
+const recentCommentCount6hSql = sql<number>`coalesce((select count(*)::int from ${comments} where ${comments.postId} = "posts"."id" and ${comments.status} = 'PUBLISHED' and ${comments.createdAt} > now() - interval '6 hours'), 0)`;
+const recentCommentCount24hSql = sql<number>`coalesce((select count(*)::int from ${comments} where ${comments.postId} = "posts"."id" and ${comments.status} = 'PUBLISHED' and ${comments.createdAt} > now() - interval '24 hours'), 0)`;
+const positiveVoteCountSql = sql<number>`coalesce((select count(*)::int from ${votes} where ${votes.postId} = "posts"."id" and ${votes.value} = 1), 0)`;
+const negativeVoteCountSql = sql<number>`coalesce((select count(*)::int from ${votes} where ${votes.postId} = "posts"."id" and ${votes.value} = -1), 0)`;
+const recentQualitySql = sql<number>`ln(greatest(1.0, ${totalVoteScoreSql} + (${totalCommentCountSql} * 2.0) + 1.0)) * 8.0`;
+const momentum6hSql = sql<number>`(${recentVoteScore6hSql} * 4.5 + ${recentCommentCount6hSql} * 8.0)`;
+const momentum24hSql = sql<number>`(${recentVoteScore24hSql} * 2.0 + ${recentCommentCount24hSql} * 3.5)`;
+const controversySql = sql<number>`(least(${positiveVoteCountSql}, ${negativeVoteCountSql}) * 3.0 / greatest(2.0, ${positiveVoteCountSql} + ${negativeVoteCountSql}))`;
+
 
 /**
  * Social affinity between the viewer and a post's author.
@@ -238,35 +249,42 @@ function followAffinityMultiplierSql(viewerProfileId?: string | null) {
 	end)`;
 }
 
-// HackerNews + Reddit gravity trending, scaled by who the viewer follows
-const baseTrendingScoreSql = sql<number>`((${recentVoteScoreSql} * 3.5 + ${recentCommentCountSql} * 2.5 + 1.0) / power(${hoursSinceSql} + 2.0, 0.75))`;
-
+// Momentum-weighted trending: recent interaction velocity decays with post age and follow affinity.
+const baseTrendingScoreSql = sql<number>`(
+  (
+    (${momentum6hSql} * 1.4)
+    + (${momentum24hSql} * 0.9)
+    + ${recentQualitySql}
+  )
+  / power(${hoursSinceSql} + 2.0, 0.74)
+)`;
 function getTrendingScoreSql(viewerProfileId?: string | null) {
   return sql<number>`(${baseTrendingScoreSql} * ${followAffinityMultiplierSql(viewerProfileId)})`;
 }
 
-// 🌶️ State-of-the-art Confessions Spicy Algorithm:
-// High weight on discussion velocity, controversy delta, and fresh secret exploration
+// 🌶️ Confessions spicy ranking: discussion velocity + measured vote disagreement + freshness.
 const spicyScoreSql = sql<number>`(
-	((${recentVoteScoreSql} * 3.2 + ${recentCommentCountSql} * 4.8 + abs(${totalVoteScoreSql} - ${totalCommentCountSql}) * 0.7 + 1.0)
-	/ power(${hoursSinceSql} + 1.4, 1.18))
-	+ (case when ${posts.type} = 'CONFESSION' then 15.0 else 0.0 end)
+  (
+    (${recentCommentCount6hSql} * 8.0)
+    + (${recentCommentCount24hSql} * 3.0)
+    + (${recentVoteScore6hSql} * 1.5)
+    + (${controversySql} * 20.0)
+    + 1.0
+  )
+  / power(${hoursSinceSql} + 1.5, 1.12)
+  + case when ${posts.type} = 'CONFESSION' then 18.0 else 0.0 end
 )`;
-
-// 🚀 Multi-Armed Bandit / Epsilon-Greedy Viral Algorithm (TikTok / Twitter Heavy Ranker inspired):
-// Logarithmic engagement magnitude + velocity derivative + stochastic exploration injection
 const baseViralScoreSql = sql<number>`(
-	-- Velocity Derivative (First derivative of campus interactions over age)
-	((${recentVoteScoreSql} * 4.2 + ${recentCommentCountSql} * 5.8 + 2.0) / power(${hoursSinceSql} + 0.65, 1.28))
-	-- Log-scale engagement floor
-	+ (ln(greatest(1.0, ${totalVoteScoreSql} + ${totalCommentCountSql} * 2.2 + 1.0)) * 14.0)
-	-- Ranking stays deterministic between infinite-scroll requests.
-	-- Cross-campus reach affinity
-	+ (case when ${posts.scope} in ('INDIA', 'GLOBAL') then 10.0 else 0.0 end)
-	-- Interactive / poll / confession bonus
-	+ (case when ${posts.type} in ('POLL', 'QUESTION', 'CONFESSION', 'MEME') then 6.0 else 0.0 end)
+  (
+    (${momentum6hSql} * 1.6)
+    + (${momentum24hSql} * 0.9)
+    + (${recentQualitySql} * 1.15)
+    + 2.0
+  )
+  / power(${hoursSinceSql} + 0.7, 1.2)
+  + case when ${posts.scope} in ('INDIA', 'GLOBAL') then 8.0 else 0.0 end
+  + case when ${posts.type} in ('POLL', 'QUESTION', 'CONFESSION', 'MEME') then 5.0 else 0.0 end
 )`;
-
 function getViralScoreSql(viewerProfileId?: string | null) {
   return sql<number>`(${baseViralScoreSql} * ${followAffinityMultiplierSql(viewerProfileId)})`;
 }
@@ -277,7 +295,7 @@ function getForYouScoreSql(
   viewerProfileId?: string | null
 ) {
   const ownCollegeBonus = userInstitutionId
-    ? sql<number>`(case when ${posts.institutionId} = ${userInstitutionId} then 35.0 else 0.0 end)`
+    ? sql<number>`(case when ${posts.institutionId} = ${userInstitutionId} then 42.0 else 0.0 end)`
     : sql<number>`0.0`;
 
   // 🤝 Friends & Following Algorithmic Affinity Boost:
@@ -289,12 +307,12 @@ function getForYouScoreSql(
           where ${follows.followerId} = ${viewerProfileId} 
             and ${follows.followingId} = ${posts.authorId} 
             and ${follows.isMutual} = true
-        ) then 120.0
+        ) then 105.0
         when exists(
           select 1 from ${follows} 
           where ${follows.followerId} = ${viewerProfileId} 
             and ${follows.followingId} = ${posts.authorId}
-        ) then 80.0
+        ) then 70.0
         else 0.0 
       end)`
     : sql<number>`0.0`;
@@ -312,15 +330,15 @@ function getForYouScoreSql(
       : sql<number>`0.0`;
 
   const alreadyVotedPenaltySql = viewerProfileId
-    ? sql<number>`(case when exists(select 1 from ${votes} where ${votes.postId} = "posts"."id" and ${votes.userId} = ${viewerProfileId}) then -120.0 else 0.0 end)`
+    ? sql<number>`(case when exists(select 1 from ${votes} where ${votes.postId} = "posts"."id" and ${votes.userId} = ${viewerProfileId}) then -55.0 else 0.0 end)`
     : sql<number>`0.0`;
 
   const alreadyCommentedPenaltySql = viewerProfileId
-    ? sql<number>`(case when exists(select 1 from ${comments} where ${comments.postId} = "posts"."id" and ${comments.authorId} = ${viewerProfileId} and ${comments.status} = 'PUBLISHED') then -90.0 else 0.0 end)`
+    ? sql<number>`(case when exists(select 1 from ${comments} where ${comments.postId} = "posts"."id" and ${comments.authorId} = ${viewerProfileId} and ${comments.status} = 'PUBLISHED') then -40.0 else 0.0 end)`
     : sql<number>`0.0`;
 
   const ownPostPenaltySql = viewerProfileId
-    ? sql<number>`(case when ${posts.authorId} = ${viewerProfileId} then -80.0 else 0.0 end)`
+    ? sql<number>`(case when ${posts.authorId} = ${viewerProfileId} then -25.0 else 0.0 end)`
     : sql<number>`0.0`;
 
   return sql<number>`(
@@ -331,8 +349,8 @@ function getForYouScoreSql(
 		+ ${alreadyCommentedPenaltySql}
 		+ ${ownPostPenaltySql}
 		+ (65.0 / power(${hoursSinceSql} + 1.0, 0.82))
-		+ (${recentVoteScoreSql} * 4.0)
-		+ (${recentCommentCountSql} * 3.0)
+		+ (${recentVoteScoreSql} * 2.2 + ${recentVoteScore24hSql} * 2.5 + ${recentVoteScore6hSql} * 3.5)
+		+ (${recentCommentCountSql} * 1.5 + ${recentCommentCount24hSql} * 2.5 + ${recentCommentCount6hSql} * 4.0)
 		+ (case 
 			when ${posts.type} = 'POLL' then 10.0
 			when ${posts.type} = 'QUESTION' then 8.0
@@ -365,7 +383,8 @@ export function getFeedOrderBy(
   userInstitutionId?: string | null,
   seenIds?: string[],
   viewerProfileId?: string | null,
-  boosts: ActiveBoost[] = []
+  boosts: ActiveBoost[] = [],
+  seed?: number
 ) {
   const orderClauses: (SQL | ReturnType<typeof desc> | ReturnType<typeof asc>)[] = [];
 
@@ -424,7 +443,11 @@ export function getFeedOrderBy(
       orderClauses.push(desc(weighted(getViralScoreSql(viewerProfileId))));
       break;
     case "random":
-      orderClauses.push(sql`random()`);
+      orderClauses.push(
+        seed === undefined
+          ? sql`random()`
+          : sql`hashtextextended(${posts.id}, ${seed})`
+      );
       return orderClauses;
     case "for_you": {
       const forYouScore = getForYouScoreSql(userInstitutionId, seenIds, viewerProfileId);
@@ -454,6 +477,8 @@ export async function resolveFeedPage(options: {
   userInstitutionId?: string | null;
   seenIds?: string[];
   viewerProfileId?: string | null;
+  /** Stable seed for deterministic Random pagination. */
+  seed?: number;
   /** Viewer's campus, for narrowing INSTITUTION-scoped editorial boosts. */
   viewerInstitutionId?: string | null;
 }) {
@@ -481,7 +506,8 @@ export async function resolveFeedPage(options: {
         options.userInstitutionId,
         options.seenIds,
         options.viewerProfileId,
-        boosts
+        boosts,
+        options.seed
       )
     )
     .limit(options.limit)

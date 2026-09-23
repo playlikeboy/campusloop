@@ -1,11 +1,15 @@
 export const FEED_SORT_TABS = [
   { id: "for_you", label: "For you" },
+  { id: "trending", label: "Trending" },
+  { id: "viral", label: "Viral" },
+  { id: "latest", label: "Latest" },
+  { id: "most_discussed", label: "Discussed" },
+  { id: "top_voted", label: "Top" },
+  { id: "spicy", label: "Spicy" },
+  { id: "random", label: "Random" },
   { id: "confessions", label: "Confessions" },
   { id: "reels", label: "Reels" },
   { id: "memes", label: "Memes" },
-  { id: "trending", label: "Trending" },
-  { id: "latest", label: "Latest" },
-  { id: "top_voted", label: "Top Voted" },
 ] as const;
 
 export const FEED_VISIBILITY_OPTIONS = [

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import useSWRInfinite from "swr/infinite";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { feedPagesCache, feedSizeCache, getPendingFeedPosts } from "@/lib/feed-mutations";
@@ -92,6 +92,20 @@ export function useFeed(
   const initialSize = feedSizeCache.get(cacheKey) || 1;
   const fallbackData = feedPagesCache.get(cacheKey);
 
+  // Freeze feed membership for the duration of a scroll session so new posts
+  // cannot move items between pages while the user is reading.
+  const snapshotKeyRef = useRef(cacheKey);
+  const snapshotAtRef = useRef(new Date().toISOString());
+  const sessionSeedRef = useRef(seed ?? Math.floor(Math.random() * 2_147_483_647));
+
+  if (snapshotKeyRef.current !== cacheKey) {
+    snapshotKeyRef.current = cacheKey;
+    snapshotAtRef.current = new Date().toISOString();
+    sessionSeedRef.current = seed ?? Math.floor(Math.random() * 2_147_483_647);
+  }
+
+  const effectiveSeed = sort === "random" ? sessionSeedRef.current : seed;
+
   const getKey = (pageIndex: number, previousPageData: FeedPost[] | null) => {
     if (previousPageData && previousPageData.length < PAGE_LIMIT) return null;
 
@@ -104,7 +118,8 @@ export function useFeed(
     if (sort) url.searchParams.set("sort", sort);
     if (visibility && visibility !== "all") url.searchParams.set("visibility", visibility);
     if (hashtag) url.searchParams.set("hashtag", hashtag);
-    if (seed) url.searchParams.set("seed", String(seed));
+    if (effectiveSeed !== undefined) url.searchParams.set("seed", String(effectiveSeed));
+    url.searchParams.set("before", snapshotAtRef.current);
     url.searchParams.set("page", String(pageIndex + 1));
     url.searchParams.set("limit", String(PAGE_LIMIT));
 
@@ -151,8 +166,12 @@ export function useFeed(
 
   const refresh = useCallback(async () => {
     feedSizeCache.set(cacheKey, 1);
+    snapshotAtRef.current = new Date().toISOString();
+    if (sort === "random") {
+      sessionSeedRef.current = Math.floor(Math.random() * 2_147_483_647);
+    }
     return mutate();
-  }, [cacheKey, mutate]);
+  }, [cacheKey, mutate, sort]);
 
   const rawFeed = (data || fallbackData)?.flat();
   // Posts published moments ago sit on top until the API starts returning
