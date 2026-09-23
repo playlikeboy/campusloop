@@ -108,106 +108,96 @@ export function AcademicPlaylistCard({ playlist, onStarToggle, className }: Acad
 
   return (
     <Link
-      href={`/app/academics/playlists/${playlist.slug || playlist.id}`}
+      href={\`/app/academics/playlists/\${playlist.slug || playlist.id}\`}
       className={cn(
-        "group relative flex flex-col rounded-3xl border border-border/60 bg-card overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5",
+        "group relative flex flex-col rounded-2xl border border-border/50 bg-card overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-md",
         className
       )}
     >
-      {/* ─── Top Banner Gradient ─── */}
-      <div
-        className={cn(
-          "h-24 w-full bg-linear-to-r p-3 flex flex-col justify-between relative overflow-hidden",
-          gradient
-        )}
-      >
-        <div className="absolute -right-6 -bottom-6 size-24 rounded-full bg-white/10 blur-xl pointer-events-none" />
-        <div className="flex items-center justify-between z-10">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/40 text-white backdrop-blur-md border border-white/10 shadow-xs">
-            <Layers className="size-3" />
-            <span>{categoryLabel}</span>
-          </span>
+      {/* Small visual accent instead of a giant gradient hero */}
+      <div className={cn("h-2 w-full bg-linear-to-r", gradient)} />
+
+      <div className="p-4 sm:p-4.5 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 flex-wrap text-[10px] font-bold text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 uppercase tracking-wide">
+                <Layers className="size-3" />
+                {categoryLabel}
+              </span>
+              <span className="text-muted-foreground/40">·</span>
+              <span className="truncate">{playlist.branch}</span>
+              {playlist.semester && (
+                <>
+                  <span className="text-muted-foreground/40">·</span>
+                  <span>Sem {playlist.semester}</span>
+                </>
+              )}
+            </div>
+
+            <h3 className="mt-2 text-base font-extrabold leading-snug tracking-tight text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+              {playlist.title}
+            </h3>
+          </div>
 
           <button
             type="button"
             onClick={handleStar}
             className={cn(
-              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all backdrop-blur-md shadow-xs cursor-pointer active:scale-90",
+              "flex size-9 shrink-0 items-center justify-center rounded-full border transition-all cursor-pointer active:scale-95",
               isStarred
-                ? "bg-amber-400 text-amber-950 font-black shadow-amber-400/20"
-                : "bg-black/40 text-white hover:bg-black/60 border border-white/15"
+                ? "bg-amber-400 text-amber-950 border-amber-400"
+                : "bg-background text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
             )}
-            title="Save playlist"
+            title={isStarred ? "Remove from saved" : "Save playlist"}
+            aria-label={isStarred ? "Remove from saved" : "Save playlist"}
           >
-            <Star className={cn("size-3.5", isStarred && "fill-amber-950")} />
-            <span className="text-[11px] tabular-nums">{stars}</span>
+            <Star className={cn("size-4", isStarred && "fill-current")} />
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5 text-white/90 text-xs font-medium z-10">
-          <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
-            {playlist.branch}
-          </span>
-          {playlist.semester && (
-            <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
-              Sem {playlist.semester}
-            </span>
-          )}
-          <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 text-[10px] font-bold">
-            <FolderPlus className="size-3" />
-            <span>{playlist.itemsCount} materials</span>
-          </span>
-        </div>
-      </div>
+        {playlist.description && (
+          <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
+            {playlist.description}
+          </p>
+        )}
 
-      {/* ─── Card Body ─── */}
-      <div className="flex-1 p-4 flex flex-col justify-between space-y-3">
-        <div className="space-y-1.5">
-          <h3 className="font-black text-sm text-foreground line-clamp-2 group-hover:text-indigo-400 transition-colors leading-snug">
-            {playlist.title}
-          </h3>
-          {playlist.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-              {playlist.description}
-            </p>
-          )}
-        </div>
-
-        {/* ─── Curator & Campus Footer ─── */}
-        <div className="pt-2 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              sounds.tap();
-              router.push(`/@${playlist.creator.username}?tab=academics`);
-            }}
-            className="flex items-center gap-2 min-w-0 text-left hover:underline cursor-pointer group/creator"
-            title={`View @${playlist.creator.username}'s shared notes`}
-          >
+        <div className="flex items-center justify-between gap-2 border-t border-border/30 pt-3 text-[11px]">
+          <div className="flex min-w-0 items-center gap-2">
             {playlist.creator.avatarUrl ? (
               <img
                 src={playlist.creator.avatarUrl}
-                alt={playlist.creator.displayName}
-                className="size-5 rounded-full object-cover shrink-0 border border-border/50"
+                alt=""
+                className="size-6 rounded-full object-cover border border-border/50 shrink-0"
               />
             ) : (
-              <div className="size-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold text-[10px] flex items-center justify-center shrink-0">
+              <div className="size-6 rounded-full bg-primary/10 text-primary font-bold text-[10px] flex items-center justify-center shrink-0">
                 {playlist.creator.displayName.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="text-[11px] font-bold text-foreground group-hover/creator:text-primary truncate max-w-[120px]">
+            <span className="font-bold text-foreground truncate max-w-[120px]">
               @{playlist.creator.username}
             </span>
-          </button>
+          </div>
 
-          <div className="flex items-center gap-2 text-[10px] shrink-0 font-medium">
-            <span className="flex items-center gap-1">
-              <Eye className="size-3 text-muted-foreground" />
-              <span>{playlist.viewsCount}</span>
+          <div className="flex items-center gap-2 shrink-0 text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <FolderPlus className="size-3" />
+              {playlist.itemsCount}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Eye className="size-3" />
+              {playlist.viewsCount}
+            </span>
+            <span className="inline-flex items-center gap-1 text-amber-500">
+              <Star className="size-3" />
+              {stars}
             </span>
           </div>
+        </div>
+
+        <div className="inline-flex items-center gap-1 text-xs font-bold text-primary">
+          Open playlist <span aria-hidden="true">→</span>
         </div>
       </div>
     </Link>
