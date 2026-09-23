@@ -574,9 +574,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
 
         {/* Right Column: Tweet Content */}
         <div className="flex-1 min-w-0 space-y-1.5">
-          {/* Header Row: Author Name, Handle, Time, and Type Badge */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+          {/* Compact resource header */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-1.5">
               <Link
                 href={`/@${item.uploader.username}?tab=academics`}
                 className="text-sm font-bold text-foreground hover:underline truncate"
@@ -584,34 +584,39 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 {item.uploader.displayName}
               </Link>
               {(item.uploader.points || 0) >= 150 && (
-                <AnimatedIcon
-                  icon={AnimateShieldCheck}
-                  animation="pop"
-                  size={13}
-                  className="text-brand shrink-0"
-                />
+                <span
+                  title="Verified Campus Student"
+                  className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-sky-400"
+                >
+                  <AnimatedIcon
+                    icon={AnimateShieldCheck}
+                    animation="pop"
+                    size={13}
+                    className="text-sky-400"
+                  />
+                  Verified
+                </span>
               )}
-              <span className="text-xs text-muted-foreground truncate">@{item.uploader.username}</span>
+              <span className="text-xs text-muted-foreground truncate hidden xs:inline">@{item.uploader.username}</span>
               <span className="text-[11px] text-muted-foreground/60">·</span>
               <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
             </div>
 
-            {/* Type & Share */}
-            <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+            <div className="flex items-center gap-2 shrink-0">
               {item.recommendationReason && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/25 shrink-0">
+                <span className="hidden sm:inline text-[10px] font-semibold text-violet-400">
                   {item.recommendationReason}
                 </span>
               )}
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">
                 {item.resourceType.replace("_", " ")}
               </span>
-
               <button
                 type="button"
                 onClick={handleShare}
-                className="size-7 rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-                title="Share or Copy Link"
+                className="size-8 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                title="Share resource"
+                aria-label="Share resource"
               >
                 <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
               </button>
@@ -660,14 +665,17 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 <span className="truncate">{item.institution.name.split(",")[0]}</span>
               </>
             )}
-            <span className="ml-auto text-[10px] font-bold text-emerald-500 inline-flex items-center gap-1">
+            <span
+              className="ml-auto text-[10px] font-semibold text-emerald-400 inline-flex items-center gap-1"
+              title="Based on community upvotes and downvotes"
+            >
               <Target className="size-2.5 shrink-0" />
-              <span>{reliability}% Verified</span>
+              <span>{reliability}% helpful</span>
             </span>
           </div>
 
           {/* Twitter Action Bar */}
-          <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 pt-2 text-xs text-muted-foreground">
             {/* Comments Toggle */}
             <button
               type="button"
@@ -712,16 +720,16 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               </button>
             </div>
 
-            {/* Views */}
-            <span className="flex items-center gap-1 text-[11px] opacity-70">
-              <Eye className="size-3.5" />
-              <span className="tabular-nums">{views}</span>
-            </span>
-
-            {/* Downloads */}
-            <span className="flex items-center gap-1 text-[11px] opacity-70">
-              <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={13} />
-              <span className="tabular-nums">{downloads}</span>
+            {/* Lightweight content stats */}
+            <span className="ml-auto flex items-center gap-2.5 text-[11px] text-muted-foreground/75">
+              <span className="flex items-center gap-1" title="Views">
+                <Eye className="size-3.5" />
+                <span className="tabular-nums">{views}</span>
+              </span>
+              <span className="flex items-center gap-1" title="Downloads">
+                <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={13} />
+                <span className="tabular-nums">{downloads}</span>
+              </span>
             </span>
 
             {/* Get Notes Action Button */}
@@ -729,7 +737,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               type="button"
               onClick={handleDownload}
               className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95",
+                "ml-1 flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95",
                 (item.fileUrl || item.driveUrl || "").match(
                   /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
                 )
@@ -747,7 +755,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                   /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
                 )
                   ? "Open Folder"
-                  : "Get"}
+                  : "Preview"}
               </span>
               <ExternalLink className="size-2.5 opacity-80" />
             </button>
