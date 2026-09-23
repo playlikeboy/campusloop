@@ -560,207 +560,175 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     <article
       id={`academic-${item.id}`}
       className={cn(
-        "px-4 py-3.5 border-b border-border/25 hover:bg-muted/10 transition-colors select-none",
+        "group border-b border-border/30 bg-background px-4 py-4 sm:px-5 sm:py-5 transition-colors hover:bg-muted/10 select-none",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
     >
-      <div className="flex items-start gap-3">
-        {/* Left Column: Author Avatar */}
-        <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0 mt-0.5">
-          <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+      <div className="flex items-start gap-3.5">
+        <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0 pt-0.5">
+          <Avatar className="size-9 sm:size-10 rounded-full border border-border/50 shadow-2xs">
             <AvatarImage src={avatar} />
-            <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
-              {item.uploader.displayName[0] || "U"}
+            <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+              {item.uploader.displayName?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
         </Link>
 
-        {/* Right Column: Tweet Content */}
-        <div className="flex-1 min-w-0 space-y-1.5">
-          {/* Compact resource header */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <Link
-                href={`/@${item.uploader.username}?tab=academics`}
-                className="text-sm font-bold text-foreground hover:underline truncate"
-              >
-                {item.uploader.displayName}
-              </Link>
-              {(item.uploader.points || 0) >= 150 && (
-                <span
-                  title="Verified Campus Student"
-                  className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-sky-400"
-                >
-                  <AnimatedIcon
-                    icon={AnimateShieldCheck}
-                    animation="pop"
-                    size={13}
-                    className="text-sky-400"
-                  />
-                  Verified
-                </span>
-              )}
-              <span className="text-xs text-muted-foreground truncate hidden sm:inline">@{item.uploader.username}</span>
-              <span className="text-[11px] text-muted-foreground/60">·</span>
-              <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {item.recommendationReason && (
-                <span className="hidden sm:inline text-[10px] font-semibold text-violet-400">
-                  {item.recommendationReason}
-                </span>
-              )}
-              <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">
-                {item.resourceType.replace("_", " ")}
-              </span>
-              <button
-                type="button"
-                onClick={handleShare}
-                className="size-8 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-                title="Share resource"
-                aria-label="Share resource"
-              >
-                <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
-              </button>
-            </div>
-          </div>
-
-          {/* Subject Badge & Title */}
-          <div className="space-y-1">
+        <div className="min-w-0 flex-1">
+          {/* Identity + institution + time: one compact line */}
+          <div className="flex items-center gap-1.5 min-w-0 text-[11px] sm:text-xs">
             <Link
-              href={`/app/academics/${item.id}`}
-              onClick={() => sounds.tap()}
-              className="block group cursor-pointer"
+              href={`/@${item.uploader.username}?tab=academics`}
+              className="font-extrabold text-foreground hover:text-primary transition-colors truncate max-w-[130px] sm:max-w-[220px]"
             >
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-0.5">
-                <span className="font-mono font-bold text-primary">{item.subjectCode}</span>
-                <span>·</span>
-                <span className="truncate">{item.subjectName}</span>
-                {item.moduleOrChapter && (
-                  <>
-                    <span>·</span>
-                    <span className="font-semibold text-amber-500">{item.moduleOrChapter}</span>
-                  </>
-                )}
-              </div>
-
-              <h3 className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                {item.title}
-              </h3>
+              {item.uploader.displayName}
             </Link>
-
-            {item.description && (
-              <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed line-clamp-2">
-                {item.description}
-              </p>
+            {(item.uploader.points || 0) >= 150 && (
+              <AnimatedIcon
+                icon={AnimateShieldCheck}
+                animation="pop"
+                size={13}
+                className="text-primary shrink-0"
+              />
             )}
+            <span className="text-muted-foreground/50 shrink-0">·</span>
+            <span className="text-muted-foreground truncate max-w-[150px] sm:max-w-[260px]">
+              {item.institution?.name?.split(",")[0] || "Campus"}
+            </span>
+            <span className="text-muted-foreground/50 shrink-0">·</span>
+            <span className="text-muted-foreground/75 shrink-0">{formatTimeAgo(item.createdAt)}</span>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="ml-auto size-7 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
+              title="Share resource"
+              aria-label="Share resource"
+            >
+              <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
+            </button>
           </div>
 
-          {/* Subtle Context Row */}
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-0.5 flex-wrap">
-            <span>Sem {item.semester}</span>
-            <span>·</span>
-            <span>{item.branch}</span>
-            {item.institution && (
+          {/* High-signal metadata */}
+          <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-black font-mono text-primary">
+              {item.subjectCode}
+            </span>
+            <span className="text-[11px] font-semibold text-foreground/80 truncate max-w-[180px] sm:max-w-[280px]">
+              {item.subjectName}
+            </span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="text-[10px] font-semibold text-muted-foreground">Sem {item.semester}</span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[120px]">
+              {item.branch}
+            </span>
+            {item.moduleOrChapter && (
               <>
-                <span>·</span>
-                <span className="truncate">{item.institution.name.split(",")[0]}</span>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="text-[10px] font-bold text-amber-500 truncate max-w-[130px]">
+                  {item.moduleOrChapter}
+                </span>
               </>
             )}
-            <span
-              className="ml-auto text-[10px] font-semibold text-emerald-400 inline-flex items-center gap-1"
-              title="Based on community upvotes and downvotes"
-            >
-              <Target className="size-2.5 shrink-0" />
-              <span>{reliability}% helpful</span>
+          </div>
+
+          {/* Title + description */}
+          <Link
+            href={`/app/academics/${item.id}`}
+            onClick={() => sounds.tap()}
+            className="mt-2.5 block"
+          >
+            <h3 className="text-[16px] sm:text-[17px] font-extrabold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
+              {item.title}
+            </h3>
+          </Link>
+
+          {item.description && (
+            <p className="mt-1.5 text-[12px] sm:text-[13px] leading-relaxed text-muted-foreground line-clamp-2 max-w-3xl">
+              {item.description}
+            </p>
+          )}
+
+          {/* Resource type + verification */}
+          <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground border border-border/30">
+              {(item.resourceType || "RESOURCE").replace("_", " ")}
+            </span>
+            {item.isVerified && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary"
+                title="Verified academic resource"
+              >
+                <CheckCircle2 className="size-3" />
+                Verified
+              </span>
+            )}
+            <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+              <Target className="size-3" />
+              {reliability}% helpful
             </span>
           </div>
 
-          {/* Twitter Action Bar */}
-          <div className="flex items-center gap-1.5 pt-2 text-xs text-muted-foreground">
-            {/* Comments Toggle */}
+          {/* Actions: compact, thumb-friendly */}
+          <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
             <button
               type="button"
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 hover:text-sky-400 transition-colors cursor-pointer group"
+              className="flex min-h-9 items-center gap-1.5 rounded-full px-2.5 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
+              aria-label={`Comments: ${commentsList.length || item.commentsCount || 0}`}
             >
-              <span className="p-1.5 rounded-full group-hover:bg-sky-500/10 transition-colors">
-                <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={14} />
-              </span>
+              <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={14} />
               <span className="text-[11px] font-semibold tabular-nums">
                 {commentsList.length || item.commentsCount || 0}
               </span>
             </button>
 
-            {/* Upvote / Downvote */}
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => handleVote("UP")}
-                className={cn(
-                  "flex items-center gap-1 hover:text-primary transition-colors cursor-pointer group",
-                  userVote === "UP" && "text-primary font-bold"
-                )}
-                title="Upvote"
-              >
-                <span className="p-1.5 rounded-full group-hover:bg-primary/10 transition-colors">
-                  <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-3")} />
-                </span>
-                <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
-              </button>
+            <button
+              type="button"
+              onClick={() => handleVote("UP")}
+              className={cn(
+                "flex min-h-9 items-center gap-1 rounded-full px-2.5 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
+                userVote === "UP" && "bg-primary/10 text-primary font-bold"
+              )}
+              title="Upvote"
+            >
+              <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-[2.5]")} />
+              <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => handleVote("DOWN")}
-                className={cn(
-                  "p-1.5 rounded-full hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
-                  userVote === "DOWN" && "text-rose-400"
-                )}
-                title="Downvote errata"
-              >
-                <ArrowDown className="size-3.5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleVote("DOWN")}
+              className={cn(
+                "flex size-9 items-center justify-center rounded-full hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
+                userVote === "DOWN" && "bg-rose-500/10 text-rose-400"
+              )}
+              title="Report incorrect material"
+              aria-label="Report incorrect material"
+            >
+              <ArrowDown className="size-3.5" />
+            </button>
 
-            {/* Lightweight content stats */}
-            <span className="ml-auto flex items-center gap-2.5 text-[11px] text-muted-foreground/75">
-              <span className="flex items-center gap-1" title="Views">
-                <Eye className="size-3.5" />
+            <div className="ml-auto flex items-center gap-2.5 text-[10px] text-muted-foreground/70">
+              <span className="inline-flex items-center gap-1" title="Views">
+                <Eye className="size-3" />
                 <span className="tabular-nums">{views}</span>
               </span>
-              <span className="flex items-center gap-1" title="Downloads">
-                <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={13} />
+              <span className="inline-flex items-center gap-1" title="Downloads">
+                <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={12} />
                 <span className="tabular-nums">{downloads}</span>
               </span>
-            </span>
+            </div>
 
-            {/* Get Notes Action Button */}
             <button
               type="button"
               onClick={handleDownload}
-              className={cn(
-                "ml-1 flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95",
-                (item.fileUrl || item.driveUrl || "").match(
-                  /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                )
-                  ? "bg-amber-500 hover:bg-amber-600 text-neutral-950 font-black"
-                  : "bg-primary text-primary-foreground hover:opacity-90"
-              )}
+              className="ml-1 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-[11px] font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-[.98] transition-all cursor-pointer"
             >
               {(item.fileUrl || item.driveUrl || "").match(
-                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              ) ? (
-                <FolderOpen className="size-3 shrink-0" />
-              ) : null}
-              <span>
-                {(item.fileUrl || item.driveUrl || "").match(
-                  /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                )
-                  ? "Open Folder"
-                  : "Preview"}
-              </span>
-              <ExternalLink className="size-2.5 opacity-80" />
+                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
+              ) ? <FolderOpen className="size-3.5" /> : <ExternalLink className="size-3" />}
+              <span>Open</span>
             </button>
           </div>
         </div>
