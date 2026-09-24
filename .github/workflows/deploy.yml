@@ -1,4 +1,4 @@
-name: Build & Deploy CampusLoop to Cloudflare Workers
+name: Verify & Deploy CampusLoop to Cloudflare Workers
 
 on:
   push:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build & Deploy to Cloudflare
+    name: Verify, Build & Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
