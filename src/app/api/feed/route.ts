@@ -18,12 +18,37 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const scope = searchParams.get("scope") as "CAMPUS" | "GLOBAL" | null;
-    const type = searchParams.get("type");
+    const scopeParam = searchParams.get("scope");
+    const typeParam = searchParams.get("type");
+    const visibilityParam = searchParams.get("visibility");
     const sort = normalizeApiFeedSort(searchParams.get("sort"));
-    const visibility = searchParams.get("visibility");
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const limit = Math.min(Math.max(1, Number(searchParams.get("limit")) || 20), 50);
+
+    if (scopeParam && !["CAMPUS", "GLOBAL"].includes(scopeParam)) {
+      return NextResponse.json({ error: "Invalid feed scope." }, { status: 400 });
+    }
+    if (
+      typeParam &&
+      typeParam !== "ALL" &&
+      typeParam !== "all" &&
+      typeParam !== "memes" &&
+      !posts.type.enumValues.includes(typeParam as (typeof posts.type.enumValues)[number])
+    ) {
+      return NextResponse.json({ error: "Invalid feed type." }, { status: 400 });
+    }
+    if (
+      visibilityParam &&
+      !["all", "anonymous", "public", "non_anonymous", "NON_ANONYMOUS"].includes(visibilityParam)
+    ) {
+      return NextResponse.json({ error: "Invalid feed visibility." }, { status: 400 });
+    }
+
+    const pageRaw = Number(searchParams.get("page"));
+    const limitRaw = Number(searchParams.get("limit"));
+    const page = Number.isInteger(pageRaw) && pageRaw > 0 ? Math.min(pageRaw, 10_000) : 1;
+    const limit = Number.isInteger(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 50) : 20;
+    const scope = scopeParam as "CAMPUS" | "GLOBAL" | null;
+    const type = typeParam;
+    const visibility = visibilityParam;
     const offset = (page - 1) * limit;
     const hashtag = searchParams.get("hashtag");
 
