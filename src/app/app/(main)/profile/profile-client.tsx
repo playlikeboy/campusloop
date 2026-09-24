@@ -149,6 +149,7 @@ export function ProfileClientView({
   const [showAvatarMenu, setShowAvatarMenu] = useState(false);
   const [showPhotoLightbox, setShowPhotoLightbox] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // Sync tab with URL query parameter on navigation
   useEffect(() => {
@@ -484,7 +485,7 @@ export function ProfileClientView({
                 <span className="text-base font-bold text-foreground truncate tracking-tight">
                   {profile.displayName}
                 </span>
-                <BadgeCheck className="size-4 text-[#1D9BF0] shrink-0" />
+                <BadgeCheck className="size-4 text-primary shrink-0" />
               </div>
               <p className="text-xs text-muted-foreground truncate">
                 {posts.length} {posts.length === 1 ? "post" : "posts"}
@@ -513,19 +514,75 @@ export function ProfileClientView({
 
             <button
               type="button"
-              onClick={handleShareVibe}
-              className="size-8 sm:size-9 rounded-full border border-border/60 hover:bg-muted/60 text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              title="More options"
+              onClick={() => setShowProfileMenu((value) => !value)}
+              className="cl-interactive flex size-8 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
+              title="More profile actions"
+              aria-label="More profile actions"
+              aria-expanded={showProfileMenu}
             >
               <MoreVertical className="size-4" />
             </button>
           </div>
         </div>
+
+        {showProfileMenu && (
+          <>
+            <button
+              type="button"
+              aria-label="Close profile actions"
+              className="fixed inset-0 z-30 cursor-default bg-transparent"
+              onClick={() => setShowProfileMenu(false)}
+            />
+            <div className="absolute right-3 top-11 z-40 w-48 rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-xl">
+              {isOwnProfile ? (
+                <Link
+                  href="/app/profile/edit"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
+                >
+                  <Edit3 className="size-4 text-primary" />
+                  Edit profile
+                </Link>
+              ) : (
+                <Link
+                  href={`/app/chat?userId=${profile.id}`}
+                  onClick={() => setShowProfileMenu(false)}
+                  className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
+                >
+                  <MessageSquare className="size-4" />
+                  Message
+                </Link>
+              )}
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowProfileMenu(false);
+                  await handleShareVibe();
+                }}
+                className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-semibold hover:bg-muted"
+              >
+                <Share2 className="size-4" />
+                Share profile
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  setShowQrModal(true);
+                }}
+                className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-semibold hover:bg-muted"
+              >
+                <QrCode className="size-4" />
+                QR card
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      <main className="w-full max-w-2xl mx-auto border-x border-border/40 min-h-screen">
+      <main className="mx-auto min-h-screen w-full max-w-2xl border-x border-border/40">
         {/* ─── Profile Cover Banner (Clean Neutral Canvas) ─── */}
-        <div className="relative h-36 sm:h-48 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
+        <div className="relative h-32 sm:h-44 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
           {currentBannerUrl ? (
             <img src={currentBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
           ) : (
@@ -543,7 +600,7 @@ export function ProfileClientView({
                 className="h-8 px-3 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center gap-1.5 backdrop-blur-md transition-all cursor-pointer text-xs font-semibold border border-white/10"
                 title="Choose Cover from Unsplash"
               >
-                <Sparkles className="size-3.5 text-[#1D9BF0]" />
+                <Sparkles className="size-3.5 text-primary" />
                 <span className="hidden sm:inline">Unsplash</span>
               </button>
 
@@ -584,7 +641,7 @@ export function ProfileClientView({
                 onClick={() => {
                   if (isOwnProfile) setShowAvatarMenu(true);
                 }}
-                className="relative size-24 sm:size-32 rounded-full border-4 border-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
+                className="relative size-24 sm:size-28 rounded-full border-4 border-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
               >
                 <Avatar className="size-full">
                   <AvatarImage src={currentAvatarUrl || ""} className="object-cover size-full" />
@@ -661,7 +718,7 @@ export function ProfileClientView({
                   {profile.displayName}
                 </h1>
                 <span title="Verified Campus Student">
-                  <BadgeCheck className="size-5 text-[#1D9BF0] shrink-0" />
+                  <BadgeCheck className="size-5 text-primary shrink-0" />
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
@@ -744,7 +801,7 @@ export function ProfileClientView({
                 className="hover:opacity-80 transition-opacity cursor-pointer"
               >
                 <p className="text-lg font-black text-primary">{points}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Likes</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Clout</p>
               </button>
             </div>
 
@@ -781,10 +838,10 @@ export function ProfileClientView({
         <ProfileHighlights userId={profile.id} username={profile.username} isOwnProfile={isOwnProfile} />
 
         {/* ─── Campus & Academic Discipline Card ─── */}
-        <div className="mx-4 my-2 rounded-2xl border border-border/40 bg-card/40 p-4 space-y-3">
+        <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <GraduationCap className="size-4 text-[#1D9BF0]" /> Campus &amp; Academic Discipline
+              <GraduationCap className="size-4 text-primary" /> Academic profile
             </h3>
             <ChevronRight className="size-4 text-muted-foreground/50" />
           </div>
@@ -802,7 +859,7 @@ export function ProfileClientView({
                 <span>·</span>
                 <Link
                   href={branchSlug ? `/app/branch/${branchSlug}` : "#"}
-                  className="text-[#1D9BF0] font-semibold hover:underline inline-flex items-center gap-0.5"
+                  className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5"
                 >
                   <span>{profile.branch || "Computer Science & Engineering"}</span>
                   <ArrowUpRight className="size-3" />
@@ -851,10 +908,10 @@ export function ProfileClientView({
         </div>
 
         {/* ─── Campus Clout & Analytics Card ─── */}
-        <div className="mx-4 my-2 rounded-2xl border border-border/40 bg-card/40 p-4 space-y-3">
+        <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <TrendingUp className="size-3.5 text-[#1D9BF0]" /> Campus Clout &amp; Analytics
+              <TrendingUp className="size-3.5 text-primary" /> Campus Clout
             </h3>
             <span className="text-xs font-bold text-muted-foreground">Level {tier.level || 1}</span>
           </div>
@@ -869,7 +926,7 @@ export function ProfileClientView({
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-foreground">{tier.tierName || "Rookie"}</h4>
-                <span className="text-sm font-bold text-[#1D9BF0]">
+                <span className="text-sm font-bold text-primary">
                   {points} / {tier.maxPoints + 1} LP
                 </span>
               </div>
@@ -880,7 +937,7 @@ export function ProfileClientView({
           {/* Progress Bar with single-tone Twitter blue track */}
           <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
             <div
-              className="h-full rounded-full bg-[#1D9BF0] transition-all duration-500"
+              className="h-full rounded-full bg-primary transition-all duration-500"
               style={{
                 width: `${Math.min(100, Math.max(8, Math.round((points / (tier.maxPoints + 1)) * 100)))}%`,
               }}
@@ -905,7 +962,7 @@ export function ProfileClientView({
               onClick={() => handleTabChange("clout")}
               className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground text-xs font-semibold transition-all cursor-pointer active:scale-95"
             >
-              <Crown className="size-3 text-[#1D9BF0]" />
+              <Crown className="size-3 text-primary" />
               <span>View Perks</span>
             </button>
           </div>
@@ -913,16 +970,16 @@ export function ProfileClientView({
 
         {/* ─── Shared Notes & Study Materials Overview Card ─── */}
         {(userResources.length > 0 || userPlaylists.length > 0) && (
-          <div className="mx-4 my-2 rounded-2xl border border-border/40 bg-card/40 p-4 space-y-3">
+          <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <FolderPlus className="size-4 text-[#1D9BF0]" /> Shared Notes &amp; Study Materials (
+                <FolderPlus className="size-4 text-primary" /> Study materials (
                 {userAcademicsCount})
               </h3>
               <button
                 type="button"
                 onClick={() => handleTabChange("academics")}
-                className="text-xs font-bold text-[#1D9BF0] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <span>View All</span>
                 <ArrowUpRight className="size-3" />
@@ -938,7 +995,7 @@ export function ProfileClientView({
                     href={`/app/academics/playlists/${pl.slug}`}
                     className="p-2.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted/50 transition-colors block"
                   >
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#1D9BF0]/10 text-[#1D9BF0]">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#1D9BF0]/10 text-primary">
                       {pl.category?.replace("_", " ") || "Stack"}
                     </span>
                     <h4 className="text-xs font-bold text-foreground truncate mt-1">{pl.title}</h4>
@@ -963,7 +1020,7 @@ export function ProfileClientView({
                       <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-semibold">
                         <span className="font-mono text-foreground/80">{res.subjectCode}</span>
                         <span>·</span>
-                        <span className="text-[#1D9BF0] uppercase">{res.resourceType}</span>
+                        <span className="text-primary uppercase">{res.resourceType}</span>
                         <span>·</span>
                         <span>Sem {res.semester}</span>
                       </div>
@@ -979,8 +1036,9 @@ export function ProfileClientView({
 
         {/* ─── Profile Navigation Underline Tabs (Twitter Style) ─── */}
         {/* ─── Segmented Pill Tabs (Mockup Style) ─── */}
-        <div className="flex items-center gap-1.5 p-1.5 bg-muted/60 rounded-full mx-4 my-3 overflow-x-auto no-scrollbar">
-          {[
+        <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-xl">
+          <div className="flex items-center overflow-x-auto px-3 no-scrollbar">
+            {[
             { id: "photos", label: "Photos" },
             { id: "posts", label: "Posts" },
             { id: "articles", label: "Articles" },
@@ -995,7 +1053,7 @@ export function ProfileClientView({
                 type="button"
                 onClick={() => handleTabChange(tab.id as any)}
                 className={cn(
-                  "px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer",
+                  "cl-interactive relative shrink-0 border-b-2 px-4 py-3 text-xs font-bold transition-colors",
                   isActive
                     ? "bg-secondary text-secondary-foreground shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
@@ -1005,6 +1063,7 @@ export function ProfileClientView({
               </button>
             );
           })}
+          </div>
         </div>
 
         {/* ─── Tab Content ─── */}
