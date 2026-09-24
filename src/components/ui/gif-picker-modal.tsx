@@ -100,6 +100,9 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
       return;
     }
 
+    clearSearchTimeout();
+    setSearchQuery("");
+    setSelectedTag("trending");
     void fetchGifs("");
 
     const previousOverflow = document.body.style.overflow;
