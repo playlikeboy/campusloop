@@ -29,6 +29,13 @@
       "when": 1789099617249,
       "tag": "0003_spicy_marvex",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790232600000,
+      "tag": "0004_community_query_indexes",
+      "breakpoints": true
     }
   ]
 }
