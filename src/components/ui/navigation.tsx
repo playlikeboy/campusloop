@@ -445,8 +445,8 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
         !pathname.startsWith("/app/stories/new") &&
         !pathname.startsWith("/app/story/") &&
         !pathname.startsWith("/app/post/new") && (
-          <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col border-t border-border/35 bg-background/94 backdrop-blur-2xl md:hidden touch-manipulation select-none pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_24px_rgba(70,60,130,0.05)]">
-            <div className="flex h-12 items-center justify-around px-2">
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col border-t border-border/45 bg-background/96 backdrop-blur-2xl md:hidden touch-manipulation select-none pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-6px_18px_rgba(70,60,130,0.04)]">
+            <div className="mx-auto flex h-[58px] w-full max-w-md items-stretch gap-0.5 px-1.5">
               {mobileBottomItems.map((item) => {
                 const isActive =
                   pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
@@ -463,13 +463,13 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                         sounds.tap();
                         haptics.medium();
                       }}
-                      className="flex flex-col items-center justify-center -mt-2 shrink-0 mx-1 group cursor-pointer select-none"
+                      className="cl-interactive flex shrink-0 flex-col items-center justify-center -mt-1 mx-1 w-14 cursor-pointer select-none"
                       aria-label="Create post or confession"
                     >
-                      <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-[0_4px_16px_rgba(0,210,133,0.32)] ring-4 ring-background group-active:scale-90 transition-transform">
-                        <AnimatedIcon icon={AnimatePlus} animation="spin" size={24} strokeWidth={2.6} />
+                      <div className="flex size-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_5px_16px_rgba(0,210,133,0.28)] ring-2 ring-background transition-transform active:scale-95">
+                        <AnimatedIcon icon={AnimatePlus} animation="spin" size={22} strokeWidth={2.6} />
                       </div>
-                      <span className="mt-0.5 text-[10px] font-bold text-primary group-hover:text-primary transition-colors">
+                      <span className="mt-0.5 text-[9px] font-bold tracking-tight text-primary">
                         Create
                       </span>
                     </Link>
@@ -486,15 +486,15 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       haptics.light();
                     }}
                     className={cn(
-                      "group flex flex-col items-center justify-center flex-1 h-full py-1 relative active:scale-95 transition-transform",
-                      isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
+                      "cl-interactive group relative flex h-full min-w-0 flex-1 flex-col items-center justify-center rounded-xl py-1.5",
+                      isActive ? "bg-primary/8 text-primary" : "text-muted-foreground hover:bg-muted/55 hover:text-foreground"
                     )}
                   >
                     <div className="relative">
                       <AnimatedIcon
                         icon={Icon}
                         animation="pop"
-                        size={22}
+                        size={21}
                         strokeWidth={isActive ? 2.5 : 2}
                         animateOnHover={false}
                         playKey={isActive}
@@ -509,7 +509,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                     </div>
                     <span
                       className={cn(
-                        "mt-0.5 text-[10px] tracking-tight transition-colors",
+                        "mt-0.5 text-[9px] tracking-tight transition-colors",
                         isActive ? "text-primary font-bold" : "text-muted-foreground font-medium"
                       )}
                     >
@@ -520,7 +520,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
               })}
             </div>
             {/* iOS/Android Home Indicator Bar */}
-            <div className="w-24 h-1 bg-muted-foreground/20 rounded-full mx-auto mb-1.5 shrink-0" />
+            <div className="mx-auto mb-1.5 h-1 w-20 shrink-0 rounded-full bg-muted-foreground/20" />
           </div>
         )}
 
