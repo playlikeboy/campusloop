@@ -580,14 +580,14 @@ export async function resolveFeedPage(options: {
   });
 
   const viewerVoteMap = new Map<string, number>();
-  if (viewerProfileId && ids.length > 0) {
+  if (options.viewerProfileId && ids.length > 0) {
     const viewerVotes = await db
       .select({
         postId: votes.postId,
         value: votes.value,
       })
       .from(votes)
-      .where(and(eq(votes.userId, viewerProfileId), inArray(votes.postId, ids)));
+      .where(and(eq(votes.userId, options.viewerProfileId), inArray(votes.postId, ids)));
 
     for (const row of viewerVotes) {
       viewerVoteMap.set(row.postId, row.value);
@@ -603,7 +603,7 @@ export async function resolveFeedPage(options: {
         optionId: pollVotes.optionId,
         votesCount: sql<number>`count(*)::int`,
         viewerVoted: viewerProfileId
-          ? sql<boolean>`bool_or(${pollVotes.userId} = ${viewerProfileId})`
+          ? sql<boolean>`bool_or(${pollVotes.userId} = ${options.viewerProfileId})`
           : sql<boolean>`false`,
       })
       .from(pollVotes)
@@ -621,10 +621,17 @@ export async function resolveFeedPage(options: {
   const byId = new Map(
     hydrated.map((post) => {
       const dbCounts = countsMap.get(post.id);
+      const postPollVoteStats = Object.fromEntries(
+        (post.pollOptions ?? []).map((option) => [
+          option.id,
+          pollVoteStatsMap.get(option.id) ?? { votesCount: 0, viewerVoted: false },
+        ])
+      );
       return [
         post.id,
         {
           ...post,
+          pollVoteStats: postPollVoteStats,
           _counts: {
             commentCount: dbCounts?.commentCount ?? (post.comments?.length || 0),
             voteScore: Number(dbCounts?.voteScore || 0),
@@ -759,7 +766,7 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
       rawCommentCount !== undefined ? Math.max(rawCommentCount, commentsList.length) : commentsList.length;
 
     const formattedPollOptions = post.pollOptions?.map((opt) => {
-      const stats = pollVoteStatsMap.get(opt.id);
+      const stats = post.pollVoteStats?.[opt.id];
       return {
         id: opt.id,
         text: opt.text,
