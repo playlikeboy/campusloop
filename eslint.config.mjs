@@ -43,6 +43,21 @@ export default [
 				},
 			],
 			"@next/next/no-img-element": "warn",
+			"react/no-array-index-key": "warn",
+			"max-lines": ["warn", { max: 1000, skipBlankLines: true, skipComments: true }],
+		},
+	},
+	{
+		// Client components should use the shared request helpers for consistent error handling and timeouts.
+		files: ["src/components/**/*.{ts,tsx}", "src/app/**/*-client.{ts,tsx}"],
+		rules: {
+			"no-restricted-globals": [
+				"warn",
+				{
+					name: "fetch",
+					message: "Use fetcher/apiRequest from @/lib/api instead of raw fetch() in client UI.",
+				},
+			],
 		},
 	},
 	{
