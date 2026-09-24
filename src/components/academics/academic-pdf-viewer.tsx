@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { AcademicAttachment } from "@/db/schema/academic-resources";
+import type { AcademicAttachment } from "@/db/schema";
 import { buildAcademicStudyPrompt, getChatGptStudyUrl, getClaudeStudyUrl } from "@/lib/academics/ai-prompts";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
