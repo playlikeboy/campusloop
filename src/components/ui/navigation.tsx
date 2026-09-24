@@ -2,17 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowLeft,
-  Bell,
-  Compass,
   GraduationCap,
   Home,
   MoreHorizontal,
   Plus,
-  Search,
   School,
   UserCircle,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,7 +19,6 @@ import {
   AnimateBellRing,
   AnimateMessageSquare,
   AnimatePlus,
-  AnimateUser,
   AnimatedIcon,
 } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,30 +57,11 @@ const HIDE_GLOBAL_MOBILE_NAV = [
   "/app/matching",
   "/app/notifications",
   "/@",
+  "/app/more",
 ];
 
 function isMobileFlow(pathname: string) {
   return HIDE_GLOBAL_MOBILE_NAV.some((prefix) => pathname.startsWith(prefix));
-}
-
-function getMobileTitle(pathname: string) {
-  if (pathname === "/app") return "CampusLoop";
-  if (pathname.startsWith("/app/discover")) return "Explore";
-  if (pathname.startsWith("/app/communities")) return "Communities";
-  if (pathname.startsWith("/app/confessions")) return "Confessions";
-  if (pathname.startsWith("/app/reels")) return "Reels";
-  if (pathname.startsWith("/app/events")) return "Events";
-  if (pathname.startsWith("/app/academics")) return "Academics";
-  if (pathname.startsWith("/app/articles")) return "Articles";
-  if (pathname.startsWith("/app/saved")) return "Saved";
-  if (pathname.startsWith("/app/profile")) return "Profile";
-  if (pathname.startsWith("/app/more")) return "CampusLoop";
-  return "CampusLoop";
-}
-
-function shouldShowBackButton(pathname: string) {
-  return pathname !== "/app" &&
-    !["/app/discover", "/app/communities", "/app/confessions", "/app/reels", "/app/events", "/app/academics", "/app/profile"].includes(pathname);
 }
 
 export function Navigation({ profile, collegeName, isViewer }: NavigationProps) {
@@ -120,16 +95,6 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
       }),
     [isViewer]
   );
-
-  const showMobileNav = !isMobileFlow(pathname);
-
-  const mobileTitle = getMobileTitle(pathname);
-  const showBack = shouldShowBackButton(pathname);
-  const isHome = pathname === "/app";
-
-  const goBack = () => {
-    window.history.length > 1 ? window.history.back() : window.location.assign("/app");
-  };
 
   return (
     <>
@@ -340,56 +305,8 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
         )}
       </aside>
 
-      {/* Mobile header: no hamburger/sidebar, no duplicate chat/profile navigation. */}
-      {showMobileNav && (
-        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/25 bg-background/92 px-4 backdrop-blur-xl md:hidden">
-          <div className="flex min-w-0 items-center gap-2.5">
-            {showBack ? (
-              <button
-                type="button"
-                onClick={goBack}
-                className="grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted active:scale-95"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="size-5" />
-              </button>
-            ) : isHome ? (
-              <Link href="/app" aria-label="CampusLoop home" className="grid size-9 shrink-0 place-items-center">
-                <img src="/logo.png" alt="" className="size-8 object-contain" />
-              </Link>
-            ) : null}
-
-            <h1 className={cn("truncate text-[16px] font-black tracking-tight", !showBack && !isHome && "ml-1")}>
-              {mobileTitle}
-            </h1>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-0.5">
-            {(isHome || pathname.startsWith("/app/discover")) && (
-              <Link
-                href="/app/search"
-                className="grid size-10 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Search CampusLoop"
-              >
-                <Search className="size-5" />
-              </Link>
-            )}
-            <Link
-              href="/app/notifications"
-              className="relative grid size-10 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Notifications"
-            >
-              <Bell className="size-5" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute right-2 top-2 size-2 rounded-full bg-brand ring-2 ring-background" />
-              )}
-            </Link>
-          </div>
-        </header>
-      )}
-
       {/* Mobile: one and only one global navigation system. */}
-      {showMobileNav && (
+      {!isMobileFlow(pathname) && (
         <nav
           aria-label="Main mobile navigation"
           className="fixed inset-x-0 bottom-0 z-40 border-t border-border/35 bg-background/96 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-6px_18px_rgba(70,60,130,0.05)] backdrop-blur-2xl md:hidden"
