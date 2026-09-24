@@ -60,7 +60,7 @@ const BRANCHES = [
 ] as const;
 
 const SEMESTERS = [
-  { id: "all", label: "All Sems" },
+  { id: "all", label: "All Semesters" },
   { id: "1", label: "Sem 1" },
   { id: "2", label: "Sem 2" },
   { id: "3", label: "Sem 3" },
@@ -264,15 +264,15 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/40 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8">
         {/* Top bar: Title & Quick Actions */}
         <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <h1 className="text-base font-black tracking-tight text-foreground sm:text-xl">Academics</h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold border border-primary/20">
-              <GraduationCap className="size-3.5" />
-              <span>1,350+ Campus Hubs</span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-1 text-[10px] font-bold text-primary border border-primary/15">
+              <GraduationCap className="size-3" />
+              1,350+ campus hubs
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1.5">
             {/* Search Toggle Icon Button */}
             <button
               type="button"
@@ -282,7 +282,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setIsSearchOpen((prev) => !prev);
               }}
               className={cn(
-                "flex size-8.5 items-center justify-center rounded-full transition-colors cursor-pointer",
+                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
                 isSearchOpen
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -301,7 +301,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setActiveTab("SAVED");
               }}
               className={cn(
-                "flex size-8.5 items-center justify-center rounded-full transition-colors cursor-pointer",
+                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
                 activeTab === "SAVED"
                   ? "bg-amber-500/15 text-amber-500"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -328,7 +328,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center gap-1 h-8 rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
+              className="flex h-9 items-center gap-1.5 rounded-xl bg-primary px-3 sm:px-3.5 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
             >
               <Plus className="size-3.5" />
               <span>Upload</span>
@@ -366,7 +366,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
         </div>
 
         {/* ─── Compact Filter Ribbon ────────────────────────────────────────── */}
-        <div className="px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
+        <div className="px-0 sm:px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
           {/* Inline Search Bar (Expanded or has text) */}
           {(isSearchOpen || searchQuery) && (
             <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -375,7 +375,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search subject code (CS201), topic or exam paper..."
+                placeholder="Search notes, PYQs, subjects..."
                 className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
                 autoFocus={isSearchOpen}
               />
@@ -436,8 +436,8 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSelectedBranch(e.target.value);
               }}
-              className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-            >
+                className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
                   {b === "All" ? "All Branches" : b}
@@ -446,20 +446,23 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             </select>
 
             {/* Semester Select */}
-            <select
-              value={selectedSemester}
-              onChange={(e) => {
+            {activeTab !== "SAVED" && (
+              <select
+                aria-label="Filter by semester"
+                value={selectedSemester}
+                onChange={(e) => {
                 sounds.tap();
                 setSelectedSemester(e.target.value);
               }}
               className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
-              {SEMESTERS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+                {SEMESTERS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            )}
 
             {/* Sort Select */}
             <select
@@ -468,7 +471,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSortBy(e.target.value as any);
               }}
-              className="h-7 rounded-full bg-primary/10 border border-primary/20 px-2 text-[11px] font-bold text-primary outline-none cursor-pointer shrink-0"
+              className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
               <option value="for_you">Recommended</option>
               <option value="latest">Latest</option>
@@ -544,9 +547,9 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
         {/* ── 1. SAVED MATERIALS & PLAYLISTS TAB ───────────────────────────── */}
         {activeTab === "SAVED" ? (
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-3 sm:p-4">
             {/* Saved Mode Switcher: Notes vs Playlists */}
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-border/30 pb-2">
               <div className="flex rounded-full bg-muted/40 p-0.5 border border-border/40">
                 <button
                   type="button"
@@ -643,16 +646,16 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   </div>
                 )
               ) : (
-                <div className="py-16 text-center space-y-3 px-4 rounded-2xl border border-dashed border-border/60">
-                  <Bookmark className="size-10 text-muted-foreground/30 mx-auto" />
+                <div className="py-12 sm:py-14 text-center space-y-2.5 px-4 rounded-2xl border border-dashed border-border/60 bg-muted/5">
+                  <Bookmark className="size-8 text-muted-foreground/25 mx-auto" />
                   <div className="space-y-1">
                     <h3 className="text-sm font-bold text-foreground">
                       {savedSemesterFilter !== "all"
                         ? `No saved materials for Semester ${savedSemesterFilter}`
-                        : "Your academic locker is empty"}
+                        : "No saved materials yet"}
                     </h3>
                     <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                      Tap the bookmark icon on any exam paper or note to quickly save it to your locker.
+                      Bookmark a note or PYQ to find it here.
                     </p>
                   </div>
                   <button
@@ -660,7 +663,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                     onClick={() => setActiveTab("for_you")}
                     className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                   >
-                    <span>Browse Academic Vault</span>
+                    <span>Browse Academic Vault →</span>
                   </button>
                 </div>
               )
@@ -701,9 +704,9 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             {/* Header Action */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-black text-foreground">Semester Stacks &amp; Exam Bundles</h2>
+                <h2 className="text-sm font-black tracking-tight text-foreground">Study playlists</h2>
                 <p className="text-xs text-muted-foreground">
-                  1-click study playlists curated by verified students
+                  Curated notes, PYQs and revision material
                 </p>
               </div>
               <Link
@@ -711,7 +714,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 <Plus className="size-3" />
-                <span>New Stack</span>
+                <span>New playlist</span>
               </Link>
             </div>
 

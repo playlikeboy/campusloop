@@ -87,7 +87,7 @@ export function FeedCardHeader({
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
 
   return (
-    <div className="min-w-0 select-none pb-1">
+    <div className="min-w-0 select-none pb-0.5">
       {/* Primary Author & Time Row */}
       <div className="flex items-start justify-between gap-2 min-w-0">
         <div className="min-w-0 flex-1">
@@ -155,7 +155,7 @@ export function FeedCardHeader({
           </div>
 
           {/* Subtitle: Campus / Location · Time (Mockup style) */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-0.5">
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
             {institutionDisplayName && (
               <>
                 <span className="font-medium truncate max-w-[160px] sm:max-w-[220px]">
@@ -200,7 +200,7 @@ export function FeedCardHeader({
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className="size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
+              className="cl-interactive size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
               aria-label="More options"
             >
               <MoreHorizontal className="size-4" />
@@ -324,34 +324,16 @@ export function FeedCardHeader({
       </div>
 
       {/* Optional Context Sub-Row: Community & College */}
-      {(post.community || (!post.isAnonymous && institutionDisplayName)) && (
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 font-medium truncate pt-0.5">
-          {post.community && (
-            <Link
-              href={`/app/communities/${post.community.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="text-primary font-bold hover:underline truncate max-w-[180px] sm:max-w-[260px] inline-flex items-center gap-1"
-              title={`c/${post.community.name}`}
-            >
-              <span>c/{post.community.name}</span>
-            </Link>
-          )}
-
-          {post.community && !post.isAnonymous && institutionDisplayName && (
-            <span className="text-muted-foreground/40">·</span>
-          )}
-
-          {!post.isAnonymous && institutionDisplayName && (
-            <Link
-              href={`/app/college/${post.institution?.slug || post.institutionId}`}
-              onClick={(e) => e.stopPropagation()}
-              className="hover:text-foreground truncate max-w-[150px] sm:max-w-[220px] inline-flex items-center gap-1.5 transition-colors"
-              title={post.institution?.name || ""}
-            >
-              <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)] shrink-0" />
-              <span className="truncate">{institutionDisplayName}</span>
-            </Link>
-          )}
+      {post.community && (
+        <div className="pt-0.5 text-[11px] font-medium text-muted-foreground/80 truncate">
+          <Link
+            href={`/app/communities/${post.community.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex max-w-full items-center gap-1 font-bold text-primary hover:underline truncate"
+            title={`c/${post.community.name}`}
+          >
+            <span>c/{post.community.name}</span>
+          </Link>
         </div>
       )}
 

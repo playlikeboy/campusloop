@@ -449,7 +449,7 @@ export function UploadAcademicClient() {
   const currentType = RESOURCE_TYPES.find((r) => r.id === resourceType) || RESOURCE_TYPES[0];
 
   return (
-    <div className="mx-auto w-full max-w-7xl pb-24 px-3 sm:px-6 lg:px-8 pt-2 sm:pt-4">
+    <div className="mx-auto w-full max-w-6xl pb-10 px-3 sm:px-5 lg:px-8 pt-2 sm:pt-4">
       {/* ─── Breadcrumb & Header ─── */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/30 pb-5">
         <div className="space-y-1.5">
@@ -466,7 +466,7 @@ export function UploadAcademicClient() {
           </div>
 
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <span>Publish Study Materials &amp; Packs</span>
+            <span>Upload study material</span>
             <span className="flex size-6.5 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
               <UploadCloud className="size-3.5" />
             </span>
@@ -490,14 +490,14 @@ export function UploadAcademicClient() {
           {/* ─── LEFT COLUMN: Multi-Section Creator Studio (8 Columns) ─── */}
           <div className="lg:col-span-8 space-y-6">
             {/* Step 1: Resource Type Selector */}
-            <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-4">
+            <div className="rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
                     1
                   </span>
                   <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    Select Material Category
+                    What are you uploading?
                   </h2>
                 </div>
                 <span className="text-xs font-bold text-muted-foreground">{currentType.label}</span>
@@ -517,7 +517,7 @@ export function UploadAcademicClient() {
                         setResourceType(type.id);
                       }}
                       className={cn(
-                        "flex flex-col text-left p-3.5 rounded-2xl border transition-all cursor-pointer relative",
+                        "flex flex-col text-left p-3 rounded-xl border transition-all cursor-pointer relative min-h-[92px]",
                         isSelected
                           ? "bg-primary/10 border-primary shadow-xs ring-1 ring-primary/40"
                           : "bg-muted/20 border-border/40 hover:bg-muted/40 hover:border-border/80"
@@ -539,7 +539,7 @@ export function UploadAcademicClient() {
                         )}
                       </div>
                       <p className="text-xs font-black text-foreground">{type.label}</p>
-                      <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
+                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
                         {type.desc}
                       </p>
                     </button>
@@ -556,7 +556,7 @@ export function UploadAcademicClient() {
                     2
                   </span>
                   <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    Subject &amp; Course Details
+                    Course details
                   </h2>
                 </div>
                 <button
@@ -565,7 +565,7 @@ export function UploadAcademicClient() {
                   className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
                 >
                   <Sparkles className="size-3" />
-                  <span>Auto-Format Title</span>
+                  <span>Generate title</span>
                 </button>
               </div>
 
@@ -622,12 +622,12 @@ export function UploadAcademicClient() {
               {/* Description */}
               <div className="space-y-1.5 pt-1">
                 <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                  <span>Topics Covered / Curator Notes</span>
+                  <span>What’s included?</span>
                   <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Summarize the topics, chapters, professor name, or exam years included in this post..."
+                  placeholder="Topics, chapters, professor, exam year, important units..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full rounded-2xl border border-border/40 bg-muted/30 p-3.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
@@ -642,7 +642,7 @@ export function UploadAcademicClient() {
                   3
                 </span>
                 <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                  Branch &amp; Semester Alignment
+                  Academic details
                 </h2>
               </div>
 
@@ -704,7 +704,7 @@ export function UploadAcademicClient() {
                     4
                   </span>
                   <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    Upload Multiple Files, Slides &amp; Links
+                    Materials
                   </h2>
                 </div>
 
@@ -731,9 +731,9 @@ export function UploadAcademicClient() {
                   <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 group-hover:scale-105 transition-transform mb-2">
                     <UploadCloud className="size-5" />
                   </div>
-                  <p className="text-xs font-black text-foreground">Upload Files / PDFs / PPTs</p>
+                  <p className="text-xs font-black text-foreground">Add files</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Select multiple files at once (up to 50MB each)
+                    PDF, PPT, DOCX, images · 50MB each
                   </p>
                 </label>
 

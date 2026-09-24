@@ -6,6 +6,7 @@ import {
   ArrowRight,
   BookOpen,
   Brain,
+  Check,
   Code2,
   Film,
   Gamepad2,
@@ -93,6 +94,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
   // Video calling state in Random Loop
   const [isVideoActive, setIsVideoActive] = useState(false);
   const [showVideoConsentModal, setShowVideoConsentModal] = useState(false);
+  const [showAllInterests, setShowAllInterests] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,7 +104,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
     partner: any;
     messages: any[];
   }>(activeSessionId ? `/api/random/session/${activeSessionId}` : null, fetcher, {
-    refreshInterval: 1800, // Real-time poll every 1.8s
+    refreshInterval: 2500, // Frequent enough for chat, lighter on mobile data
   });
 
   const session = sessionData?.session;
@@ -208,7 +210,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
         } catch {
           // Poll retry
         }
-      }, 2000);
+      }, 2500);
     }
     return () => clearInterval(interval);
   }, [viewState]);
@@ -408,100 +410,125 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
 
   // ─── 1. CONFIGURING VIEW ───
   if (viewState === "CONFIGURING") {
+    const visibleInterests = showAllInterests
+      ? INTEREST_CHIPS
+      : [
+          ...INTEREST_CHIPS.slice(0, 6),
+          ...INTEREST_CHIPS.slice(6).filter((chip) => selectedInterests.includes(chip.id)),
+        ].filter((chip, index, arr) => arr.findIndex((item) => item.id === chip.id) === index);
+
     return (
-      <main className="max-w-xl mx-auto min-h-[calc(100dvh-5rem)] p-4 flex flex-col justify-between select-none">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-border/30 pb-4">
-            <div className="flex items-center gap-3">
+      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-xl px-3 pb-28 pt-3 sm:px-4 sm:pt-4 select-none">
+        <div className="space-y-5">
+          <header className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
               <Link
                 href="/app/more"
-                className="size-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all"
+                aria-label="Back to more"
               >
-                <ArrowLeft className="size-5" />
+                <ArrowLeft className="size-4.5" />
               </Link>
-              <div>
-                <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-1.5">
-                  <Zap className="size-5 text-amber-500 fill-amber-500" />
-                  <span>Random Loop</span>
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  You don't know who you'll meet. You know they're in the Loop.
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="size-4.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <h1 className="truncate text-lg font-black tracking-tight text-foreground">Random Loop</h1>
+                </div>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                  Meet a verified student without seeing their identity first.
                 </p>
               </div>
             </div>
-
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <button
+              type="button"
+              onClick={() => setShowSafetyModal(true)}
+              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-primary/8 px-3 text-[10px] font-black text-primary hover:bg-primary/12 transition-colors cursor-pointer"
+              aria-label="View anonymity and safety details"
+            >
               <ShieldCheck className="size-3.5" />
-              <span>Verified Only</span>
-            </span>
-          </div>
+              <span>Protected</span>
+            </button>
+          </header>
 
-          {/* Mode Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-              1. Who should we find?
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setSelectedMode("MY_CAMPUS");
-                }}
-                className={cn(
-                  "p-4 rounded-3xl border-2 text-left transition-all cursor-pointer space-y-1",
-                  selectedMode === "MY_CAMPUS"
-                    ? "border-primary bg-primary/10 shadow-sm"
-                    : "border-border/50 bg-card hover:bg-muted/40"
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <School className="size-6 text-primary" />
-                  {selectedMode === "MY_CAMPUS" && <span className="size-2 rounded-full bg-primary" />}
-                </div>
-                <p className="text-sm font-black text-foreground">My Campus</p>
-                <p className="text-[11px] text-muted-foreground leading-tight">
-                  Meet someone from your own college
+          <section className="space-y-2.5" aria-labelledby="loop-audience">
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <p id="loop-audience" className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground">
+                  1 · Who do you want to meet?
                 </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setSelectedMode("ANY_CAMPUS");
-                }}
-                className={cn(
-                  "p-4 rounded-3xl border-2 text-left transition-all cursor-pointer space-y-1",
-                  selectedMode === "ANY_CAMPUS"
-                    ? "border-primary bg-primary/10 shadow-sm"
-                    : "border-border/50 bg-card hover:bg-muted/40"
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <Globe className="size-6 text-primary" />
-                  {selectedMode === "ANY_CAMPUS" && <span className="size-2 rounded-full bg-primary" />}
-                </div>
-                <p className="text-sm font-black text-foreground">Campus Hopper</p>
-                <p className="text-[11px] text-muted-foreground leading-tight">
-                  Discover students across India
-                </p>
-              </button>
-            </div>
-          </div>
-
-          {/* Interests Chips */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-                2. What do you want to talk about?
-              </label>
-              <span className="text-[11px] text-muted-foreground">{selectedInterests.length}/3 selected</span>
+                <p className="mt-1 text-[11px] text-muted-foreground">Choose the size of the pool.</p>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-1">
-              {INTEREST_CHIPS.map((chip) => {
+            <div className="grid grid-cols-2 gap-2.5">
+              {[
+                {
+                  id: "MY_CAMPUS" as const,
+                  icon: School,
+                  title: "My Campus",
+                  description: "Someone from your college",
+                },
+                {
+                  id: "ANY_CAMPUS" as const,
+                  icon: Globe,
+                  title: "Campus Hopper",
+                  description: "Someone from anywhere in India",
+                },
+              ].map((mode) => {
+                const selected = selectedMode === mode.id;
+                const ModeIcon = mode.icon;
+                return (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => {
+                      sounds.tap();
+                      haptics.light();
+                      setSelectedMode(mode.id);
+                    }}
+                    className={cn(
+                      "min-h-[108px] rounded-2xl px-3.5 py-3 text-left transition-all cursor-pointer shadow-xs",
+                      selected
+                        ? "bg-primary/8 ring-2 ring-primary"
+                        : "bg-card hover:bg-muted/50"
+                    )}
+                    aria-pressed={selected}
+                  >
+                    <div className="flex items-center justify-between">
+                      <ModeIcon className={cn("size-5", selected ? "text-primary" : "text-muted-foreground")} />
+                      <span
+                        className={cn(
+                          "flex size-5 items-center justify-center rounded-full text-[10px] font-black",
+                          selected ? "bg-primary text-primary-foreground" : "bg-muted text-transparent"
+                        )}
+                        aria-hidden="true"
+                      >
+                        <Check className="size-3" strokeWidth={3} />
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm font-black text-foreground">{mode.title}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{mode.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="space-y-2.5" aria-labelledby="loop-topics">
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <p id="loop-topics" className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground">
+                  2 · Pick a conversation vibe
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Up to 3 topics help us find a better match.</p>
+              </div>
+              <span className="shrink-0 text-[11px] font-black tabular-nums text-foreground">
+                {selectedInterests.length}/3
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {visibleInterests.map((chip) => {
                 const isSelected = selectedInterests.includes(chip.id);
                 const Icon = chip.icon;
                 return (
@@ -510,11 +537,12 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                     type="button"
                     onClick={() => handleToggleInterest(chip.id)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                      "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition-all cursor-pointer",
                       isSelected
-                        ? "bg-foreground text-background border-foreground font-black shadow-xs scale-105"
-                        : "bg-muted/50 text-muted-foreground border-border/40 hover:text-foreground hover:bg-muted"
+                        ? "bg-foreground text-background shadow-xs"
+                        : "bg-muted/55 text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
+                    aria-pressed={isSelected}
                   >
                     <Icon className="size-3.5" />
                     <span>{chip.label}</span>
@@ -522,33 +550,39 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 );
               })}
             </div>
-          </div>
 
-          {/* Accountable Anonymity Notice */}
-          <div className="p-4 rounded-3xl bg-muted/30 border border-border/40 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-black text-foreground">
-              <Shield className="size-4 text-primary" />
-              <span>Safe &amp; Accountable Anonymity</span>
+            <button
+              type="button"
+              onClick={() => setShowAllInterests((value) => !value)}
+              className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+            >
+              {showAllInterests ? "Show fewer topics" : "Show all 12 topics"}
+            </button>
+          </section>
+
+          <div className="flex items-start gap-3 rounded-2xl bg-primary/5 px-3.5 py-3">
+            <Shield className="mt-0.5 size-4 shrink-0 text-primary" />
+            <div>
+              <p className="text-xs font-black text-foreground">Anonymous + verified</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                Your identity stays private. Campus verification protects the Loop.
+              </p>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Your name and profile remain completely private. Backend identities are securely verified by
-              campus email to keep conversations respectful and safe.
-            </p>
           </div>
         </div>
 
-        {/* Start CTA */}
-        <div className="pt-6">
+        <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 mt-5 rounded-3xl bg-background/88 p-1.5 backdrop-blur-xl">
           <button
             type="button"
             onClick={handleFindSomeone}
-            className="w-full h-13 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-base flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-transform active:scale-[0.99]"
+            disabled={selectedInterests.length === 0}
+            className="h-12 w-full rounded-2xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/18 transition-all hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Zap className="size-5" />
-            <span>Find Someone in the Loop</span>
+            <Zap className="size-4.5" />
+            <span>Find Someone</span>
           </button>
-          <p className="text-center text-[10px] text-muted-foreground mt-2">
-            You will be connected anonymously. You can switch to the next student anytime.
+          <p className="pt-1.5 text-center text-[10px] text-muted-foreground">
+            Anonymous by default · leave or skip at any time
           </p>
         </div>
       </main>

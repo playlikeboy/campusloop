@@ -26,7 +26,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { EventCard, type EventItem } from "@/components/events/event-card";
-import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -83,7 +82,7 @@ export function EventsClient() {
   const endpoint = `/api/events?category=${activeCategory}&scope=${scope}&sort=${activeTab}&q=${encodeURIComponent(
     searchQuery
   )}`;
-  const { data, isLoading, mutate } = useSWR<{ events: EventItem[] }>(endpoint, fetcher, {
+  const { data, isLoading } = useSWR<{ events: EventItem[] }>(endpoint, fetcher, {
     dedupingInterval: 15000,
     revalidateOnFocus: true,
   });
@@ -97,7 +96,6 @@ export function EventsClient() {
   const hackathonsCount = rawEvents.filter((e) => e.eventType === "HACKATHON").length;
 
   return (
-    <PullToRefresh onRefresh={() => mutate()}>
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col bg-background pb-28 px-3 sm:px-6">
         {/* ─── Top Sticky Omnibar & Filter Strip ─── */}
         <header className="sticky top-0 z-40 -mx-3 sm:-mx-6 px-3 sm:px-6 border-b border-border/30 bg-background/90 backdrop-blur-xl transition-all">
@@ -489,6 +487,5 @@ export function EventsClient() {
           )}
         </div>
       </div>
-    </PullToRefresh>
   );
 }

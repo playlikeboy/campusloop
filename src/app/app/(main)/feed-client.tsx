@@ -17,7 +17,6 @@ import {
   InlineHashtagsWidget,
   InlineReferralWidget,
 } from "@/components/ui/inline-feed-widgets";
-import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { FeedLoadingMoreSkeleton, FeedSkeleton } from "@/components/ui/skeleton-card";
 import { StoryRing } from "@/components/ui/story-ring";
@@ -265,7 +264,6 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   }, [loadMoreRef, isReachingEnd, isLoadingMore, isError, setSize]);
 
   return (
-    <PullToRefresh onRefresh={refresh}>
       <main className="mx-auto flex w-full flex-col min-h-screen max-w-2xl bg-background text-foreground pb-24">
         <FeedHeader
           scope={scope}
@@ -482,6 +480,5 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
       </main>
 
       <ScrollToTop />
-    </PullToRefresh>
   );
 }

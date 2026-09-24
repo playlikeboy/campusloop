@@ -258,6 +258,21 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
           </div>
         </div>
 
+        {/* Compact progress indicator */}
+        <div className="px-5 py-2.5 border-b border-border/30 bg-muted/20 shrink-0">
+          <div className="flex items-center gap-2 text-[10px] font-bold">
+            <span className="flex items-center gap-1.5 text-primary">
+              <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground text-[9px]">1</span>
+              Details
+            </span>
+            <span className="h-px flex-1 bg-border/70" />
+            <span className={cn("flex items-center gap-1.5", step === 2 ? "text-primary" : "text-muted-foreground")}>
+              <span className={cn("grid size-5 place-items-center rounded-full border text-[9px]", step === 2 ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground")}>2</span>
+              Members
+            </span>
+          </div>
+        </div>
+
         {/* ─── Step 1: Group Basics ─── */}
         {step === 1 && (
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -287,7 +302,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 <label className="text-xs font-bold text-foreground">Group Name *</label>
                 <input
                   type="text"
-                  placeholder="e.g. Hostel 7 Coders, Midterm Prep..."
+                  placeholder="e.g. Hostel 7 Coders"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={40}
@@ -299,7 +314,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
             {/* Group Category Selector */}
             <div className="space-y-1.5 pt-1">
-              <label className="text-xs font-bold text-foreground">Category & Theme</label>
+              <label className="text-xs font-bold text-foreground">What is this group about?</label>
               <div className="grid grid-cols-2 gap-2">
                 {GROUP_CATEGORIES.map((cat) => {
                   const active = category === cat.id;
@@ -332,7 +347,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
             {/* Description (Optional) */}
             <div className="space-y-1 pt-1">
-              <label className="text-xs font-bold text-foreground">Description (Optional)</label>
+              <label className="text-xs font-bold text-foreground">About this group <span className="font-normal text-muted-foreground">(optional)</span></label>
               <textarea
                 placeholder="What's this group about? Goals, topics, meeting times..."
                 value={description}
@@ -345,7 +360,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
             {/* Campus Scope Toggle */}
             <div className="space-y-1.5 pt-1">
-              <label className="text-xs font-bold text-foreground">Privacy & Campus Scope</label>
+              <label className="text-xs font-bold text-foreground">Who can join?</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -359,9 +374,9 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 >
                   <Lock className="size-3.5 text-blue-500 shrink-0" />
                   <div className="text-left">
-                    <p className="leading-none">Campus Only</p>
+                    <p className="leading-none">Campus only</p>
                     <p className="text-[10px] text-muted-foreground font-normal mt-0.5">
-                      Your college peers only
+                      Students from your college
                     </p>
                   </div>
                 </button>
@@ -378,9 +393,9 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 >
                   <Globe className="size-3.5 text-emerald-500 shrink-0" />
                   <div className="text-left">
-                    <p className="leading-none">Inter-Campus</p>
+                    <p className="leading-none">Across campuses</p>
                     <p className="text-[10px] text-muted-foreground font-normal mt-0.5">
-                      Verified Indian colleges
+                      Verified students from other campuses
                     </p>
                   </div>
                 </button>
@@ -528,7 +543,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 }}
                 className="h-9 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
               >
-                Next: Add Members →
+                Continue to members →
               </button>
             </>
           ) : (
@@ -551,7 +566,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 ) : (
                   <>
                     <Zap className="size-3.5" />
-                    <span>Create Group ({selectedMembers.length + 1})</span>
+                    <span>Create group · {selectedMembers.length + 1} members</span>
                   </>
                 )}
               </button>
