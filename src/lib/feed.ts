@@ -1,7 +1,17 @@
 import { and, asc, desc, eq, inArray, or, type SQL, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
-import { comments, externalPosts, follows, institutions, posts, reports, userProfiles, votes } from "@/db/schema";
+import {
+  comments,
+  externalPosts,
+  follows,
+  institutions,
+  pollVotes,
+  posts,
+  reports,
+  userProfiles,
+  votes,
+} from "@/db/schema";
 import type { ExternalPostInfo } from "@/hooks/use-feed";
 import {
   type ActiveBoost,
@@ -566,11 +576,33 @@ export async function resolveFeedPage(options: {
           },
         },
       },
-      pollOptions: {
-        with: { votes: true },
-      },
+      pollOptions: true,
     },
   });
+
+  const pollOptionIds = hydrated.flatMap((post) => (post.pollOptions || []).map((option) => option.id));
+  const pollVoteStatsMap = new Map<string, { votesCount: number; viewerVoted: boolean }>();
+
+  if (pollOptionIds.length > 0) {
+    const voteStats = await db
+      .select({
+        optionId: pollVotes.optionId,
+        votesCount: sql<number>`count(*)::int`,
+        viewerVoted: viewerProfileId
+          ? sql<boolean>`bool_or(${pollVotes.userId} = ${viewerProfileId})`
+          : sql<boolean>`false`,
+      })
+      .from(pollVotes)
+      .where(inArray(pollVotes.optionId, pollOptionIds))
+      .groupBy(pollVotes.optionId);
+
+    for (const row of voteStats) {
+      pollVoteStatsMap.set(row.optionId, {
+        votesCount: Number(row.votesCount || 0),
+        viewerVoted: Boolean(row.viewerVoted),
+      });
+    }
+  }
 
   const byId = new Map(
     hydrated.map((post) => {
@@ -724,10 +756,13 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
       rawCommentCount !== undefined ? Math.max(rawCommentCount, commentsList.length) : commentsList.length;
 
     const formattedPollOptions = post.pollOptions?.map((opt) => {
-      const optVotesList = opt.votes || [];
-      const optVotesCount = optVotesList.length;
-      const userVoted = optVotesList.some((v) => v?.userId === viewerProfileId);
-      return { id: opt.id, text: opt.text, votesCount: optVotesCount, userVoted };
+      const stats = pollVoteStatsMap.get(opt.id);
+      return {
+        id: opt.id,
+        text: opt.text,
+        votesCount: stats?.votesCount ?? 0,
+        userVoted: stats?.viewerVoted ?? false,
+      };
     });
 
     const hasVotedPoll = formattedPollOptions?.some((opt) => opt.userVoted) || false;
