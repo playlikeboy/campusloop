@@ -3,6 +3,7 @@
 import {
   Check,
   Globe,
+  Lock,
   RotateCcw,
   School,
   ShieldCheck,
