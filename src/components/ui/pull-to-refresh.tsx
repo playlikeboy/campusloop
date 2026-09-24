@@ -20,6 +20,8 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startYRef = useRef<number | null>(null);
+  const startXRef = useRef<number | null>(null);
+  const pullDistanceRef = useRef(0);
   const isPullingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,12 +37,23 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
-      if (disabled || isRefreshing) return;
+      if (disabled || isRefreshing || e.touches.length !== 1) return;
+
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, button, a, iframe, [contenteditable='true'], [data-no-pull-refresh]")) {
+        startYRef.current = null;
+        startXRef.current = null;
+        return;
+      }
+
       if (getScrollTop() <= 5) {
         startYRef.current = e.touches[0].clientY;
+        startXRef.current = e.touches[0].clientX;
+        pullDistanceRef.current = 0;
         isPullingRef.current = false;
       } else {
         startYRef.current = null;
+        startXRef.current = null;
       }
     },
     [disabled, isRefreshing, getScrollTop]
@@ -48,15 +61,28 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
-      if (startYRef.current === null || disabled || isRefreshing) return;
+      if (startYRef.current === null || startXRef.current === null || disabled || isRefreshing || e.touches.length !== 1) return;
 
       const currentY = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
       const diffY = currentY - startYRef.current;
+      const diffX = currentX - startXRef.current;
       const scrollTop = getScrollTop();
+
+      // Let horizontal swipes (carousels, tabs, media) behave normally.
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 6) {
+        startYRef.current = null;
+        startXRef.current = null;
+        isPullingRef.current = false;
+        pullDistanceRef.current = 0;
+        setPullDistance(0);
+        return;
+      }
 
       if (diffY > 0 && scrollTop <= 5) {
         isPullingRef.current = true;
         const dampened = Math.min(diffY ** 0.8 * 1.5, MAX_PULL_DISTANCE);
+        pullDistanceRef.current = dampened;
         setPullDistance(dampened);
 
         if (e.cancelable && diffY > 15) {
@@ -64,6 +90,7 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
         }
       } else {
         isPullingRef.current = false;
+        pullDistanceRef.current = 0;
         setPullDistance(0);
       }
     },
@@ -73,10 +100,13 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
   const handleTouchEnd = useCallback(async () => {
     if (startYRef.current === null || disabled || isRefreshing) return;
 
+    const finalPullDistance = pullDistanceRef.current;
     startYRef.current = null;
+    startXRef.current = null;
 
-    if (pullDistance >= PULL_THRESHOLD) {
+    if (finalPullDistance >= PULL_THRESHOLD) {
       setIsRefreshing(true);
+      pullDistanceRef.current = 48;
       setPullDistance(48);
       sounds.pop();
       haptics.medium();
@@ -86,13 +116,15 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
         await Promise.allSettled([onRefresh(), minDuration]);
       } finally {
         setIsRefreshing(false);
+        pullDistanceRef.current = 0;
         setPullDistance(0);
       }
     } else {
+      pullDistanceRef.current = 0;
       setPullDistance(0);
     }
     isPullingRef.current = false;
-  }, [disabled, isRefreshing, onRefresh, pullDistance]);
+  }, [disabled, isRefreshing, onRefresh]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -115,7 +147,11 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
   const isReadyToRelease = pullDistance >= PULL_THRESHOLD;
 
   return (
-    <div ref={containerRef} className="relative w-full min-h-screen">
+    <div
+      ref={containerRef}
+      className="relative w-full min-h-screen"
+      style={{ overscrollBehaviorY: "contain" }}
+    >
       {/* ─── Floating Pull Indicator Badge (Twitter / Instagram style) ─── */}
       <div
         className={cn(
