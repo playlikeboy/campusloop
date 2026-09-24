@@ -116,17 +116,19 @@ export async function updateCommunitySettings(input: UpdateCommunitySettingsInpu
   if (!profile) throw new Error("Profile not found");
 
   // Verify that user is the creator or an ADMIN
-  const membership = await db.query.communityMembers.findFirst({
-    where: and(
-      eq(communityMembers.communityId, input.id),
-      eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
-    ),
-  });
-
-  const comm = await db.query.communities.findFirst({
-    where: eq(communities.id, input.id),
-  });
+  const [membership, comm] = await Promise.all([
+    db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, input.id),
+        eq(communityMembers.userId, profile.id),
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+    }),
+    db.query.communities.findFirst({
+      where: eq(communities.id, input.id),
+    }),
+  ]);
 
   if (!comm) throw new Error("Community not found");
   if (comm.creatorId !== profile.id && !membership) {
@@ -165,16 +167,19 @@ export async function joinCommunity(communityId: string) {
 
   if (!profile) throw new Error("Profile not found");
 
-  const comm = await db.query.communities.findFirst({
-    where: eq(communities.id, communityId),
-  });
+  const [comm, existing] = await Promise.all([
+    db.query.communities.findFirst({
+      where: eq(communities.id, communityId),
+    }),
+    db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, communityId),
+        eq(communityMembers.userId, profile.id)
+      ),
+    }),
+  ]);
 
   if (!comm) throw new Error("Community not found");
-
-  // Check if already a member or requested
-  const existing = await db.query.communityMembers.findFirst({
-    where: and(eq(communityMembers.communityId, communityId), eq(communityMembers.userId, profile.id)),
-  });
 
   if (existing) {
     // Leave community / cancel request
@@ -222,18 +227,20 @@ export async function approveJoinRequest(communityId: string, targetUserId: stri
   if (!profile) throw new Error("Profile not found");
 
   // Verify caller is ADMIN or creator
-  const comm = await db.query.communities.findFirst({
-    where: eq(communities.id, communityId),
-  });
+  const [comm, callerMembership] = await Promise.all([
+    db.query.communities.findFirst({
+      where: eq(communities.id, communityId),
+    }),
+    db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, communityId),
+        eq(communityMembers.userId, profile.id),
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+    }),
+  ]);
   if (!comm) throw new Error("Community not found");
-
-  const callerMembership = await db.query.communityMembers.findFirst({
-    where: and(
-      eq(communityMembers.communityId, communityId),
-      eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
-    ),
-  });
 
   if (comm.creatorId !== profile.id && !callerMembership) {
     throw new Error("Unauthorized to approve member requests");
