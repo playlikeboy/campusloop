@@ -1,10 +1,7 @@
 "use client";
 
 import {
-  Bell,
   Check,
-  Globe,
-  Lock,
   RotateCcw,
   School,
   ShieldCheck,
@@ -15,13 +12,13 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { NotificationPreferencesPanel } from "@/components/notifications/notification-preferences-panel";
 import { PushNotificationToggle } from "@/components/notifications/push-notification-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignOutButton } from "@/components/ui/sign-out-button";
+import { apiRequest } from "@/lib/api";
 import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface SettingsClientProps {
@@ -43,7 +40,6 @@ interface SettingsClientProps {
 }
 
 export function SettingsClient({ profile }: SettingsClientProps) {
-  const router = useRouter();
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
@@ -52,9 +48,6 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     (profile.feedVisibility as "ALL" | "NON_ANONYMOUS") || "ALL"
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [defaultScope, setDefaultScope] = useState<"GLOBAL" | "CAMPUS">("GLOBAL");
-  const [notifyUpvotes, setNotifyUpvotes] = useState(true);
-  const [notifyComments, setNotifyComments] = useState(true);
 
   const currentAvatar = getAvatarUrl(avatarUrl, profile.username);
 
@@ -65,30 +58,20 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   }
 
   async function handleFeedVisibilityChange(mode: "ALL" | "NON_ANONYMOUS") {
+    const previous = feedVisibility;
     setFeedVisibility(mode);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("campusloop_feed_visibility", mode);
-      window.dispatchEvent(new CustomEvent("campusloop_feed_visibility_change", { detail: mode }));
-    }
-
     try {
-      await fetch("/api/profile/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feedVisibility: mode }),
-      });
-      toast.success(
-        mode === "NON_ANONYMOUS"
-          ? "Mode set: Only non-anonymous posts are visible"
-          : "Mode set: All types of posts are visible"
-      );
+      await apiRequest("/api/profile/me", "PATCH", { feedVisibility: mode });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("campusloop_feed_visibility", mode);
+        window.dispatchEvent(new CustomEvent("campusloop_feed_visibility_change", { detail: mode }));
+      }
+      toast.success(mode === "NON_ANONYMOUS" ? "Anonymous posts hidden" : "All post types visible");
     } catch {
-      // Roll the toggle back to whatever the server still has
-      setFeedVisibility(mode === "NON_ANONYMOUS" ? "ALL" : "NON_ANONYMOUS");
-      toast.error("Could not save feed mode preference.");
+      setFeedVisibility(previous);
+      toast.error("Could not save feed visibility.");
     }
   }
-
   async function handleSaveSettings(e: React.FormEvent) {
     e.preventDefault();
     if (isSaving) return;
@@ -96,44 +79,32 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     setIsSaving(true);
     try {
       const cleanAnon = anonUsername ? anonUsername.trim().toLowerCase().replace(/^@/, "") : null;
-      const res = await fetch("/api/profile/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          displayName,
-          bio,
-          avatarUrl,
-          anonymousUsername: cleanAnon,
-          feedVisibility,
-        }),
+      await apiRequest("/api/profile/me", "PATCH", {
+        displayName: displayName.trim(),
+        bio: bio.trim(),
+        avatarUrl,
+        anonymousUsername: cleanAnon,
       });
-
-      if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
-        throw new Error(data.error || "Failed to save settings");
-      }
-
-      toast.success("Settings saved successfully!");
-      router.refresh();
+      toast.success("Profile updated");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not save settings. Please try again.");
+      toast.error(err instanceof Error ? err.message : "Could not save your profile.");
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 text-foreground">
+    <main className="mx-auto flex w-full max-w-xl flex-col min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-10 text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/90 px-4 py-3.5 backdrop-blur-xl border-b border-border flex items-center justify-between">
-        <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-          <Sliders className="h-5 w-5 text-primary" /> Settings & Account
+      <header className="sticky top-0 z-30 bg-background/90 px-4 py-3 backdrop-blur-xl border-b border-border/60 flex items-center justify-between">
+        <h1 className="text-base font-black tracking-tight flex items-center gap-2 text-foreground">
+          <Sliders className="h-5 w-5 text-primary" /> Settings
         </h1>
       </header>
 
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-3 py-4 sm:px-4 sm:py-5 space-y-4">
         {/* Profile Card Section */}
-        <section className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm space-y-5">
+        <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
               <User className="h-4 w-4 text-primary" /> Campus Identity
@@ -143,9 +114,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-5 pt-2">
+          <div className="flex items-center gap-3 pt-1">
             <div className="relative group shrink-0">
-              <Avatar className="h-20 w-20 border-2 border-primary/30 shadow-md">
+              <Avatar className="h-16 w-16 border-2 border-primary/25">
                 <AvatarImage src={currentAvatar} />
                 <AvatarFallback className="bg-primary/10 text-primary font-extrabold text-lg">
                   {displayName[0]}
@@ -153,10 +124,10 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               </Avatar>
             </div>
 
-            <div className="flex-1 text-center sm:text-left space-y-2">
+            <div className="flex-1 min-w-0 flex-1 space-y-1">
               <div>
-                <p className="text-base font-black text-foreground">@{profile.username}</p>
-                <p className="text-xs text-muted-foreground flex items-center justify-center sm:justify-start gap-1 mt-0.5">
+                <p className="text-sm font-black text-foreground">@{profile.username}</p>
+                <p className="text-xs text-muted-foreground flex items-center justify-start gap-1 mt-0.5">
                   <School className="h-3.5 w-3.5 text-primary" /> {profile.institutionName}
                 </p>
               </div>
@@ -164,15 +135,15 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               <button
                 type="button"
                 onClick={handleResetToDefaultAvatar}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/80 bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-xs active:scale-95"
+                className="inline-flex min-h-11 items-center gap-1.5 px-3 rounded-xl border border-border/80 bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <RotateCcw className="h-3.5 w-3.5 text-primary" /> Reset to Monogram Initial DP
+                <RotateCcw className="h-3.5 w-3.5 text-primary" /> Reset avatar
               </button>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSaveSettings} className="space-y-4 pt-4 border-t border-border/60">
+          <form onSubmit={handleSaveSettings} className="space-y-3 pt-4 border-t border-border/60">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-foreground">Display Name</label>
               <input
@@ -185,7 +156,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             </div>
 
             {/* Custom Anonymous Username */}
-            <div className="space-y-1.5 p-3.5 rounded-2xl border border-border/60 bg-muted/20">
+            <div className="space-y-1.5 p-3 rounded-xl border border-border/60 bg-muted/20">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <VenetianMask className="size-3.5 text-primary" /> Custom Anonymous Username
@@ -312,79 +283,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 </button>
               </div>
             </div>
-
-            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-muted/20">
-              <div>
-                <p className="text-xs font-bold text-foreground">Default Feed Scope</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Select what you see first when opening CampusLoop.
-                </p>
-              </div>
-
-              <div className="flex rounded-xl bg-muted p-1 text-xs font-bold border border-border/40">
-                <button
-                  type="button"
-                  onClick={() => setDefaultScope("GLOBAL")}
-                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    defaultScope === "GLOBAL"
-                      ? "bg-background text-foreground shadow-xs"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  Global
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDefaultScope("CAMPUS")}
-                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    defaultScope === "CAMPUS"
-                      ? "bg-background text-foreground shadow-xs"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  My College
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-muted/20">
-              <div>
-                <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <Bell className="h-3.5 w-3.5 text-primary" /> Upvote Alerts
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Receive real-time alerts when students upvote your posts.
-                </p>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifyUpvotes}
-                onChange={(e) => setNotifyUpvotes(e.target.checked)}
-                className="h-4 w-4 rounded accent-primary cursor-pointer"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-muted/20">
-              <div>
-                <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <Bell className="h-3.5 w-3.5 text-primary" /> Comment & DM Alerts
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Notify when someone replies or sends a direct message.
-                </p>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifyComments}
-                onChange={(e) => setNotifyComments(e.target.checked)}
-                className="h-4 w-4 rounded accent-primary cursor-pointer"
-              />
-            </div>
           </div>
         </section>
 
         {/* Verification & Rewards Status */}
-        <section className="rounded-3xl border border-primary/20 bg-linear-to-r from-primary/10 via-card to-card p-6 shadow-sm space-y-3">
+        <section className="rounded-2xl border border-primary/20 bg-linear-to-r from-primary/10 via-card to-card p-4 sm:p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" /> Loop Points & Star Badge
@@ -406,7 +309,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         </section>
 
         {/* Developer & MCP API Keys */}
-        <section className="rounded-3xl border border-primary/30 bg-card p-6 shadow-sm space-y-3 relative overflow-hidden">
+        <section className="rounded-2xl border border-primary/30 bg-card p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
               <Terminal className="h-4 w-4 text-primary" /> Model Context Protocol (MCP) &amp; API Keys
@@ -429,7 +332,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         </section>
 
         {/* Danger Zone */}
-        <section className="rounded-3xl border border-destructive/20 bg-destructive/5 p-6 shadow-sm space-y-4">
+        <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5 shadow-sm space-y-3">
           <h2 className="text-sm font-bold text-destructive flex items-center gap-2">
             <Lock className="h-4 w-4" /> Security & Account Session
           </h2>
