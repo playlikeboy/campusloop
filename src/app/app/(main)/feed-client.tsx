@@ -264,6 +264,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   }, [loadMoreRef, isReachingEnd, isLoadingMore, isError, setSize]);
 
   return (
+    <>
       <main className="mx-auto flex w-full flex-col min-h-screen max-w-2xl bg-background text-foreground pb-24">
         <FeedHeader
           scope={scope}
@@ -480,5 +481,6 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
       </main>
 
       <ScrollToTop />
+    </>
   );
 }
