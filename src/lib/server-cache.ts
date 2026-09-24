@@ -3,10 +3,10 @@ import { cache } from "react";
 import { getDb } from "@/db";
 import { communities, institutions, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getCommunitySummary } from "@/lib/communities/queries";
 
 /**
  * Per-request memoized current user from Hexclave auth.
- * Deduplicates multiple hexclaveServerApp.getUser() calls across layout, pages, and metadata.
  */
 export const getCachedAuthUser = cache(async () => {
   return await hexclaveServerApp.getUser();
@@ -14,7 +14,6 @@ export const getCachedAuthUser = cache(async () => {
 
 /**
  * Per-request memoized User Profile with Institution relation.
- * Fetches in a single relational join and deduplicates across layouts and subpages.
  */
 export const getCachedUserProfile = cache(async (userId: string) => {
   if (!userId) return null;
@@ -28,8 +27,15 @@ export const getCachedUserProfile = cache(async (userId: string) => {
 });
 
 /**
- * Per-request memoized Community lookup by ID or Slug.
- * Deduplicates identical queries between generateMetadata and Page components.
+ * Lightweight community lookup for routes that only need identity, stats, and creator.
+ * It deliberately avoids hydrating every member row.
+ */
+export const getCachedCommunitySummary = cache(async (idOrSlug: string) => {
+  return getCommunitySummary(idOrSlug);
+});
+
+/**
+ * Full community lookup for the members/settings surfaces that actually need member rows.
  */
 export const getCachedCommunity = cache(async (idOrSlug: string) => {
   if (!idOrSlug) return null;
@@ -65,7 +71,6 @@ export const getCachedCommunity = cache(async (idOrSlug: string) => {
 
 /**
  * Per-request memoized Institution lookup by ID or Slug.
- * Deduplicates identical queries between generateMetadata and Page components.
  */
 export const getCachedInstitution = cache(async (idOrSlug: string) => {
   if (!idOrSlug) return null;
@@ -93,7 +98,6 @@ export const getCachedInstitution = cache(async (idOrSlug: string) => {
 
 /**
  * Per-request memoized Post Detail lookup.
- * Deduplicates identical queries between generateMetadata and PostDetailPage.
  */
 export const getCachedPostDetail = cache(async (id: string) => {
   if (!id) return null;
