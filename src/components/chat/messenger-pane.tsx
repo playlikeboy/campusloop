@@ -357,6 +357,13 @@ export function MessengerPane({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const isInitialScrollDoneRef = useRef(false);
 
+  useEffect(() => {
+    setHasMoreOlder(true);
+    setIsLoadingOlder(false);
+    setShowJumpToBottom(false);
+    isInitialScrollDoneRef.current = false;
+  }, [conversationId]);
+
   const {
     data: messages,
     isLoading,
@@ -547,6 +554,7 @@ export function MessengerPane({
       mutate();
     } catch (err) {
       console.error(err);
+      toast.error("Message failed to send. Please try again.");
       mutate();
     } finally {
       setIsSending(false);
