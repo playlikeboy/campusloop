@@ -2,8 +2,33 @@
  * Centralized API client & SWR fetcher utilities for CampusLoop.
  */
 
+const DEFAULT_API_TIMEOUT_MS = 15_000;
+
+function getTimeoutSignal(): AbortSignal | undefined {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(DEFAULT_API_TIMEOUT_MS);
+  }
+  return undefined;
+}
+
+async function request(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: init.signal ?? getTimeoutSignal(),
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      throw new Error("Request timed out. Please check your connection and try again.", { cause: error });
+    }
+    throw error;
+  }
+}
+
 export async function fetcher<T = unknown>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const res = await request(url, {
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error((errorData as { error?: string }).error || `Request failed with status ${res.status}`);
@@ -16,9 +41,12 @@ export async function apiRequest<T = unknown>(
   method: "POST" | "PUT" | "PATCH" | "DELETE" = "POST",
   body?: unknown
 ): Promise<T> {
-  const res = await fetch(url, {
+  const res = await request(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+    },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
