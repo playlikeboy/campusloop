@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Loader2, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { CircleAlert, Loader2, Maximize2, Minimize2, Pause, Play, RefreshCw, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   function formatTime(seconds: number) {
@@ -71,6 +72,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
   }
 
   function handleUserActivity() {
+    if (hasError) return;
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     controlsTimeoutRef.current = setTimeout(() => {
@@ -85,6 +87,13 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
     const onLoadedMetadata = () => {
       setTotalDuration(video.duration || 0);
       setIsLoading(false);
+      setHasError(false);
+    };
+
+    const onError = () => {
+      setIsLoading(false);
+      setIsPlaying(false);
+      setHasError(true);
     };
 
     const onTimeUpdate = () => {
@@ -103,6 +112,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
     };
 
     video.addEventListener("loadedmetadata", onLoadedMetadata);
+    video.addEventListener("error", onError);
     video.addEventListener("timeupdate", onTimeUpdate);
     video.addEventListener("ended", onEnded);
     video.addEventListener("waiting", onWaiting);
@@ -110,6 +120,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
 
     return () => {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      video.removeEventListener("error", onError);
       video.removeEventListener("timeupdate", onTimeUpdate);
       video.removeEventListener("ended", onEnded);
       video.removeEventListener("waiting", onWaiting);
@@ -120,6 +131,13 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
 
   const progressPercent = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
 
+  function retryVideo() {
+    if (!videoRef.current) return;
+    setHasError(false);
+    setIsLoading(true);
+    videoRef.current.load();
+  }
+
   return (
     <div
       ref={containerRef}
@@ -127,7 +145,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       onTouchStart={handleUserActivity}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative rounded-2xl overflow-hidden bg-black/90 shadow-md group select-none no-card-nav max-w-lg",
+        "relative aspect-video rounded-[16px] overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
         className
       )}
     >
@@ -140,11 +158,11 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
         playsInline
         preload="metadata"
         onClick={togglePlay}
-        className="w-full max-h-[420px] object-contain rounded-2xl cursor-pointer"
+        className="h-full w-full object-contain cursor-pointer"
       />
 
       {/* Center Play/Pause Floating Circle Overlay */}
-      {!isPlaying && (
+      {!hasError && !isPlaying && (
         <div
           onClick={togglePlay}
           className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-2xs cursor-pointer transition-opacity"
@@ -163,11 +181,34 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
         </div>
       )}
 
+      {hasError ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 px-6 text-center text-white backdrop-blur-[2px]">
+          <div className="flex size-11 items-center justify-center rounded-full border border-white/15 bg-white/10">
+            <CircleAlert className="size-5 text-white/90" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold">Video unavailable</p>
+            <p className="mt-1 text-[11px] text-white/65">The media could not be loaded.</p>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              retryVideo();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-black transition-transform active:scale-95"
+          >
+            <RefreshCw className="size-3.5" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       {/* Bottom Floating Control Bar */}
       <div
         className={cn(
           "absolute bottom-0 inset-x-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-200",
-          showControls || !isPlaying ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          !hasError && (showControls || !isPlaying) ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       >
         {/* Progress Bar Track */}
