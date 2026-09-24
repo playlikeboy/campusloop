@@ -1,11 +1,47 @@
 {
   "version": 1,
   "skills": {
+    "competitive-landscape": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/competitive-landscape/SKILL.md",
+      "computedHash": "ee1ad9ac02a39579f0386d7610fd80ae1eaa3d47ee94105257f3f97e3812e853"
+    },
+    "competitor-analysis": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/competitor-analysis/SKILL.md",
+      "computedHash": "15190ab8b86e750d7d8a06176be2f67c56da25dc475db856f95a70333c9e9814"
+    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
       "skillPath": "skills/find-skills/SKILL.md",
       "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "keyword-clustering": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/keyword-clustering/SKILL.md",
+      "computedHash": "391da5c7f6ef803b0e2241224f426766e5e298e15479c72d0c3432ca83b4716c"
+    },
+    "keyword-research": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/keyword-research/SKILL.md",
+      "computedHash": "d1678df3f407677a3931e1b4a2d8f9ffbd68178b3d704b89b788906cb6a45422"
+    },
+    "link-prospecting": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/link-prospecting/SKILL.md",
+      "computedHash": "d02dfdc612168a4dee8ae73617952ed18b8a9676d6d3e0e814067db3e0052954"
+    },
+    "local-seo": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/local-seo/SKILL.md",
+      "computedHash": "d3cee2743a657bc28f068728ce14a07e9af0478b98c8a1abedad8c7e265d63f6"
     },
     "nextjs-on-cloudflare": {
       "source": "cloudflare/skills",
@@ -25,11 +61,23 @@
       "skillPath": "skills/seo-audit/SKILL.md",
       "computedHash": "01f9f8a3feb3ea69c6c212d61189c610f96ef2cc363adc27fd314d78254bf6ae"
     },
+    "seo-coach": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-coach/SKILL.md",
+      "computedHash": "eff89585ee354c3af9adf8357fb469a435e17733291b87d717a82eb91486cdb9"
+    },
     "seo-project-setup": {
       "source": "every-app/open-seo",
       "sourceType": "github",
       "skillPath": ".agents/skills/seo-project-setup/SKILL.md",
       "computedHash": "46245b1236037f9a5c596bdcf91e76b1f29e7b2942101d0ebf8690a8f8bf974f"
+    },
+    "seo-report": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-report/SKILL.md",
+      "computedHash": "a6a5ecd483467aa75c525d97788ebe83d3c2ba4919e1793c2b3bfa487d1113e8"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
