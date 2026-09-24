@@ -1035,7 +1035,7 @@ export function ProfileClientView({
         )}
 
         {/* ─── Profile Navigation Underline Tabs (Twitter Style) ─── */}
-        {/* ─── Segmented Pill Tabs (Mockup Style) ─── */}
+        {/* ─── Sticky content tabs: lighter than a segmented control so content stays primary. ─── */}
         <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-xl">
           <div className="flex items-center overflow-x-auto px-3 no-scrollbar">
             {[
@@ -1055,8 +1055,8 @@ export function ProfileClientView({
                 className={cn(
                   "cl-interactive relative shrink-0 border-b-2 px-4 py-3 text-xs font-bold transition-colors",
                   isActive
-                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
+                    ? "border-primary text-foreground font-black"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
                 )}
               >
                 {tab.label}
