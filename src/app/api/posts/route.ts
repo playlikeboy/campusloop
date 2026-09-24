@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { anonIdentityVault, pollOptions, posts, userProfiles } from "@/db/schema";
+import { anonIdentityVault, communities, communityMembers, pollOptions, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, sealIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
@@ -43,6 +43,40 @@ export async function POST(req: Request) {
 
     if (!body || body.trim().length === 0) {
       return NextResponse.json({ error: "Post body cannot be empty" }, { status: 400 });
+    }
+
+    if (communityId) {
+      const communityAccess = await db
+        .select({
+          id: communities.id,
+          allowAnonymousPosts: communities.allowAnonymousPosts,
+        })
+        .from(communities)
+        .innerJoin(
+          communityMembers,
+          and(
+            eq(communityMembers.communityId, communities.id),
+            eq(communityMembers.userId, profile.id),
+            eq(communityMembers.status, "ACTIVE")
+          )
+        )
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      const community = communityAccess[0];
+      if (!community) {
+        return NextResponse.json(
+          { error: "You must be an active member of this community to post." },
+          { status: 403 }
+        );
+      }
+
+      if (isAnonymous && !community.allowAnonymousPosts) {
+        return NextResponse.json(
+          { error: "Anonymous posting is disabled in this community." },
+          { status: 400 }
+        );
+      }
     }
 
     // Centralized safety engine (PII / doxxing / threats / abuse)
