@@ -10,6 +10,7 @@ import { notifyMentions } from "@/lib/notifications";
 import { notifyFollowersOfNewPost } from "@/lib/post-notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
 import { rejectViewerWrite } from "@/lib/viewer";
+import { parseCreatePostPayload } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
@@ -30,20 +31,19 @@ export async function POST(req: Request) {
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
-    const data = await req.json();
-    const { body, type, scope, isAnonymous, title, options, communityId } = data as {
-      body: string;
-      type?: "NORMAL" | "CONFESSION" | "POLL" | "QUESTION";
-      scope?: "CAMPUS" | "GLOBAL";
-      isAnonymous?: boolean;
-      title?: string;
-      options?: string[];
-      communityId?: string;
-    };
-
-    if (!body || body.trim().length === 0) {
-      return NextResponse.json({ error: "Post body cannot be empty" }, { status: 400 });
+    let payload: unknown;
+    try {
+      payload = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Request body must be valid JSON." }, { status: 400 });
     }
+
+    const parsed = parseCreatePostPayload(payload);
+    if (!parsed.isValid) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+
+    const { body, type, scope, isAnonymous, title, options, communityId } = parsed.data;
 
     // Centralized safety engine (PII / doxxing / threats / abuse)
     const safety = runSafetyCheck({ title, body });
