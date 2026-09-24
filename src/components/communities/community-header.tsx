@@ -231,7 +231,7 @@ export function CommunityHeader({
 
       <nav
         aria-label="Community sections"
-        className="mt-4 grid grid-cols-2 border-b border-border/20 sm:grid-cols-3"
+        className={cn("mt-4 grid border-b border-border/20", isAdmin ? "grid-cols-3" : "grid-cols-2")}
       >
         <Link
           href={baseUrl}
@@ -267,7 +267,7 @@ export function CommunityHeader({
           <Link
             href={baseUrl + "/settings"}
             className={cn(
-              "relative col-span-2 min-h-11 px-3 text-center text-xs font-bold transition-colors sm:col-span-1 sm:flex sm:items-center sm:justify-center",
+              "relative min-h-11 px-3 text-center text-xs font-bold transition-colors sm:flex sm:items-center sm:justify-center",
               pathname === baseUrl + "/settings"
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"
