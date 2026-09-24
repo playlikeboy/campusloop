@@ -1,6 +1,6 @@
 import { and, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { communities, communityMembers, userProfiles } from "@/db/schema";
+import { communities, communityMembers, posts, userProfiles } from "@/db/schema";
 
 export interface CommunityDirectoryItem {
   id: string;
@@ -37,13 +37,18 @@ export interface CommunityDirectoryOptions {
 
 function memberExistsSql(profileId: string | null | undefined) {
   if (!profileId) return sql<boolean>`false`;
+
   return sql<boolean>`exists (
     select 1
     from community_members cm
-    where cm.community_id = ${communities.id
-      and cm.user_id = ${profileId
+    where cm.community_id = ${communities.id}
+      and cm.user_id = ${profileId}
       and cm.status = 'ACTIVE'
   )`;
+}
+
+function toNullableNumber(value: unknown) {
+  return Number(value ?? 0);
 }
 
 export async function getCommunityDirectory(
@@ -95,19 +100,19 @@ export async function getCommunityDirectory(
       memberCount: sql<number>`(
         select count(*)::int
         from community_members cm_count
-        where cm_count.community_id = ${communities.id
+        where cm_count.community_id = ${communities.id}
           and cm_count.status = 'ACTIVE'
       )`,
       postCount: sql<number>`(
         select count(*)::int
         from posts p_count
-        where p_count.community_id = ${communities.id
+        where p_count.community_id = ${communities.id}
           and p_count.status = 'PUBLISHED'
       )`,
       latestActivityAt: sql<Date | null>`(
         select max(p_activity.created_at)
         from posts p_activity
-        where p_activity.community_id = ${communities.id
+        where p_activity.community_id = ${communities.id}
           and p_activity.status = 'PUBLISHED'
       )`,
       isMember: isMemberExpr,
@@ -129,14 +134,24 @@ export async function getCommunityDirectory(
 
   return rows.map((row) => ({
     ...row,
-    points: Number(row.points ?? 0),
-    memberCount: Number(row.memberCount ?? 0),
-    postCount: Number(row.postCount ?? 0),
+    points: toNullableNumber(row.points),
+    memberCount: toNullableNumber(row.memberCount),
+    postCount: toNullableNumber(row.postCount),
     isMember: Boolean(row.isMember),
-    latestActivityAt: row.latestActivityAt ? new Date(row.latestActivityAt) : null,
-    creator: row.creator.id
-      ? row.creator
-      : { id: row.creatorId, username: "student", displayName: "Student" },
+    latestActivityAt: row.latestActivityAt
+      ? new Date(row.latestActivityAt)
+      : null,
+    creator: row.creator.id && row.creator.username && row.creator.displayName
+      ? {
+          id: row.creator.id,
+          username: row.creator.username,
+          displayName: row.creator.displayName,
+        }
+      : {
+          id: row.creatorId,
+          username: "student",
+          displayName: "Student",
+        },
   }));
 }
 
@@ -164,7 +179,9 @@ export interface CommunitySummary {
   };
 }
 
-export async function getCommunitySummary(idOrSlug: string): Promise<CommunitySummary | null> {
+export async function getCommunitySummary(
+  idOrSlug: string
+): Promise<CommunitySummary | null> {
   if (!idOrSlug) return null;
 
   const db = getDb();
@@ -187,13 +204,13 @@ export async function getCommunitySummary(idOrSlug: string): Promise<CommunitySu
       memberCount: sql<number>`(
         select count(*)::int
         from community_members cm_count
-        where cm_count.community_id = ${communities.id
+        where cm_count.community_id = ${communities.id}
           and cm_count.status = 'ACTIVE'
       )`,
       postCount: sql<number>`(
         select count(*)::int
         from posts p_count
-        where p_count.community_id = ${communities.id
+        where p_count.community_id = ${communities.id}
           and p_count.status = 'PUBLISHED'
       )`,
       creator: {
@@ -204,7 +221,9 @@ export async function getCommunitySummary(idOrSlug: string): Promise<CommunitySu
     })
     .from(communities)
     .leftJoin(userProfiles, eq(communities.creatorId, userProfiles.id))
-    .where(or(eq(communities.id, idOrSlug), eq(communities.slug, idOrSlug)))
+    .where(
+      or(eq(communities.id, idOrSlug), eq(communities.slug, idOrSlug))
+    )
     .limit(1);
 
   const row = rows[0];
@@ -212,17 +231,30 @@ export async function getCommunitySummary(idOrSlug: string): Promise<CommunitySu
 
   return {
     ...row,
-    points: Number(row.points ?? 0),
-    memberCount: Number(row.memberCount ?? 0),
-    postCount: Number(row.postCount ?? 0),
-    creator: row.creator.id
-      ? row.creator
-      : { id: row.creatorId, username: "student", displayName: "Student" },
+    points: toNullableNumber(row.points),
+    memberCount: toNullableNumber(row.memberCount),
+    postCount: toNullableNumber(row.postCount),
+    creator:
+      row.creator.id && row.creator.username && row.creator.displayName
+        ? {
+            id: row.creator.id,
+            username: row.creator.username,
+            displayName: row.creator.displayName,
+          }
+        : {
+            id: row.creatorId,
+            username: "student",
+            displayName: "Student",
+          },
   };
 }
 
-export async function getCommunityMembership(communityId: string, profileId: string) {
+export async function getCommunityMembership(
+  communityId: string,
+  profileId: string
+) {
   const db = getDb();
+
   const rows = await db
     .select({
       id: communityMembers.id,
@@ -242,8 +274,12 @@ export async function getCommunityMembership(communityId: string, profileId: str
   return rows[0] ?? null;
 }
 
-export async function getCommunityMemberPreview(communityId: string, limit = 30) {
+export async function getCommunityMemberPreview(
+  communityId: string,
+  limit = 30
+) {
   const db = getDb();
+
   return db.query.communityMembers.findMany({
     where: and(
       eq(communityMembers.communityId, communityId),
