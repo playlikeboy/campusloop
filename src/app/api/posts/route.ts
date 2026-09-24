@@ -11,12 +11,32 @@ import { notifyFollowersOfNewPost } from "@/lib/post-notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
 import { rejectViewerWrite } from "@/lib/viewer";
 import { parseCreatePostPayload } from "@/lib/validation";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
     const user = await hexclaveServerApp.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const postRateLimit = await rateLimit(`post:user:${user.id}`, {
+      limit: 10,
+      windowSeconds: 60,
+    });
+    if (!postRateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: "You're posting too quickly. Please try again shortly.",
+          retryAfterSeconds: postRateLimit.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(postRateLimit.retryAfterSeconds),
+          },
+        },
+      );
     }
 
     const db = getDb();
