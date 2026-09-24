@@ -44,7 +44,6 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
       .select({
         id: communities.id,
         name: communities.name,
-        status: communityMembers.status,
       })
       .from(communities)
       .innerJoin(
