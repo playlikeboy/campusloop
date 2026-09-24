@@ -48,7 +48,7 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
       />
 
       {/* Main Messenger Area */}
-      <div className="flex-1 md:pl-64 h-full overflow-hidden">{children}</div>
+      <div className="flex-1 md:pl-[248px] h-full overflow-hidden">{children}</div>
     </div>
   );
 }
