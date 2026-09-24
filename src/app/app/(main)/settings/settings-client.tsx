@@ -2,6 +2,7 @@
 
 import {
   Check,
+  Globe,
   RotateCcw,
   School,
   ShieldCheck,
@@ -124,7 +125,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               </Avatar>
             </div>
 
-            <div className="flex-1 min-w-0 flex-1 space-y-1">
+            <div className="min-w-0 flex-1 space-y-1">
               <div>
                 <p className="text-sm font-black text-foreground">@{profile.username}</p>
                 <p className="text-xs text-muted-foreground flex items-center justify-start gap-1 mt-0.5">
@@ -145,13 +146,14 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           {/* Form */}
           <form onSubmit={handleSaveSettings} className="space-y-3 pt-4 border-t border-border/60">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Display Name</label>
+              <label htmlFor="settings-display-name" className="text-xs font-bold text-foreground">Display name</label>
               <input
+                id="settings-display-name"
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
-                className="w-full rounded-xl border border-border bg-muted/30 px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary focus:bg-background transition-all"
+                className="w-full min-h-11 rounded-xl border border-border bg-muted/30 px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>
 
@@ -188,20 +190,25 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Bio / Campus Vibe</label>
+              <div className="flex items-center justify-between gap-2">
+                <label htmlFor="settings-bio" className="text-xs font-bold text-foreground">Bio</label>
+                <span className="text-[10px] tabular-nums text-muted-foreground">{bio.length}/160</span>
+              </div>
               <textarea
+                id="settings-bio"
+                maxLength={160}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Share your interests, department, or goals..."
                 rows={3}
-                className="w-full rounded-xl border border-border bg-muted/30 p-3.5 text-xs text-foreground outline-none focus:border-primary focus:bg-background transition-all resize-none"
+                className="w-full min-h-28 rounded-xl border border-border bg-muted/30 p-3 text-sm text-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+              className="w-full min-h-11 rounded-xl bg-primary text-primary-foreground text-sm font-black hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
             >
               <Check className="h-4 w-4" /> Save Profile Changes
             </button>
@@ -209,12 +216,12 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         </section>
 
         {/* Preferences Section */}
-        <section className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm space-y-5">
+        <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-sm space-y-4">
           <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Sliders className="h-4 w-4 text-primary" /> Platform Preferences
           </h2>
 
-          <div className="space-y-4 pt-1">
+          <div className="space-y-3 pt-1">
             {/* Browser / PWA push opt-in */}
             <PushNotificationToggle />
 
@@ -222,7 +229,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             <NotificationPreferencesPanel />
 
             {/* Feed Anonymity 2-Modes Toggler */}
-            <div className="p-4 rounded-2xl border border-border/60 bg-muted/20 space-y-3">
+            <div className="rounded-xl border border-border/60 bg-muted/10 p-3 space-y-3">
               <div>
                 <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <Sliders className="size-3.5 text-primary" /> Feed Content & Anonymity Mode
@@ -241,8 +248,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   className={cn(
                     "p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-xs",
                     feedVisibility === "ALL"
-                      ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
-                      : "border-border/60 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground"
+                      ? "border-primary bg-primary/8 text-foreground"
+                      : "border-border/60 bg-background text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   )}
                 >
                   <div className="flex items-center justify-between w-full">
