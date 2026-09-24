@@ -59,24 +59,24 @@
       },
       "a11y": {
         "useKeyWithClickEvents": "off",
-        "useAltText": "off",
-        "useButtonType": "off",
-        "noLabelWithoutControl": "off",
+        "useAltText": "warn",
+        "useButtonType": "warn",
+        "noLabelWithoutControl": "warn",
         "noAutofocus": "off",
-        "noStaticElementInteractions": "off",
-        "noSvgWithoutTitle": "off",
-        "noRedundantAlt": "off",
-        "useIframeTitle": "off",
-        "useAriaPropsSupportedByRole": "off"
+        "noStaticElementInteractions": "warn",
+        "noSvgWithoutTitle": "warn",
+        "noRedundantAlt": "warn",
+        "useIframeTitle": "warn",
+        "useAriaPropsSupportedByRole": "warn"
       },
       "performance": {
-        "noImgElement": "off"
+        "noImgElement": "warn"
       },
       "security": {
-        "noDangerouslySetInnerHtml": "off"
+        "noDangerouslySetInnerHtml": "warn"
       },
       "correctness": {
-        "useExhaustiveDependencies": "off",
+        "useExhaustiveDependencies": "warn",
         "noUnusedVariables": "off",
         "noUnusedFunctionParameters": "off",
         "useHookAtTopLevel": "off"
