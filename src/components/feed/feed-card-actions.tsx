@@ -95,11 +95,11 @@ export function FeedCardActions({
 
   return (
     <div
-      className="flex items-center justify-between pt-2 select-none"
+      className="flex items-center justify-between border-t border-border/25 pt-1.5 select-none"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Floating Reaction Capsule (Matching Reference Mockup) */}
-      <div className="neo-reaction-pill min-h-10 max-w-full">
+      <div className="flex min-w-0 items-center gap-0.5">
         {/* Like / Heart Action */}
         <div className="flex items-center gap-1.5">
           <motion.button
@@ -108,7 +108,7 @@ export function FeedCardActions({
             onClick={onVote}
             {...like.handlers}
             className={cn(
-              "flex min-h-10 items-center gap-1.5 px-1 text-xs cursor-pointer group transition-colors",
+              "cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs cursor-pointer group transition-colors hover:bg-muted/70",
               isLiked ? "text-rose-500 font-bold" : "text-muted-foreground hover:text-rose-500"
             )}
             aria-label={isLiked ? "Unlike post" : "Like post"}
@@ -144,7 +144,7 @@ export function FeedCardActions({
           type="button"
           onClick={onOpenComments}
           {...reply.handlers}
-          className="flex min-h-10 items-center gap-1.5 px-1 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+          className="cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer"
           aria-label="Reply"
         >
           <AnimatedIcon
@@ -164,7 +164,7 @@ export function FeedCardActions({
           type="button"
           onClick={onShare}
           {...share.handlers}
-          className="flex min-h-10 items-center gap-1.5 px-1 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+          className="cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer"
           aria-label="Share"
         >
           <AnimatedIcon
@@ -189,7 +189,7 @@ export function FeedCardActions({
           {...repost.handlers}
           aria-pressed={hasReposted}
           className={cn(
-            "size-10 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+            "cl-interactive size-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer",
             hasReposted
               ? "text-emerald-500 bg-emerald-500/10"
               : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
@@ -214,7 +214,7 @@ export function FeedCardActions({
           onClick={handleToggleSave}
           {...bookmark.handlers}
           className={cn(
-            "size-10 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+            "cl-interactive size-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer",
             isSaved
               ? "text-amber-500 bg-amber-500/10"
               : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"
