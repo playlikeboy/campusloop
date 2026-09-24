@@ -354,10 +354,10 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
 
           <Link
             href="/app/search"
-            className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors shrink-0"
+            className="size-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0 border border-border/40 bg-background/70"
             aria-label="Search campus discussions"
           >
-            <Search className="size-4" />
+            <Search className="size-5" strokeWidth={2.25} />
           </Link>
         </div>
       </header>
@@ -365,7 +365,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       {/* ─── Vertical Snap Scroll Deck (Exact Viewport Bounds: top 88px, bottom 64px on mobile / 0 on desktop) ─── */}
       <div
         ref={containerRef}
-        className="absolute inset-x-0 top-[88px] sm:top-[92px] bottom-[64px] md:bottom-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar"
+        className="absolute inset-x-0 top-[88px] sm:top-[92px] bottom-[72px] md:bottom-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar"
       >
         {items.map((item, index) => (
           <div
