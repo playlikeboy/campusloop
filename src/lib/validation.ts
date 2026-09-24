@@ -86,6 +86,7 @@ export function validateUsername(username: string | null | undefined): Validatio
 
 export const CREATE_POST_TYPES = [
   "NORMAL",
+  "ANONYMOUS",
   "CONFESSION",
   "POLL",
   "QUESTION",
