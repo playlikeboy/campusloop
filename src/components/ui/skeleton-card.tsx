@@ -144,12 +144,12 @@ export function PostDetailSkeleton() {
             <Skeleton className="h-4 w-12 rounded-full" />
             <Skeleton className="h-4 w-24 rounded-full" />
           </div>
-          <Skeleton className="size-8 rounded-full shrink-0" />
+          <Skeleton className="size-9 rounded-full shrink-0 border border-border/40" />
         </div>
       </header>
 
       {/* Centered Post Reel Deck Content Skeleton (Matches PostReelCard bounds) */}
-      <div className="absolute inset-x-0 top-[88px] sm:top-[92px] bottom-[64px] md:bottom-0 overflow-hidden flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto">
+      <div className="absolute inset-x-0 top-[88px] sm:top-[92px] bottom-[72px] md:bottom-0 overflow-hidden flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto">
         {/* Top Author Header */}
         <div className="flex items-center justify-between gap-3 min-w-0 pr-16 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -186,10 +186,10 @@ export function PostDetailSkeleton() {
       </div>
 
       {/* Right Floating Side Action Rail Skeleton (Like, Comment, Loop, Bookmark, Share, More) */}
-      <div className="absolute right-3 sm:right-6 bottom-4 sm:bottom-6 z-30 flex flex-col items-center gap-3.5 select-none shrink-0">
+      <div className="absolute inset-x-0 bottom-2 sm:inset-x-auto sm:right-4 sm:bottom-6 z-30 flex flex-row sm:flex-col items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-0 select-none shrink-0 rounded-2xl border border-border/50 bg-background/90 py-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:backdrop-blur-none">
         {/* 1. Like */}
         <div className="flex flex-col items-center gap-1">
-          <Skeleton className="size-11 sm:size-12 rounded-full" />
+          <Skeleton className="size-10 sm:size-12 rounded-full border border-border/40" />
           <Skeleton className="h-2.5 w-5 rounded-full" />
         </div>
         {/* 2. Comment */}
