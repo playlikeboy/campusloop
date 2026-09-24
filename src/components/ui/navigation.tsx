@@ -312,12 +312,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
           aria-label="Main mobile navigation"
           className="fixed inset-x-0 bottom-0 z-40 border-t border-border/35 bg-background/96 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-6px_18px_rgba(70,60,130,0.05)] backdrop-blur-2xl md:hidden"
         >
-          <div
-            className={cn(
-              "mx-auto grid h-[64px] w-full max-w-md items-stretch px-1",
-              mobileBottomItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
-            )}
-          >
+          <div className="mx-auto flex h-[64px] w-full max-w-md items-stretch px-1">
             {mobileBottomItems.map((item) => {
               const Icon = item.href === "/app" ? Home : item.href === "/app/discover" ? Compass : item.href === "/app/chat" ? AnimateMessageSquare : item.icon;
               const isCreate = item.href === "/app/post/new";
@@ -366,7 +361,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                     haptics.light();
                   }}
                   className={cn(
-                    "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 transition-colors",
+                    "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 transition-colors",
                     active ? "text-primary" : "text-muted-foreground"
                   )}
                   aria-current={active ? "page" : undefined}
@@ -386,9 +381,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                         />
                       )
                     ) : null}
-                    {item.href === "/app/chat" && unreadNotificationsCount > 0 && (
-                      <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
-                    )}
+
                   </span>
                   <span className={cn("truncate text-[10px] leading-none", active ? "font-bold" : "font-medium")}>
                     {item.label}
