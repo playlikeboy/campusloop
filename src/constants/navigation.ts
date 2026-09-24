@@ -23,6 +23,7 @@ import {
   AnimateHouse,
   AnimateLock,
   AnimatePlus,
+  AnimateMessageSquare,
   AnimateSearch,
   AnimateShieldCheck,
   AnimateShoppingBag,
