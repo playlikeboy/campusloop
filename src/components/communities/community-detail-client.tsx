@@ -2,888 +2,526 @@
 
 import {
   ArrowLeft,
-  BarChart3,
-  Check,
-  Clock,
-  Compass,
-  Flame,
+  ChevronRight,
   Globe,
-  Image as ImageIcon,
-  Loader2,
+  Info,
   Lock,
-  MessageSquare,
-  Settings,
+  MessageCircle,
+  MoreHorizontal,
+  Pencil,
   Share2,
   ShieldCheck,
-  Smile,
-  TrendingUp,
-  Trophy,
+  Sparkles,
   Users,
-  VenetianMask,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { recordCommunityInviteShare } from "@/app/app/(main)/communities/actions";
 import { JoinCommunityButton } from "@/app/app/(main)/communities/join-community-button";
-import { PostComposer } from "@/app/app/(main)/post/new/post-composer";
+import { CommunityPostStream } from "@/components/communities/community-post-stream";
 import { ShareQrButton } from "@/components/common/share-qr-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FeedCard } from "@/components/ui/feed-card";
-import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
-import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 export interface CommunityDetailProps {
   community: {
     id: string;
-    slug?: string | null;
+    slug: string | null;
     name: string;
-    description?: string | null;
-    category?: string;
-    privacy?: string;
-    avatarUrl?: string | null;
-    bannerUrl?: string | null;
-    points?: number;
-    rules?: string | null;
-    allowAnonymousPosts?: boolean;
+    description: string | null;
+    category: string;
+    privacy: string;
+    avatarUrl: string | null;
+    bannerUrl: string | null;
+    points: number;
+    rules: string | null;
+    allowAnonymousPosts: boolean;
     creatorId: string;
     createdAt: Date;
-    creator?: {
+    memberCount: number;
+    postCount: number;
+    creator: {
       id: string;
       username: string;
       displayName: string;
-      avatarUrl?: string | null;
-    } | null;
+    };
   };
-  initialPosts: FeedPost[];
   initialMembersCount: number;
   initialIsMember: boolean;
   isAdmin: boolean;
   relatedCommunities?: Array<{
     id: string;
     name: string;
-    slug?: string | null;
-    description?: string | null;
+    slug: string | null;
+    description: string | null;
     category: string;
-    avatarUrl?: string | null;
+    avatarUrl: string | null;
     membersCount: number;
     isMember?: boolean;
   }>;
-  membersList?: Array<{
-    id: string;
-    role: string;
-    user: {
-      id: string;
-      username: string;
-      displayName: string;
-      avatarUrl?: string | null;
-      headline?: string | null;
-      points?: number | null;
-    };
-  }>;
+}
+
+type Tab = "posts" | "qna" | "about";
+
+function getGradient(category: string) {
+  const normalized = category.toLowerCase();
+  if (normalized.includes("tech")) return "from-cyan-500/30 via-primary/20 to-transparent";
+  if (normalized.includes("gaming")) return "from-violet-500/30 via-primary/20 to-transparent";
+  if (normalized.includes("academic")) return "from-blue-500/25 via-primary/15 to-transparent";
+  if (normalized.includes("cultural")) return "from-rose-500/25 via-primary/15 to-transparent";
+  return "from-primary/25 via-primary/10 to-transparent";
 }
 
 export function CommunityDetailClient({
   community,
-  initialPosts,
   initialMembersCount,
   initialIsMember,
   isAdmin,
   relatedCommunities = [],
-  membersList = [],
 }: CommunityDetailProps) {
   const router = useRouter();
   const { profile } = useProfile();
-
-  const [activeTab, setActiveTab] = useState<"trending" | "latest" | "polls" | "members" | "rules">(
-    "trending"
-  );
-  const [redditSort, setRedditSort] = useState<"hot" | "new" | "top" | "rising" | "discussed">("hot");
-  const [topTimeWindow, setTopTimeWindow] = useState<"today" | "week" | "month" | "all">("all");
+  const [tab, setTab] = useState<Tab>("posts");
   const [isMember, setIsMember] = useState(initialIsMember);
   const [membersCount, setMembersCount] = useState(initialMembersCount);
-  const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
-  const [copied, setCopied] = useState(false);
-  const [isOpeningChat, setIsOpeningChat] = useState(false);
-
-  // Quick Composer State
-  const [quickText, setQuickText] = useState("");
-  const [isQuickPosting, setIsQuickPosting] = useState(false);
-  // Full composer (photos, GIFs, polls, confessions) opened as a modal
-  const [showFullComposer, setShowFullComposer] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const identifier = community.slug || community.id;
 
-  async function handleOpenCommunityChat() {
-    if (isOpeningChat) return;
-    setIsOpeningChat(true);
-    sounds.tap();
-    haptics.light();
-
-    try {
-      const res = await fetch(`/api/communities/${community.id}/chat`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to open community chat room");
-      }
-      const data = (await res.json()) as { conversationId: string };
-      router.push(`/app/chat/${data.conversationId}`);
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to open chat room");
-    } finally {
-      setIsOpeningChat(false);
-    }
-  }
-
-  const parsedRules = useMemo(() => {
+  const rules = useMemo(() => {
     if (!community.rules) return [];
     try {
-      return JSON.parse(community.rules) as Array<{ title: string; description: string }>;
+      const parsed = JSON.parse(community.rules);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
   }, [community.rules]);
 
-  const [referenceTime] = useState(() => Date.now());
-
-  // Reddit-Style Algorithmic Community Feed Sorting
-  const filteredPosts = useMemo(() => {
-    const list = [...posts];
-    if (activeTab === "polls") {
-      return list.filter((p) => p.type === "POLL" || p.type === "QUESTION");
-    }
-
-    const now = referenceTime;
-
-    switch (redditSort) {
-      case "new":
-        return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-      case "rising":
-        return list.sort((a, b) => {
-          const ageA = Math.max(1, (now - new Date(a.createdAt).getTime()) / (3600 * 1000));
-          const ageB = Math.max(1, (now - new Date(b.createdAt).getTime()) / (3600 * 1000));
-          const velA = (a.votesCount * 3 + a.commentsCount * 4 + 1) / ageA;
-          const velB = (b.votesCount * 3 + b.commentsCount * 4 + 1) / ageB;
-          return velB - velA;
-        });
-
-      case "discussed":
-        return list.sort((a, b) => (b.commentsCount || 0) - (a.commentsCount || 0));
-
-      case "top": {
-        let maxAgeMs = Infinity;
-        if (topTimeWindow === "today") maxAgeMs = 24 * 3600 * 1000;
-        else if (topTimeWindow === "week") maxAgeMs = 7 * 24 * 3600 * 1000;
-        else if (topTimeWindow === "month") maxAgeMs = 30 * 24 * 3600 * 1000;
-
-        const timeFiltered = list.filter((p) => now - new Date(p.createdAt).getTime() <= maxAgeMs);
-        const candidates = timeFiltered.length > 0 ? timeFiltered : list;
-        return candidates.sort((a, b) => (b.votesCount || 0) - (a.votesCount || 0));
-      }
-      default:
-        return list.sort((a, b) => {
-          const ageHoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / (3600 * 1000));
-          const ageHoursB = Math.max(1, (now - new Date(b.createdAt).getTime()) / (3600 * 1000));
-          const scoreA = (a.votesCount * 2 + a.commentsCount * 3 + 5) / ageHoursA ** 0.7;
-          const scoreB = (b.votesCount * 2 + b.commentsCount * 3 + 5) / ageHoursB ** 0.7;
-          return scoreB - scoreA;
-        });
-    }
-  }, [posts, activeTab, redditSort, topTimeWindow, referenceTime]);
-
-  async function handleShareInvite() {
-    const shareUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/app/communities/${identifier}`
-        : `https://campusloop.space/app/communities/${identifier}`;
-
-    const shareText = `🚀 Join c/${community.name} on CampusLoop!\n${community.description || "Campus sub-hub for students."}\n\n👉 ${shareUrl}`;
-
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      toast.success("Community invite link copied! +10 LP awarded 🚀");
-      setTimeout(() => setCopied(false), 2500);
-      recordCommunityInviteShare(community.id).catch(() => {});
+  async function openChat() {
+    try {
+      sounds.tap();
+      haptics.light();
+      const response = await fetch("/api/communities/" + community.id + "/chat", {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("Could not open community chat");
+      const data = (await response.json()) as { conversationId: string };
+      router.push("/app/chat/" + data.conversationId);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not open community chat");
     }
   }
 
-  async function handleQuickPost(e: React.FormEvent) {
-    e.preventDefault();
-    const text = quickText.trim();
-    if (!text || isQuickPosting) return;
+  async function shareCommunity() {
+    const url =
+      typeof window !== "undefined"
+        ? window.location.origin + "/app/communities/" + identifier
+        : "https://campusloop.space/app/communities/" + identifier;
 
-    setIsQuickPosting(true);
-    setQuickText("");
-
-    const tempId = `temp_${Date.now()}`;
-    const optimisticPost: FeedPost = {
-      id: tempId,
-      authorId: profile?.id || "temp_author",
-      institutionId: profile?.institutionId || "inst_global",
-      communityId: community.id,
-      body: text,
-      type: "NORMAL",
-      scope: "CAMPUS",
-      isAnonymous: false,
-      pseudonym: null,
-      title: null,
-      status: "PUBLISHED",
-      riskScore: 0,
-      isEdited: false,
-      isSeeded: false,
-      repostOfId: null,
-      repostComment: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      votesCount: 0,
-      commentsCount: 0,
-      userVote: 0,
-      author: profile as unknown as FeedPost["author"],
-      institution: (profile?.institution || {
-        id: profile?.institutionId || "inst_global",
-        name: "Campus",
-      }) as unknown as FeedPost["institution"],
-      community: { id: community.id, name: community.name },
-    };
-
-    // Prepend to local community posts stream immediately
-    setPosts((prev) => [optimisticPost, ...prev]);
-    // Prepend to global / campus feed if viewer visits /app
-    optimisticAddPost(optimisticPost);
-    toast.success("Posted to community! 🎉");
-
+    setSharing(true);
     try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body: text,
-          type: "NORMAL",
-          scope: "CAMPUS",
-          isAnonymous: false,
-          communityId: community.id,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish post");
+      if (navigator.share) {
+        await navigator.share({
+          title: "c/" + community.name,
+          text: community.description || "Campus community on CampusLoop",
+          url,
+        });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Community link copied");
       }
-
-      const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
-      const confirmed = {
-        ...optimisticPost,
-        id: serverPost.id,
-        createdAt: new Date(serverPost.createdAt || Date.now()),
-      };
-      setPosts((prev) => prev.map((p) => (p.id === tempId ? confirmed : p)));
-      confirmOptimisticPost(tempId, confirmed);
-    } catch (err: unknown) {
-      console.error("Community post failed:", err);
-      setPosts((prev) => prev.filter((p) => p.id !== tempId));
-      revertOptimisticPost(tempId);
-      toast.error(err instanceof Error ? err.message : "Failed to publish post.");
+      recordCommunityInviteShare(community.id).catch(() => {});
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        toast.error("Could not share this community");
+      }
     } finally {
-      setIsQuickPosting(false);
+      setSharing(false);
     }
+  }
+
+  function updateMembership(next: boolean) {
+    setIsMember(next);
+    setMembersCount((count) => Math.max(0, count + (next ? 1 : -1)));
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen bg-background text-foreground pb-24 border-x border-border/30 select-none">
-      {/* ─── Sticky Twitter/X Top Navigation Bar ─── */}
-      <header className="sticky top-0 z-40 bg-background/80 px-4 py-2.5 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <main className="mx-auto min-h-screen w-full max-w-2xl border-x border-border/20 bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] text-foreground">
+      <header className="sticky top-0 z-40 border-b border-border/20 bg-background/92 backdrop-blur-xl">
+        <div className="flex min-h-12 items-center gap-2 px-3 sm:px-4">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex size-9 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            aria-label="Back"
+            aria-label="Go back"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground"
           >
             <ArrowLeft className="size-4.5" />
           </button>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-black tracking-tight text-foreground truncate max-w-[220px] sm:max-w-xs">
-                c/{community.name}
-              </h1>
-              {community.privacy === "PRIVATE" ? (
-                <Lock className="size-3 text-muted-foreground" />
-              ) : (
-                <Globe className="size-3 text-muted-foreground" />
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground font-normal">
-              {membersCount} {membersCount === 1 ? "member" : "members"} · {posts.length} discussions
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {isAdmin && (
-            <Link
-              href={`/app/communities/${identifier}/settings`}
-              className="flex size-8 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-              title="Community Settings"
-            >
-              <Settings className="size-3.5" />
-            </Link>
-          )}
-
-          <button
-            type="button"
-            onClick={handleShareInvite}
-            className="flex size-8 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-            title="Copy invite link"
-          >
-            {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
-          </button>
-
-          <ShareQrButton
-            title={`c/${community.name}`}
-            subtitle={community.description || "Campus sub-hub on CampusLoop"}
-            badgeText="Campus Sub-Hub"
-            shortUrl={`https://campusloop.space/c/${community.slug || community.id}`}
-            avatarUrl={community.avatarUrl}
-            category="community"
-            className="size-8 border-border/60 bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-          />
-        </div>
-      </header>
-
-      {/* ─── Hero Banner Area (Matching /app/profile) ─── */}
-      <div className="relative h-36 sm:h-48 w-full bg-neutral-900 overflow-hidden">
-        {community.bannerUrl ? (
-          <img
-            src={community.bannerUrl}
-            alt={`${community.name} Banner`}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-linear-to-r from-neutral-900 via-neutral-950 to-neutral-900 relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-          </div>
-        )}
-      </div>
-
-      {/* ─── Community Avatar & Action Row ─── */}
-      <div className="px-4 sm:px-5">
-        <div className="flex items-end justify-between -mt-12 sm:-mt-14 mb-3">
-          <Avatar className="size-24 sm:size-28 rounded-full border-4 border-background bg-card shadow-md shrink-0">
-            <AvatarImage src={community.avatarUrl || ""} alt={community.name} className="object-cover" />
-            <AvatarFallback className="bg-neutral-800 text-foreground text-2xl font-black">
+          <Avatar className="size-7 shrink-0 rounded-full ring-1 ring-border/50">
+            <AvatarImage src={getAvatarUrl(community.avatarUrl, community.name)} alt="" />
+            <AvatarFallback className="bg-muted text-[10px] font-black">
               {community.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
-          <div className="flex items-center gap-2 pb-1">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-black">c/{community.name}</p>
+            <p className="truncate text-[10px] font-medium text-muted-foreground">
+              {membersCount} members · {community.postCount} discussions
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={handleOpenCommunityChat}
-              disabled={isOpeningChat}
-              className="h-9 px-4 text-xs font-black rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5 shrink-0"
-              title={`Join c/${community.name} Discord-style group chat`}
+              onClick={openChat}
+              aria-label="Open community chat"
+              className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground"
             >
-              {isOpeningChat ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <MessageSquare className="size-3.5" />
-              )}
-              <span>Chat Room</span>
+              <MessageCircle className="size-4" />
             </button>
-            <JoinCommunityButton
-              communityId={community.id}
-              initialIsMember={isMember}
-              onMembershipChange={(joined) => {
-                setIsMember(joined);
-                setMembersCount((c) => Math.max(joined ? c + 1 : c - 1, 0));
-              }}
-              className={cn(
-                "h-9 px-5 text-sm font-black rounded-full transition-all cursor-pointer shadow-xs active:scale-95",
-                isMember
-                  ? "border border-border/80 bg-transparent text-foreground hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5"
-                  : "bg-foreground text-background hover:opacity-90"
-              )}
+
+            <button
+              type="button"
+              onClick={shareCommunity}
+              disabled={sharing}
+              aria-label="Share community"
+              className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+            >
+              <Share2 className="size-4" />
+            </button>
+
+            <ShareQrButton
+              title={"c/" + community.name}
+              subtitle={community.description || "Campus community on CampusLoop"}
+              badgeText="Campus community"
+              shortUrl={"https://campusloop.space/c/" + (community.slug || community.id)}
+              avatarUrl={community.avatarUrl}
+              category="community"
+              className="size-9 border-0 bg-transparent text-muted-foreground hover:bg-muted/60"
             />
+
+            {isAdmin ? (
+              <Link
+                href={"/app/communities/" + identifier + "/settings"}
+                aria-label="Community settings"
+                className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              >
+                <MoreHorizontal className="size-4" />
+              </Link>
+            ) : null}
           </div>
         </div>
+      </header>
 
-        {/* Community Info & Bio */}
-        <div className="space-y-2">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-              {community.name}
-            </h1>
-            <p className="text-xs font-bold text-primary mt-0.5">{community.category} · Campus Sub-Hub</p>
+      <section>
+        {community.bannerUrl ? (
+          <div className="relative h-24 overflow-hidden sm:h-32">
+            <img
+              src={community.bannerUrl}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="size-full object-cover"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-background/35 to-transparent" />
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "h-20 bg-linear-to-r sm:h-28",
+              getGradient(community.category)
+            )}
+          />
+        )}
+
+        <div className="relative px-4 sm:px-5">
+          <div className="flex items-end justify-between gap-3">
+            <Avatar className="-mt-9 size-20 shrink-0 rounded-full border-4 border-background bg-card shadow-sm sm:-mt-10 sm:size-22">
+              <AvatarImage
+                src={getAvatarUrl(community.avatarUrl, community.name)}
+                alt={community.name}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-muted text-xl font-black">
+                {community.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex items-center gap-1.5 pb-1">
+              <JoinCommunityButton
+                communityId={community.id}
+                initialIsMember={isMember}
+                onMembershipChange={updateMembership}
+                className="h-9 px-4 text-xs font-black"
+              />
+            </div>
           </div>
 
-          {community.description && (
-            <p className="text-[14px] text-foreground/90 font-normal leading-relaxed">
-              {community.description}
-            </p>
-          )}
-
-          {/* Twitter-Style Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-xs text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => setActiveTab("members")}
-              className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
-            >
-              <Users className="size-3.5" />
-              <span className="font-bold text-foreground">{membersCount}</span> Members
-            </button>
-
-            <div className="flex items-center gap-1">
-              <MessageSquare className="size-3.5" />
-              <span className="font-bold text-foreground">{posts.length}</span> Discussions
+          <div className="pt-3">
+            <div className="flex items-center gap-2">
+              <h1 className="min-w-0 text-xl font-black tracking-tight sm:text-2xl">{community.name}</h1>
+              <ShieldCheck className="size-4 shrink-0 text-primary" aria-label="Verified community" />
             </div>
 
-            <div className="flex items-center gap-1">
-              <ShieldCheck className="size-3.5" />
+            <p className="mt-0.5 text-xs font-bold text-primary">{community.category}</p>
+
+            {community.description ? (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-foreground/90">
+                {community.description}
+              </p>
+            ) : null}
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+              <Link href={"/app/communities/" + identifier + "/members"} className="font-bold hover:text-foreground">
+                <Users className="mr-1 inline size-3.5" />
+                {membersCount} members
+              </Link>
               <span>
-                Moderated by{" "}
-                <Link
-                  href={`/app/profile/${community.creator?.username || ""}`}
-                  className="font-bold text-foreground hover:underline"
-                >
-                  @{community.creator?.username || "student"}
-                </Link>
+                <MessageCircle className="mr-1 inline size-3.5" />
+                {community.postCount} discussions
+              </span>
+              <span>
+                <Sparkles className="mr-1 inline size-3.5" />
+                {community.points || 0} LP
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ─── Twitter/X Sticky Segmented Tabs ─── */}
-      <div className="border-b border-border/30 bg-background/95 backdrop-blur-md sticky top-[53px] z-20 flex items-center overflow-x-auto scrollbar-none no-scrollbar px-2 gap-1 mt-3">
+      <nav aria-label="Community sections" className="mt-4 flex border-b border-border/20 px-2">
         {[
-          { key: "trending", label: "Trending" },
-          { key: "latest", label: "Latest" },
-          { key: "polls", label: "Polls & Q&A" },
-          { key: "members", label: `Members (${membersCount})` },
-          { key: "rules", label: "Rules & Bylaws" },
-        ].map((tab) => (
+          { id: "posts" as const, label: "Posts" },
+          { id: "qna" as const, label: "Q&A" },
+          { id: "about" as const, label: "About" },
+        ].map((item) => (
           <button
-            key={tab.key}
+            key={item.id}
             type="button"
-            onClick={() => setActiveTab(tab.key as typeof activeTab)}
+            onClick={() => setTab(item.id)}
             className={cn(
-              "relative px-4 py-3 text-center text-xs sm:text-sm transition-colors cursor-pointer flex flex-col items-center justify-center font-bold whitespace-nowrap shrink-0",
-              activeTab === tab.key
-                ? "text-foreground font-black"
-                : "text-muted-foreground hover:text-foreground font-medium"
+              "relative min-h-11 flex-1 px-3 text-xs font-bold transition-colors",
+              tab === item.id ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <span>{tab.label}</span>
-            {activeTab === tab.key && (
-              <div className="absolute bottom-0 h-0.5 inset-x-2 bg-primary rounded-full" />
-            )}
+            {item.label}
+            {tab === item.id ? (
+              <span className="absolute inset-x-7 bottom-0 h-0.5 rounded-full bg-primary" />
+            ) : null}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {/* ─── Tab Content Views ─── */}
-      {activeTab === "members" ? (
-        /* ─── Members Directory Tab ─── */
-        <div className="divide-y divide-border/30">
-          {membersList.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              No public member list available.
-            </div>
-          ) : (
-            membersList.map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors"
+      {tab === "posts" || tab === "qna" ? (
+        <section>
+          <div className="border-b border-border/20 px-4 py-3 sm:px-5">
+            {isMember ? (
+              <Link
+                href={
+                  "/app/post/new?communityId=" +
+                  encodeURIComponent(community.id)
+                }
+                className="group flex items-center gap-3 rounded-2xl bg-muted/30 px-3.5 py-3 transition-colors hover:bg-muted/50"
               >
-                <Link href={`/app/profile/${m.user.username}`} className="flex items-center gap-3">
-                  <Avatar className="size-10 rounded-full border border-border/40">
-                    <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="bg-muted text-xs font-bold">
-                      {m.user.displayName?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-bold text-foreground hover:underline">
-                        {m.user.displayName}
-                      </span>
-                      {m.role === "ADMIN" && (
-                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-primary/15 text-primary">
-                          ADMIN
-                        </span>
-                      )}
-                      {m.role === "MODERATOR" && (
-                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                          MOD
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">@{m.user.username}</p>
-                  </div>
-                </Link>
-                {m.user.points != null && (
-                  <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                    <Trophy className="size-3 text-primary" /> {m.user.points} LP
-                  </span>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      ) : activeTab === "rules" ? (
-        /* ─── Rules & Bylaws Tab ─── */
-        <div className="p-5 space-y-4">
-          <div className="space-y-1">
-            <h2 className="text-base font-black text-foreground">Community Bylaws & Guidelines</h2>
-            <p className="text-xs text-muted-foreground">
-              Rules enforced by the student administrators to keep discussions safe and constructive.
-            </p>
-          </div>
-
-          {parsedRules.length === 0 ? (
-            <div className="rounded-2xl border border-border/30 p-5 text-sm text-muted-foreground text-center">
-              No formal rules drafted yet. Standard CampusLoop community guidelines apply.
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {parsedRules.map((rule, idx) => (
-                <div key={idx} className="p-3.5 rounded-2xl border border-border/30 bg-card/30 space-y-1">
-                  <p className="text-sm font-bold text-foreground">
-                    {idx + 1}. {rule.title}
-                  </p>
-                  {rule.description && (
-                    <p className="text-xs text-muted-foreground leading-relaxed">{rule.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Share Box */}
-          <div className="rounded-2xl border border-border/30 bg-card/20 p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-foreground">Invite friends to c/{community.name}</p>
-              <p className="text-[11px] text-muted-foreground">Earn +10 Loop Points per successful invite</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleShareInvite}
-              className="px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-all cursor-pointer"
-            >
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* ─── Feed Tabs (Trending, Latest, Polls) ─── */
-        <div className="flex flex-col">
-          {/* ─── Inline Quick Composer Row (Twitter Style) ─── */}
-          {isMember ? (
-            <form onSubmit={handleQuickPost} className="border-b border-border/30 px-4 py-3 bg-card/20">
-              <div className="flex gap-3 items-start">
-                <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">
-                  <AvatarImage src={profile?.avatarUrl || ""} />
-                  <AvatarFallback className="bg-muted text-xs font-bold">
+                <Avatar className="size-9 rounded-full">
+                  <AvatarImage src={profile?.avatarUrl || ""} alt="" />
+                  <AvatarFallback className="bg-background text-xs font-black">
                     {profile?.displayName?.[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 flex flex-col gap-2">
-                  <textarea
-                    rows={quickText ? 2 : 1}
-                    placeholder={`Post to c/${community.name}...`}
-                    value={quickText}
-                    onChange={(e) => setQuickText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                        e.preventDefault();
-                        handleQuickPost(e);
-                      }
-                    }}
-                    className="w-full bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none resize-none pt-2"
-                  />
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/20">
-                    {/* Rich composer entry points — same tools as /app/post/new */}
-                    <div className="flex items-center gap-0.5">
-                      {[
-                        {
-                          id: "photo",
-                          label: "Add photo",
-                          icon: ImageIcon,
-                          color: "text-emerald-500 hover:bg-emerald-500/10",
-                        },
-                        {
-                          id: "gif",
-                          label: "Add GIF",
-                          icon: Smile,
-                          color: "text-primary hover:bg-primary/10",
-                        },
-                        {
-                          id: "poll",
-                          label: "Create poll",
-                          icon: BarChart3,
-                          color: "text-blue-500 hover:bg-blue-500/10",
-                        },
-                        {
-                          id: "anon",
-                          label: "Post anonymously",
-                          icon: VenetianMask,
-                          color: "text-violet-500 hover:bg-violet-500/10",
-                        },
-                      ].map((tool) => (
-                        <button
-                          key={tool.id}
-                          type="button"
-                          title={tool.label}
-                          aria-label={tool.label}
-                          onClick={() => setShowFullComposer(true)}
-                          className={cn(
-                            "flex size-8 items-center justify-center rounded-full transition-all cursor-pointer active:scale-90",
-                            tool.color
-                          )}
-                        >
-                          <tool.icon className="size-4.5" />
-                        </button>
-                      ))}
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isQuickPosting || !quickText.trim()}
-                      className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-all cursor-pointer shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {isQuickPosting ? "Posting..." : "Post"}
-                    </button>
-                  </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black group-hover:text-primary">
+                    Start a discussion
+                  </p>
+                  <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                    Ask something, share resources, run a poll, or post anonymously.
+                  </p>
                 </div>
+                <Pencil className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-3 rounded-2xl bg-muted/30 px-3.5 py-3">
+                <div className="flex size-9 items-center justify-center rounded-full bg-background text-muted-foreground">
+                  <Lock className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black">Join to participate</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Join this hub before starting a discussion.
+                  </p>
+                </div>
+                <JoinCommunityButton
+                  communityId={community.id}
+                  initialIsMember={false}
+                  onMembershipChange={updateMembership}
+                  className="h-8 px-3 text-[11px]"
+                />
               </div>
-            </form>
-          ) : (
-            <div className="border-b border-border/30 p-4 bg-muted/10 flex items-center justify-between">
+            )}
+
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-foreground">Latest</span>
+                <span className="px-2 py-1">Relevant follows community activity first.</span>
+              </div>
+              <Info className="size-3.5 text-muted-foreground" />
+            </div>
+          </div>
+
+          <CommunityPostStream
+            profileId={profile?.id || ""}
+            tab="discussions"
+            communityId={community.id}
+            kind={tab === "qna" ? "qna" : "all"}
+            emptyTitle={tab === "qna" ? "No Q&A yet" : "No posts yet"}
+            emptyDescription={
+              tab === "qna"
+                ? "Questions and polls posted in this hub will collect here."
+                : "Start the first useful conversation in this community."
+            }
+          />
+        </section>
+      ) : (
+        <section className="space-y-4 px-4 py-5 sm:px-5">
+          <div className="rounded-2xl bg-muted/25 p-4">
+            <div className="flex items-start gap-3">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" />
               <div>
-                <p className="text-xs font-bold text-foreground">Join c/{community.name}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Post questions, participate in polls, and connect.
+                <h2 className="text-sm font-black">About this hub</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {community.description || "A student-run community on CampusLoop."}
                 </p>
               </div>
-              <JoinCommunityButton
-                communityId={community.id}
-                initialIsMember={false}
-                className="h-8 px-4 text-xs font-bold rounded-full bg-foreground text-background hover:opacity-90"
-                onMembershipChange={(joined) => {
-                  setIsMember(joined);
-                  setMembersCount((c) => Math.max(joined ? c + 1 : c - 1, 0));
-                }}
-              />
             </div>
-          )}
+          </div>
 
-          {/* ─── Reddit-Style Feed Sort Options Bar ─── */}
-          <div className="border-b border-border/30 px-4 py-2 bg-muted/15 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setRedditSort("hot");
-                  setActiveTab("trending");
-                }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  redditSort === "hot"
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                )}
-              >
-                <Flame className="size-3.5" />
-                <span>Hot</span>
-              </button>
+          <div className="grid grid-cols-3 gap-2">
+            <StatCard value={String(membersCount)} label="Members" />
+            <StatCard value={String(community.postCount)} label="Discussions" />
+            <StatCard value={String(community.points || 0)} label="LP" />
+          </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setRedditSort("new");
-                  setActiveTab("latest");
-                }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  redditSort === "new"
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                )}
-              >
-                <Clock className="size-3.5" />
-                <span>New</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setRedditSort("top")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  redditSort === "top"
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                )}
-              >
-                <Trophy className="size-3.5" />
-                <span>Top</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setRedditSort("rising")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  redditSort === "rising"
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                )}
-              >
-                <TrendingUp className="size-3.5" />
-                <span>Rising</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setRedditSort("discussed")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  redditSort === "discussed"
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                )}
-              >
-                <MessageSquare className="size-3.5" />
-                <span>Discussed</span>
-              </button>
+          <div className="rounded-2xl bg-muted/25 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-black">Community details</h2>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {community.privacy === "PRIVATE" ? "Private" : "Public"} · Created by @{community.creator?.username}
+                </p>
+              </div>
+              <ShieldCheck className="size-4 text-primary" />
             </div>
 
-            {/* Reddit Top Time-Window Selector */}
-            {redditSort === "top" && (
-              <div className="flex items-center gap-1 text-[11px] font-bold">
-                <span className="text-muted-foreground">Range:</span>
-                {(["today", "week", "month", "all"] as const).map((range) => (
-                  <button
-                    key={range}
-                    type="button"
-                    onClick={() => setTopTimeWindow(range)}
-                    className={cn(
-                      "px-2 py-0.5 rounded-full uppercase tracking-wider text-[10px] transition-all cursor-pointer",
-                      topTimeWindow === range
-                        ? "bg-foreground text-background font-black"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {range === "today"
-                      ? "24h"
-                      : range === "week"
-                        ? "Week"
-                        : range === "month"
-                          ? "Month"
-                          : "All"}
-                  </button>
+            <div className="mt-4 space-y-3">
+              <Link
+                href={"/app/communities/" + identifier + "/members"}
+                className="flex items-center justify-between rounded-xl bg-background px-3 py-2.5 text-xs font-bold ring-1 ring-border/30"
+              >
+                <span>View members and moderators</span>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </Link>
+              {isAdmin ? (
+                <Link
+                  href={"/app/communities/" + identifier + "/settings"}
+                  className="flex items-center justify-between rounded-xl bg-background px-3 py-2.5 text-xs font-bold ring-1 ring-border/30"
+                >
+                  <span>Manage community</span>
+                  <ChevronRight className="size-4 text-muted-foreground" />
+                </Link>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-muted/25 p-4">
+            <h2 className="text-sm font-black">Guidelines</h2>
+            {rules.length ? (
+              <div className="mt-3 space-y-2">
+                {rules.map((rule: { title?: string; description?: string }, index) => (
+                  <div key={index} className="rounded-xl bg-background px-3 py-2.5 ring-1 ring-border/25">
+                    <p className="text-xs font-bold">
+                      {index + 1}. {rule.title || "Community rule"}
+                    </p>
+                    {rule.description ? (
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                        {rule.description}
+                      </p>
+                    ) : null}
+                  </div>
                 ))}
               </div>
+            ) : (
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                No custom rules have been added. Standard CampusLoop community guidelines apply.
+              </p>
             )}
           </div>
 
-          {/* Feed Posts Stream */}
-          {filteredPosts.length === 0 ? (
-            <div className="p-12 text-center space-y-2">
-              <p className="text-sm font-bold text-foreground">No posts here yet</p>
-              <p className="text-xs text-muted-foreground">
-                Be the first to start a discussion in c/{community.name}!
-              </p>
-            </div>
-          ) : (
+          {relatedCommunities.length ? (
             <div>
-              {filteredPosts.map((post, idx) => (
-                <div key={post.id}>
-                  <FeedCard post={post} currentUserId={profile?.id} />
-
-                  {/* ─── Algorithmic In-Stream Suggestion: Related Communities (at index 2) ─── */}
-                  {idx === 2 && relatedCommunities.length > 0 && (
-                    <div className="p-4 border-b border-border/30 bg-muted/10 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                          <Compass className="size-3.5 text-primary" /> Related Campus Hubs
-                        </span>
-                        <Link
-                          href="/app/communities"
-                          className="text-xs text-primary font-bold hover:underline"
-                        >
-                          See all
-                        </Link>
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {relatedCommunities.slice(0, 2).map((rel) => (
-                          <Link
-                            key={rel.id}
-                            href={`/app/communities/${rel.slug || rel.id}`}
-                            className="p-3 rounded-2xl border border-border/30 bg-background/60 hover:bg-background transition-colors flex items-center gap-3"
-                          >
-                            <Avatar className="size-9 rounded-full border border-border/40 shrink-0">
-                              <AvatarImage src={rel.avatarUrl || ""} />
-                              <AvatarFallback className="bg-muted text-xs font-bold">
-                                {rel.name.slice(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-bold text-foreground truncate">c/{rel.name}</p>
-                              <p className="text-[11px] text-muted-foreground truncate">
-                                {rel.membersCount} members
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              <div className="mb-2 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-black">Related hubs</h2>
+                  <p className="text-[11px] text-muted-foreground">Other active communities you can join.</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                <Link href="/app/communities" className="text-[11px] font-bold text-primary">
+                  Explore
+                </Link>
+              </div>
 
-      {/* ─── Full Composer Modal — same tools as /app/post/new, locked to this hub ─── */}
-      {showFullComposer && (
-        <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-0 backdrop-blur-sm sm:p-6"
-          onClick={() => setShowFullComposer(false)}
-        >
-          <div className="w-full max-w-2xl sm:my-4" onClick={(e) => e.stopPropagation()}>
-            <PostComposer
-              variant="modal"
-              communityId={community.id}
-              lockedCommunityName={community.name}
-              onCancel={() => setShowFullComposer(false)}
-              onPublished={(post) => {
-                setPosts((prev) => [post, ...prev]);
-                setShowFullComposer(false);
-              }}
-              onPublishConfirmed={(tempId, realPost) => {
-                setPosts((prev) =>
-                  realPost
-                    ? prev.map((p) => (p.id === tempId ? realPost : p))
-                    : prev.filter((p) => p.id !== tempId)
-                );
-              }}
-            />
-          </div>
-        </div>
+              <div className="divide-y divide-border/20">
+                {relatedCommunities.map((related) => (
+                  <Link
+                    key={related.id}
+                    href={"/app/communities/" + (related.slug || related.id)}
+                    className="flex items-center gap-3 py-3"
+                  >
+                    <Avatar className="size-10 rounded-full ring-1 ring-border/40">
+                      <AvatarImage src={getAvatarUrl(related.avatarUrl, related.name)} alt="" />
+                      <AvatarFallback className="bg-muted text-xs font-black">
+                        {related.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-black">c/{related.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {related.category} · {related.membersCount} members
+                      </p>
+                    </div>
+                    {related.isMember ? (
+                      <span className="text-[10px] font-bold text-primary">Joined</span>
+                    ) : null}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={shareCommunity}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-xs font-black text-background transition-opacity hover:opacity-90"
+          >
+            <Share2 className="size-3.5" />
+            Share this community
+          </button>
+        </section>
       )}
     </main>
+  );
+}
+
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl bg-muted/25 px-3 py-3 text-center">
+      <p className="text-sm font-black">{value}</p>
+      <p className="mt-0.5 text-[10px] font-bold text-muted-foreground">{label}</p>
+    </div>
   );
 }
