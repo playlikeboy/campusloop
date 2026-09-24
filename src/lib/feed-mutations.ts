@@ -7,9 +7,29 @@
 import { mutate } from "swr";
 import type { FeedPost } from "@/hooks/use-feed";
 
-// In-memory feed cache shared across mounts
-export const feedPagesCache = new Map<string, FeedPost[][]>();
-export const feedSizeCache = new Map<string, number>();
+// In-memory feed cache shared across mounts. Keep it bounded so navigating through many
+// combinations of campus/type/sort filters cannot grow memory without limit.
+const MAX_FEED_CACHE_ENTRIES = 12;
+
+class BoundedMap<K, V> extends Map<K, V> {
+  constructor(private readonly maxEntries: number) {
+    super();
+  }
+
+  override set(key: K, value: V) {
+    if (this.has(key)) this.delete(key);
+    super.set(key, value);
+    while (this.size > this.maxEntries) {
+      const oldestKey = this.keys().next().value;
+      if (oldestKey === undefined) break;
+      this.delete(oldestKey);
+    }
+    return this;
+  }
+}
+
+export const feedPagesCache = new BoundedMap<string, FeedPost[][]>(MAX_FEED_CACHE_ENTRIES);
+export const feedSizeCache = new BoundedMap<string, number>(MAX_FEED_CACHE_ENTRIES);
 
 /**
  * Posts published in this session that may not be visible to the feed API yet.
@@ -21,6 +41,7 @@ export const feedSizeCache = new Map<string, number>();
  * always on top, whichever route the author came from.
  */
 const PENDING_TTL_MS = 90_000;
+const MAX_PENDING_POSTS = 50;
 const pendingPosts = new Map<string, { post: FeedPost; addedAt: number }>();
 
 function prunePending() {
@@ -50,6 +71,11 @@ export function optimisticAddPost(newPost: FeedPost) {
   //    right after publishing still shows it on top.
   prunePending();
   pendingPosts.set(newPost.id, { post: newPost, addedAt: Date.now() });
+  while (pendingPosts.size > MAX_PENDING_POSTS) {
+    const oldestId = pendingPosts.keys().next().value;
+    if (oldestId === undefined) break;
+    pendingPosts.delete(oldestId);
+  }
 
   // 1. Update in-memory caches
   for (const [key, pages] of feedPagesCache.entries()) {
