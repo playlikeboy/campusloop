@@ -2,7 +2,7 @@
 
 import { CheckCircle2, EyeOff, Globe, Loader2, Lock, Plus, Sliders, Trash2, Webhook } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { updateCommunitySettings } from "@/app/app/(main)/communities/actions";
 import { CommunityWebhooksManager } from "@/components/communities/community-webhooks-manager";
@@ -59,6 +59,27 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       : [{ title: "Be respectful to peers", description: "No hate speech or harassment." }]
   );
 
+  const initialSnapshot = useRef(
+    JSON.stringify({
+      name: community.name,
+      description: community.description || "",
+      category: community.category || "General",
+      privacy: (community.privacy as "PUBLIC" | "PRIVATE" | "UNLISTED") || "PUBLIC",
+      allowAnonymousPosts: community.allowAnonymousPosts ?? true,
+      rules,
+    })
+  );
+
+  const isDirty =
+    JSON.stringify({
+      name,
+      description,
+      category,
+      privacy,
+      allowAnonymousPosts,
+      rules,
+    }) !== initialSnapshot.current;
+
   function handleAddRule() {
     if (rules.length >= 6) {
       toast.error("Maximum 6 rules allowed");
@@ -106,44 +127,44 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
   }
 
   return (
-    <div className="space-y-5 select-none animate-in fade-in">
+    <div className="space-y-4 select-none animate-in fade-in">
       {/* Settings Sub-Navigation Switcher */}
-      <div className="flex items-center p-1 rounded-full bg-muted/50 border border-border/50 gap-1">
+      <div className="flex items-center border-b border-border/40">
         <button
           type="button"
           onClick={() => setSettingsTab("general")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            "cl-interactive flex-1 border-b-2 px-3 py-2.5 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
             settingsTab === "general"
-              ? "bg-card text-foreground shadow-2xs font-black"
-              : "text-muted-foreground hover:text-foreground"
+              ? "border-primary text-foreground font-black"
+              : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
           <Sliders className="size-3.5" />
-          <span>General Settings</span>
+          <span>General</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSettingsTab("webhooks")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            "cl-interactive flex-1 border-b-2 px-3 py-2.5 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
             settingsTab === "webhooks"
-              ? "bg-card text-foreground shadow-2xs font-black"
-              : "text-muted-foreground hover:text-foreground"
+              ? "border-primary text-foreground font-black"
+              : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
           <Webhook className="size-3.5" />
-          <span>Webhooks &amp; Bots</span>
+          <span>Automation</span>
         </button>
       </div>
 
       {settingsTab === "webhooks" ? (
         <CommunityWebhooksManager community={community} />
       ) : (
-        <form onSubmit={handleSave} className="space-y-5">
+        <form onSubmit={handleSave} className="space-y-4">
           {/* Identity */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+          <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
             <h2 className="text-xs font-black uppercase tracking-wider text-foreground">1. General Details</h2>
 
         <div className="space-y-1.5">
@@ -154,7 +175,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
             maxLength={40}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full h-10 px-4 rounded-full border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+            className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
           />
         </div>
 
@@ -167,7 +188,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                 key={cat}
                 onClick={() => setCategory(cat)}
                 className={cn(
-                  "p-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer text-left flex items-center justify-between border",
+                  "p-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left flex items-center justify-between border",
                   category === cat
                     ? "bg-foreground text-background border-foreground font-black shadow-2xs"
                     : "bg-muted/20 text-muted-foreground border-border/50 hover:bg-muted/40 hover:text-foreground"
@@ -187,13 +208,13 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
             maxLength={300}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-3 rounded-2xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
+            className="w-full rounded-xl border border-border/60 p-3 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
           />
         </div>
       </div>
 
       {/* Privacy & Permissions */}
-      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
         <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
           2. Privacy &amp; Anonymity
         </h2>
@@ -203,7 +224,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("PUBLIC")}
             className={cn(
-              "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "PUBLIC"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -224,7 +245,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("PRIVATE")}
             className={cn(
-              "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "PRIVATE"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -245,7 +266,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("UNLISTED")}
             className={cn(
-              "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "UNLISTED"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -290,7 +311,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       </div>
 
       {/* Community Rules */}
-      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
             3. Guidelines &amp; Rules
@@ -306,7 +327,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
 
         <div className="space-y-3">
           {rules.map((rule, idx) => (
-            <div key={idx} className="p-3 rounded-2xl bg-muted/20 border border-border/60 space-y-2 relative">
+            <div key={idx} className="p-3 rounded-xl bg-muted/20 border border-border/60 space-y-2 relative">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-black text-muted-foreground">Rule #{idx + 1}</span>
                 {rules.length > 1 && (
@@ -342,20 +363,35 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || !name.trim()}
-            className="w-full h-11 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>Saving Settings...</span>
-              </>
-            ) : (
-              <span>Save Changes</span>
+          <div
+            className={cn(
+              "sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] md:bottom-4 z-20 transition-all",
+              isDirty ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
             )}
-          </button>
+          >
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/94 p-2.5 shadow-lg backdrop-blur-xl">
+              <p className="hidden px-2 text-xs font-semibold text-muted-foreground sm:block">
+                Unsaved changes
+              </p>
+              <button
+                type="submit"
+                disabled={loading || !name.trim() || !isDirty}
+                className="cl-interactive flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-black text-primary-foreground shadow-sm disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+                aria-busy={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Saving…</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Save changes</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </form>
       )}
     </div>

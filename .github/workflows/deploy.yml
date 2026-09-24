@@ -30,6 +30,9 @@ jobs:
       - name: TypeScript Type Check
         run: bunx tsc --noEmit
 
+      - name: Production Build
+        run: npm run build
+
       - name: Build & Deploy to Cloudflare Workers
         run: bun run deploy
         env:

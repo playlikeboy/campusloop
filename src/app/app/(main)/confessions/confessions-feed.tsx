@@ -2,23 +2,19 @@
 
 import {
   ArrowLeft,
-  ChevronDown,
   Clock,
-  Feather,
   Flame,
   Globe,
   RotateCw,
   School,
-  Sparkles,
   Trophy,
   VenetianMask,
   Zap,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ConfessionComposerModal } from "@/components/confessions/confession-composer-modal";
+import Link from "next/link";
 import { FeedCard } from "@/components/ui/feed-card";
-import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ConfessionsFeedSkeleton } from "@/components/ui/skeleton-card";
 import { useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
@@ -27,30 +23,30 @@ import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const CONFESSION_TABS = [
-  { id: "spicy", label: "Spicy", icon: Flame, colorClass: "text-amber-500" },
+  { id: "for_you", label: "For you", icon: Flame, colorClass: "text-primary" },
+  { id: "trending", label: "Trending", icon: Flame, colorClass: "text-orange-500" },
   { id: "viral", label: "Viral", icon: Zap, colorClass: "text-emerald-500" },
   { id: "latest", label: "Latest", icon: Clock, colorClass: "text-sky-500" },
+  { id: "most_discussed", label: "Discussed", icon: Trophy, colorClass: "text-violet-500" },
   { id: "top_voted", label: "Top", icon: Trophy, colorClass: "text-yellow-500" },
+  { id: "spicy", label: "Spicy", icon: Flame, colorClass: "text-amber-500" },
+  { id: "random", label: "Random", icon: Zap, colorClass: "text-purple-500" },
 ] as const;
 
 export function ConfessionsFeed() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { profile } = useProfile();
 
   // Default scope to GLOBAL so students immediately see a thriving campus stream across India
   const rawScope = searchParams.get("scope");
   const scope: "CAMPUS" | "GLOBAL" = rawScope === "CAMPUS" ? "CAMPUS" : "GLOBAL";
 
-  const rawSort = searchParams.get("sort") || "spicy";
+  const rawSort = searchParams.get("sort") || "latest";
   const [currentSort, setCurrentSort] = useState<string>(rawSort);
   const [randomSeed, setRandomSeed] = useState<number>(0);
   const [isRotating, setIsRotating] = useState(false);
-
-  // Composer Modal state
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const [composerMode, setComposerMode] = useState<"CONFESSION" | "ARTICLE">("CONFESSION");
 
   const { feed, isLoading, isLoadingMore, isReachingEnd, setSize, mutate, refresh } = useFeed(
     scope,
@@ -84,7 +80,7 @@ export function ConfessionsFeed() {
           setSize((s) => s + 1);
         }
       },
-      { threshold: 0.05, rootMargin: "300px" }
+      { threshold: 0, rootMargin: "700px 0px" }
     );
 
     observer.observe(loadMoreNode);
@@ -120,50 +116,33 @@ export function ConfessionsFeed() {
     setTimeout(() => setIsRotating(false), 700);
   }
 
-  function openComposer(mode: "CONFESSION" | "ARTICLE") {
-    sounds.tap();
-    haptics.medium();
-    setComposerMode(mode);
-    setIsComposerOpen(true);
-  }
-
   const campusShortName = profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <PullToRefresh onRefresh={refresh}>
-      <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-28 border-x border-border/30 bg-background">
-        {/* ─── Top Sticky Bar (Twitter / X Minimalist) ─── */}
-        <header className="sticky top-0 z-40 border-b border-border/30 bg-background/85 backdrop-blur-xl">
-          <div className="flex h-13 items-center justify-between px-4 gap-2">
-            {/* Left Context: Back Button & Title / Campus Switcher */}
-            <div className="flex items-center gap-2.5 min-w-0">
+      <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-background">
+        {/* ─── Compact Confessions Header ─── */}
+        <header className="sticky top-0 z-40 border-b border-border/25 bg-background/90 backdrop-blur-xl">
+          <div className="flex min-h-12 items-center justify-between gap-2 px-3.5 sm:px-4">
+            <div className="flex min-w-0 items-center gap-2">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="flex size-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer"
                 title="Go back"
+                aria-label="Go back"
               >
                 <ArrowLeft className="size-4" />
               </button>
-
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <VenetianMask className="size-4 text-purple-400 shrink-0" />
-                  <h1 className="text-sm font-black text-foreground tracking-tight truncate">Confessions</h1>
+                  <VenetianMask className="size-4 text-purple-500 shrink-0" />
+                  <h1 className="truncate text-sm font-black tracking-tight text-foreground">Confessions</h1>
                 </div>
-                <span className="text-muted-foreground/40 text-xs">·</span>
-
-                {/* Campus / India Scope Pill Button */}
-                <button
-                  type="button"
-                  onClick={() => handleScopeToggle(scope === "CAMPUS" ? "GLOBAL" : "CAMPUS")}
-                  className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-muted/60 hover:bg-muted text-xs font-bold text-foreground border border-border/40 transition-colors cursor-pointer truncate max-w-[170px]"
-                  title="Switch feed scope"
-                >
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                   {scope === "CAMPUS" ? (
                     <>
                       <School className="size-3 text-primary shrink-0" />
-                      <span className="truncate">{campusShortName}</span>
+                      <span className="truncate max-w-[135px]">{campusShortName}</span>
                     </>
                   ) : (
                     <>
@@ -171,83 +150,69 @@ export function ConfessionsFeed() {
                       <span>All India</span>
                     </>
                   )}
-                  <ChevronDown className="size-3 text-muted-foreground shrink-0 ml-0.5" />
-                </button>
+                  <span className="text-muted-foreground/40">·</span>
+                  <button
+                    type="button"
+                    onClick={() => handleScopeToggle(scope === "CAMPUS" ? "GLOBAL" : "CAMPUS")}
+                    className="font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
+                    aria-label="Switch confession scope"
+                  >
+                    Switch
+                  </button>
+                </div>
               </div>
             </div>
-
-            {/* Right Action: Reload / Shuffle */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Link
+                href="/app/post/new?type=CONFESSION"
+                prefetch
+                onClick={() => {
+                  sounds.tap();
+                  haptics.medium();
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-[11px] font-black text-primary-foreground shadow-sm shadow-primary/15 transition-transform hover:opacity-95 active:scale-95"
+              >
+                <VenetianMask className="size-3.5" />
+                <span>Confess</span>
+              </Link>
               <button
                 type="button"
                 onClick={handleReloadRandom}
-                className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer active:scale-90"
-                title="Shuffle & Refresh feed"
+                className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer"
+                title="Refresh feed"
+                aria-label="Refresh feed"
               >
-                <RotateCw
-                  className={cn("size-3.5 transition-transform duration-700", isRotating && "animate-spin")}
-                />
+                <RotateCw className={cn("size-3.5 transition-transform duration-700", isRotating && "animate-spin")} />
               </button>
             </div>
           </div>
-
-          {/* ─── Cute Creator Quick Bar ─── */}
-          <div className="px-3.5 py-2.5 bg-purple-950/15 border-t border-purple-500/20 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex size-7 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 shrink-0">
-                <Sparkles className="size-3.5" />
+          <div className="flex items-center justify-between border-t border-border/15 px-3.5">
+            <div className="overflow-x-auto scrollbar-none">
+              <div className="flex min-w-max items-center gap-1">
+                {CONFESSION_TABS.map((tab) => {
+                  const isActive = currentSort === tab.id;
+                  const TabIcon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => handleSortChange(tab.id)}
+                      className={cn(
+                        "relative flex min-h-10 items-center gap-1.5 px-3 text-[11px] font-bold transition-colors cursor-pointer",
+                        isActive ? "text-foreground font-black" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <TabIcon className={cn("size-3.5", isActive ? tab.colorClass : "text-muted-foreground")} />
+                      <span>{tab.label}</span>
+                      {isActive && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary" />}
+                    </button>
+                  );
+                })}
               </div>
-              <p className="text-[11px] font-semibold text-foreground/80 truncate">
-                Spill tea or share an anonymous story
-              </p>
             </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => openComposer("CONFESSION")}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-              >
-                <VenetianMask className="size-3" />
-                <span>Spill Tea</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openComposer("ARTICLE")}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted/70 hover:bg-muted text-foreground border border-border/60 text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-              >
-                <Feather className="size-3" />
-                <span>Article</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ─── Flat Twitter Tabs (Zero Raw Emojis, Clean Lucide Icons) ─── */}
-          <div className="grid grid-cols-4 border-t border-border/20 text-center font-bold text-[11px] sm:text-xs">
-            {CONFESSION_TABS.map((tab) => {
-              const isActive = currentSort === tab.id;
-              const TabIcon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleSortChange(tab.id)}
-                  className={cn(
-                    "py-2.5 transition-colors relative cursor-pointer flex items-center justify-center gap-1.5",
-                    isActive
-                      ? "text-foreground font-black"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                  )}
-                >
-                  <TabIcon className={cn("size-3.5", isActive ? tab.colorClass : "text-muted-foreground")} />
-                  <span>{tab.label}</span>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 sm:w-14 h-0.5 rounded-full bg-primary" />
-                  )}
-                </button>
-              );
-            })}
+            <span className="hidden shrink-0 px-1 text-[10px] font-medium text-muted-foreground sm:inline">
+              Pull to refresh
+            </span>
           </div>
         </header>
 
@@ -264,7 +229,7 @@ export function ConfessionsFeed() {
               {/* Infinite Scroll Trigger */}
               <div
                 ref={setLoadMoreNode}
-                className="flex flex-col justify-center items-center py-8 text-xs text-muted-foreground gap-2"
+                className="flex flex-col items-center justify-center gap-2 py-6 text-xs text-muted-foreground"
               >
                 {isLoadingMore ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
@@ -275,7 +240,7 @@ export function ConfessionsFeed() {
                   <button
                     type="button"
                     onClick={() => setSize((s) => s + 1)}
-                    className="px-4 py-2 rounded-full border border-border/60 bg-muted/40 hover:bg-muted text-xs font-bold text-foreground transition-colors cursor-pointer"
+                    className="h-9 rounded-full bg-muted/60 px-4 text-[11px] font-bold text-foreground shadow-xs transition-colors hover:bg-muted cursor-pointer"
                   >
                     Load more
                   </button>
@@ -298,30 +263,17 @@ export function ConfessionsFeed() {
                 </p>
               </div>
               <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => openComposer("CONFESSION")}
-                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                <Link
+                  href="/app/post/new?type=CONFESSION"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                 >
                   Spill First Confession
-                </button>
+                </Link>
               </div>
             </div>
           )}
         </div>
 
-        {/* Confession Composer Modal */}
-        <ConfessionComposerModal
-          isOpen={isComposerOpen}
-          onClose={() => setIsComposerOpen(false)}
-          defaultScope={scope}
-          defaultMode={composerMode}
-          onPublished={() => {
-            refresh();
-            mutate();
-          }}
-        />
       </main>
-    </PullToRefresh>
   );
 }

@@ -2,6 +2,7 @@
 
 import { MessageCircleHeartIcon } from "@animateicons/react/lucide";
 import {
+  ArrowDown,
   ArrowLeft,
   CheckCheck,
   Copy,
@@ -101,6 +102,7 @@ export function MessengerPane({
   const [isSearchingMentions, setIsSearchingMentions] = useState(false);
   const [optionsMenuMsg, setOptionsMenuMsg] = useState<CachedMessage | null>(null);
   const [showChatHeaderMenu, setShowChatHeaderMenu] = useState(false);
+  const [showJumpToBottom, setShowJumpToBottom] = useState(false);
 
   // Calling States
   const [activeCall, setActiveCall] = useState<{
@@ -355,6 +357,13 @@ export function MessengerPane({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const isInitialScrollDoneRef = useRef(false);
 
+  useEffect(() => {
+    setHasMoreOlder(true);
+    setIsLoadingOlder(false);
+    setShowJumpToBottom(false);
+    isInitialScrollDoneRef.current = false;
+  }, [conversationId]);
+
   const {
     data: messages,
     isLoading,
@@ -421,6 +430,10 @@ export function MessengerPane({
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    setShowJumpToBottom(distanceFromBottom > 96);
+
     if (container.scrollTop < 60 && !isLoadingOlder && hasMoreOlder && messages && messages.length >= 35) {
       void handleLoadOlder();
     }
@@ -430,7 +443,7 @@ export function MessengerPane({
   useEffect(() => {
     if (!chatSearchQuery.trim()) {
       if (!isInitialScrollDoneRef.current) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        scrollToBottom("auto");
         isInitialScrollDoneRef.current = true;
       } else {
         const container = scrollContainerRef.current;
@@ -438,7 +451,7 @@ export function MessengerPane({
           ? container.scrollHeight - container.scrollTop - container.clientHeight < 180
           : true;
         if (isNearBottom) {
-          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          scrollToBottom("smooth");
         }
       }
     }
@@ -541,6 +554,7 @@ export function MessengerPane({
       mutate();
     } catch (err) {
       console.error(err);
+      toast.error("Message failed to send. Please try again.");
       mutate();
     } finally {
       setIsSending(false);
@@ -797,15 +811,24 @@ export function MessengerPane({
     try {
       const d = new Date(dateVal);
       const today = new Date();
-      if (d.toDateString() === today.toDateString()) return "TODAY";
+      if (d.toDateString() === today.toDateString()) return "Today";
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      if (d.toDateString() === yesterday.toDateString()) return "YESTERDAY";
-      return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+      if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+      return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
     } catch {
       return "";
     }
   }
+
+  function formatMemberCount(count: number) {
+    return count === 1 ? "1 member" : count + " members";
+  }
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
+    setShowJumpToBottom(false);
+  }, []);
 
   if (!conversationId) {
     return (
@@ -845,18 +868,9 @@ export function MessengerPane({
     : messages;
 
   return (
-    <div className="flex h-full w-full flex-col bg-muted/15 dark:bg-[#0c1317] select-none overflow-hidden relative">
-      {/* Hidden file upload for media */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleImageUpload}
-      />
-
+    <div className="chat-surface flex h-full w-full flex-col select-none overflow-hidden relative">
       {/* ─── Clean Modern Chat Header ─── */}
-      <header className="border-b border-border/40 bg-card/95 backdrop-blur-md px-3.5 sm:px-5 py-2.5 pt-[max(0.6rem,env(safe-area-inset-top))] shrink-0 z-30 shadow-2xs">
+      <header className="border-b border-border/50 bg-background/90 backdrop-blur-xl px-2.5 sm:px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0 z-30">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             {/* Back Button (visible on mobile to return to chat inbox) */}
@@ -876,7 +890,7 @@ export function MessengerPane({
               title="View info and shared media"
             >
               <div className="relative shrink-0">
-                <Avatar className="size-10 border border-border/40 shadow-xs transition-transform group-hover:scale-105">
+                <Avatar className="size-10 sm:size-11 border border-border/40 shadow-xs transition-transform group-hover:scale-[1.03]">
                   <AvatarImage src={effectiveParticipant.avatarUrl || ""} />
                   <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
                     {(effectiveParticipant.displayName?.[0] || "S").toUpperCase()}
@@ -889,11 +903,11 @@ export function MessengerPane({
 
               {/* Name & Branch / Presence status / Group Member Count */}
               <div className="min-w-0 space-y-0.5">
-                <div className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate flex items-center gap-1.5 leading-tight">
+                <div className="text-[14px] sm:text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate flex items-center gap-1.5 leading-tight max-w-[46vw] sm:max-w-[28rem]">
                   <span>{effectiveParticipant.displayName}</span>
-                  {effectiveParticipant.isGroup ? (
-                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-primary/15 text-primary border border-primary/20 shrink-0 uppercase">
-                      Group
+                  {effectiveParticipant.isGroup || effectiveParticipant.isCommunity ? (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15 shrink-0 uppercase">
+                      {effectiveParticipant.isCommunity ? "Community" : "Group"}
                     </span>
                   ) : (
                     <ShieldCheck className="size-3.5 text-brand shrink-0" />
@@ -906,10 +920,9 @@ export function MessengerPane({
                       <span className="font-bold text-primary flex items-center gap-1 shrink-0">
                         <Users2 className="size-3" />
                         <span>
-                          {effectiveParticipant.membersCount ||
-                            effectiveParticipant.participants?.length ||
-                            2}{" "}
-                          members
+                          {formatMemberCount(
+                            effectiveParticipant.membersCount || effectiveParticipant.participants?.length || 2
+                          )}
                         </span>
                       </span>
                       {effectiveParticipant.category && (
@@ -1130,14 +1143,14 @@ export function MessengerPane({
         onScroll={handleScroll}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
-        className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3"
+        className="flex-1 min-h-0 overflow-y-auto px-2.5 sm:px-6 py-2.5 sm:py-4 overscroll-contain"
       >
-        <div className="max-w-3xl mx-auto w-full space-y-3">
+        <div className="max-w-4xl mx-auto w-full space-y-1">
           {isLoadingOlder && (
             <div className="flex justify-center py-2">
               <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1 rounded-full animate-pulse">
                 <Loader2 className="size-3 animate-spin" />
-                <span>Loading older messages...</span>
+                <span>Loading earlier messages…</span>
               </div>
             </div>
           )}
@@ -1229,6 +1242,12 @@ export function MessengerPane({
               const isHovered = hoveredMsgId === msg.id;
               const isReactionMenuOpen = isHovered || activeReactionMsgId === msg.id;
               const reactions = msg.reactions || [];
+              const isGroupChat = Boolean(effectiveParticipant.isGroup || effectiveParticipant.isCommunity);
+              const showSenderMeta =
+                !isMe &&
+                isGroupChat &&
+                (!prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator);
+              const sender = msg.sender;
 
               // Check if Secret Crush Match greeting
               const isSecretCrushMatch =
@@ -1250,8 +1269,8 @@ export function MessengerPane({
                 return (
                   <div key={msg.id} className="space-y-1 my-4">
                     {showDateSeparator && (
-                      <div className="flex items-center justify-center my-3">
-                        <span className="text-[10px] font-bold px-3 py-0.5 rounded-full bg-card/90 text-muted-foreground border border-border/40 shadow-2xs tracking-wider">
+                      <div className="flex items-center justify-center py-3 select-none">
+                        <span className="px-2.5 text-[10px] font-semibold text-muted-foreground/80">
                           {formatDateSeparator(msg.createdAt)}
                         </span>
                       </div>
@@ -1286,8 +1305,8 @@ export function MessengerPane({
                 <div key={msg.id} className="space-y-1 relative">
                   {/* Date Header Pill */}
                   {showDateSeparator && (
-                    <div className="flex items-center justify-center my-3.5">
-                      <span className="text-[10px] font-bold px-3 py-0.5 rounded-full bg-card/90 text-muted-foreground border border-border/40 shadow-2xs tracking-wider">
+                    <div className="flex items-center justify-center py-3 select-none">
+                      <span className="px-2.5 text-[10px] font-semibold text-muted-foreground/80">
                         {formatDateSeparator(msg.createdAt)}
                       </span>
                     </div>
@@ -1296,7 +1315,7 @@ export function MessengerPane({
                   {/* Message Row Wrapper with Hover, Swipe, & Safe Bridge */}
                   <div
                     className={cn(
-                      "flex items-end gap-1.5 relative group/row transition-transform duration-75",
+                      "flex items-end gap-2 relative group/row transition-transform duration-75",
                       isMe ? "justify-end flex-row" : "justify-start flex-row"
                     )}
                     style={{
@@ -1364,6 +1383,21 @@ export function MessengerPane({
                       </button>
                     </div>
 
+                    {!isMe && isGroupChat && (
+                      <div className="w-7 shrink-0 self-end pb-0.5">
+                        {showSenderMeta ? (
+                          <Avatar className="size-7 border border-border/50 shadow-2xs">
+                            <AvatarImage src={sender?.avatarUrl || ""} alt="" />
+                            <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
+                              {(sender?.displayName?.[0] || "?").toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="size-7" />
+                        )}
+                      </div>
+                    )}
+
                     {/* ─── Floating WhatsApp-Style Reaction Bar (With Safe Hover Bridge) ─── */}
                     {isReactionMenuOpen && (
                       <div
@@ -1399,16 +1433,17 @@ export function MessengerPane({
                     >
                       <div
                         className={cn(
-                          "relative text-[14px] leading-relaxed transition-all shadow-xs text-left",
+                          "relative text-[14px] leading-relaxed transition-[transform,opacity,box-shadow] shadow-2xs text-left rounded-[18px]",
+                          msg.optimistic && "chat-message-send",
                           isDirectMedia
                             ? "p-0 bg-transparent border-0"
                             : isMe
-                              ? "chat-bubble-peach text-[#1e1b2e] dark:text-[#fef3c7] px-4 py-2.5 shadow-xs border border-amber-500/10"
-                              : "chat-bubble-lilac text-[#1e1b2e] dark:text-[#ede9fe] px-4 py-2.5 shadow-xs border border-purple-500/10"
+                              ? "chat-bubble-peach text-[#163b2d] dark:text-[#d9f7e8] px-3.5 py-2 shadow-none"
+                              : "chat-bubble-lilac text-[#17202a] dark:text-[#f3f4f6] px-3.5 py-2 shadow-none"
                         )}
                       >
                         {/* Group Sender Name */}
-                        {!isMe && (effectiveParticipant.isGroup || effectiveParticipant.isCommunity) && (
+                        {showSenderMeta && (
                           <div className="flex items-center gap-1 mb-1.5 leading-none">
                             <span className="text-[11px] font-black text-primary">
                               {msg.sender?.displayName || "Member"}
@@ -1438,7 +1473,7 @@ export function MessengerPane({
 
                         {/* Content: Video, Voice Memo, Document, Direct Image, or Plain Text */}
                         {isVideo ? (
-                          <div className="my-1 max-w-xs sm:max-w-sm overflow-hidden rounded-2xl">
+                          <div className="my-0.5 w-full max-w-xs sm:max-w-sm overflow-hidden rounded-[16px]">
                             <VideoPlayer
                               src={
                                 msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] ||
@@ -1554,6 +1589,18 @@ export function MessengerPane({
         </div>
       </div>
 
+      {showJumpToBottom && (
+        <button
+          type="button"
+          onClick={() => scrollToBottom()}
+          className="absolute right-4 bottom-20 z-10 flex min-h-10 items-center gap-2 rounded-full border border-border/60 bg-card/95 px-3.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur-xl transition-all hover:-translate-y-0.5 active:scale-95"
+          aria-label="Jump to latest messages"
+        >
+          <ArrowDown className="size-4" />
+          <span>Latest</span>
+        </button>
+      )}
+
       {/* ─── Reply Preview Bar ─── */}
       {replyingTo && (
         <div className="bg-card border-t border-border/40 px-4 py-2 flex items-center justify-between gap-2 shrink-0 z-20 animate-in slide-in-from-bottom-2">
@@ -1605,11 +1652,11 @@ export function MessengerPane({
       )}
 
       {/* ─── Messenger Bottom Input Bar (WhatsApp Layout) ─── */}
-      <footer className="border-t border-border/40 bg-card/95 backdrop-blur-md px-2.5 sm:px-4 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shrink-0 z-20">
+      <footer className="border-t border-border/40 bg-background/80 backdrop-blur-xl px-2 sm:px-3 py-1.5 pb-[max(0.55rem,env(safe-area-inset-bottom))] shrink-0 z-20">
         {isUploadingMedia && (
           <div className="max-w-4xl mx-auto mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold animate-pulse">
             <Loader2 className="size-3.5 animate-spin" />
-            <span>Uploading and sending media attachment...</span>
+            <span>Sending attachment…</span>
           </div>
         )}
 
@@ -1644,72 +1691,48 @@ export function MessengerPane({
 
         <form
           onSubmit={handleSendSubmit}
-          className="max-w-3xl mx-auto w-full flex items-center gap-1.5 bg-muted/50 dark:bg-[#202327] rounded-3xl p-1.5 pl-2.5 border border-border/40 focus-within:border-brand/60 transition-all shadow-xs"
+          className="max-w-4xl mx-auto w-full flex items-end gap-1 bg-card rounded-[22px] p-1 pl-1.5 border border-border/50 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-xs"
         >
-          {/* Action Attachments */}
-          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 text-brand">
-            {/* Attachment popover / Photo */}
+          {/* Primary composer action + secondary tools */}
+          <div className="flex items-center gap-1 shrink-0 text-brand">
             <button
               type="button"
               disabled={isUploadingMedia}
               onClick={() => fileInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-brand transition-colors cursor-pointer"
-              title="Attach Photo"
+              className="flex size-9 items-center justify-center rounded-full hover:bg-muted/70 text-brand transition-colors cursor-pointer active:scale-95"
+              title="Attach photo"
+              aria-label="Attach photo"
             >
               <Paperclip className="size-4" />
             </button>
 
-            {/* Video clip attachment */}
-            <button
-              type="button"
-              disabled={isUploadingMedia}
-              onClick={() => videoInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-sky-500 transition-colors cursor-pointer"
-              title="Attach Video"
-            >
-              <Video className="size-4" />
-            </button>
-
-            {/* Document / Notes attachment */}
-            <button
-              type="button"
-              disabled={isUploadingMedia}
-              onClick={() => docInputRef.current?.click()}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-indigo-500 transition-colors cursor-pointer"
-              title="Attach Study Notes / PDF"
-            >
-              <FileText className="size-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowGifPicker(true)}
-              className="flex h-5 px-1.5 items-center justify-center rounded border border-brand/50 text-[10px] font-black text-brand hover:bg-brand/10 transition-colors cursor-pointer leading-none"
-              title="Send GIF"
-            >
-              GIF
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowStickerPicker(true)}
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-amber-500 transition-colors cursor-pointer"
-              title="Send Sticker / Emoji"
-            >
-              <Smile className="size-4" />
-            </button>
+            <details className="relative">
+              <summary
+                className="flex size-9 list-none cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors active:scale-95 [&::-webkit-details-marker]:hidden"
+                title="More attachment options"
+                aria-label="More attachment options"
+              >
+                <MoreHorizontal className="size-4" />
+              </summary>
+              <div className="absolute bottom-11 left-0 z-40 flex items-center gap-1.5 rounded-2xl border border-border/70 bg-card p-1.5 shadow-xl">
+                <button type="button" disabled={isUploadingMedia} onClick={() => videoInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-sky-500 hover:bg-muted cursor-pointer" title="Attach video" aria-label="Attach video"><Video className="size-4" /></button>
+                <button type="button" disabled={isUploadingMedia} onClick={() => docInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-indigo-500 hover:bg-muted cursor-pointer" title="Attach study notes or PDF" aria-label="Attach study notes or PDF"><FileText className="size-4" /></button>
+                <button type="button" onClick={() => setShowGifPicker(true)} className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-brand/40 px-2 text-[10px] font-black text-brand hover:bg-brand/10 cursor-pointer" title="Send GIF" aria-label="Send GIF">GIF</button>
+                <button type="button" onClick={() => setShowStickerPicker(true)} className="flex size-9 items-center justify-center rounded-xl text-amber-500 hover:bg-muted cursor-pointer" title="Send sticker or emoji" aria-label="Send sticker or emoji"><Smile className="size-4" /></button>
+              </div>
+            </details>
           </div>
 
           {/* Multi-line Auto-Expanding Textarea with Keyboard Sticker & Image Paste Support */}
           <textarea
             ref={textareaRef}
             rows={1}
-            placeholder="Start a new message..."
+            placeholder="Message"
             value={msgText}
             onChange={(e) => setMsgText(e.target.value)}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
-            className="flex min-h-[36px] max-h-32 flex-1 resize-none bg-transparent px-2 py-2 text-[14px] font-normal text-foreground placeholder:text-muted-foreground/60 outline-none leading-snug scrollbar-none"
+            className="flex min-h-9 max-h-32 flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] font-normal text-foreground placeholder:text-muted-foreground/65 outline-none leading-snug scrollbar-none"
           />
 
           {/* Voice Memo Button or Send Button */}
@@ -1718,7 +1741,7 @@ export function MessengerPane({
               type="submit"
               disabled={isSending}
               aria-label="Send message"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-white hover:opacity-90 shadow-xs transition-transform active:scale-90 cursor-pointer mr-1"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-transform active:scale-90 cursor-pointer mr-0.5"
             >
               <AnimateSend size={16} className="text-white" />
             </button>
@@ -1727,7 +1750,7 @@ export function MessengerPane({
               type="button"
               onClick={handleSendVoiceMemo}
               aria-label="Record voice memo"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-rose-500 transition-all cursor-pointer mr-1 active:scale-90"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all cursor-pointer mr-0.5 active:scale-90"
               title="Record voice note"
             >
               <Mic className="size-4" />

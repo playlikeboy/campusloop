@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { cleanSnippet } from "@/lib/utils";
+import { cleanSnippet, formatTimeAgo } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -155,7 +155,7 @@ export async function GET(req: Request) {
           id: p.id,
           headline: title,
           category: `Campus Buzz · ${inst}`,
-          timeAgo: "Trending now",
+          timeAgo: formatTimeAgo(p.createdAt),
           postCount: `${postTotal} interactions`,
           authorName: p.isAnonymous ? "Anonymous Student" : p.author?.displayName || "Student",
           authorAvatar: p.isAnonymous ? null : p.author?.avatarUrl || null,

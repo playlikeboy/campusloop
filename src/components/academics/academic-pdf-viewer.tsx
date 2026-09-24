@@ -197,14 +197,14 @@ export function AcademicPdfViewer({
       return rawUrl;
     }
 
+    // Direct PDFs use the browser-native renderer first to avoid Google Docs viewer size limits.
+    if (isDirectPdf) {
+      return rawUrl + "#toolbar=1&navpanes=1&scrollbar=1&view=FitH";
+    }
+
     if (viewerEngine === "google" || isOfficeDoc) {
       // Google Docs Viewer API: renders PDFs, PPTs, DOCs cleanly server-side without auto-downloads or x-frame blocks
       return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
-    }
-
-    if (isDirectPdf) {
-      // Direct browser native rendering with PDF parameters
-      return `${rawUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`;
     }
 
     // Otherwise pass raw
@@ -378,7 +378,7 @@ export function AcademicPdfViewer({
       ref={containerRef}
       className={cn(
         "w-full rounded-3xl border border-border/60 bg-card overflow-hidden shadow-xs relative transition-all flex flex-col select-none",
-        isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen bg-background" : "h-[540px] sm:h-[620px]",
+        isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen bg-background" : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
         className
       )}
     >
@@ -909,7 +909,7 @@ export function AcademicPdfViewer({
             <p className="text-xs text-muted-foreground max-w-md">
               {isDriveFolder
                 ? "Your browser blocked third-party Google cookies in iframe. Open the folder directly in Google Drive below:"
-                : "Your browser blocked third-party embedding for this file. You can open or download the PDF directly below:"}
+                : "This document cannot be previewed here. Open it directly or download a copy to continue studying:"}
             </p>
             {isDriveFolder ? (
               <a
@@ -928,7 +928,7 @@ export function AcademicPdfViewer({
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer shadow-md"
               >
                 <Download className="size-4" />
-                <span>Direct Download PDF</span>
+                <span>Download PDF</span>
               </button>
             )}
           </div>

@@ -240,7 +240,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
       {/* ─── Top Navigation & Meta Banner ─── */}
       <div
         className={cn(
-          "w-full rounded-3xl p-4 sm:p-6 bg-linear-to-r relative overflow-hidden shadow-lg space-y-4 text-white",
+          "w-full rounded-2xl p-4 sm:p-5 bg-linear-to-r relative overflow-hidden shadow-sm space-y-3 text-white",
           playlist.coverGradient || "from-neutral-900 via-neutral-800 to-neutral-900 border border-border/40"
         )}
       >
@@ -250,7 +250,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/15 transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-3.5" />
-            <span>All Academics</span>
+            <span>Back to Academics</span>
           </Link>
 
           <div className="flex items-center gap-2">
@@ -273,11 +273,11 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             <button
               type="button"
               onClick={handleShareWhatsApp}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-black/40 hover:bg-black/60 text-white border border-white/15 transition-colors cursor-pointer"
               title="Share to Class WhatsApp Group"
             >
               <Share2 className="size-3.5" />
-              <span className="hidden sm:inline">WhatsApp</span>
+              <span className="hidden sm:inline">Share</span>
             </button>
 
             <button
@@ -293,8 +293,8 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
 
         {/* Stack Title & Info */}
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-[10px] font-black uppercase tracking-wider border border-white/10">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md text-[10px] font-bold uppercase tracking-wide border border-white/10">
               {playlist.category}
             </span>
             <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
@@ -307,24 +307,24 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             )}
             {playlist.institution?.name && (
               <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
-                {playlist.institution.shortName || playlist.institution.name}
+                {playlist.institution.shortName || playlist.institution.name.split(",")[0]}
               </span>
             )}
           </div>
 
-          <h1 className="text-lg sm:text-2xl font-black tracking-tight">{playlist.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight max-w-3xl">{playlist.title}</h1>
 
           {playlist.description && (
-            <p className="text-xs sm:text-sm text-white/90 leading-relaxed max-w-3xl pt-0.5">
+            <p className="text-xs sm:text-sm text-white/85 leading-relaxed max-w-2xl pt-0.5 line-clamp-3">
               {playlist.description}
             </p>
           )}
         </div>
 
         {/* Curator Pill */}
-        <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs text-white/80">
+        <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-white/80">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-medium opacity-80">Curated by</span>
+            <span className="font-medium opacity-70">By</span>
             <Link
               href={`/@${playlist.creator.username}?tab=academics`}
               className="flex items-center gap-1.5 font-bold hover:underline"
@@ -363,15 +363,15 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           {/* Left Column: Playlist Queue (4 cols on lg) */}
           <div
             className={cn(
-              "lg:col-span-4 rounded-3xl border border-border/60 bg-card p-3 sm:p-4 space-y-3 transition-all",
+              "lg:col-span-4 rounded-2xl border border-border/50 bg-card p-3 space-y-2.5 transition-all",
               !isQueueOpen && "lg:col-span-1"
             )}
           >
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <ListOrdered className="size-4 text-indigo-400" />
-                <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Playlist Queue
+                <h2 className="text-xs font-bold tracking-tight text-foreground">
+                  {items.length} materials
                 </h2>
                 <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 text-[10px] font-bold">
                   {items.length}
@@ -388,7 +388,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
               </button>
             </div>
 
-            <div className="space-y-1.5 max-h-[500px] sm:max-h-[580px] overflow-y-auto pr-1">
+            <div className="space-y-1 max-h-[460px] sm:max-h-[560px] overflow-y-auto pr-1">
               {items.map((item, idx) => {
                 const isActive = idx === activeIndex;
                 return (

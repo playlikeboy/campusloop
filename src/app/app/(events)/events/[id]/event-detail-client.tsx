@@ -393,14 +393,14 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
         {/* Date, Time, Venue, Eligibility Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-          <div className="p-3.5 rounded-2xl border border-border/40 bg-card flex items-start gap-3">
-            <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <div className="p-3 rounded-xl border border-border/40 bg-card flex items-start gap-2.5">
+            <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Calendar className="size-5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wide">Date & Timing</h4>
-              <p className="text-xs font-bold text-foreground mt-0.5">{startFormatted}</p>
-              <p className="text-xs text-muted-foreground font-medium">{timeFormatted}</p>
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">Date & Timing</h4>
+              <p className="text-sm font-bold text-foreground mt-0.5 leading-snug">{startFormatted}</p>
+              <p className="text-[11px] text-muted-foreground font-medium leading-snug">{timeFormatted}</p>
             </div>
           </div>
 
@@ -434,12 +434,12 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 Campus Eligibility
               </h4>
               <p className="text-xs font-bold text-foreground mt-0.5">
-                {isRestricted ? "Restricted Campuses" : "Open to All Indian Universities"}
+                {isRestricted ? "Restricted Campuses" : "Open to verified students across India"}
               </p>
               <p className="text-xs text-muted-foreground font-medium">
                 {isRestricted
                   ? "Limited to selected student hubs"
-                  : "Verified students from any college can register"}
+                  : "Any verified college student can register"}
               </p>
             </div>
           </div>
@@ -457,11 +457,11 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                   ? "Solo or Teams"
                   : event.participationType === "TEAM"
                     ? `Teams of ${event.minTeamSize}-${event.maxTeamSize}`
-                    : "Individual (Solo)"}
+                    : "Individual · Solo"}
               </p>
               <p className="text-xs text-muted-foreground font-medium">
                 {event.maxParticipants
-                  ? `Max capacity: ${event.maxParticipants} participants`
+                  ? `${event.maxParticipants} participant limit`
                   : "Unlimited spots"}
               </p>
             </div>
@@ -477,9 +477,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
             </h3>
 
             {event.prizesDescription && (
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 space-y-1">
-                <span className="text-xs font-black uppercase tracking-wider">Prize Pool</span>
-                <p className="text-sm font-bold">{event.prizesDescription}</p>
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 space-y-0.5">
+                <span className="text-[10px] font-black uppercase tracking-wider">Prize pool</span>
+                <p className="text-base font-black leading-snug">{event.prizesDescription}</p>
               </div>
             )}
 
