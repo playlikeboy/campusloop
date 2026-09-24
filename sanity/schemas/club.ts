@@ -1,0 +1,83 @@
+export const clubType = {
+  name: "club",
+  title: "Club / Community",
+  type: "document",
+  fields: [
+    {
+      name: "name",
+      title: "Club Name",
+      type: "string",
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "name", maxLength: 96 },
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "description",
+      title: "Description",
+      type: "text",
+      rows: 3,
+    },
+    {
+      name: "categories",
+      title: "Categories",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "category" }] }],
+    },
+    {
+      name: "skills",
+      title: "Skills / Topics Taught",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+      description: "e.g. frontend, react, web-development, ai, machine-learning",
+    },
+    {
+      name: "audience",
+      title: "Target Audience",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+      description: "e.g. first-year, second-year, all-students, beginners",
+    },
+    {
+      name: "beginnerFriendly",
+      title: "Beginner Friendly",
+      type: "boolean",
+      initialValue: true,
+    },
+    {
+      name: "meetingSchedule",
+      title: "Regular Meeting Schedule",
+      type: "string",
+      description: "e.g. Fridays after 5:00 PM, Alternate Saturdays at 4:00 PM",
+    },
+    {
+      name: "membersCount",
+      title: "Estimated Active Members",
+      type: "number",
+      initialValue: 0,
+    },
+    {
+      name: "leads",
+      title: "Club Leadership",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "person" }] }],
+    },
+    {
+      name: "socials",
+      title: "Links & Socials",
+      type: "object",
+      fields: [
+        { name: "website", type: "url", title: "Website" },
+        { name: "github", type: "url", title: "GitHub" },
+        { name: "discord", type: "url", title: "Discord / Group Link" },
+        { name: "instagram", type: "url", title: "Instagram" },
+      ],
+    },
+  ],
+};

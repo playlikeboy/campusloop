@@ -1,0 +1,103 @@
+export const eventType = {
+  name: "event",
+  title: "Event",
+  type: "document",
+  fields: [
+    {
+      name: "title",
+      title: "Event Title",
+      type: "string",
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "title", maxLength: 96 },
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "startAt",
+      title: "Start Time",
+      type: "datetime",
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "endAt",
+      title: "End Time",
+      type: "datetime",
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "organizer",
+      title: "Organizing Club",
+      type: "reference",
+      to: [{ type: "club" }],
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "venue",
+      title: "Venue",
+      type: "reference",
+      to: [{ type: "venue" }],
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "skills",
+      title: "Skills / Tech Covered",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+    },
+    {
+      name: "categories",
+      title: "Categories",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "category" }] }],
+    },
+    {
+      name: "eligibility",
+      title: "Eligibility Rules",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+      description: "e.g. all-students, first-year, no-membership-required, club-members-only",
+    },
+    {
+      name: "beginnerFriendly",
+      title: "Beginner Friendly",
+      type: "boolean",
+      initialValue: true,
+    },
+    {
+      name: "requiresMembership",
+      title: "Requires Club Membership",
+      type: "boolean",
+      initialValue: false,
+    },
+    {
+      name: "registrationUrl",
+      title: "Registration URL",
+      type: "url",
+    },
+    {
+      name: "status",
+      title: "Registration Status",
+      type: "string",
+      options: {
+        list: [
+          { title: "Registration Open", value: "registration-open" },
+          { title: "Waitlist", value: "waitlist" },
+          { title: "Closed", value: "closed" },
+        ],
+      },
+      initialValue: "registration-open",
+    },
+    {
+      name: "description",
+      title: "Description / Syllabus",
+      type: "text",
+      rows: 4,
+    },
+  ],
+};

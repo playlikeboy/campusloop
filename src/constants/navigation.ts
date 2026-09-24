@@ -133,6 +133,14 @@ export const BETA_HUB_ITEMS: NavItem[] = [
     badgeColor: "bg-primary/15 text-primary border border-primary/30",
   },
   {
+    icon: AnimateCompass,
+    href: "/app/atlas",
+    label: "CampusLoop Atlas",
+    desc: "Sanity-powered agent that reasons over real campus clubs, schedules & multi-constraint queries",
+    badge: "SANITY",
+    badgeColor: "bg-red-500/15 text-red-500 border border-red-500/30",
+  },
+  {
     icon: Terminal,
     href: "/app/developer",
     label: "Developer & MCP Hub",
