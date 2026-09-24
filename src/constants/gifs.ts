@@ -6,13 +6,14 @@ export interface GifPopularTag {
 
 export const GIF_POPULAR_TAGS: GifPopularTag[] = [
   { id: "trending", label: "🔥 Trending", query: "" },
-  { id: "tea", label: "☕ Campus Tea", query: "spilling tea drama" },
-  { id: "exam", label: "📚 Exam Mood", query: "exam studying stressed" },
-  { id: "lol", label: "😂 Dead LOL", query: "laughing meme" },
+  { id: "reactions", label: "😂 Reactions", query: "reaction meme" },
+  { id: "tea", label: "☕ Tea", query: "spilling tea drama" },
+  { id: "exam", label: "📚 Exam", query: "exam studying stressed" },
+  { id: "lol", label: "🤣 LOL", query: "laughing meme" },
   { id: "shocked", label: "😱 Shocked", query: "shocked reaction" },
-  { id: "party", label: "🎉 Fest Vibe", query: "college party dance" },
+  { id: "party", label: "🎉 Celebration", query: "college party celebration dance" },
   { id: "crush", label: "💘 Crush", query: "crush flirt romantic" },
-  { id: "tired", label: "😴 8 AM Class", query: "tired sleepy morning" },
+  { id: "tired", label: "😴 Sleepy", query: "tired sleepy morning" },
   { id: "agree", label: "💯 Facts", query: "agree yes nod facts" },
 ];
 
