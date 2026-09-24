@@ -359,18 +359,26 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
           {/* Content Body */}
           <div
-            className={cn("text-[15px] leading-relaxed text-foreground font-normal break-words pt-0.5 space-y-1.5", !isExpanded && displayContent.length > 420 && "line-clamp-5")}
+            className="pt-0.5"
             onClick={(e) => handleCardClick(e)}
             onDoubleClick={handleDoubleTap}
           >
-            {post.title && (
-              <h3 className="text-[16px] font-black text-foreground tracking-tight leading-snug">
-                {post.title}
-              </h3>
-            )}
-            {displayContent && (
-              <RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} />
-            )}
+            <div
+              className={cn(
+                "space-y-1.5 text-[15px] leading-relaxed text-foreground font-normal break-words",
+                !isExpanded && displayContent.length > 420 && "line-clamp-5"
+              )}
+            >
+              {post.title && (
+                <h3 className="text-[16px] font-black text-foreground tracking-tight leading-snug">
+                  {post.title}
+                </h3>
+              )}
+              {displayContent && (
+                <RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} />
+              )}
+            </div>
+
             {displayContent.length > 420 && (
               <button
                 type="button"
@@ -379,7 +387,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                   e.stopPropagation();
                   setIsExpanded((value) => !value);
                 }}
-                className="mt-1 inline-flex min-h-9 items-center rounded-full px-1.5 text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                className="cl-interactive mt-1 inline-flex min-h-9 items-center rounded-lg px-1.5 text-[11px] font-bold text-primary hover:bg-primary/8 hover:underline cursor-pointer"
               >
                 {isExpanded ? "Show less" : "Read more"}
               </button>
