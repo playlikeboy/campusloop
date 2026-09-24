@@ -861,15 +861,6 @@ export function MessengerPane({
 
   return (
     <div className="chat-surface flex h-full w-full flex-col select-none overflow-hidden relative">
-      {/* Hidden file upload for media */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleImageUpload}
-      />
-
       {/* ─── Clean Modern Chat Header ─── */}
       <header className="border-b border-border/50 bg-background/90 backdrop-blur-xl px-2.5 sm:px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0 z-30">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -906,9 +897,9 @@ export function MessengerPane({
               <div className="min-w-0 space-y-0.5">
                 <div className="text-[14px] sm:text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate flex items-center gap-1.5 leading-tight max-w-[46vw] sm:max-w-[28rem]">
                   <span>{effectiveParticipant.displayName}</span>
-                  {effectiveParticipant.isGroup ? (
-                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-primary/15 text-primary border border-primary/20 shrink-0 uppercase">
-                      Group
+                  {effectiveParticipant.isGroup || effectiveParticipant.isCommunity ? (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15 shrink-0 uppercase">
+                      {effectiveParticipant.isCommunity ? "Community" : "Group"}
                     </span>
                   ) : (
                     <ShieldCheck className="size-3.5 text-brand shrink-0" />
@@ -1151,7 +1142,7 @@ export function MessengerPane({
             <div className="flex justify-center py-2">
               <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1 rounded-full animate-pulse">
                 <Loader2 className="size-3 animate-spin" />
-                <span>Loading older messages...</span>
+                <span>Loading earlier messages…</span>
               </div>
             </div>
           )}
@@ -1657,7 +1648,7 @@ export function MessengerPane({
         {isUploadingMedia && (
           <div className="max-w-4xl mx-auto mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold animate-pulse">
             <Loader2 className="size-3.5 animate-spin" />
-            <span>Uploading and sending media attachment...</span>
+            <span>Sending attachment…</span>
           </div>
         )}
 
