@@ -27,13 +27,15 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       className={cn(
-        "relative flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer outline-none active:scale-95",
+        "relative flex size-11 items-center justify-center rounded-xl border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95",
         className
       )}
-      aria-label="Toggle Theme"
-      title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={isDark}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       <div className="relative h-4 w-4">
         <Sun
