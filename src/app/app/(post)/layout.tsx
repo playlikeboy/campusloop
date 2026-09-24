@@ -32,7 +32,7 @@ export default async function PostLayout({ children }: { children: React.ReactNo
       />
 
       {/* Main Canvas without RightSidebar so wheel scroll controls the deck 100% */}
-      <div className="flex md:pl-64 h-dvh w-full overflow-hidden">
+      <div className="flex md:pl-[248px] h-dvh w-full overflow-hidden">
         <main className="flex-1 w-full h-full overflow-hidden">{children}</main>
       </div>
     </div>
