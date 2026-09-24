@@ -59,6 +59,9 @@ export async function GET(req: Request) {
     // A scroll session keeps the same membership snapshot, preventing new posts
     // from pushing older results between page requests.
     const beforeParam = searchParams.get("before");
+    if (hashtag && hashtag.length > 100) {
+      return NextResponse.json({ error: "Hashtag filter is too long." }, { status: 400 });
+    }
 
     const db = getDb();
 
@@ -153,8 +156,15 @@ export async function GET(req: Request) {
     }
 
     if (hashtag) {
-      const cleanHashtag = decodeURIComponent(hashtag).replace(/^#/, "").trim();
-      conditions.push(sql`${posts.body} ILIKE ${`%#${cleanHashtag}%`}`);
+      let cleanHashtag: string;
+      try {
+        cleanHashtag = decodeURIComponent(hashtag).replace(/^#/, "").trim();
+      } catch {
+        return NextResponse.json({ error: "Invalid hashtag filter." }, { status: 400 });
+      }
+      if (cleanHashtag) {
+        conditions.push(sql`${posts.body} ILIKE ${`%#${cleanHashtag}%`}`);
+      }
     }
 
     const authorId = searchParams.get("authorId");
