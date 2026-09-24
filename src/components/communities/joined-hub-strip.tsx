@@ -94,7 +94,7 @@ export function JoinedHubStrip({ communities, onBrowse }: JoinedHubStripProps) {
             <Plus className="size-5" />
           </span>
           <span className="w-full truncate text-center text-[10px] font-bold text-muted-foreground">Discover</span>
-        </Link>
+        </button>
       </div>
 
       {communities.length === 0 && (
