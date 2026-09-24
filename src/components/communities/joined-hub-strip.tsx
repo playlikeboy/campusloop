@@ -17,6 +17,12 @@ function isActiveRecently(value: Date | null) {
 }
 
 export function JoinedHubStrip({ communities, onBrowse }: JoinedHubStripProps) {
+  const orderedCommunities = [...communities].sort((a, b) => {
+    const aActivity = a.latestActivityAt ? new Date(a.latestActivityAt).getTime() : 0;
+    const bActivity = b.latestActivityAt ? new Date(b.latestActivityAt).getTime() : 0;
+    return bActivity - aActivity || b.createdAt.getTime() - a.createdAt.getTime();
+  });
+
   return (
     <section aria-labelledby="your-hubs-heading" className="px-4 pt-4">
       <div className="flex items-center justify-between gap-3">
@@ -26,18 +32,18 @@ export function JoinedHubStrip({ communities, onBrowse }: JoinedHubStripProps) {
           </p>
           <p className="text-[11px] text-muted-foreground">Jump back into your campus circles</p>
         </div>
-        <Link
-          href="#discover"
+        <button
+          type="button"
           onClick={onBrowse}
           className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground"
         >
           Browse
           <ArrowRight className="size-3.5" />
-        </Link>
+        </button>
       </div>
 
       <div className="mt-3 flex gap-4 overflow-x-auto pb-2 no-scrollbar snap-x snap-mandatory">
-        {communities.map((community) => {
+        {orderedCommunities.map((community) => {
           const active = isActiveRecently(community.latestActivityAt);
           const avatar = getAvatarUrl(community.avatarUrl, community.name);
 
@@ -78,10 +84,10 @@ export function JoinedHubStrip({ communities, onBrowse }: JoinedHubStripProps) {
           );
         })}
 
-        <Link
-          href="#discover"
+        <button
+          type="button"
           onClick={onBrowse}
-          className="group flex w-16 shrink-0 snap-start flex-col items-center gap-1.5"
+          className="group flex w-16 shrink-0 snap-start flex-col items-center gap-1.5 text-left"
           aria-label="Browse more communities"
         >
           <span className="flex size-14 items-center justify-center rounded-full border border-dashed border-border/70 bg-muted/30 text-muted-foreground transition-colors group-hover:border-primary/50 group-hover:text-primary">
