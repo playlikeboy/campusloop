@@ -98,7 +98,7 @@ export function CommunityHeader({
   return (
     <header className="select-none">
       {/* ─── Sticky Twitter/X Top Navigation Bar ─── */}
-      <div className="sticky top-0 z-40 bg-background/80 px-4 py-2.5 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-background/88 px-3.5 py-2 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
             href="/app/communities"
@@ -109,7 +109,7 @@ export function CommunityHeader({
           </Link>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-black tracking-tight text-foreground truncate max-w-[200px] sm:max-w-xs">
+              <h1 className="text-sm font-black tracking-tight text-foreground truncate max-w-[190px] sm:max-w-xs">
                 c/{community.name}
               </h1>
               {community.privacy === "PRIVATE" ? (
@@ -120,7 +120,7 @@ export function CommunityHeader({
                 <Globe className="size-3 text-muted-foreground shrink-0" />
               )}
             </div>
-            <p className="text-xs text-muted-foreground font-normal truncate">
+            <p className="text-[11px] text-muted-foreground font-normal truncate">
               {membersCount} {membersCount === 1 ? "member" : "members"} · {postsCount}{" "}
               {postsCount === 1 ? "discussion" : "discussions"}
             </p>
@@ -155,7 +155,7 @@ export function CommunityHeader({
       </div>
 
       {/* ─── Hero Banner Area ─── */}
-      <div className="relative h-36 sm:h-48 w-full bg-neutral-900 overflow-hidden">
+      <div className="relative h-28 sm:h-40 w-full bg-neutral-900 overflow-hidden">
         {community.bannerUrl ? (
           <img
             src={community.bannerUrl}
@@ -174,7 +174,7 @@ export function CommunityHeader({
         {/* Privacy Badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
           {community.privacy === "PRIVATE" ? (
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-amber-600 dark:text-amber-400 backdrop-blur-md shadow-xs flex items-center gap-1">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-background/90 text-amber-600 dark:text-amber-400 backdrop-blur-md shadow-xs flex items-center gap-1">
               <Lock className="size-3" /> Private
             </span>
           ) : community.privacy === "UNLISTED" ? (
@@ -190,10 +190,10 @@ export function CommunityHeader({
       </div>
 
       {/* ─── Community Avatar & Action Row (Row 1) ─── */}
-      <div className="px-4 sm:px-5">
-        <div className="flex items-end justify-between -mt-12 sm:-mt-14 mb-3">
+      <div className="px-3.5 sm:px-5">
+        <div className="flex items-end justify-between -mt-10 sm:-mt-12 mb-2.5">
           {community.avatarUrl ? (
-            <Avatar className="size-22 sm:size-26 rounded-2xl sm:rounded-3xl border-4 border-background bg-card shadow-md shrink-0">
+            <Avatar className="size-20 sm:size-24 rounded-2xl border-4 border-background bg-card shadow-md shrink-0">
               <AvatarImage src={community.avatarUrl} alt={community.name} className="object-cover" />
               <AvatarFallback className="bg-neutral-800 text-foreground text-2xl font-black">
                 {community.name.slice(0, 2).toUpperCase()}
@@ -217,10 +217,10 @@ export function CommunityHeader({
         {/* ─── Community Info & Bio (Row 2 - Strictly Below Avatar) ─── */}
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+            <h1 className="text-lg sm:text-xl font-black tracking-tight text-foreground">
               {community.name}
             </h1>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
               <ShieldCheck className="size-3" /> Verified Hub
             </span>
           </div>
@@ -246,7 +246,7 @@ export function CommunityHeader({
           )}
 
           {/* Twitter-Style Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-2 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-2 text-[11px] text-muted-foreground">
             <Link href={`${baseUrl}/members`} className="hover:underline flex items-center gap-1">
               <Users className="size-3.5" />
               <span className="font-bold text-foreground">{membersCount}</span> Members
@@ -265,11 +265,11 @@ export function CommunityHeader({
       </div>
 
       {/* ─── Twitter/X Sticky Segmented Tabs ─── */}
-      <div className="border-b border-border/30 bg-background/80 backdrop-blur-xl sticky top-[53px] z-30 flex items-center justify-around mt-4">
+      <div className="border-b border-border/30 bg-background/80 backdrop-blur-xl sticky top-[47px] z-30 flex items-center justify-around mt-3">
         <Link
           href={baseUrl}
           className={cn(
-            "relative flex-1 py-3 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
+            "relative flex-1 py-2.5 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
             pathname === baseUrl
               ? "text-foreground font-black"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
