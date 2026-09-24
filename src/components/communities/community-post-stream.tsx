@@ -22,6 +22,7 @@ interface CommunityPostStreamProps {
   profileId: string;
   tab: "joined" | "discussions";
   communityId?: string;
+  kind?: "all" | "qna";
   emptyTitle: string;
   emptyDescription: string;
 }
@@ -30,6 +31,7 @@ export function CommunityPostStream({
   profileId,
   tab,
   communityId,
+  kind = "all",
   emptyTitle,
   emptyDescription,
 }: CommunityPostStreamProps) {
@@ -42,6 +44,7 @@ export function CommunityPostStream({
       limit: "12",
     });
     if (communityId) params.set("communityId", communityId);
+    if (kind === "qna") params.set("kind", "qna");
     return "/api/communities/feed?" + params.toString();
   };
 
