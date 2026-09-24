@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Compass,
   GraduationCap,
   Home,
   MoreHorizontal,
