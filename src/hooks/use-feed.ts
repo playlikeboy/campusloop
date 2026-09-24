@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import useSWRInfinite from "swr/infinite";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { feedPagesCache, feedSizeCache, getPendingFeedPosts } from "@/lib/feed-mutations";
+import { fetcher } from "@/lib/api";
 import { markPostsAsSeen } from "@/lib/seen-posts";
 
 export type TopCommentPreview = {
@@ -70,13 +71,6 @@ export type FeedPost = Post & {
   externalPost?: ExternalPostInfo | null;
 };
 
-const feedFetcher = async <T>(url: string): Promise<T> => {
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error("Failed to fetch feed");
-  return res.json() as Promise<T>;
-};
 
 const PAGE_LIMIT = 20;
 
@@ -128,7 +122,7 @@ export function useFeed(
 
   const { data, error, size, setSize, isLoading, isValidating, mutate } = useSWRInfinite<FeedPost[]>(
     getKey,
-    feedFetcher,
+    fetcher,
     {
       initialSize,
       fallbackData,
