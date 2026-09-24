@@ -66,7 +66,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       category: community.category || "General",
       privacy: (community.privacy as "PUBLIC" | "PRIVATE" | "UNLISTED") || "PUBLIC",
       allowAnonymousPosts: community.allowAnonymousPosts ?? true,
-      rules: initialRules,
+      rules,
     })
   );
 
@@ -164,7 +164,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       ) : (
         <form onSubmit={handleSave} className="space-y-4">
           {/* Identity */}
-          <div className="rounded-xl border border-border/55 bg-card shadow-2xs space-y-4">
+          <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
             <h2 className="text-xs font-black uppercase tracking-wider text-foreground">1. General Details</h2>
 
         <div className="space-y-1.5">
@@ -175,7 +175,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
             maxLength={40}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full h-10 px-4 rounded-full border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+            className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
           />
         </div>
 
@@ -188,7 +188,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                 key={cat}
                 onClick={() => setCategory(cat)}
                 className={cn(
-                  "p-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer text-left flex items-center justify-between border",
+                  "p-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left flex items-center justify-between border",
                   category === cat
                     ? "bg-foreground text-background border-foreground font-black shadow-2xs"
                     : "bg-muted/20 text-muted-foreground border-border/50 hover:bg-muted/40 hover:text-foreground"
@@ -208,13 +208,13 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
             maxLength={300}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-3 rounded-2xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
+            className="w-full rounded-xl border border-border/60 p-3 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
           />
         </div>
       </div>
 
       {/* Privacy & Permissions */}
-      <div className="rounded-xl border border-border/55 bg-card shadow-2xs space-y-4">
+      <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
         <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
           2. Privacy &amp; Anonymity
         </h2>
@@ -224,7 +224,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("PUBLIC")}
             className={cn(
-              "p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "PUBLIC"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -245,7 +245,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("PRIVATE")}
             className={cn(
-              "p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "PRIVATE"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -266,7 +266,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           <div
             onClick={() => setPrivacy("UNLISTED")}
             className={cn(
-              "p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+              "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
               privacy === "UNLISTED"
                 ? "bg-primary/5 border-primary shadow-2xs"
                 : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -311,7 +311,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       </div>
 
       {/* Community Rules */}
-      <div className="rounded-xl border border-border/55 bg-card shadow-2xs space-y-4">
+      <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
             3. Guidelines &amp; Rules
