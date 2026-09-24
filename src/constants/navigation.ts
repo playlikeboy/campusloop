@@ -79,12 +79,15 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: MoreHorizontal, href: "/app/more", label: "More" },
 ];
 
+// Mobile has one persistent navigation system. Feature areas such as
+// academics, communities, confessions and events live under Explore instead
+// of competing for permanent bottom-bar slots.
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/app", label: "Home" },
   { icon: AnimateCompass, href: "/app/discover", label: "Explore" },
   { icon: AnimatePlus, href: "/app/post/new", label: "Create" },
-  { icon: AnimateFlame, href: "/app/confessions", label: "Confessions" },
-  { icon: AnimateGraduationCap, href: "/app/academics", label: "Academics" },
+  { icon: AnimateMessageSquare, href: "/app/chat", label: "Chats" },
+  { icon: AnimateUser, href: "/app/profile", label: "Profile" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
