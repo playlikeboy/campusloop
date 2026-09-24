@@ -23,7 +23,7 @@ import { FeedLoadingMoreSkeleton, FeedSkeleton } from "@/components/ui/skeleton-
 import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
-import { fetcher } from "@/lib/api";
+import { apiRequest, fetcher } from "@/lib/api";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -214,23 +214,12 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     toast.success("Post published!");
 
     try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body: text,
-          type: "NORMAL",
-          scope,
-          isAnonymous: false,
-        }),
+      const serverPost = await apiRequest<{ id: string; createdAt?: string | Date }>("/api/posts", "POST", {
+        body: text,
+        type: "NORMAL",
+        scope,
+        isAnonymous: false,
       });
-
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish post");
-      }
-
-      const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
       confirmOptimisticPost(tempId, {
         ...optimisticPost,
         id: serverPost.id,
