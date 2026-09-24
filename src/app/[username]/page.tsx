@@ -316,15 +316,17 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
           <span className="text-base font-black tracking-tight text-foreground">CampusLoop</span>
         </Link>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link href="/join?mode=signin">
-            <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer">
-              Sign In
-            </button>
+          <Link
+            href="/join?mode=signin"
+            className="inline-flex min-h-11 items-center rounded-full border border-border/80 px-4 text-xs font-bold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          >
+            Sign In
           </Link>
-          <Link href="/join?mode=signup">
-            <button className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold hover:bg-foreground/90 transition-all cursor-pointer">
-              Join Campus
-            </button>
+          <Link
+            href="/join?mode=signup"
+            className="inline-flex min-h-11 items-center rounded-full bg-foreground px-4 text-xs font-bold text-background transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          >
+            Join Campus
           </Link>
         </div>
       </header>
