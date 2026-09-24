@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { userProfiles } from "./users";
 
@@ -11,9 +11,9 @@ export const communities = pgTable(
     description: text("description"),
     avatarUrl: text("avatar_url"),
     bannerUrl: text("banner_url"),
-    privacy: text("privacy").default("PUBLIC").notNull(), // 'PUBLIC' | 'PRIVATE' | 'UNLISTED'
-    category: text("category").default("General").notNull(), // 'Tech & Coding' | 'Music & Arts' | 'Gaming & Anime' | etc.
-    rules: text("rules"), // JSON stringified array of rules [{ title, description }]
+    privacy: text("privacy").default("PUBLIC").notNull(),
+    category: text("category").default("General").notNull(),
+    rules: text("rules"),
     allowAnonymousPosts: boolean("allow_anonymous_posts").default(true).notNull(),
     points: integer("points").default(0).notNull(),
     inviteCode: text("invite_code"),
@@ -23,7 +23,11 @@ export const communities = pgTable(
     createdAt,
     updatedAt,
   },
-  (table) => [uniqueIndex("communities_name_idx").on(table.name)]
+  (table) => [
+    uniqueIndex("communities_name_idx").on(table.name),
+    index("communities_privacy_created_idx").on(table.privacy, table.createdAt),
+    index("communities_points_created_idx").on(table.points, table.createdAt),
+  ]
 );
 
 export const communityMembers = pgTable(
@@ -36,11 +40,23 @@ export const communityMembers = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => userProfiles.id, { onDelete: "cascade" }),
-    role: text("role").default("MEMBER").notNull(), // 'ADMIN' | 'MODERATOR' | 'MEMBER'
-    status: text("status").default("ACTIVE").notNull(), // 'ACTIVE' | 'PENDING' | 'BANNED'
+    role: text("role").default("MEMBER").notNull(),
+    status: text("status").default("ACTIVE").notNull(),
     createdAt,
   },
-  (table) => [uniqueIndex("community_members_join_idx").on(table.communityId, table.userId)]
+  (table) => [
+    uniqueIndex("community_members_join_idx").on(table.communityId, table.userId),
+    index("community_members_user_status_created_idx").on(
+      table.userId,
+      table.status,
+      table.createdAt
+    ),
+    index("community_members_community_status_created_idx").on(
+      table.communityId,
+      table.status,
+      table.createdAt
+    ),
+  ]
 );
 
 export const communityWebhooks = pgTable(
@@ -74,4 +90,3 @@ export type CommunityMember = typeof communityMembers.$inferSelect;
 export type NewCommunityMember = typeof communityMembers.$inferInsert;
 export type CommunityWebhook = typeof communityWebhooks.$inferSelect;
 export type NewCommunityWebhook = typeof communityWebhooks.$inferInsert;
-
