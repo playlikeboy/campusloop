@@ -1,8 +1,9 @@
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { communities, userProfiles } from "@/db/schema";
+import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getCommunityDirectory } from "@/lib/communities/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -10,61 +11,48 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const limitParam = url.searchParams.get("limit");
-    const limit = limitParam ? Math.min(Math.max(1, Number(limitParam) || 20), 50) : undefined;
-    const sort = url.searchParams.get("sort") || "popular";
+    const limit = limitParam
+      ? Math.min(Math.max(1, Number(limitParam) || 20), 60)
+      : 36;
+    const sort = url.searchParams.get("sort") === "recent" ? "recent" : "popular";
+    const search = url.searchParams.get("search") || url.searchParams.get("q") || "";
+    const category = url.searchParams.get("category") || "All";
+    const joinedOnly = url.searchParams.get("joined") === "true";
 
-    const db = getDb();
-
-    // Check logged in user profile ID for membership status
     let currentProfileId: string | null = null;
+
     try {
       const user = await hexclaveServerApp.getUser();
       if (user) {
-        const profile = await db.query.userProfiles.findFirst({
-          where: eq(userProfiles.userId, user.id),
-          columns: { id: true },
-        });
-        currentProfileId = profile?.id ?? null;
+        const db = getDb();
+        const profile = await db
+          .select({ id: userProfiles.id })
+          .from(userProfiles)
+          .where(eq(userProfiles.userId, user.id))
+          .limit(1);
+        currentProfileId = profile[0]?.id ?? null;
       }
     } catch {
-      // Guest visitor
+      currentProfileId = null;
     }
 
-    const allCommunities = await db.query.communities.findMany({
-      orderBy:
-        sort === "popular"
-          ? [desc(communities.points), desc(communities.createdAt)]
-          : [desc(communities.createdAt)],
+    const communities = await getCommunityDirectory({
+      profileId: currentProfileId,
       limit,
-      with: {
-        members: true,
-        creator: {
-          columns: {
-            id: true,
-            username: true,
-            displayName: true,
-          },
-        },
-      },
+      search,
+      category,
+      joinedOnly,
+      sort,
     });
 
-    const response = allCommunities.map((comm) => {
-      const membersCount = comm.members ? comm.members.length : 0;
-      const isMember = currentProfileId
-        ? (comm.members || []).some((m) => m.userId === currentProfileId && m.status === "ACTIVE")
-        : false;
-
-      return {
-        ...comm,
-        slug: comm.slug || comm.name.toLowerCase().replace(/\s+/g, "-"),
-        membersCount,
-        memberCount: membersCount,
-        isPrivate: comm.privacy === "PRIVATE",
-        isMember,
-      };
-    });
-
-    return NextResponse.json(response);
+    return NextResponse.json(
+      communities.map((community) => ({
+        ...community,
+        membersCount: community.memberCount,
+        memberCount: community.memberCount,
+        isPrivate: community.privacy === "PRIVATE",
+      }))
+    );
   } catch (error) {
     console.error("Error fetching communities API:", error);
     return NextResponse.json([], { status: 200 });
