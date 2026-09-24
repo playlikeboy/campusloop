@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
 import { PresenceHeartbeat } from "@/components/pwa/presence-heartbeat";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
@@ -37,7 +38,7 @@ export default async function AppRootLayout({ children }: { children: React.Reac
   return (
     <>
       {user && <PresenceHeartbeat />}
-      {children}
+      <AppPullToRefresh>{children}</AppPullToRefresh>
     </>
   );
 }
