@@ -1,19 +1,33 @@
-import { and, desc, eq, isNotNull, lt } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, lt, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import {
   academicResources,
+  comments,
+  communityMembers,
   gamingLobbies,
   housingListings,
   lostAndFoundItems,
   marketplaceItems,
+  pollOptions,
+  pollVotes,
   posts,
   ridesharePools,
   userProfiles,
+  votes,
 } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 export const dynamic = "force-dynamic";
+
+const MAX_LIMIT = 20;
+
+type FeedItem = {
+  itemType: string;
+  createdAt: Date;
+  id: string;
+  data: any;
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,254 +37,309 @@ export async function GET(req: NextRequest) {
     }
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
+    const profileRows = await db
+      .select({ id: userProfiles.id })
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id))
+      .limit(1);
 
-    if (!profile) {
+    const profileId = profileRows[0]?.id;
+    if (!profileId) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
     const { searchParams } = new URL(req.url);
     const tab = searchParams.get("tab") || "all";
-    const cursor = searchParams.get("cursor"); // ISO timestamp string
-    const limit = Math.min(20, Math.max(5, parseInt(searchParams.get("limit") || "12", 10)));
-
+    const communityId = searchParams.get("communityId");
+    const cursor = searchParams.get("cursor");
+    const limit = Math.min(
+      MAX_LIMIT,
+      Math.max(5, Number.parseInt(searchParams.get("limit") || "12", 10))
+    );
     const cursorDate = cursor ? new Date(cursor) : undefined;
 
-    const feedItems: any[] = [];
+    if (cursorDate && Number.isNaN(cursorDate.getTime())) {
+      return NextResponse.json({ error: "Invalid cursor" }, { status: 400 });
+    }
 
-    // Helper to format posts
-    const formatPost = (post: any) => {
-      const votesCount = (post.votes || []).reduce((acc: number, v: any) => acc + v.value, 0);
-      const commentsCount = (post.comments || []).length;
-      const userVote = (post.votes || []).find((v: any) => v.userId === profile.id)?.value || 0;
+    const basePostConditions = [
+      isNotNull(posts.communityId),
+      eq(posts.status, "PUBLISHED"),
+    ];
 
-      const formattedPollOptions = post.pollOptions?.map((opt: any) => {
-        const optVotesCount = (opt.votes || []).length;
-        const userVoted = (opt.votes || []).some((v: any) => v.userId === profile.id);
-        return { id: opt.id, text: opt.text, votesCount: optVotesCount, userVoted };
-      });
+    if (communityId) {
+      basePostConditions.push(eq(posts.communityId, communityId));
+    }
 
-      const hasVotedPoll = formattedPollOptions?.some((opt: any) => opt.userVoted) || false;
-      const totalPollVotes =
-        formattedPollOptions?.reduce((acc: number, opt: any) => acc + opt.votesCount, 0) || 0;
+    if (cursorDate) {
+      basePostConditions.push(lt(posts.createdAt, cursorDate));
+    }
 
-      return {
-        itemType: "POST",
-        createdAt: post.createdAt,
-        id: `post_${post.id}`,
-        data: {
-          ...post,
-          votesCount,
-          commentsCount,
-          userVote,
-          pollOptions: formattedPollOptions,
-          hasVotedPoll,
-          totalPollVotes,
-          votes: undefined,
-          comments: undefined,
-        },
-      };
-    };
+    if (tab === "joined") {
+      const memberships = await db
+        .select({ communityId: communityMembers.communityId })
+        .from(communityMembers)
+        .where(
+          and(
+            eq(communityMembers.userId, profileId),
+            eq(communityMembers.status, "ACTIVE")
+          )
+        )
+        .limit(250);
 
-    if (tab === "all" || tab === "discussions") {
-      const postConditions = [isNotNull(posts.communityId)];
-      if (cursorDate) postConditions.push(lt(posts.createdAt, cursorDate));
+      const joinedIds = memberships.map((row) => row.communityId);
+      if (joinedIds.length === 0) {
+        return NextResponse.json({ items: [], nextCursor: null, hasMore: false });
+      }
+      basePostConditions.push(inArray(posts.communityId, joinedIds));
+    }
 
-      const communityPosts = await db.query.posts.findMany({
-        where: and(...postConditions),
+    const shouldLoadPosts =
+      tab === "all" ||
+      tab === "discussions" ||
+      tab === "joined" ||
+      Boolean(communityId);
+
+    async function loadPosts(): Promise<FeedItem[]> {
+      if (!shouldLoadPosts) return [];
+
+      const rows = await db.query.posts.findMany({
+        where: and(...basePostConditions),
         orderBy: [desc(posts.createdAt)],
-        limit,
+        limit: limit + 1,
         with: {
           author: true,
           institution: true,
           community: true,
-          votes: true,
-          comments: true,
-          pollOptions: { with: { votes: true } },
-        },
-      });
-
-      feedItems.push(...communityPosts.map(formatPost));
-    }
-
-    if (tab === "all" || tab === "lost_found") {
-      const lfConditions: any[] = [];
-      if (cursorDate) lfConditions.push(lt(lostAndFoundItems.createdAt, cursorDate));
-
-      const lf = await db.query.lostAndFoundItems.findMany({
-        where: lfConditions.length > 0 ? and(...lfConditions) : undefined,
-        orderBy: [desc(lostAndFoundItems.createdAt)],
-        limit,
-        with: {
-          author: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
-          },
-          institution: {
-            columns: { id: true, name: true, slug: true },
+          pollOptions: {
+            columns: {
+              id: true,
+              postId: true,
+              text: true,
+              createdAt: true,
+            },
           },
         },
       });
 
-      feedItems.push(
-        ...lf.map((item) => ({
-          itemType: "LOST_FOUND",
-          createdAt: item.createdAt,
-          id: `lf_${item.id}`,
-          data: item,
-        }))
-      );
-    }
+      if (rows.length === 0) return [];
 
-    if (tab === "all" || tab === "marketplace" || tab === "buy-and-sell" || tab === "buy_and_sell") {
-      const mpConditions: any[] = [];
-      if (cursorDate) mpConditions.push(lt(marketplaceItems.createdAt, cursorDate));
+      const postIds = rows.map((post) => post.id);
+      const pollPostIds = rows.filter((post) => post.type === "POLL").map((post) => post.id);
 
-      const mp = await db.query.marketplaceItems.findMany({
-        where: mpConditions.length > 0 ? and(...mpConditions) : undefined,
-        orderBy: [desc(marketplaceItems.createdAt)],
-        limit,
-        with: {
-          seller: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+      const [voteScores, userVotes, commentCounts, pollCounts, userPollVotes] = await Promise.all([
+        db
+          .select({
+            postId: votes.postId,
+            score: sql<number>`coalesce(sum(${votes.value), 0)`,
+          })
+          .from(votes)
+          .where(inArray(votes.postId, postIds))
+          .groupBy(votes.postId),
+        db
+          .select({
+            postId: votes.postId,
+            value: votes.value,
+          })
+          .from(votes)
+          .where(and(eq(votes.userId, profileId), inArray(votes.postId, postIds))),
+        db
+          .select({
+            postId: comments.postId,
+            count: sql<number>`count(${comments.id)`,
+          })
+          .from(comments)
+          .where(
+            and(
+              inArray(comments.postId, postIds),
+              eq(comments.status, "PUBLISHED")
+            )
+          )
+          .groupBy(comments.postId),
+        pollPostIds.length
+          ? db
+              .select({
+                optionId: pollOptions.id,
+                postId: pollOptions.postId,
+                text: pollOptions.text,
+                votesCount: sql<number>`count(${pollVotes.id)`,
+              })
+              .from(pollOptions)
+              .leftJoin(pollVotes, eq(pollVotes.optionId, pollOptions.id))
+              .where(inArray(pollOptions.postId, pollPostIds))
+              .groupBy(pollOptions.id, pollOptions.postId, pollOptions.text)
+          : Promise.resolve([]),
+        pollPostIds.length
+          ? db
+              .select({
+                postId: pollVotes.postId,
+                optionId: pollVotes.optionId,
+              })
+              .from(pollVotes)
+              .where(
+                and(
+                  eq(pollVotes.userId, profileId),
+                  inArray(pollVotes.postId, pollPostIds)
+                )
+              )
+          : Promise.resolve([]),
+      ]);
+
+      const voteScoreMap = new Map(voteScores.map((row) => [row.postId, Number(row.score || 0)]));
+      const userVoteMap = new Map(userVotes.map((row) => [row.postId, Number(row.value || 0)]));
+      const commentMap = new Map(commentCounts.map((row) => [row.postId, Number(row.count || 0)]));
+      const userPollMap = new Map(userPollVotes.map((row) => [row.postId, row.optionId]));
+
+      const pollMap = new Map<
+        string,
+        Array<{ id: string; text: string; votesCount: number; userVoted: boolean }>
+      >();
+
+      for (const option of pollCounts) {
+        const list = pollMap.get(option.postId) || [];
+        list.push({
+          id: option.optionId,
+          text: option.text,
+          votesCount: Number(option.votesCount || 0),
+          userVoted: userPollMap.get(option.postId) === option.optionId,
+        });
+        pollMap.set(option.postId, list);
+      }
+
+      return rows.map((post) => {
+        const options = pollMap.get(post.id);
+        return {
+          itemType: "POST",
+          createdAt: post.createdAt,
+          id: "post_" + post.id,
+          data: {
+            ...post,
+            votesCount: voteScoreMap.get(post.id) || 0,
+            commentsCount: commentMap.get(post.id) || 0,
+            userVote: userVoteMap.get(post.id) || 0,
+            pollOptions: options?.length ? options : post.pollOptions,
+            hasVotedPoll: Boolean(userPollMap.has(post.id)),
+            totalPollVotes: options?.reduce((sum, option) => sum + option.votesCount, 0) || 0,
           },
-          institution: {
-            columns: { id: true, name: true, slug: true },
-          },
-        },
+        };
       });
-
-      feedItems.push(
-        ...mp.map((item) => ({
-          itemType: "MARKETPLACE",
-          createdAt: item.createdAt,
-          id: `mp_${item.id}`,
-          data: item,
-        }))
-      );
     }
 
-    if (tab === "all" || tab === "gaming") {
-      const gConditions: any[] = [];
-      if (cursorDate) gConditions.push(lt(gamingLobbies.createdAt, cursorDate));
+    async function loadUtilityFeeds(): Promise<FeedItem[]> {
+      if (!["all", "lost_found", "marketplace", "buy-and-sell", "buy_and_sell", "gaming", "rideshare", "housing", "academics"].includes(tab)) {
+        return [];
+      }
 
-      const gaming = await db.query.gamingLobbies.findMany({
-        where: gConditions.length > 0 ? and(...gConditions) : undefined,
-        orderBy: [desc(gamingLobbies.createdAt)],
-        limit,
-        with: {
-          host: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
-          },
-          institution: {
-            columns: { id: true, name: true, slug: true },
-          },
-        },
-      });
+      const utilityWhere = cursorDate ? lt as any : undefined;
+      const dateFilter = cursorDate ? (column: any) => lt(column, cursorDate) : undefined;
 
-      feedItems.push(
-        ...gaming.map((item) => ({
-          itemType: "GAMING",
-          createdAt: item.createdAt,
-          id: `gaming_${item.id}`,
-          data: item,
-        }))
-      );
+      const result: FeedItem[] = [];
+
+      if (tab === "all" || tab === "lost_found") {
+        const lf = await db.query.lostAndFoundItems.findMany({
+          where: dateFilter ? dateFilter(lostAndFoundItems.createdAt) : utilityWhere,
+          orderBy: [desc(lostAndFoundItems.createdAt)],
+          limit: limit + 1,
+          with: {
+            author: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...lf.map((item) => ({ itemType: "LOST_FOUND", createdAt: item.createdAt, id: "lf_" + item.id, data: item })));
+      }
+
+      if (tab === "all" || tab === "marketplace" || tab === "buy-and-sell" || tab === "buy_and_sell") {
+        const mp = await db.query.marketplaceItems.findMany({
+          where: dateFilter ? dateFilter(marketplaceItems.createdAt) : utilityWhere,
+          orderBy: [desc(marketplaceItems.createdAt)],
+          limit: limit + 1,
+          with: {
+            seller: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...mp.map((item) => ({ itemType: "MARKETPLACE", createdAt: item.createdAt, id: "mp_" + item.id, data: item })));
+      }
+
+      if (tab === "all" || tab === "gaming") {
+        const gaming = await db.query.gamingLobbies.findMany({
+          where: dateFilter ? dateFilter(gamingLobbies.createdAt) : utilityWhere,
+          orderBy: [desc(gamingLobbies.createdAt)],
+          limit: limit + 1,
+          with: {
+            host: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...gaming.map((item) => ({ itemType: "GAMING", createdAt: item.createdAt, id: "gaming_" + item.id, data: item })));
+      }
+
+      if (tab === "all" || tab === "rideshare") {
+        const rides = await db.query.ridesharePools.findMany({
+          where: dateFilter ? dateFilter(ridesharePools.createdAt) : utilityWhere,
+          orderBy: [desc(ridesharePools.createdAt)],
+          limit: limit + 1,
+          with: {
+            creator: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...rides.map((item) => ({ itemType: "RIDESHARE", createdAt: item.createdAt, id: "ride_" + item.id, data: item })));
+      }
+
+      if (tab === "all" || tab === "housing") {
+        const housing = await db.query.housingListings.findMany({
+          where: dateFilter ? dateFilter(housingListings.createdAt) : utilityWhere,
+          orderBy: [desc(housingListings.createdAt)],
+          limit: limit + 1,
+          with: {
+            author: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...housing.map((item) => ({ itemType: "HOUSING", createdAt: item.createdAt, id: "housing_" + item.id, data: item })));
+      }
+
+      if (tab === "all" || tab === "academics") {
+        const academics = await db.query.academicResources.findMany({
+          where: dateFilter ? dateFilter(academicResources.createdAt) : utilityWhere,
+          orderBy: [desc(academicResources.createdAt)],
+          limit: limit + 1,
+          with: {
+            uploader: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
+            },
+            institution: { columns: { id: true, name: true, slug: true } },
+          },
+        });
+        result.push(...academics.map((item) => ({ itemType: "ACADEMICS", createdAt: item.createdAt, id: "acad_" + item.id, data: item })));
+      }
+
+      return result;
     }
 
-    if (tab === "all" || tab === "rideshare") {
-      const rConditions: any[] = [];
-      if (cursorDate) rConditions.push(lt(ridesharePools.createdAt, cursorDate));
+    const [postsItems, utilityItems] = await Promise.all([loadPosts(), loadUtilityFeeds()]);
 
-      const rides = await db.query.ridesharePools.findMany({
-        where: rConditions.length > 0 ? and(...rConditions) : undefined,
-        orderBy: [desc(ridesharePools.createdAt)],
-        limit,
-        with: {
-          creator: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
-          },
-          institution: {
-            columns: { id: true, name: true, slug: true },
-          },
-        },
-      });
+    const feedItems = [...postsItems, ...utilityItems].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
-      feedItems.push(
-        ...rides.map((item) => ({
-          itemType: "RIDESHARE",
-          createdAt: item.createdAt,
-          id: `ride_${item.id}`,
-          data: item,
-        }))
-      );
-    }
-
-    if (tab === "all" || tab === "housing") {
-      const hConditions: any[] = [];
-      if (cursorDate) hConditions.push(lt(housingListings.createdAt, cursorDate));
-
-      const housing = await db.query.housingListings.findMany({
-        where: hConditions.length > 0 ? and(...hConditions) : undefined,
-        orderBy: [desc(housingListings.createdAt)],
-        limit,
-        with: {
-          author: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
-          },
-          institution: {
-            columns: { id: true, name: true, slug: true },
-          },
-        },
-      });
-
-      feedItems.push(
-        ...housing.map((item) => ({
-          itemType: "HOUSING",
-          createdAt: item.createdAt,
-          id: `housing_${item.id}`,
-          data: item,
-        }))
-      );
-    }
-
-    if (tab === "all" || tab === "academics") {
-      const aConditions: any[] = [];
-      if (cursorDate) aConditions.push(lt(academicResources.createdAt, cursorDate));
-
-      const academics = await db.query.academicResources.findMany({
-        where: aConditions.length > 0 ? and(...aConditions) : undefined,
-        orderBy: [desc(academicResources.createdAt)],
-        limit,
-        with: {
-          uploader: {
-            columns: { id: true, username: true, displayName: true, avatarUrl: true, points: true },
-          },
-          institution: {
-            columns: { id: true, name: true, slug: true },
-          },
-        },
-      });
-
-      feedItems.push(
-        ...academics.map((item) => ({
-          itemType: "ACADEMICS",
-          createdAt: item.createdAt,
-          id: `acad_${item.id}`,
-          data: item,
-        }))
-      );
-    }
-
-    // Sort combined feed chronologically descending
-    feedItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    // Slice to the requested page limit
-    const pageItems = feedItems.slice(0, limit);
     const hasMore = feedItems.length > limit;
+    const pageItems = feedItems.slice(0, limit);
     const nextCursor =
-      pageItems.length > 0 ? new Date(pageItems[pageItems.length - 1].createdAt).toISOString() : null;
+      pageItems.length > 0
+        ? new Date(pageItems[pageItems.length - 1].createdAt).toISOString()
+        : null;
 
     return NextResponse.json({
       items: pageItems,
