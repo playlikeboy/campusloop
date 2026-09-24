@@ -272,6 +272,25 @@ export async function rejectJoinRequest(communityId: string, targetUserId: strin
 
   if (!profile) throw new Error("Profile not found");
 
+  const [comm, callerMembership] = await Promise.all([
+    db.query.communities.findFirst({
+      where: eq(communities.id, communityId),
+    }),
+    db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, communityId),
+        eq(communityMembers.userId, profile.id),
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+    }),
+  ]);
+
+  if (!comm) throw new Error("Community not found");
+  if (comm.creatorId !== profile.id && !callerMembership) {
+    throw new Error("Unauthorized to reject member requests");
+  }
+
   await db
     .delete(communityMembers)
     .where(
