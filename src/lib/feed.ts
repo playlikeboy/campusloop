@@ -559,7 +559,6 @@ export async function resolveFeedPage(options: {
           avatarUrl: true,
         },
       },
-      votes: true,
       comments: {
         where: eq(comments.status, "PUBLISHED"),
         orderBy: [desc(comments.createdAt)],
@@ -579,6 +578,21 @@ export async function resolveFeedPage(options: {
       pollOptions: true,
     },
   });
+
+  const viewerVoteMap = new Map<string, number>();
+  if (viewerProfileId && ids.length > 0) {
+    const viewerVotes = await db
+      .select({
+        postId: votes.postId,
+        value: votes.value,
+      })
+      .from(votes)
+      .where(and(eq(votes.userId, viewerProfileId), inArray(votes.postId, ids)));
+
+    for (const row of viewerVotes) {
+      viewerVoteMap.set(row.postId, row.value);
+    }
+  }
 
   const pollOptionIds = hydrated.flatMap((post) => (post.pollOptions || []).map((option) => option.id));
   const pollVoteStatsMap = new Map<string, { votesCount: number; viewerVoted: boolean }>();
@@ -607,17 +621,14 @@ export async function resolveFeedPage(options: {
   const byId = new Map(
     hydrated.map((post) => {
       const dbCounts = countsMap.get(post.id);
-      const computedVoteScore = post.votes?.reduce((acc, v) => acc + (v?.value || 0), 0) || 0;
       return [
         post.id,
         {
           ...post,
           _counts: {
             commentCount: dbCounts?.commentCount ?? (post.comments?.length || 0),
-            voteScore:
-              dbCounts !== undefined
-                ? Math.max(Number(dbCounts.voteScore || 0), computedVoteScore)
-                : computedVoteScore,
+            voteScore: Number(dbCounts?.voteScore || 0),
+            userVote: viewerVoteMap.get(post.id) ?? 0,
           },
         },
       ];
@@ -736,18 +747,10 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
   }
 
   return rawFeed.map((post) => {
-    const votesList = post.votes || [];
     const commentsList = post.comments || [];
     const counts = (post as any)._counts;
-    const votesListSum = votesList.reduce((acc, vote) => acc + (vote?.value || 0), 0);
-    const userVoteObj = votesList.find((v) => v?.userId === viewerProfileId);
-    const userVote = userVoteObj ? userVoteObj.value : 0;
-    const rawVoteScore =
-      counts?.voteScore !== undefined && counts?.voteScore !== null ? Number(counts.voteScore) : undefined;
-    let votesCount = rawVoteScore !== undefined ? Math.max(rawVoteScore, votesListSum) : votesListSum;
-    if (userVote === 1 && votesCount < 1) {
-      votesCount = 1;
-    }
+    const userVote = Number(counts?.userVote || 0);
+    let votesCount = Number(counts?.voteScore || 0);
     const rawCommentCount =
       counts?.commentCount !== undefined && counts?.commentCount !== null
         ? Number(counts.commentCount)
