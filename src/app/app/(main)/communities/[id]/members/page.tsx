@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { CommunityHeader } from "@/components/communities/community-header";
 import { CommunityMembersClient } from "@/components/communities/community-members-client";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
-import { getCachedAuthUser, getCachedCommunity, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedCommunity, getCachedCommunitySummary, getCachedUserProfile } from "@/lib/server-cache";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -13,7 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const comm = await getCachedCommunity(id);
+  const comm = await getCachedCommunitySummary(id);
 
   if (!comm) {
     return {
@@ -44,13 +44,11 @@ export default async function CommunityMembersPage({ params }: PageProps) {
   if (!comm) notFound();
 
   const db = getDb();
-  // Count community posts
-  const postsCount = (
-    await db.query.posts.findMany({
-      where: eq(posts.communityId, comm.id),
-      columns: { id: true },
-    })
-  ).length;
+  const [{ count: postsCountValue }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(posts)
+    .where(eq(posts.communityId, comm.id));
+  const postsCount = Number(postsCountValue || 0);
 
   const userMembership = comm.members.find((m) => m.userId === profile.id);
   const isMember = Boolean(userMembership && userMembership.status === "ACTIVE");
@@ -68,7 +66,7 @@ export default async function CommunityMembersPage({ params }: PageProps) {
   }));
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen bg-background text-foreground pb-24 border-x border-border/30 select-none">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen bg-background text-foreground pb-24 border-x border-border/30">
       <CommunityHeader
         community={comm}
         membersCount={activeMembersCount}
