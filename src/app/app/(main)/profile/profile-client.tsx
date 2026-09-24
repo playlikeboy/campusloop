@@ -324,12 +324,13 @@ export function ProfileClientView({
   const branchSlug = profile.branch ? slugifyBranch(profile.branch) : null;
   const branchIcon = getBranchIcon(profile.branch || profile.course);
 
-  const institutionName = profile.institution?.name || "Indian Institute of Technology";
+  const institutionName = profile.institution?.name || "";
   const campusShort = institutionName.split(",")[0];
 
   async function handleShareVibe() {
     const branchText = profile.branch ? `• Discipline: ${profile.branch}\n` : "";
-    const shareText = `⚡️ Connect with @${profile.username} on CampusLoop:\n• Campus: ${campusShort}\n${branchText}• Clout Rank: ${tier.tierName} (Level ${tier.level})\n• Loop Points: ${points} LP 🔥`;
+    const campusText = campusShort ? `• Campus: ${campusShort}\n` : "";
+    const shareText = `⚡️ Connect with @${profile.username} on CampusLoop:\n${campusText}${branchText}• Clout Rank: ${tier.tierName} (Level ${tier.level})\n• Loop Points: ${points} LP 🔥`;
     const profileUrl = `https://campusloop.space/@${profile.username}`;
 
     if (typeof window !== "undefined" && navigator.share) {
@@ -852,29 +853,37 @@ export function ProfileClientView({
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
-              <p className="text-sm font-bold text-foreground truncate">{institutionName}</p>
+              <p className="text-sm font-bold text-foreground truncate">
+                {institutionName || "Academic profile"}
+              </p>
 
               <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                <span>{profile.course || "B.Tech"}</span>
+                {profile.course && <span>{profile.course}</span>}
                 <span>·</span>
                 <Link
                   href={branchSlug ? `/app/branch/${branchSlug}` : "#"}
                   className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5"
                 >
-                  <span>{profile.branch || "Computer Science & Engineering"}</span>
+                  {profile.branch && <span>{profile.branch}</span>}
                   <ArrowUpRight className="size-3" />
                 </Link>
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
-                <span className="flex items-center gap-1">
-                  <Calendar className="size-3 text-muted-foreground/70" /> Year {profile.year || 2} Student
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="size-3 text-muted-foreground/70" />{" "}
-                  {profile.institution?.district || "Mesra"}, {profile.institution?.state || "Jharkhand"}
-                </span>
-              </div>
+              {(profile.year || profile.institution?.district || profile.institution?.state) && (
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
+                  {profile.year && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="size-3 text-muted-foreground/70" /> Year {profile.year} Student
+                    </span>
+                  )}
+                  {(profile.institution?.district || profile.institution?.state) && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="size-3 text-muted-foreground/70" />{" "}
+                      {[profile.institution?.district, profile.institution?.state].filter(Boolean).join(", ")}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
