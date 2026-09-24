@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
     const tab = searchParams.get("tab") || "all";
     const communityId = searchParams.get("communityId");
     const cursor = searchParams.get("cursor");
+    const kind = searchParams.get("kind");
     const limit = Math.min(
       MAX_LIMIT,
       Math.max(5, Number.parseInt(searchParams.get("limit") || "12", 10))
@@ -73,6 +74,10 @@ export async function GET(req: NextRequest) {
 
     if (cursorDate) {
       postConditions.push(lt(posts.createdAt, cursorDate));
+    }
+
+    if (kind === "qna") {
+      postConditions.push(inArray(posts.type, ["POLL", "QUESTION"]));
     }
 
     if (tab === "joined") {
@@ -134,7 +139,7 @@ export async function GET(req: NextRequest) {
         db
           .select({
             postId: votes.postId,
-            score: sql<number>`coalesce(sum(${votes.value), 0)`,
+            score: sql<number>`coalesce(sum(${votes.value}), 0)`,
           })
           .from(votes)
           .where(inArray(votes.postId, postIds))
@@ -149,7 +154,7 @@ export async function GET(req: NextRequest) {
         db
           .select({
             postId: comments.postId,
-            count: sql<number>`count(${comments.id)`,
+            count: sql<number>`count(${comments.id})`,
           })
           .from(comments)
           .where(
@@ -165,7 +170,7 @@ export async function GET(req: NextRequest) {
                 optionId: pollOptions.id,
                 postId: pollOptions.postId,
                 text: pollOptions.text,
-                votesCount: sql<number>`count(${pollVotes.id)`,
+                votesCount: sql<number>`count(${pollVotes.id})`,
               })
               .from(pollOptions)
               .leftJoin(pollVotes, eq(pollVotes.optionId, pollOptions.id))
