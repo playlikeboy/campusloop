@@ -40,10 +40,28 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
       if (disabled || isRefreshing || e.touches.length !== 1) return;
 
       const target = e.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, button, a, iframe, [contenteditable='true'], [data-no-pull-refresh]")) {
+      if (
+        target?.closest(
+          "input, textarea, select, button, a, iframe, [contenteditable='true'], [data-no-pull-refresh]"
+        )
+      ) {
         startYRef.current = null;
         startXRef.current = null;
         return;
+      }
+
+      // The global gesture must never hijack a nested scroll surface.
+      // Reels, comments, sheets and article readers own their own vertical gestures.
+      let scrollParent = target?.parentElement ?? null;
+      while (scrollParent && scrollParent !== containerRef.current) {
+        const style = window.getComputedStyle(scrollParent);
+        const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY);
+        if (canScrollY && scrollParent.scrollHeight > scrollParent.clientHeight + 1) {
+          startYRef.current = null;
+          startXRef.current = null;
+          return;
+        }
+        scrollParent = scrollParent.parentElement;
       }
 
       if (getScrollTop() <= 5) {
