@@ -310,9 +310,9 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
       {!isMobileFlow(pathname) && (
         <nav
           aria-label="Main mobile navigation"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-border/35 bg-background/96 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-6px_18px_rgba(70,60,130,0.05)] backdrop-blur-2xl md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-border/35 bg-background/96 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_24px_rgba(70,60,130,0.07)] backdrop-blur-2xl md:hidden"
         >
-          <div className="mx-auto flex h-[64px] w-full max-w-md items-stretch px-1">
+          <div className="mx-auto flex h-[72px] w-full max-w-md items-stretch px-1.5">
             {mobileBottomItems.map((item) => {
               const Icon = item.href === "/app" ? Home : item.href === "/app/discover" ? Compass : item.href === "/app/chat" ? AnimateMessageSquare : item.icon;
               const isCreate = item.href === "/app/post/new";
@@ -338,13 +338,13 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       sounds.tap();
                       haptics.medium();
                     }}
-                    className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-1 text-primary"
+                    className="relative flex min-w-0 flex-1 flex-col items-center justify-start gap-0.5 px-1 pt-0 text-primary -mt-2"
                     aria-label="Create content"
                   >
-                    <span className="grid size-10 place-items-center rounded-full bg-primary text-white shadow-[0_5px_16px_rgba(0,210,133,0.25)] ring-2 ring-background transition-transform active:scale-95">
-                      <Plus className="size-5.5" strokeWidth={2.5} />
+                    <span className="grid size-12 place-items-center rounded-full bg-primary text-white shadow-[0_8px_22px_rgba(0,210,133,0.30)] ring-4 ring-background transition-transform active:scale-95">
+                      <Plus className="size-6" strokeWidth={2.5} />
                     </span>
-                    <span className="text-[10px] font-bold leading-none">Create</span>
+                    <span className="text-[10px] font-extrabold leading-none">Create</span>
                   </Link>
                 );
               }
@@ -366,7 +366,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   )}
                   aria-current={active ? "page" : undefined}
                 >
-                  <span className="relative grid size-7 place-items-center">
+                  <span className="relative grid size-8 place-items-center">
                     {typeof Icon === "function" ? (
                       Icon === Home || Icon === Compass ? (
                         <Icon className={cn("size-5.25", active && "stroke-[2.5]")} />
@@ -383,7 +383,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                     ) : null}
 
                   </span>
-                  <span className={cn("truncate text-[10px] leading-none", active ? "font-bold" : "font-medium")}>
+                  <span className={cn("truncate text-[10px] leading-none", active ? "font-extrabold" : "font-medium")}>
                     {item.label}
                   </span>
                 </Link>
