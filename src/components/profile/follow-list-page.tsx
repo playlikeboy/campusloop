@@ -119,7 +119,7 @@ export async function FollowListPageView({
         isAdmin={currentProfile.role === "ADMIN"}
       />
 
-      <div className="flex md:pl-64 min-h-screen">
+      <div className="flex md:pl-[248px] min-h-screen">
         <main className="flex-1 w-full max-w-2xl px-0 py-0 pb-28 md:pb-0 mx-auto min-h-screen border-r border-border/30">
           {list}
         </main>
