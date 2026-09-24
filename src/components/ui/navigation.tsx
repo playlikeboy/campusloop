@@ -114,7 +114,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   haptics.light();
                 }}
                 className={cn(
-                  "relative flex size-9 items-center justify-center rounded-xl transition-all",
+                  "relative flex size-11 items-center justify-center rounded-xl transition-all",
                   pathname.startsWith("/app/chat")
                     ? "bg-foreground text-background"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -132,7 +132,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   haptics.light();
                 }}
                 className={cn(
-                  "relative flex size-9 items-center justify-center rounded-full transition-all",
+                  "relative flex size-11 items-center justify-center rounded-full transition-all",
                   pathname.startsWith("/app/notifications")
                     ? "bg-foreground text-background"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -266,7 +266,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       Settings & Privacy
                     </Link>
                     <div className="flex items-center justify-between border-t border-border/30 px-2 pt-1.5">
-                      <ThemeToggle className="size-7 rounded-lg border-none bg-transparent hover:bg-muted" />
+                      <ThemeToggle className="size-11 rounded-xl border-none bg-transparent hover:bg-muted" />
                       <SignOutButton />
                     </div>
                   </motion.div>
