@@ -440,10 +440,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           aria-label={userVote === 1 ? "Unlike post" : "Like post"}
           whileTap={{ scale: 0.85 }}
           className={cn(
-            "size-9.5 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-colors cursor-pointer group relative",
+            "size-9.5 sm:size-12 rounded-full border border-border/60 bg-card/90 backdrop-blur-xl flex items-center justify-center shadow-lg transition-colors cursor-pointer group relative",
             userVote === 1
               ? "border-rose-500/40 text-rose-500 bg-rose-500/15 shadow-[0_0_20px_rgba(244,63,94,0.4)]"
-              : "border-white/10 text-white/80 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10"
+              : "border-border/60 text-foreground/80 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10"
           )}
         >
           <motion.div
@@ -483,7 +483,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         <span
           className={cn(
             "text-[11px] sm:text-xs font-bold tabular-nums transition-colors",
-            userVote === 1 ? "text-rose-400 font-extrabold" : "text-white/80"
+            userVote === 1 ? "text-rose-400 font-extrabold" : "text-foreground/75"
           )}
         >
           {votesCount}
@@ -496,11 +496,11 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => onOpenComments(post)}
           aria-label="Comment"
-          className="size-9.5 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer text-white/90 hover:text-white hover:bg-white/10"
+          className="size-9.5 sm:size-12 rounded-full border border-border/60 bg-card/90 backdrop-blur-xl flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-90 cursor-pointer text-foreground/90 hover:text-foreground hover:bg-muted/70"
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={21} />
         </button>
-        <span className="text-[11px] sm:text-xs font-bold text-white/80 tabular-nums">{commentsCount}</span>
+        <span className="text-[11px] sm:text-xs font-bold text-foreground/75 tabular-nums">{commentsCount}</span>
       </div>
 
       {/* 3. Repost / Loop (single tap = instant repost, tap again = quote) */}
@@ -510,10 +510,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           onClick={handleInstantRepost}
           aria-label={isReposted ? "Quoted repost" : "Loop post"}
           className={cn(
-            "size-10 sm:size-12 rounded-full border bg-black/40 backdrop-blur-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-90 cursor-pointer",
+            "size-10 sm:size-12 rounded-full border border-border/60 bg-card/90 backdrop-blur-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-90 cursor-pointer",
             isReposted
               ? "border-emerald-500/40 text-emerald-500 bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-              : "border-white/10 text-white/90 hover:text-white hover:bg-white/10"
+              : "border-border/60 text-foreground/90 hover:text-foreground hover:bg-muted/70"
           )}
         >
           <AnimatedIcon
@@ -527,7 +527,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             )}
           />
         </button>
-        <span className={cn("text-[10px] font-bold", isReposted ? "text-emerald-400" : "text-white/60")}>
+        <span className={cn("text-[10px] font-bold", isReposted ? "text-emerald-400" : "text-foreground/60")}>
           {isReposted ? "Looped" : "Loop"}
         </span>
       </div>
@@ -557,7 +557,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         type="button"
         onClick={handleShare}
         aria-label="Share"
-        className="size-10 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-110 active:scale-90"
+        className="size-10 sm:size-12 rounded-full border border-border/60 bg-card/90 backdrop-blur-xl flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer shadow-lg hover:scale-110 active:scale-90"
       >
         <AnimatedIcon icon={Share2} animation="pop" size={20} />
       </button>
@@ -568,7 +568,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => setShowMoreMenu((prev) => !prev)}
           aria-label="More options"
-          className="size-10 sm:size-12 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+          className="size-10 sm:size-12 rounded-full border border-border/60 bg-card/90 backdrop-blur-xl flex items-center justify-center text-foreground/60 hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer shadow-lg hover:scale-105 active:scale-95"
         >
           <MoreHorizontal className="size-5" />
         </button>
@@ -876,6 +876,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   // ─── IMMERSIVE FULL-PAGE REEL (BORDERLESS & RESPONSIVE TO ALL LENGTHS) ───
   return (
     <div
+      data-no-pull-refresh
       onDoubleClick={handleDoubleTap}
       className="relative w-full h-full flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto select-none overflow-hidden"
     >
@@ -1012,7 +1013,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       </div>
 
       {/* ─── Main Content Body (Natural top-aligned scroll, full reading without clipping) ─── */}
-      <div className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar pr-14 sm:pr-16 space-y-3 sm:space-y-4 py-3">
+      <div data-no-pull-refresh className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar pr-14 sm:pr-16 space-y-3 sm:space-y-4 py-3">
         {headline && (
           <h2 className="text-lg sm:text-xl md:text-2xl font-black text-foreground tracking-tight leading-snug">
             {headline}
@@ -1085,7 +1086,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",
                   idx === 0
                     ? "bg-purple-950/70 border border-purple-500/40 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.25)] hover:bg-purple-900/80"
-                    : "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white"
+                     : "bg-muted/70 border border-border text-foreground/75 hover:bg-muted hover:text-foreground"
                 )}
               >
                 {tag.startsWith("#") ? tag : `#${tag}`}
