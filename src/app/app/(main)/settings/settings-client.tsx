@@ -158,37 +158,41 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               />
             </div>
 
-            {/* Custom Anonymous Username */}
-            <div className="space-y-1.5 p-3 rounded-xl border border-border/60 bg-muted/20">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <VenetianMask className="size-3.5 text-primary" /> Custom Anonymous Username
-                </label>
-                {anonUsername && (
-                  <span className="text-[10px] text-primary font-bold">@{anonUsername.toLowerCase()}</span>
-                )}
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                All your anonymous confessions, polls, and questions will appear under this username instead
-                of a random anon ID.
-              </p>
-              <div className="relative pt-1">
-                <span className="absolute left-3.5 top-3.5 text-xs font-bold text-muted-foreground">
-                  🎭 @
+            <details className="group rounded-xl border border-border/60 bg-muted/10">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-sm font-bold [&::-webkit-details-marker]:hidden">
+                <span className="flex min-w-0 items-center gap-2">
+                  <VenetianMask className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                  <span className="truncate">Anonymous identity</span>
+                  {anonUsername && (
+                    <span className="truncate text-[10px] font-bold text-primary">@{anonUsername}</span>
+                  )}
                 </span>
-                <input
-                  type="text"
-                  value={anonUsername}
-                  onChange={(e) => setAnonUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                  placeholder="e.g. ghost_student, shadow_coder, campus_ninja"
-                  maxLength={24}
-                  className="w-full pl-10 pr-3.5 py-2 rounded-xl border border-border bg-background text-xs font-semibold text-foreground outline-none focus:border-primary transition-all"
-                />
+                <span className="text-[10px] font-medium text-muted-foreground group-open:hidden">Edit</span>
+              </summary>
+              <div className="space-y-2 border-t border-border/60 px-3 py-3">
+                <label htmlFor="anonymous-username" className="text-xs font-bold text-foreground">
+                  Anonymous username
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                    @
+                  </span>
+                  <input
+                    id="anonymous-username"
+                    type="text"
+                    value={anonUsername}
+                    onChange={(e) => setAnonUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24))}
+                    placeholder="shadow_coder"
+                    maxLength={24}
+                    className="w-full min-h-11 rounded-xl border border-border bg-background pl-8 pr-3 text-sm font-semibold text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    autoComplete="off"
+                  />
+                </div>
+                <p className="text-[10px] leading-relaxed text-muted-foreground">
+                  Leave empty to use an automatic pseudonym. This is separate from your verified profile.
+                </p>
               </div>
-              <p className="text-[10px] text-muted-foreground/80">
-                Leave empty to use automatic randomized hash pseudonyms.
-              </p>
-            </div>
+            </details>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-2">
@@ -247,7 +251,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleFeedVisibilityChange("ALL")}
                   className={cn(
-                    "p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-xs",
+                    "min-h-20 rounded-xl border p-3 text-left transition-colors flex flex-col justify-between gap-2",
                     feedVisibility === "ALL"
                       ? "border-primary bg-primary/8 text-foreground"
                       : "border-border/60 bg-background text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -255,7 +259,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 >
                   <div className="flex items-center justify-between w-full">
                     <span className="text-xs font-black text-foreground flex items-center gap-1.5">
-                      <Globe className="size-3.5 text-primary" /> 1. All Types of Posts
+                      <Globe className="size-3.5 text-primary" /> All posts
                     </span>
                     {feedVisibility === "ALL" && <Check className="size-3.5 text-primary stroke-3" />}
                   </div>
@@ -272,13 +276,13 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   className={cn(
                     "p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-xs",
                     feedVisibility === "NON_ANONYMOUS"
-                      ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
+                      ? "border-primary bg-primary/10 text-foreground "
                       : "border-border/60 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground"
                   )}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span className="text-xs font-black text-foreground flex items-center gap-1.5">
-                      <ShieldCheck className="size-3.5 text-emerald-500" /> 2. Only Non-Anonymous
+                      <ShieldCheck className="size-3.5 text-emerald-500" /> Public only
                     </span>
                     {feedVisibility === "NON_ANONYMOUS" && (
                       <Check className="size-3.5 text-primary stroke-3" />
@@ -294,49 +298,42 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </div>
         </section>
 
-        {/* Verification & Rewards Status */}
-        <section className="rounded-2xl border border-primary/20 bg-linear-to-r from-primary/10 via-card to-card p-4 sm:p-5 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" /> Loop Points & Star Badge
-            </h2>
-            <span className="text-xs font-extrabold text-primary">{profile.points} LP</span>
-          </div>
+        <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-sm">
+          <details className="group">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-black [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center gap-2">
+                <Zap className="size-4 text-primary" aria-hidden="true" />
+                Advanced account tools
+              </span>
+              <span className="text-[10px] font-medium text-muted-foreground group-open:hidden">Optional</span>
+            </summary>
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Earn +20 LP for every classmate who joins CampusLoop using your referral link. Unlock blue-tick
-            verified star badges at 150 LP!
-          </p>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/10 p-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold">Loop Points &amp; badge</p>
+                  <p className="text-[10px] text-muted-foreground">You have {profile.points} LP.</p>
+                </div>
+                <Link
+                  href="/app/profile"
+                  className="inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                >
+                  View
+                </Link>
+              </div>
 
-          <Link
-            href="/app/profile"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
-          >
-            View Verification Badges &amp; Invites →
-          </Link>
-        </section>
-
-        {/* Developer & MCP API Keys */}
-        <section className="rounded-2xl border border-primary/30 bg-card p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <Terminal className="h-4 w-4 text-primary" /> Model Context Protocol (MCP) &amp; API Keys
-            </h2>
-            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
-              NEW
-            </span>
-          </div>
-
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Connect Cursor, Windsurf, Claude Desktop, and AI agents directly to your campus account with personal MCP server keys.
-          </p>
-
-          <Link
-            href="/app/developer"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
-          >
-            Manage MCP Keys &amp; IDE Setup →
-          </Link>
+              <Link
+                href="/app/developer"
+                className="flex min-h-11 items-center justify-between rounded-xl border border-border/60 bg-muted/10 px-3 text-xs font-bold transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              >
+                <span className="flex items-center gap-2">
+                  <Terminal className="size-4 text-primary" aria-hidden="true" />
+                  Developer &amp; MCP
+                </span>
+                <span className="text-[10px] font-medium text-muted-foreground">Open</span>
+              </Link>
+            </div>
+          </details>
         </section>
 
         {/* Danger Zone */}
