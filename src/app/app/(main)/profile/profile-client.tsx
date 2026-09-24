@@ -261,11 +261,14 @@ export function ProfileClientView({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
   const [sentinelNode, setSentinelNode] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setPosts(initialPosts);
     setHasMore(initialPosts.length >= 20);
+    setPage(1);
+    setLoadMoreError(false);
   }, [initialPosts]);
 
   const loadMorePosts = useCallback(async () => {
@@ -277,6 +280,7 @@ export function ProfileClientView({
       const res = await fetch(`/api/feed?authorId=${profile.id}&page=${nextPage}&limit=20`);
       if (!res.ok) throw new Error("Failed to load more posts");
       const newPosts = (await res.json()) as FeedPost[];
+      setLoadMoreError(false);
 
       if (newPosts.length === 0 || newPosts.length < 20) {
         setHasMore(false);
@@ -289,7 +293,8 @@ export function ProfileClientView({
       });
       setPage(nextPage);
     } catch {
-      setHasMore(false);
+      // Keep pagination enabled so a transient network failure can be retried.
+      setLoadMoreError(true);
     } finally {
       setIsLoadingMore(false);
     }
@@ -300,7 +305,7 @@ export function ProfileClientView({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !loadMoreError) {
           loadMorePosts();
         }
       },
@@ -309,7 +314,7 @@ export function ProfileClientView({
 
     observer.observe(sentinelNode);
     return () => observer.disconnect();
-  }, [sentinelNode, hasMore, isLoadingMore, loadMorePosts, activeTab]);
+  }, [sentinelNode, hasMore, isLoadingMore, loadMoreError, loadMorePosts, activeTab]);
 
   const points = profile.points || 0;
   const tier = getCloutTier(points);
@@ -346,8 +351,13 @@ export function ProfileClientView({
       }
     }
 
-    navigator.clipboard.writeText(`${shareText}\n\nView student profile: ${profileUrl}`);
-    toast.success("Profile link & Vibe Card copied! Share on WhatsApp 🚀");
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(`${shareText}\n\nView student profile: ${profileUrl}`);
+      toast.success("Profile link & Vibe Card copied! Share on WhatsApp 🚀");
+    } catch {
+      toast.error("Could not copy the profile link. Please use your browser's share menu.");
+    }
   }
 
   function handleBannerFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -387,11 +397,12 @@ export function ProfileClientView({
       const prev = optimisticBannerUrl;
       setOptimisticBannerUrl(croppedUrl);
       try {
-        await fetch("/api/profile/me", {
+        const res = await fetch("/api/profile/me", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ bannerUrl: croppedUrl }),
         });
+        if (!res.ok) throw new Error("Failed to update cover banner");
         toast.success("Cover banner updated! 🎨");
         router.refresh();
       } catch (e) {
@@ -403,11 +414,12 @@ export function ProfileClientView({
       const prev = optimisticAvatarUrl;
       setOptimisticAvatarUrl(croppedUrl);
       try {
-        await fetch("/api/profile/me", {
+        const res = await fetch("/api/profile/me", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ avatarUrl: croppedUrl }),
         });
+        if (!res.ok) throw new Error("Failed to update profile photo");
         toast.success("Profile photo updated! 📸");
         router.refresh();
       } catch (e) {
@@ -658,11 +670,7 @@ export function ProfileClientView({
                 )}
               </div>
 
-              {/* Online indicator badge at bottom right */}
-              <span
-                className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-3.5 sm:size-4 rounded-full bg-emerald-500 border-2 border-background ring-1 ring-emerald-400"
-                title="Active on CampusLoop"
-              />
+              {/* Presence is rendered only where a real heartbeat-backed signal is available. */}
             </div>
 
             {/* Action Buttons: Edit Profile (Own) or Message/Follow (Viewer) */}
@@ -1102,12 +1110,24 @@ export function ProfileClientView({
 
             {/* Infinite Scroll Trigger Sentinel */}
             {hasMore && (
-              <div ref={setSentinelNode} className="py-6 flex items-center justify-center">
+              <div ref={setSentinelNode} className="py-6 flex flex-col items-center justify-center gap-2">
                 {isLoadingMore && (
                   <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                     <Loader2 className="size-4 animate-spin text-primary" />
                     <span>Loading more campus posts...</span>
                   </div>
+                )}
+                {loadMoreError && !isLoadingMore && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoadMoreError(false);
+                      void loadMorePosts();
+                    }}
+                    className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    Try again
+                  </button>
                 )}
               </div>
             )}
