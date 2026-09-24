@@ -15,7 +15,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FeedCard } from "@/components/ui/feed-card";
-import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ConfessionsFeedSkeleton } from "@/components/ui/skeleton-card";
 import { useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
@@ -120,7 +119,6 @@ export function ConfessionsFeed() {
   const campusShortName = profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <PullToRefresh onRefresh={refresh}>
       <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-background">
         {/* ─── Compact Confessions Header ─── */}
         <header className="sticky top-0 z-40 border-b border-border/25 bg-background/90 backdrop-blur-xl">
@@ -277,6 +275,5 @@ export function ConfessionsFeed() {
         </div>
 
       </main>
-    </PullToRefresh>
   );
 }
