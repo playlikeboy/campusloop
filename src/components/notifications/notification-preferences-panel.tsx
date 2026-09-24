@@ -98,20 +98,20 @@ function ToggleRow({
       disabled={disabled}
       onClick={() => onChange(!value)}
       className={cn(
-        "w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all shadow-2xs",
+        "flex min-h-12 w-full items-center gap-3 rounded-xl border px-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         disabled
           ? "border-border/40 bg-muted/10 opacity-50 cursor-not-allowed"
-          : "border-border/60 bg-background/50 hover:border-border cursor-pointer active:scale-[0.99]",
+          : "border-border/60 bg-background hover:bg-muted/40 cursor-pointer",
         row.dependsOn && "ml-4 w-[calc(100%-1rem)]"
       )}
     >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted/50">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/50">
         {row.icon}
       </span>
 
       <span className="min-w-0 flex-1">
         <span className="block text-xs font-bold text-foreground">{row.label}</span>
-        <span className="block text-[11px] text-muted-foreground truncate">{row.description}</span>
+        <span className="block text-[10px] text-muted-foreground truncate">{row.description}</span>
       </span>
 
       <span
@@ -122,8 +122,8 @@ function ToggleRow({
       >
         <span
           className={cn(
-            "absolute top-0.5 size-4 rounded-full bg-background shadow-sm transition-all",
-            value ? "left-[1.125rem]" : "left-0.5"
+            "absolute top-0.5 size-4 rounded-full bg-background shadow-sm transition-transform",
+            value ? "translate-x-4" : "translate-x-0"
           )}
         />
       </span>
@@ -152,7 +152,7 @@ export function NotificationPreferencesPanel() {
   }
 
   return (
-    <div className="p-4 rounded-2xl border border-border/60 bg-muted/20 space-y-3">
+    <div className="space-y-2">
       <div>
         <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
           <Bell className="size-3.5 text-primary" /> What you get notified about
