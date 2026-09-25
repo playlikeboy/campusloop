@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -67,6 +68,7 @@ const fetcher = <T,>(url: string): Promise<T> =>
 
 export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange }: FastCommentsModalProps) {
   const { profile } = useProfile();
+  const [mounted, setMounted] = useState(false);
 
   const [commentText, setCommentText] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -84,6 +86,29 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // SSR portal mount flag
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock background body scroll to prevent feed jitter and flicker
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [isOpen]);
 
   // Initialize liked comments from localStorage
   useEffect(() => {
@@ -119,7 +144,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
       const imgMarkdown = `\n![Image](${uploaded.displayUrl || uploaded.url})`;
       setCommentText((prev) => `${prev.trim()}${imgMarkdown}`);
       toast.success("Image attached", { id: "comment-img" });
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to upload image", { id: "comment-img" });
     } finally {
@@ -166,7 +191,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
           const imgMarkdown = `\n![Image](${imgSrc})`;
           setCommentText((prev) => `${prev.trim()}${imgMarkdown}`);
           toast.success("Media attached");
-          setTimeout(() => inputRef.current?.focus(), 50);
+          setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
         }
       }
     }
@@ -187,7 +212,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     setMentionTrigger(null);
     setTimeout(() => {
       if (inputRef.current) {
-        inputRef.current.focus();
+        inputRef.current.focus({ preventScroll: true });
         const newPos = before.length + replacement.length;
         inputRef.current.setSelectionRange(newPos, newPos);
       }
@@ -200,10 +225,11 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     isLoading,
   } = useSWR<FastComment[]>(isOpen ? `/api/posts/${post.id}/comments` : null, fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 4000,
+    dedupingInterval: 6000,
+    keepPreviousData: true,
   });
 
-  // Keyboard navigation & escape listener
+  // Keyboard navigation & escape listener without forced layout scroll jump
   useEffect(() => {
     if (!isOpen) {
       setCommentText("");
@@ -211,14 +237,20 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
       return;
     }
     const finePointer = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
+    let focusTimer: NodeJS.Timeout | undefined;
     if (finePointer) {
-      setTimeout(() => inputRef.current?.focus(), 180);
+      focusTimer = setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      }, 150);
     }
     function handleEscape(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
+    return () => {
+      if (focusTimer) clearTimeout(focusTimer);
+      window.removeEventListener("keydown", handleEscape);
+    };
   }, [isOpen, onClose]);
 
   const handleToggleLike = (commentId: string) => {
@@ -358,27 +390,31 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     return { rootComments: roots, repliesMap: replies, totalCount: list.length };
   }, [comments, sortMode, likedComments]);
 
-  return (
+  const displayCount = comments !== undefined ? totalCount : (post.commentsCount ?? 0);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center select-none overflow-hidden">
+        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center select-none overflow-hidden">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            transition={{ duration: 0.16 }}
+            className="fixed inset-0 bg-black/75 backdrop-blur-md"
             onClick={onClose}
           />
 
-          {/* Minimalist Mobile-First Bottom Drawer */}
+          {/* Minimalist Mobile-First Bottom Drawer / Desktop Centered Dialog */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 420, damping: 36 }}
-            className="relative z-10 flex h-[84dvh] sm:h-[680px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] sm:rounded-2xl border-t border-white/10 sm:border bg-zinc-950/98 backdrop-blur-2xl text-zinc-100 shadow-2xl sm:max-w-lg"
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] sm:rounded-2xl border-t border-white/10 sm:border sm:border-white/15 bg-zinc-950/98 backdrop-blur-2xl text-zinc-100 shadow-2xl sm:max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
             {/* ─── Mobile Drag Indicator ─── */}
@@ -391,7 +427,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               <div className="flex items-center gap-2">
                 <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">Comments</h3>
                 <span className="text-[11px] font-semibold text-zinc-400 bg-white/10 px-2 py-0.5 rounded-full">
-                  {totalCount}
+                  {displayCount}
                 </span>
               </div>
 
@@ -430,7 +466,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
             {/* ─── Ultra-Compact Context Line (Clean & Mobile First) ─── */}
             {cleanSnippet && (
-              <div className="px-4 py-1.5 border-b border-white/[0.05] bg-white/[0.02] flex items-center gap-2 text-xs text-zinc-400 shrink-0">
+              <div className="px-4 py-2 border-b border-white/[0.05] bg-white/[0.02] flex items-center gap-2 text-xs text-zinc-400 shrink-0">
                 <span className="font-semibold text-zinc-300 shrink-0">@{authorHandle}:</span>
                 <span className="truncate">{cleanSnippet}</span>
               </div>
@@ -441,14 +477,14 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               ref={scrollContainerRef}
               className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-3 space-y-4 scroll-smooth"
             >
-              {isLoading ? (
-                <div className="space-y-4 pt-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex gap-3 animate-pulse pt-2">
-                      <div className="size-8 rounded-full bg-zinc-800 shrink-0" />
+              {isLoading && (!comments || comments.length === 0) ? (
+                <div className="space-y-3.5 pt-2">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="flex gap-3 animate-pulse pt-1">
+                      <div className="size-8 rounded-full bg-zinc-800/80 shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 w-28 bg-zinc-800 rounded-md" />
-                        <div className="h-3.5 w-3/4 bg-zinc-800/70 rounded-md" />
+                        <div className="h-3 w-28 bg-zinc-800/70 rounded-md" />
+                        <div className="h-3.5 w-3/4 bg-zinc-800/50 rounded-md" />
                       </div>
                     </div>
                   ))}
@@ -647,7 +683,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
