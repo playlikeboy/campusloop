@@ -1,24 +1,30 @@
 "use client";
 
+import confetti from "canvas-confetti";
 import {
   ArrowLeft,
+  Award,
   Bell,
   Calendar,
   Check,
   CheckCircle2,
+  ChevronDown,
+  Clock,
   ExternalLink,
   Gift,
+  HelpCircle,
   MapPin,
   QrCode,
   School,
   Share2,
+  Sparkles,
   Trophy,
   Users,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
@@ -31,11 +37,30 @@ import { fetcher } from "@/lib/api";
 import { type CalendarEvent, downloadAppleCalendarIcs, openGoogleCalendar } from "@/lib/calendar";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { getAvatarUrl } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface EventDetailClientProps {
   eventId: string;
 }
+
+const FAQ_ITEMS = [
+  {
+    q: "Who is eligible to participate?",
+    a: "All verified college students across supported campuses with an active student profile can participate.",
+  },
+  {
+    q: "Is there any registration fee?",
+    a: "This event is completely free for verified students unless explicitly marked otherwise on the pass.",
+  },
+  {
+    q: "Can I participate individually or do I need a team?",
+    a: "Depends on the event format: solo events are individual, while team hackathons allow squads of 2-4 students. You can register solo and form teams later.",
+  },
+  {
+    q: "When and how will certificates or prizes be awarded?",
+    a: "E-certificates will be issued to all verified attendees post-event. Cash prizes and Loop Points (LP) are credited directly to your CampusLoop profile.",
+  },
+];
 
 export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const router = useRouter();
@@ -53,6 +78,14 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const [contactPhone, setContactPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTogglingReminder, setIsTogglingReminder] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  // Live countdown ticker
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch related events
   const { data: relatedData } = useSWR<{ related: any[] }>(
@@ -61,9 +94,26 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   );
   const relatedEvents = relatedData?.related || [];
 
+  const countdown = useMemo(() => {
+    if (!event) return null;
+    const startMs = new Date(event.startDate).getTime();
+    const endMs = new Date(event.endDate).getTime();
+    if (now >= startMs && now <= endMs) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, isLive: true };
+    }
+    const diff = startMs - now;
+    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, isLive: false, hasEnded: true };
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    return { days, hours, minutes, seconds, isLive: false, hasEnded: false };
+  }, [event, now]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen p-4 border-x border-border/40 space-y-4 animate-pulse">
+      <div className="mx-auto max-w-3xl min-h-screen p-4 border-x border-border/30 space-y-4 animate-pulse">
         <div className="h-8 w-32 bg-muted/40 rounded-full" />
         <div className="h-64 bg-muted/30 rounded-3xl" />
         <div className="h-10 w-3/4 bg-muted/40 rounded-xl" />
@@ -73,7 +123,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
   if (!event) {
     return (
-      <div className="min-h-screen p-8 text-center border-x border-border/40 flex flex-col items-center justify-center space-y-3">
+      <div className="mx-auto max-w-3xl min-h-screen p-8 text-center border-x border-border/30 flex flex-col items-center justify-center space-y-3">
         <Calendar className="size-12 text-muted-foreground" />
         <h2 className="text-lg font-bold">Event Not Found</h2>
         <Button onClick={() => router.push("/app/events")} variant="outline" className="rounded-full">
@@ -101,7 +151,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
     minute: "2-digit",
   })} – ${endDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
 
-  // Unified Calendar Event for Google and Apple Calendar
+  const fallbackBanner = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(event.slug || event.id)}&backgroundColor=0f172a,1e1b4b,18181b`;
+  const displayBanner = event.bannerUrl || fallbackBanner;
+
   const calendarEvent: CalendarEvent = {
     id: event.id,
     title: event.title,
@@ -149,7 +201,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         return;
       }
       const validTeammates = teammates.filter((t) => t.name.trim());
-      const totalSize = 1 + validTeammates.length; // leader + teammates
+      const totalSize = 1 + validTeammates.length;
       const min = event.minTeamSize || 1;
       const max = event.maxTeamSize || 4;
 
@@ -182,6 +234,11 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         throw new Error(resData.error || "Failed to register");
       }
 
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
       sounds.pop();
       haptics.medium();
       setShowRegModal(false);
@@ -200,9 +257,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl min-h-screen pb-28 border-x border-border/40 bg-background">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/40 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+    <div className="mx-auto max-w-3xl min-h-screen pb-28 border-x border-border/30 bg-background">
+      {/* Top Header Bar */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
@@ -220,7 +277,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
             title="Cute QR Code Share Card"
           >
             <QrCode className="size-3.5" />
-            <span className="hidden sm:inline">QR Code</span>
+            <span className="hidden sm:inline">Pass QR</span>
           </Button>
 
           <Button
@@ -235,34 +292,33 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         </div>
       </div>
 
-      {/* Event Banner */}
+      {/* Event Hero Banner with Scrim & Tags */}
       <div className="relative aspect-16/9 sm:aspect-21/9 md:aspect-3/1 w-full overflow-hidden bg-muted/40">
-        {event.bannerUrl ? (
-          <img src={event.bannerUrl} alt={event.title} className="h-full w-full object-cover" />
-        ) : (
-          <div className="h-full w-full bg-linear-to-tr from-primary/20 via-primary/5 to-muted flex items-center justify-center">
-            <Calendar className="size-16 text-primary/40" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent" />
+        <img src={displayBanner} alt={event.title} className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
 
         <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 flex items-end justify-between gap-2.5 text-white">
-          <div className="space-y-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="rounded-md sm:rounded-lg bg-black/75 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase tracking-wider backdrop-blur-md">
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <span className="rounded-lg bg-black/80 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase tracking-wider backdrop-blur-md">
                 {event.eventType}
               </span>
-              <span className="rounded-md sm:rounded-lg bg-primary/90 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-primary-foreground backdrop-blur-md">
+              <span className="rounded-lg bg-primary px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-primary-foreground backdrop-blur-md">
                 {event.mode}
               </span>
+              {countdown?.isLive && (
+                <span className="rounded-lg bg-red-500 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-white backdrop-blur-md animate-pulse">
+                  🔴 Live Now
+                </span>
+              )}
             </div>
-            <p className="text-[11px] sm:text-xs font-bold text-primary-foreground/90 uppercase tracking-wide truncate">
+            <p className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide truncate">
               {event.clubName}
             </p>
           </div>
 
           <div className="text-right shrink-0">
-            <span className="rounded-lg sm:rounded-xl bg-black/70 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-black backdrop-blur-md text-white">
+            <span className="rounded-xl bg-black/80 px-3 py-1.5 text-xs font-black backdrop-blur-md text-white border border-white/10">
               {event.entryFee || "Free"}
             </span>
           </div>
@@ -270,52 +326,98 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       </div>
 
       <div className="p-3.5 sm:p-5 md:p-6 space-y-5 sm:space-y-6">
-        {/* Title & Tagline */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight leading-tight">
-            {event.title}
-          </h1>
-          {event.tagline && (
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed">
-              {event.tagline}
-            </p>
+        {/* Title, Tagline & Live Countdown Widget */}
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight leading-tight">
+              {event.title}
+            </h1>
+            {event.tagline && (
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed">
+                {event.tagline}
+              </p>
+            )}
+          </div>
+
+          {/* Countdown Ticker */}
+          {countdown && !countdown.hasEnded && (
+            <div className="flex items-center justify-between p-3 rounded-2xl border border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                <Clock className="size-4 text-primary shrink-0" />
+                <span>{countdown.isLive ? "Event is underway!" : "Event begins in:"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono font-black text-primary">
+                {countdown.isLive ? (
+                  <span className="text-red-500 animate-pulse">IN PROGRESS</span>
+                ) : (
+                  <>
+                    {countdown.days > 0 && <span>{countdown.days}d</span>}
+                    <span>{String(countdown.hours).padStart(2, "0")}h</span>
+                    <span>:</span>
+                    <span>{String(countdown.minutes).padStart(2, "0")}m</span>
+                    <span>:</span>
+                    <span>{String(countdown.seconds).padStart(2, "0")}s</span>
+                  </>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Action Panel: Register, Reminder, Add to Calendar */}
-        <div className="p-4 rounded-3xl border border-border/60 bg-muted/20 space-y-3 shadow-xs">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div>
+        {/* ─── Digital Pass / Ticket Card (Luma-Style) ─── */}
+        {event.isRegistered ? (
+          <div className="relative overflow-hidden rounded-3xl border border-emerald-500/40 bg-linear-to-br from-emerald-500/10 via-card to-card p-4 sm:p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-border/30 pb-3">
               <div className="flex items-center gap-2">
-                <span className="font-black text-sm text-foreground flex items-center gap-1.5">
-                  {event.isRegistered ? (
-                    <>
-                      <CheckCircle2 className="size-4 text-emerald-500 inline" />
-                      <span>You&apos;re Registered!</span>
-                    </>
-                  ) : (
-                    "Ready to participate?"
-                  )}
-                </span>
-                <span className="text-xs font-bold text-primary">
-                  +{event.loopPointsReward || 25} LP Reward
+                <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="text-xs font-black uppercase text-emerald-500 tracking-wider">
+                  Confirmed Student Pass
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {event.attendeeCount || 0} students attending from Indian universities
-              </p>
+              <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase">
+                PASS #{event.id.slice(-6).toUpperCase()}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-              {event.isRegistered ? (
-                <Button
-                  disabled
-                  className="h-10 px-5 rounded-full font-black text-xs bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 gap-1.5 flex-1 sm:flex-initial justify-center"
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-base font-black text-foreground">{event.title}</p>
+                <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                  {startFormatted} · {event.venue || event.mode}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowQrModal(true)}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-emerald-500 text-white text-xs font-black hover:opacity-90 shadow-xs cursor-pointer"
                 >
-                  <Check className="size-4" />
-                  <span>Registered</span>
-                </Button>
-              ) : (
+                  <QrCode className="size-3.5" />
+                  <span>Show Pass QR</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Action Panel: Register & Reminders */
+          <div className="p-4 sm:p-5 rounded-3xl border border-border/40 bg-card/60 space-y-3 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-sm text-foreground">
+                    Ready to participate?
+                  </span>
+                  <span className="text-xs font-bold text-primary">
+                    +{event.loopPointsReward || 25} LP Reward
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {event.attendeeCount || 0} students enrolled from Indian universities
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
                 <Button
                   onClick={() => {
                     haptics.medium();
@@ -325,92 +427,82 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 >
                   Register Now
                 </Button>
-              )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleToggleReminder}
-                disabled={isTogglingReminder}
-                className={`h-10 px-3.5 rounded-full text-xs font-bold gap-1.5 cursor-pointer shrink-0 ${
-                  event.reminderSet
-                    ? "bg-primary/10 text-primary border-primary/30"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                title="Toggle Event Reminder"
-              >
-                {event.reminderSet ? (
-                  <>
-                    <Bell className="size-4 fill-primary text-primary" />
-                    <span className="hidden sm:inline">Reminder Set</span>
-                  </>
-                ) : (
-                  <>
-                    <Bell className="size-4" />
-                    <span className="hidden sm:inline">Remind Me</span>
-                  </>
-                )}
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleToggleReminder}
+                  disabled={isTogglingReminder}
+                  className={`h-10 px-3.5 rounded-full text-xs font-bold gap-1.5 cursor-pointer shrink-0 ${
+                    event.reminderSet
+                      ? "bg-primary/10 text-primary border-primary/30"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  title="Toggle Event Reminder"
+                >
+                  {event.reminderSet ? (
+                    <>
+                      <Bell className="size-4 fill-primary text-primary" />
+                      <span className="hidden sm:inline">Reminder Set</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="size-4" />
+                      <span className="hidden sm:inline">Remind Me</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Calendar Quick Add */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-border/30 text-xs">
+              <span className="text-muted-foreground font-bold flex items-center gap-1.5">
+                <Calendar className="size-3.5 text-primary" />
+                <span>Add to calendar:</span>
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => openGoogleCalendar(calendarEvent)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+                >
+                  <span>Google Calendar</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => downloadAppleCalendarIcs(calendarEvent)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+                >
+                  <span>Apple Calendar (.ics)</span>
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Calendar Quick Add Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-border/30 text-xs">
-            <span className="text-muted-foreground font-bold flex items-center gap-1.5">
-              <Calendar className="size-3.5 text-primary" />
-              <span>Add to personal calendar:</span>
-            </span>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => openGoogleCalendar(calendarEvent)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
-              >
-                <div className="size-3.5 text-blue-500 shrink-0">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="size-full">
-                    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
-                  </svg>
-                </div>
-                <span>Google Calendar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => downloadAppleCalendarIcs(calendarEvent)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
-              >
-                <div className="size-3.5 text-foreground shrink-0">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="size-full">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.67-1.09 1.74-.95 2.77.99.08 2.03-.52 2.68-1.27z" />
-                  </svg>
-                </div>
-                <span>Apple Calendar</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Date, Time, Venue, Eligibility Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-          <div className="p-3 rounded-xl border border-border/40 bg-card flex items-start gap-2.5">
-            <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-start gap-3">
+            <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Calendar className="size-5" />
             </div>
             <div>
               <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">Date & Timing</h4>
-              <p className="text-sm font-bold text-foreground mt-0.5 leading-snug">{startFormatted}</p>
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 leading-snug">{startFormatted}</p>
               <p className="text-[11px] text-muted-foreground font-medium leading-snug">{timeFormatted}</p>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-border/40 bg-card flex items-start gap-3">
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-start gap-3">
             <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <MapPin className="size-5" />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wide">Venue / Location</h4>
-              <p className="text-xs font-bold text-foreground mt-0.5 truncate">{event.venue || event.mode}</p>
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">Venue / Location</h4>
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 truncate">{event.venue || event.mode}</p>
               {event.meetingUrl && (
                 <a
                   href={event.meetingUrl}
@@ -418,51 +510,47 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                   rel="noopener noreferrer"
                   className="text-xs font-bold text-primary hover:underline flex items-center gap-1 mt-0.5"
                 >
-                  <span>Join Online Link</span>
+                  <span>Join Online Stream</span>
                   <ExternalLink className="size-3" />
                 </a>
               )}
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-border/40 bg-card flex items-start gap-3">
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-start gap-3">
             <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <School className="size-5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wide">
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
                 Campus Eligibility
               </h4>
-              <p className="text-xs font-bold text-foreground mt-0.5">
-                {isRestricted ? "Restricted Campuses" : "Open to verified students across India"}
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5">
+                {isRestricted ? "Restricted Campuses" : "Open to All Verified Indian Students"}
               </p>
-              <p className="text-xs text-muted-foreground font-medium">
-                {isRestricted
-                  ? "Limited to selected student hubs"
-                  : "Any verified college student can register"}
+              <p className="text-[11px] text-muted-foreground font-medium">
+                {isRestricted ? "Limited to selected student hubs" : "Valid across all colleges"}
               </p>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-border/40 bg-card flex items-start gap-3">
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-start gap-3">
             <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Users className="size-5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wide">
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
                 Participation Type
               </h4>
-              <p className="text-xs font-bold text-foreground mt-0.5">
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5">
                 {event.participationType === "BOTH"
                   ? "Solo or Teams"
                   : event.participationType === "TEAM"
                     ? `Teams of ${event.minTeamSize}-${event.maxTeamSize}`
                     : "Individual · Solo"}
               </p>
-              <p className="text-xs text-muted-foreground font-medium">
-                {event.maxParticipants
-                  ? `${event.maxParticipants} participant limit`
-                  : "Unlimited spots"}
+              <p className="text-[11px] text-muted-foreground font-medium">
+                {event.maxParticipants ? `${event.maxParticipants} spots limit` : "Unlimited enrollment"}
               </p>
             </div>
           </div>
@@ -471,15 +559,15 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         {/* Prizes & Perks */}
         {(event.prizesDescription || (event.perks && event.perks.length > 0)) && (
           <div className="space-y-3">
-            <h3 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
               <Trophy className="size-4 text-amber-500" />
-              Prizes & Participant Perks
+              Prizes &amp; Participant Perks
             </h3>
 
             {event.prizesDescription && (
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 space-y-0.5">
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 space-y-1">
                 <span className="text-[10px] font-black uppercase tracking-wider">Prize pool</span>
-                <p className="text-base font-black leading-snug">{event.prizesDescription}</p>
+                <p className="text-base sm:text-lg font-black leading-snug">{event.prizesDescription}</p>
               </div>
             )}
 
@@ -499,30 +587,63 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           </div>
         )}
 
-        {/* Full Description */}
+        {/* About the Event */}
         <div className="space-y-3">
-          <h3 className="text-sm font-black text-foreground uppercase tracking-wider">About the Event</h3>
-          <div className="rounded-2xl border border-border/40 bg-card p-4 text-sm leading-relaxed text-foreground/90">
+          <h3 className="text-xs font-black text-foreground uppercase tracking-wider">About the Event</h3>
+          <div className="rounded-3xl border border-border/40 bg-card/60 p-4 sm:p-5 text-sm leading-relaxed text-foreground/90">
             <MarkdownContent content={event.description} />
           </div>
         </div>
 
+        {/* Organizer Club Profile Card */}
+        {event.organizer && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-black text-foreground uppercase tracking-wider">Hosted By</h3>
+            <div className="flex items-center justify-between p-4 rounded-3xl border border-border/40 bg-card/60">
+              <div className="flex items-center gap-3">
+                <Avatar className="size-11 border border-border/50">
+                  <AvatarImage src={getAvatarUrl(event.organizer.avatarUrl, event.organizer.username)} />
+                  <AvatarFallback className="font-bold">{event.organizer.displayName?.[0] || "O"}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-sm text-foreground">{event.organizer.displayName}</span>
+                    <span className="px-1.5 py-0.2 rounded-md bg-primary/10 text-primary text-[10px] font-bold">
+                      Host
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-medium">@{event.organizer.username} · {event.clubName}</p>
+                </div>
+              </div>
+
+              <Link
+                href={`/@${event.organizer.username}`}
+                className="px-3.5 py-1.5 rounded-full border border-border/60 text-xs font-bold text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+              >
+                View Profile
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Registered Attendees */}
         {event.registrations && event.registrations.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <Users className="size-4 text-primary" />
-              Recent Attendees ({event.registrations.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+                <Users className="size-4 text-primary" />
+                Attending Students ({event.registrations.length})
+              </h3>
+            </div>
 
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-2">
               {event.registrations.slice(0, 18).map((r: any) => {
                 const avatar = getAvatarUrl(r.profile?.avatarUrl, r.profile?.username);
                 return (
                   <Link
                     key={r.id}
                     href={`/@${r.profile?.username}`}
-                    className="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-border/40 bg-card hover:bg-muted/30 transition-all text-xs"
+                    className="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-border/40 bg-card/60 hover:bg-muted/40 transition-all text-xs"
                   >
                     <Avatar className="size-6">
                       <AvatarImage src={avatar} />
@@ -538,11 +659,47 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           </div>
         )}
 
-        {/* ─── Related Events (Unstop / Devpost Inspired) ─── */}
+        {/* Campus FAQ Accordion */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+            <HelpCircle className="size-4 text-primary" />
+            Frequently Asked Questions
+          </h3>
+
+          <div className="space-y-2">
+            {FAQ_ITEMS.map((item, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl border border-border/40 bg-card/40 overflow-hidden transition-colors"
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
+                  className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left text-xs sm:text-sm font-bold text-foreground cursor-pointer hover:bg-muted/20"
+                >
+                  <span>{item.q}</span>
+                  <ChevronDown
+                    className={cn(
+                      "size-4 text-muted-foreground transition-transform duration-200 shrink-0",
+                      expandedFaq === idx ? "rotate-180" : ""
+                    )}
+                  />
+                </button>
+                {expandedFaq === idx && (
+                  <div className="px-3.5 sm:px-4 pb-3.5 sm:pb-4 text-xs text-muted-foreground leading-relaxed border-t border-border/20 pt-2.5">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── Similar Campus Events ─── */}
         {relatedEvents.length > 0 && (
-          <div className="space-y-3 pt-6 border-t border-border/40">
+          <div className="space-y-3 pt-6 border-t border-border/30">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black tracking-tight text-foreground flex items-center gap-1.5">
+              <h2 className="text-xs font-black tracking-wider uppercase text-foreground flex items-center gap-1.5">
                 <Zap className="size-4 text-primary" />
                 <span>Similar Campus Events</span>
               </h2>
@@ -556,11 +713,11 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <Link
                   key={rel.id}
                   href={`/app/events/${rel.slug || rel.id}`}
-                  className="group block p-3 rounded-2xl border border-border/40 bg-card/60 hover:bg-muted/30 hover:border-primary/40 transition-all space-y-2"
+                  className="group block p-3.5 rounded-2xl border border-border/40 bg-card/60 hover:bg-card/90 hover:border-primary/40 transition-all space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-semibold">
                     <span className="truncate">{rel.clubName}</span>
-                    <span className="text-primary font-black uppercase">{rel.mode}</span>
+                    <span className="text-primary font-black uppercase text-[10px]">{rel.mode}</span>
                   </div>
 
                   <h3 className="text-xs font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
@@ -592,7 +749,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
       {/* Registration Modal */}
       <Dialog open={showRegModal} onOpenChange={setShowRegModal}>
-        <DialogContent className="w-[calc(100%-2rem)] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-6">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-black flex items-center gap-2">
               <Calendar className="size-5 text-primary" />
@@ -606,7 +763,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setRegType("SOLO")}
-                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
                     regType === "SOLO"
                       ? "bg-background text-foreground shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -617,7 +774,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setRegType("TEAM")}
-                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
                     regType === "TEAM"
                       ? "bg-background text-foreground shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
