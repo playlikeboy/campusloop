@@ -408,6 +408,9 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
       const parsedUrl = new URL(cleanUrl);
       const isInternalDomain =
         parsedUrl.hostname === "campusloop.space" ||
+        parsedUrl.hostname === "www.campusloop.space" ||
+        parsedUrl.hostname === "campsy.app" ||
+        parsedUrl.hostname === "www.campsy.app" ||
         parsedUrl.hostname === "localhost" ||
         parsedUrl.hostname === "127.0.0.1";
 
