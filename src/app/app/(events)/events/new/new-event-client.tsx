@@ -45,7 +45,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { MarkdownEditor } from "@/components/common/markdown-editor";
-import { UnsplashImagePicker } from "@/components/common/unsplash-image-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
@@ -168,22 +167,22 @@ const PRESET_BANNERS = [
   {
     title: "Hackathon Neon Grid",
     category: "Hackathon",
-    url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+    url: "https://api.dicebear.com/7.x/shapes/svg?seed=hackathon-neon-grid&backgroundColor=0f172a,1e1b4b",
   },
   {
     title: "Vibrant Campus Fest",
     category: "Fest",
-    url: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+    url: "https://api.dicebear.com/7.x/shapes/svg?seed=vibrant-campus-fest&backgroundColor=7c2d12,831843",
   },
   {
     title: "Tech Workshop & Code",
     category: "Workshop",
-    url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    url: "https://api.dicebear.com/7.x/identicon/svg?seed=tech-workshop-code&backgroundColor=0284c7,0f766e",
   },
   {
     title: "Gaming & Esports Arena",
     category: "Esports",
-    url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+    url: "https://api.dicebear.com/7.x/shapes/svg?seed=gaming-esports-arena&backgroundColor=312e81,581c87",
   },
 ];
 
@@ -250,7 +249,19 @@ export function NewEventClient() {
   const [clubName, setClubName] = useState("");
   const [description, setDescription] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
-  const [showUnsplashPicker, setShowUnsplashPicker] = useState(false);
+
+  function generateRandomDiceBearBanner() {
+    const styles = ["shapes", "identicon"];
+    const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
+    const randomSeed = Math.random().toString(36).substring(2, 10);
+    const colors = ["0f172a,1e1b4b", "312e81,581c87", "0284c7,0f766e", "7c2d12,831843", "042f2e,14532d"];
+    const randomBg = colors[Math.floor(Math.random() * colors.length)];
+    const url = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${randomSeed}&backgroundColor=${randomBg}`;
+    setBannerUrl(url);
+    sounds.pop();
+    haptics.light();
+    toast.success("Generated vibrant DiceBear banner!");
+  }
   const [eventType, setEventType] = useState("HACKATHON");
   const [mode, setMode] = useState("OFFLINE");
   const [venue, setVenue] = useState("");
@@ -853,11 +864,11 @@ export function NewEventClient() {
                   <label className="text-xs font-bold text-foreground">Quick Campus Presets</label>
                   <button
                     type="button"
-                    onClick={() => setShowUnsplashPicker(true)}
+                    onClick={generateRandomDiceBearBanner}
                     className="inline-flex items-center gap-1.5 text-xs font-black text-primary hover:underline cursor-pointer"
                   >
-                    <Camera className="size-3.5" />
-                    <span>Search Unsplash</span>
+                    <Sparkles className="size-3.5" />
+                    <span>Generate DiceBear</span>
                   </button>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -893,7 +904,7 @@ export function NewEventClient() {
               {/* Custom Upload or URL */}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
-                  placeholder="Paste direct image link, or pick from Unsplash / upload →"
+                  placeholder="Paste direct image link, or generate DiceBear pattern / upload →"
                   value={bannerUrl}
                   onChange={(e) => setBannerUrl(e.target.value)}
                   className="h-10 rounded-2xl text-xs bg-background flex-1"
@@ -901,11 +912,11 @@ export function NewEventClient() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setShowUnsplashPicker(true)}
-                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 px-3.5 text-xs font-black text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                    onClick={generateRandomDiceBearBanner}
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 px-3.5 text-xs font-black text-primary hover:bg-primary/20 transition-colors cursor-pointer shadow-xs"
                   >
-                    <Camera className="size-3.5" />
-                    <span>Unsplash</span>
+                    <Sparkles className="size-3.5" />
+                    <span>DiceBear</span>
                   </button>
                   <button
                     type="button"
@@ -1732,18 +1743,6 @@ export function NewEventClient() {
           </aside>
         </div>
       </div>
-
-      {/* Unsplash Cover Picker Modal */}
-      <UnsplashImagePicker
-        isOpen={showUnsplashPicker}
-        onClose={() => setShowUnsplashPicker(false)}
-        onSelect={(photo) => {
-          setBannerUrl(photo.url);
-          toast.success(`Selected banner by ${photo.photographerName}`);
-        }}
-        defaultQuery={eventType ? eventType.toLowerCase() : "hackathon"}
-        title="Choose Event Banner from Unsplash"
-      />
     </div>
   );
 }

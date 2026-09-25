@@ -104,6 +104,16 @@ export async function GET(req: Request) {
             profileId: true,
             reminderSet: true,
           },
+          with: {
+            profile: {
+              columns: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
         },
       },
     });
@@ -145,6 +155,10 @@ export async function GET(req: Request) {
         loopPointsReward: ev.loopPointsReward,
         status: ev.status,
         attendeeCount: ev.registrations.length,
+        recentAttendees: ev.registrations
+          .slice(0, 4)
+          .map((r: any) => r.profile)
+          .filter(Boolean),
         isRegistered,
         reminderSet: userReg?.reminderSet ?? false,
         createdAt: ev.createdAt,

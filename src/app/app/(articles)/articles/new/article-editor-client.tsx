@@ -3,36 +3,24 @@
 import confetti from "canvas-confetti";
 import {
   ArrowLeft,
-  Bold,
-  Camera,
   ChevronDown,
   ChevronUp,
-  Code,
   Eye,
-  Heading1,
-  Heading2,
-  Heading3,
   Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
   Loader2,
-  Minus,
-  Quote,
   Save,
   Send,
   Settings2,
-  Strikethrough,
+  Sparkles,
   Upload,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { NovelMarkdownEditor } from "@/components/articles/novel-markdown-editor";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
 import { MarkdownContent } from "@/components/common/markdown-content";
-import { UnsplashImagePicker } from "@/components/common/unsplash-image-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
@@ -95,13 +83,22 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
-  const [showUnsplashPicker, setShowUnsplashPicker] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const inlineImageInputRef = useRef<HTMLInputElement | null>(null);
   const coverImageInputRef = useRef<HTMLInputElement | null>(null);
-  const [isUploadingInline, setIsUploadingInline] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+
+  function generateRandomDiceBearCover() {
+    const styles = ["shapes", "identicon", "lorelei"];
+    const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
+    const randomSeed = Math.random().toString(36).substring(2, 10);
+    const colors = ["6366f1", "8b5cf6", "ec4899", "3b82f6", "10b981", "f59e0b"];
+    const randomBg = colors[Math.floor(Math.random() * colors.length)];
+    const url = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${randomSeed}&backgroundColor=${randomBg}`;
+    setCoverImageUrl(url);
+    sounds.pop();
+    haptics.light();
+    toast.success("Generated vibrant DiceBear cover!");
+  }
 
   // Restore draft from localStorage if creating new
   useEffect(() => {
@@ -133,53 +130,6 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
 
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-
-  function insertFormatting(prefix: string, suffix: string = "") {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = content.substring(start, end);
-    const replacement = `${prefix}${selected || "text"}${suffix}`;
-
-    const newContent = content.substring(0, start) + replacement + content.substring(end);
-    setContent(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length + (selected.length || 4));
-    }, 0);
-  }
-
-  /** Uploads a file and drops a markdown image tag at the caret. */
-  async function handleInlineImageUpload(file: File) {
-    if (!file) return;
-    setIsUploadingInline(true);
-    haptics.light();
-    const toastId = toast.loading("Optimizing & uploading image...");
-    try {
-      const { displayUrl } = await uploadImageToImgBB(file, (progress) => {
-        if (progress.percent > 0 && progress.percent < 100) {
-          toast.loading(`Uploading image... ${progress.percent}%`, { id: toastId });
-        }
-      });
-      const textarea = textareaRef.current;
-      const snippet = `\n\n![${file.name.replace(/\.[^.]+$/, "")}](${displayUrl})\n\n`;
-      if (textarea) {
-        const start = textarea.selectionStart;
-        setContent(content.substring(0, start) + snippet + content.substring(textarea.selectionEnd));
-      } else {
-        setContent(`${content}${snippet}`);
-      }
-      toast.success("Image added to your article", { id: toastId });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Image upload failed", { id: toastId });
-    } finally {
-      setIsUploadingInline(false);
-      if (inlineImageInputRef.current) inlineImageInputRef.current.value = "";
-    }
-  }
 
   async function handleCoverUpload(file: File) {
     if (!file) return;
@@ -434,7 +384,7 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <Input
-                        placeholder="Paste image link, or pick from Unsplash / upload →"
+                        placeholder="Paste image link, or generate DiceBear pattern / upload →"
                         value={coverImageUrl}
                         onChange={(e) => setCoverImageUrl(e.target.value)}
                         className="rounded-xl text-xs h-9 bg-background flex-1"
@@ -442,17 +392,18 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
-                          onClick={() => setShowUnsplashPicker(true)}
-                          className="flex items-center gap-1.5 px-3 h-9 rounded-xl border border-primary/30 bg-primary/10 text-primary text-xs font-black cursor-pointer hover:bg-primary/20 active:scale-95 transition-all"
+                          onClick={generateRandomDiceBearCover}
+                          className="flex items-center gap-1.5 px-3 h-9 rounded-xl border border-primary/30 bg-primary/10 text-primary text-xs font-black cursor-pointer hover:bg-primary/20 active:scale-95 transition-all shadow-xs"
+                          title="Generate vibrant geometric DiceBear banner"
                         >
-                          <Camera className="size-3.5" />
-                          <span>Unsplash</span>
+                          <Sparkles className="size-3.5" />
+                          <span>DiceBear</span>
                         </button>
                         <button
                           type="button"
                           disabled={isUploadingCover}
                           onClick={() => coverImageInputRef.current?.click()}
-                          className="flex items-center gap-1.5 px-3 h-9 rounded-xl bg-primary text-primary-foreground text-xs font-black cursor-pointer hover:opacity-90 active:scale-95 transition-opacity disabled:opacity-60"
+                          className="flex items-center gap-1.5 px-3 h-9 rounded-xl bg-primary text-primary-foreground text-xs font-black cursor-pointer hover:opacity-90 active:scale-95 transition-opacity disabled:opacity-60 shadow-xs"
                         >
                           {isUploadingCover ? (
                             <Loader2 className="size-3.5 animate-spin" />
@@ -574,158 +525,12 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
               )}
             </div>
 
-            {/* ─── Rich Markdown Formatting Toolbar (Single Row Horizontally Scrollable) ─── */}
-            <div className="sticky top-14 z-30 flex items-center gap-1 rounded-2xl border border-border/40 bg-card/95 p-1.5 backdrop-blur-md shadow-sm overflow-x-auto no-scrollbar">
-              <button
-                type="button"
-                onClick={() => insertFormatting("# ")}
-                title="Heading 1"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Heading1 className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("## ")}
-                title="Heading 2"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Heading2 className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("### ")}
-                title="Heading 3"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Heading3 className="size-4" />
-              </button>
-
-              <div className="h-4 w-px bg-border/60 mx-1 shrink-0" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting("**", "**")}
-                title="Bold"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Bold className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("*", "*")}
-                title="Italic"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Italic className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("~~", "~~")}
-                title="Strikethrough"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Strikethrough className="size-4" />
-              </button>
-
-              <div className="h-4 w-px bg-border/60 mx-1 shrink-0" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting("> ")}
-                title="Quote Block"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Quote className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("```\n", "\n```")}
-                title="Code Block"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Code className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("- ")}
-                title="Bullet List"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <List className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("1. ")}
-                title="Numbered List"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <ListOrdered className="size-4" />
-              </button>
-
-              <div className="h-4 w-px bg-border/60 mx-1 shrink-0" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting("[Link Title](", ")")}
-                title="Insert Link"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <LinkIcon className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting("![Image Alt](", ")")}
-                title="Insert image by URL"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <ImageIcon className="size-4" />
-              </button>
-              <button
-                type="button"
-                disabled={isUploadingInline}
-                onClick={() => inlineImageInputRef.current?.click()}
-                title="Upload an image"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-primary/10 text-primary font-black text-xs transition-colors cursor-pointer active:scale-95 disabled:opacity-60 shrink-0"
-              >
-                {isUploadingInline ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Upload className="size-4" />
-                )}
-                <span className="text-[11px] font-bold">Image</span>
-              </button>
-              <input
-                ref={inlineImageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void handleInlineImageUpload(file);
-                }}
-              />
-
-              <div className="h-4 w-px bg-border/60 mx-1 shrink-0" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting("\n---\n")}
-                title="Divider"
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              >
-                <Minus className="size-4" />
-              </button>
-            </div>
-
-            {/* Main Content Textarea */}
-            <div className="min-h-[420px] rounded-2xl border border-border/40 bg-card/40 p-4 focus-within:border-primary transition-colors">
-              <textarea
-                ref={textareaRef}
-                placeholder="Tell your story, share code, placement interview questions, or campus insights in markdown..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full min-h-[420px] bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/40 outline-none resize-y font-mono"
+            {/* ─── Novel.sh / BlockNote-Grade Rich Markdown Editor ─── */}
+            <div className="pt-1">
+              <NovelMarkdownEditor
+                initialContent={content}
+                onChange={setContent}
+                placeholder="Type '/' for slash commands (headings, bullet lists, quote blocks, code blocks, dividers, images), or write freely..."
               />
             </div>
           </div>
@@ -767,17 +572,6 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
           category="article"
         />
       )}
-      {/* Unsplash Cover Picker Modal */}
-      <UnsplashImagePicker
-        isOpen={showUnsplashPicker}
-        onClose={() => setShowUnsplashPicker(false)}
-        onSelect={(photo) => {
-          setCoverImageUrl(photo.url);
-          toast.success(`Selected cover photo by ${photo.photographerName}`);
-        }}
-        defaultQuery={category ? category.toLowerCase() : "technology"}
-        title="Choose Article Cover from Unsplash"
-      />
     </div>
   );
 }
