@@ -2,6 +2,7 @@
 
 import { Heart, Loader2, Search, ShieldCheck, User, Users, X } from "lucide-react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import { FollowButton } from "@/components/profile/follow-button";
@@ -39,8 +40,31 @@ interface PostLikesModalProps {
 }
 
 export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostLikesModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock background body scroll
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [isOpen]);
 
   // Debounce search input
   useEffect(() => {
@@ -121,11 +145,11 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
     return () => observer.disconnect();
   }, [sentinelNode, isReachingEnd, setSize, isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
@@ -293,6 +317,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
