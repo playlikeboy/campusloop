@@ -96,7 +96,11 @@ export default function CollegesClient() {
     if (page > 1) params.set("page", String(page));
 
     const query = params.toString();
-    const newUrl = query ? `/app/colleges?${query}` : "/app/colleges";
+    const basePath =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/colleges")
+        ? "/colleges"
+        : "/app/colleges";
+    const newUrl = query ? `${basePath}?${query}` : basePath;
 
     if (typeof window !== "undefined" && window.location.pathname + window.location.search !== newUrl) {
       window.history.replaceState(null, "", newUrl);

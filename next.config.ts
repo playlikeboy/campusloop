@@ -128,32 +128,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/c/:id",
-        destination: "/app/communities/:id",
-        permanent: true,
-      },
-      {
-        source: "/colleges",
-        destination: "/app/colleges",
-        permanent: true,
-      },
-      {
-        source: "/college/:id*",
-        destination: "/app/college/:id*",
-        permanent: true,
-      },
-      {
-        source: "/notifications",
-        destination: "/app/notifications",
-        permanent: true,
-      },
-      {
-        source: "/feed",
-        destination: "/app",
-        permanent: true,
-      },
-      {
-        source: "/chat",
-        destination: "/chats",
+        destination: "/communities/:id",
         permanent: true,
       },
     ];
