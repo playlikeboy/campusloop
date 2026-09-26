@@ -106,4 +106,38 @@ describe("Domain matching & routing middleware", () => {
     const res = middleware(req);
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
+
+  it("redirects campsy.app/chats to https://campsy.app/chat", () => {
+    const req = new NextRequest("https://campsy.app/chats", {
+      headers: { host: "campsy.app" },
+    });
+    const res = middleware(req);
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://campsy.app/chat");
+  });
+
+  it("rewrites campsy.app/colleges to /app/colleges internally", () => {
+    const req = new NextRequest("https://campsy.app/colleges", {
+      headers: { host: "campsy.app" },
+    });
+    const res = middleware(req);
+    expect(res.headers.get("x-middleware-rewrite")).toBe("https://campsy.app/app/colleges");
+  });
+
+  it("rewrites campsy.app/college/iit-delhi to /app/college/iit-delhi internally", () => {
+    const req = new NextRequest("https://campsy.app/college/iit-delhi", {
+      headers: { host: "campsy.app" },
+    });
+    const res = middleware(req);
+    expect(res.headers.get("x-middleware-rewrite")).toBe("https://campsy.app/app/college/iit-delhi");
+  });
+
+  it("rewrites campsy.app/chat to /app/chat internally", () => {
+    const req = new NextRequest("https://campsy.app/chat", {
+      headers: { host: "campsy.app" },
+    });
+    const res = middleware(req);
+    expect(res.headers.get("x-middleware-rewrite")).toBe("https://campsy.app/app/chat");
+  });
 });
+
