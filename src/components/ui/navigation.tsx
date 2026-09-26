@@ -367,20 +367,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   aria-current={active ? "page" : undefined}
                 >
                   <span className="relative grid size-8 place-items-center">
-                    {typeof Icon === "function" ? (
-                      Icon === Home || Icon === Compass ? (
-                        <Icon className={cn("size-5.25", active && "stroke-[2.5]")} />
-                      ) : (
-                        <AnimatedIcon
-                          icon={Icon}
-                          animation="pop"
-                          size={20}
-                          strokeWidth={active ? 2.5 : 2}
-                          animateOnHover={false}
-                          playKey={active}
-                        />
-                      )
-                    ) : null}
+                    <Icon
+                      size={20}
+                      strokeWidth={active ? 2.5 : 2}
+                      className={cn("size-5 text-current", active && "stroke-[2.5]")}
+                    />
 
                   </span>
                   <span className={cn("truncate text-[10px] leading-none", active ? "font-extrabold" : "font-medium")}>
