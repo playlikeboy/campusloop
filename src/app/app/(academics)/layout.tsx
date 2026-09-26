@@ -35,7 +35,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
     const viewerMode = await isViewerProfile(profile);
 
     return (
-      <div className="relative min-h-screen bg-background">
+      <div className="relative min-h-screen overflow-x-clip bg-background">
         <Navigation
           profile={profile}
           collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Your College")}
@@ -43,8 +43,8 @@ export default async function AcademicsLayout({ children }: { children: React.Re
           isViewer={viewerMode}
         />
 
-        <div className="flex md:pl-64 min-h-screen w-full">
-          <main className="flex-1 w-full min-w-0 min-h-screen">
+        <div className="flex min-h-screen w-full min-w-0 overflow-x-clip md:pl-64">
+          <main className="flex-1 w-full min-w-0 max-w-full min-h-screen overflow-x-clip">
             {viewerMode && (
               <div className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-[11px] font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
                 <span className="inline-flex items-center gap-1.5">
@@ -66,12 +66,12 @@ export default async function AcademicsLayout({ children }: { children: React.Re
 
   // ─── Guest / Public Visitor View (Zero Login Required to Browse & Download) ───
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-indigo-500/20">
+    <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-background text-foreground flex flex-col antialiased selection:bg-indigo-500/20">
       {/* Public Top Navbar */}
       <header className="sticky top-0 z-50 border-b border-border/30 bg-background/90 backdrop-blur-xl select-none">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6">
           {/* Brand & Hub identifier */}
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <Link
               href="/app"
               className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
@@ -80,18 +80,18 @@ export default async function AcademicsLayout({ children }: { children: React.Re
               <ArrowLeft className="size-4" />
             </Link>
 
-            <Link href="/app/academics" className="flex items-center gap-2.5 group">
+            <Link href="/app/academics" className="flex min-w-0 items-center gap-2.5 group">
               <img
                 src="/logo.png"
                 alt="CampusLoop"
                 className="size-7.5 object-contain shrink-0 transition-transform group-hover:scale-105"
               />
-              <div className="flex flex-col">
+              <div className="flex min-w-0 flex-col">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-black tracking-tight text-foreground group-hover:text-indigo-400 transition-colors">
                     CampusLoop
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+                  <span className="hidden text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 sm:inline">
                     Academics
                   </span>
                 </div>
@@ -130,7 +130,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4">{children}</main>
+      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-3 py-4 sm:px-6">{children}</main>
 
       {/* Bottom Sticky Guest Perk Callout on Mobile */}
       <div className="sticky bottom-0 z-40 border-t border-indigo-500/20 bg-background/95 backdrop-blur-md p-2.5 sm:hidden">
