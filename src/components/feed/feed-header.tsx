@@ -1,6 +1,6 @@
 "use client";
 
-import { Film, Flame, Globe, ListFilter, RotateCw, School, Search } from "lucide-react";
+import { Film, Flame, Globe, ListFilter, Menu, RotateCw, School, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -49,7 +49,20 @@ export function FeedHeader({
     <header className="sticky top-0 z-40 bg-background/92 backdrop-blur-xl border-b border-border/35 px-3.5 py-3 sm:px-4">
       {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
+              }
+            }}
+            className="md:hidden flex size-9 shrink-0 items-center justify-center rounded-xl bg-card/80 hover:bg-muted text-foreground border border-border/50 active:scale-95 transition-all shadow-2xs cursor-pointer"
+            aria-label="Open sidebar navigation"
+            title="Open Menu"
+          >
+            <Menu className="size-4.5" />
+          </button>
           <h1 className="text-xl font-black tracking-tight text-foreground">
             News Feed
           </h1>

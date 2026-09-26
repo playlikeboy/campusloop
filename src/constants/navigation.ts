@@ -4,10 +4,15 @@ import {
   Cake,
   Calendar,
   Car,
+  Compass,
   Gamepad2,
   HelpCircle,
+  Home,
   Hourglass,
+  LayoutGrid,
+  MessageSquare,
   MoreHorizontal,
+  Plus,
   School,
   Sliders,
   Terminal,
@@ -81,14 +86,13 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
 ];
 
 // Mobile has one persistent navigation system. Feature areas such as
-// academics, communities, confessions and events live under Explore instead
-// of competing for permanent bottom-bar slots.
+// academics, communities, confessions and events live under More & Explore
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
-  { icon: AnimateHouse, href: "/app", label: "Home" },
-  { icon: AnimateCompass, href: "/app/discover", label: "Explore" },
-  { icon: AnimatePlus, href: "/app/post/new", label: "Create" },
-  { icon: AnimateMessageSquare, href: "/app/chat", label: "Chats" },
-  { icon: AnimateUser, href: "/app/profile", label: "Profile" },
+  { icon: Home, href: "/app", label: "Home" },
+  { icon: Compass, href: "/app/discover", label: "Explore" },
+  { icon: Plus, href: "/app/post/new", label: "Create" },
+  { icon: MessageSquare, href: "/app/chat", label: "Chats" },
+  { icon: LayoutGrid, href: "/app/more", label: "More" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
