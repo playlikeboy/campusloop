@@ -377,7 +377,7 @@ export function AcademicPdfViewer({
     <div
       ref={containerRef}
       className={cn(
-        "w-full rounded-3xl border border-border/60 bg-card overflow-hidden shadow-xs relative transition-all flex flex-col select-none",
+        "w-full min-w-0 max-w-full rounded-3xl border border-border/60 bg-card overflow-hidden shadow-xs relative transition-all flex flex-col select-none",
         isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen bg-background" : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
         className
       )}
@@ -795,7 +795,7 @@ export function AcademicPdfViewer({
       )}
 
       {/* ─── Viewer Body Canvas ─── */}
-      <div className="flex-1 w-full h-full relative overflow-hidden bg-neutral-900/95 flex items-center justify-center">
+      <div className="flex-1 w-full min-w-0 max-w-full h-full relative overflow-hidden bg-neutral-900/95 flex items-center justify-center">
         {embedUrl ? (
           <div
             className="w-full h-full transition-transform duration-200 origin-center flex items-center justify-center overflow-auto relative"
