@@ -340,6 +340,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     letter-spacing: var(--tracking-normal);
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
@@ -347,6 +350,9 @@
   }
   html {
     @apply font-sans scroll-smooth;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     touch-action: manipulation;
     -webkit-touch-callout: none;
     overscroll-behavior-y: none;
