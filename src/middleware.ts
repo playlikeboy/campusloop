@@ -103,6 +103,11 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL(`/${search}`, req.url), 308);
     }
 
+    // Clean shortcut for /chats
+    if (pathname === "/chats" || pathname === "/chats/") {
+      return NextResponse.redirect(new URL(`/chat${search}`, req.url), 308);
+    }
+
     // Check if path is exempt from /app rewriting
     const isExempt = EXEMPT_PREFIXES.some(
       (prefix) => pathname === prefix || pathname.startsWith(prefix)
