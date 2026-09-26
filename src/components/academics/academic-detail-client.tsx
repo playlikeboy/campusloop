@@ -307,10 +307,10 @@ export function AcademicDetailClient({
   }
 
   return (
-    <div className="min-h-screen pb-24 text-foreground select-none max-w-2xl mx-auto border-x border-border/40 bg-background px-4 pt-3 space-y-5">
+    <div className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip pb-24 text-foreground select-none max-w-2xl mx-auto border-x border-border/40 bg-background px-4 pt-3 space-y-5">
       {/* ─── Breadcrumb & Top Bar ─── */}
-      <div className="flex items-center justify-between gap-2 border-b border-border/25 pb-3">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0 overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/25 pb-3">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground">
           <Link
             href="/app/academics"
             onClick={() => sounds.tap()}
@@ -329,7 +329,7 @@ export function AcademicDetailClient({
           <span className="font-bold text-foreground truncate">{resource.subjectCode}</span>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex w-full shrink-0 items-center justify-end gap-1.5 sm:w-auto">
           <button
             type="button"
             onClick={() => {
@@ -536,7 +536,7 @@ export function AcademicDetailClient({
       />
 
       {/* ─── Interactive Document Previewer & Reader ─── */}
-      <div className="space-y-2">
+      <div className="w-full min-w-0 max-w-full space-y-2">
         <AcademicPdfViewer
           fileUrl={resource.fileUrl}
           driveUrl={resource.driveUrl}
