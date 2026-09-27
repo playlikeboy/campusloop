@@ -1,6 +1,6 @@
 "use client";
 
-import { Film, Flame, Globe, ListFilter, Menu, RotateCw, School, Search } from "lucide-react";
+import { Film, Flame, Globe, GraduationCap, ListFilter, RotateCw, School } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -50,20 +50,7 @@ export function FeedHeader({
       {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
-              }
-            }}
-            className="md:hidden flex size-9 shrink-0 items-center justify-center rounded-xl bg-card/80 hover:bg-muted text-foreground border border-border/50 active:scale-95 transition-all shadow-2xs cursor-pointer"
-            aria-label="Open sidebar navigation"
-            title="Open Menu"
-          >
-            <Menu className="size-4.5" />
-          </button>
-          <h1 className="text-xl font-black tracking-tight text-foreground">
+          <h1 className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">
             News Feed
           </h1>
         </div>
@@ -116,14 +103,15 @@ export function FeedHeader({
             </button>
           </div>
 
-          {/* Circular Search Button matching mockup */}
+          {/* Academics shortcut */}
           <Link
-            href="/app/search"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card border border-border/50 shadow-xs text-muted-foreground hover:text-foreground hover:shadow-sm transition-all cursor-pointer"
-            aria-label="Search"
-            title="Search campus discussions"
+            href="/app/academics"
+            className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/15 bg-primary/10 px-2.5 text-primary transition-all hover:bg-primary/15 active:scale-95 cursor-pointer"
+            aria-label="Open Academics"
+            title="Academics"
           >
-            <Search className="size-4" />
+            <GraduationCap className="size-4" />
+            <span className="hidden sm:inline text-xs font-black">Academics</span>
           </Link>
         </div>
       </div>
