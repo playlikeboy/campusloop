@@ -41,7 +41,7 @@ export default async function MarketplaceLayout({ children }: { children: React.
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile?.onboardingCompleted) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   const viewerMode = await isViewerProfile(profile);
