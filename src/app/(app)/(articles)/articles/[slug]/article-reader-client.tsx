@@ -156,7 +156,7 @@ export function ArticleReaderClient({
         {/* ─── Top Category & Back Row ─── */}
         <div className="flex items-center justify-between gap-3 text-xs">
           <Link
-            href="/app/articles"
+            href="/articles"
             className="flex items-center gap-1.5 font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-3.5" />
@@ -171,7 +171,7 @@ export function ArticleReaderClient({
             )}
             {isOwner && (
               <Link
-                href={`/app/articles/${article.slug}/edit`}
+                href={`/articles/${article.slug}/edit`}
                 className="flex items-center gap-1 px-3 py-1 rounded-full border border-border/60 bg-card hover:bg-muted text-xs font-bold text-foreground transition-colors"
               >
                 <Edit3 className="size-3" />
@@ -292,7 +292,7 @@ export function ArticleReaderClient({
             {article.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/app/articles?tag=${tag}`}
+                href={`/articles?tag=${tag}`}
                 className="px-3.5 py-1.5 rounded-2xl bg-muted/50 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground border border-border/40 transition-colors"
               >
                 #{tag}
@@ -354,7 +354,7 @@ export function ArticleReaderClient({
               {relatedArticles.map((rel) => (
                 <Link
                   key={rel.id}
-                  href={`/app/articles/${rel.slug}`}
+                  href={`/articles/${rel.slug}`}
                   className="rounded-2xl border border-border/40 bg-card p-4 space-y-2 hover:border-primary/40 transition-all group block shadow-2xs"
                 >
                   <h4 className="text-sm font-black text-foreground line-clamp-2 group-hover:text-primary transition-colors">
