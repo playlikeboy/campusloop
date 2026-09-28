@@ -43,7 +43,7 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile?.onboardingCompleted) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   const viewerMode = await isViewerProfile(profile);
@@ -77,10 +77,10 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
           </div>
 
           <div className="flex items-center gap-4 font-semibold">
-            <Link href="/app" className="hover:text-foreground">
+            <Link href="/feeds" className="hover:text-foreground">
               Campus Feed
             </Link>
-            <Link href="/app/articles/new" className="hover:text-foreground">
+            <Link href="/articles/new" className="hover:text-foreground">
               Write Article
             </Link>
             <Link href="/safety" className="hover:text-foreground">
