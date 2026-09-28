@@ -192,7 +192,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
     haptics.light();
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = `${baseUrl}/app/marketplace/store/${merchantId}`;
+    const shareUrl = `${baseUrl}/marketplace/store/${merchantId}`;
 
     if (navigator.share) {
       navigator
@@ -272,7 +272,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
           This store is currently not listed or temporarily offline.
         </p>
         <Link
-          href="/app/marketplace"
+          href="/marketplace"
           className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold"
         >
           Back to Marketplace
@@ -325,7 +325,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
           </button>
 
           <Link
-            href={`/app/marketplace/cart`}
+            href={`/marketplace/cart`}
             className="relative size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             title="View Cart"
           >
@@ -858,7 +858,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
         <div className="fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:bottom-5 left-0 right-0 z-50 px-4 pointer-events-none">
           <div className="mx-auto max-w-2xl pointer-events-auto">
             <Link
-              href="/app/marketplace/cart"
+              href="/marketplace/cart"
               onClick={() => {
                 sounds.tap();
                 haptics.light();

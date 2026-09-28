@@ -116,7 +116,7 @@ export function SupermarketMarketplaceClient({
         </div>
 
         <Link
-          href="/app/marketplace/supermarket/orders"
+          href="/marketplace/supermarket/orders"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -170,7 +170,7 @@ export function SupermarketMarketplaceClient({
             {stores.map((s) => (
               <Link
                 key={s.id}
-                href={`/app/marketplace/store/${s.id}`}
+                href={`/marketplace/store/${s.id}`}
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
@@ -343,7 +343,7 @@ export function SupermarketMarketplaceClient({
       {totalItemsCount > 0 && (
         <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-4 right-4 max-w-lg mx-auto z-50">
           <Link
-            href="/app/marketplace/checkout"
+            href="/marketplace/checkout"
             onClick={() => {
               sounds.ting();
               haptics.medium();

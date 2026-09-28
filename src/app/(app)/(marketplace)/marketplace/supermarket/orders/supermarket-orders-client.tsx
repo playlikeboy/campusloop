@@ -31,7 +31,7 @@ export function SupermarketOrdersClient() {
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/app/marketplace/supermarket"
+            href="/marketplace/supermarket"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -85,7 +85,7 @@ export function SupermarketOrdersClient() {
             return (
               <Link
                 key={order.id}
-                href={`/app/marketplace/order/${order.id}`}
+                href={`/marketplace/order/${order.id}`}
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
@@ -150,7 +150,7 @@ export function SupermarketOrdersClient() {
             Need midnight snacks, instant noodles, or exam notebooks? Get them delivered in 15 minutes.
           </p>
           <Link
-            href="/app/marketplace/supermarket"
+            href="/marketplace/supermarket"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-black"
           >
             <span>Shop Campus Mart</span>
