@@ -26,7 +26,7 @@ export default async function CapsulePage() {
     },
   });
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   const institutionId = profile.institutionId;
   let initialCapsules: any[] = [];
