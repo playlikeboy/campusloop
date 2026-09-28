@@ -24,9 +24,11 @@ export const gamingLobbies = pgTable("gaming_lobbies", {
   status: text("status").default("OPEN").notNull(), // 'OPEN' | 'FULL' | 'IN_GAME' | 'COMPLETED'
   players: text("players"), // JSON stringified array of player objects [{ userId, username, displayName, avatarUrl, gamerTag, role }]
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+}, (table) => [
+  index("gaming_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("gaming_host_created_idx").on(table.hostId, table.createdAt),
+]);
 
 export type GamingLobby = typeof gamingLobbies.$inferSelect;
 export type NewGamingLobby = typeof gamingLobbies.$inferInsert;
