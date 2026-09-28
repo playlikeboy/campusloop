@@ -49,7 +49,7 @@ export default async function InvalidEmailPage() {
 
         <div className="flex flex-col gap-3">
           <Link
-            href="/app/onboarding"
+            href="/onboarding"
             className="flex w-full items-center justify-center rounded-lg bg-primary h-10 px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/95 transition-colors cursor-pointer"
           >
             Continue in Viewer Mode 👀

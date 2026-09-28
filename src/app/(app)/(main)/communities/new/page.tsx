@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   title: "Create a Student Community",
   description:
     "Found a college sub-hub, branch group, or student community on CampusLoop and earn +100 LP Clout.",
-  alternates: { canonical: "https://campusloop.space/app/communities/new" },
+  alternates: { canonical: "https://campusloop.space/communities/new" },
   openGraph: {
     title: "Create a Student Community",
     description: "Found a college sub-hub or student community on CampusLoop.",
-    url: "https://campusloop.space/app/communities/new",
+    url: "https://campusloop.space/communities/new",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

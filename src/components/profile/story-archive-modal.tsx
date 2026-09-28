@@ -179,7 +179,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
                         toggleSelect(story.id);
                       } else {
                         // Open in story viewer
-                        window.open(`/app/story/${story.id}`, "_blank");
+                        window.open(`/story/${story.id}`, "_blank");
                       }
                     }}
                     className={cn(

@@ -173,9 +173,16 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         target.closest("img") ||
         target.closest("button") ||
         target.closest("a") ||
+        target.closest("input") ||
+        target.closest("textarea") ||
         target.closest("[data-no-nav]") ||
         target.closest(".no-card-nav")
       ) {
+        return;
+      }
+
+      if (e.detail === 2) {
+        handleDoubleTap(e);
         return;
       }
     }
@@ -190,18 +197,33 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     clickTimeoutRef.current = setTimeout(() => {
       clickTimeoutRef.current = null;
       router.push(`/post/${post.id}`);
-    }, 120);
+    }, 240);
   }
 
   function handleDoubleTap(e: React.MouseEvent) {
-    e.stopPropagation();
+    if (e) {
+      const target = e.target as HTMLElement;
+      if (
+        target.closest("button") ||
+        target.closest("a") ||
+        target.closest("input") ||
+        target.closest("textarea") ||
+        target.closest("[data-no-nav]") ||
+        target.closest(".no-card-nav")
+      ) {
+        return;
+      }
+      e.stopPropagation();
+    }
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
     }
     sounds.pop();
     haptics.heartbeat();
-    if (userVote !== 1) handleVote();
+    if (userVote !== 1) {
+      handleVote();
+    }
     setShowDoubleTapHeart(true);
     setTimeout(() => setShowDoubleTapHeart(false), 900);
   }
@@ -212,7 +234,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     const postUrl =
       typeof window !== "undefined"
         ? `${window.location.origin}/post/${post.id}`
-        : `https://campsy.app/post/${post.id}`;
+        : `https://campusloop.space/post/${post.id}`;
     if (typeof window !== "undefined" && navigator.share) {
       try {
         await navigator.share({
@@ -251,6 +273,8 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
   return (
     <article
+      onClick={(e) => handleCardClick(e)}
+      onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className="neo-card p-3.5 sm:p-4 mb-2.5 mx-2 sm:mx-3 relative cursor-pointer transition-all hover:-translate-y-0.5"
     >
@@ -356,7 +380,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           />
 
           {/* Content Body */}
-          <div className="pt-0.5" onClick={(e) => handleCardClick(e)} onDoubleClick={handleDoubleTap}>
+          <div className="pt-0.5">
             <div
               className={cn(
                 "space-y-1.5 text-[15px] leading-relaxed text-foreground font-normal break-words",

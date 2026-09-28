@@ -31,7 +31,7 @@ export default async function PostsTypePage({ params }: PostsTypePageProps) {
     "@type": "CollectionPage",
     name: `Campus ${uppercaseType}`,
     description: `Filtered ${uppercaseType} stream on CampusLoop.`,
-    url: `https://campusloop.space/app/posts/${uppercaseType}`,
+    url: `https://campusloop.space/posts/${uppercaseType}`,
   };
 
   return (

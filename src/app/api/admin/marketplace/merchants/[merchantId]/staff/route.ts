@@ -1,7 +1,6 @@
 import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { merchantUsers, userProfiles } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +11,11 @@ interface RouteParams {
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { merchantId } = await params;
-    const db = getDb();
 
     const staffList = await db.query.merchantUsers.findMany({
       where: eq(merchantUsers.merchantId, merchantId),
@@ -41,9 +42,11 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { merchantId } = await params;
-    const db = getDb();
 
     const body = (await req.json()) as Record<string, any>;
     const { usernameOrEmail, role = "OWNER" } = body;
@@ -101,9 +104,11 @@ export async function POST(req: Request, { params }: RouteParams) {
 
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { merchantId } = await params;
-    const db = getDb();
 
     const { searchParams } = new URL(req.url);
     const merchantUserId = searchParams.get("id");

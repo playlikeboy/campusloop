@@ -190,7 +190,7 @@ export function DedicatedHubClient({ hubType, profileId }: DedicatedHubClientPro
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <Link
-            href="/app/communities"
+            href="/communities"
             className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             aria-label="Back to communities"
           >

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { sendEmail } from "@/lib/email";
 import { buildNotificationEmail, buildWelcomeEmail } from "@/lib/email-templates";
 
@@ -20,7 +20,8 @@ interface TestEmailBody {
 export async function POST(req: NextRequest) {
   try {
     // Ensure admin authorization
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
 
     const body = ((await req.json().catch(() => ({}))) || {}) as TestEmailBody;
     const to = body.to?.trim() || "shaswatraj3@gmail.com";

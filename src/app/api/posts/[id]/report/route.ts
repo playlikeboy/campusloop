@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, reports, userProfiles } from "@/db/schema";
@@ -25,10 +25,36 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Profile not found" }, { status: 403 });
     }
 
+    // Verify post exists
+    const targetPost = await db.query.posts.findFirst({
+      where: eq(posts.id, id),
+      columns: { id: true, status: true },
+    });
+
+    if (!targetPost || targetPost.status === "DELETED") {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
     const { reason, details } = (await req.json()) as { reason: string; details?: string };
 
-    if (!reason) {
+    if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
       return NextResponse.json({ error: "Reason is required" }, { status: 400 });
+    }
+
+    // Prevent duplicate report spamming by the same user
+    const existingReport = await db.query.reports.findFirst({
+      where: and(
+        eq(reports.reporterId, profile.id),
+        eq(reports.targetId, id),
+        eq(reports.targetType, "POST")
+      ),
+    });
+
+    if (existingReport) {
+      return NextResponse.json(
+        { error: "You have already submitted a report for this post" },
+        { status: 409 }
+      );
     }
 
     // Insert the report
@@ -36,21 +62,21 @@ export async function POST(req: Request, { params }: RouteParams) {
       reporterId: profile.id,
       targetType: "POST",
       targetId: id,
-      reason,
-      details: details || null,
+      reason: reason.trim().slice(0, 500),
+      details: details ? details.trim().slice(0, 2000) : null,
       status: "OPEN",
     });
 
-    // Check count of reports for this post
+    // Check count of distinct unique reporters for this post
     const reportsCountResult = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(DISTINCT ${reports.reporterId})::int` })
       .from(reports)
-      .where(sql`target_id = ${id} AND target_type = 'POST'`);
+      .where(and(eq(reports.targetId, id), eq(reports.targetType, "POST")));
 
-    const reportsCount = reportsCountResult[0]?.count || 0;
+    const uniqueReporters = reportsCountResult[0]?.count || 0;
 
-    // Auto-hide rule: Hide post if reports >= 5
-    if (reportsCount >= 5) {
+    // Auto-hide rule: Hide post only if at least 5 distinct unique users report it
+    if (uniqueReporters >= 5 && targetPost.status === "PUBLISHED") {
       await db.update(posts).set({ status: "PENDING_REVIEW" }).where(eq(posts.id, id));
     }
 

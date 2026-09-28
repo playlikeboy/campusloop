@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `c/${comm.name} Members & Leaders | CampusLoop`,
     description: `Browse verified student members, leaders, and moderators in c/${comm.name} on CampusLoop.`,
     alternates: {
-      canonical: `https://campusloop.space/app/communities/${comm.slug || comm.id}/members`,
+      canonical: `https://campusloop.space/communities/${comm.slug || comm.id}/members`,
     },
     robots: { index: false, follow: false },
   };

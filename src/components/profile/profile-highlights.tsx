@@ -37,7 +37,7 @@ export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHig
 
   function handleOpenHighlight(h: HighlightItem) {
     if (h.stories && h.stories.length > 0) {
-      router.push(`/app/story/${h.stories[0].id}`);
+      router.push(`/story/${h.stories[0].id}`);
     } else {
       toast.info(`Highlight "${h.title}" has no active stories.`);
     }

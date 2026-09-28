@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { requireAdminProfile } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { academicResources } from "@/db/schema";
 
@@ -8,11 +8,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAdminProfile();
-    const body = (await req.json()) as any;
-    const { action, resourceId, isVerified } = body;
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
-    const db = getDb();
+    const body = (await req.json().catch(() => ({}))) as any;
+    const { action, resourceId, isVerified } = body;
 
     if (action === "toggle_verify") {
       if (!resourceId) {

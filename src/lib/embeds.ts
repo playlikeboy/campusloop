@@ -476,8 +476,8 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
           continue;
         }
 
-        // Post: /app/post/id
-        const postMatch = path.match(/^\/app\/post\/([a-zA-Z0-9_-]+)/);
+        // Post: /post/id or legacy /app/post/id
+        const postMatch = path.match(/^\/(?:app\/post|post)\/([a-zA-Z0-9_-]+)/);
         if (postMatch) {
           embeds.push({
             type: "internal_post",

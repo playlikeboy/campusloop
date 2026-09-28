@@ -1,6 +1,8 @@
 import { desc, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
+import { hexclaveServerApp } from "@/hexclave/server";
+import { userProfiles } from "@/db/schema";
 import {
   academicResources,
   articles,
@@ -8,7 +10,6 @@ import {
   events,
   institutions,
   posts,
-  userProfiles,
 } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -17,19 +18,54 @@ const INDEXNOW_KEY = "ff35ddf54af340798feb9034fcd9d317";
 const HOST = "campusloop.space";
 const KEY_LOCATION = `https://${HOST}/${INDEXNOW_KEY}.txt`;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Authenticate: require either a valid admin session or the matching secret key/token
+    const url = new URL(req.url);
+    const providedKey =
+      url.searchParams.get("key") ||
+      url.searchParams.get("token") ||
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
+      req.headers.get("x-indexnow-key") ||
+      req.headers.get("x-cron-secret");
+
+    const cronSecret = process.env.CRON_SECRET;
+    const isSecretAuthorized =
+      Boolean(providedKey && (providedKey === INDEXNOW_KEY || (cronSecret && providedKey === cronSecret)));
+
+    let isAdmin = false;
+    if (!isSecretAuthorized) {
+      try {
+        const user = await hexclaveServerApp.getUser();
+        if (user) {
+          const db = getDb();
+          const profile = await db.query.userProfiles.findFirst({
+            where: eq(userProfiles.userId, user.id),
+            columns: { role: true },
+          });
+          isAdmin = profile?.role === "ADMIN";
+        }
+      } catch {}
+    }
+
+    if (!isSecretAuthorized && !isAdmin) {
+      return NextResponse.json(
+        { error: "Unauthorized. Missing or invalid authentication token or admin role." },
+        { status: 401 }
+      );
+    }
+
     const db = getDb();
 
     // 1. Static Canonical URLs
     const urls: string[] = [
       `https://${HOST}/`,
-      `https://${HOST}/app/academics`,
-      `https://${HOST}/app/academics/sources`,
+      `https://${HOST}/academics`,
+      `https://${HOST}/academics/sources`,
       `https://${HOST}/colleges`,
       `https://${HOST}/articles`,
-      `https://${HOST}/app/events`,
-      `https://${HOST}/app/communities`,
+      `https://${HOST}/events`,
+      `https://${HOST}/communities`,
       `https://${HOST}/overview`,
       `https://${HOST}/pitch`,
       `https://${HOST}/about`,
@@ -90,7 +126,7 @@ export async function GET() {
       limit: 1000,
     });
     for (const comm of commList) {
-      urls.push(`https://${HOST}/app/communities/${comm.id}`);
+      urls.push(`https://${HOST}/communities/${comm.id}`);
     }
 
     // 7. Student Profiles

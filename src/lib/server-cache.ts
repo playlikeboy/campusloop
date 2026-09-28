@@ -1,7 +1,7 @@
-import { eq, ilike, or } from "drizzle-orm";
+import { asc, eq, ilike, or } from "drizzle-orm";
 import { cache } from "react";
 import { getDb } from "@/db";
-import { communities, institutions, posts, userProfiles } from "@/db/schema";
+import { comments, communities, institutions, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 /**
@@ -117,3 +117,45 @@ export const getCachedPostDetail = cache(async (id: string) => {
     },
   });
 });
+
+/**
+ * Per-request memoized Comment Detail lookup with Author, Institution, Post, and Replies.
+ * Deduplicates identical queries between generateMetadata and CommentPermalinkPage.
+ */
+export const getCachedCommentDetail = cache(async (commentId: string) => {
+  if (!commentId) return null;
+  const db = getDb();
+  return await db.query.comments.findFirst({
+    where: eq(comments.id, commentId),
+    with: {
+      author: {
+        with: {
+          institution: true,
+        },
+      },
+      post: {
+        with: {
+          author: true,
+          institution: true,
+          comments: {
+            columns: {
+              id: true,
+            },
+          },
+        },
+      },
+      replies: {
+        where: eq(comments.status, "PUBLISHED"),
+        orderBy: [asc(comments.createdAt)],
+        with: {
+          author: {
+            with: {
+              institution: true,
+            },
+          },
+        },
+      },
+    },
+  });
+});
+

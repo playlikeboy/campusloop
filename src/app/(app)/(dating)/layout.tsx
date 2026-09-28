@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "Campus Match · Dating & Friends | CampusLoop",
     description:
       "Connect with verified students across your college campus for friends, study buddies, and dating.",
-    url: "https://campusloop.space/app/dating",
+    url: "https://campusloop.space/dating",
     siteName: "CampusLoop Match",
     images: [
       { url: "https://campusloop.space/og-dating.png", width: 1536, height: 1024, alt: "CampusLoop Match" },

@@ -91,11 +91,22 @@ export async function GET(req: Request, props: { params: Promise<{ slug: string 
       .where(eq(shortLinks.id, link.id));
 
     // Handle relative or absolute target URL
-    let targetUrl = link.targetUrl;
+    let targetUrl = link.targetUrl.trim();
     if (targetUrl.startsWith("/")) {
       targetUrl = new URL(targetUrl, req.url).toString();
     } else if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
       targetUrl = `https://${targetUrl}`;
+    }
+
+    // Validate protocol: only http: and https: are allowed (reject javascript:, data:, etc.)
+    try {
+      const parsedRedirect = new URL(targetUrl);
+      if (!["http:", "https:"].includes(parsedRedirect.protocol)) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+      targetUrl = parsedRedirect.toString();
+    } catch {
+      return NextResponse.redirect(new URL("/", req.url));
     }
 
     const redirectResponse = NextResponse.redirect(targetUrl, { status: 302 });

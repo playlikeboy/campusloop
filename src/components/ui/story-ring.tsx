@@ -58,13 +58,13 @@ export function StoryRing({ users }: StoryRingProps) {
         // ignore
       }
     }
-    router.push(`/app/story/${storyId}`);
+    router.push(`/story/${storyId}`);
   }
 
   function handleCreateStory() {
     sounds.tap();
     haptics.light();
-    router.push("/app/stories/new");
+    router.push("/stories/new");
   }
 
   return (

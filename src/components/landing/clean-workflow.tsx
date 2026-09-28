@@ -23,7 +23,7 @@ const steps = [
     label: "Communities",
     title: "See what people are building.",
     text: "Clubs, teams, societies and student communities organized around the campus.",
-    href: "/app/communities",
+    href: "/communities",
     icon: Users,
   },
   {

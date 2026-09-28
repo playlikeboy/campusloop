@@ -28,10 +28,23 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     }
 
     const headers = new Headers();
-    headers.set("Content-Type", obj.contentType || "application/octet-stream");
+    const contentType = (obj.contentType || "application/octet-stream").toLowerCase();
+    headers.set("Content-Type", contentType);
     headers.set("X-Content-Type-Options", "nosniff");
     headers.set("Accept-Ranges", "bytes");
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+    // Prevent Stored XSS: If the object is HTML, SVG, or scriptable, sandboxed CSP and attachment disposition are enforced
+    if (
+      contentType.includes("html") ||
+      contentType.includes("svg") ||
+      contentType.includes("javascript") ||
+      contentType.includes("xml")
+    ) {
+      headers.set("Content-Security-Policy", "default-src 'none'; sandbox");
+      headers.set("Content-Disposition", "attachment");
+      headers.set("X-Frame-Options", "DENY");
+    }
 
     // Check if Range was requested and fulfilled
     if (obj.range && rangeHeader) {

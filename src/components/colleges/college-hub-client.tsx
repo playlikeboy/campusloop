@@ -386,7 +386,7 @@ export function CollegeHubClient({
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {trendingTags.map((tag) => (
-                  <Link key={tag} href={`/app/hashtag/${tag}`}>
+                  <Link key={tag} href={`/hashtag/${tag}`}>
                     <span className="inline-flex items-center gap-1 rounded-full bg-muted/40 px-3 py-1 text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
                       #{tag}
                     </span>

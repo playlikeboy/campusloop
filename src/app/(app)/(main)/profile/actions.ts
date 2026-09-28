@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
@@ -46,6 +46,23 @@ export async function updateProfile(
         .replace(/[^a-z0-9_]/g, "")
     : null;
   if (cleanAnon && cleanAnon.length === 0) cleanAnon = null;
+
+  if (cleanAnon) {
+    if (!/^[a-z0-9_]{3,24}$/.test(cleanAnon)) {
+      throw new Error("Anonymous username must be 3-24 characters (letters, numbers, underscores only)");
+    }
+
+    const takenAnon = await db.query.userProfiles.findFirst({
+      where: and(
+        sql`LOWER(${userProfiles.anonymousUsername}) = ${cleanAnon}`,
+        ne(userProfiles.userId, user.id)
+      ),
+    });
+
+    if (takenAnon) {
+      throw new Error("This anonymous username is already claimed by another student");
+    }
+  }
 
   await db
     .update(userProfiles)

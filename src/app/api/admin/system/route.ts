@@ -1,17 +1,18 @@
 import { sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { requireAdminProfile } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAdminProfile();
-    const body = (await req.json()) as any;
-    const { action } = body;
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
-    const db = getDb();
+    const body = (await req.json().catch(() => ({}))) as any;
+    const { action } = body;
 
     if (action === "ping_db") {
       const start = Date.now();

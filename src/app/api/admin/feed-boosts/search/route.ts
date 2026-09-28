@@ -1,7 +1,6 @@
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { posts, userProfiles } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +14,9 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim();
@@ -23,7 +24,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ posts: [], profiles: [] });
     }
 
-    const db = getDb();
     const like = `%${q}%`;
 
     const [postRows, profileRows] = await Promise.all([

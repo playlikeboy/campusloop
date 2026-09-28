@@ -1,7 +1,6 @@
 import { desc } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { merchants } from "@/db/schema";
 import { generateMerchantPassword, hashMerchantPassword } from "@/lib/marketplace/merchant-password";
 
@@ -9,8 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const allMerchants = await db.query.merchants.findMany({
       orderBy: [desc(merchants.createdAt)],
@@ -56,8 +56,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const body = (await req.json()) as Record<string, any>;
     const {

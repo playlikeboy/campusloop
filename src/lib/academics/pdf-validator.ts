@@ -6,6 +6,8 @@
  * and is not showing 404 or 500 errors.
  */
 
+import { isSafePublicUrl, safeFetch } from "@/lib/security/ssrf";
+
 export interface ValidationResult {
   isValid: boolean;
   status?: number;
@@ -20,17 +22,16 @@ export async function validateResourceUrl(rawUrl: string): Promise<ValidationRes
 
   const trimmed = rawUrl.trim();
 
-  // 1. Basic URL syntax validation
-  let parsed: URL;
-  try {
-    parsed = new URL(trimmed);
-  } catch {
-    return { isValid: false, error: "Invalid URL format. Please provide a valid HTTP or HTTPS link." };
+  // 1. Basic URL syntax & SSRF validation
+  const ssrfCheck = isSafePublicUrl(trimmed);
+  if (!ssrfCheck.safe || !ssrfCheck.url) {
+    return {
+      isValid: false,
+      error: `Invalid or restricted resource URL: ${ssrfCheck.reason || "Destination not allowed"}`,
+    };
   }
 
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    return { isValid: false, error: "Only HTTP and HTTPS URLs are supported." };
-  }
+  const parsed = ssrfCheck.url;
 
   // 2. Google Drive / Docs / Sites & YouTube links
   // Drive links often require specific embed or preview formats
@@ -43,10 +44,10 @@ export async function validateResourceUrl(rawUrl: string): Promise<ValidationRes
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 7000);
 
-    // Try HEAD request first
+    // Try HEAD request first with SSRF-safe redirect validation
     let res: Response;
     try {
-      res = await fetch(trimmed, {
+      res = await safeFetch(trimmed, {
         method: "HEAD",
         headers: {
           "User-Agent": "Mozilla/5.0 (CampusLoop Academic HealthCheck/1.0)",
@@ -56,7 +57,7 @@ export async function validateResourceUrl(rawUrl: string): Promise<ValidationRes
       });
     } catch {
       // Retry with GET if HEAD fails or aborts
-      res = await fetch(trimmed, {
+      res = await safeFetch(trimmed, {
         method: "GET",
         headers: {
           Range: "bytes=0-2048",
@@ -74,7 +75,7 @@ export async function validateResourceUrl(rawUrl: string): Promise<ValidationRes
       const getController = new AbortController();
       const getTimeout = setTimeout(() => getController.abort(), 7000);
       try {
-        res = await fetch(trimmed, {
+        res = await safeFetch(trimmed, {
           method: "GET",
           headers: {
             Range: "bytes=0-1024",

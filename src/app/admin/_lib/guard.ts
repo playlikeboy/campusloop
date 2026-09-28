@@ -2,6 +2,7 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { type UserProfile, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -126,5 +127,79 @@ export async function resolveAdminSession(): Promise<AdminSessionContext> {
   }
 
   // Forbidden: Not an admin
-  redirect("/app");
+  redirect("/feeds");
+}
+
+export type AdminApiResult =
+  | { authorized: true; db: Db; profile: UserProfile; errorResponse: null }
+  | { authorized: false; db: null; profile: null; errorResponse: NextResponse };
+
+/**
+ * Route Handler (API) check: returns proper 401/403 NextResponse without throwing redirect errors.
+ */
+export async function requireAdminApi(): Promise<AdminApiResult> {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) {
+    return {
+      authorized: false,
+      db: null,
+      profile: null,
+      errorResponse: NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 }),
+    };
+  }
+
+  const db = getDb();
+  const email = user.primaryEmail?.toLowerCase();
+
+  // If user matches designated admin emails, ensure they have the ADMIN role
+  if (isAllowedAdminEmail(email)) {
+    let profile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+    });
+
+    if (!profile) {
+      const fallbackInst = await db.query.institutions.findFirst();
+      if (fallbackInst) {
+        const [created] = await db
+          .insert(userProfiles)
+          .values({
+            userId: user.id,
+            username: (email?.split("@")[0] || "admin").toLowerCase().replace(/[^a-z0-9_]/g, "_"),
+            displayName: "CampusLoop Admin",
+            email: email || null,
+            institutionId: fallbackInst.id,
+            onboardingCompleted: true,
+            role: "ADMIN",
+            status: "ACTIVE",
+          })
+          .returning();
+        profile = created;
+      }
+    } else if (profile.role !== "ADMIN") {
+      await db.update(userProfiles).set({ role: "ADMIN" }).where(eq(userProfiles.userId, user.id));
+      profile = { ...profile, role: "ADMIN" };
+    }
+
+    if (profile) {
+      return { authorized: true, db, profile, errorResponse: null };
+    }
+  }
+
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+
+  if (profile?.role !== "ADMIN") {
+    return {
+      authorized: false,
+      db: null,
+      profile: null,
+      errorResponse: NextResponse.json(
+        { error: "Forbidden. Administrator privileges required." },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return { authorized: true, db, profile, errorResponse: null };
 }

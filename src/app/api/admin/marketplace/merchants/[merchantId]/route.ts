@@ -1,7 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { merchants, products } from "@/db/schema";
 import { generateMerchantPassword } from "@/lib/marketplace/merchant-password";
 
@@ -13,9 +12,11 @@ interface RouteParams {
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { merchantId } = await params;
-    const db = getDb();
 
     const merchant = await db.query.merchants.findFirst({
       where: eq(merchants.id, merchantId),
@@ -48,9 +49,11 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { merchantId } = await params;
-    const db = getDb();
 
     const body = (await req.json()) as Record<string, any>;
     const {
@@ -142,10 +145,11 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    await resolveAdminSession();
-    const { merchantId } = await params;
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
+    const { merchantId } = await params;
     await db.delete(merchants).where(eq(merchants.id, merchantId));
 
     return NextResponse.json({ success: true });

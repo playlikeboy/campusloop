@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getAllRedditSources, ingestRedditContent, redditClient } from "@/lib/reddit";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
 
     const sources = getAllRedditSources();
     const isConfigured = redditClient.isConfigured();
@@ -23,7 +24,7 @@ export async function GET() {
     });
   } catch (err) {
     console.error("Admin Reddit status check failed:", err);
-    return NextResponse.json({ error: "Unauthorized or server error" }, { status: 401 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -33,7 +34,8 @@ export async function GET() {
  */
 export async function POST(req: Request) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
 
     const body = await req.json().catch(() => ({}));
     const { subreddit, limit, sort, dryRun } = body as {

@@ -27,7 +27,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
   const postUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/post/${post.id}`
-      : `https://campsy.app/post/${post.id}`;
+      : `https://campusloop.space/post/${post.id}`;
 
   const authorHandle = post.isAnonymous ? post.pseudonym || "anonymous" : post.author?.username || "student";
 

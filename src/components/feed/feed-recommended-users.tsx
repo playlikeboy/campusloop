@@ -76,7 +76,7 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
           </div>
         </div>
         <Link
-          href="/app/dating"
+          href="/dating"
           className="text-xs font-bold text-primary hover:underline flex items-center gap-1 transition-colors"
           title="Explore student vibe matches"
         >

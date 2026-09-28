@@ -6,5 +6,5 @@ interface PageProps {
 
 export default async function ShortCommunityRedirectPage({ params }: PageProps) {
   const { id } = await params;
-  permanentRedirect(`/app/communities/${id}`);
+  permanentRedirect(`/communities/${id}`);
 }
