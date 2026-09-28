@@ -160,7 +160,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
       const data = (await res.json()) as { primaryOrderId: string };
       toast.success("Order Placed Successfully!", { id: "checkout" });
       clearCart();
-      router.push(`/app/marketplace/order/${data.primaryOrderId}`);
+      router.push(`/marketplace/order/${data.primaryOrderId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Checkout failed. Please try again.", {
         id: "checkout",

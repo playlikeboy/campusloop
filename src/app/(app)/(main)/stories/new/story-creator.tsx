@@ -299,7 +299,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
       toast.success("Campus vibe shared! Visible for 24 hours ⏳");
       mutate("/api/stories");
-      router.push("/app");
+      router.push("/feeds");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to post story");
       setIsPosting(false);

@@ -94,7 +94,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
     sounds.tap();
     haptics.light();
     startTransition(() => {
-      router.push(`/app/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     });
   }
 
@@ -103,7 +103,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
     haptics.light();
     setSearchQuery(term);
     startTransition(() => {
-      router.push(`/app/search?q=${encodeURIComponent(term)}`);
+      router.push(`/search?q=${encodeURIComponent(term)}`);
     });
   }
 
@@ -244,7 +244,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
               Try searching with broader terms or browse the all-India campus directory.
             </p>
             <Link
-              href="/app/colleges"
+              href="/colleges"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black"
             >
               <span>Browse All Colleges</span>
@@ -290,7 +290,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </div>
 
                     <Link
-                      href={`/app/marketplace/store/${merchant.id}`}
+                      href={`/marketplace/store/${merchant.id}`}
                       className="px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-black shrink-0 hover:opacity-90 flex items-center gap-1"
                     >
                       <span>Open</span>
@@ -301,7 +301,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                   {/* Relative Sub-links under search result */}
                   <div className="pt-2 border-t border-border/30 flex flex-wrap items-center gap-2">
                     <Link
-                      href={`/app/marketplace/store/${merchant.id}`}
+                      href={`/marketplace/store/${merchant.id}`}
                       className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-lg"
                     >
                       <UtensilsCrossed className="size-3" />
@@ -309,7 +309,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </Link>
 
                     <Link
-                      href="/app/marketplace/checkout"
+                      href="/marketplace/checkout"
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg"
                     >
                       <ShoppingBag className="size-3" />
@@ -318,7 +318,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
 
                     <button
                       type="button"
-                      onClick={() => handleCopyLink(`/app/marketplace/store/${merchant.id}`, merchant.name)}
+                      onClick={() => handleCopyLink(`/marketplace/store/${merchant.id}`, merchant.name)}
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg cursor-pointer ml-auto"
                     >
                       <Share2 className="size-3" />
@@ -367,7 +367,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     {playlists.map((pl: any) => (
                       <Link
                         key={pl.id}
-                        href={`/app/academics/playlists/${pl.slug}`}
+                        href={`/academics/playlists/${pl.slug}`}
                         className="p-3.5 rounded-2xl border border-border/50 bg-card hover:border-indigo-500/40 hover:bg-card/90 transition-all shadow-xs space-y-2 block group"
                       >
                         <div className="flex items-center justify-between">
@@ -409,7 +409,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     {(activeTab === "all" ? academics.slice(0, 4) : academics).map((res: any) => (
                       <Link
                         key={res.id}
-                        href={`/app/academics/${res.slug || res.id}`}
+                        href={`/academics/${res.slug || res.id}`}
                         className="p-3.5 hover:bg-muted/30 transition-all flex items-center justify-between gap-3 group"
                       >
                         <div className="min-w-0 flex-1 space-y-1">
@@ -468,7 +468,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
               <div className="pt-1 flex items-center justify-between px-1">
                 <p className="text-[11px] text-muted-foreground">Looking for more university resources?</p>
                 <Link
-                  href={`/app/academics/search?q=${encodeURIComponent(searchQuery)}`}
+                  href={`/academics/search?q=${encodeURIComponent(searchQuery)}`}
                   className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
                 >
                   <span>Academics Hub Search</span>
@@ -492,13 +492,13 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
             </p>
             <div className="flex items-center justify-center gap-2 pt-2">
               <Link
-                href="/app/academics/search"
+                href="/academics/search"
                 className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-black"
               >
                 Academics Hub Search
               </Link>
               <Link
-                href="/app/academics/upload"
+                href="/academics/upload"
                 className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black"
               >
                 Upload Notes (+20 LP)
@@ -541,7 +541,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </div>
 
                     <Link
-                      href={`/app/college/${college.id}`}
+                      href={`/college/${college.id}`}
                       className="px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-black shrink-0 hover:opacity-90 flex items-center gap-1"
                     >
                       <span>Hub</span>
@@ -552,7 +552,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                   {/* Relative Sub-links under College result */}
                   <div className="pt-2 border-t border-border/30 flex flex-wrap items-center gap-2">
                     <Link
-                      href={`/app/college/${college.id}`}
+                      href={`/college/${college.id}`}
                       className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-lg"
                     >
                       <Building2 className="size-3" />
@@ -560,7 +560,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </Link>
 
                     <Link
-                      href="/app/confessions"
+                      href="/confessions"
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg"
                     >
                       <Flame className="size-3 text-rose-400" />
@@ -568,7 +568,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </Link>
 
                     <Link
-                      href="/app/marketplace"
+                      href="/marketplace"
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg"
                     >
                       <ShoppingBag className="size-3" />
@@ -576,7 +576,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </Link>
 
                     <Link
-                      href="/app/communities"
+                      href="/communities"
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg"
                     >
                       <Users className="size-3" />
@@ -585,7 +585,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
 
                     <button
                       type="button"
-                      onClick={() => handleCopyLink(`/app/college/${college.id}`, college.name)}
+                      onClick={() => handleCopyLink(`/college/${college.id}`, college.name)}
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg cursor-pointer ml-auto"
                     >
                       <Share2 className="size-3" />
@@ -623,7 +623,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </div>
 
                     <Link
-                      href={`/app/communities/${community.id}`}
+                      href={`/communities/${community.id}`}
                       className="px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-black shrink-0 hover:opacity-90"
                     >
                       Join
@@ -633,7 +633,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                   {/* Relative Sub-links under Community */}
                   <div className="pt-2 border-t border-border/30 flex flex-wrap items-center gap-2">
                     <Link
-                      href={`/app/communities/${community.id}`}
+                      href={`/communities/${community.id}`}
                       className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-lg"
                     >
                       <MessageSquare className="size-3" />
@@ -641,7 +641,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                     </Link>
 
                     <Link
-                      href={`/app/communities/${community.id}`}
+                      href={`/communities/${community.id}`}
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg"
                     >
                       <MessageSquare className="size-3" />
@@ -650,7 +650,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
 
                     <button
                       type="button"
-                      onClick={() => handleCopyLink(`/app/communities/${community.id}`, community.name)}
+                      onClick={() => handleCopyLink(`/communities/${community.id}`, community.name)}
                       className="text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg cursor-pointer ml-auto"
                     >
                       <Share2 className="size-3" />
@@ -703,7 +703,7 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
                       View Profile
                     </Link>
                     <Link
-                      href="/app/chat"
+                      href="/chat"
                       className="px-2.5 py-1 rounded-lg bg-muted text-foreground text-[11px] font-bold hover:bg-muted/80"
                     >
                       Message
