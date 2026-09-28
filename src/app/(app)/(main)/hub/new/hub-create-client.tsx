@@ -38,7 +38,7 @@ const HUB_CATEGORIES: Array<{
     icon: PackageSearch,
     color: "text-amber-500 bg-amber-500/10 border-amber-500/30",
     badge: "Report Item",
-    href: "/app/lost-and-found",
+    href: "/lost-and-found",
   },
   {
     id: "marketplace",
@@ -46,7 +46,7 @@ const HUB_CATEGORIES: Array<{
     icon: ShoppingBag,
     color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
     badge: "Sell Gear",
-    href: "/app/buy-and-sell",
+    href: "/buy-and-sell",
   },
   {
     id: "gaming",
@@ -54,7 +54,7 @@ const HUB_CATEGORIES: Array<{
     icon: Gamepad2,
     color: "text-purple-500 bg-purple-500/10 border-purple-500/30",
     badge: "Host Lobby",
-    href: "/app/gaming",
+    href: "/gaming",
   },
   {
     id: "rideshare",
@@ -62,7 +62,7 @@ const HUB_CATEGORIES: Array<{
     icon: Car,
     color: "text-sky-500 bg-sky-500/10 border-sky-500/30",
     badge: "Offer Ride",
-    href: "/app/rideshare",
+    href: "/rideshare",
   },
   {
     id: "housing",
@@ -70,7 +70,7 @@ const HUB_CATEGORIES: Array<{
     icon: Home,
     color: "text-rose-500 bg-rose-500/10 border-rose-500/30",
     badge: "List Room",
-    href: "/app/housing",
+    href: "/housing",
   },
   {
     id: "academics",
@@ -78,7 +78,7 @@ const HUB_CATEGORIES: Array<{
     icon: BookOpen,
     color: "text-blue-500 bg-blue-500/10 border-blue-500/30",
     badge: "Share Material",
-    href: "/app/academics",
+    href: "/academics",
   },
 ];
 

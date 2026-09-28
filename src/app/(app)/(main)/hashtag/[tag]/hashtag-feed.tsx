@@ -46,7 +46,7 @@ export default function HashtagFeed() {
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/30 px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-3.5 min-w-0">
           <Link
-            href="/app"
+            href="/feeds"
             className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
             aria-label="Back to feed"
           >
@@ -61,7 +61,7 @@ export default function HashtagFeed() {
         </div>
 
         <Link
-          href={`/app/post/new?tag=${encodeURIComponent(tag)}`}
+          href={`/post/new?tag=${encodeURIComponent(tag)}`}
           className="h-8 px-3.5 rounded-full bg-foreground text-background hover:opacity-90 font-black text-xs transition-all flex items-center justify-center cursor-pointer shrink-0 shadow-2xs"
         >
           Post
@@ -104,7 +104,7 @@ export default function HashtagFeed() {
               No campus posts have used #{tag} yet. Be the first to start the trend!
             </p>
             <Link
-              href={`/app/post/new?tag=${encodeURIComponent(tag)}`}
+              href={`/post/new?tag=${encodeURIComponent(tag)}`}
               className="mt-4 py-2 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md hover:bg-primary/90 transition-all cursor-pointer"
             >
               Create first post for #{tag}
