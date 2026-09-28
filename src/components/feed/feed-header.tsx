@@ -1,6 +1,6 @@
 "use client";
 
-import { Film, Flame, Globe, GraduationCap, ListFilter, Menu, RotateCw, School } from "lucide-react";
+import { Flame, Globe, GraduationCap, ListFilter, Menu, RotateCw, School } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -148,26 +148,6 @@ export function FeedHeader({
                 >
                   <span>{s.label}</span>
                   <Flame className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                </Link>
-              );
-            }
-
-            if (s.id === "reels") {
-              return (
-                <Link
-                  key={s.id}
-                  href="/reels"
-                  className={cn(
-                    "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
-                    isCurrent
-                      ? "bg-secondary text-secondary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                  )}
-                >
-                  <span>{s.label}</span>
-                  <span className="flex items-center justify-center size-3.5 rounded-full bg-rose-500/15 text-rose-500 text-[9px] font-black">
-                    <Film className="size-2.5" />
-                  </span>
                 </Link>
               );
             }

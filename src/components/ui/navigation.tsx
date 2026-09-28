@@ -777,8 +777,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
       )}
 
       {/* Preview Modals */}
-      <CampusUnlockedModal open={showUnlockModal} onOpenChange={setShowUnlockModal} />
-      <DreamCampusesModal open={showDreamModal} onOpenChange={setShowDreamModal} />
+      <CampusUnlockedModal isOpen={showUnlockModal} onClose={() => setShowUnlockModal(false)} />
+      <DreamCampusesModal isOpen={showDreamModal} onClose={() => setShowDreamModal(false)} />
     </>
   );
 }
