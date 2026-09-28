@@ -55,7 +55,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
         <p className="text-base font-bold text-foreground">Order not found</p>
         <button
           type="button"
-          onClick={() => router.push("/app/marketplace/orders")}
+          onClick={() => router.push("/marketplace/orders")}
           className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold"
         >
           View All Orders
@@ -79,7 +79,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/app/marketplace/orders")}
+            onClick={() => router.push("/marketplace/orders")}
             className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-4.5" />
@@ -95,7 +95,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
         </div>
 
         <Link
-          href={`/app/marketplace/store/${order.merchantId}`}
+          href={`/marketplace/store/${order.merchantId}`}
           className="text-xs font-bold text-primary hover:underline"
         >
           Store Page

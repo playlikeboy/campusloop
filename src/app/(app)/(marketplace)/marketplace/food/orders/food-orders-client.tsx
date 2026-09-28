@@ -29,7 +29,7 @@ export function FoodOrdersClient() {
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/app/marketplace/food"
+            href="/marketplace/food"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -83,7 +83,7 @@ export function FoodOrdersClient() {
             return (
               <Link
                 key={order.id}
-                href={`/app/marketplace/order/${order.id}`}
+                href={`/marketplace/order/${order.id}`}
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
@@ -148,7 +148,7 @@ export function FoodOrdersClient() {
             Hungry? Head over to campus canteens and get hot meals delivered to your room.
           </p>
           <Link
-            href="/app/marketplace/food"
+            href="/marketplace/food"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-black"
           >
             <span>Explore Food Stalls</span>

@@ -37,7 +37,7 @@ export function OrdersClient() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/app/marketplace")}
+            onClick={() => router.push("/marketplace")}
             className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-4.5" />
@@ -81,7 +81,7 @@ export function OrdersClient() {
           orders.map((order) => (
             <Link
               key={order.id}
-              href={`/app/marketplace/order/${order.id}`}
+              href={`/marketplace/order/${order.id}`}
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -155,7 +155,7 @@ export function OrdersClient() {
               </p>
             </div>
             <Link
-              href="/app/marketplace"
+              href="/marketplace"
               className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-black"
             >
               Start Shopping

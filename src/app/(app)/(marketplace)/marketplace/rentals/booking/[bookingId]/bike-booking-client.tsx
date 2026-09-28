@@ -86,7 +86,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
         <p className="text-base font-bold text-foreground">Booking not found</p>
         <button
           type="button"
-          onClick={() => router.push("/app/marketplace")}
+          onClick={() => router.push("/marketplace")}
           className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold"
         >
           Explore Marketplace
@@ -121,7 +121,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/app/marketplace")}
+            onClick={() => router.push("/marketplace")}
             className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-4.5" />

@@ -114,7 +114,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         subtitle={collegeName}
         action={
           <Link
-            href="/app/marketplace/orders"
+            href="/marketplace/orders"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -155,7 +155,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
               </p>
             </div>
             <Link
-              href="/app/marketplace/store/merch_armans_night_canteen"
+              href="/marketplace/store/merch_armans_night_canteen"
               onClick={() => {
                 sounds.tap();
                 haptics.success();
@@ -206,7 +206,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
       {/* ─── 6 Campus Marketplace Vertical Hub Cards ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 px-4 py-2">
         <Link
-          href="/app/marketplace/food"
+          href="/marketplace/food"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -226,7 +226,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </Link>
 
         <Link
-          href="/app/marketplace/supermarket"
+          href="/marketplace/supermarket"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -246,7 +246,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </Link>
 
         <Link
-          href="/app/marketplace/rentals"
+          href="/marketplace/rentals"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -266,7 +266,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </Link>
 
         <Link
-          href="/app/marketplace/barber"
+          href="/marketplace/barber"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -286,7 +286,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </Link>
 
         <Link
-          href="/app/marketplace/laundry"
+          href="/marketplace/laundry"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -306,7 +306,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </Link>
 
         <Link
-          href="/app/marketplace/water"
+          href="/marketplace/water"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -370,7 +370,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             {deals.map((deal: any) => (
               <Link
                 key={deal.id}
-                href={`/app/marketplace/store/${deal.storeId}`}
+                href={`/marketplace/store/${deal.storeId}`}
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
@@ -397,7 +397,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
       {selectedCategory === "rentals" && rentalBikes.length > 0 && (
         <PageList>
           {rentalBikes.map((b) => (
-            <ListRow key={b.id} href={`/app/marketplace/rentals/bikes/${b.id}`}>
+            <ListRow key={b.id} href={`/marketplace/rentals/bikes/${b.id}`}>
               <div className="size-20 shrink-0 overflow-hidden rounded-xl bg-muted">
                 <img src={b.imageUrl} alt="" className="size-full object-cover" />
               </div>
@@ -440,7 +440,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             </p>
 
             {stores.map((store) => (
-              <ListRow key={store.id} href={`/app/marketplace/store/${store.id}`}>
+              <ListRow key={store.id} href={`/marketplace/store/${store.id}`}>
                 <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-muted">
                   <img src={store.coverUrl || store.logoUrl} alt="" className="size-full object-cover" />
                   {!store.isOpen && (
@@ -544,7 +544,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
       {totalItemsCount > 0 && (
         <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-0 right-0 z-50 mx-auto max-w-lg px-4 duration-200 animate-in slide-in-from-bottom-3">
           <Link
-            href="/app/marketplace/cart"
+            href="/marketplace/cart"
             onClick={() => {
               sounds.tap();
               haptics.light();
