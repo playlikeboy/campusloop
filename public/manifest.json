@@ -3,17 +3,27 @@
   "short_name": "CampusLoop",
   "description": "Verified campus community for college students. Find campus conversations, communities, events, notes and PYQs.",
   "id": "/",
-  "start_url": "/app?source=pwa",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "standalone"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "prefer_related_applications": false,
-  "categories": ["social", "education", "lifestyle", "shopping"],
+  "categories": [
+    "social",
+    "education",
+    "lifestyle",
+    "shopping"
+  ],
   "launch_handler": {
-    "client_mode": ["focus-existing", "auto"]
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
   },
   "handle_links": "preferred",
   "share_target": {
@@ -81,35 +91,60 @@
       "short_name": "Feed",
       "description": "View live campus discussions and confessions",
       "url": "/app",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Campus Marketplace",
       "short_name": "Market",
       "description": "Order food, essentials, and hostel delivery",
       "url": "/app/marketplace",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Create Post",
       "short_name": "Post",
       "description": "Drop a confession, poll or campus thread",
       "url": "/app/post/new",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Campus Match",
       "short_name": "Match",
       "description": "Connect with verified students in your campus radius",
       "url": "/app/matching",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Direct Messages",
       "short_name": "Chat",
       "description": "Private student chats and groups",
       "url": "/app/chat",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
