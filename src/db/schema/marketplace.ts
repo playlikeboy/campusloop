@@ -22,9 +22,11 @@ export const marketplaceItems = pgTable("marketplace_items", {
   images: text("images"), // JSON stringified array of image URLs
   isSold: boolean("is_sold").default(false).notNull(),
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+}, (table) => [
+  index("marketplace_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("marketplace_seller_created_idx").on(table.sellerId, table.createdAt),
+]);
 
 export type MarketplaceItem = typeof marketplaceItems.$inferSelect;
 export type NewMarketplaceItem = typeof marketplaceItems.$inferInsert;
