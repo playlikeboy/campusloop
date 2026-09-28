@@ -24,9 +24,11 @@ export const housingListings = pgTable("housing_listings", {
   contactInfo: text("contact_info"), // Phone or WhatsApp
   status: text("status").default("AVAILABLE").notNull(), // 'AVAILABLE' | 'OCCUPIED'
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+}, (table) => [
+  index("housing_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("housing_author_created_idx").on(table.authorId, table.createdAt),
+]);
 
 export type HousingListing = typeof housingListings.$inferSelect;
 export type NewHousingListing = typeof housingListings.$inferInsert;
