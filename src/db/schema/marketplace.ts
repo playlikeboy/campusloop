@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, boolean, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
@@ -22,8 +22,9 @@ export const marketplaceItems = pgTable("marketplace_items", {
   images: text("images"), // JSON stringified array of image URLs
   isSold: boolean("is_sold").default(false).notNull(),
   createdAt,
-  updatedAt,
-});
+  updatedAt,;
+
+);
 
 export type MarketplaceItem = typeof marketplaceItems.$inferSelect;
 export type NewMarketplaceItem = typeof marketplaceItems.$inferInsert;
