@@ -52,7 +52,7 @@ export default function AcademicSourcesPage() {
       {/* Top Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Link
-          href="/app/academics"
+          href="/academics"
           className="flex items-center gap-1 hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-3.5" />

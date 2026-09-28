@@ -23,7 +23,7 @@ export default async function ArticleDashboardPage() {
   });
 
   if (!profile) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   const userArticles = await db.query.articles.findMany({
