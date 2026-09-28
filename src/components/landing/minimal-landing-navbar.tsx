@@ -16,10 +16,10 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Campus Feed", href: "/app", icon: Flame },
+    { label: "Campus Feed", href: "/feeds", icon: Flame },
     { label: "Colleges", href: "/colleges", icon: Compass },
-    { label: "Academics", href: "/app/academics", icon: BookOpen },
-    { label: "Campus Match", href: "/app/dating", icon: Heart },
+    { label: "Academics", href: "/academics", icon: BookOpen },
+    { label: "Campus Match", href: "/dating", icon: Heart },
   ];
 
   return (
@@ -72,7 +72,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           <ThemeToggle className="size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted" />
 
           <Link
-            href="/app"
+            href="/feeds"
             onClick={() => {
               sounds.tap();
               haptics.medium();
@@ -132,7 +132,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             </div>
 
             <Link
-              href="/app"
+              href="/feeds"
               onClick={() => {
                 sounds.tap();
                 haptics.medium();
