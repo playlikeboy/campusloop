@@ -338,7 +338,7 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
                 </div>
                 <div className="pt-2">
                   <Link
-                    href="/app/articles/new"
+                    href="/articles/new"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-all cursor-pointer"
                   >
                     <PenTool className="size-3.5" />

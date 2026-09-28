@@ -215,7 +215,7 @@ export function AcademicsSearchClient({
     if (sortBy !== (debouncedQuery ? "relevance" : "latest")) params.set("sort", sortBy);
 
     const qs = params.toString();
-    const newPath = qs ? `/app/academics/search?${qs}` : "/app/academics/search";
+    const newPath = qs ? `/academics/search?${qs}` : "/academics/search";
     window.history.replaceState(null, "", newPath);
   }, [debouncedQuery, selectedType, selectedBranch, selectedSemester, selectedScope, sortBy]);
 
@@ -361,7 +361,7 @@ export function AcademicsSearchClient({
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <Link
-              href="/app/academics"
+              href="/academics"
               onClick={() => sounds.tap()}
               className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2 py-1 -ml-1 rounded-lg hover:bg-muted/50"
             >
@@ -418,7 +418,7 @@ export function AcademicsSearchClient({
 
             {/* Upload Notes CTA */}
             <Link
-              href="/app/academics/upload"
+              href="/academics/upload"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -820,7 +820,7 @@ export function AcademicsSearchClient({
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                   <Link
-                    href="/app/academics/playlists/new"
+                    href="/academics/playlists/new"
                     onClick={() => sounds.tap()}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
                   >
@@ -895,7 +895,7 @@ export function AcademicsSearchClient({
                   </div>
                   <p className="text-[11px] text-muted-foreground">
                     Can't find a specific chapter or PYQ?{" "}
-                    <Link href="/app/academics/upload" className="text-primary font-bold hover:underline">
+                    <Link href="/academics/upload" className="text-primary font-bold hover:underline">
                       Contribute and earn Loop Points
                     </Link>
                   </p>
@@ -959,7 +959,7 @@ export function AcademicsSearchClient({
                 </button>
               )}
               <Link
-                href="/app/academics/upload"
+                href="/academics/upload"
                 onClick={() => sounds.tap()}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
               >
@@ -967,7 +967,7 @@ export function AcademicsSearchClient({
                 <span>Upload Missing Notes</span>
               </Link>
               <Link
-                href="/app/academics"
+                href="/academics"
                 onClick={() => sounds.tap()}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-xs font-bold hover:bg-muted/80 transition-colors cursor-pointer"
               >

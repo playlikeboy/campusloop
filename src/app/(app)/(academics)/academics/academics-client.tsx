@@ -251,7 +251,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     sounds.tap();
     haptics.light();
     if (searchQuery.trim()) {
-      router.push(`/app/academics/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/academics/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -313,7 +313,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
             {/* Create Playlist Icon */}
             <Link
-              href="/app/academics/playlists/new"
+              href="/academics/playlists/new"
               onClick={() => sounds.tap()}
               className="hidden sm:flex size-8.5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
               title="Create Study Playlist"
@@ -323,7 +323,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
             {/* Upload Notes Button */}
             <Link
-              href="/app/academics/upload"
+              href="/academics/upload"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -543,7 +543,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
       {/* ─── Tab Content Views ──────────────────────────────────────────────── */}
       <div className="divide-y divide-border/20">
         {/* Guest conversion banner if not signed in */}
-        {!profileId && <AcademicAuthBenefitsCard returnTo="/app/academics" dismissible={true} />}
+        {!profileId && <AcademicAuthBenefitsCard returnTo="/academics" dismissible={true} />}
 
         {/* ── 1. SAVED MATERIALS & PLAYLISTS TAB ───────────────────────────── */}
         {activeTab === "SAVED" ? (
@@ -689,7 +689,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   </p>
                 </div>
                 <Link
-                  href="/app/academics/playlists/new"
+                  href="/academics/playlists/new"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                 >
                   <Plus className="size-3.5" />
@@ -710,7 +710,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 </p>
               </div>
               <Link
-                href="/app/academics/playlists/new"
+                href="/academics/playlists/new"
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 <Plus className="size-3" />
@@ -740,7 +740,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   </p>
                 </div>
                 <Link
-                  href="/app/academics/playlists/new"
+                  href="/academics/playlists/new"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                 >
                   <Plus className="size-3.5" />
@@ -836,7 +836,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                             </span>
                           </div>
                           <Link
-                            href="/app/academics/upload"
+                            href="/academics/upload"
                             onClick={() => sounds.tap()}
                             className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-95 transition-opacity cursor-pointer"
                           >
@@ -939,7 +939,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                             Bundle past 5 years of exam papers, formulas, and lecture notes into a 1-click stack for your classmates.
                           </p>
                           <Link
-                            href="/app/academics/playlists/new"
+                            href="/academics/playlists/new"
                             onClick={() => sounds.tap()}
                             className="inline-flex items-center gap-1 text-xs font-bold text-indigo-400 hover:underline pt-1"
                           >
@@ -981,7 +981,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   </p>
                 </div>
                 <Link
-                  href="/app/academics/upload"
+                  href="/academics/upload"
                   onClick={() => sounds.tap()}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
                 >
@@ -999,7 +999,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         actionReason={authModalReason}
-        returnTo="/app/academics"
+        returnTo="/academics"
       />
     </div>
   );
