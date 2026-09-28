@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, boolean, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { userProfiles } from "./users";
 
@@ -23,48 +23,10 @@ export const communities = pgTable(
     createdAt,
     updatedAt,
   },
-  (table) => [uniqueIndex("communities_name_idx").on(table.name)]
-);
-
-export const communityMembers = pgTable(
-  "community_members",
-  {
-    id: id(),
-    communityId: text("community_id")
-      .notNull()
-      .references(() => communities.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => userProfiles.id, { onDelete: "cascade" }),
-    role: text("role").default("MEMBER").notNull(), // 'ADMIN' | 'MODERATOR' | 'MEMBER'
-    status: text("status").default("ACTIVE").notNull(), // 'ACTIVE' | 'PENDING' | 'BANNED'
-    createdAt,
-  },
-  (table) => [uniqueIndex("community_members_join_idx").on(table.communityId, table.userId)]
-);
-
-export const communityWebhooks = pgTable(
-  "community_webhooks",
-  {
-    id: id(),
-    communityId: text("community_id")
-      .notNull()
-      .references(() => communities.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    token: text("token").notNull(),
-    botName: text("bot_name").default("CampusBot").notNull(),
-    avatarUrl: text("avatar_url"),
-    isActive: boolean("is_active").default(true).notNull(),
-    createdById: text("created_by_id")
-      .notNull()
-      .references(() => userProfiles.id, { onDelete: "cascade" }),
-    postsCount: integer("posts_count").default(0).notNull(),
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-    createdAt,
-    updatedAt,
-  },
   (table) => [
-    uniqueIndex("community_webhooks_token_idx").on(table.token),
+    uniqueIndex("communities_name_idx").on(table.name),
+    index("communities_creator_created_idx").on(table.creatorId, table.createdAt),
+    index("communities_created_idx").on(table.createdAt),
   ]
 );
 
