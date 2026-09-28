@@ -586,7 +586,7 @@ export function DiscoverFeed() {
                     {searchCommunities.map((community) => (
                       <Link
                         key={community.id}
-                        href={`/app/communities/${community.slug || community.id}`}
+                        href={`/communities/${community.slug || community.id}`}
                         className="p-3.5 rounded-2xl bg-card/60 hover:bg-muted/30 transition-colors block space-y-2 group shadow-2xs"
                       >
                         <div className="flex items-start gap-3">
@@ -747,7 +747,7 @@ export function DiscoverFeed() {
 
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
                     <Link
-                      href="/app/events/new"
+                      href="/events/new"
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-xs"
                     >
                       <Plus className="size-3.5" />
@@ -755,7 +755,7 @@ export function DiscoverFeed() {
                     </Link>
 
                     <Link
-                      href="/app/events"
+                      href="/events"
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-muted/70 hover:bg-muted text-foreground text-xs font-bold transition-colors"
                     >
                       <Calendar className="size-3.5" />
@@ -775,7 +775,7 @@ export function DiscoverFeed() {
                     </h3>
                     <p className="text-xs text-muted-foreground">Student interest groups &amp; sub-hubs</p>
                   </div>
-                  <Link href="/app/communities" className="text-xs font-bold text-primary hover:underline">
+                  <Link href="/communities" className="text-xs font-bold text-primary hover:underline">
                     View all
                   </Link>
                 </div>
@@ -785,29 +785,29 @@ export function DiscoverFeed() {
                     {
                       name: "Coding & Tech",
                       icon: Code2,
-                      href: "/app/communities?category=TECH",
+                      href: "/communities?category=TECH",
                       desc: "Devs & CP",
                     },
                     {
                       name: "Music & Arts",
                       icon: Music,
-                      href: "/app/communities?category=MUSIC",
+                      href: "/communities?category=MUSIC",
                       desc: "Jams & bands",
                     },
                     {
                       name: "Hostel Life",
                       icon: Building2,
-                      href: "/app/communities?category=HOSTEL",
+                      href: "/communities?category=HOSTEL",
                       desc: "Wing banter",
                     },
                     {
                       name: "Placement Prep",
                       icon: Target,
-                      href: "/app/communities?category=CAREER",
+                      href: "/communities?category=CAREER",
                       desc: "OA & interviews",
                     },
-                    { name: "Esports Arena", icon: Gamepad2, href: "/app/gaming", desc: "Tournaments" },
-                    { name: "Study Vault", icon: BookOpen, href: "/app/academics", desc: "Notes & PYQs" },
+                    { name: "Esports Arena", icon: Gamepad2, href: "/gaming", desc: "Tournaments" },
+                    { name: "Study Vault", icon: BookOpen, href: "/academics", desc: "Notes & PYQs" },
                   ].map((hub) => {
                     const HubIcon = hub.icon;
                     return (
@@ -830,7 +830,7 @@ export function DiscoverFeed() {
               {/* ─── Indirect Campus Birthdays Banner ─── */}
               <div className="pb-4 px-4">
                 <Link
-                  href="/app/birthdays"
+                  href="/birthdays"
                   className="flex items-center justify-between p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-card/60 hover:bg-pink-500/15 transition-all shadow-2xs group"
                 >
                   <div className="flex items-center gap-3">

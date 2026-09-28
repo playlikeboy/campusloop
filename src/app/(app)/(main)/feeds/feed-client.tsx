@@ -73,9 +73,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   function handleTypeChange(newType: string) {
     setTypeState(newType);
     if (newType === "ALL") {
-      router.push("/app");
+      router.push("/feeds");
     } else {
-      router.push(`/app/posts/${newType}`);
+      router.push(`/posts/${newType}`);
     }
   }
 
@@ -343,7 +343,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                     onClick={(e) => {
                       if (!quickText.trim()) {
                         e.preventDefault();
-                        router.push("/app/post/new");
+                        router.push("/post/new");
                       }
                     }}
                     disabled={isQuickPosting}
@@ -399,8 +399,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                         }
                         router.push(
                           quickText.trim()
-                            ? `/app/post/new?text=${encodeURIComponent(quickText.trim())}`
-                            : "/app/post/new"
+                            ? `/post/new?text=${encodeURIComponent(quickText.trim())}`
+                            : "/post/new"
                         );
                       }}
                       className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors min-w-0 truncate text-left"

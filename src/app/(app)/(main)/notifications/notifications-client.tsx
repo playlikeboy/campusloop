@@ -79,7 +79,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateHeart size={14} className="text-rose-500 fill-rose-500" />,
           badgeBg: "bg-rose-500/15 border-rose-500/30 text-rose-500",
           actionText: "liked your post",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View post",
         };
       case "STORY_LIKE":
@@ -87,7 +87,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateHeart size={14} className="text-pink-500 fill-pink-500" />,
           badgeBg: "bg-pink-500/15 border-pink-500/30 text-pink-500",
           actionText: "liked your campus story vibe",
-          href: n.referenceId ? `/app/story/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/story/${n.referenceId}` : "/feeds",
           actionLabel: "View vibe",
         };
       case "COMMENT":
@@ -95,7 +95,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateMessageCircle size={14} className="text-brand" />,
           badgeBg: "bg-brand/15 border-brand/30 text-brand",
           actionText: "replied to your discussion",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "Reply",
         };
       case "REPLY":
@@ -104,7 +104,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateMessageCircle size={14} className="text-brand" />,
           badgeBg: "bg-brand/15 border-brand/30 text-brand",
           actionText: "replied to your comment",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "Reply",
         };
       case "MENTION":
@@ -112,7 +112,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AtSign className="size-3.5 text-violet-500 stroke-2" />,
           badgeBg: "bg-violet-500/15 border-violet-500/30 text-violet-500",
           actionText: "mentioned you in a campus post",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View thread",
         };
       case "REPOST":
@@ -120,7 +120,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateRepeat2 size={14} className="text-emerald-500" />,
           badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
           actionText: "reposted your post to the campus feed",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View",
         };
       case "MATCH":
@@ -128,7 +128,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <Zap className="size-3.5 text-amber-500 fill-amber-500" />,
           badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
           actionText: "matched with you on Campus Dating! 💫",
-          href: n.referenceId ? `/app/chat/${n.referenceId}` : "/app/chat",
+          href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
           actionLabel: "Send message",
         };
       case "CRUSH_ALERT":
@@ -136,7 +136,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <Lock className="size-3.5 text-purple-500" />,
           badgeBg: "bg-purple-500/15 border-purple-500/30 text-purple-500",
           actionText: "secretly added you to their Campus Crush vault 🔒",
-          href: "/app/crush",
+          href: "/crush",
           actionLabel: "View vault",
         };
       case "FOLLOW":
@@ -144,7 +144,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <UserPlus className="size-3.5 text-primary stroke-2" />,
           badgeBg: "bg-primary/15 border-primary/30 text-primary",
           actionText: "started following you",
-          href: n.referenceId ? `/@${n.referenceId}` : "/app",
+          href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
           actionLabel: "View profile",
         };
       case "FRIEND":
@@ -152,7 +152,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateUsers size={14} className="text-emerald-500" />,
           badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
           actionText: "followed you back — you're campus friends now 🤝",
-          href: n.referenceId ? `/@${n.referenceId}` : "/app",
+          href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
           actionLabel: "View profile",
         };
       case "MILESTONE":
@@ -160,7 +160,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <Trophy className="size-3.5 text-amber-500" />,
           badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
           actionText: "unlocked a new Loop Points Clout Milestone! 🏆",
-          href: "/app/profile",
+          href: "/profile",
           actionLabel: "View clout",
         };
       case "MESSAGE":
@@ -168,7 +168,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateSend size={14} className="text-sky-500" />,
           badgeBg: "bg-sky-500/15 border-sky-500/30 text-sky-500",
           actionText: "sent you a message",
-          href: n.referenceId ? `/app/chat/${n.referenceId}` : "/app/chat",
+          href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
           actionLabel: "Reply",
         };
       case "NEW_POST":
@@ -176,7 +176,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <AnimateZap size={14} className="text-violet-500" />,
           badgeBg: "bg-violet-500/15 border-violet-500/30 text-violet-500",
           actionText: "posted something new",
-          href: n.referenceId ? `/app/post/${n.referenceId}` : "/app",
+          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View post",
         };
       case "EVENT_REGISTRATION":
@@ -184,7 +184,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <Ticket className="size-3.5 text-cyan-500 stroke-2" />,
           badgeBg: "bg-cyan-500/15 border-cyan-500/30 text-cyan-500",
           actionText: "— your spot is confirmed 🎟️",
-          href: n.referenceId ? `/app/events/${n.referenceId}` : "/app/events",
+          href: n.referenceId ? `/events/${n.referenceId}` : "/events",
           actionLabel: "View event",
         };
       default:
@@ -192,7 +192,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           icon: <Zap className="size-3.5 text-primary" />,
           badgeBg: "bg-primary/15 border-primary/30 text-primary",
           actionText: "interacted with you",
-          href: "/app",
+          href: "/feeds",
           actionLabel: "View",
         };
     }
@@ -517,7 +517,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
 
             <div className="pt-2">
               <Link
-                href="/app"
+                href="/feeds"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-xs cursor-pointer active:scale-95"
               >
                 <Compass className="size-3.5" />
