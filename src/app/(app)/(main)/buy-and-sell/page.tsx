@@ -39,7 +39,7 @@ export default async function BuyAndSellPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <BuyAndSellClient profileId={profile.id} />;
 }
