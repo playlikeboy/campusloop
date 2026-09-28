@@ -160,7 +160,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
       const resData = (await res.json()) as { bookingId: string };
       toast.success("Booking Requested Successfully!", { id: "book-bike" });
-      router.push(`/app/marketplace/rentals/booking/${resData.bookingId}`);
+      router.push(`/marketplace/rentals/booking/${resData.bookingId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to book bike", { id: "book-bike" });
       setIsSubmitting(false);
@@ -183,7 +183,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
         <p className="text-base font-bold text-foreground">Bike not found</p>
         <button
           type="button"
-          onClick={() => router.push("/app/marketplace")}
+          onClick={() => router.push("/marketplace")}
           className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold"
         >
           Back to Marketplace
