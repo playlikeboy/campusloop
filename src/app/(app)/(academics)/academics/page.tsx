@@ -72,7 +72,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
 
   const resolvedParams = searchParams ? await searchParams : undefined;
   if (resolvedParams?.id) {
-    redirect(`/app/academics/${resolvedParams.id}`);
+    redirect(`/academics/${resolvedParams.id}`);
   }
 
   // Schema.org Structured Data for Google & Bing SERP
