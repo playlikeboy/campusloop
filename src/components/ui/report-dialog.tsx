@@ -80,7 +80,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
             <AlertTriangle className="size-5" />
           </div>
           <div>
-            <h2 className="text-base font-black tracking-tight text-foreground">Report Post</h2>
+            <h2 className="text-base font-bold tracking-tight text-foreground">Report Post</h2>
             <p className="text-xs text-muted-foreground">Keep your campus safe and constructive</p>
           </div>
         </div>

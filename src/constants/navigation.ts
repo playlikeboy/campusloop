@@ -51,7 +51,7 @@ export interface NavGroup {
 
 export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateCompass, href: "/discover", label: "Explore" },
+  { icon: AnimateCompass, href: "/explore", label: "Explore" },
   {
     icon: AnimateGraduationCap,
     href: "/academics",
@@ -79,7 +79,7 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
 // academics, communities, confessions and events live under More & Explore
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: Home, href: "/feeds", label: "Home" },
-  { icon: Compass, href: "/discover", label: "Explore" },
+  { icon: Compass, href: "/explore", label: "Explore" },
   { icon: Plus, href: "/post/new", label: "Create" },
   { icon: MessageSquare, href: "/chat", label: "Chats" },
   { icon: LayoutGrid, href: "/more", label: "More" },

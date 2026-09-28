@@ -84,7 +84,7 @@ export function FeedCardHeader({
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
 
   return (
-    <div className="min-w-0 select-none pb-0.5">
+    <div className="min-w-0 pb-0.5">
       {/* Primary Author & Time Row */}
       <div className="flex items-start justify-between gap-2 min-w-0">
         <div className="min-w-0 flex-1">
@@ -250,7 +250,7 @@ export function FeedCardHeader({
                       if (typeof navigator !== "undefined" && navigator.clipboard) {
                         try {
                           await navigator.clipboard.writeText(post.body || "");
-                          toast.success("Post text copied to clipboard! 📋");
+                          toast.success("Post text copied to clipboard!");
                         } catch {
                           toast.error("Failed to copy text");
                         }

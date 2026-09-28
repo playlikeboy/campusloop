@@ -133,6 +133,16 @@ const nextConfig: NextConfig = {
         destination: "/communities/:id",
         permanent: true,
       },
+      {
+        source: "/discover",
+        destination: "/explore",
+        permanent: true,
+      },
+      {
+        source: "/search",
+        destination: "/explore",
+        permanent: true,
+      },
     ];
   },
 };

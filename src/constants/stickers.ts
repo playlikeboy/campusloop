@@ -13,12 +13,12 @@ export interface StickerCategory {
 }
 
 export const STICKER_CATEGORIES: StickerCategory[] = [
-  { id: "all", name: "All Stickers", icon: "🔥" },
-  { id: "campus", name: "Campus Tea", icon: "☕" },
-  { id: "exams", name: "Exam Stress", icon: "📚" },
-  { id: "coding", name: "Dev & Hustle", icon: "💻" },
-  { id: "reactions", name: "Reactions", icon: "🔥" },
-  { id: "fest", name: "Fest & Chill", icon: "🎧" },
+  { id: "all", name: "All Stickers", icon: "all" },
+  { id: "campus", name: "Campus Tea", icon: "campus" },
+  { id: "exams", name: "Exam Stress", icon: "exams" },
+  { id: "coding", name: "Dev & Hustle", icon: "coding" },
+  { id: "reactions", name: "Reactions", icon: "reactions" },
+  { id: "fest", name: "Fest & Chill", icon: "fest" },
 ];
 
 export const CAMPUS_STICKERS: CampusSticker[] = [

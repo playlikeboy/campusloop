@@ -450,7 +450,7 @@ export function ProfileClientView({
   }
 
   return (
-    <div className="min-h-screen pb-28 text-foreground select-none touch-manipulation">
+    <div className="min-h-screen pb-28 text-foreground touch-manipulation">
       {/* Image Crop & Resize Modal */}
       {cropModalOpen && (
         <ImageCropModal

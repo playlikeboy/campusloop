@@ -67,7 +67,7 @@ function isPathActive(currentPath: string, targetHref: string) {
 // Top navbar primary tabs on desktop
 const TOP_NAV_TABS = [
   { href: "/feeds", label: "Feeds", icon: Home },
-  { href: "/discover", label: "Explore", icon: Compass },
+  { href: "/explore", label: "Explore", icon: Compass },
   {
     href: "/academics",
     label: "Academics",
@@ -143,7 +143,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   return (
     <>
       {/* ─── Modern Sticky Top Navigation Bar (Utilizes Space Full on PC) ─── */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/35 bg-background/90 backdrop-blur-xl select-none">
+      <header className="sticky top-0 z-40 w-full border-b border-border/35 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
           {/* Left: Hamburger Drawer Toggle + Brand Logo + Campus Badge */}
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -214,10 +214,10 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Search Pill */}
             <Link
-              href="/search"
+              href="/explore"
               prefetch
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
-              title="Search CampusLoop"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              title="Explore & Search CampusLoop"
             >
               <Search className="size-3.5" />
               <span className="hidden xl:inline text-[11px]">Search</span>
@@ -554,7 +554,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     <div className="mt-1 space-y-0.5">
                       {[
                         { href: "/feeds", label: "Campus Feed", icon: Home },
-                        { href: "/discover", label: "Explore India", icon: Compass },
+                        { href: "/explore", label: "Explore", icon: Compass },
                         { href: "/academics", label: "Academics Vault", icon: GraduationCap, badge: "PYQs" },
                         { href: "/communities", label: "Communities & Clubs", icon: Users },
                         { href: "/colleges", label: "College Directory", icon: Building2 },

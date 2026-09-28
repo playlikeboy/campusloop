@@ -252,7 +252,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   return (
     <article
       onMouseEnter={() => router.prefetch(`/app/post/${post.id}`)}
-      className="neo-card p-3.5 sm:p-4 mb-2.5 mx-2 sm:mx-3 relative cursor-pointer select-none transition-all hover:-translate-y-0.5"
+      className="neo-card p-3.5 sm:p-4 mb-2.5 mx-2 sm:mx-3 relative cursor-pointer transition-all hover:-translate-y-0.5"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>

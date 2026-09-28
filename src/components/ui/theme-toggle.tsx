@@ -29,7 +29,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       onClick={toggleTheme}
       className={cn(
-        "relative flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer outline-none active:scale-95",
+        "relative flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95",
         className
       )}
       aria-label="Toggle Theme"

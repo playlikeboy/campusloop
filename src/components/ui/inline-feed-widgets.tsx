@@ -65,12 +65,12 @@ export function InlineCommunitiesWidget() {
   }
 
   return (
-    <div className="py-2.5 px-4 space-y-3 select-none">
+    <div className="py-2.5 px-4 space-y-3">
       {/* Module Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="size-4 text-primary" />
-          <h3 className="text-[15px] font-black text-foreground tracking-tight">Communities for you</h3>
+          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Communities for you</h3>
         </div>
         <Link
           href="/app/communities"
@@ -133,7 +133,7 @@ export function InlineCommunitiesWidget() {
 
 export function InlineDatingWidget() {
   return (
-    <div className="py-3 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none">
+    <div className="py-3 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
         <div className="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
           <Zap className="size-5 text-primary" />
@@ -141,7 +141,7 @@ export function InlineDatingWidget() {
 
         <div className="space-y-0.5 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-[14px] font-black text-foreground">Campus Match</h4>
+            <h4 className="text-[14px] font-bold text-foreground">Campus Match</h4>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
               Safe &amp; Verified
             </span>
@@ -154,7 +154,7 @@ export function InlineDatingWidget() {
 
       <Link
         href="/app/dating"
-        className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-black text-xs transition-all shadow-2xs active:scale-95 cursor-pointer"
+        className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs transition-all shadow-2xs active:scale-95 cursor-pointer"
       >
         Explore Match
       </Link>
@@ -203,11 +203,11 @@ export function InlineHashtagsWidget() {
   }
 
   return (
-    <div className="py-2.5 px-4 space-y-2 select-none">
+    <div className="py-2.5 px-4 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Flame className="size-4 text-primary" />
-          <h3 className="text-[15px] font-black text-foreground tracking-tight">Trending on Campus</h3>
+          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Trending on Campus</h3>
         </div>
         <Link href="/app/discover" className="text-xs font-bold text-primary hover:underline cursor-pointer">
           Explore
@@ -244,13 +244,13 @@ export function InlineReferralWidget() {
   }
 
   return (
-    <div className="py-3 px-4 flex items-center justify-between gap-3 select-none">
+    <div className="py-3 px-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
         <div className="size-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
           <Gift className="size-5" />
         </div>
         <div className="min-w-0 space-y-0.5">
-          <h4 className="text-[14px] font-black text-foreground truncate">Invite Classmates · Earn 20 LP</h4>
+          <h4 className="text-[14px] font-bold text-foreground truncate">Invite Classmates · Earn 20 LP</h4>
           <p className="text-xs text-muted-foreground truncate">
             Unlock the verified campus star badge and boost your clout tier.
           </p>
@@ -260,7 +260,7 @@ export function InlineReferralWidget() {
       <button
         type="button"
         onClick={handleCopy}
-        className="shrink-0 px-4 py-1.5 rounded-full border border-border text-foreground font-black text-xs hover:bg-muted/40 transition-all cursor-pointer active:scale-95 shadow-2xs"
+        className="shrink-0 px-4 py-1.5 rounded-full border border-border text-foreground font-bold text-xs hover:bg-muted/40 transition-all cursor-pointer active:scale-95 shadow-2xs"
       >
         Copy Link
       </button>
@@ -284,7 +284,7 @@ export function InlineArticlesWidget() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BookOpen className="size-4 text-primary" />
-          <h3 className="text-[15px] font-black text-foreground tracking-tight">Articles &amp; Long Reads</h3>
+          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Articles &amp; Long Reads</h3>
         </div>
         <Link
           href="/articles"
@@ -304,7 +304,7 @@ export function InlineArticlesWidget() {
           >
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-1 text-[10px]">
-                <span className="font-black text-primary uppercase">{art.category || "General"}</span>
+                <span className="font-bold text-primary uppercase">{art.category || "General"}</span>
                 <span className="text-muted-foreground flex items-center gap-1 font-medium">
                   <Clock className="size-2.5" />
                   {art.readingTimeMinutes || 3} min

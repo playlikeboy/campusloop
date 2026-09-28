@@ -295,7 +295,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
   }, [comments, postAuthorId, profile?.institutionId, sortMode]);
 
   return (
-    <div className="px-4 space-y-4 pt-3 select-none">
+    <div className="px-4 space-y-4 pt-3">
       {/* Hidden File Input */}
 
       <input

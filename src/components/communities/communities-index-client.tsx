@@ -154,7 +154,7 @@ export function CommunitiesIndexClient({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col min-h-screen pb-24 px-2 sm:px-6 lg:px-8 bg-background text-foreground select-none">
+    <div className="mx-auto flex w-full max-w-7xl flex-col min-h-screen pb-24 px-2 sm:px-6 lg:px-8 bg-background text-foreground">
       {/* ─── Header ─── */}
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 rounded-2xl my-2">
         <div className="flex items-center justify-between px-4 py-3">

@@ -25,6 +25,8 @@ function getLegacyAppDestination(pathname: string): string {
   const rest = pathname.slice(LEGACY_APP_PREFIX.length);
   if (!rest || rest === "/") return "/feeds";
   if (rest === "/chats" || rest.startsWith("/chats/")) return `/chat${rest.slice("/chats".length)}`;
+  if (rest === "/discover" || rest.startsWith("/discover/")) return `/explore${rest.slice("/discover".length)}`;
+  if (rest === "/search" || rest.startsWith("/search/")) return `/explore${rest.slice("/search".length)}`;
   return rest;
 }
 

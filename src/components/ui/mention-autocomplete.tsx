@@ -125,7 +125,7 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
         className
       )}
     >
-      <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 border-b border-border/30">
+      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 border-b border-border/30">
         {trigger.type === "mention" ? (
           <>
             <Users className="size-3" />
@@ -159,13 +159,13 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
               >
                 <Avatar className="size-8 border border-border/40 shrink-0">
                   <AvatarImage src={user.avatarUrl || ""} />
-                  <AvatarFallback className="text-[11px] font-black bg-muted text-foreground">
+                  <AvatarFallback className="text-[11px] font-bold bg-muted text-foreground">
                     {user.displayName[0]}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="min-w-0 flex-1 space-y-0.5">
-                  <p className="text-xs font-black text-foreground truncate flex items-center gap-1">
+                  <p className="text-xs font-bold text-foreground truncate flex items-center gap-1">
                     <span>{user.displayName}</span>
                     {user.isVerified && <ShieldCheck className="size-3 text-brand shrink-0" />}
                   </p>
@@ -197,9 +197,9 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
               >
                 <div className="min-w-0 flex-1 space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-black text-foreground truncate">{h.tag}</p>
+                    <p className="text-xs font-bold text-foreground truncate">{h.tag}</p>
                     {h.isHot && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-primary/10 text-primary">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary">
                         HOT
                       </span>
                     )}

@@ -10,13 +10,13 @@ describe("routing middleware", () => {
     expect(res.headers.get("location")).toBe("https://campusloop.space/feeds");
   });
 
-  it("redirects legacy /app/discover to /discover without rewriting clean routes", async () => {
+  it("redirects legacy /app/discover to /explore without rewriting clean routes", async () => {
     const req = new NextRequest("https://campusloop.space/app/discover?tab=trending", {
       headers: { host: "campusloop.space" },
     });
     const res = await middleware(req);
     expect(res.status).toBe(308);
-    expect(res.headers.get("location")).toBe("https://campusloop.space/discover?tab=trending");
+    expect(res.headers.get("location")).toBe("https://campusloop.space/explore?tab=trending");
   });
 
   it("redirects legacy /app/post/123 to /post/123", async () => {

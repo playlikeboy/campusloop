@@ -67,7 +67,7 @@ export function SavedClient() {
   }, [posts, searchQuery, selectedCategory]);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/85 px-4 pt-3.5 pb-2 backdrop-blur-xl border-b border-border/30 space-y-3">
         <div className="flex items-center justify-between">
@@ -140,15 +140,15 @@ export function SavedClient() {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {searchQuery || selectedCategory !== "ALL"
                   ? "Try searching for different keywords or clearing your category filter."
-                  : "Tap the 🔖 bookmark icon on any post across the campus feed to archive hostel guides, placement advice, and memes for later."}
+                  : "Tap the bookmark icon on any post across the campus feed to archive hostel guides, placement advice, and study materials for later."}
               </p>
             </div>
             {!searchQuery && selectedCategory === "ALL" && (
               <Link
-                href="/discover"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                href="/explore"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
-                <Compass className="size-3.5" /> Explore Campuses
+                <Compass className="size-3.5" /> <span>Explore Campuses</span>
               </Link>
             )}
           </div>

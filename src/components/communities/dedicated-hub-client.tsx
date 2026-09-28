@@ -185,7 +185,7 @@ export function DedicatedHubClient({ hubType, profileId }: DedicatedHubClientPro
   }, [sentinelNode, isReachingEnd, setSize]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground select-none">
+    <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground">
       {/* ─── Sticky Header ─── */}
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">

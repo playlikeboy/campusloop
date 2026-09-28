@@ -590,7 +590,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         </div>
       </div>
 
-      <div className="absolute top-3 right-3 rounded-full bg-black/65 px-2.5 py-0.5 text-[11px] font-black text-white backdrop-blur-md shadow-xs pointer-events-none">
+      <div className="absolute top-3 right-3 rounded-full bg-black/65 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-md shadow-xs pointer-events-none">
         {currentIndex + 1}/{images.length}
       </div>
 
