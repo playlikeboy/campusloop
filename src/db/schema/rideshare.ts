@@ -23,9 +23,11 @@ export const ridesharePools = pgTable("rideshare_pools", {
   status: text("status").default("ACTIVE").notNull(), // 'ACTIVE' | 'FULL' | 'DEPARTED'
   passengers: text("passengers"), // JSON stringified array of [{ userId, username, displayName, seats }]
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+}, (table) => [
+  index("rideshare_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("rideshare_creator_created_idx").on(table.creatorId, table.createdAt),
+]);
 
 export type RidesharePool = typeof ridesharePools.$inferSelect;
 export type NewRidesharePool = typeof ridesharePools.$inferInsert;
