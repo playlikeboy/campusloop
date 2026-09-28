@@ -87,14 +87,14 @@ export default async function EventsLayout({ children }: { children: React.React
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
-              href="/app"
+              href="/feeds"
               className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
               title="Campus Feed"
             >
               <ArrowLeft className="size-4" />
             </Link>
 
-            <Link href="/app/events" className="flex items-center gap-2.5 group">
+            <Link href="/events" className="flex items-center gap-2.5 group">
               <img
                 src="/logo.png"
                 alt="CampusLoop"
@@ -120,7 +120,7 @@ export default async function EventsLayout({ children }: { children: React.React
             <ThemeToggle />
 
             <Link
-              href="/handler/sign-in?returnTo=/app/events/new"
+              href="/handler/sign-in?returnTo=/events/new"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-border/50 hover:bg-muted/50 transition-all cursor-pointer"
             >
               <Plus className="size-3.5" />
@@ -128,7 +128,7 @@ export default async function EventsLayout({ children }: { children: React.React
             </Link>
 
             <Link
-              href="/handler/sign-in?returnTo=/app/events"
+              href="/handler/sign-in?returnTo=/events"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-primary hover:opacity-90 text-primary-foreground shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <Calendar className="size-3.5" />
