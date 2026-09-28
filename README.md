@@ -37,11 +37,11 @@ For investors, evaluators, and public testers without a `.ac.in` / `.edu` colleg
 ### 🚀 What You Can Test with This Account
 - **Campus Feed & Confessions**: Post anonymous confessions with client-side PII scrubbing, launch interactive live polls, quote-repost with Web Audio chimes, and comment on threads.
 - **Link & Music Embeds**: Full support for 9GAG memes/portal, Spotify tracks/playlists/albums, SoundCloud, Apple Music, YouTube, CodePen, Loom, Vimeo, and Instagram with real-time composer previews.
-- **Campus Match & Secret Crush**: Swipe student cards, match instantly, and lock crushes in the cryptographically sealed escrow vault (`/app/crush`).
-- **Realtime Chat & PeerJS Calls**: 1-on-1 direct messages, group team channels, and direct WebRTC P2P audio/video calling (`/app/chat`).
-- **24-Hour Campus Stories (Vibes)**: Post visual campus vibes with progress bars, heart reactions, and archive highlights (`/app/stories`).
-- **10+ Utility Hubs**: Create cycle/drafter buy & sell listings, report lost & found items, coordinate airport/station cab pools, find flatmates, 5v5 gaming lobbies, and seal convocation time capsules (`/app/capsule`).
-- **College Hub Switcher**: Seamlessly switch feeds across 1,350+ indexed Indian college hubs (`/app/colleges`).
+- **Campus Match & Secret Crush**: Swipe student cards, match instantly, and lock crushes in the cryptographically sealed escrow vault (`/crush`).
+- **Realtime Chat & PeerJS Calls**: 1-on-1 direct messages, group team channels, and direct WebRTC P2P audio/video calling (`/chat`).
+- **24-Hour Campus Stories (Vibes)**: Post visual campus vibes with progress bars, heart reactions, and archive highlights (`/stories`).
+- **10+ Utility Hubs**: Create cycle/drafter buy & sell listings, report lost & found items, coordinate airport/station cab pools, find flatmates, 5v5 gaming lobbies, and seal convocation time capsules (`/capsule`).
+- **College Hub Switcher**: Seamlessly switch feeds across 1,350+ indexed Indian college hubs (`/colleges`).
 
 ---
 
@@ -113,14 +113,14 @@ type** — which is what makes the upgrade painless years later.
 - **1-Tap & Quoted Reposts**: Twitter-style reposts with embedded quote previews and crystalline Web Audio chimes.
 - **24-Hour Stories (Vibes)**: Fullscreen visual vibe sharing with pause-on-reply typing and permanent profile highlights.
 
-### 3. 💬 Realtime Communication & Video Calling (`/app/chat` & `/app/random`)
-- **1-to-1 WebRTC Video & Audio Calling**: Direct peer-to-peer audio and video calling inside `/app/chat` powered by PeerJS. Encrypted media flows directly between browsers with zero worker bandwidth costs.
+### 3. 💬 Realtime Communication & Video Calling (`/chat` & `/random`)
+- **1-to-1 WebRTC Video & Audio Calling**: Direct peer-to-peer audio and video calling inside `/chat` powered by PeerJS. Encrypted media flows directly between browsers with zero worker bandwidth costs.
 - **Incoming Call Ringing & Sheet UI**: Desktop floating cards and mobile full-screen incoming call sheets with instant accept/decline.
-- **Random Loop Discovery (`/app/random`)**: Omegle-style serendipitous student matching with accountable anonymity.
+- **Random Loop Discovery (`/random`)**: Omegle-style serendipitous student matching with accountable anonymity.
 - **Mutual Video Opt-In**: Transition from anonymous text to live video only when both students consent.
 - **Mutual Identity Reveal & Social Follow**: Reveal real college identities or tap "Become Friends" to instantly connect on CampusLoop's social graph.
 
-### 4. 🔔 Notifications & Attention Layer (`/app/notifications`)
+### 4. 🔔 Notifications & Attention Layer (`/notifications`)
 - **Instant Phone Pings**: Web Push wakes your phone the moment a classmate DMs you, likes your post, replies, mentions you, or follows you — including from an installed PWA on Android and iOS.
 - **Posts From People You Follow**: When a friend or someone you follow publishes, you hear about it — and their post is ranked higher in your feed rather than buried under strangers.
 - **Per-Person Mute, Not Unfollow**: Tap the bell on anyone's profile to silence *their posts*, *their messages*, or *everything* — without unfollowing them, without them ever being told, and without them leaving your feed.
@@ -129,24 +129,24 @@ type** — which is what makes the upgrade painless years later.
 - **Confessions Stay Confessions**: Anonymous posts never trigger a follower notification — a "your friend just posted" ping beside an anonymous post would deanonymize it by correlation.
 - **Privacy by Construction**: Pushes carry *no payload*. Your phone receives an empty authenticated wake-up, then fetches the content over your own session — notification text never passes through Google's or Apple's push servers.
 
-### 5. 💖 Connection & Matchmaking Layer (`/app/dating`)
+### 5. 💖 Connection & Matchmaking Layer (`/dating`)
 - **Campus Match Swipe Deck**: Draggable Framer Motion cards with velocity-based release detection (`velocity.x > 400 || offset.x > 80`).
 - **Curated Unsplash Student Portraits**: Verified college portrait sets replacing cartoon Dicebear avatars.
 - **Circular PFP Previews**: Sleek circular avatar rendered directly before candidate names.
 - **Zero-Lag Preloader**: Instant image preloading in browser memory for smooth swipe transitions.
 - **Secret Crush & Mutual Match**: Cryptographic crush escrow revealing identity only when feelings are mutual.
 
-### 6. 🏫 Campus Utility & Dedicated Sub-Hubs (`/app/communities`)
+### 6. 🏫 Campus Utility & Dedicated Sub-Hubs (`/communities`)
 - **Reddit-Style Sub-Hubs**: Authentic student interest communities (`c/coding`, `c/music-band`, `c/anime`) with custom sorting (*Hot, New, Top, Rising, Discussed*).
 - **6 Dedicated Campus Portals**:
-  - 🔎 [**/app/lost-and-found**](https://campusloop.space/app/lost-and-found) — Lost calculators, ID cards, keys & cycle locks.
-  - 🛒 [**/app/marketplace**](https://campusloop.space/app/marketplace) — Peer-to-peer hostel trading for cycles, coolers, and books.
-  - 🎮 [**/app/gaming**](https://campusloop.space/app/gaming) — Squad recruitment & LAN tournament lobbies.
-  - 🚗 [**/app/rideshare**](https://campusloop.space/app/rideshare) — Weekend cab and auto pooling.
-  - 🏠 [**/app/housing**](https://campusloop.space/app/housing) — Flat hunting and roommate matching.
-  - 📚 [**/app/academics**](https://campusloop.space/app/academics) — Exam-night handwritten notes & solved PYQs.
+  - 🔎 [**/lost-and-found**](https://campusloop.space/app/lost-and-found) — Lost calculators, ID cards, keys & cycle locks.
+  - 🛒 [**/marketplace**](https://campusloop.space/app/marketplace) — Peer-to-peer hostel trading for cycles, coolers, and books.
+  - 🎮 [**/gaming**](https://campusloop.space/app/gaming) — Squad recruitment & LAN tournament lobbies.
+  - 🚗 [**/rideshare**](https://campusloop.space/app/rideshare) — Weekend cab and auto pooling.
+  - 🏠 [**/housing**](https://campusloop.space/app/housing) — Flat hunting and roommate matching.
+  - 📚 [**/academics**](https://campusloop.space/app/academics) — Exam-night handwritten notes & solved PYQs.
 
-### 7. ⏳ Campus Time Capsule & Batch Legacy Vault (`/app/capsule`)
+### 7. ⏳ Campus Time Capsule & Batch Legacy Vault (`/capsule`)
 - **Cryptographically Sealed Vaults**: Contribute batch predictions, hostel confessions, and convocation letters.
 - **Graduation Day Countdown**: Real-time ticker counting down days, hours, and minutes until convocation.
 - **Unlocked Museum Wall**: Automatically transforms into a public alumni celebration wall upon timer expiry.
