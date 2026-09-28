@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, BookOpen, Compass, Flame, Heart, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

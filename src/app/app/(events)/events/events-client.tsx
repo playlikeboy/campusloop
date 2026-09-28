@@ -73,9 +73,10 @@ export function EventsClient() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Live countdown state for featured banner
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
+    setNow(Date.now());
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -165,7 +166,7 @@ export function EventsClient() {
 
   // Live countdown for featured event
   const countdown = useMemo(() => {
-    if (!featuredEvent) return null;
+    if (!featuredEvent || now === 0) return null;
     const startMs = new Date(featuredEvent.startDate).getTime();
     const diff = startMs - now;
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, isLive: true };

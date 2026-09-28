@@ -8,8 +8,8 @@
 		"start": "next start",
 		"lint": "eslint .",
 		"typecheck": "NODE_OPTIONS='--max-old-space-size=5120' tsc --noEmit",
-		"test": "vitest run",
-		"test:watch": "vitest",
+		"test": "NODE_OPTIONS='--experimental-require-module' vitest run",
+		"test:watch": "NODE_OPTIONS='--experimental-require-module' vitest",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:push": "drizzle-kit push",
@@ -75,6 +75,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.11",
 		"@next/eslint-plugin-next": "16.2.6",
+		"@rolldown/binding-linux-x64-gnu": "^1.2.11",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^26.4.0",
 		"@types/qrcode": "^1.5.6",

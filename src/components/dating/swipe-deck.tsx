@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "motion/react";
 import { GraduationCap, HeartHandshakeIcon, RotateCcw, School, ShieldCheck, UserRound, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -84,7 +84,7 @@ function TopCard({
       drag={exitX === 0 ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.9}
-      onDragEnd={(_, info) => {
+      onDragEnd={(_: unknown, info: PanInfo) => {
         const isSwipeRight = info.offset.x > 80 || info.velocity.x > 400;
         const isSwipeLeft = info.offset.x < -80 || info.velocity.x < -400;
 

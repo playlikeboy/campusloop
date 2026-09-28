@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { FileText, Image as ImageIcon, Loader2, Lock, UserCheck, UserX, Wand2, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
