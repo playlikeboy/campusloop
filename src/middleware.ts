@@ -1,168 +1,84 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { getRedis } from "@/lib/redis";
 
-/**
- * Public mirrors for signed-out visitors and search crawlers.
- *
- * Everything under `/app` sits behind an auth gate that redirects to sign-in.
- * That is right for the feed and for anything interactive, but it also made our
- * most linkable, most rankable pages — campus hubs, articles, events — invisible
- * to Google and to anyone opening a shared link in a private window.
- *
- * Those pages already have public equivalents outside the gated layout. This
- * middleware sends signed-out traffic there instead of to the sign-in wall.
- */
+const LEGACY_APP_PREFIX = "/app";
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const RATE_LIMIT_WINDOW_SECONDS = 60;
+const RATE_LIMIT_MAX_REQUESTS = 120;
+const RATE_LIMIT_EXEMPT_PREFIXES = ["/api/behavior/track", "/api/presence", "/api/notifications/unread-count"];
 
-const PUBLIC_MIRRORS: Array<{ gated: string; publicPath: string }> = [
-  { gated: "/app/articles/", publicPath: "/a/" },
-  { gated: "/app/events/", publicPath: "/e/" },
-];
-
-const AUTH_COOKIE_HINTS = ["hexclave-access", "hexclave-refresh", "stack-access", "stack-refresh"];
-
-function hasSessionCookie(req: NextRequest): boolean {
-  return req.cookies
-    .getAll()
-    .some((cookie) => AUTH_COOKIE_HINTS.some((hint) => cookie.name.startsWith(hint)));
+function getClientKey(req: NextRequest): string {
+  return (
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
 }
 
-/**
- * Top-level paths that should NOT be rewritten to `/app/...` on campsy.app
- */
-const EXEMPT_PREFIXES = [
-  "/api",
-  "/handler",
-  "/_next",
-  "/admin",
-  "/admin-login",
-  "/merchant-portal",
-  "/about",
-  "/terms",
-  "/privacy",
-  "/safety",
-  "/contact",
-  "/pitch",
-  "/sign-in",
-  "/sign-up",
-  "/logout",
-  "/demo",
-  "/join",
-  "/docs",
-  "/aspirants",
-  "/sitemaps",
-  "/sitemap.xml",
-  "/feed.xml",
-  "/robots.txt",
-  "/favicon.ico",
-  "/icons",
-  "/images",
-  "/sw.js",
-  "/manifest.json",
-  "/manifest-merchant.json",
-  "/a/",
-  "/e/",
-  "/s/",
-  "/c/",
-  "/@",
-];
+function getLegacyAppDestination(pathname: string): string {
+  if (pathname === LEGACY_APP_PREFIX || pathname === `${LEGACY_APP_PREFIX}/`) return "/feeds";
+  const rest = pathname.slice(LEGACY_APP_PREFIX.length);
+  if (!rest || rest === "/") return "/feeds";
+  if (rest === "/chats" || rest.startsWith("/chats/")) return `/chat${rest.slice("/chats".length)}`;
+  return rest;
+}
 
-export function middleware(req: NextRequest) {
-  const host =
-    req.headers.get("x-forwarded-host") ||
-    req.headers.get("host") ||
-    req.nextUrl.host ||
-    "";
-  const hostname = host.split(":")[0].toLowerCase();
-  const { pathname, search } = req.nextUrl;
+async function enforceMutationRateLimit(req: NextRequest): Promise<NextResponse | null> {
+  if (!MUTATING_METHODS.has(req.method) || !req.nextUrl.pathname.startsWith("/api/")) return null;
+  if (
+    RATE_LIMIT_EXEMPT_PREFIXES.some(
+      (prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`)
+    )
+  ) return null;
 
-  const isCampsy = hostname === "campsy.app" || hostname === "www.campsy.app";
-  const isCampusLoop =
-    hostname === "campusloop.space" ||
-    hostname === "www.campusloop.space" ||
-    hostname.endsWith(".campusloop.space");
+  const redis = getRedis();
+  if (!redis) return null;
 
-  // 1. Domain matching: campusloop.space/app/* -> campsy.app/*
-  if (isCampusLoop && (pathname === "/app" || pathname.startsWith("/app/"))) {
-    const subpath = pathname === "/app" || pathname === "/app/" ? "/" : pathname.slice(4);
-    const destination = `https://campsy.app${subpath}${search}`;
-    return NextResponse.redirect(new URL(destination), 308);
-  }
+  const key = `rl:v1:${getClientKey(req)}:${req.method}:${req.nextUrl.pathname}`;
+  try {
+    const count = Number(await redis.incr(key));
+    if (count === 1) await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS);
 
-  // 2. Routing on campsy.app
-  if (isCampsy) {
-    // If request explicitly includes /app prefix, redirect to clean URL
-    if (pathname === "/app" || pathname === "/app/") {
-      return NextResponse.redirect(new URL(`/${search}`, req.url), 308);
-    }
-    if (pathname.startsWith("/app/")) {
-      const subpath = pathname.slice(4);
-      return NextResponse.redirect(new URL(`${subpath}${search}`, req.url), 308);
-    }
-
-    // Clean shortcut for /feed
-    if (pathname === "/feed" || pathname === "/feed/") {
-      return NextResponse.redirect(new URL(`/${search}`, req.url), 308);
-    }
-
-    // Clean shortcut for /chats
-    if (pathname === "/chats" || pathname === "/chats/") {
-      return NextResponse.redirect(new URL(`/chat${search}`, req.url), 308);
-    }
-
-    // Check if path is exempt from /app rewriting
-    const isExempt = EXEMPT_PREFIXES.some(
-      (prefix) => pathname === prefix || pathname.startsWith(prefix)
-    );
-
-    if (!isExempt) {
-      const virtualAppPath = `/app${pathname === "/" ? "" : pathname}`;
-
-      // Check public mirrors for unauthenticated crawlers / visitors
-      if (!hasSessionCookie(req)) {
-        for (const { gated, publicPath } of PUBLIC_MIRRORS) {
-          if (virtualAppPath === gated || virtualAppPath.startsWith(gated)) {
-            const rest = virtualAppPath.slice(gated.length);
-            if (!rest && gated.endsWith("/")) break;
-            const url = req.nextUrl.clone();
-            url.pathname = `${publicPath}${rest}`;
-            url.search = search;
-            return NextResponse.redirect(url, 308);
-          }
+    if (count > RATE_LIMIT_MAX_REQUESTS) {
+      return NextResponse.json(
+        { error: "Too many requests. Please slow down." },
+        {
+          status: 429,
+          headers: {
+            "retry-after": String(RATE_LIMIT_WINDOW_SECONDS),
+            "x-ratelimit-limit": String(RATE_LIMIT_MAX_REQUESTS),
+            "x-ratelimit-remaining": "0",
+          },
         }
-      }
-
-      // Rewrite to /app/* internally while keeping URL bar clean on campsy.app
-      const url = req.nextUrl.clone();
-      url.pathname = virtualAppPath;
-      return NextResponse.rewrite(url);
+      );
     }
+  } catch {
+    // Fail open when Redis is unavailable; availability of the core app wins.
   }
 
-  // 3. Public mirror handling for direct /app access (e.g. localhost or mirrors)
-  if (!hasSessionCookie(req)) {
-    for (const { gated, publicPath } of PUBLIC_MIRRORS) {
-      if (pathname === gated || pathname.startsWith(gated)) {
-        const rest = pathname.slice(gated.length);
-        if (!rest && gated.endsWith("/")) break;
-        const url = req.nextUrl.clone();
-        url.pathname = `${publicPath}${rest}`;
-        url.search = search;
-        return NextResponse.redirect(url, 308);
-      }
-    }
+  return null;
+}
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Legacy compatibility only: old /app/* URLs now resolve to their canonical clean route.
+  if (pathname === LEGACY_APP_PREFIX || pathname.startsWith(`${LEGACY_APP_PREFIX}/`)) {
+    const url = req.nextUrl.clone();
+    url.pathname = getLegacyAppDestination(pathname);
+    return NextResponse.redirect(url, 308);
   }
+
+  // No clean-route -> /app rewrites. The route tree itself owns canonical URLs.
+  const limited = await enforceMutationRateLimit(req);
+  if (limited) return limited;
 
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - files with static extensions
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|txt|xml)$).*)",
   ],
 };
