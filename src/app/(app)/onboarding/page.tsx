@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
   });
 
   if (profile?.onboardingCompleted) {
-    redirect("/app");
+    redirect("/feeds");
   }
 
   const email = user.primaryEmail || "";
