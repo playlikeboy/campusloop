@@ -44,7 +44,7 @@ export function MobileStickyBar({ isAuthenticated = false }: MobileStickyBarProp
         </Link>
 
         <Link
-          href="/app"
+          href="/feeds"
           onClick={() => {
             sounds.tap();
             haptics.medium();
