@@ -1,13 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { reelBookmarks, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
-export async function POST(
-  req: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
     const { id: reelId } = await props.params;
     const user = await hexclaveServerApp.getUser();

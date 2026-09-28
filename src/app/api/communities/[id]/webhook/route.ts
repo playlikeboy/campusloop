@@ -21,7 +21,7 @@ export async function GET(req: Request, { params }: RouteProps) {
       endpoint: `/api/communities/${id}/webhook?token=YOUR_WEBHOOK_TOKEN`,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer YOUR_WEBHOOK_TOKEN (optional alternative)",
+        Authorization: "Bearer YOUR_WEBHOOK_TOKEN (optional alternative)",
       },
       payloadFields: {
         body: "string (required) — Markdown formatted message body. Also accepts 'content' or 'text'",
@@ -43,7 +43,10 @@ export async function POST(req: Request, { params }: RouteProps) {
     const token =
       url.searchParams.get("token") ||
       req.headers.get("x-campusloop-token") ||
-      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "")?.trim();
+      req.headers
+        .get("authorization")
+        ?.replace(/^Bearer\s+/i, "")
+        ?.trim();
 
     if (!token) {
       return NextResponse.json(
@@ -71,10 +74,7 @@ export async function POST(req: Request, { params }: RouteProps) {
 
     // Lookup webhook belonging to this community with the given token
     const webhook = await db.query.communityWebhooks.findFirst({
-      where: and(
-        eq(communityWebhooks.communityId, comm.id),
-        eq(communityWebhooks.token, token)
-      ),
+      where: and(eq(communityWebhooks.communityId, comm.id), eq(communityWebhooks.token, token)),
     });
 
     if (!webhook) {
@@ -102,10 +102,7 @@ export async function POST(req: Request, { params }: RouteProps) {
         data = JSON.parse(rawText);
       }
     } catch {
-      return NextResponse.json(
-        { error: "Bad Request", message: "Invalid JSON payload" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Bad Request", message: "Invalid JSON payload" }, { status: 400 });
     }
 
     const body =
@@ -114,18 +111,11 @@ export async function POST(req: Request, { params }: RouteProps) {
       (typeof data.text === "string" ? data.text : "") ||
       (typeof data.message === "string" ? data.message : "");
 
-    const title =
-      typeof data.title === "string" && data.title.trim().length > 0
-        ? data.title.trim()
-        : null;
+    const title = typeof data.title === "string" && data.title.trim().length > 0 ? data.title.trim() : null;
 
     const botName =
-      (typeof data.botName === "string" && data.botName.trim().length > 0
-        ? data.botName.trim()
-        : null) ||
-      (typeof data.username === "string" && data.username.trim().length > 0
-        ? data.username.trim()
-        : null) ||
+      (typeof data.botName === "string" && data.botName.trim().length > 0 ? data.botName.trim() : null) ||
+      (typeof data.username === "string" && data.username.trim().length > 0 ? data.username.trim() : null) ||
       webhook.botName ||
       "CampusBot";
 

@@ -6,8 +6,6 @@ import {
   Download,
   ExternalLink,
   FileText,
-  GraduationCap,
-  Layers,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -182,8 +180,8 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
               {tab === "ALL"
                 ? `All (${totalCount})`
                 : tab === "PENDING"
-                ? `Pending (${pendingCount})`
-                : `Verified (${verifiedCount})`}
+                  ? `Pending (${pendingCount})`
+                  : `Verified (${verifiedCount})`}
             </button>
           ))}
         </div>
@@ -236,9 +234,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-black text-foreground leading-snug truncate">
-                      {res.title}
-                    </h4>
+                    <h4 className="text-sm font-black text-foreground leading-snug truncate">{res.title}</h4>
                     <p className="text-xs text-muted-foreground">{res.subjectName}</p>
                   </div>
                 </div>

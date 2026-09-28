@@ -119,9 +119,7 @@ export async function FollowListPageView({
       />
 
       <div className="w-full max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
-        <main className="w-full pb-24 md:pb-8">
-          {list}
-        </main>
+        <main className="w-full pb-24 md:pb-8">{list}</main>
       </div>
     </div>
   );

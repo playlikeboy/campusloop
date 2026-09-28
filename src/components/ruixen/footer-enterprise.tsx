@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 
 /* ── types ─────────────────────────────────────────────────────── */
 interface FooterLink {
@@ -34,23 +34,9 @@ interface FooterEnterpriseProps {
 /* ── default mark ─────────────────────────────────────────────── */
 function DefaultMark() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-      className="size-5"
-      aria-hidden="true"
-    >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="size-5" aria-hidden="true">
       <rect width="20" height="20" rx="5" className="fill-foreground" />
-      <rect
-        x="5"
-        y="5"
-        width="10"
-        height="10"
-        rx="2.5"
-        className="fill-background"
-      />
+      <rect x="5" y="5" width="10" height="10" rx="2.5" className="fill-background" />
     </svg>
   );
 }
@@ -133,13 +119,9 @@ export function FooterEnterprise(props?: FooterEnterpriseProps) {
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">
               {brandMark ?? <DefaultMark />}
-              <span className="text-[16px] font-[590] tracking-[-0.02em] text-foreground">
-                {brandName}
-              </span>
+              <span className="text-[16px] font-[590] tracking-[-0.02em] text-foreground">{brandName}</span>
             </div>
-            <p className="mt-3 text-[13px] leading-[1.6] text-foreground/40">
-              {description}
-            </p>
+            <p className="mt-3 text-[13px] leading-[1.6] text-foreground/40">{description}</p>
           </div>
 
           {socials.length > 0 && (

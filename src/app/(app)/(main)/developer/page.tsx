@@ -1,10 +1,10 @@
 import { desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { DeveloperMcpClient } from "@/components/developer/developer-mcp-client";
 import { getDb } from "@/db";
 import { userMcpKeys, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { DeveloperMcpClient } from "@/components/developer/developer-mcp-client";
 
 export const dynamic = "force-dynamic";
 
@@ -55,10 +55,7 @@ export default async function DeveloperPortalPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-4xl mx-auto px-4 py-4">
         <DeveloperMcpClient
           initialKeys={initialKeys}

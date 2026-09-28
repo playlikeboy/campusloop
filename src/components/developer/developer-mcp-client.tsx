@@ -28,9 +28,9 @@ import {
   testExecuteMcpTool,
   toggleMcpKey,
 } from "@/app/(app)/(main)/developer/actions";
-import { CAMPUSLOOP_MCP_TOOLS } from "@/lib/mcp/tools-catalog";
 import type { UserMcpKey } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
+import { CAMPUSLOOP_MCP_TOOLS } from "@/lib/mcp/tools-catalog";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo } from "@/lib/utils";
 
@@ -40,15 +40,9 @@ interface DeveloperMcpClientProps {
   collegeName: string;
 }
 
-export function DeveloperMcpClient({
-  initialKeys,
-  studentUsername,
-  collegeName,
-}: DeveloperMcpClientProps) {
+export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }: DeveloperMcpClientProps) {
   const [keys, setKeys] = useState<UserMcpKey[]>(initialKeys);
-  const [selectedKeyId, setSelectedKeyId] = useState<string>(
-    initialKeys[0]?.id || ""
-  );
+  const [selectedKeyId, setSelectedKeyId] = useState<string>(initialKeys[0]?.id || "");
 
   // Key creation state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -60,17 +54,15 @@ export function DeveloperMcpClient({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Active IDE Config Tab
-  const [activeIdeTab, setActiveIdeTab] = useState<
-    "cursor" | "claude" | "windsurf" | "cline" | "curl"
-  >("cursor");
+  const [activeIdeTab, setActiveIdeTab] = useState<"cursor" | "claude" | "windsurf" | "cline" | "curl">(
+    "cursor"
+  );
   const [copiedConfig, setCopiedConfig] = useState(false);
 
   // Tool catalog filtering & playground
   const [toolSearch, setToolSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  const [activePlaygroundTool, setActivePlaygroundTool] = useState<string | null>(
-    null
-  );
+  const [activePlaygroundTool, setActivePlaygroundTool] = useState<string | null>(null);
   const [toolArgsInput, setToolArgsInput] = useState<string>("{}");
   const [runningTool, setRunningTool] = useState(false);
   const [toolExecutionResult, setToolExecutionResult] = useState<{
@@ -80,19 +72,10 @@ export function DeveloperMcpClient({
   } | null>(null);
 
   const activeKey = keys.find((k) => k.id === selectedKeyId) || keys[0];
-  const origin =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : "https://campusloop.space";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
 
-  const getMcpHttpUrl = useCallback(
-    (keyToken: string) => `${origin}/api/mcp?key=${keyToken}`,
-    [origin]
-  );
-  const getMcpSseUrl = useCallback(
-    (keyToken: string) => `${origin}/api/mcp/sse?key=${keyToken}`,
-    [origin]
-  );
+  const getMcpHttpUrl = useCallback((keyToken: string) => `${origin}/api/mcp?key=${keyToken}`, [origin]);
+  const getMcpSseUrl = useCallback((keyToken: string) => `${origin}/api/mcp/sse?key=${keyToken}`, [origin]);
 
   const categories = [
     "ALL",
@@ -107,8 +90,7 @@ export function DeveloperMcpClient({
   ];
 
   const filteredTools = CAMPUSLOOP_MCP_TOOLS.filter((tool) => {
-    const matchesCat =
-      selectedCategory === "ALL" || tool.category === selectedCategory;
+    const matchesCat = selectedCategory === "ALL" || tool.category === selectedCategory;
     const matchesSearch =
       !toolSearch ||
       tool.name.toLowerCase().includes(toolSearch.toLowerCase()) ||
@@ -168,11 +150,7 @@ export function DeveloperMcpClient({
   }
 
   async function handleDelete(keyRecord: UserMcpKey) {
-    if (
-      !confirm(
-        `Permanently delete '${keyRecord.name}'? This cannot be undone.`
-      )
-    ) {
+    if (!confirm(`Permanently delete '${keyRecord.name}'? This cannot be undone.`)) {
       return;
     }
     sounds.tap();
@@ -287,9 +265,7 @@ export function DeveloperMcpClient({
     setActivePlaygroundTool(tool.name);
     // Build default JSON template from properties
     const defaultArgs: Record<string, any> = {};
-    for (const [propName, propDef] of Object.entries(
-      tool.inputSchema.properties || {}
-    )) {
+    for (const [propName, propDef] of Object.entries(tool.inputSchema.properties || {})) {
       if (propDef.default !== undefined) {
         defaultArgs[propName] = propDef.default;
       } else if (propDef.enum && propDef.enum.length > 0) {
@@ -329,11 +305,7 @@ export function DeveloperMcpClient({
     }
 
     try {
-      const res = await testExecuteMcpTool(
-        activeKey.key,
-        activePlaygroundTool,
-        parsedArgs
-      );
+      const res = await testExecuteMcpTool(activeKey.key, activePlaygroundTool, parsedArgs);
       setToolExecutionResult({
         latencyMs: res.latencyMs,
         success: res.success,
@@ -371,8 +343,8 @@ export function DeveloperMcpClient({
               Connect CampusLoop to Any IDE or AI Agent
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Equip Cursor, Windsurf, Claude Desktop, Antigravity, or your custom
-              agents with full platform access under your verified student identity (
+              Equip Cursor, Windsurf, Claude Desktop, Antigravity, or your custom agents with full platform
+              access under your verified student identity (
               <span className="font-bold text-foreground">@{studentUsername}</span> at{" "}
               <span className="font-bold text-foreground">{collegeName}</span>).
             </p>
@@ -456,18 +428,14 @@ export function DeveloperMcpClient({
                       <div
                         className={cn(
                           "size-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
-                          isSelected
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
+                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                         )}
                       >
                         <Key className="size-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-xs sm:text-sm font-bold text-foreground">
-                            {k.name}
-                          </h3>
+                          <h3 className="text-xs sm:text-sm font-bold text-foreground">{k.name}</h3>
                           <span
                             className={cn(
                               "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
@@ -482,11 +450,7 @@ export function DeveloperMcpClient({
                         <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
                           <span>{k.requestsCount} calls</span>
                           <span>•</span>
-                          <span>
-                            {k.lastUsedAt
-                              ? `Active ${formatTimeAgo(k.lastUsedAt)}`
-                              : "Never used"}
-                          </span>
+                          <span>{k.lastUsedAt ? `Active ${formatTimeAgo(k.lastUsedAt)}` : "Never used"}</span>
                         </div>
                       </div>
                     </div>
@@ -501,9 +465,7 @@ export function DeveloperMcpClient({
                         className="size-7 rounded-lg border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                         title={k.isActive ? "Pause key" : "Activate key"}
                       >
-                        <Power
-                          className={cn("size-3", k.isActive && "text-emerald-500")}
-                        />
+                        <Power className={cn("size-3", k.isActive && "text-emerald-500")} />
                       </button>
 
                       <button
@@ -527,25 +489,16 @@ export function DeveloperMcpClient({
                   </div>
 
                   {/* Token display row */}
-                  <div
-                    className="flex items-center gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <div className="flex-1 h-8 px-3 rounded-xl bg-card border border-border/60 flex items-center justify-between text-xs font-mono text-muted-foreground overflow-hidden">
-                      <span className="truncate">
-                        {isVisible ? k.key : maskedToken}
-                      </span>
+                      <span className="truncate">{isVisible ? k.key : maskedToken}</span>
                       <button
                         type="button"
                         onClick={() => toggleTokenVisible(k.id)}
                         className="text-muted-foreground hover:text-foreground ml-2 shrink-0 cursor-pointer"
                         title={isVisible ? "Hide token" : "Reveal token"}
                       >
-                        {isVisible ? (
-                          <EyeOff className="size-3.5" />
-                        ) : (
-                          <Eye className="size-3.5" />
-                        )}
+                        {isVisible ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                       </button>
                     </div>
 
@@ -554,11 +507,7 @@ export function DeveloperMcpClient({
                       onClick={() => handleCopyKeyString(k.key)}
                       className="h-8 px-3 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-all shrink-0 cursor-pointer shadow-2xs"
                     >
-                      {isCopied ? (
-                        <Check className="size-3 text-emerald-400" />
-                      ) : (
-                        <Copy className="size-3" />
-                      )}
+                      {isCopied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
                       <span>{isCopied ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
@@ -589,11 +538,7 @@ export function DeveloperMcpClient({
             onClick={handleCopyConfig}
             className="h-9 px-4 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
           >
-            {copiedConfig ? (
-              <Check className="size-3.5 text-emerald-400" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
+            {copiedConfig ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
             <span>{copiedConfig ? "Copied" : "Copy Config Snippet"}</span>
           </button>
         </div>
@@ -638,12 +583,14 @@ export function DeveloperMcpClient({
           {activeIdeTab === "cursor" && (
             <p>
               Paste into your project&apos;s <code>.cursor/mcp.json</code> or add in{" "}
-              <strong>Cursor Settings → Features → MCP → Add New MCP Server</strong> with Type: <code>HTTP</code>.
+              <strong>Cursor Settings → Features → MCP → Add New MCP Server</strong> with Type:{" "}
+              <code>HTTP</code>.
             </p>
           )}
           {activeIdeTab === "claude" && (
             <p>
-              Add to <code>claude_desktop_config.json</code> under <code>mcpServers</code>. The <code>mcp-remote</code> bridge converts SSE to stdio seamlessly.
+              Add to <code>claude_desktop_config.json</code> under <code>mcpServers</code>. The{" "}
+              <code>mcp-remote</code> bridge converts SSE to stdio seamlessly.
             </p>
           )}
           {activeIdeTab === "windsurf" && (
@@ -658,7 +605,8 @@ export function DeveloperMcpClient({
           )}
           {activeIdeTab === "curl" && (
             <p>
-              Standard JSON-RPC 2.0 payload. Compatible with custom Python scripts, LangChain, CrewAI, and AutoGen.
+              Standard JSON-RPC 2.0 payload. Compatible with custom Python scripts, LangChain, CrewAI, and
+              AutoGen.
             </p>
           )}
         </div>
@@ -730,9 +678,7 @@ export function DeveloperMcpClient({
               >
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-bold text-foreground">
-                      {tool.name}
-                    </span>
+                    <span className="font-mono text-xs font-bold text-foreground">{tool.name}</span>
                     <span
                       className={cn(
                         "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 border",
@@ -779,14 +725,10 @@ export function DeveloperMcpClient({
                   <Play className="size-4.5 fill-current" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-black text-foreground font-mono">
-                    {activePlaygroundTool}
-                  </h3>
+                  <h3 className="text-sm font-black text-foreground font-mono">{activePlaygroundTool}</h3>
                   <p className="text-[11px] text-muted-foreground">
                     Live execution via MCP server using key:{" "}
-                    <span className="font-bold text-foreground">
-                      {activeKey?.name || "Selected Key"}
-                    </span>
+                    <span className="font-bold text-foreground">{activeKey?.name || "Selected Key"}</span>
                   </p>
                 </div>
               </div>
@@ -800,9 +742,7 @@ export function DeveloperMcpClient({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">
-                Tool Arguments (JSON)
-              </label>
+              <label className="text-xs font-bold text-foreground">Tool Arguments (JSON)</label>
               <textarea
                 rows={5}
                 value={toolArgsInput}
@@ -825,11 +765,7 @@ export function DeveloperMcpClient({
                 disabled={runningTool}
                 className="h-9 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
-                {runningTool ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <Send className="size-3.5" />
-                )}
+                {runningTool ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
                 <span>{runningTool ? "Executing..." : "Execute Tool"}</span>
               </button>
             </div>
@@ -878,9 +814,7 @@ export function DeveloperMcpClient({
                 <span className="p-2 rounded-xl bg-primary/10 text-primary">
                   <Key className="size-5" />
                 </span>
-                <h3 className="text-base font-black text-foreground">
-                  New MCP API Key
-                </h3>
+                <h3 className="text-base font-black text-foreground">New MCP API Key</h3>
               </div>
               <button
                 type="button"
@@ -892,14 +826,13 @@ export function DeveloperMcpClient({
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              This secret key allows IDEs or agents to act on your behalf across your campus feed, notes vault, and communities.
+              This secret key allows IDEs or agents to act on your behalf across your campus feed, notes
+              vault, and communities.
             </p>
 
             <form onSubmit={handleCreateKey} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">
-                  Key Name / Client Description
-                </label>
+                <label className="text-xs font-bold text-foreground">Key Name / Client Description</label>
                 <input
                   type="text"
                   placeholder="e.g. Cursor on MacBook, Claude Desktop, Personal Agent"

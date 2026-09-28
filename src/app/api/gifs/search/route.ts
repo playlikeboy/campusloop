@@ -3,10 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 // Keep the server-side key private. The public-name fallbacks are retained for
 // backwards compatibility with existing deployments.
 const GIPHY_API_KEY =
-  process.env.GIPHY_API_KEY ||
-  process.env.GIFY_API_KEY ||
-  process.env.NEXT_PUBLIC_GIPHY_API_KEY ||
-  "";
+  process.env.GIPHY_API_KEY || process.env.GIFY_API_KEY || process.env.NEXT_PUBLIC_GIPHY_API_KEY || "";
 
 export interface GifItem {
   id: string;

@@ -453,7 +453,10 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <section className="space-y-2.5" aria-labelledby="loop-audience">
             <div className="flex items-end justify-between gap-2">
               <div>
-                <p id="loop-audience" className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground">
+                <p
+                  id="loop-audience"
+                  className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground"
+                >
                   1 · Who do you want to meet?
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">Choose the size of the pool.</p>
@@ -488,14 +491,14 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                     }}
                     className={cn(
                       "min-h-[108px] rounded-2xl px-3.5 py-3 text-left transition-all cursor-pointer shadow-xs",
-                      selected
-                        ? "bg-primary/8 ring-2 ring-primary"
-                        : "bg-card hover:bg-muted/50"
+                      selected ? "bg-primary/8 ring-2 ring-primary" : "bg-card hover:bg-muted/50"
                     )}
                     aria-pressed={selected}
                   >
                     <div className="flex items-center justify-between">
-                      <ModeIcon className={cn("size-5", selected ? "text-primary" : "text-muted-foreground")} />
+                      <ModeIcon
+                        className={cn("size-5", selected ? "text-primary" : "text-muted-foreground")}
+                      />
                       <span
                         className={cn(
                           "flex size-5 items-center justify-center rounded-full text-[10px] font-black",
@@ -507,7 +510,9 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                       </span>
                     </div>
                     <p className="mt-3 text-sm font-black text-foreground">{mode.title}</p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{mode.description}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                      {mode.description}
+                    </p>
                   </button>
                 );
               })}
@@ -517,10 +522,15 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <section className="space-y-2.5" aria-labelledby="loop-topics">
             <div className="flex items-end justify-between gap-2">
               <div>
-                <p id="loop-topics" className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground">
+                <p
+                  id="loop-topics"
+                  className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground"
+                >
                   2 · Pick a conversation vibe
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Up to 3 topics help us find a better match.</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Up to 3 topics help us find a better match.
+                </p>
               </div>
               <span className="shrink-0 text-[11px] font-black tabular-nums text-foreground">
                 {selectedInterests.length}/3

@@ -1,33 +1,22 @@
 "use client";
 
 import {
-  Activity,
-  AlertTriangle,
   ArrowUpRight,
-  Bot,
   CheckCircle2,
   Cloud,
-  Copy,
   Download,
   ExternalLink,
   FileSpreadsheet,
-  Globe,
-  Layers,
   MessageSquare,
-  Play,
-  Radio,
   RefreshCw,
   Send,
-  Share2,
-  Shield,
   ShieldAlert,
-  Sparkles,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 interface RedditItem {
@@ -227,8 +216,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             </p>
           </div>
           <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            2 Connected Toolkits Active
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />2 Connected Toolkits
+            Active
           </span>
         </div>
 
@@ -236,9 +225,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           {/* 1. Reddit */}
           <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-orange-500 uppercase tracking-wider">
-                Reddit API
-              </span>
+              <span className="text-xs font-black text-orange-500 uppercase tracking-wider">Reddit API</span>
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                 ACTIVE
               </span>
@@ -252,9 +239,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           {/* 2. Cloudflare */}
           <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-amber-500 uppercase tracking-wider">
-                Cloudflare
-              </span>
+              <span className="text-xs font-black text-amber-500 uppercase tracking-wider">Cloudflare</span>
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                 ACTIVE
               </span>
@@ -417,7 +402,9 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         {redditPosts.length > 0 && (
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between text-xs font-bold text-muted-foreground px-1">
-              <span>Results ({redditPosts.length} posts from r/{subreddit})</span>
+              <span>
+                Results ({redditPosts.length} posts from r/{subreddit})
+              </span>
               <span>Sorted by {redditSort.toUpperCase()}</span>
             </div>
 
@@ -575,7 +562,9 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               className="w-full h-10 rounded-xl bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
             >
               <Send className={cn("h-4 w-4", isDispatchingAlert && "animate-pulse")} />
-              <span>{isDispatchingAlert ? "Dispatching..." : `Dispatch Alert to ${alertChannel.toUpperCase()}`}</span>
+              <span>
+                {isDispatchingAlert ? "Dispatching..." : `Dispatch Alert to ${alertChannel.toUpperCase()}`}
+              </span>
             </button>
           </div>
         </section>
@@ -590,7 +579,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               Platform Data Export &amp; Telemetry Hub
             </h3>
             <p className="text-xs text-muted-foreground">
-              Extract verified moderation records, student profiles, and college directory for external analysis
+              Extract verified moderation records, student profiles, and college directory for external
+              analysis
             </p>
           </div>
 

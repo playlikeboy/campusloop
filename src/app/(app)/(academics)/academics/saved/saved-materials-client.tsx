@@ -5,26 +5,18 @@ import {
   Bookmark,
   BookmarkCheck,
   BookOpen,
-  CheckCircle2,
   ChevronRight,
-  ExternalLink,
   FileQuestion,
-  FileText,
   FlaskConical,
-  GraduationCap,
   HardDrive,
-  Layers,
   Loader2,
-  Plus,
-  School,
   Search,
-  Sparkles,
   Trash2,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { AcademicAiStudyBar } from "@/components/academics/academic-ai-study-bar";

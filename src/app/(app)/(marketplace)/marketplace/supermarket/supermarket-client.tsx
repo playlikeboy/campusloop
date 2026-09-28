@@ -1,19 +1,15 @@
 "use client";
 
 import {
-  Check,
   ChevronRight,
-  Clock,
   Cookie,
   History,
   Milk,
   Minus,
   PenTool,
-  Percent,
   Plug,
   Plus,
   Search,
-  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Sparkles,

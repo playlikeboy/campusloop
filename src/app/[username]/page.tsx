@@ -1,20 +1,37 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { ArrowUpRight, BadgeCheck, Download, ExternalLink, FolderPlus, Lock, MessageSquare, School, ThumbsUp } from "lucide-react";
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  Download,
+  ExternalLink,
+  FolderPlus,
+  Lock,
+  MessageSquare,
+  School,
+  ThumbsUp,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ProfileClientView } from "@/app/(app)/(main)/profile/profile-client";
 import { ShareQrButton } from "@/components/common/share-qr-button";
 import { PublicFollowButton } from "@/components/profile/public-follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
 import { getBranchIcon } from "@/constants";
 import { getDb } from "@/db";
-import { academicPlaylists, academicResources, externalPosts, institutions, posts, userProfiles } from "@/db/schema";
+import {
+  academicPlaylists,
+  academicResources,
+  externalPosts,
+  institutions,
+  posts,
+  userProfiles,
+} from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import type { ExternalPostInfo, FeedPost } from "@/hooks/use-feed";
 import { getFollowCounts, getFollowState } from "@/lib/follows";
-import { ProfileClientView } from "@/app/(app)/(main)/profile/profile-client";
 
 interface VanityProfileProps {
   params: Promise<{ username: string }>;
@@ -378,7 +395,6 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                   <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
                     {profile.displayName}
                   </h2>
-
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal">
@@ -533,7 +549,9 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                   <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <MessageSquare className="size-4 text-[#1D9BF0]" /> Recent activity
                   </h3>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Posts and discussions shared by this student</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Posts and discussions shared by this student
+                  </p>
                 </div>
               </div>
               <div className="divide-y divide-border/20 rounded-xl border border-border/30 overflow-hidden">
@@ -553,12 +571,12 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                           </span>
                         )}
                         {ep?.subreddit && (
-                          <span className="text-[10px] font-semibold text-orange-400">
-                            r/{ep.subreddit}
-                          </span>
+                          <span className="text-[10px] font-semibold text-orange-400">r/{ep.subreddit}</span>
                         )}
                         {p.title && (
-                          <h4 className="text-xs font-bold text-foreground line-clamp-1 min-w-0">{cleanPostText(p.title)}</h4>
+                          <h4 className="text-xs font-bold text-foreground line-clamp-1 min-w-0">
+                            {cleanPostText(p.title)}
+                          </h4>
                         )}
                       </div>
 
@@ -595,11 +613,15 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                       <div className="flex items-center gap-3 text-[10px] text-muted-foreground pt-1 font-medium">
                         <span className="flex items-center gap-1 text-emerald-400 font-bold">
                           <ThumbsUp className="size-3" />
-                          <span>{votesTotal} {votesTotal === 1 ? "upvote" : "upvotes"}</span>
+                          <span>
+                            {votesTotal} {votesTotal === 1 ? "upvote" : "upvotes"}
+                          </span>
                         </span>
                         <span className="flex items-center gap-1">
                           <MessageSquare className="size-3" />
-                          <span>{p.comments.length} {p.comments.length === 1 ? "comment" : "comments"}</span>
+                          <span>
+                            {p.comments.length} {p.comments.length === 1 ? "comment" : "comments"}
+                          </span>
                         </span>
                       </div>
                     </Link>

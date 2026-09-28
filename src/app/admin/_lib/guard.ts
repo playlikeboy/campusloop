@@ -54,10 +54,7 @@ export async function requireAdminProfile(): Promise<{ db: Db; profile: UserProf
         profile = created;
       }
     } else if (profile.role !== "ADMIN") {
-      await db
-        .update(userProfiles)
-        .set({ role: "ADMIN" })
-        .where(eq(userProfiles.userId, user.id));
+      await db.update(userProfiles).set({ role: "ADMIN" }).where(eq(userProfiles.userId, user.id));
       profile = { ...profile, role: "ADMIN" };
     }
 
@@ -112,10 +109,7 @@ export async function resolveAdminSession(): Promise<AdminSessionContext> {
         profile = created;
       }
     } else if (profile.role !== "ADMIN") {
-      await db
-        .update(userProfiles)
-        .set({ role: "ADMIN" })
-        .where(eq(userProfiles.userId, user.id));
+      await db.update(userProfiles).set({ role: "ADMIN" }).where(eq(userProfiles.userId, user.id));
       profile = { ...profile, role: "ADMIN" };
     }
 

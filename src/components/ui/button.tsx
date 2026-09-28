@@ -16,10 +16,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground shadow-xs hover:opacity-90",
-        emerald:
-          "bg-[#00D285] text-white shadow-xs shadow-emerald-500/25 hover:bg-[#00be77] active:scale-95",
-        violet:
-          "bg-[#7C3AED] text-white shadow-xs shadow-purple-500/25 hover:bg-[#6D28D9] active:scale-95",
+        emerald: "bg-[#00D285] text-white shadow-xs shadow-emerald-500/25 hover:bg-[#00be77] active:scale-95",
+        violet: "bg-[#7C3AED] text-white shadow-xs shadow-purple-500/25 hover:bg-[#6D28D9] active:scale-95",
         pillTab:
           "bg-muted/80 text-muted-foreground hover:text-foreground hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:text-secondary-foreground font-bold rounded-full transition-all",
         circleIcon:

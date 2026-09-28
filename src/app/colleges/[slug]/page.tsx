@@ -1,10 +1,5 @@
+import { MapPin, MessageSquare, ShieldCheck, Users } from "lucide-react";
 import type { Metadata } from "next";
-import {
-  MapPin,
-  MessageSquare,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
 import Link from "next/link";
 import { CleanFooter } from "@/components/landing/clean-footer";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
@@ -235,10 +230,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <MinimalLandingNavbar isAuthenticated={!!user} />
@@ -325,9 +317,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                   <span className="text-[11px] text-muted-foreground block font-medium">
                     Verified Community
                   </span>
-                  <span className="text-base font-bold text-foreground">
-                    {college.students}
-                  </span>
+                  <span className="text-base font-bold text-foreground">{college.students}</span>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-muted/30 p-3.5">
                   <span className="text-[11px] text-muted-foreground block font-medium">
@@ -338,17 +328,13 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                   </span>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-muted/30 p-3.5">
-                  <span className="text-[11px] text-muted-foreground block font-medium">
-                    Identity Escrow
-                  </span>
+                  <span className="text-[11px] text-muted-foreground block font-medium">Identity Escrow</span>
                   <span className="text-base font-bold text-purple-600 dark:text-purple-400">
                     256-bit Encrypted
                   </span>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-muted/30 p-3.5">
-                  <span className="text-[11px] text-muted-foreground block font-medium">
-                    Viewer Mode
-                  </span>
+                  <span className="text-[11px] text-muted-foreground block font-medium">Viewer Mode</span>
                   <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
                     Aspirants Welcome
                   </span>
@@ -360,46 +346,38 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
                 <MessageSquare className="size-5 text-blue-600" />
-                <h3 className="text-base font-bold text-foreground">
-                  Confessions & Campus Feeds
-                </h3>
+                <h3 className="text-base font-bold text-foreground">Confessions & Campus Feeds</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Candid hostel discussions, professor reviews, and exam week memes
-                  free from administrative surveillance.
+                  Candid hostel discussions, professor reviews, and exam week memes free from administrative
+                  surveillance.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
                 <Users className="size-5 text-purple-600" />
-                <h3 className="text-base font-bold text-foreground">
-                  Active Student Societies
-                </h3>
+                <h3 className="text-base font-bold text-foreground">Active Student Societies</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Dedicated channels for tech teams, cultural societies, hostel wings,
-                  and hackathon project matching.
+                  Dedicated channels for tech teams, cultural societies, hostel wings, and hackathon project
+                  matching.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
                 <ShieldCheck className="size-5 text-emerald-600" />
-                <h3 className="text-base font-bold text-foreground">
-                  Zero Outside Creeps
-                </h3>
+                <h3 className="text-base font-bold text-foreground">Zero Outside Creeps</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Every account is verified through official institutional email.
-                  Zero marketing agencies or coaching ads.
+                  Every account is verified through official institutional email. Zero marketing agencies or
+                  coaching ads.
                 </p>
               </div>
             </div>
 
             {/* ─── Final Join Banner ─── */}
             <div className="rounded-3xl border border-blue-500/30 bg-blue-500/5 p-8 text-center space-y-4">
-              <h3 className="text-xl font-bold text-foreground">
-                Study at {college.name}?
-              </h3>
+              <h3 className="text-xl font-bold text-foreground">Study at {college.name}?</h3>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Unlock your college loop now. Enter your official university email to
-                receive an instant one-time login OTP.
+                Unlock your college loop now. Enter your official university email to receive an instant
+                one-time login OTP.
               </p>
               <div className="flex justify-center gap-3 pt-1">
                 <Link

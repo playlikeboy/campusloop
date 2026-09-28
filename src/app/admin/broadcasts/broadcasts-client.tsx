@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  AlertTriangle,
-  Bell,
-  CheckCircle2,
-  Globe,
-  Info,
-  Layers,
-  Megaphone,
-  Radio,
-  School,
-  Send,
-  ShieldAlert,
-  Sparkles,
-} from "lucide-react";
+import { Bell, Globe, Megaphone, Radio, School, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { haptics } from "@/lib/haptics";
@@ -194,10 +181,26 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
-                { id: "INFO", label: "General Info", color: "text-blue-500 bg-blue-500/10 border-blue-500/30" },
-                { id: "ANNOUNCEMENT", label: "Official", color: "text-primary bg-primary/10 border-primary/30" },
-                { id: "WARNING", label: "Advisory", color: "text-amber-500 bg-amber-500/10 border-amber-500/30" },
-                { id: "URGENT", label: "Urgent Alert", color: "text-rose-500 bg-rose-500/10 border-rose-500/30" },
+                {
+                  id: "INFO",
+                  label: "General Info",
+                  color: "text-blue-500 bg-blue-500/10 border-blue-500/30",
+                },
+                {
+                  id: "ANNOUNCEMENT",
+                  label: "Official",
+                  color: "text-primary bg-primary/10 border-primary/30",
+                },
+                {
+                  id: "WARNING",
+                  label: "Advisory",
+                  color: "text-amber-500 bg-amber-500/10 border-amber-500/30",
+                },
+                {
+                  id: "URGENT",
+                  label: "Urgent Alert",
+                  color: "text-rose-500 bg-rose-500/10 border-rose-500/30",
+                },
               ].map((p) => (
                 <button
                   key={p.id}
@@ -210,7 +213,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   className={cn(
                     "px-2.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center",
                     priority === p.id
-                      ? p.color + " shadow-xs font-black"
+                      ? `${p.color} shadow-xs font-black`
                       : "border-border/30 bg-muted/20 text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -294,10 +297,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 priority === "URGENT"
                   ? "border-rose-500/40 bg-rose-500/10"
                   : priority === "WARNING"
-                  ? "border-amber-500/40 bg-amber-500/10"
-                  : priority === "INFO"
-                  ? "border-blue-500/40 bg-blue-500/10"
-                  : "border-primary/40 bg-primary/10"
+                    ? "border-amber-500/40 bg-amber-500/10"
+                    : priority === "INFO"
+                      ? "border-blue-500/40 bg-blue-500/10"
+                      : "border-primary/40 bg-primary/10"
               )}
             >
               <div className="flex items-center justify-between">
@@ -307,19 +310,19 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     priority === "URGENT"
                       ? "bg-rose-500/20 text-rose-500"
                       : priority === "WARNING"
-                      ? "bg-amber-500/20 text-amber-500"
-                      : priority === "INFO"
-                      ? "bg-blue-500/20 text-blue-500"
-                      : "bg-primary/20 text-primary"
+                        ? "bg-amber-500/20 text-amber-500"
+                        : priority === "INFO"
+                          ? "bg-blue-500/20 text-blue-500"
+                          : "bg-primary/20 text-primary"
                   )}
                 >
                   {priority === "URGENT"
                     ? "URGENT NOTICE"
                     : priority === "WARNING"
-                    ? "CAMPUS ADVISORY"
-                    : priority === "INFO"
-                    ? "CAMPUS INFO"
-                    : "OFFICIAL ANNOUNCEMENT"}
+                      ? "CAMPUS ADVISORY"
+                      : priority === "INFO"
+                        ? "CAMPUS INFO"
+                        : "OFFICIAL ANNOUNCEMENT"}
                 </span>
 
                 <span className="text-[10px] font-semibold text-muted-foreground">
@@ -348,7 +351,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               <Radio className="h-4 w-4 text-primary" />
               Recent Broadcast Dispatches
             </h3>
-            <p className="text-xs text-muted-foreground">Audit record of previous platform-wide announcements</p>
+            <p className="text-xs text-muted-foreground">
+              Audit record of previous platform-wide announcements
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

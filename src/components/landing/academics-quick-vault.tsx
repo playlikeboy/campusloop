@@ -86,7 +86,8 @@ export function AcademicsQuickVault() {
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto font-medium">
-            Verified lecture notes, handwritten cheatsheets, and solved PYQ papers curated by your fellow classmates.
+            Verified lecture notes, handwritten cheatsheets, and solved PYQ papers curated by your fellow
+            classmates.
           </p>
         </div>
 

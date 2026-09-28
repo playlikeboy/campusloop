@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  Activity,
-  CheckCircle2,
-  Cpu,
-  Database,
-  Layers,
-  Play,
-  RefreshCw,
-  Server,
-  ShieldAlert,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
+import { Activity, Database, RefreshCw, Server, ShieldCheck, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { haptics } from "@/lib/haptics";
@@ -128,9 +116,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
                 <Database className="h-3.5 w-3.5 text-blue-500" /> Neon Postgres
               </span>
               <p className="text-xs text-muted-foreground">SELECT 1 query roundtrip</p>
-              {dbPingResult && (
-                <p className="text-xs font-black text-emerald-500 pt-1">{dbPingResult}</p>
-              )}
+              {dbPingResult && <p className="text-xs font-black text-emerald-500 pt-1">{dbPingResult}</p>}
             </div>
 
             <button

@@ -117,10 +117,7 @@ export async function POST(req: Request, { params }: RouteParams) {
 
         const likesCount = actualCount?.count || 0;
 
-        await db
-          .update(reels)
-          .set({ likesCount })
-          .where(eq(reels.id, id));
+        await db.update(reels).set({ likesCount }).where(eq(reels.id, id));
 
         return NextResponse.json({
           message: isLiked ? "Vote cast" : "Vote removed",

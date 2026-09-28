@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
 import { ArrowUp, Blocks, Palette, Paperclip } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -50,15 +50,9 @@ function ChatMessage({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={cn("flex items-start gap-3", reversed && "flex-row-reverse")}
-    >
+    <div className={cn("flex items-start gap-3", reversed && "flex-row-reverse")}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={avatar}
-        alt={alt}
-        className="size-8 shrink-0 rounded-full object-cover"
-      />
+      <img src={avatar} alt={alt} className="size-8 shrink-0 rounded-full object-cover" />
       <div className="rounded-xl bg-white px-3 py-2 text-sm text-neutral-700 shadow-sm shadow-black/5 ring-1 ring-black/5 dark:bg-neutral-800 dark:text-neutral-200">
         {children}
       </div>
@@ -285,32 +279,27 @@ const filterCategories: ReadonlyArray<{
   {
     label: "Buttons",
     active: true,
-    classes:
-      "bg-blue-100 border-blue-200 dark:bg-blue-100/10 dark:border-blue-200/10",
+    classes: "bg-blue-100 border-blue-200 dark:bg-blue-100/10 dark:border-blue-200/10",
     icon: <ClipboardDataIcon className="size-4 text-blue-500" />,
   },
   {
     label: "Cards",
-    classes:
-      "bg-green-100 border-green-200 dark:bg-green-100/10 dark:border-green-200/10",
+    classes: "bg-green-100 border-green-200 dark:bg-green-100/10 dark:border-green-200/10",
     icon: <FileDotsIcon className="size-4 text-green-500" />,
   },
   {
     label: "Inputs",
-    classes:
-      "bg-indigo-100 border-indigo-200 dark:bg-indigo-100/10 dark:border-indigo-200/10",
+    classes: "bg-indigo-100 border-indigo-200 dark:bg-indigo-100/10 dark:border-indigo-200/10",
     icon: <FeatherIcon className="size-4 text-indigo-500" />,
   },
   {
     label: "Hero Sections",
-    classes:
-      "bg-neutral-100 border-neutral-200 dark:bg-neutral-100/10 dark:border-neutral-200/10",
+    classes: "bg-neutral-100 border-neutral-200 dark:bg-neutral-100/10 dark:border-neutral-200/10",
     icon: <PointerUpIcon className="size-4 text-neutral-500" />,
   },
   {
     label: "Navbars",
-    classes:
-      "bg-purple-100 border-purple-200 dark:bg-purple-100/10 dark:border-purple-200/10",
+    classes: "bg-purple-100 border-purple-200 dark:bg-purple-100/10 dark:border-purple-200/10",
     icon: <FilterSearchIcon className="size-4 text-purple-500" />,
   },
 ];
@@ -325,7 +314,7 @@ function CategoryPanelIllustration() {
             className={cn(
               "relative flex items-center justify-center gap-1 rounded-sm border px-2 py-1 text-xs transition duration-200",
               cat.active ? "opacity-100" : "opacity-50",
-              cat.classes,
+              cat.classes
             )}
           >
             {cat.active && (
@@ -340,36 +329,28 @@ function CategoryPanelIllustration() {
       <div
         className="mx-auto flex w-full max-w-[20rem] flex-col gap-2 rounded-t-3xl border-x border-t border-neutral-200 bg-neutral-100 p-2 pb-8 dark:border-neutral-700 dark:bg-neutral-800 lg:max-w-sm"
         style={{
-          maskImage:
-            "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
+          maskImage: "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
+          WebkitMaskImage: "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
         }}
       >
         <div
           className="flex flex-col items-start gap-4 rounded-2xl border border-transparent bg-white p-4 shadow-black/10 ring-1 ring-black/10 dark:bg-neutral-900"
           style={{
-            maskImage:
-              "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
+            maskImage: "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
+            WebkitMaskImage: "linear-gradient(to bottom, black calc(100% - 1.5rem), rgba(0,0,0,0.4))",
           }}
         >
           <div className="flex items-center gap-2">
             <div className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-100 dark:border-blue-200/10 dark:bg-blue-100/10">
               <ClipboardDataIcon className="size-4 text-blue-500" />
             </div>
-            <p className="text-lg font-bold text-neutral-800 dark:text-neutral-200">
-              Buttons
-            </p>
+            <p className="text-lg font-bold text-neutral-800 dark:text-neutral-200">Buttons</p>
           </div>
           <div>
-            <p className="text-base text-neutral-600 dark:text-neutral-400">
-              Primary Variant
-            </p>
+            <p className="text-base text-neutral-600 dark:text-neutral-400">Primary Variant</p>
             <p className="mb-4 mt-2 rounded-sm border border-dashed border-neutral-200 px-2 py-1 text-sm text-neutral-600 dark:border-neutral-200/10 dark:text-neutral-400">
-              Install any component with a single shadcn CLI command — themed by
-              your tokens, no configuration required.
+              Install any component with a single shadcn CLI command — themed by your tokens, no configuration
+              required.
             </p>
             <div className="mt-2 flex flex-row flex-wrap gap-2">
               <span className="flex w-fit items-center gap-1 rounded-sm border border-neutral-200 px-1 py-0.5 text-sm dark:border-neutral-200/10">
@@ -397,16 +378,14 @@ const defaultFeatures: [GridFrameFeature, GridFrameFeature] = [
     icon: <Blocks className="size-4" />,
     title: "Component Registry",
     highlight: "200+ components ready for production.",
-    description:
-      "Add any block to your project with a single shadcn CLI command.",
+    description: "Add any block to your project with a single shadcn CLI command.",
     illustration: <CategoryPanelIllustration />,
   },
   {
     icon: <Palette className="size-4" />,
     title: "Themeable by Design",
     highlight: "Adapt instantly to your brand.",
-    description:
-      "Semantic tokens drive every component, so light and dark just work.",
+    description: "Semantic tokens drive every component, so light and dark just work.",
     illustration: <AgentWorkflowIllustration />,
   },
 ];
@@ -418,10 +397,7 @@ function HeroBlock({
   description,
   primaryAction,
   microcopy,
-}: Pick<
-  GridFrameHeroProps,
-  "title" | "description" | "primaryAction" | "microcopy"
->) {
+}: Pick<GridFrameHeroProps, "title" | "description" | "primaryAction" | "microcopy">) {
   return (
     <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1fr)_minmax(0,69rem)_minmax(0,1fr)]">
       <OuterRail />
@@ -432,9 +408,7 @@ function HeroBlock({
               {title}
             </h1>
             {description && (
-              <p className="mt-5 text-balance text-base text-muted-foreground sm:text-lg">
-                {description}
-              </p>
+              <p className="mt-5 text-balance text-base text-muted-foreground sm:text-lg">{description}</p>
             )}
             {primaryAction && (
               <div className="mt-9">
@@ -445,7 +419,7 @@ function HeroBlock({
                     "bg-primary text-primary-foreground shadow-lg shadow-primary/20",
                     "ring-1 ring-foreground/10",
                     "transition-colors hover:bg-primary/90",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   )}
                 >
                   {primaryAction.label}
@@ -453,9 +427,7 @@ function HeroBlock({
               </div>
             )}
             {microcopy && (
-              <span className="mt-3 block text-center text-sm text-muted-foreground">
-                {microcopy}
-              </span>
+              <span className="mt-3 block text-center text-sm text-muted-foreground">{microcopy}</span>
             )}
           </div>
         </div>
@@ -465,11 +437,7 @@ function HeroBlock({
   );
 }
 
-function FeaturesBlock({
-  features,
-}: {
-  features: [GridFrameFeature, GridFrameFeature];
-}) {
+function FeaturesBlock({ features }: { features: [GridFrameFeature, GridFrameFeature] }) {
   return (
     <div className="mx-auto grid w-full max-w-[75rem] grid-cols-[auto_minmax(0,1fr)_auto] border border-border/60 lg:grid-cols-[minmax(0,1fr)_minmax(0,69rem)_minmax(0,1fr)]">
       <OuterRail />
@@ -501,8 +469,7 @@ function FeatureCard({ feature }: { feature: GridFrameFeature }) {
           {feature.title}
         </h3>
         <p className="text-base font-medium text-muted-foreground lg:text-xl">
-          <span className="text-foreground">{feature.highlight}</span>{" "}
-          {feature.description}
+          <span className="text-foreground">{feature.highlight}</span> {feature.description}
         </p>
       </div>
       <div className="flex min-w-0 flex-col items-center justify-center overflow-hidden bg-card p-5 sm:p-6 md:p-7 lg:p-10">

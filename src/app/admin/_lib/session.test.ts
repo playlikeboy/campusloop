@@ -2,12 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const {
-  ADMIN_EMAILS,
-  createAdminSessionToken,
-  isAllowedAdminEmail,
-  isValidAdminSessionToken,
-} = await import("./session");
+const { ADMIN_EMAILS, createAdminSessionToken, isAllowedAdminEmail, isValidAdminSessionToken } = await import(
+  "./session"
+);
 
 describe("Admin Email Authorization & Session Security", () => {
   it("recognizes authorized administrator emails (sh20raj@gmail.com, btech10574.24@bitmesra.ac.in)", () => {

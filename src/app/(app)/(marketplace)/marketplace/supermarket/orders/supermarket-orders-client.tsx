@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Clock, History, Package, ShieldCheck, ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

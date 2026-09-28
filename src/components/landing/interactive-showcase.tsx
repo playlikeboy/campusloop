@@ -12,8 +12,8 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
+import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
 
 type DemoTab = "feed" | "study" | "communities" | "events";
 
@@ -58,7 +58,9 @@ export function InteractiveShowcase() {
   }, [search]);
 
   function toggleInList(value: string, setter: Dispatch<SetStateAction<string[]>>) {
-    setter((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+    setter((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
+    );
   }
 
   return (
@@ -74,8 +76,8 @@ export function InteractiveShowcase() {
               Don’t imagine CampusLoop. Play with it.
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-              Switch between the four things students actually come here to do. Vote, search, join and RSVP — the
-              same ideas you get inside the app.
+              Switch between the four things students actually come here to do. Vote, search, join and RSVP —
+              the same ideas you get inside the app.
             </p>
 
             <div className="mt-8 space-y-2">
@@ -112,14 +114,18 @@ export function InteractiveShowcase() {
 
           <div className="relative">
             <div className="absolute -left-5 -top-5 hidden rounded-2xl border border-border bg-background px-4 py-3 shadow-xl sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Live preview</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+                Live preview
+              </p>
               <p className="mt-1 text-xs font-semibold text-foreground">Everything is campus-first.</p>
             </div>
 
             <div className="overflow-hidden rounded-[30px] border border-zinc-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.12)] dark:border-border dark:bg-card">
               <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4 dark:border-border">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid size-8 place-items-center rounded-xl bg-foreground text-xs font-black text-background">C</span>
+                  <span className="grid size-8 place-items-center rounded-xl bg-foreground text-xs font-black text-background">
+                    C
+                  </span>
                   <div>
                     <p className="text-xs font-black text-foreground">CampusLoop</p>
                     <p className="text-[10px] text-muted-foreground">Your campus, in one loop.</p>
@@ -135,15 +141,23 @@ export function InteractiveShowcase() {
                   <div className="mx-auto max-w-xl space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">Campus feed</p>
-                        <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">What’s happening today?</h3>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">
+                          Campus feed
+                        </p>
+                        <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">
+                          What’s happening today?
+                        </h3>
                       </div>
-                      <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-muted-foreground shadow-sm">BIT Mesra</span>
+                      <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-muted-foreground shadow-sm">
+                        BIT Mesra
+                      </span>
                     </div>
 
                     <article className="rounded-3xl border border-border bg-background p-5 shadow-sm">
                       <div className="flex items-center gap-3">
-                        <span className="grid size-9 place-items-center rounded-full bg-blue-100 text-xs font-black text-blue-700">A</span>
+                        <span className="grid size-9 place-items-center rounded-full bg-blue-100 text-xs font-black text-blue-700">
+                          A
+                        </span>
                         <div>
                           <p className="text-xs font-bold text-foreground">Anonymous · 3rd year</p>
                           <p className="text-[10px] text-muted-foreground">12 min ago · Hostel 7</p>
@@ -164,7 +178,10 @@ export function InteractiveShowcase() {
                           <Heart className={`size-4 ${liked ? "fill-current" : ""}`} />
                           {liked ? "31" : "30"}
                         </button>
-                        <button type="button" className="inline-flex h-9 items-center gap-2 rounded-full bg-muted px-3 text-xs font-bold text-foreground">
+                        <button
+                          type="button"
+                          className="inline-flex h-9 items-center gap-2 rounded-full bg-muted px-3 text-xs font-bold text-foreground"
+                        >
                           <MessageCircle className="size-4" />
                           12
                         </button>
@@ -185,16 +202,22 @@ export function InteractiveShowcase() {
                     <div className="rounded-3xl border border-blue-100 bg-blue-50/70 p-5 dark:border-blue-900/40 dark:bg-blue-950/15">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-300">Campus poll</p>
-                          <h4 className="mt-1 text-sm font-black text-foreground">Where are we getting late-night chai?</h4>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-300">
+                            Campus poll
+                          </p>
+                          <h4 className="mt-1 text-sm font-black text-foreground">
+                            Where are we getting late-night chai?
+                          </h4>
                         </div>
                         <span className="text-[10px] font-bold text-muted-foreground">428 votes</span>
                       </div>
                       <div className="mt-4 space-y-2">
-                        {([
-                          ["canteen", "Canteen Booth", pollChoice === "canteen" ? 64 : 58],
-                          ["gate", "Back Gate Counter", pollChoice === "gate" ? 36 : 42],
-                        ] as const).map(([id, label, percent]) => (
+                        {(
+                          [
+                            ["canteen", "Canteen Booth", pollChoice === "canteen" ? 64 : 58],
+                            ["gate", "Back Gate Counter", pollChoice === "gate" ? 36 : 42],
+                          ] as const
+                        ).map(([id, label, percent]) => (
                           <button
                             type="button"
                             key={id}
@@ -222,11 +245,17 @@ export function InteractiveShowcase() {
 
                 {activeTab === "study" && (
                   <div className="mx-auto max-w-xl">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">Academic vault</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">
+                      Academic vault
+                    </p>
                     <div className="mt-1 flex items-end justify-between gap-4">
                       <div>
-                        <h3 className="text-xl font-black tracking-tight text-foreground">Find the exact thing you need.</h3>
-                        <p className="mt-1 text-xs text-muted-foreground">Notes · PYQs · lab manuals · playlists</p>
+                        <h3 className="text-xl font-black tracking-tight text-foreground">
+                          Find the exact thing you need.
+                        </h3>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Notes · PYQs · lab manuals · playlists
+                        </p>
                       </div>
                     </div>
 
@@ -253,7 +282,9 @@ export function InteractiveShowcase() {
                             {item.tag}
                           </span>
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-xs font-black text-foreground">{item.title}</span>
+                            <span className="block truncate text-xs font-black text-foreground">
+                              {item.title}
+                            </span>
                             <span className="mt-1 block text-[10px] text-muted-foreground">{item.meta}</span>
                           </span>
                           <ArrowRight className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
@@ -262,12 +293,17 @@ export function InteractiveShowcase() {
                       {filteredStudy.length === 0 && (
                         <div className="rounded-2xl border border-dashed border-border p-8 text-center">
                           <p className="text-sm font-bold text-foreground">Nothing in this demo matches.</p>
-                          <p className="mt-1 text-xs text-muted-foreground">Try “networks”, “compiler” or “AI”.</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Try “networks”, “compiler” or “AI”.
+                          </p>
                         </div>
                       )}
                     </div>
 
-                    <Link href="/app/academics" className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-foreground">
+                    <Link
+                      href="/app/academics"
+                      className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-foreground"
+                    >
                       Open the full academic vault <ArrowRight className="size-3.5" />
                     </Link>
                   </div>
@@ -275,16 +311,27 @@ export function InteractiveShowcase() {
 
                 {activeTab === "communities" && (
                   <div className="mx-auto max-w-xl">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">Communities</p>
-                    <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">Find your people.</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">Clubs, societies, project teams and hobby circles.</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">
+                      Communities
+                    </p>
+                    <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">
+                      Find your people.
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Clubs, societies, project teams and hobby circles.
+                    </p>
 
                     <div className="mt-5 space-y-3">
                       {communityItems.map((community) => {
                         const isJoined = joined.includes(community.name);
                         return (
-                          <div key={community.name} className="flex items-center gap-3 rounded-2xl border border-border bg-background p-4">
-                            <span className={`grid size-10 place-items-center rounded-xl text-xs font-black ${community.tone}`}>
+                          <div
+                            key={community.name}
+                            className="flex items-center gap-3 rounded-2xl border border-border bg-background p-4"
+                          >
+                            <span
+                              className={`grid size-10 place-items-center rounded-xl text-xs font-black ${community.tone}`}
+                            >
                               <Users className="size-4" />
                             </span>
                             <div className="min-w-0 flex-1">
@@ -296,7 +343,9 @@ export function InteractiveShowcase() {
                               onClick={() => toggleInList(community.name, setJoined)}
                               className={[
                                 "rounded-xl px-3 py-2 text-[10px] font-bold transition",
-                                isJoined ? "bg-foreground text-background" : "bg-muted text-foreground hover:bg-muted/70",
+                                isJoined
+                                  ? "bg-foreground text-background"
+                                  : "bg-muted text-foreground hover:bg-muted/70",
                               ].join(" ")}
                             >
                               {isJoined ? "Joined" : "Join"}
@@ -307,32 +356,51 @@ export function InteractiveShowcase() {
                     </div>
 
                     <div className="mt-5 rounded-2xl bg-foreground p-4 text-background">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-background/50">Campus match</p>
-                      <p className="mt-1 text-sm font-black">Build with someone who’s already on your campus.</p>
-                      <p className="mt-1 text-xs text-background/60">Project partners · study buddies · societies</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-background/50">
+                        Campus match
+                      </p>
+                      <p className="mt-1 text-sm font-black">
+                        Build with someone who’s already on your campus.
+                      </p>
+                      <p className="mt-1 text-xs text-background/60">
+                        Project partners · study buddies · societies
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "events" && (
                   <div className="mx-auto max-w-xl">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">Campus events</p>
-                    <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">Know where to show up.</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">Fests, workshops, competitions and the little things worth leaving your room for.</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-500">
+                      Campus events
+                    </p>
+                    <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">
+                      Know where to show up.
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Fests, workshops, competitions and the little things worth leaving your room for.
+                    </p>
 
                     <div className="mt-5 space-y-3">
                       {eventItems.map((event) => {
                         const isGoing = rsvped.includes(event.title);
                         return (
-                          <div key={event.title} className="rounded-2xl border border-border bg-background p-4">
+                          <div
+                            key={event.title}
+                            className="rounded-2xl border border-border bg-background p-4"
+                          >
                             <div className="flex items-start gap-3">
                               <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-300">
                                 <CalendarDays className="size-4" />
                               </span>
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-black text-foreground">{event.title}</p>
-                                <p className="mt-1 text-[10px] leading-4 text-muted-foreground">{event.meta}</p>
-                                <p className="mt-1 text-[10px] font-semibold text-muted-foreground">{event.status}</p>
+                                <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
+                                  {event.meta}
+                                </p>
+                                <p className="mt-1 text-[10px] font-semibold text-muted-foreground">
+                                  {event.status}
+                                </p>
                               </div>
                               <button
                                 type="button"
@@ -362,7 +430,9 @@ export function InteractiveShowcase() {
               </div>
 
               <div className="flex items-center justify-between border-t border-zinc-100 px-5 py-4 dark:border-border">
-                <p className="text-[10px] font-semibold text-muted-foreground">Interactive preview · no signup required</p>
+                <p className="text-[10px] font-semibold text-muted-foreground">
+                  Interactive preview · no signup required
+                </p>
                 <span className="text-[10px] font-black text-foreground">CampusLoop</span>
               </div>
             </div>

@@ -1,31 +1,14 @@
 "use client";
 
-import {
-  AlertTriangle,
-  ArrowRight,
-  Check,
-  Clock,
-  DollarSign,
-  Package,
-  Plus,
-  Power,
-  RefreshCw,
-  Search,
-  ShieldCheck,
-  ShoppingBag,
-  TrendingUp,
-  Truck,
-  X,
-} from "lucide-react";
+import { ArrowRight, Check, Package, Plus, Power, RefreshCw, ShoppingBag, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function SupermarketDashboardClient() {
   const [updatingStoreOpen, setUpdatingStoreOpen] = useState(false);

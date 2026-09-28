@@ -1,9 +1,10 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { articles, articleVotes, userProfiles } from "@/db/schema";
+import { articles, articleVotes, follows, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
+import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,6 @@ function calculateReadingTime(content: string): number {
 }
 
 function createExcerpt(content: string): string {
-  // Strip markdown formatting and HTML tags for a clean excerpt
   const plainText = content
     .replace(/<[^>]*>/g, "")
     .replace(/#+\s+/g, "")
@@ -35,10 +35,11 @@ function createExcerpt(content: string): string {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "12", 10), 30);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get("limit") || "12", 10)), 50);
     const offset = (page - 1) * limit;
 
+    const feed = searchParams.get("feed") || ""; // for_you, latest, trending, following, saved
     const category = searchParams.get("category");
     const tag = searchParams.get("tag");
     const query = searchParams.get("q");
@@ -57,7 +58,11 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const conditions: any[] = [eq(articles.status, status)];
+    // Security: Only the author can query drafts or archived articles
+    const isOwnerQuery = Boolean(authorId && currentProfile?.id === authorId);
+    const effectiveStatus = isOwnerQuery ? status : "PUBLISHED";
+
+    const conditions: any[] = [eq(articles.status, effectiveStatus)];
 
     if (authorId) {
       conditions.push(eq(articles.authorId, authorId));
@@ -71,26 +76,77 @@ export async function GET(req: NextRequest) {
       conditions.push(eq(articles.category, category));
     }
 
-    if (query) {
+    // Real tag filtering
+    if (tag) {
+      const cleanTag = tag.replace(/^#/, "").trim().toLowerCase();
+      if (cleanTag) {
+        conditions.push(
+          sql`EXISTS (
+            SELECT 1 FROM jsonb_array_elements_text(COALESCE(${articles.tags}, '[]'::jsonb)) AS elem
+            WHERE LOWER(elem) = ${cleanTag}
+          )`
+        );
+      }
+    }
+
+    // Real search across title, subtitle, excerpt, content, and tags
+    if (query?.trim()) {
       const pattern = `%${query.trim()}%`;
       conditions.push(
         or(
           ilike(articles.title, pattern),
           ilike(articles.subtitle, pattern),
-          ilike(articles.excerpt, pattern)
+          ilike(articles.excerpt, pattern),
+          ilike(articles.content, pattern),
+          sql`${articles.tags}::text ILIKE ${pattern}`
         )
       );
     }
 
-    let orderByClause = [desc(articles.publishedAt)];
-    if (sort === "popular") {
-      orderByClause = [desc(articles.upvotesCount), desc(articles.viewsCount)];
-    } else if (sort === "trending") {
-      orderByClause = [desc(articles.viewsCount), desc(articles.createdAt)];
+    // Feed tabs logic
+    if (feed === "saved") {
+      if (!currentProfile) {
+        return NextResponse.json({ articles: [], page, hasMore: false });
+      }
+      conditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM saved_articles
+          WHERE saved_articles.article_id = ${articles.id}
+          AND saved_articles.profile_id = ${currentProfile.id}
+        )`
+      );
+    } else if (feed === "following") {
+      if (!currentProfile) {
+        return NextResponse.json({ articles: [], page, hasMore: false });
+      }
+      conditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM follows
+          WHERE follows.follower_id = ${currentProfile.id}
+          AND follows.following_id = ${articles.authorId}
+        )`
+      );
     }
 
-    // The hub, feed widget and search all render cards from `excerpt`, so the
-    // full markdown body is never needed here and would dominate the response.
+    // Sorting clauses
+    let orderByClause: any[] = [desc(articles.publishedAt)];
+    if (sort === "popular") {
+      orderByClause = [desc(articles.upvotesCount), desc(articles.viewsCount)];
+    } else if (sort === "trending" || feed === "trending") {
+      // Deterministic time-decayed trending score: upvotes + views with recency weight
+      orderByClause = [
+        sql`(${articles.upvotesCount} * 4 + ${articles.viewsCount}) / POWER(EXTRACT(EPOCH FROM (NOW() - COALESCE(${articles.publishedAt}, ${articles.createdAt}))) / 3600 + 2, 1.4) DESC`,
+        desc(articles.publishedAt),
+      ];
+    } else if (feed === "for_you" && currentProfile?.institutionId) {
+      // Personalization: prioritize articles from the same campus, then high engagement and recency
+      orderByClause = [
+        sql`CASE WHEN ${articles.institutionId} = ${currentProfile.institutionId} THEN 1 ELSE 0 END DESC`,
+        desc(articles.upvotesCount),
+        desc(articles.publishedAt),
+      ];
+    }
+
     const articleList = await db.query.articles.findMany({
       where: and(...conditions),
       orderBy: orderByClause,
@@ -105,24 +161,40 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Check viewer votes if logged in
+    // Check viewer votes and saved state
     const userVotesMap: Record<string, number> = {};
+    const savedSet = new Set<string>();
+
     if (currentProfile && articleList.length > 0) {
       const articleIds = articleList.map((a) => a.id);
-      const userVotes = await db.query.articleVotes.findMany({
-        where: and(
-          eq(articleVotes.profileId, currentProfile.id),
-          sql`${articleVotes.articleId} IN ${articleIds}`
-        ),
-      });
+
+      const [userVotes, userSaves] = await Promise.all([
+        db.query.articleVotes.findMany({
+          where: and(
+            eq(articleVotes.profileId, currentProfile.id),
+            inArray(articleVotes.articleId, articleIds)
+          ),
+        }),
+        db.query.savedArticles.findMany({
+          where: and(
+            eq(savedArticles.profileId, currentProfile.id),
+            inArray(savedArticles.articleId, articleIds)
+          ),
+        }),
+      ]);
+
       userVotes.forEach((v) => {
         userVotesMap[v.articleId] = v.value;
+      });
+      userSaves.forEach((s) => {
+        savedSet.add(s.articleId);
       });
     }
 
     const enriched = articleList.map((art) => ({
       ...art,
       userVote: userVotesMap[art.id] || 0,
+      isSaved: savedSet.has(art.id),
     }));
 
     return NextResponse.json({
@@ -153,6 +225,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
 
+    // Server-side Viewer Mode protection
+    const blocked = await rejectViewerWrite(profile);
+    if (blocked) return blocked;
+
     const body = (await req.json()) as Record<string, any>;
     const {
       title,
@@ -172,13 +248,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Article content is required" }, { status: 400 });
     }
 
-    const baseSlug = slugify(title);
-    const uniqueSuffix = Math.random().toString(36).substring(2, 7);
-    const finalSlug = `${baseSlug || "article"}-${uniqueSuffix}`;
+    // Deterministic slug generation with collision avoidance
+    const baseSlug = slugify(title) || "article";
+    let finalSlug = baseSlug;
+    let collisionCount = 1;
+
+    while (true) {
+      const existing = await db.query.articles.findFirst({
+        where: eq(articles.slug, finalSlug),
+      });
+      if (!existing) break;
+      collisionCount++;
+      finalSlug = `${baseSlug}-${collisionCount}`;
+    }
 
     const readingTime = calculateReadingTime(content);
     const excerpt = createExcerpt(content);
-    const articleId = `art_${Date.now()}_${uniqueSuffix}`;
+    const articleId = `art_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     const newArticle = {
       id: articleId,
@@ -205,10 +291,13 @@ export async function POST(req: NextRequest) {
 
     await db.insert(articles).values(newArticle);
 
-    // Award clout Loop Points for publishing an article (+15 LP)
+    // Award clout Loop Points (+15 LP) idempotently on publish
     if (status === "PUBLISHED") {
       try {
-        await awardPoints(profile.id, 15, "ARTICLE_PUBLISHED");
+        await awardPoints(profile.id, 15, "ARTICLE_PUBLISHED", {
+          referenceId: articleId,
+          actorId: profile.id,
+        });
       } catch (e) {
         console.warn("Failed to award LP for article:", e);
       }

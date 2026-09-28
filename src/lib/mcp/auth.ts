@@ -7,13 +7,15 @@ export function extractMcpKeyFromRequest(req: Request): string | null {
   const url = new URL(req.url);
 
   // 1. Check query parameter: ?key=cl_mcp_...
-  const queryKey = url.searchParams.get("key") || url.searchParams.get("token") || url.searchParams.get("apiKey");
+  const queryKey =
+    url.searchParams.get("key") || url.searchParams.get("token") || url.searchParams.get("apiKey");
   if (queryKey) return queryKey.trim();
 
   // 2. Check Authorization header: Bearer cl_mcp_...
   const authHeader = req.headers.get("authorization");
   if (authHeader) {
-    const match = authHeader.match(/^Bearer\s+(cl_mcp_[a-zA-Z0-9_-]+)$/i) || authHeader.match(/^Bearer\s+(.+)$/i);
+    const match =
+      authHeader.match(/^Bearer\s+(cl_mcp_[a-zA-Z0-9_-]+)$/i) || authHeader.match(/^Bearer\s+(.+)$/i);
     if (match?.[1]) return match[1].trim();
   }
 
@@ -24,10 +26,7 @@ export function extractMcpKeyFromRequest(req: Request): string | null {
   return null;
 }
 
-export async function authenticateMcpKey(
-  keyString: string,
-  clientInfo?: string | null
-): Promise<McpContext> {
+export async function authenticateMcpKey(keyString: string, clientInfo?: string | null): Promise<McpContext> {
   const cleanKey = keyString.trim();
   if (!cleanKey) {
     throw new Error("Missing MCP API key");

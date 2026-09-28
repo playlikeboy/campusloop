@@ -51,8 +51,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "CampusLoop | Verified Student Social Network",
-    description:
-      "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
+    description: "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
     url: SITE_URL,
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -69,8 +68,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CampusLoop | Verified Student Social Network",
-    description:
-      "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
+    description: "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
     creator: "@mycampusloop",
     images: [`${SITE_URL}/og-image.png`],
   },
@@ -169,10 +167,7 @@ export default async function LandingPage() {
 
   return (
     <div className="campusloop-landing min-h-screen flex flex-col bg-pastel-mesh text-foreground selection:bg-primary/20 selection:text-primary">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Floating Pill Navigation */}
       <MinimalLandingNavbar isAuthenticated={isAuthenticated} />

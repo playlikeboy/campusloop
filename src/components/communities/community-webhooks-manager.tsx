@@ -74,10 +74,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
   }, [loadWebhooks]);
 
   function getWebhookUrl(token: string) {
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://campusloop.space";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
     return `${origin}/api/communities/${identifier}/webhook?token=${token}`;
   }
 
@@ -137,7 +134,11 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
   }
 
   async function handleRegenerate(wh: CommunityWebhook) {
-    if (!confirm(`Are you sure you want to regenerate the secret token for '${wh.name}'? Any existing integrations using the old token will stop working immediately.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to regenerate the secret token for '${wh.name}'? Any existing integrations using the old token will stop working immediately.`
+      )
+    ) {
       return;
     }
 
@@ -177,9 +178,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
       toast.success("Test signal posted to community feed!");
       setWebhooks(
         webhooks.map((w) =>
-          w.id === wh.id
-            ? { ...w, postsCount: w.postsCount + 1, lastUsedAt: new Date() }
-            : w
+          w.id === wh.id ? { ...w, postsCount: w.postsCount + 1, lastUsedAt: new Date() } : w
         )
       );
     } catch (err: unknown) {
@@ -206,7 +205,8 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               <h2 className="text-sm font-black text-foreground">Inbound Webhooks &amp; Bots</h2>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Connect GitHub Actions, Discord bridges, RSS feeds, or Python scripts to post automated updates directly into c/{community.name}.
+              Connect GitHub Actions, Discord bridges, RSS feeds, or Python scripts to post automated updates
+              directly into c/{community.name}.
             </p>
           </div>
 
@@ -239,7 +239,8 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
           <div className="space-y-1">
             <h3 className="text-sm font-black text-foreground">No Webhooks Created Yet</h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-              Automate club updates, competitive programming alerts, and campus announcements using an inbound webhook URL.
+              Automate club updates, competitive programming alerts, and campus announcements using an inbound
+              webhook URL.
             </p>
           </div>
           <button
@@ -332,7 +333,11 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                     onClick={() => handleCopyUrl(wh.token)}
                     className="h-9 px-3.5 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-all shrink-0 cursor-pointer shadow-2xs"
                   >
-                    {isCopied ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                    {isCopied ? (
+                      <Check className="size-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="size-3.5" />
+                    )}
                     <span>{isCopied ? "Copied" : "Copy URL"}</span>
                   </button>
                 </div>
@@ -426,9 +431,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">
-                  Bot Display Name
-                </label>
+                <label className="text-xs font-bold text-foreground">Bot Display Name</label>
                 <input
                   type="text"
                   placeholder="e.g. ACM Bot (defaults to CampusBot)"
@@ -442,9 +445,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">
-                  Bot Avatar URL (Optional)
-                </label>
+                <label className="text-xs font-bold text-foreground">Bot Avatar URL (Optional)</label>
                 <input
                   type="url"
                   placeholder="https://example.com/bot-avatar.png"
@@ -497,12 +498,13 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Send a <code>POST</code> request with your JSON payload. Compatible with custom scripts, GitHub Actions, Discord webhooks, and Zapier.
+              Send a <code>POST</code> request with your JSON payload. Compatible with custom scripts, GitHub
+              Actions, Discord webhooks, and Zapier.
             </p>
 
             <div className="p-3.5 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 space-y-2">
               <pre className="whitespace-pre-wrap break-all text-zinc-300">
-{`curl -X POST "${getWebhookUrl(showCurlModal.token)}" \\
+                {`curl -X POST "${getWebhookUrl(showCurlModal.token)}" \\
   -H "Content-Type: application/json" \\
   -d '{
     "title": "Hackathon Winners Announced",
@@ -515,10 +517,18 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
             <div className="space-y-1.5 text-xs text-muted-foreground">
               <p className="font-bold text-foreground">Supported Payload Fields:</p>
               <ul className="list-disc list-inside space-y-0.5 text-[11px]">
-                <li><code>body</code> or <code>content</code> (string, markdown supported)</li>
-                <li><code>title</code> (optional string)</li>
-                <li><code>botName</code> or <code>username</code> (optional display name)</li>
-                <li><code>avatarUrl</code> (optional image URL)</li>
+                <li>
+                  <code>body</code> or <code>content</code> (string, markdown supported)
+                </li>
+                <li>
+                  <code>title</code> (optional string)
+                </li>
+                <li>
+                  <code>botName</code> or <code>username</code> (optional display name)
+                </li>
+                <li>
+                  <code>avatarUrl</code> (optional image URL)
+                </li>
               </ul>
             </div>
 

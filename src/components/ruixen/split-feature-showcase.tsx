@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -73,12 +72,8 @@ export function SplitFeatureShowcase({
                     />
                     <span className="absolute -bottom-0.5 -right-0.5 block size-2 rounded-full bg-foreground/40 ring-2 ring-background" />
                   </div>
-                  <span className="text-[13px] font-medium tracking-tight">
-                    Irung
-                  </span>
-                  <span className="text-muted-foreground/60 text-[10px]">
-                    2m ago
-                  </span>
+                  <span className="text-[13px] font-medium tracking-tight">Irung</span>
+                  <span className="text-muted-foreground/60 text-[10px]">2m ago</span>
                 </motion.div>
 
                 <motion.div
@@ -89,11 +84,8 @@ export function SplitFeatureShowcase({
                   className="relative ml-9 w-fit"
                 >
                   <div className="cursor-default rounded-2xl rounded-tl-[4px] bg-muted px-3.5 py-2 text-[13px] leading-relaxed shadow-sm shadow-black/5 ring-1 ring-border/60">
-                    Hey{" "}
-                    <span className="font-medium text-foreground">
-                      @bernard
-                    </span>
-                    , I&apos;ve updated the dashboard metrics.
+                    Hey <span className="font-medium text-foreground">@bernard</span>, I&apos;ve updated the
+                    dashboard metrics.
                   </div>
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
@@ -146,9 +138,7 @@ export function SplitFeatureShowcase({
                   >
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
-                  <span className="text-[10px] text-muted-foreground/50">
-                    Read
-                  </span>
+                  <span className="text-[10px] text-muted-foreground/50">Read</span>
                 </motion.div>
 
                 <motion.div
@@ -167,15 +157,13 @@ export function SplitFeatureShowcase({
                     <span
                       className="block size-[5px] rounded-full bg-foreground/25"
                       style={{
-                        animation:
-                          "bentoTypingDot 1.4s ease-in-out 0.15s infinite",
+                        animation: "bentoTypingDot 1.4s ease-in-out 0.15s infinite",
                       }}
                     />
                     <span
                       className="block size-[5px] rounded-full bg-foreground/25"
                       style={{
-                        animation:
-                          "bentoTypingDot 1.4s ease-in-out 0.3s infinite",
+                        animation: "bentoTypingDot 1.4s ease-in-out 0.3s infinite",
                       }}
                     />
                   </div>
@@ -190,9 +178,7 @@ export function SplitFeatureShowcase({
               className="mx-auto max-w-sm text-center"
             >
               <p className="text-base leading-relaxed text-balance">
-                <strong className="font-semibold text-foreground">
-                  {leftTitle}
-                </strong>{" "}
+                <strong className="font-semibold text-foreground">{leftTitle}</strong>{" "}
                 <span className="text-muted-foreground">{leftDescription}</span>
               </p>
             </motion.div>
@@ -206,10 +192,7 @@ export function SplitFeatureShowcase({
             className="row-span-2 grid grid-rows-subgrid gap-8 p-8"
           >
             <div className="flex items-center justify-center self-center">
-              <div
-                aria-hidden="true"
-                className="flex flex-col items-center gap-3"
-              >
+              <div aria-hidden="true" className="flex flex-col items-center gap-3">
                 {workflowItems.map((label, i) => {
                   const center = Math.floor(workflowItems.length / 2);
                   const dist = Math.abs(i - center);
@@ -231,7 +214,7 @@ export function SplitFeatureShowcase({
                             ? "text-foreground/70"
                             : dist === 2
                               ? "text-foreground/45"
-                              : "text-foreground/25",
+                              : "text-foreground/25"
                       )}
                     >
                       {label}
@@ -248,12 +231,8 @@ export function SplitFeatureShowcase({
               className="relative z-10 mx-auto max-w-sm text-center"
             >
               <p className="text-base leading-relaxed text-balance">
-                <strong className="font-semibold text-foreground">
-                  {rightTitle}
-                </strong>{" "}
-                <span className="text-muted-foreground">
-                  {rightDescription}
-                </span>
+                <strong className="font-semibold text-foreground">{rightTitle}</strong>{" "}
+                <span className="text-muted-foreground">{rightDescription}</span>
               </p>
             </motion.div>
           </motion.div>

@@ -7,10 +7,12 @@ import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
   title: "Student Social Network",
-  description: "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
+  description:
+    "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
   openGraph: {
     title: "CampusLoop | Student Social Network",
-    description: "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
+    description:
+      "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
     url: "https://campusloop.space/feeds",
     siteName: "CampusLoop",
     images: [{ url: "https://campusloop.space/og-image.png", width: 1200, height: 630, alt: "CampusLoop" }],
@@ -18,7 +20,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CampusLoop | Student Social Network",
-    description: "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
+    description:
+      "Connect with verified students across Indian colleges. Share confessions, polls, and discussions.",
     images: ["https://campusloop.space/og-image.png"],
   },
 };
@@ -43,7 +46,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
       <div className="flex-1 w-full min-w-0 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {viewerMode && (
           <div className="mb-4 flex min-h-8 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-center text-xs font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md">
-            <span>Preview mode · <strong>Verify your college email</strong> to post, vote &amp; chat.</span>
+            <span>
+              Preview mode · <strong>Verify your college email</strong> to post, vote &amp; chat.
+            </span>
           </div>
         )}
         {children}

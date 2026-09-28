@@ -1,4 +1,4 @@
-import { index, boolean, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { userProfiles } from "./users";
 
@@ -67,9 +67,7 @@ export const communityWebhooks = pgTable(
     createdAt,
     updatedAt,
   },
-  (table) => [
-    uniqueIndex("community_webhooks_token_idx").on(table.token),
-  ]
+  (table) => [uniqueIndex("community_webhooks_token_idx").on(table.token)]
 );
 
 export type Community = typeof communities.$inferSelect;
@@ -78,4 +76,3 @@ export type CommunityMember = typeof communityMembers.$inferSelect;
 export type NewCommunityMember = typeof communityMembers.$inferInsert;
 export type CommunityWebhook = typeof communityWebhooks.$inferSelect;
 export type NewCommunityWebhook = typeof communityWebhooks.$inferInsert;
-

@@ -2,8 +2,6 @@
 
 import {
   BookOpen,
-  CheckCircle2,
-  FileText,
   Flame,
   Globe,
   Loader2,
@@ -11,7 +9,6 @@ import {
   School,
   Send,
   ShieldCheck,
-  Sparkles,
   VenetianMask,
   X,
 } from "lucide-react";
@@ -297,13 +294,16 @@ export function ConfessionComposerModal({
         <div className="flex items-start gap-2.5 rounded-2xl bg-purple-500/8 border border-purple-500/20 px-3.5 py-3 text-xs text-foreground/80">
           <ShieldCheck className="size-4 text-purple-500 shrink-0 mt-0.5" />
           <span>
-            Your profile name is not shown with this post. Privacy is enforced by the CampusLoop publishing flow.
+            Your profile name is not shown with this post. Privacy is enforced by the CampusLoop publishing
+            flow.
           </span>
         </div>
 
         {/* Footer & Submit */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
-          <span className="text-[11px] text-muted-foreground font-medium">{body.length.toLocaleString()} / {(mode === "ARTICLE" ? 5000 : 1000).toLocaleString()}</span>
+          <span className="text-[11px] text-muted-foreground font-medium">
+            {body.length.toLocaleString()} / {(mode === "ARTICLE" ? 5000 : 1000).toLocaleString()}
+          </span>
 
           <div className="flex items-center gap-2">
             <button

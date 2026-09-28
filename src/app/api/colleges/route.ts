@@ -17,7 +17,9 @@ export async function GET(request: Request) {
     const requestedPage = Number(searchParams.get("page"));
     const requestedLimit = Number(searchParams.get("limit"));
     const page = Number.isFinite(requestedPage) ? Math.max(1, Math.floor(requestedPage)) : 1;
-    const limit = Number.isFinite(requestedLimit) ? Math.min(100, Math.max(1, Math.floor(requestedLimit))) : 12;
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(100, Math.max(1, Math.floor(requestedLimit)))
+      : 12;
     const offset = (page - 1) * limit;
 
     const conditions: (SQL | undefined)[] = [ne(institutions.slug, "viewer-hub")];

@@ -7,8 +7,6 @@ import {
   Bookmark,
   BookOpen,
   Check,
-  CheckCircle2,
-  ExternalLink,
   FileCode,
   FileQuestion,
   FileSpreadsheet,
@@ -121,16 +119,27 @@ const COMMON_TAG_SUGGESTIONS = [
   "UnitWise",
 ];
 
-function inferAttachmentType(filenameOrUrl: string): "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "CODE" | "OTHER" {
+function inferAttachmentType(
+  filenameOrUrl: string
+): "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "CODE" | "OTHER" {
   const lower = filenameOrUrl.toLowerCase();
   if (lower.includes("drive.google.com")) return "DRIVE";
   if (lower.includes("youtube.com") || lower.includes("youtu.be")) return "VIDEO";
   if (lower.endsWith(".pdf")) return "PDF";
   if (lower.endsWith(".ppt") || lower.endsWith(".pptx")) return "PPT";
   if (lower.endsWith(".doc") || lower.endsWith(".docx")) return "DOCX";
-  if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp")) return "IMAGE";
+  if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp"))
+    return "IMAGE";
   if (lower.endsWith(".xlsx") || lower.endsWith(".xls") || lower.endsWith(".csv")) return "OTHER";
-  if (lower.endsWith(".py") || lower.endsWith(".cpp") || lower.endsWith(".c") || lower.endsWith(".java") || lower.endsWith(".js") || lower.endsWith(".ts")) return "CODE";
+  if (
+    lower.endsWith(".py") ||
+    lower.endsWith(".cpp") ||
+    lower.endsWith(".c") ||
+    lower.endsWith(".java") ||
+    lower.endsWith(".js") ||
+    lower.endsWith(".ts")
+  )
+    return "CODE";
   if (lower.startsWith("http://") || lower.startsWith("https://")) return "LINK";
   return "OTHER";
 }
@@ -235,18 +244,14 @@ export function UploadAcademicClient() {
       // Execute upload
       uploadMediaFile(file, "document", file.name, (progress) => {
         setAttachments((prev) =>
-          prev.map((item) =>
-            item.id === tempId ? { ...item, uploadProgress: progress.percent } : item
-          )
+          prev.map((item) => (item.id === tempId ? { ...item, uploadProgress: progress.percent } : item))
         );
       })
         .then((res) => {
           if (res?.url) {
             setAttachments((prev) =>
               prev.map((item) =>
-                item.id === tempId
-                  ? { ...item, url: res.url, status: "ready", uploadProgress: 100 }
-                  : item
+                item.id === tempId ? { ...item, url: res.url, status: "ready", uploadProgress: 100 } : item
               )
             );
             toast.success(`Uploaded "${file.name}"!`);
@@ -335,9 +340,7 @@ export function UploadAcademicClient() {
   }
 
   function updateAttachmentTitle(id: string, newTitle: string) {
-    setAttachments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, title: newTitle } : a))
-    );
+    setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, title: newTitle } : a)));
   }
 
   function handleAddTag(tagText: string) {
@@ -394,8 +397,12 @@ export function UploadAcademicClient() {
     haptics.medium();
 
     try {
-      const firstDrive = readyAttachments.find((a) => a.type === "DRIVE" || a.url.includes("drive.google.com"));
-      const firstFile = readyAttachments.find((a) => a.type !== "DRIVE" && !a.url.includes("drive.google.com"));
+      const firstDrive = readyAttachments.find(
+        (a) => a.type === "DRIVE" || a.url.includes("drive.google.com")
+      );
+      const firstFile = readyAttachments.find(
+        (a) => a.type !== "DRIVE" && !a.url.includes("drive.google.com")
+      );
 
       const res = await fetch("/api/academics", {
         method: "POST",
@@ -444,7 +451,8 @@ export function UploadAcademicClient() {
   const hasSubjectName = subjectName.trim().length > 0;
   const readyAttachmentsCount = attachments.filter((a) => a.status === "ready" && a.url).length;
   const hasUploading = attachments.some((a) => a.status === "uploading");
-  const isFormValid = hasTitle && hasSubjectCode && hasSubjectName && readyAttachmentsCount > 0 && !hasUploading;
+  const isFormValid =
+    hasTitle && hasSubjectCode && hasSubjectName && readyAttachmentsCount > 0 && !hasUploading;
 
   const currentType = RESOURCE_TYPES.find((r) => r.id === resourceType) || RESOURCE_TYPES[0];
 
@@ -703,9 +711,7 @@ export function UploadAcademicClient() {
                   <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
                     4
                   </span>
-                  <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    Materials
-                  </h2>
+                  <h2 className="text-sm font-black uppercase tracking-wider text-foreground">Materials</h2>
                 </div>
 
                 <span className="text-xs font-bold text-muted-foreground">
@@ -861,9 +867,7 @@ export function UploadAcademicClient() {
                               <span className="px-1.5 py-0.2 rounded bg-muted font-mono font-bold uppercase tracking-wider text-foreground">
                                 {att.type}
                               </span>
-                              {att.sizeBytes && (
-                                <span>{(att.sizeBytes / (1024 * 1024)).toFixed(2)} MB</span>
-                              )}
+                              {att.sizeBytes && <span>{(att.sizeBytes / (1024 * 1024)).toFixed(2)} MB</span>}
                               {att.status === "uploading" && (
                                 <span className="text-primary font-bold flex items-center gap-1">
                                   <Loader2 className="size-2.5 animate-spin" />
@@ -871,7 +875,9 @@ export function UploadAcademicClient() {
                                 </span>
                               )}
                               {att.status === "error" && (
-                                <span className="text-destructive font-bold">{att.error || "Upload error"}</span>
+                                <span className="text-destructive font-bold">
+                                  {att.error || "Upload error"}
+                                </span>
                               )}
                               {att.status === "ready" && (
                                 <span className="text-emerald-400 font-bold flex items-center gap-0.5">
@@ -1147,7 +1153,9 @@ export function UploadAcademicClient() {
                       {readyAttachmentsCount > 0 ? <Check className="size-2.5 stroke-[3]" /> : "•"}
                     </div>
                     <span
-                      className={readyAttachmentsCount > 0 ? "text-foreground font-semibold" : "text-muted-foreground"}
+                      className={
+                        readyAttachmentsCount > 0 ? "text-foreground font-semibold" : "text-muted-foreground"
+                      }
                     >
                       {readyAttachmentsCount > 0
                         ? `${readyAttachmentsCount} document${readyAttachmentsCount > 1 ? "s" : ""} attached`

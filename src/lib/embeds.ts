@@ -94,8 +94,11 @@ export function extractNineGagId(url: string): string | null {
  * Check if URL points to 9GAG Home, Hot, Trending, or Fresh feed
  */
 export function isNineGagHomeUrl(url: string): boolean {
-  return /(?<![\w.-])(?:https?:\/\/)?(?:www\.|m\.)?9gag\.com(?:\/(?:home|hot|trending|fresh)?)?(?:[/?#]|$)/i.test(url.trim()) &&
-    !url.includes("/gag/");
+  return (
+    /(?<![\w.-])(?:https?:\/\/)?(?:www\.|m\.)?9gag\.com(?:\/(?:home|hot|trending|fresh)?)?(?:[/?#]|$)/i.test(
+      url.trim()
+    ) && !url.includes("/gag/")
+  );
 }
 
 /**
@@ -103,7 +106,9 @@ export function isNineGagHomeUrl(url: string): boolean {
  * Supports: posts (/p/), reels (/reel/), tv (/tv/)
  */
 export function extractInstagramEmbedUrl(url: string): { embedUrl: string; id: string } | null {
-  const match = url.match(/(?<![\w.-])(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/i);
+  const match = url.match(
+    /(?<![\w.-])(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/i
+  );
   if (match) {
     return {
       id: match[1],
@@ -117,7 +122,9 @@ export function extractInstagramEmbedUrl(url: string): { embedUrl: string; id: s
  * Extract Vimeo Embed URL
  */
 export function extractVimeoEmbedUrl(url: string): { embedUrl: string; id: string } | null {
-  const match = url.match(/(?<![\w.-])(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i);
+  const match = url.match(
+    /(?<![\w.-])(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i
+  );
   if (match) {
     return {
       id: match[1],
@@ -132,7 +139,9 @@ export function extractVimeoEmbedUrl(url: string): { embedUrl: string; id: strin
  * Supports: track, album, playlist, episode, artist, show
  */
 export function extractSpotifyEmbedUrl(url: string): string | null {
-  const match = url.match(/(?:https?:\/\/)?open\.spotify\.com\/(track|album|playlist|episode|artist|show)\/([a-zA-Z0-9]+)/i);
+  const match = url.match(
+    /(?:https?:\/\/)?open\.spotify\.com\/(track|album|playlist|episode|artist|show)\/([a-zA-Z0-9]+)/i
+  );
   if (match) {
     return `https://open.spotify.com/embed/${match[1]}/${match[2]}`;
   }
@@ -144,7 +153,9 @@ export function extractSpotifyEmbedUrl(url: string): string | null {
  * Supports soundcloud.com/{artist}/{track}, sets, and on.soundcloud.com/{shortcode}
  */
 export function extractSoundCloudEmbedUrl(url: string): string | null {
-  const match = url.match(/(?<![\w.-])(?:https?:\/\/)?(?:www\.)?(?:soundcloud\.com\/[a-zA-Z0-9_-]+\/(?:sets\/)?[a-zA-Z0-9_-]+|on\.soundcloud\.com\/[a-zA-Z0-9_-]+)/i);
+  const match = url.match(
+    /(?<![\w.-])(?:https?:\/\/)?(?:www\.)?(?:soundcloud\.com\/[a-zA-Z0-9_-]+\/(?:sets\/)?[a-zA-Z0-9_-]+|on\.soundcloud\.com\/[a-zA-Z0-9_-]+)/i
+  );
   if (match) {
     const fullUrl = url.startsWith("http") ? url : `https://${url}`;
     return `https://w.soundcloud.com/player/?url=${encodeURIComponent(fullUrl)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=true&show_user=true&show_reposts=false&show_teaser=false`;
@@ -157,7 +168,9 @@ export function extractSoundCloudEmbedUrl(url: string): string | null {
  * Converts music.apple.com to embed.music.apple.com
  */
 export function extractAppleMusicEmbedUrl(url: string): string | null {
-  const match = url.match(/(?:https?:\/\/)?music\.apple\.com\/([a-z]{2}\/(?:album|playlist|song|artist)\/[^\s?#]+(?:\/[0-9]+)?(?:\?i=[0-9]+)?)/i);
+  const match = url.match(
+    /(?:https?:\/\/)?music\.apple\.com\/([a-z]{2}\/(?:album|playlist|song|artist)\/[^\s?#]+(?:\/[0-9]+)?(?:\?i=[0-9]+)?)/i
+  );
   if (match) {
     return `https://embed.music.apple.com/${match[1]}`;
   }
@@ -167,7 +180,9 @@ export function extractAppleMusicEmbedUrl(url: string): string | null {
 /**
  * Extract CodePen Embed URL
  */
-export function extractCodePenEmbedUrl(url: string): { embedUrl: string; penId: string; user: string } | null {
+export function extractCodePenEmbedUrl(
+  url: string
+): { embedUrl: string; penId: string; user: string } | null {
   const match = url.match(/(?:https?:\/\/)?codepen\.io\/([a-zA-Z0-9_-]+)\/pen\/([a-zA-Z0-9]+)/i);
   if (match) {
     return {

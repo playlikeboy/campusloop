@@ -162,7 +162,9 @@ export function CommunitiesIndexClient({
             <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">
               Campus Communities
             </h1>
-            <p className="text-xs text-muted-foreground">Discover student sub-hubs, tech clubs, and campus discussion spaces</p>
+            <p className="text-xs text-muted-foreground">
+              Discover student sub-hubs, tech clubs, and campus discussion spaces
+            </p>
           </div>
 
           <Link

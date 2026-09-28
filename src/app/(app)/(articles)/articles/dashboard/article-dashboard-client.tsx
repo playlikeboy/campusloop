@@ -193,9 +193,7 @@ export function ArticleDashboardClient({
 
                   <Link
                     href={
-                      item.status === "PUBLISHED"
-                        ? `/articles/${item.slug}`
-                        : `/articles/${item.slug}/edit`
+                      item.status === "PUBLISHED" ? `/articles/${item.slug}` : `/articles/${item.slug}/edit`
                     }
                     className="text-base font-black text-foreground hover:text-primary transition-colors line-clamp-1 cursor-pointer"
                   >

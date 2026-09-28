@@ -788,18 +788,12 @@ export function ProfileClientView({
 
             {/* 3-Column Stats Row (Mockup Architecture) */}
             <div className="grid grid-cols-3 py-3 border-y border-border/30 my-3 text-center divide-x divide-border/20 select-none">
-              <Link
-                href={`/@${profile.username}/following`}
-                className="hover:opacity-80 transition-opacity"
-              >
+              <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
                 <p className="text-lg font-black text-foreground">{followingCount}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Following</p>
               </Link>
 
-              <Link
-                href={`/@${profile.username}/followers`}
-                className="hover:opacity-80 transition-opacity"
-              >
+              <Link href={`/@${profile.username}/followers`} className="hover:opacity-80 transition-opacity">
                 <p className="text-lg font-black text-foreground">{followers}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Followers</p>
               </Link>
@@ -990,8 +984,7 @@ export function ProfileClientView({
           <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <FolderPlus className="size-4 text-primary" /> Study materials (
-                {userAcademicsCount})
+                <FolderPlus className="size-4 text-primary" /> Study materials ({userAcademicsCount})
               </h3>
               <button
                 type="button"
@@ -1056,30 +1049,30 @@ export function ProfileClientView({
         <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-xl">
           <div className="flex items-center overflow-x-auto px-3 no-scrollbar">
             {[
-            { id: "photos", label: "Photos" },
-            { id: "posts", label: "Posts" },
-            { id: "articles", label: "Articles" },
-            { id: "academics", label: "Notes" },
-            { id: "clout", label: "Clout" },
-            ...(isOwnProfile ? [{ id: "archived", label: "Archive" }] : []),
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabChange(tab.id as any)}
-                className={cn(
-                  "cl-interactive relative shrink-0 border-b-2 px-4 py-3 text-xs font-bold transition-colors",
-                  isActive
-                    ? "border-primary text-foreground font-black"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
-                )}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+              { id: "photos", label: "Photos" },
+              { id: "posts", label: "Posts" },
+              { id: "articles", label: "Articles" },
+              { id: "academics", label: "Notes" },
+              { id: "clout", label: "Clout" },
+              ...(isOwnProfile ? [{ id: "archived", label: "Archive" }] : []),
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabChange(tab.id as any)}
+                  className={cn(
+                    "cl-interactive relative shrink-0 border-b-2 px-4 py-3 text-xs font-bold transition-colors",
+                    isActive
+                      ? "border-primary text-foreground font-black"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

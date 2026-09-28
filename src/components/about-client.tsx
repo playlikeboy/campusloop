@@ -1,27 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Cpu,
-  GraduationCap,
-  Heart,
-  Lock,
-  MessageSquare,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { Lock, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { CompanyNav } from "@/components/marketing/company-nav";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/system";
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
 import { SOCIAL_LINKS } from "@/constants/socials";
-import { cn } from "@/lib/utils";
 
 export function AboutClient() {
   const trustBentoItems: BentoItem[] = [
@@ -50,8 +34,8 @@ export function AboutClient() {
           <div className="font-semibold text-foreground">Why previous anonymous boards failed:</div>
           <p className="text-muted-foreground leading-relaxed">
             Platforms like YikYak and anonymous Instagram pages became toxic because total anonymity without
-            accountability attracts bad actors. CampusLoop provides the freedom of candid expression while protecting
-            the physical campus community.
+            accountability attracts bad actors. CampusLoop provides the freedom of candid expression while
+            protecting the physical campus community.
           </p>
         </div>
       ),
@@ -150,8 +134,9 @@ export function AboutClient() {
                 </div>
                 <h3 className="text-lg font-bold text-foreground">The Chaos of Modern Campus Channels</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  500+ unread WhatsApp pings burying critical exam schedules. Google Drive folders of exam notes that
-                  suddenly 404 before end-sems. Dating apps overrun by catfishes and predatory non-students.
+                  500+ unread WhatsApp pings burying critical exam schedules. Google Drive folders of exam
+                  notes that suddenly 404 before end-sems. Dating apps overrun by catfishes and predatory
+                  non-students.
                 </p>
               </div>
 
@@ -161,8 +146,9 @@ export function AboutClient() {
                 </div>
                 <h3 className="text-lg font-bold text-foreground">The CampusLoop Solution</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  A high-trust, verified digital campus. Anonymous confessions without cyberbullying, campus match
-                  without outsiders, academic vaults with permanent multi-file storage, and direct peer-to-peer commerce.
+                  A high-trust, verified digital campus. Anonymous confessions without cyberbullying, campus
+                  match without outsiders, academic vaults with permanent multi-file storage, and direct
+                  peer-to-peer commerce.
                 </p>
               </div>
             </div>
@@ -195,8 +181,8 @@ export function AboutClient() {
               Connect with the Founding Team
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              CampusLoop is developed by students and alumni with relentless focus on privacy, high-density performance,
-              and campus safety.
+              CampusLoop is developed by students and alumni with relentless focus on privacy, high-density
+              performance, and campus safety.
             </p>
 
             {/* Official Channels per Rule 10 */}

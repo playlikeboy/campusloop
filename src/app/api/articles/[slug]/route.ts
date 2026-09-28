@@ -1,8 +1,10 @@
 import { and, eq, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { articles, articleVotes, userProfiles } from "@/db/schema";
+import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { awardPoints } from "@/lib/gamification-server";
+import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -37,32 +39,36 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    // Increment views in background
-    try {
-      await db
-        .update(articles)
-        .set({ viewsCount: sql`${articles.viewsCount} + 1` })
-        .where(eq(articles.id, article.id));
-    } catch (e) {
-      console.warn("Failed to increment article view:", e);
+    // Security: drafts and archived articles are strictly private to author or admin
+    const isAuthor = currentProfile?.id === article.authorId;
+    const isAdmin = currentProfile?.role === "ADMIN";
+    if (article.status !== "PUBLISHED" && !isAuthor && !isAdmin) {
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    // Check user vote
+    // Check user vote & saved state
     let userVote = 0;
+    let isSaved = false;
+
     if (currentProfile) {
-      const vote = await db.query.articleVotes.findFirst({
-        where: and(eq(articleVotes.articleId, article.id), eq(articleVotes.profileId, currentProfile.id)),
-      });
-      if (vote) {
-        userVote = vote.value;
-      }
+      const [vote, saved] = await Promise.all([
+        db.query.articleVotes.findFirst({
+          where: and(eq(articleVotes.articleId, article.id), eq(articleVotes.profileId, currentProfile.id)),
+        }),
+        db.query.savedArticles.findFirst({
+          where: and(eq(savedArticles.articleId, article.id), eq(savedArticles.profileId, currentProfile.id)),
+        }),
+      ]);
+
+      if (vote) userVote = vote.value;
+      if (saved) isSaved = true;
     }
 
     return NextResponse.json({
       article: {
         ...article,
-        viewsCount: article.viewsCount + 1,
         userVote,
+        isSaved,
       },
     });
   } catch (error) {
@@ -72,8 +78,16 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
+  return handleUpdate(req, params);
+}
+
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
+  return handleUpdate(req, params);
+}
+
+async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: string }>) {
   try {
-    const { slug } = await params;
+    const { slug } = await paramsPromise;
     const user = await hexclaveServerApp.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -87,6 +101,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     if (!currentProfile) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
+
+    const blocked = await rejectViewerWrite(currentProfile);
+    if (blocked) return blocked;
 
     const article = await db.query.articles.findFirst({
       where: or(eq(articles.slug, slug), eq(articles.id, slug)),
@@ -103,10 +120,11 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const body = (await req.json()) as Record<string, any>;
     const { title, subtitle, content, coverImageUrl, category, tags, status } = body;
 
-    const words = (content || article.content).trim().split(/\s+/).filter(Boolean).length;
+    const targetContent = content !== undefined ? content : article.content;
+    const words = targetContent.trim().split(/\s+/).filter(Boolean).length;
     const readingTime = Math.max(1, Math.ceil(words / 200));
 
-    const plainText = (content || article.content)
+    const plainText = targetContent
       .replace(/<[^>]*>/g, "")
       .replace(/#+\s+/g, "")
       .replace(/[*_~`]/g, "")
@@ -121,25 +139,41 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
     if (title) updateData.title = title.trim();
     if (subtitle !== undefined) updateData.subtitle = subtitle?.trim() || null;
-    if (content) updateData.content = content;
+    if (content !== undefined) updateData.content = content;
     if (coverImageUrl !== undefined) updateData.coverImageUrl = coverImageUrl?.trim() || null;
     if (category) updateData.category = category;
     if (tags && Array.isArray(tags)) updateData.tags = tags;
+
+    const wasDraft = article.status === "DRAFT";
+    const isNowPublishing = status === "PUBLISHED";
+
     if (status) {
       updateData.status = status;
-      if (status === "PUBLISHED" && !article.publishedAt) {
+      if (isNowPublishing && !article.publishedAt) {
         updateData.publishedAt = new Date();
       }
     }
 
     await db.update(articles).set(updateData).where(eq(articles.id, article.id));
 
+    // Award +15 LP idempotently if transitioning from DRAFT to PUBLISHED
+    if (wasDraft && isNowPublishing) {
+      try {
+        await awardPoints(currentProfile.id, 15, "ARTICLE_PUBLISHED", {
+          referenceId: article.id,
+          actorId: currentProfile.id,
+        });
+      } catch (e) {
+        console.warn("Failed to award publication LP on update:", e);
+      }
+    }
+
     return NextResponse.json({
       message: "Article updated successfully",
       article: { ...article, ...updateData },
     });
   } catch (error) {
-    console.error("PUT /api/articles/[slug] error:", error);
+    console.error("PUT/PATCH /api/articles/[slug] error:", error);
     return NextResponse.json({ error: "Failed to update article" }, { status: 500 });
   }
 }

@@ -130,7 +130,9 @@ export default async function AcademicsLayout({ children }: { children: React.Re
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-3 py-4 sm:px-6">{children}</main>
+      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-3 py-4 sm:px-6">
+        {children}
+      </main>
 
       {/* Bottom Sticky Guest Perk Callout on Mobile */}
       <div className="sticky bottom-0 z-40 border-t border-indigo-500/20 bg-background/95 backdrop-blur-md p-2.5 sm:hidden">

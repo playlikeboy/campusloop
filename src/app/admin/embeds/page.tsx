@@ -1,5 +1,5 @@
 import { desc, eq, ilike } from "drizzle-orm";
-import { ExternalLink, Link2, ShieldAlert } from "lucide-react";
+import { ExternalLink, Link2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { institutions, posts } from "@/db/schema";

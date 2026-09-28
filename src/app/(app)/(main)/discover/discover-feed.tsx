@@ -22,12 +22,11 @@ import {
   Target,
   Users,
   X,
-  Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { FeaturedCampusCard } from "@/components/discover/featured-campus-card";
@@ -438,7 +437,8 @@ export function DiscoverFeed() {
             })}
           </div>
         )}
-      </header>     {/* ─── LIVE SEARCH RESULTS VIEW ─── */}
+      </header>{" "}
+      {/* ─── LIVE SEARCH RESULTS VIEW ─── */}
       {trimmedSearch ? (
         <div className="flex flex-col px-4 pt-3.5 gap-4">
           {isSearchLoading ? (

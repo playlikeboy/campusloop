@@ -27,7 +27,6 @@ import {
   Megaphone,
   MessageSquare,
   Play,
-  Radio,
   School,
   ScrollText,
   Server,
@@ -179,19 +178,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
           </div>
           <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-2 border-t border-border/30 bg-muted/10">
-            {[...primaryNav, ...contentNav, ...integrationsNav, ...commercialNav, ...systemNav].map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap bg-card border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 shadow-2xs"
-                >
-                  <Icon className="h-3 w-3" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+            {[...primaryNav, ...contentNav, ...integrationsNav, ...commercialNav, ...systemNav].map(
+              (item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap bg-card border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 shadow-2xs"
+                  >
+                    <Icon className="h-3 w-3" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              }
+            )}
           </nav>
         </header>
 

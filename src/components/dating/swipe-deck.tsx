@@ -1,7 +1,15 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "motion/react";
-import { GraduationCap, HeartHandshakeIcon, RotateCcw, School, ShieldCheck, UserRound, Zap } from "lucide-react";
+import {
+  GraduationCap,
+  HeartHandshakeIcon,
+  RotateCcw,
+  School,
+  ShieldCheck,
+  UserRound,
+  Zap,
+} from "lucide-react";
+import { AnimatePresence, motion, type PanInfo, useMotionValue, useTransform } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatedIcon, AnimateX } from "@/components/ui/animated-icon";

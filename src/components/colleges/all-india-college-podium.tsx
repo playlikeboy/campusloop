@@ -26,7 +26,9 @@ export function AllIndiaCollegePodium({
 }: AllIndiaCollegePodiumProps) {
   if (loading) {
     return (
-      <div className={`mx-4 my-3 overflow-hidden rounded-3xl border border-amber-500/20 bg-linear-to-b from-amber-500/10 via-card to-card p-5 shadow-xs ${className}`}>
+      <div
+        className={`mx-4 my-3 overflow-hidden rounded-3xl border border-amber-500/20 bg-linear-to-b from-amber-500/10 via-card to-card p-5 shadow-xs ${className}`}
+      >
         <div className="flex items-center justify-between">
           <div className="space-y-1.5">
             <div className="h-4 w-40 rounded-full bg-amber-500/20 animate-pulse" />
@@ -51,7 +53,9 @@ export function AllIndiaCollegePodium({
   const third = leaderboard[2];
 
   return (
-    <div className={`mx-4 my-3 overflow-hidden rounded-3xl border border-amber-500/25 bg-linear-to-b from-amber-500/10 via-card/90 to-card p-4 sm:p-5 shadow-xs transition-all ${className}`}>
+    <div
+      className={`mx-4 my-3 overflow-hidden rounded-3xl border border-amber-500/25 bg-linear-to-b from-amber-500/10 via-card/90 to-card p-4 sm:p-5 shadow-xs transition-all ${className}`}
+    >
       {/* Header banner */}
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
@@ -104,7 +108,9 @@ export function AllIndiaCollegePodium({
             <span className="text-[10px] sm:text-[11px] font-black text-slate-600 dark:text-slate-300 tabular-nums">
               {second.points.toLocaleString("en-IN")} LP
             </span>
-            <div className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-slate-500/20 to-slate-400/30 border-t border-x border-slate-300/40 flex flex-col items-center justify-center text-[10px] font-bold text-muted-foreground ${compact ? "h-14 sm:h-16" : "h-18 sm:h-20"}`}>
+            <div
+              className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-slate-500/20 to-slate-400/30 border-t border-x border-slate-300/40 flex flex-col items-center justify-center text-[10px] font-bold text-muted-foreground ${compact ? "h-14 sm:h-16" : "h-18 sm:h-20"}`}
+            >
               <Medal className="size-3.5 sm:size-4 text-slate-400 mb-0.5" />
               <span>Silver</span>
             </div>
@@ -146,7 +152,9 @@ export function AllIndiaCollegePodium({
             <span className="text-[11px] sm:text-xs font-black text-amber-500 tabular-nums">
               {first.points.toLocaleString("en-IN")} LP
             </span>
-            <div className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-amber-500/25 to-amber-400/40 border-t border-x border-amber-400/50 flex flex-col items-center justify-center text-[11px] sm:text-xs font-black text-amber-600 dark:text-amber-300 ${compact ? "h-20 sm:h-24" : "h-24 sm:h-28"}`}>
+            <div
+              className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-amber-500/25 to-amber-400/40 border-t border-x border-amber-400/50 flex flex-col items-center justify-center text-[11px] sm:text-xs font-black text-amber-600 dark:text-amber-300 ${compact ? "h-20 sm:h-24" : "h-24 sm:h-28"}`}
+            >
               <Trophy className="size-4 sm:size-5 text-amber-500 mb-1" />
               <span>Champion</span>
             </div>
@@ -187,7 +195,9 @@ export function AllIndiaCollegePodium({
             <span className="text-[10px] sm:text-[11px] font-black text-amber-700 dark:text-amber-400 tabular-nums">
               {third.points.toLocaleString("en-IN")} LP
             </span>
-            <div className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-amber-800/20 to-amber-700/30 border-t border-x border-amber-700/40 flex flex-col items-center justify-center text-[10px] font-bold text-muted-foreground ${compact ? "h-12 sm:h-14" : "h-14 sm:h-16"}`}>
+            <div
+              className={`w-full mt-2 rounded-t-xl bg-linear-to-t from-amber-800/20 to-amber-700/30 border-t border-x border-amber-700/40 flex flex-col items-center justify-center text-[10px] font-bold text-muted-foreground ${compact ? "h-12 sm:h-14" : "h-14 sm:h-16"}`}
+            >
               <Medal className="size-3.5 sm:size-4 text-amber-700 mb-0.5" />
               <span>Bronze</span>
             </div>

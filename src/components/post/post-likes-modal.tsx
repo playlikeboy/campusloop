@@ -1,14 +1,13 @@
 "use client";
 
-import { Heart, Loader2, Search, ShieldCheck, User, Users, X } from "lucide-react";
+import { Heart, Loader2, Search, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
-import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import useSWRInfinite from "swr/infinite";
 import { FollowButton } from "@/components/profile/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetcher } from "@/lib/api";
-import { cn } from "@/lib/utils";
 
 export interface LikedUser {
   id: string;

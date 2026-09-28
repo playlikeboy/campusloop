@@ -262,12 +262,28 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
         <div className="px-5 py-2.5 border-b border-border/30 bg-muted/20 shrink-0">
           <div className="flex items-center gap-2 text-[10px] font-bold">
             <span className="flex items-center gap-1.5 text-primary">
-              <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground text-[9px]">1</span>
+              <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground text-[9px]">
+                1
+              </span>
               Details
             </span>
             <span className="h-px flex-1 bg-border/70" />
-            <span className={cn("flex items-center gap-1.5", step === 2 ? "text-primary" : "text-muted-foreground")}>
-              <span className={cn("grid size-5 place-items-center rounded-full border text-[9px]", step === 2 ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground")}>2</span>
+            <span
+              className={cn(
+                "flex items-center gap-1.5",
+                step === 2 ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              <span
+                className={cn(
+                  "grid size-5 place-items-center rounded-full border text-[9px]",
+                  step === 2
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground"
+                )}
+              >
+                2
+              </span>
               Members
             </span>
           </div>
@@ -347,7 +363,9 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
             {/* Description (Optional) */}
             <div className="space-y-1 pt-1">
-              <label className="text-xs font-bold text-foreground">About this group <span className="font-normal text-muted-foreground">(optional)</span></label>
+              <label className="text-xs font-bold text-foreground">
+                About this group <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
               <textarea
                 placeholder="What's this group about? Goals, topics, meeting times..."
                 value={description}

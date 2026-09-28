@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { Bot, Heart, Repeat2, VenetianMask } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -11,20 +11,20 @@ import { FeedCardActions } from "@/components/feed/feed-card-actions";
 import { FeedCardHeader } from "@/components/feed/feed-card-header";
 import { FeedCardRepostModal } from "@/components/feed/feed-card-repost-modal";
 import { PostLikesModal } from "@/components/post/post-likes-modal";
+import { RedditGallery } from "@/components/reddit/reddit-gallery";
+import { RedditVideo } from "@/components/reddit/reddit-video";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RichText } from "@/components/ui/rich-text";
 import { startRouteProgress } from "@/components/ui/route-progress";
 import type { FeedPost } from "@/hooks/use-feed";
 import { repostPost, voteOnPost } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
+import { cleanPostHtml, removeDuplicateTitleFromBody } from "@/lib/html-sanitize";
 import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { PollCard } from "./poll-card";
-import { RedditGallery } from "@/components/reddit/reddit-gallery";
-import { RedditVideo } from "@/components/reddit/reddit-video";
 import { ReportDialog } from "./report-dialog";
 import { ShareStoryModal } from "./share-story-modal";
-import { cleanPostHtml, removeDuplicateTitleFromBody } from "@/lib/html-sanitize";
 
 interface FeedCardProps {
   post: FeedPost;
@@ -60,7 +60,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
   const isBotPost = Boolean(
     post.pseudonym && (post.pseudonym.startsWith("🤖") || post.pseudonym.toLowerCase().includes("bot"))
   );
-  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/, "").trim();
+  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/u, "").trim();
 
   const authorName = post.isAnonymous
     ? isBotPost
@@ -117,9 +117,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     }
 
     if (hasExternalGallery) {
-      cleaned = cleaned
-        .replace(/!\[.*?\]\((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)\)/gi, "")
-        .trim();
+      cleaned = cleaned.replace(/!\[.*?\]\((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)\)/gi, "").trim();
     }
 
     // Deduplicate any repeated identical media URLs in markdown
@@ -358,11 +356,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           />
 
           {/* Content Body */}
-          <div
-            className="pt-0.5"
-            onClick={(e) => handleCardClick(e)}
-            onDoubleClick={handleDoubleTap}
-          >
+          <div className="pt-0.5" onClick={(e) => handleCardClick(e)} onDoubleClick={handleDoubleTap}>
             <div
               className={cn(
                 "space-y-1.5 text-[15px] leading-relaxed text-foreground font-normal break-words",
@@ -375,7 +369,11 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 </h3>
               )}
               {displayContent && (
-                <RichText content={displayContent} createdAt={post.createdAt} collegeName={collegeDisplayName} />
+                <RichText
+                  content={displayContent}
+                  createdAt={post.createdAt}
+                  collegeName={collegeDisplayName}
+                />
               )}
             </div>
 
@@ -397,21 +395,17 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           {/* External Reddit Media Renderers (HTML5 Video / Gallery) */}
           {post.externalPost && post.externalPost.contentType === "VIDEO" && post.externalPost.media[0] && (
             <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
-              <RedditVideo
-                media={post.externalPost.media[0]}
-                externalPost={post.externalPost}
-              />
+              <RedditVideo media={post.externalPost.media[0]} externalPost={post.externalPost} />
             </div>
           )}
 
-          {post.externalPost && post.externalPost.contentType === "GALLERY" && post.externalPost.media.length > 0 && (
-            <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
-              <RedditGallery
-                mediaList={post.externalPost.media}
-                externalPost={post.externalPost}
-              />
-            </div>
-          )}
+          {post.externalPost &&
+            post.externalPost.contentType === "GALLERY" &&
+            post.externalPost.media.length > 0 && (
+              <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
+                <RedditGallery mediaList={post.externalPost.media} externalPost={post.externalPost} />
+              </div>
+            )}
 
           {/* Compact topic metadata; the trailing hashtag block is removed from body above. */}
           {extractedHashtags.length > 0 && (
@@ -419,7 +413,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               {extractedHashtags.slice(0, 3).map((tag, idx) => (
                 <Link
                   key={tag}
-                  href={"/app/hashtag/" + tag}
+                  href={`/app/hashtag/${tag}`}
                   className={cn(
                     "min-h-7 rounded-full bg-muted/55 px-2.5 py-1 text-[10px] font-bold transition-colors shrink-0",
                     idx === 0

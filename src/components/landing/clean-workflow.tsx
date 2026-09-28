@@ -46,7 +46,8 @@ export function CleanWorkflow() {
             Built around the rhythm of college.
           </h2>
           <p className="mt-5 max-w-md text-sm leading-7 text-zinc-400 sm:text-base">
-            The product changes with the day because student life does. Start with a class question, end up at an event, discover a club in between.
+            The product changes with the day because student life does. Start with a class question, end up at
+            an event, discover a club in between.
           </p>
           <Link
             href="/overview"
@@ -66,15 +67,21 @@ export function CleanWorkflow() {
                 href={step.href}
                 className="group grid gap-4 border-b border-zinc-800 py-7 last:border-b-0 sm:grid-cols-[72px_1fr_auto] sm:items-start sm:py-8"
               >
-                <span className="text-xs font-bold tabular-nums text-zinc-600 group-hover:text-blue-400">{step.time}</span>
+                <span className="text-xs font-bold tabular-nums text-zinc-600 group-hover:text-blue-400">
+                  {step.time}
+                </span>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="grid size-8 place-items-center rounded-lg bg-zinc-900 text-zinc-300 ring-1 ring-inset ring-zinc-800">
                       <Icon className="size-4" />
                     </span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">{step.label}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                      {step.label}
+                    </span>
                   </div>
-                  <h3 className="mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl">{step.title}</h3>
+                  <h3 className="mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                    {step.title}
+                  </h3>
                   <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">{step.text}</p>
                 </div>
                 <ArrowUpRight className="hidden size-5 text-zinc-600 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white sm:mt-1 sm:block" />
@@ -82,13 +89,20 @@ export function CleanWorkflow() {
             );
           })}
           <div className="grid grid-cols-2 border-t border-zinc-800">
-            <Link href="/app/marketplace" className="group flex items-center gap-3 border-r border-zinc-800 p-5">
+            <Link
+              href="/app/marketplace"
+              className="group flex items-center gap-3 border-r border-zinc-800 p-5"
+            >
               <Store className="size-4 text-zinc-500 group-hover:text-white" />
               <span className="text-xs font-bold text-zinc-300 group-hover:text-white">Marketplace</span>
             </Link>
             <Link href="/colleges" className="group flex items-center gap-3 p-5">
-              <span className="grid size-4 place-items-center rounded-full border border-zinc-700 text-[8px] font-black text-zinc-400">C</span>
-              <span className="text-xs font-bold text-zinc-300 group-hover:text-white">College directory</span>
+              <span className="grid size-4 place-items-center rounded-full border border-zinc-700 text-[8px] font-black text-zinc-400">
+                C
+              </span>
+              <span className="text-xs font-bold text-zinc-300 group-hover:text-white">
+                College directory
+              </span>
             </Link>
           </div>
         </div>

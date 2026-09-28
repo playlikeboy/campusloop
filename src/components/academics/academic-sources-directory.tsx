@@ -1,19 +1,8 @@
 "use client";
 
-import {
-  CheckCircle2,
-  ExternalLink,
-  FileText,
-  Globe,
-  GraduationCap,
-  Search,
-  Sparkles,
-  UploadCloud,
-  Zap,
-} from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, Globe, Search, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 import { gtagEvent, trackAcademicSourceClick } from "@/lib/analytics/ga4";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -243,7 +232,9 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
               >
                 <UploadCloud className="size-4" />
                 <span>Submit Missing Source / Notes</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-background/20 text-[10px] font-mono">+20 LP</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-background/20 text-[10px] font-mono">
+                  +20 LP
+                </span>
               </button>
             )}
           </div>

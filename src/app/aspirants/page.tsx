@@ -1,10 +1,5 @@
+import { BookOpen, Eye, MessageSquare, Trophy } from "lucide-react";
 import type { Metadata } from "next";
-import {
-  BookOpen,
-  Eye,
-  MessageSquare,
-  Trophy,
-} from "lucide-react";
 import Link from "next/link";
 import { CleanFooter } from "@/components/landing/clean-footer";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
@@ -67,10 +62,9 @@ export default async function AspirantsPage() {
               before you get there.
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Coaching brochures and marketing websites sell you glossy campus
-              photos. CampusLoop gives JEE, NEET, and CUET aspirants read-only window
-              into candid student discussions, hostel food reality, and placement
-              truths.
+              Coaching brochures and marketing websites sell you glossy campus photos. CampusLoop gives JEE,
+              NEET, and CUET aspirants read-only window into candid student discussions, hostel food reality,
+              and placement truths.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -95,13 +89,10 @@ export default async function AspirantsPage() {
               <div className="flex size-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
                 <BookOpen className="size-4" />
               </div>
-              <h3 className="text-base font-bold text-foreground">
-                Authentic Academic Reality
-              </h3>
+              <h3 className="text-base font-bold text-foreground">Authentic Academic Reality</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Learn how difficult mid-sems actually are, which professors teach
-                well, and whether attendance rules are strictly enforced before
-                locking in your college preference list.
+                Learn how difficult mid-sems actually are, which professors teach well, and whether attendance
+                rules are strictly enforced before locking in your college preference list.
               </p>
             </div>
 
@@ -109,13 +100,10 @@ export default async function AspirantsPage() {
               <div className="flex size-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
                 <MessageSquare className="size-4" />
               </div>
-              <h3 className="text-base font-bold text-foreground">
-                Hostel & Mess Life
-              </h3>
+              <h3 className="text-base font-bold text-foreground">Hostel & Mess Life</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Read real student confessions regarding hostel hygiene, late-night
-                canteen options, Wi-Fi speeds, and room allotment policies straight
-                from current batchmates.
+                Read real student confessions regarding hostel hygiene, late-night canteen options, Wi-Fi
+                speeds, and room allotment policies straight from current batchmates.
               </p>
             </div>
 
@@ -123,12 +111,10 @@ export default async function AspirantsPage() {
               <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <Trophy className="size-4" />
               </div>
-              <h3 className="text-base font-bold text-foreground">
-                Placement & Tech Culture
-              </h3>
+              <h3 className="text-base font-bold text-foreground">Placement & Tech Culture</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Discover active coding societies, hackathon squads, and senior
-                internship advice beyond inflated average package marketing charts.
+                Discover active coding societies, hackathon squads, and senior internship advice beyond
+                inflated average package marketing charts.
               </p>
             </div>
           </div>
@@ -143,12 +129,10 @@ export default async function AspirantsPage() {
                 <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
                   Step 01
                 </span>
-                <h4 className="font-bold text-foreground text-sm">
-                  Sign Up With Personal Email
-                </h4>
+                <h4 className="font-bold text-foreground text-sm">Sign Up With Personal Email</h4>
                 <p className="text-muted-foreground">
-                  Aspirants can sign up with any personal email (Gmail/Outlook) to
-                  activate read-only Viewer access.
+                  Aspirants can sign up with any personal email (Gmail/Outlook) to activate read-only Viewer
+                  access.
                 </p>
               </div>
 
@@ -156,12 +140,10 @@ export default async function AspirantsPage() {
                 <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
                   Step 02
                 </span>
-                <h4 className="font-bold text-foreground text-sm">
-                  Follow Your Dream Campuses
-                </h4>
+                <h4 className="font-bold text-foreground text-sm">Follow Your Dream Campuses</h4>
                 <p className="text-muted-foreground">
-                  Pick your target colleges (IIT Delhi, BITS Pilani, BIT Mesra, NIT
-                  Trichy) to read live feeds and senior tips.
+                  Pick your target colleges (IIT Delhi, BITS Pilani, BIT Mesra, NIT Trichy) to read live feeds
+                  and senior tips.
                 </p>
               </div>
 
@@ -169,12 +151,10 @@ export default async function AspirantsPage() {
                 <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
                   Step 03
                 </span>
-                <h4 className="font-bold text-foreground text-sm">
-                  Instant Upgrade on Admission
-                </h4>
+                <h4 className="font-bold text-foreground text-sm">Instant Upgrade on Admission</h4>
                 <p className="text-muted-foreground">
-                  Once admission counseling finishes and you get your college .ac.in
-                  inbox, your account upgrades in place to full posting & Match Mode!
+                  Once admission counseling finishes and you get your college .ac.in inbox, your account
+                  upgrades in place to full posting & Match Mode!
                 </p>
               </div>
             </div>

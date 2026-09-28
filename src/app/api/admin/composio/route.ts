@@ -1,8 +1,8 @@
+import { desc } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminProfile } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
-import { institutions, posts, userProfiles } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { posts } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 

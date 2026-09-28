@@ -70,7 +70,8 @@ export function NineGagEmbed({ gagId, rawUrl, isHome }: NineGagEmbedProps) {
             <div className="min-w-0 flex-1">
               <h4 className="text-sm font-black text-foreground">9GAG — Go Fun The World</h4>
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                The global humor community for memes, viral video clips, relatable college lore, and gaming jokes.
+                The global humor community for memes, viral video clips, relatable college lore, and gaming
+                jokes.
               </p>
             </div>
           </div>

@@ -1,15 +1,12 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import {
   AlertCircle,
   ArrowLeft,
   Bold,
-  Check,
   Code,
   Edit3,
   Eye,
-  FileText,
   Globe,
   HelpCircle,
   Italic,
@@ -23,11 +20,11 @@ import {
   Sparkles,
   VenetianMask,
 } from "lucide-react";
-import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { AnimatedIcon, AnimateShieldCheck } from "@/components/ui/animated-icon";
+import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { RichText } from "@/components/ui/rich-text";
@@ -61,8 +58,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const isDirty =
-    body !== post.body || (title || "") !== (post.title || "") || scope !== post.scope;
+  const isDirty = body !== post.body || (title || "") !== (post.title || "") || scope !== post.scope;
 
   const charCount = body.length;
   const isOverLimit = charCount > MAX_POST_CHARS;
@@ -263,9 +259,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-bold text-xs sm:text-sm text-foreground truncate">
-                  {authorName}
-                </span>
+                <span className="font-bold text-xs sm:text-sm text-foreground truncate">{authorName}</span>
                 {collegeName && (
                   <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/40">
                     {collegeName}
@@ -455,9 +449,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
           /* Tab 2: Live Preview */
           <div className="p-4 sm:p-5 rounded-2xl border border-border/50 bg-card min-h-[240px]">
             {title && (
-              <h2 className="text-base sm:text-lg font-black text-foreground mb-3 leading-snug">
-                {title}
-              </h2>
+              <h2 className="text-base sm:text-lg font-black text-foreground mb-3 leading-snug">{title}</h2>
             )}
             {body.trim() ? (
               <RichText content={body} collegeName={collegeName} />

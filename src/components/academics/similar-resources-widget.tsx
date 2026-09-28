@@ -75,9 +75,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
     <section className="space-y-4 pt-6 border-t border-border/25">
       <div className="flex items-end justify-between gap-3 px-0.5">
         <div className="min-w-0">
-          <h3 className="text-base font-extrabold tracking-tight text-foreground">
-            Related study material
-          </h3>
+          <h3 className="text-base font-extrabold tracking-tight text-foreground">Related study material</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Notes and PYQs matched to this subject and syllabus
           </p>

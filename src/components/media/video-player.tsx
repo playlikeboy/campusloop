@@ -1,7 +1,17 @@
 "use client";
 
+import {
+  CircleAlert,
+  Loader2,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  RefreshCw,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { motion } from "motion/react";
-import { CircleAlert, Loader2, Maximize2, Minimize2, Pause, Play, RefreshCw, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -208,7 +218,9 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       <div
         className={cn(
           "absolute bottom-0 inset-x-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-200",
-          !hasError && (showControls || !isPlaying) ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          !hasError && (showControls || !isPlaying)
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         )}
       >
         {/* Progress Bar Track */}

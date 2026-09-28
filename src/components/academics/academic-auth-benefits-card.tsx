@@ -89,7 +89,8 @@ export function AcademicAuthBenefitsCard({
             Save PYQs and organize your study stack
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Free downloads for everyone. Sign in with your college email for unlimited downloads and personal study vaults.
+            Free downloads for everyone. Sign in with your college email for unlimited downloads and personal
+            study vaults.
           </p>
         </div>
 

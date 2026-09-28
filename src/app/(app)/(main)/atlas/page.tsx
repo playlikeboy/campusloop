@@ -41,10 +41,7 @@ export default function AtlasPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="container max-w-5xl py-6 px-4 md:px-6">
         <AtlasClient
           initialSanityConfigured={isLiveSanityConfigured}

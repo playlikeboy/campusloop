@@ -23,7 +23,6 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { SecretCrushButton } from "@/components/dating/secret-crush-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { UserProfile } from "@/db/schema";
 import type { CachedMessage } from "@/lib/chat-cache";

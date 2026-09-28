@@ -3,11 +3,8 @@
 import confetti from "canvas-confetti";
 import {
   ArrowLeft,
-  Award,
   Bell,
   Calendar,
-  Check,
-  CheckCircle2,
   ChevronDown,
   Clock,
   ExternalLink,
@@ -17,7 +14,6 @@ import {
   QrCode,
   School,
   Share2,
-  Sparkles,
   Trophy,
   Users,
   Zap,
@@ -406,9 +402,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-sm text-foreground">
-                    Ready to participate?
-                  </span>
+                  <span className="font-black text-sm text-foreground">Ready to participate?</span>
                   <span className="text-xs font-bold text-primary">
                     +{event.loopPointsReward || 25} LP Reward
                   </span>
@@ -491,8 +485,12 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <Calendar className="size-5" />
             </div>
             <div>
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">Date & Timing</h4>
-              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 leading-snug">{startFormatted}</p>
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+                Date & Timing
+              </h4>
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 leading-snug">
+                {startFormatted}
+              </p>
               <p className="text-[11px] text-muted-foreground font-medium leading-snug">{timeFormatted}</p>
             </div>
           </div>
@@ -502,8 +500,12 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <MapPin className="size-5" />
             </div>
             <div className="min-w-0">
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">Venue / Location</h4>
-              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 truncate">{event.venue || event.mode}</p>
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+                Venue / Location
+              </h4>
+              <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 truncate">
+                {event.venue || event.mode}
+              </p>
               {event.meetingUrl && (
                 <a
                   href={event.meetingUrl}
@@ -604,7 +606,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <div className="flex items-center gap-3">
                 <Avatar className="size-11 border border-border/50">
                   <AvatarImage src={getAvatarUrl(event.organizer.avatarUrl, event.organizer.username)} />
-                  <AvatarFallback className="font-bold">{event.organizer.displayName?.[0] || "O"}</AvatarFallback>
+                  <AvatarFallback className="font-bold">
+                    {event.organizer.displayName?.[0] || "O"}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -613,7 +617,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                       Host
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">@{event.organizer.username} · {event.clubName}</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    @{event.organizer.username} · {event.clubName}
+                  </p>
                 </div>
               </div>
 

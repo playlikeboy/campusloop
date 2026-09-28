@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Check, Copy, ExternalLink, Lock, Mail } from "lucide-react";
 import Link from "next/link";
-import { Check, Copy, ExternalLink, KeyRound, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { CompanyNav } from "@/components/marketing/company-nav";
 import {
   DocLayout,
   DocList,
@@ -13,7 +14,6 @@ import {
   DocTable,
   LegalDocHeader,
 } from "@/components/marketing/legal-doc";
-import { CompanyNav } from "@/components/marketing/company-nav";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/system";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -68,9 +68,9 @@ export function DemoClient() {
           <DocSection id="credentials" number={1} title="Evaluation credentials">
             <p>
               CampusLoop is ordinarily restricted to active students with a recognized{" "}
-              <code className="font-mono text-xs">.ac.in</code> college email. To enable comprehensive evaluation
-              without an active Indian university roll number, we maintain an all-access tester account provisioned
-              with full student verification privileges:
+              <code className="font-mono text-xs">.ac.in</code> college email. To enable comprehensive
+              evaluation without an active Indian university roll number, we maintain an all-access tester
+              account provisioned with full student verification privileges:
             </p>
 
             <div className="grid gap-3 pt-2 sm:grid-cols-2">
@@ -87,10 +87,16 @@ export function DemoClient() {
                     className="flex size-7 items-center justify-center rounded-lg border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     title="Copy demo email"
                   >
-                    {copiedEmail ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                    {copiedEmail ? (
+                      <Check className="size-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="size-3.5" />
+                    )}
                   </button>
                 </div>
-                <code className="block font-mono text-sm font-bold text-foreground select-all">{demoEmail}</code>
+                <code className="block font-mono text-sm font-bold text-foreground select-all">
+                  {demoEmail}
+                </code>
               </div>
 
               {/* Password Card */}
@@ -106,10 +112,16 @@ export function DemoClient() {
                     className="flex size-7 items-center justify-center rounded-lg border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     title="Copy demo password"
                   >
-                    {copiedPass ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                    {copiedPass ? (
+                      <Check className="size-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="size-3.5" />
+                    )}
                   </button>
                 </div>
-                <code className="block font-mono text-sm font-bold text-foreground select-all">{demoPass}</code>
+                <code className="block font-mono text-sm font-bold text-foreground select-all">
+                  {demoPass}
+                </code>
               </div>
             </div>
 
@@ -124,15 +136,17 @@ export function DemoClient() {
             </div>
 
             <DocNote>
-              The evaluation account is reset nightly. Test posts, confession drafts, and match connections generated
-              during testing will remain visible within the sandbox session until the next 04:00 IST maintenance cycle.
+              The evaluation account is reset nightly. Test posts, confession drafts, and match connections
+              generated during testing will remain visible within the sandbox session until the next 04:00 IST
+              maintenance cycle.
             </DocNote>
           </DocSection>
 
           {/* 02. 3-Step Evaluation Walkthrough */}
           <DocSection id="quickstart" number={2} title="3-step evaluation walkthrough">
             <p>
-              To experience the core architectural loops of CampusLoop, we recommend walking through this 3-step sequence:
+              To experience the core architectural loops of CampusLoop, we recommend walking through this
+              3-step sequence:
             </p>
 
             <DocList
@@ -146,9 +160,7 @@ export function DemoClient() {
 
           {/* 03. Feature Verification Checklist */}
           <DocSection id="matrix" number={3} title="Feature verification checklist">
-            <p>
-              All key features are provisioned and active for evaluation:
-            </p>
+            <p>All key features are provisioned and active for evaluation:</p>
 
             <DocTable
               rows={[
@@ -184,7 +196,8 @@ export function DemoClient() {
           {/* 04. Institutional Test Sandboxes */}
           <DocSection id="sandboxes" number={4} title="Institutional test sandboxes">
             <p>
-              The evaluation environment is seeded with real structural data simulating different campus tiers:
+              The evaluation environment is seeded with real structural data simulating different campus
+              tiers:
             </p>
 
             <DocTable
@@ -210,9 +223,7 @@ export function DemoClient() {
 
           {/* 05. Evaluator FAQ */}
           <DocSection id="faq" number={5} title="Evaluator FAQ">
-            <p>
-              Common questions regarding evaluation, institutional partnerships, and sandbox parameters:
-            </p>
+            <p>Common questions regarding evaluation, institutional partnerships, and sandbox parameters:</p>
 
             <DocTable
               rows={[

@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import { BadgeCheck, Flame, Heart, MessageSquare, Repeat, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -95,7 +95,9 @@ export function InteractivePersonaFlip() {
               </div>
 
               <p className="text-sm sm:text-base font-semibold text-zinc-100 leading-relaxed">
-                &ldquo;Accidentally submitted my Spotify Wrapped playlist link instead of my Software Engineering project zip file at 11:59 PM. Professor gave me full marks because he loved Arctic Monkeys.&rdquo;
+                &ldquo;Accidentally submitted my Spotify Wrapped playlist link instead of my Software
+                Engineering project zip file at 11:59 PM. Professor gave me full marks because he loved Arctic
+                Monkeys.&rdquo;
               </p>
 
               <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs text-zinc-400">
@@ -138,7 +140,9 @@ export function InteractivePersonaFlip() {
                       <p className="text-xs font-black text-foreground">Tanvi Rastogi</p>
                       <BadgeCheck className="size-3.5 text-[#1D9BF0]" />
                     </div>
-                    <p className="text-[10px] text-muted-foreground">IIT Bombay &bull; Electrical &bull; 3rd Yr</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      IIT Bombay &bull; Electrical &bull; 3rd Yr
+                    </p>
                   </div>
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
@@ -147,7 +151,8 @@ export function InteractivePersonaFlip() {
               </div>
 
               <p className="text-sm sm:text-base font-semibold text-foreground leading-relaxed">
-                &ldquo;Organizing an open robotics hackathon next weekend at the Main Auditorium! Looking for 1 frontend dev who knows Next.js &amp; Tailwind. Drop a comment or message!&rdquo;
+                &ldquo;Organizing an open robotics hackathon next weekend at the Main Auditorium! Looking for
+                1 frontend dev who knows Next.js &amp; Tailwind. Drop a comment or message!&rdquo;
               </p>
 
               <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs text-muted-foreground">

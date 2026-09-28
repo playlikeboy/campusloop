@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
 import { PresenceHeartbeat } from "@/components/pwa/presence-heartbeat";
+import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 /**

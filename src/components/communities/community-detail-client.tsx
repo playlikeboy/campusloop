@@ -5,7 +5,6 @@ import {
   BarChart3,
   Check,
   Clock,
-  Compass,
   Flame,
   Globe,
   Image as ImageIcon,
@@ -19,7 +18,6 @@ import {
   ShieldCheck,
   Smile,
   Sparkles,
-  TrendingUp,
   Trophy,
   Users,
   VenetianMask,
@@ -176,7 +174,6 @@ export function CommunityDetailClient({
         const candidates = timeFiltered.length > 0 ? timeFiltered : list;
         return candidates.sort((a, b) => (b.votesCount || 0) - (a.votesCount || 0));
       }
-      case "hot":
       default:
         return list.sort((a, b) => {
           const ageHoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / (3600 * 1000));
@@ -547,7 +544,13 @@ export function CommunityDetailClient({
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                   )}
                 >
-                  {range === "today" ? "24h" : range === "week" ? "Week" : range === "month" ? "Month" : "All"}
+                  {range === "today"
+                    ? "24h"
+                    : range === "week"
+                      ? "Week"
+                      : range === "month"
+                        ? "Month"
+                        : "All"}
                 </button>
               ))}
             </div>
@@ -602,8 +605,8 @@ export function CommunityDetailClient({
               </div>
               {parsedRules.length === 0 ? (
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Standard CampusLoop verified campus conduct applies. Be respectful, no harassment, and support fellow
-                  classmates.
+                  Standard CampusLoop verified campus conduct applies. Be respectful, no harassment, and
+                  support fellow classmates.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -708,7 +711,9 @@ export function CommunityDetailClient({
               ) : (
                 <div className="rounded-2xl border border-border/40 p-4 bg-card/40 flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-foreground">Join c/{community.name} to participate</p>
+                    <p className="text-xs font-bold text-foreground">
+                      Join c/{community.name} to participate
+                    </p>
                     <p className="text-[11px] text-muted-foreground">
                       Post discussions, ask questions, vote on polls, and chat with members.
                     </p>
@@ -737,8 +742,8 @@ export function CommunityDetailClient({
                       No discussions in c/{community.name} yet
                     </h3>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Be the pioneer! Start the first conversation, ask a campus question, or share resources with
-                      fellow classmates.
+                      Be the pioneer! Start the first conversation, ask a campus question, or share resources
+                      with fellow classmates.
                     </p>
                   </div>
                   {isMember && (
@@ -822,9 +827,7 @@ export function CommunityDetailClient({
                   <p className="text-xs font-bold text-foreground truncate">
                     {community.creator.displayName}
                   </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    @{community.creator.username}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate">@{community.creator.username}</p>
                 </div>
               </Link>
             </div>
@@ -856,9 +859,7 @@ export function CommunityDetailClient({
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold text-foreground truncate">c/{rel.name}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">
-                        {rel.membersCount} members
-                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate">{rel.membersCount} members</p>
                     </div>
                   </Link>
                 ))}

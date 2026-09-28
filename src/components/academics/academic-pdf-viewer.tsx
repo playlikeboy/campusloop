@@ -21,7 +21,6 @@ import {
   RotateCw,
   Sparkles,
   Sun,
-  Video,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
@@ -199,7 +198,7 @@ export function AcademicPdfViewer({
 
     // Direct PDFs use the browser-native renderer first to avoid Google Docs viewer size limits.
     if (isDirectPdf) {
-      return rawUrl + "#toolbar=1&navpanes=1&scrollbar=1&view=FitH";
+      return `${rawUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`;
     }
 
     if (viewerEngine === "google" || isOfficeDoc) {
@@ -378,7 +377,9 @@ export function AcademicPdfViewer({
       ref={containerRef}
       className={cn(
         "w-full min-w-0 max-w-full rounded-3xl border border-border/60 bg-card overflow-hidden shadow-xs relative transition-all flex flex-col select-none",
-        isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen bg-background" : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
+        isFullscreen
+          ? "fixed inset-0 z-50 rounded-none h-screen bg-background"
+          : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
         className
       )}
     >

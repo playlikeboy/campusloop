@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { archivePost, deletePost } from "@/app/(app)/(main)/post/actions";
+import { RedditAttribution } from "@/components/reddit/reddit-attribution";
 import {
   AnimatedIcon,
   AnimateRepeat2,
@@ -13,7 +14,6 @@ import {
   AnimateTrash2,
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { RedditAttribution } from "@/components/reddit/reddit-attribution";
 import type { FeedPost } from "@/hooks/use-feed";
 import { formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
@@ -43,9 +43,7 @@ export function FeedCardHeader({
     setShowMenu(false);
     try {
       const res = await archivePost(post.id);
-      toast.success(
-        res.isArchived ? "Post moved to your private archive" : "Post restored to public feeds"
-      );
+      toast.success(res.isArchived ? "Post moved to your private archive" : "Post restored to public feeds");
       router.refresh();
     } catch {
       toast.error("Failed to update post archive status");
@@ -58,7 +56,7 @@ export function FeedCardHeader({
   const isBotPost = Boolean(
     post.pseudonym && (post.pseudonym.startsWith("🤖") || post.pseudonym.toLowerCase().includes("bot"))
   );
-  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/, "").trim();
+  const cleanBotPseudonym = post.pseudonym?.replace(/^[🤖\s]+/u, "").trim();
 
   const authorName = isBotPost
     ? cleanBotPseudonym || "Bot"
@@ -66,7 +64,8 @@ export function FeedCardHeader({
       ? post.pseudonym
         ? `@${post.pseudonym}`
         : "Anonymous Student"
-      : post.author?.displayName || (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
+      : post.author?.displayName ||
+        (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
 
   const authorHandle = isBotPost
     ? cleanBotPseudonym
@@ -79,9 +78,7 @@ export function FeedCardHeader({
         : null;
 
   const isVerified = Boolean(
-    !isBotPost &&
-      !post.isAnonymous &&
-      ((post.author?.points || 0) >= 150 || post.author?.role === "ADMIN")
+    !isBotPost && !post.isAnonymous && ((post.author?.points || 0) >= 150 || post.author?.role === "ADMIN")
   );
 
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
@@ -178,9 +175,7 @@ export function FeedCardHeader({
 
         {/* Right Actions: Confession/Meme Pill, Reddit Attribution & More Menu */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {post.externalPost && (
-            <RedditAttribution externalPost={post.externalPost} variant="subtle" />
-          )}
+          {post.externalPost && <RedditAttribution externalPost={post.externalPost} variant="subtle" />}
           {post.type === "CONFESSION" && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
               Confession

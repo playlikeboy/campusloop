@@ -1,27 +1,12 @@
 "use client";
 
+import { ArrowRight, BookOpen, Check, GraduationCap, Heart, Telescope } from "lucide-react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  Check,
-  Code2,
-  Cpu,
-  ExternalLink,
-  GraduationCap,
-  Heart,
-  Layers,
-  MessageSquare,
-  ShieldCheck,
-  Sparkles,
-  Telescope,
-} from "lucide-react";
 import { CompanyNav } from "@/components/marketing/company-nav";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/system";
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
 import { OBSERVATORY_URL, PRODUCTS } from "@/constants/products";
-import { cn } from "@/lib/utils";
 
 interface ProductsClientProps {
   isAuthenticated: boolean;
@@ -211,12 +196,24 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
               </div>
 
               {[
-                { cap: "Primary Focus", app: "Campus Social & Academics", nb: "Technology & Digital Research" },
+                {
+                  cap: "Primary Focus",
+                  app: "Campus Social & Academics",
+                  nb: "Technology & Digital Research",
+                },
                 { cap: "Cost to Students", app: "100% Free", nb: "Free & Public" },
                 { cap: "Access", app: "College Email Verification", nb: "Open Web" },
                 { cap: "Format", app: "Full PWA & Responsive Web", nb: "Research Publication" },
-                { cap: "Core Content", app: "Feeds, Communities & Academic Resources", nb: "Source-backed Research & Analysis" },
-                { cap: "Audience", app: "Students at 1,350+ Indian Colleges", nb: "Researchers, Developers & Students" },
+                {
+                  cap: "Core Content",
+                  app: "Feeds, Communities & Academic Resources",
+                  nb: "Source-backed Research & Analysis",
+                },
+                {
+                  cap: "Audience",
+                  app: "Students at 1,350+ Indian Colleges",
+                  nb: "Researchers, Developers & Students",
+                },
               ].map((row, i) => (
                 <div
                   key={i}

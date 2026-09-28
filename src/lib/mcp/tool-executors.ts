@@ -19,10 +19,7 @@ import {
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import type { McpContext } from "./types";
 
-export type McpToolHandler = (
-  context: McpContext,
-  args: Record<string, any>
-) => Promise<any>;
+export type McpToolHandler = (context: McpContext, args: Record<string, any>) => Promise<any>;
 
 export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
   // ─── 1. FEED & POSTS ────────────────────────────────────────────────────────
@@ -161,7 +158,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
           id: p.id,
           title: p.title,
           excerpt: p.body?.slice(0, 200),
-          author: p.isAnonymous ? (p.pseudonym || "Anonymous") : p.author?.displayName,
+          author: p.isAnonymous ? p.pseudonym || "Anonymous" : p.author?.displayName,
           college: p.institution?.name,
           votesCount: score,
           commentsCount: (p.comments || []).length,
@@ -240,7 +237,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       comments: topComments.map((c) => ({
         id: c.id,
         body: c.body,
-        author: c.isAnonymous ? (c.pseudonym || "Anonymous") : c.author?.displayName,
+        author: c.isAnonymous ? c.pseudonym || "Anonymous" : c.author?.displayName,
         createdAt: c.createdAt,
       })),
     };
@@ -406,10 +403,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         await db.delete(votes).where(eq(votes.id, existingVote.id));
       }
     } else if (existingVote) {
-      await db
-        .update(votes)
-        .set({ value: voteValue })
-        .where(eq(votes.id, existingVote.id));
+      await db.update(votes).set({ value: voteValue }).where(eq(votes.id, existingVote.id));
     } else {
       await db.insert(votes).values({
         postId,
@@ -509,9 +503,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
     const chats = participations.map((p) => {
       const conv = p.conversation;
-      const otherParticipant = conv.participants.find(
-        (part) => part.userId !== context.userId
-      )?.user;
+      const otherParticipant = conv.participants.find((part) => part.userId !== context.userId)?.user;
       const lastMessage = conv.messages?.[0];
 
       return {
@@ -603,10 +595,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       })
       .returning();
 
-    await db
-      .update(conversations)
-      .set({ updatedAt: new Date() })
-      .where(eq(conversations.id, conversationId));
+    await db.update(conversations).set({ updatedAt: new Date() }).where(eq(conversations.id, conversationId));
 
     return {
       success: true,
@@ -749,10 +738,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     if (!comm) throw new Error(`Community '${communityId}' not found`);
 
     const existing = await db.query.communityMembers.findFirst({
-      where: and(
-        eq(communityMembers.communityId, communityId),
-        eq(communityMembers.userId, context.userId)
-      ),
+      where: and(eq(communityMembers.communityId, communityId), eq(communityMembers.userId, context.userId)),
     });
 
     if (action === "JOIN") {
@@ -766,9 +752,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       return { success: true, action: "JOINED", communityName: comm.name };
     } else {
       if (existing) {
-        await db
-          .delete(communityMembers)
-          .where(eq(communityMembers.id, existing.id));
+        await db.delete(communityMembers).where(eq(communityMembers.id, existing.id));
       }
       return { success: true, action: "LEFT", communityName: comm.name };
     }
@@ -932,9 +916,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
   campusloop_get_college_pulse: async (context, args) => {
     const db = getDb();
-    const target = args.collegeIdOrSlug
-      ? String(args.collegeIdOrSlug).trim()
-      : context.institutionId;
+    const target = args.collegeIdOrSlug ? String(args.collegeIdOrSlug).trim() : context.institutionId;
 
     const college = await db.query.institutions.findFirst({
       where: or(eq(institutions.id, target), eq(institutions.slug, target)),
@@ -987,7 +969,9 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
   campusloop_get_user_profile: async (_context, args) => {
     const db = getDb();
-    const username = String(args.username || "").trim().replace(/^@/, "");
+    const username = String(args.username || "")
+      .trim()
+      .replace(/^@/, "");
     if (!username) throw new Error("username is required");
 
     const user = await db.query.userProfiles.findFirst({
@@ -1099,10 +1083,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000);
     const scope = args.scope === "GLOBAL" ? "GLOBAL" : "CAMPUS";
 
-    const conditions = [
-      eq(posts.status, "PUBLISHED"),
-      sql`${posts.createdAt} > ${since}`,
-    ];
+    const conditions = [eq(posts.status, "PUBLISHED"), sql`${posts.createdAt} > ${since}`];
 
     if (scope === "CAMPUS" && context.institutionId) {
       conditions.push(eq(posts.institutionId, context.institutionId));
@@ -1130,8 +1111,9 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         topConfessionScoop: confessions[0]?.body || "No high-scoring confessions this morning.",
         activeCampusPoll: polls[0]?.title || "No active trending polls.",
         topPlacementOrAcademicNotice:
-          general.find((p) => p.body.toLowerCase().includes("placement") || p.body.toLowerCase().includes("exam"))?.body ||
-          "Standard semester operations reported.",
+          general.find(
+            (p) => p.body.toLowerCase().includes("placement") || p.body.toLowerCase().includes("exam")
+          )?.body || "Standard semester operations reported.",
       },
       recommendedAction: "Review upcoming semester deadlines and vote on active student polls.",
     };
@@ -1143,7 +1125,10 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     if (!question) throw new Error("question is required");
 
     // Search relevant study resources from the student's campus
-    const keywords = question.split(" ").filter((w) => w.length > 3).slice(0, 3);
+    const keywords = question
+      .split(" ")
+      .filter((w) => w.length > 3)
+      .slice(0, 3);
     const searchTerms = keywords.length > 0 ? keywords.join(" ") : question;
 
     const relevantNotes = await db.query.academicResources.findMany({
@@ -1198,14 +1183,16 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       recommendation: safety.blocked
         ? "DO NOT POST: High safety violation detected."
         : phoneDetected || roomDetected
-        ? "CAUTION: Specific hostel room or phone number detected. Consider redacting before sharing publicly."
-        : "PASSED: Content adheres to CampusLoop safety guidelines.",
+          ? "CAUTION: Specific hostel room or phone number detected. Consider redacting before sharing publicly."
+          : "PASSED: Content adheres to CampusLoop safety guidelines.",
     };
   },
 
   campusloop_dating_vibe_compatibility: async (context, args) => {
     const db = getDb();
-    const targetUsername = String(args.targetUsername || "").trim().replace(/^@/, "");
+    const targetUsername = String(args.targetUsername || "")
+      .trim()
+      .replace(/^@/, "");
     if (!targetUsername) throw new Error("targetUsername is required");
 
     const targetUser = await db.query.userProfiles.findFirst({
@@ -1234,8 +1221,8 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         score >= 80
           ? "High Resonance! Strong campus & interest alignment."
           : score >= 65
-          ? "Good Chemistry. Shared college ground with room for conversation."
-          : "Opposites Attract. Distinct passions and different branches.",
+            ? "Good Chemistry. Shared college ground with room for conversation."
+            : "Opposites Attract. Distinct passions and different branches.",
     };
   },
 
@@ -1296,10 +1283,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
   campusloop_get_campus_sentiment_pulse: async (context) => {
     const db = getDb();
     const recentPosts = await db.query.posts.findMany({
-      where: and(
-        eq(posts.institutionId, context.institutionId),
-        eq(posts.status, "PUBLISHED")
-      ),
+      where: and(eq(posts.institutionId, context.institutionId), eq(posts.status, "PUBLISHED")),
       orderBy: [desc(posts.createdAt)],
       limit: 30,
     });
@@ -1310,13 +1294,28 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
     for (const p of recentPosts) {
       const text = `${p.title || ""} ${p.body}`.toLowerCase();
-      if (text.includes("exam") || text.includes("midsem") || text.includes("quiz") || text.includes("cgpa")) {
+      if (
+        text.includes("exam") ||
+        text.includes("midsem") ||
+        text.includes("quiz") ||
+        text.includes("cgpa")
+      ) {
         examMentions++;
       }
-      if (text.includes("fest") || text.includes("concert") || text.includes("dj") || text.includes("hackathon")) {
+      if (
+        text.includes("fest") ||
+        text.includes("concert") ||
+        text.includes("dj") ||
+        text.includes("hackathon")
+      ) {
         festMentions++;
       }
-      if (text.includes("mess") || text.includes("canteen") || text.includes("food") || text.includes("hostel")) {
+      if (
+        text.includes("mess") ||
+        text.includes("canteen") ||
+        text.includes("food") ||
+        text.includes("hostel")
+      ) {
         foodMentions++;
       }
     }
@@ -1333,8 +1332,8 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         festMentions > examMentions
           ? "High Campus Energy & Anticipation"
           : examMentions > 5
-          ? "Serious Exam / Preparation Mode"
-          : "Balanced Campus Routine",
+            ? "Serious Exam / Preparation Mode"
+            : "Balanced Campus Routine",
     };
   },
 };

@@ -526,9 +526,7 @@ export async function deleteCommunityWebhook(webhookId: string) {
     throw new Error("Unauthorized");
   }
 
-  await db
-    .delete(communityWebhooks)
-    .where(eq(communityWebhooks.id, webhookId));
+  await db.delete(communityWebhooks).where(eq(communityWebhooks.id, webhookId));
 
   revalidatePath(`/communities/${comm.slug || comm.id}/settings`);
   return { success: true };

@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { Download, PlusSquare, Share, Store, X, Zap } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";

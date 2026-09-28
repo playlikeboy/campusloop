@@ -57,7 +57,10 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Admin Reddit ingestion failed:", err);
     return NextResponse.json(
-      { error: "Ingestion failed or unauthorized", message: err instanceof Error ? err.message : String(err) },
+      {
+        error: "Ingestion failed or unauthorized",
+        message: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 }
     );
   }

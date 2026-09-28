@@ -3,7 +3,6 @@ import {
   allAnnouncementsWithRelationsQuery,
   allClubsQuery,
   allEventsWithRelationsQuery,
-  allVenuesQuery,
 } from "../sanity/queries";
 
 export interface AtlasEvidenceItem {
@@ -95,7 +94,10 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     prompt === "what clubs exist?" ||
     prompt.includes("list clubs") ||
     prompt.includes("all clubs") ||
-    (prompt.includes("clubs") && !prompt.includes("event") && !prompt.includes("after") && !prompt.includes("attend"))
+    (prompt.includes("clubs") &&
+      !prompt.includes("event") &&
+      !prompt.includes("after") &&
+      !prompt.includes("attend"))
   ) {
     return {
       query: userPrompt,
@@ -133,14 +135,9 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     prompt.includes("freshman");
 
   const wantsFrontendOrWeb =
-    prompt.includes("web") ||
-    prompt.includes("frontend") ||
-    prompt.includes("react");
+    prompt.includes("web") || prompt.includes("frontend") || prompt.includes("react");
 
-  const wantsAI =
-    prompt.includes("ai") ||
-    prompt.includes("machine learning") ||
-    prompt.includes("ml");
+  const wantsAI = prompt.includes("ai") || prompt.includes("machine learning") || prompt.includes("ml");
 
   const avoidsCP =
     prompt.includes("don't want competitive") ||
@@ -173,13 +170,16 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     const hour = startDate.getUTCHours();
     // In our seed, 18:30 is 18.5, 19:00 is 19, 16:00 is 16
     if (wantsAfter6PM && hour < 18) {
-      reasons.push(`Starts at ${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}, which is before 6:00 PM`);
+      reasons.push(
+        `Starts at ${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}, which is before 6:00 PM`
+      );
     }
 
     // 2. Competitive programming filter
     const isCP =
-      event.categories?.some((c: any) => c.slug === "competitive-coding" || c._id === "category-competitive-coding") ||
-      event.skills?.includes("competitive-programming");
+      event.categories?.some(
+        (c: any) => c.slug === "competitive-coding" || c._id === "category-competitive-coding"
+      ) || event.skills?.includes("competitive-programming");
     if (avoidsCP && isCP) {
       reasons.push("Categorized as competitive programming / contest contest preparation");
     }

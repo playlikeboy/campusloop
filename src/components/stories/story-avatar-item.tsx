@@ -45,9 +45,7 @@ export function StoryAvatarItem({
         </Avatar>
       </div>
       <div className="flex flex-col items-center leading-tight">
-        <span className="text-[11px] font-bold text-foreground truncate max-w-[66px]">
-          {displayName}
-        </span>
+        <span className="text-[11px] font-bold text-foreground truncate max-w-[66px]">{displayName}</span>
         {subtitle && (
           <span className="text-[9px] font-medium text-muted-foreground truncate max-w-[66px]">
             {subtitle}

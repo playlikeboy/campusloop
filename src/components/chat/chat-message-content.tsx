@@ -10,7 +10,7 @@ interface ChatMessageContentProps {
   isMe: boolean;
 }
 
-/**                   
+/**
  * Splits text into tokens: @mentions, URLs, and regular text,
  * using industry-standard boundary detection (preventing credentials like mart@password123 from matching).
  */

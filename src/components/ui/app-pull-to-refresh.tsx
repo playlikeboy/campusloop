@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useCallback } from "react";
 import { useSWRConfig } from "swr";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";

@@ -1,10 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { PlusSquare, Share, Zap } from "lucide-react";
-import { AnimateDownload, AnimateX } from "@/components/ui/animated-icon";
+import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AnimateDownload, AnimateX } from "@/components/ui/animated-icon";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { trackPWAInstallOutcome } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";

@@ -1,8 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export interface BentoItem {
@@ -31,11 +31,7 @@ export function BentoGrid({ items, className }: BentoGridProps) {
     <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 w-full", className)}>
       {items.map((item, index) => {
         const colClass =
-          item.colSpan === 3
-            ? "md:col-span-3"
-            : item.colSpan === 2
-            ? "md:col-span-2"
-            : "col-span-1";
+          item.colSpan === 3 ? "md:col-span-3" : item.colSpan === 2 ? "md:col-span-2" : "col-span-1";
 
         return (
           <div
@@ -68,9 +64,7 @@ export function BentoGrid({ items, className }: BentoGridProps) {
 
               <div className="flex items-center gap-2">
                 {item.meta && (
-                  <span className="text-[11px] font-mono text-muted-foreground">
-                    {item.meta}
-                  </span>
+                  <span className="text-[11px] font-mono text-muted-foreground">{item.meta}</span>
                 )}
                 {item.status && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/20 backdrop-blur-sm">
@@ -86,14 +80,10 @@ export function BentoGrid({ items, className }: BentoGridProps) {
               <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
                 {item.title}
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {item.description}
-              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
 
               {item.contentNode && (
-                <div className="mt-4 pt-3 border-t border-border/40">
-                  {item.contentNode}
-                </div>
+                <div className="mt-4 pt-3 border-t border-border/40">{item.contentNode}</div>
               )}
             </div>
 
@@ -110,8 +100,8 @@ export function BentoGrid({ items, className }: BentoGridProps) {
                 ))}
               </div>
 
-              {item.cta && (
-                item.ctaHref ? (
+              {item.cta &&
+                (item.ctaHref ? (
                   <Link
                     href={item.ctaHref}
                     className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline group-hover:translate-x-0.5 transition-transform"
@@ -124,8 +114,7 @@ export function BentoGrid({ items, className }: BentoGridProps) {
                     <span>{item.cta}</span>
                     <ArrowRight className="size-3.5" />
                   </span>
-                )
-              )}
+                ))}
             </div>
 
             {/* Subtle Perimeter Border Highlight on Hover */}

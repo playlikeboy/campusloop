@@ -455,7 +455,9 @@ export function EventsClient() {
           {isAnyFilterActive && (
             <div className="flex items-center justify-between text-xs py-1 px-1 text-muted-foreground">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span>Showing <strong>{events.length}</strong> matching events</span>
+                <span>
+                  Showing <strong>{events.length}</strong> matching events
+                </span>
                 {timeframeFilter !== "ALL" && (
                   <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-bold">
                     {timeframeFilter}
@@ -526,64 +528,70 @@ export function EventsClient() {
       )}
 
       {/* ─── Featured Spotlight Banner with Live Ticking Countdown ─── */}
-      {!isLoading && featuredEvent && !searchQuery && activeCategory === "ALL" && timeframeFilter === "ALL" && (
-        <div className="pb-4">
-          <Link
-            href={`/events/${featuredEvent.slug || featuredEvent.id}`}
-            className="group relative block overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-card p-4 sm:p-6 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-primary-foreground shadow-xs">
-                  <Sparkles className="size-3" />
-                  Featured Spotlight
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/60 text-muted-foreground border border-border/40 truncate max-w-[180px]">
-                  {featuredEvent.clubName}
-                </span>
-              </div>
-
-              {countdown && (
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold bg-background/80 backdrop-blur-md px-3 py-1 rounded-full border border-border/40 text-foreground">
-                  <Clock className="size-3.5 text-primary shrink-0" />
-                  {countdown.isLive ? (
-                    <span className="text-red-500 font-black animate-pulse">🔴 HAPPENING NOW</span>
-                  ) : (
-                    <span>
-                      {countdown.days > 0 && `${countdown.days}d `}
-                      {String(countdown.hours).padStart(2, "0")}:{String(countdown.minutes).padStart(2, "0")}:{String(countdown.seconds).padStart(2, "0")}
-                    </span>
-                  )}
+      {!isLoading &&
+        featuredEvent &&
+        !searchQuery &&
+        activeCategory === "ALL" &&
+        timeframeFilter === "ALL" && (
+          <div className="pb-4">
+            <Link
+              href={`/events/${featuredEvent.slug || featuredEvent.id}`}
+              className="group relative block overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-card p-4 sm:p-6 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-primary-foreground shadow-xs">
+                    <Sparkles className="size-3" />
+                    Featured Spotlight
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/60 text-muted-foreground border border-border/40 truncate max-w-[180px]">
+                    {featuredEvent.clubName}
+                  </span>
                 </div>
-              )}
-            </div>
 
-            <div className="mt-3 flex flex-col md:flex-row gap-3 sm:gap-5 items-start md:items-center justify-between">
-              <div className="space-y-1 min-w-0 max-w-3xl">
-                <h2 className="text-base sm:text-xl font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                  {featuredEvent.title}
-                </h2>
-                {featuredEvent.tagline && (
-                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                    {featuredEvent.tagline}
-                  </p>
+                {countdown && (
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold bg-background/80 backdrop-blur-md px-3 py-1 rounded-full border border-border/40 text-foreground">
+                    <Clock className="size-3.5 text-primary shrink-0" />
+                    {countdown.isLive ? (
+                      <span className="text-red-500 font-black animate-pulse">🔴 HAPPENING NOW</span>
+                    ) : (
+                      <span>
+                        {countdown.days > 0 && `${countdown.days}d `}
+                        {String(countdown.hours).padStart(2, "0")}:
+                        {String(countdown.minutes).padStart(2, "0")}:
+                        {String(countdown.seconds).padStart(2, "0")}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
 
-              <div className="flex items-center justify-between w-full md:w-auto gap-3 shrink-0 pt-1 md:pt-0">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-bold text-foreground">{featuredEvent.attendeeCount} enrolled</span>
-                  <span className="text-muted-foreground/60">·</span>
-                  <span className="font-bold text-primary">{featuredEvent.entryFee || "Free"}</span>
+              <div className="mt-3 flex flex-col md:flex-row gap-3 sm:gap-5 items-start md:items-center justify-between">
+                <div className="space-y-1 min-w-0 max-w-3xl">
+                  <h2 className="text-base sm:text-xl font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                    {featuredEvent.title}
+                  </h2>
+                  {featuredEvent.tagline && (
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {featuredEvent.tagline}
+                    </p>
+                  )}
                 </div>
-                <span className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black group-hover:opacity-90 transition-opacity shadow-xs shrink-0">
-                  View Pass →
-                </span>
+
+                <div className="flex items-center justify-between w-full md:w-auto gap-3 shrink-0 pt-1 md:pt-0">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-bold text-foreground">{featuredEvent.attendeeCount} enrolled</span>
+                    <span className="text-muted-foreground/60">·</span>
+                    <span className="font-bold text-primary">{featuredEvent.entryFee || "Free"}</span>
+                  </div>
+                  <span className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black group-hover:opacity-90 transition-opacity shadow-xs shrink-0">
+                    View Pass →
+                  </span>
+                </div>
               </div>
-            </div>
-          </Link>
-        </div>
-      )}
+            </Link>
+          </div>
+        )}
 
       {/* ─── Stream of Event Cards (Grid or List Layout) ─── */}
       <div className="pt-1 sm:pt-2">

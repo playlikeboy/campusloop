@@ -9,10 +9,7 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
  * Designated authorized administrator emails.
  * Users logged in with these emails are automatically granted ADMIN privileges.
  */
-export const ADMIN_EMAILS = [
-  "sh20raj@gmail.com",
-  "btech10574.24@bitmesra.ac.in",
-] as const;
+export const ADMIN_EMAILS = ["sh20raj@gmail.com", "btech10574.24@bitmesra.ac.in"] as const;
 
 /**
  * Checks if the given email is an authorized administrator email (case-insensitive).

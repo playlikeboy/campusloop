@@ -7,7 +7,6 @@ import {
   Briefcase,
   Building2,
   Calendar,
-  Camera,
   Check,
   CheckCircle2,
   Clock,

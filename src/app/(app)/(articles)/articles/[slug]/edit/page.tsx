@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ArticleEditorClient } from "@/app/(app)/(articles)/articles/new/article-editor-client";
 import { getDb } from "@/db";
-import { articles } from "@/db/schema";
+import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { isViewerProfile } from "@/lib/viewer";
 
 interface ArticleEditPageProps {
   params: Promise<{ slug: string }>;
@@ -18,10 +19,23 @@ export default async function ArticleEditPage({ params }: ArticleEditPageProps) 
   const { slug } = await params;
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/join?mode=signin");
+    redirect("/handler/sign-in");
   }
 
   const db = getDb();
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+
+  if (!profile) {
+    redirect("/onboarding");
+  }
+
+  const isViewer = await isViewerProfile(profile);
+  if (isViewer) {
+    redirect("/articles");
+  }
+
   const article = await db.query.articles.findFirst({
     where: or(eq(articles.slug, slug), eq(articles.id, slug)),
     with: { author: true },
@@ -29,6 +43,11 @@ export default async function ArticleEditPage({ params }: ArticleEditPageProps) 
 
   if (!article) {
     notFound();
+  }
+
+  // Strict ownership check
+  if (article.authorId !== profile.id && profile.role !== "ADMIN") {
+    redirect(`/articles/${article.slug}`);
   }
 
   return (
@@ -44,6 +63,7 @@ export default async function ArticleEditPage({ params }: ArticleEditPageProps) 
         tags: article.tags,
         status: article.status,
       }}
+      currentProfile={profile}
       isEditing={true}
     />
   );

@@ -827,7 +827,7 @@ export function MessengerPane({
   }
 
   function formatMemberCount(count: number) {
-    return count === 1 ? "1 member" : count + " members";
+    return count === 1 ? "1 member" : `${count} members`;
   }
 
   if (!conversationId) {
@@ -921,7 +921,9 @@ export function MessengerPane({
                         <Users2 className="size-3" />
                         <span>
                           {formatMemberCount(
-                            effectiveParticipant.membersCount || effectiveParticipant.participants?.length || 2
+                            effectiveParticipant.membersCount ||
+                              effectiveParticipant.participants?.length ||
+                              2
                           )}
                         </span>
                       </span>
@@ -1244,9 +1246,7 @@ export function MessengerPane({
               const reactions = msg.reactions || [];
               const isGroupChat = Boolean(effectiveParticipant.isGroup || effectiveParticipant.isCommunity);
               const showSenderMeta =
-                !isMe &&
-                isGroupChat &&
-                (!prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator);
+                !isMe && isGroupChat && (!prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator);
               const sender = msg.sender;
 
               // Check if Secret Crush Match greeting
@@ -1715,10 +1715,44 @@ export function MessengerPane({
                 <MoreHorizontal className="size-4" />
               </summary>
               <div className="absolute bottom-11 left-0 z-40 flex items-center gap-1.5 rounded-2xl border border-border/70 bg-card p-1.5 shadow-xl">
-                <button type="button" disabled={isUploadingMedia} onClick={() => videoInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-sky-500 hover:bg-muted cursor-pointer" title="Attach video" aria-label="Attach video"><Video className="size-4" /></button>
-                <button type="button" disabled={isUploadingMedia} onClick={() => docInputRef.current?.click()} className="flex size-9 items-center justify-center rounded-xl text-indigo-500 hover:bg-muted cursor-pointer" title="Attach study notes or PDF" aria-label="Attach study notes or PDF"><FileText className="size-4" /></button>
-                <button type="button" onClick={() => setShowGifPicker(true)} className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-brand/40 px-2 text-[10px] font-black text-brand hover:bg-brand/10 cursor-pointer" title="Send GIF" aria-label="Send GIF">GIF</button>
-                <button type="button" onClick={() => setShowStickerPicker(true)} className="flex size-9 items-center justify-center rounded-xl text-amber-500 hover:bg-muted cursor-pointer" title="Send sticker or emoji" aria-label="Send sticker or emoji"><Smile className="size-4" /></button>
+                <button
+                  type="button"
+                  disabled={isUploadingMedia}
+                  onClick={() => videoInputRef.current?.click()}
+                  className="flex size-9 items-center justify-center rounded-xl text-sky-500 hover:bg-muted cursor-pointer"
+                  title="Attach video"
+                  aria-label="Attach video"
+                >
+                  <Video className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  disabled={isUploadingMedia}
+                  onClick={() => docInputRef.current?.click()}
+                  className="flex size-9 items-center justify-center rounded-xl text-indigo-500 hover:bg-muted cursor-pointer"
+                  title="Attach study notes or PDF"
+                  aria-label="Attach study notes or PDF"
+                >
+                  <FileText className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGifPicker(true)}
+                  className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-brand/40 px-2 text-[10px] font-black text-brand hover:bg-brand/10 cursor-pointer"
+                  title="Send GIF"
+                  aria-label="Send GIF"
+                >
+                  GIF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowStickerPicker(true)}
+                  className="flex size-9 items-center justify-center rounded-xl text-amber-500 hover:bg-muted cursor-pointer"
+                  title="Send sticker or emoji"
+                  aria-label="Send sticker or emoji"
+                >
+                  <Smile className="size-4" />
+                </button>
               </div>
             </details>
           </div>

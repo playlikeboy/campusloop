@@ -14,10 +14,8 @@ import {
   Heading1,
   Heading2,
   Heading3,
-  HelpCircle,
   Image as ImageIcon,
   Italic,
-  Link as LinkIcon,
   List,
   ListOrdered,
   Loader2,
@@ -27,16 +25,13 @@ import {
   Quote,
   Redo,
   Sparkles,
-  SplitSquareVertical,
   Strikethrough,
   Undo,
-  Upload,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import TurndownService from "turndown";
 import { MarkdownContent } from "@/components/common/markdown-content";
-import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";
 import { uploadImageToImgBB } from "@/lib/upload";
 import { cn } from "@/lib/utils";
@@ -245,7 +240,11 @@ export function NovelMarkdownEditor({
     if (!editor) return;
     const { from } = editor.state.selection;
     const deleteLength = slashQuery.length + 1; // +1 for the '/'
-    editor.chain().focus().deleteRange({ from: from - deleteLength, to: from }).run();
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: from - deleteLength, to: from })
+      .run();
     item.action(editor);
     setShowSlashMenu(false);
     haptics.light();
@@ -708,7 +707,9 @@ export function NovelMarkdownEditor({
                     onMouseEnter={() => setSlashIndex(idx)}
                     className={cn(
                       "w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer",
-                      isSelected ? "bg-purple-600/20 text-white border border-purple-500/30" : "hover:bg-white/[0.06] text-zinc-300"
+                      isSelected
+                        ? "bg-purple-600/20 text-white border border-purple-500/30"
+                        : "hover:bg-white/[0.06] text-zinc-300"
                     )}
                   >
                     <div

@@ -115,10 +115,7 @@ export async function searchUnsplashPhotos({
     return cached.data;
   }
 
-  const accessKey =
-    process.env.UNSPLASH_ACCESS_KEY ||
-    process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY ||
-    "";
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY || process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || "";
 
   if (!accessKey) {
     return {
@@ -209,10 +206,7 @@ export async function searchUnsplashPhotos({
  */
 export async function trackUnsplashDownload(downloadLocation: string): Promise<void> {
   if (!downloadLocation) return;
-  const accessKey =
-    process.env.UNSPLASH_ACCESS_KEY ||
-    process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY ||
-    "";
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY || process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || "";
 
   if (!accessKey) return;
 

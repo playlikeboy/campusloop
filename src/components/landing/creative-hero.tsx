@@ -1,7 +1,6 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -16,6 +15,7 @@ import {
   ShieldCheck,
   Video,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import { haptics } from "@/lib/haptics";
@@ -88,7 +88,8 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed">
-            No professors. No parents. Just verified students sharing real confessions, 24-hour campus vibes, semester PYQs, and daily buzz.
+            No professors. No parents. Just verified students sharing real confessions, 24-hour campus vibes,
+            semester PYQs, and daily buzz.
           </p>
 
           {/* Quick Action Triggers */}
@@ -296,8 +297,12 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
                             🎭
                           </div>
                           <div>
-                            <span className="text-[11px] font-black text-foreground">Anonymous Confession</span>
-                            <p className="text-[9px] text-muted-foreground">IITB Computer Science • 18m ago</p>
+                            <span className="text-[11px] font-black text-foreground">
+                              Anonymous Confession
+                            </span>
+                            <p className="text-[9px] text-muted-foreground">
+                              IITB Computer Science • 18m ago
+                            </p>
                           </div>
                         </div>
 
@@ -358,9 +363,21 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
                         </div>
 
                         {[
-                          { name: "Maisy", time: "1m ago", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80" },
-                          { name: "Wells", time: "5m ago", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80" },
-                          { name: "Hope", time: "12m ago", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80" },
+                          {
+                            name: "Maisy",
+                            time: "1m ago",
+                            img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80",
+                          },
+                          {
+                            name: "Wells",
+                            time: "5m ago",
+                            img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80",
+                          },
+                          {
+                            name: "Hope",
+                            time: "12m ago",
+                            img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80",
+                          },
                         ].map((s) => (
                           <div key={s.name} className="flex flex-col items-center gap-1 shrink-0">
                             <div className="size-13 rounded-full p-0.5 bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600">

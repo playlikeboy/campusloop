@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { eq, inArray, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { getDb } from "@/db";
-import { externalPosts, institutions, posts, userProfiles, type UserProfile } from "@/db/schema";
+import { posts, type UserProfile, userProfiles } from "@/db/schema";
 
 type Database = ReturnType<typeof getDb>;
 
