@@ -230,7 +230,7 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
         setShowQrModal(true);
       } else {
         toast.success("Draft saved successfully");
-        router.push("/app/articles/dashboard");
+        router.push("/articles/dashboard");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save article");
@@ -563,7 +563,7 @@ export function ArticleEditorClient({ initialArticle, isEditing = false }: Artic
           isOpen={showQrModal}
           onClose={() => {
             setShowQrModal(false);
-            router.push(`/app/articles/${publishedSlug}`);
+            router.push(`/articles/${publishedSlug}`);
           }}
           title={title}
           subtitle={`By you • ${readingTime} min read`}

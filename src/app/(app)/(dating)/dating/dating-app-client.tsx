@@ -190,7 +190,7 @@ export function DatingAppClient() {
       {/* ─── Top Bar ─── */}
       <header className="flex items-center justify-between py-3 border-b border-border/30">
         <Link
-          href="/app"
+          href="/feeds"
           aria-label="Back to feed"
           className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/40 cursor-pointer"
         >
@@ -212,7 +212,7 @@ export function DatingAppClient() {
         <div className="flex items-center gap-1.5">
           {/* Secret Crush Vault Link */}
           <Link
-            href="/app/crush"
+            href="/crush"
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs border border-primary/25"
             title="Manage Secret Crush Vault"
           >
@@ -221,7 +221,7 @@ export function DatingAppClient() {
           </Link>
 
           <Link
-            href="/app/matching/likes"
+            href="/matching/likes"
             aria-label="Likes you"
             className="relative flex size-9 items-center justify-center rounded-full bg-muted/60 text-primary hover:bg-muted transition-colors border border-border/40 cursor-pointer"
           >
@@ -233,7 +233,7 @@ export function DatingAppClient() {
             )}
           </Link>
           <Link
-            href="/app/matching/filters"
+            href="/matching/filters"
             aria-label="Preferences"
             className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/40 cursor-pointer"
           >
@@ -344,7 +344,7 @@ export function DatingAppClient() {
                 <RotateCcw className="size-3.5" /> Reset swipes &amp; review again
               </button>
               <Link
-                href="/app/profile/edit"
+                href="/profile/edit"
                 className="flex w-full items-center justify-center gap-1.5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
               >
                 <Camera className="size-3.5" /> Upload more photos to get 3x matches

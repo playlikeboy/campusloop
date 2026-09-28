@@ -86,7 +86,7 @@ export function FiltersClient() {
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 bg-background text-foreground select-none">
       <header className="flex items-center gap-3 py-3 border-b border-border/30">
         <Link
-          href="/app/matching"
+          href="/matching"
           aria-label="Back"
           className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border border-border/40 cursor-pointer"
         >
