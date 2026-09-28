@@ -14,7 +14,7 @@ export default async function RidesharePage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <DedicatedHubClient hubType="rideshare" profileId={profile.id} />;
 }
