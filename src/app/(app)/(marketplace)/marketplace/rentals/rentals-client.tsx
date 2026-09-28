@@ -234,7 +234,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
         </div>
 
         <Link
-          href="/app/marketplace/orders"
+          href="/marketplace/orders"
           onClick={() => {
             sounds.tap();
             haptics.light();
