@@ -28,12 +28,12 @@ export const metadata: Metadata = {
 export default async function DatingLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
   if (!user) {
-    redirect("/handler/sign-in?returnTo=/app/matching");
+    redirect("/handler/sign-in?returnTo=/matching");
   }
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile?.onboardingCompleted) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   return <>{children}</>;
