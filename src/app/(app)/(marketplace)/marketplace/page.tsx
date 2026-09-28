@@ -37,7 +37,7 @@ export default async function MarketplacePage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <MarketplaceClient profileId={profile.id} collegeName={profile.institution?.name} />;
 }

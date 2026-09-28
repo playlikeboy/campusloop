@@ -19,7 +19,7 @@ export default async function BikeDetailPage({ params }: BikeDetailPageProps) {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <BikeDetailClient bikeId={bikeId} profileId={profile.id} />;
 }

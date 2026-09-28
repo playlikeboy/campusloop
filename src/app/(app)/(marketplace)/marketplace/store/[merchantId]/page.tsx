@@ -19,7 +19,7 @@ export default async function StorePage({ params }: StorePageProps) {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <StoreClient merchantId={merchantId} profileId={profile.id} />;
 }
