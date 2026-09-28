@@ -12,8 +12,8 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
  */
 export const metadata: Metadata = {
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 
