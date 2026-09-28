@@ -5,7 +5,6 @@ import {
   ArrowUp,
   Bookmark,
   Check,
-  Clock,
   Edit3,
   MessageSquare,
   Share2,
@@ -97,9 +96,7 @@ export function ArticleReaderClient({
   const authorUsername = article.author?.username || "student";
   const isVerified = (article.author?.points || 0) >= 150;
   const collegeName =
-    article.institution?.name?.split(",")[0] ||
-    article.author?.institution?.name?.split(",")[0] ||
-    "Campus";
+    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
@@ -139,7 +136,7 @@ export function ArticleReaderClient({
         body: JSON.stringify({ value: nextVote }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = (await res.json()) as { upvotesCount?: number };
       if (typeof data.upvotesCount === "number") {
         setUpvotes(data.upvotesCount);
       }
@@ -162,7 +159,7 @@ export function ArticleReaderClient({
         method: "POST",
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = (await res.json()) as { isSaved?: boolean; message?: string };
       setIsSaved(Boolean(data.isSaved));
       toast.success(data.message || (data.isSaved ? "Saved to reading list" : "Removed from reading list"));
     } catch {
@@ -467,10 +464,7 @@ export function ArticleReaderClient({
         </div>
 
         {/* ─── Threaded Comments Discussion ─── */}
-        <ArticleCommentsSection
-          articleSlug={article.slug}
-          currentProfile={currentProfile}
-        />
+        <ArticleCommentsSection articleSlug={article.slug} currentProfile={currentProfile} />
 
         {/* ─── Related Reads ─── */}
         {relatedArticles.length > 0 && (

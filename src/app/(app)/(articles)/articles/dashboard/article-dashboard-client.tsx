@@ -137,8 +137,7 @@ export function ArticleDashboardClient({
     }
   }
 
-  const currentList =
-    activeTab === "published" ? published : activeTab === "drafts" ? drafts : archived;
+  const currentList = activeTab === "published" ? published : activeTab === "drafts" ? drafts : archived;
 
   return (
     <div className="min-h-screen pb-28 border-x border-border/30 bg-background max-w-4xl mx-auto">
@@ -316,9 +315,7 @@ export function ArticleDashboardClient({
                           </span>
                         )}
                         {lastUpdated && (
-                          <span className="text-[10px] text-muted-foreground">
-                            Updated {lastUpdated}
-                          </span>
+                          <span className="text-[10px] text-muted-foreground">Updated {lastUpdated}</span>
                         )}
                       </div>
 
@@ -427,8 +424,8 @@ export function ArticleDashboardClient({
               {activeTab === "published"
                 ? "No published articles yet"
                 : activeTab === "drafts"
-                ? "No drafts saved"
-                : "No archived articles"}
+                  ? "No drafts saved"
+                  : "No archived articles"}
             </p>
             <Link
               href="/articles/new"

@@ -1,32 +1,13 @@
 "use client";
 
-import {
-  AlertCircle,
-  Bookmark,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Globe,
-  Loader2,
-  PenTool,
-  RotateCw,
-  School,
-  Search,
-  Sparkles,
-  Users,
-  X,
-} from "lucide-react";
+import { AlertCircle, Globe, Loader2, PenTool, RotateCw, School, Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticlesRightSidebar } from "@/components/articles/articles-right-sidebar";
-import {
-  ARTICLE_CATEGORY_LIST,
-  ARTICLE_FEED_TABS,
-  type ArticleFeedTab,
-} from "@/constants/articles";
+import { ARTICLE_CATEGORY_LIST, ARTICLE_FEED_TABS, type ArticleFeedTab } from "@/constants/articles";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -37,10 +18,7 @@ interface ArticlesHubClientProps {
   initialProfile?: any | null;
 }
 
-export function ArticlesHubClient({
-  initialArticles = [],
-  initialProfile = null,
-}: ArticlesHubClientProps) {
+export function ArticlesHubClient({ initialArticles = [], initialProfile = null }: ArticlesHubClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -205,7 +183,17 @@ export function ArticlesHubClient({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, hasMore, isLoading, page, activeTab, selectedCategory, scope, activeTag, debouncedQuery]);
+  }, [
+    isLoadingMore,
+    hasMore,
+    isLoading,
+    page,
+    activeTab,
+    selectedCategory,
+    scope,
+    activeTag,
+    debouncedQuery,
+  ]);
 
   useEffect(() => {
     const target = observerTargetRef.current;
@@ -234,9 +222,10 @@ export function ArticlesHubClient({
   }
 
   const displayArticles = articles.length > 0 ? articles : data?.articles || [];
-  const featuredArticle = page === 1 && !debouncedQuery && !activeTag && selectedCategory === "ALL" && displayArticles.length > 0
-    ? displayArticles[0]
-    : null;
+  const featuredArticle =
+    page === 1 && !debouncedQuery && !activeTag && selectedCategory === "ALL" && displayArticles.length > 0
+      ? displayArticles[0]
+      : null;
   const listArticles = featuredArticle ? displayArticles.slice(1) : displayArticles;
 
   return (
@@ -244,9 +233,7 @@ export function ArticlesHubClient({
       {/* ─── Top Editorial Title ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/40">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Campus Articles
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">Campus Articles</h1>
           <p className="text-sm text-muted-foreground mt-0.5 font-medium">
             Ideas, guides &amp; placement roadmaps written by verified students
           </p>
@@ -260,7 +247,9 @@ export function ArticlesHubClient({
                 onClick={() => handleScopeChange("GLOBAL")}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  scope === "GLOBAL" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  scope === "GLOBAL"
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Globe className="size-3" />
@@ -271,7 +260,9 @@ export function ArticlesHubClient({
                 onClick={() => handleScopeChange("CAMPUS")}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                  scope === "CAMPUS" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  scope === "CAMPUS"
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <School className="size-3" />
@@ -427,8 +418,8 @@ export function ArticlesHubClient({
                 {activeTab === "saved"
                   ? "You haven't saved any articles yet. Bookmark articles while reading to find them here."
                   : activeTab === "following"
-                  ? "You aren't following any authors yet. Explore top campus authors and follow them!"
-                  : "No student articles matched your query. Be the first to share your experience!"}
+                    ? "You aren't following any authors yet. Explore top campus authors and follow them!"
+                    : "No student articles matched your query. Be the first to share your experience!"}
               </p>
               <div className="pt-2">
                 <Link

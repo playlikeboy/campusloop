@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Flame, PenTool, Users, Sparkles, BookOpen } from "lucide-react";
+import { ArrowUpRight, BookOpen, Flame, PenTool, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,17 +30,13 @@ const DEFAULT_TOPICS = [
 ];
 
 export function ArticlesRightSidebar() {
-  const { data: topAuthorsData } = useSWR<{ authors: TopAuthor[] }>(
-    "/api/articles/top-authors",
-    fetcher,
-    { dedupingInterval: 60000 }
-  );
+  const { data: topAuthorsData } = useSWR<{ authors: TopAuthor[] }>("/api/articles/top-authors", fetcher, {
+    dedupingInterval: 60000,
+  });
 
-  const { data: topicsData } = useSWR<{ topics: TrendingTopic[] }>(
-    "/api/articles/trending-topics",
-    fetcher,
-    { dedupingInterval: 60000 }
-  );
+  const { data: topicsData } = useSWR<{ topics: TrendingTopic[] }>("/api/articles/trending-topics", fetcher, {
+    dedupingInterval: 60000,
+  });
 
   const topAuthors = topAuthorsData?.authors || [];
   const rawTopics = topicsData?.topics || [];
@@ -59,7 +55,8 @@ export function ArticlesRightSidebar() {
             Write placement roadmaps &amp; guides
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Share your interview debriefs, tech deep-dives, and campus insights with students across 1,350+ colleges.
+            Share your interview debriefs, tech deep-dives, and campus insights with students across 1,350+
+            colleges.
           </p>
           <div className="pt-2">
             <Link
@@ -120,7 +117,8 @@ export function ArticlesRightSidebar() {
                       {author.displayName}
                     </h4>
                     <p className="text-[11px] text-muted-foreground truncate">
-                      @{author.username} · {author.articleCount || 1} {author.articleCount === 1 ? "article" : "articles"}
+                      @{author.username} · {author.articleCount || 1}{" "}
+                      {author.articleCount === 1 ? "article" : "articles"}
                     </p>
                   </div>
                 </Link>
@@ -145,7 +143,8 @@ export function ArticlesRightSidebar() {
           <span>Campus Editorial Rules</span>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Original placement experiences, tech articles, and verified student insights. High signal, zero spam.
+          Original placement experiences, tech articles, and verified student insights. High signal, zero
+          spam.
         </p>
         <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[11px] font-semibold text-muted-foreground">
           <Link href="/safety" className="hover:text-foreground hover:underline">

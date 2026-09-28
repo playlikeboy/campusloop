@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ARTICLES_CANONICAL_HOST, ARTICLES_TITLE, ARTICLES_SUBTITLE } from "@/constants/articles";
+import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -24,7 +24,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Campus Articles & Student Long Reads",
-    description: "In-depth student articles, placement guides, and campus insights written by verified seniors.",
+    description:
+      "In-depth student articles, placement guides, and campus insights written by verified seniors.",
     url: `${ARTICLES_CANONICAL_HOST}/articles`,
     siteName: "CampusLoop",
     type: "website",
