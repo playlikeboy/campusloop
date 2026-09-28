@@ -19,12 +19,11 @@ export const timeCapsules = pgTable("time_capsules", {
   entriesCount: integer("entries_count").default(0).notNull(),
   coverImage: text("cover_image"),
   createdAt,
-  updatedAt,,
-  (table) => [
-    index("time_capsules_institution_created_idx").on(table.institutionId, table.createdAt),
-    index("time_capsules_creator_created_idx").on(table.creatorId, table.createdAt),
-  ]
-);
+  updatedAt,
+}, (table) => [
+  index("time_capsules_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("time_capsules_creator_created_idx").on(table.creatorId, table.createdAt),
+]);
 
 export const capsuleEntries = pgTable("capsule_entries", {
   id: id(),
@@ -41,9 +40,8 @@ export const capsuleEntries = pgTable("capsule_entries", {
   isAnonymous: boolean("is_anonymous").default(false).notNull(),
   pseudonym: text("pseudonym"),
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+});
 
 export type TimeCapsule = typeof timeCapsules.$inferSelect;
 export type NewTimeCapsule = typeof timeCapsules.$inferInsert;
