@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { messages, userProfiles } from "@/db/schema";
+import { conversationParticipants, messages, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -18,7 +18,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { msgId } = await params;
+    const { id: conversationId, msgId } = await params;
     const db = getDb();
     const profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
@@ -28,16 +28,26 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Profile not found" }, { status: 403 });
     }
 
+    const participation = await db.query.conversationParticipants.findFirst({
+      where: and(
+        eq(conversationParticipants.conversationId, conversationId),
+        eq(conversationParticipants.userId, profile.id)
+      ),
+    });
+    if (!participation) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+    }
+
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
     const { emoji } = (await req.json()) as { emoji: string };
-    if (!emoji) {
+    if (!emoji || emoji.length > 32) {
       return NextResponse.json({ error: "Emoji required" }, { status: 400 });
     }
 
     const targetMsg = await db.query.messages.findFirst({
-      where: eq(messages.id, msgId),
+      where: and(eq(messages.id, msgId), eq(messages.conversationId, conversationId)),
     });
 
     if (!targetMsg) {
