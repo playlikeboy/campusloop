@@ -73,14 +73,14 @@ export default async function AcademicsLayout({ children }: { children: React.Re
           {/* Brand & Hub identifier */}
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <Link
-              href="/app"
+              href="/feeds"
               className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
               title="Campus Feed"
             >
               <ArrowLeft className="size-4" />
             </Link>
 
-            <Link href="/app/academics" className="flex min-w-0 items-center gap-2.5 group">
+            <Link href="/academics" className="flex min-w-0 items-center gap-2.5 group">
               <img
                 src="/logo.png"
                 alt="CampusLoop"
@@ -105,7 +105,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
           {/* Right: Search, Guest CTAs & Theme Toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
-              href="/app/academics/search"
+              href="/academics/search"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
               title="Search Vault"
             >
@@ -116,7 +116,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
             <ThemeToggle />
 
             <Link
-              href="/handler/sign-in?returnTo=/app/academics"
+              href="/handler/sign-in?returnTo=/academics"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <Zap className="size-3.5 fill-amber-400 text-amber-400" />
@@ -144,7 +144,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
             </p>
           </div>
           <Link
-            href="/handler/sign-in?returnTo=/app/academics"
+            href="/handler/sign-in?returnTo=/academics"
             className="px-3 py-1.5 rounded-full text-[11px] font-black bg-indigo-600 text-white shrink-0 shadow-xs"
           >
             Claim 50 LP
