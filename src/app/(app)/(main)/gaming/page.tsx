@@ -14,7 +14,7 @@ export default async function GamingArenaPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <DedicatedHubClient hubType="gaming" profileId={profile.id} />;
 }
