@@ -6,19 +6,25 @@ import {
   ArrowLeft,
   ArrowUp,
   Bookmark,
+  BookOpen,
   CheckCircle2,
   ChevronRight,
   Download,
   ExternalLink,
+  FileCheck2,
   FileText,
   FolderOpen,
   FolderPlus,
   Globe,
+  GraduationCap,
   Layers,
   Play,
   Share2,
   ShieldCheck,
+  Sparkles,
   Target,
+  ThumbsUp,
+  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -57,7 +63,7 @@ export function AcademicDetailClient({
 }: AcademicDetailClientProps) {
   const [resource] = useState(initialResource);
   const effectivePageUrl =
-    canonicalUrl || `https://campusloop.space/app/academics/${initialResource.slug || initialResource.id}`;
+    canonicalUrl || `https://campusloop.space/academics/${initialResource.slug || initialResource.id}`;
   const [upvotes, setUpvotes] = useState(initialResource.upvotesCount || 0);
   const [downvotes, setDownvotes] = useState(initialResource.downvotesCount || 0);
   const [downloads, setDownloads] = useState(initialResource.downloadsCount || 0);
@@ -99,57 +105,46 @@ export function AcademicDetailClient({
       branch: resource.branch,
       semester: resource.semester,
       resourceType: resource.resourceType,
-      institutionName: resource.institution?.name,
     });
-  }, [resource.id]);
+  }, [resource]);
 
-  // Handle voting
-  async function handleVote(type: "UP" | "DOWN") {
+  // Handle peer voting with Loop Points feedback
+  async function handleVote(action: "UP" | "DOWN") {
     if (!currentUserId) {
       setAuthModalReason("VOTE");
       setIsAuthModalOpen(true);
       return;
     }
 
-    sounds.pop();
-    haptics.medium();
-    trackAcademicVote(resource.id, type, resource.subjectCode);
+    if (userVote === action) return;
 
-    if (type === "UP") {
-      if (userVote === "UP") {
-        setUpvotes((c: number) => Math.max(0, c - 1));
-        setUserVote(null);
-        fetch(`/api/academics/${resource.id}/analytics`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "UNDO_UPVOTE" }),
-        }).catch(() => {});
-      } else {
-        if (userVote === "DOWN") setDownvotes((c: number) => Math.max(0, c - 1));
-        setUpvotes((c: number) => c + 1);
-        setUserVote("UP");
-        toast.success("Upvoted! Marked as syllabus-accurate");
-        fetch(`/api/academics/${resource.id}/analytics`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "UPVOTE" }),
-        }).catch(() => {});
-      }
+    sounds.tap();
+    haptics.medium();
+
+    if (action === "UP") {
+      setUpvotes((v: number) => v + 1);
+      if (userVote === "DOWN") setDownvotes((v: number) => Math.max(0, v - 1));
+      setUserVote("UP");
+      trackAcademicVote(resource.id, "UP");
+      toast.success("Helpful vote recorded! +5 Loop Points credited 🎉");
+
+      fetch(`/api/academics/${resource.id}/analytics`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "UPVOTE" }),
+      }).catch(() => {});
     } else {
-      if (userVote === "DOWN") {
-        setDownvotes((c: number) => Math.max(0, c - 1));
-        setUserVote(null);
-      } else {
-        if (userVote === "UP") setUpvotes((c: number) => Math.max(0, c - 1));
-        setDownvotes((c: number) => c + 1);
-        setUserVote("DOWN");
-        toast.info("Downvoted: Marked for peer review");
-        fetch(`/api/academics/${resource.id}/analytics`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "DOWNVOTE" }),
-        }).catch(() => {});
-      }
+      setDownvotes((v: number) => v + 1);
+      if (userVote === "UP") setUpvotes((v: number) => Math.max(0, v - 1));
+      setUserVote("DOWN");
+      trackAcademicVote(resource.id, "DOWN");
+      toast.info("Feedback noted. Thank you for keeping the vault accurate!");
+
+      fetch(`/api/academics/${resource.id}/analytics`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "DOWNVOTE" }),
+      }).catch(() => {});
     }
   }
 
@@ -177,7 +172,6 @@ export function AcademicDetailClient({
       body: JSON.stringify({ action: "DOWNLOAD" }),
     }).catch(() => {});
 
-    // Detect if this is a Google Drive folder
     const rawUrl = (resource.fileUrl || resource.driveUrl || "").trim();
     const driveFolderMatch = rawUrl.match(
       /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
@@ -242,17 +236,17 @@ export function AcademicDetailClient({
       if (promptType === "CONCEPTS") {
         setAiAnalysis(
           `### Core Concepts & Formula Checklist for ${resource.subjectCode}:\n\n` +
-            `1. **Key Definitions & Principles**: Understand core theorems, definitions, and mathematical relations outlined in this material.\n` +
-            `2. **High-Yield Exam Topics**: Focus on numericals, step-by-step algorithms, and diagrams often tested in end-sem papers.\n` +
-            `3. **Common Mistakes to Avoid**: Always verify standard boundary conditions, units, and derivation assumptions.\n\n` +
-            `*Tip: Pair these notes with the end-semester PYQs below for complete revision.*`
+            `1. **Key Definitions & Principles**: Review core theorems and mathematical formulas outlined in this document.\n` +
+            `2. **High-Yield Exam Topics**: Focus on numericals, step-by-step proofs, and recurring semester patterns.\n` +
+            `3. **Common Mistakes to Avoid**: Always verify standard boundary conditions, units, and assumptions.\n\n` +
+            `*Tip: Practice these solutions alongside past year papers for maximum marks.*`
         );
       } else if (promptType === "EXAM_TIPS") {
         setAiAnalysis(
           `### 15-Minute Exam Cram Strategy for ${resource.subjectName}:\n\n` +
             `• **First 5 mins**: Scan all block diagrams and formula boxes highlighted in these notes.\n` +
             `• **Next 5 mins**: Review solved examples and past question paper patterns.\n` +
-            `• **Last 5 mins**: Rehearse key terminology and definitions to score max theory marks.\n\n` +
+            `• **Last 5 mins**: Rehearse key definitions to score full marks in Section A.\n\n` +
             `*Compiled with syllabus insights for ${resource.branch} Semester ${resource.semester}.*`
         );
       } else {
@@ -307,29 +301,31 @@ export function AcademicDetailClient({
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip pb-24 text-foreground select-none max-w-2xl mx-auto border-x border-border/40 bg-background px-4 pt-3 space-y-5">
-      {/* ─── Breadcrumb & Top Bar ─── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/25 pb-3">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6 pb-24 text-foreground select-none">
+      {/* ─── Breadcrumb Navigation & Share Bar ─── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+        <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           <Link
-            href="/app/academics"
+            href="/academics"
             onClick={() => sounds.tap()}
-            className="flex items-center gap-1 hover:text-foreground font-bold shrink-0 transition-colors"
+            className="inline-flex items-center gap-1.5 hover:text-foreground font-bold shrink-0 transition-colors group"
           >
-            <ArrowLeft className="size-3.5" />
+            <div className="size-6 rounded-full bg-muted/60 group-hover:bg-muted flex items-center justify-center transition-colors">
+              <ArrowLeft className="size-3" />
+            </div>
             <span>Vault</span>
           </Link>
           <ChevronRight className="size-3 shrink-0 opacity-40" />
-          <span className="truncate">{resource.branch}</span>
+          <span className="truncate font-medium">{resource.branch}</span>
           <ChevronRight className="size-3 shrink-0 opacity-40 hidden sm:inline" />
           <span className="hidden sm:inline font-semibold text-foreground/80 shrink-0">
-            Sem {resource.semester}
+            Semester {resource.semester}
           </span>
           <ChevronRight className="size-3 shrink-0 opacity-40" />
-          <span className="font-bold text-foreground truncate">{resource.subjectCode}</span>
+          <span className="font-bold text-primary truncate">{resource.subjectCode}</span>
         </div>
 
-        <div className="flex w-full shrink-0 items-center justify-end gap-1.5 sm:w-auto">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -344,187 +340,470 @@ export function AcademicDetailClient({
               toast.success(isSaved ? "Removed from Study Vault" : "Saved to Study Vault");
             }}
             className={cn(
-              "flex size-8.5 items-center justify-center rounded-full border transition-all cursor-pointer",
+              "flex size-9 items-center justify-center rounded-full border transition-all cursor-pointer shadow-2xs active:scale-95",
               isSaved
                 ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
                 : "border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
             title="Save to Study Vault"
           >
-            <AnimatedIcon
-              icon={Bookmark}
-              animation="lift"
-              size={15}
-              className={cn(isSaved && "fill-current")}
-            />
+            <AnimatedIcon icon={Bookmark} animation="lift" size={15} className={cn(isSaved && "fill-current")} />
           </button>
 
           <button
             type="button"
             onClick={handleShare}
-            className="flex size-8.5 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            className="flex size-9 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs active:scale-95"
             title="Share note link"
           >
             <AnimatedIcon icon={Share2} animation="pop" size={15} />
           </button>
+
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-all cursor-pointer shadow-xs active:scale-95"
+          >
+            <Download className="size-3.5" />
+            <span>Download PDF</span>
+          </button>
         </div>
       </div>
 
-      {/* ─── Twitter/X Style Main Resource Tweet Header ─── */}
-      <div className="space-y-3">
-        {/* Author row */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link href={`/@${resource.uploader?.username}?tab=academics`} className="shrink-0">
-              <Avatar className="size-11 rounded-full border border-border/50">
-                <AvatarImage src={uploaderAvatar} />
-                <AvatarFallback className="text-xs font-bold">
-                  {resource.uploader?.displayName?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 leading-tight">
-                <Link
-                  href={`/@${resource.uploader?.username}?tab=academics`}
-                  className="text-sm sm:text-base font-black text-foreground hover:underline truncate"
-                >
-                  {resource.uploader?.displayName}
-                </Link>
-                {resource.isVerified && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
-              </div>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">
-                @{resource.uploader?.username} · {resource.institution?.name?.split(",")[0] || "Campus"}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* ─── Ultra-Premium Resource Hero Header Card ─── */}
+      <div className="relative rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 sm:p-7 shadow-xs overflow-hidden">
+        {/* Subtle background ambient mesh */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
-        {/* Tweet content area */}
-        <div className="space-y-2 pt-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted text-foreground border border-border/50">
+        <div className="relative flex flex-col gap-4">
+          {/* Badge Chips Row */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-mono font-black border border-primary/30">
               {resource.subjectCode}
             </span>
-            <span className="text-xs font-semibold text-muted-foreground">{resource.subjectName}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/40">
-              {resource.resourceType.replace("_", " ")}
+            <span className="text-xs font-bold text-foreground/90 bg-muted/60 px-3 py-1 rounded-full border border-border/30">
+              {resource.subjectName}
             </span>
-            {resource.moduleOrChapter && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/40">
-                {resource.moduleOrChapter}
-              </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
+              {resource.resourceType?.replace("_", " ") || "Notes"}
+            </span>
+            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 ml-auto">
+              <CheckCircle2 className="size-3" />
+              <span>{reliability}% Verified</span>
+            </span>
+          </div>
+
+          {/* Title & Description */}
+          <div className="space-y-2">
+            <h1 className="text-xl sm:text-3xl font-black text-foreground tracking-tight leading-snug">
+              {resource.title}
+            </h1>
+            {resource.description && (
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-4xl">
+                {resource.description}
+              </p>
             )}
           </div>
 
-          <h1 className="text-lg sm:text-2xl font-black text-foreground tracking-tight leading-snug">
-            {resource.title}
-          </h1>
+          {/* Uploader & Fast Metrics Row */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-border/25">
+            {/* Uploader info */}
+            <div className="flex items-center gap-3 min-w-0">
+              <Link href={`/@${resource.uploader?.username}?tab=academics`} className="shrink-0">
+                <Avatar className="size-10 rounded-full border border-border/50">
+                  <AvatarImage src={uploaderAvatar} />
+                  <AvatarFallback className="text-xs font-bold bg-muted">
+                    {resource.uploader?.displayName?.[0] || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 leading-tight">
+                  <Link
+                    href={`/@${resource.uploader?.username}?tab=academics`}
+                    className="text-xs sm:text-sm font-bold text-foreground hover:underline truncate"
+                  >
+                    {resource.uploader?.displayName}
+                  </Link>
+                  {resource.isVerified && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
+                </div>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  @{resource.uploader?.username} · {resource.institution?.name?.split(",")[0] || "Campus"} ·{" "}
+                  {formatTimeAgo(resource.createdAt)}
+                </p>
+              </div>
+            </div>
 
-          {resource.description && (
-            <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed font-normal">
-              {resource.description}
-            </p>
+            {/* Quick Metrics */}
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="size-3.5 text-primary" />
+                <strong className="text-foreground font-black tabular-nums">{upvotes}</strong>
+                <span className="hidden sm:inline">Helpful</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <BookOpen className="size-3.5 text-blue-400" />
+                <strong className="text-foreground font-black tabular-nums">{views}</strong>
+                <span className="hidden sm:inline">Views</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <Download className="size-3.5 text-emerald-400" />
+                <strong className="text-foreground font-black tabular-nums">{downloads}</strong>
+                <span className="hidden sm:inline">Downloads</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 12-Column Responsive Workspace Grid (Full PC Utilization) ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ─── Left Stage: Document Viewer & Discussion (8 cols) ─── */}
+        <div className="lg:col-span-8 space-y-6 min-w-0">
+          {/* Interactive Document Previewer & Reader */}
+          <div className="w-full rounded-2xl border border-border/40 bg-card/40 overflow-hidden shadow-xs">
+            <AcademicPdfViewer
+              fileUrl={resource.fileUrl}
+              driveUrl={resource.driveUrl}
+              attachments={resource.attachments}
+              title={resource.title}
+              subjectCode={resource.subjectCode}
+              resourceType={resource.resourceType}
+              department={resource.branch || undefined}
+              semester={resource.semester || undefined}
+              onDownload={handleDownload}
+              pageUrl={effectivePageUrl}
+            />
+          </div>
+
+          {/* Attached Files & Supplementary Links Tray (Multi-File Notes) */}
+          {resource.attachments && Array.isArray(resource.attachments) && resource.attachments.length > 1 && (
+            <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                  <Layers className="size-3.5 text-primary" />
+                  <span>All Included Files &amp; Links ({resource.attachments.length})</span>
+                </span>
+                <span className="text-[10px] text-muted-foreground font-semibold">Switch in reader above</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {resource.attachments.map((att: any, idx: number) => (
+                  <div
+                    key={att.id || idx}
+                    className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/70 border border-border/30 text-xs"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-[10px] font-mono font-bold text-muted-foreground">#{idx + 1}</span>
+                      <span className="font-semibold text-foreground truncate">
+                        {att.title || `Document ${idx + 1}`}
+                      </span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted uppercase font-mono font-bold shrink-0">
+                        {att.type || "PDF"}
+                      </span>
+                    </div>
+                    <a
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0"
+                    >
+                      <span>Open</span>
+                      <ExternalLink className="size-3" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-0.5">
-            <span>Shared {formatTimeAgo(resource.createdAt)}</span>
-            <span>·</span>
-            <span>{resource.branch}</span>
-            <span>·</span>
-            <span>Semester {resource.semester}</span>
+          {/* Study with AI Agents Bar */}
+          <AcademicAiStudyBar
+            title={resource.title}
+            subjectCode={resource.subjectCode}
+            courseCode={resource.courseCode || resource.subjectCode}
+            department={resource.branch || undefined}
+            semester={resource.semester || undefined}
+            description={resource.description || undefined}
+            materialUrl={effectivePageUrl}
+            pageUrl={effectivePageUrl}
+            collegeName={resource.institution?.name}
+          />
+
+          {/* Peer Reviews & Discussion Thread */}
+          <div className="rounded-2xl border border-border/40 bg-card/40 p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-black text-foreground">
+                  Peer Reviews &amp; Syllabus Accuracy ({comments.length})
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Student-verified corrections, missing solutions &amp; exam tips
+                </p>
+              </div>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                {reliability}% Verified
+              </span>
+            </div>
+
+            {/* Inline review form */}
+            <form onSubmit={handleSubmitComment} className="flex items-start gap-3 py-3 border-y border-border/20">
+              <Avatar className="size-9 rounded-full border border-border/40 shrink-0 mt-0.5">
+                <AvatarImage src={uploaderAvatar} />
+                <AvatarFallback className="text-xs font-bold">You</AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsHelpful(true)}
+                    className={cn(
+                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                      isHelpful
+                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        : "text-muted-foreground hover:text-foreground border border-transparent"
+                    )}
+                  >
+                    <CheckCircle2 className="size-3 text-emerald-400" />
+                    <span>Accurate &amp; Verified</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsHelpful(false)}
+                    className={cn(
+                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                      !isHelpful
+                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                        : "text-muted-foreground hover:text-foreground border border-transparent"
+                    )}
+                  >
+                    <AlertTriangle className="size-3 text-amber-400" />
+                    <span>Outdated / Errata</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Post your review, formula correction, or exam tip..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    className="flex-1 bg-muted/30 px-4 py-2 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/40 outline-none focus:border-primary transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmittingComment || !commentText.trim()}
+                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer shrink-0 shadow-xs"
+                  >
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Comments list */}
+            {comments.length === 0 ? (
+              <div className="py-8 text-center space-y-1 text-muted-foreground">
+                <p className="text-xs font-semibold">No peer reviews yet</p>
+                <p className="text-[11px]">Be the first to verify syllabus accuracy or post corrections.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border/20">
+                {comments.map((c) => {
+                  const commentAvatar = getAvatarUrl(c.author?.avatarUrl, c.author?.username);
+                  return (
+                    <div key={c.id} className="flex items-start gap-3 py-3 group">
+                      <Avatar className="size-8 rounded-full border border-border/40 shrink-0">
+                        <AvatarImage src={commentAvatar} />
+                        <AvatarFallback className="text-[10px] font-bold">
+                          {c.author?.displayName?.[0] || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 leading-none">
+                            <span className="text-xs font-bold text-foreground">
+                              {c.author?.displayName || "Student"}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                              @{c.author?.username} · {formatTimeAgo(c.createdAt)}
+                            </span>
+                          </div>
+
+                          <span
+                            className={cn(
+                              "text-[9px] font-black px-2 py-0.5 rounded-full border",
+                              c.isHelpful
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
+                                : "bg-amber-500/10 text-amber-400 border-amber-500/25"
+                            )}
+                          >
+                            {c.isHelpful ? "VERIFIED ACCURATE" : "ERRATA NOTED"}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-foreground/90 leading-relaxed">{c.body}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ─── Metrics Bar (Hairline divided) ─── */}
-        <div className="border-y border-border/25 py-2.5 my-2 flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-          <span>
-            <strong className="text-foreground font-black tabular-nums">{upvotes}</strong> Helpful
-          </span>
-          <span>
-            <strong className="text-foreground font-black tabular-nums">{views}</strong> Views
-          </span>
-          <span>
-            <strong className="text-foreground font-black tabular-nums">{downloads}</strong> Downloads
-          </span>
-          <span className="ml-auto font-medium text-foreground/80 inline-flex items-center gap-1">
-            <Target className="size-3 shrink-0 text-muted-foreground" />
-            <span>{reliability}% Accuracy</span>
-          </span>
-        </div>
+        {/* ─── Right Stage: Intelligence Sidebar (4 cols - PC Space Utilization) ─── */}
+        <aside className="lg:col-span-4 space-y-4 sticky top-20">
+          {/* Quick Actions & Voting Card */}
+          <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3.5 shadow-2xs">
+            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+              Actions &amp; Recognition
+            </h3>
 
-        {/* ─── Action Bar ─── */}
-        <div className="flex items-center justify-between pb-3 border-b border-border/25 text-xs flex-wrap gap-2">
-          <div className="flex items-center gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleVote("UP")}
+                className={cn(
+                  "flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer border active:scale-95",
+                  userVote === "UP"
+                    ? "bg-primary text-primary-foreground border-primary font-black shadow-xs"
+                    : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <ArrowUp className="size-4" />
+                <span>Helpful ({upvotes})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleVote("DOWN")}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer border active:scale-95",
+                  userVote === "DOWN"
+                    ? "bg-muted text-foreground border-foreground"
+                    : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+                title="Flag outdated or inaccurate"
+              >
+                <ArrowDown className="size-4" />
+                <span>Errata</span>
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={() => handleVote("UP")}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer border",
-                userVote === "UP"
-                  ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                  : "border-border/40 hover:text-foreground hover:bg-muted text-muted-foreground"
-              )}
+              onClick={handleDownload}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-all cursor-pointer shadow-xs active:scale-95"
             >
-              <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-3")} />
-              <span className="tabular-nums">{upvotes}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleVote("DOWN")}
-              className={cn(
-                "flex items-center gap-1 px-2.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer border",
-                userVote === "DOWN"
-                  ? "bg-muted text-foreground border-foreground font-black"
-                  : "border-border/40 hover:text-foreground hover:bg-muted text-muted-foreground"
-              )}
-              title="Report outdated / incorrect"
-            >
-              <ArrowDown className="size-3.5" />
+              <Download className="size-4" />
+              <span>Download Full Document</span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsAddToPlaylistOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-border/40 hover:bg-muted text-foreground active:scale-95 transition-all cursor-pointer"
-              title="Save to Study Playlist"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border/50 hover:bg-muted text-foreground text-xs font-bold transition-all cursor-pointer active:scale-95"
             >
-              <AnimatedIcon icon={FolderPlus} animation="pop" size={14} />
-              <span className="hidden sm:inline">Playlist</span>
+              <FolderPlus className="size-4" />
+              <span>Add to Study Playlist</span>
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-foreground text-background hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs ml-auto"
-          >
-            {/(?:youtube\.com|youtu\.be)/i.test(resource.fileUrl || resource.driveUrl || "") ? (
-              <Play className="size-3.5 fill-current" />
-            ) : (resource.fileUrl || resource.driveUrl || "").toLowerCase().includes("sites.google.com") ? (
-              <Globe className="size-3.5" />
-            ) : (resource.fileUrl || resource.driveUrl || "").match(
-                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              ) ? (
-              <FolderOpen className="size-3.5" />
-            ) : (
-              <AnimatedIcon icon={Download} animation="lift" size={14} />
+          {/* Curriculum & Specs Card */}
+          <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3 shadow-2xs">
+            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+              Curriculum Specifications
+            </h3>
+
+            <div className="divide-y divide-border/20 text-xs">
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Course Code</span>
+                <span className="font-mono font-bold text-foreground">{resource.subjectCode}</span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Subject Name</span>
+                <span className="font-semibold text-foreground truncate max-w-[180px]">
+                  {resource.subjectName}
+                </span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Department</span>
+                <span className="font-semibold text-foreground truncate max-w-[180px]">{resource.branch}</span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Semester</span>
+                <span className="font-bold text-foreground">Semester {resource.semester}</span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Category</span>
+                <span className="font-semibold text-primary capitalize">
+                  {resource.resourceType?.replace("_", " ")}
+                </span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">University Hub</span>
+                <span className="font-semibold text-foreground truncate max-w-[180px]">
+                  {resource.institution?.name?.split(",")[0] || "All India"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* AI 1-Click Study Assistant Card */}
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-primary">
+              <Sparkles className="size-4" />
+              <h3 className="text-xs font-black uppercase tracking-wider">AI Study Accelerators</h3>
+            </div>
+
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => handleGenerateAiCram("CONCEPTS")}
+                disabled={isGeneratingAi}
+                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
+              >
+                <span>Formula &amp; Theorem Sheet</span>
+                <ChevronRight className="size-3.5 text-muted-foreground" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleGenerateAiCram("EXAM_TIPS")}
+                disabled={isGeneratingAi}
+                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
+              >
+                <span>15-Min Exam Cram Strategy</span>
+                <ChevronRight className="size-3.5 text-muted-foreground" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleGenerateAiCram("CHECKLIST")}
+                disabled={isGeneratingAi}
+                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
+              >
+                <span>Syllabus Verification Checklist</span>
+                <ChevronRight className="size-3.5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {aiAnalysis && (
+              <div className="p-3 rounded-xl bg-card border border-primary/20 text-xs text-foreground/90 space-y-1.5 leading-relaxed">
+                <p className="font-bold text-primary text-[11px] uppercase tracking-wider">Generated Insights:</p>
+                <div className="whitespace-pre-line text-[11px]">{aiAnalysis}</div>
+              </div>
             )}
-            <span>
-              {/(?:youtube\.com|youtu\.be)/i.test(resource.fileUrl || resource.driveUrl || "")
-                ? "Watch on YouTube"
-                : (resource.fileUrl || resource.driveUrl || "").toLowerCase().includes("sites.google.com")
-                  ? "Open Portal"
-                  : (resource.fileUrl || resource.driveUrl || "").match(
-                        /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                      )
-                    ? "Open Folder"
-                    : "Get Material"}
-            </span>
-            <ExternalLink className="size-2.5 opacity-70" />
-          </button>
-        </div>
+          </div>
+
+          {/* Similar Resources Widget in Sidebar */}
+          <SimilarResourcesWidget resourceId={resource.id} subjectCode={resource.subjectCode} />
+
+          {/* Guest Student Auth Benefits */}
+          {!currentUserId && <AcademicAuthBenefitsCard returnTo={`/academics/${resource.id}`} />}
+        </aside>
       </div>
 
       {/* Add To Study Playlist Modal */}
@@ -535,236 +814,12 @@ export function AcademicDetailClient({
         resourceTitle={resource.title}
       />
 
-      {/* ─── Interactive Document Previewer & Reader ─── */}
-      <div className="w-full min-w-0 max-w-full space-y-2">
-        <AcademicPdfViewer
-          fileUrl={resource.fileUrl}
-          driveUrl={resource.driveUrl}
-          attachments={resource.attachments}
-          title={resource.title}
-          subjectCode={resource.subjectCode}
-          resourceType={resource.resourceType}
-          department={resource.branch || undefined}
-          semester={resource.semester || undefined}
-          onDownload={handleDownload}
-          pageUrl={effectivePageUrl}
-        />
-      </div>
-
-      {/* ─── Attached Files & Supplementary Links Tray (Multi-File Notes) ─── */}
-      {resource.attachments && Array.isArray(resource.attachments) && resource.attachments.length > 1 && (
-        <div className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-              <Layers className="size-3.5 text-primary" />
-              <span>All Included Files &amp; Links ({resource.attachments.length})</span>
-            </span>
-            <span className="text-[10px] text-muted-foreground font-semibold">
-              Switch in reader above
-            </span>
-          </div>
-          <div className="space-y-1.5">
-            {resource.attachments.map((att: any, idx: number) => (
-              <div
-                key={att.id || idx}
-                className="flex items-center justify-between gap-2 p-2 rounded-xl bg-background/70 border border-border/30 text-xs"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[10px] font-mono font-bold text-muted-foreground">#{idx + 1}</span>
-                  <span className="font-semibold text-foreground truncate">{att.title || `Document ${idx + 1}`}</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted uppercase font-mono font-bold shrink-0">
-                    {att.type || "PDF"}
-                  </span>
-                </div>
-                <a
-                  href={att.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0"
-                >
-                  <span>Open</span>
-                  <ExternalLink className="size-3" />
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ─── Guest Student Perks & Personal Vault Conversion ─── */}
-      {!currentUserId && <AcademicAuthBenefitsCard returnTo={`/app/academics/${resource.id}`} />}
-
-      {/* ─── Study with AI Agents (ChatGPT & Claude) ─── */}
-      <AcademicAiStudyBar
-        title={resource.title}
-        subjectCode={resource.subjectCode}
-        courseCode={resource.courseCode || resource.subjectCode}
-        department={resource.branch || undefined}
-        semester={resource.semester || undefined}
-        description={resource.description || undefined}
-        materialUrl={effectivePageUrl}
-        pageUrl={effectivePageUrl}
-        collegeName={resource.institution?.name}
-      />
-
-      {/* ─── Vector Similarity Recommendation Shelf ─── */}
-      <SimilarResourcesWidget resourceId={resource.id} subjectCode={resource.subjectCode} />
-
-      {/* ─── Twitter/X Style Peer Reviews & Discussion Thread ─── */}
-      <div className="space-y-4 pt-4 border-t border-border/25">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-black text-foreground">
-              Peer Reviews &amp; Syllabus Accuracy ({comments.length})
-            </h3>
-            <p className="text-[11px] text-muted-foreground">
-              Student verified corrections, missing solutions &amp; exam tips
-            </p>
-          </div>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-muted border border-border/40 text-muted-foreground">
-            {reliability}% Verified Accurate
-          </span>
-        </div>
-
-        {/* Twitter-style inline reply box */}
-        <form
-          onSubmit={handleSubmitComment}
-          className="flex items-start gap-3 py-3 border-y border-border/20"
-        >
-          <Avatar className="size-9 rounded-full border border-border/40 shrink-0 mt-0.5">
-            <AvatarImage src={uploaderAvatar} />
-            <AvatarFallback className="text-xs font-bold">You</AvatarFallback>
-          </Avatar>
-
-          <div className="flex-1 space-y-2">
-            {/* Accuracy switcher pills */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setIsHelpful(true)}
-                className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer",
-                  isHelpful
-                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                    : "text-muted-foreground hover:text-foreground border border-transparent"
-                )}
-              >
-                <CheckCircle2 className="size-3 inline mr-1 text-emerald-400" />
-                <span>Accurate &amp; Verified</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsHelpful(false)}
-                className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer inline-flex items-center gap-1",
-                  !isHelpful
-                    ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                    : "text-muted-foreground hover:text-foreground border border-transparent"
-                )}
-              >
-                <AlertTriangle className="size-3 inline mr-1 text-amber-400" />
-                <span>Outdated / Errata</span>
-              </button>
-            </div>
-
-            {/* Input & Reply Button */}
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Post your review, formula correction, or exam tip..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="flex-1 bg-muted/30 px-3.5 py-2 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/40 outline-none focus:border-primary transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={isSubmittingComment || !commentText.trim()}
-                className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shrink-0 shadow-2xs"
-              >
-                Reply
-              </button>
-            </div>
-          </div>
-        </form>
-
-        {/* Threaded Replies List */}
-        {comments.length === 0 ? (
-          <div className="py-8 text-center space-y-1 text-muted-foreground">
-            <p className="text-xs font-semibold">No peer reviews yet</p>
-            <p className="text-[11px]">Be the first to verify syllabus accuracy or post corrections.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border/20">
-            {comments.map((c) => {
-              const commentAvatar = getAvatarUrl(c.author?.avatarUrl, c.author?.username);
-              return (
-                <div key={c.id} className="flex items-start gap-3 py-3.5 group">
-                  <div className="flex flex-col items-center shrink-0">
-                    <Avatar className="size-8.5 rounded-full border border-border/40">
-                      <AvatarImage src={commentAvatar} />
-                      <AvatarFallback className="text-[10px] font-bold">
-                        {c.author?.displayName?.[0] || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="w-0.5 flex-1 bg-border/25 mt-2 -mb-2 rounded-full min-h-3" />
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex items-center gap-1.5 leading-none">
-                        {c.author?.username ? (
-                          <Link
-                            href={`/@${c.author.username}?tab=academics`}
-                            className="text-xs font-bold text-foreground hover:underline"
-                          >
-                            {c.author?.displayName || "Student"}
-                          </Link>
-                        ) : (
-                          <span className="text-xs font-bold text-foreground">
-                            {c.author?.displayName || "Student"}
-                          </span>
-                        )}
-                        {c.author?.username && (
-                          <Link
-                            href={`/@${c.author.username}?tab=academics`}
-                            className="text-[11px] text-muted-foreground hover:underline"
-                          >
-                            @{c.author.username}
-                          </Link>
-                        )}
-                        <span className="text-[10px] text-muted-foreground/60">·</span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {formatTimeAgo(c.createdAt)}
-                        </span>
-                      </div>
-
-                      <span
-                        className={cn(
-                          "text-[9px] font-black px-2 py-0.5 rounded-full border",
-                          c.isHelpful
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-                            : "bg-amber-500/10 text-amber-400 border-amber-500/25"
-                        )}
-                      >
-                        {c.isHelpful ? "VERIFIED ACCURATE" : "ERRATA NOTED"}
-                      </span>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed pt-0.5">{c.body}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ─── Academic Auth Modal for Unregistered Visitors ─── */}
+      {/* Guest Auth Modal */}
       <AcademicAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         actionReason={authModalReason}
-        returnTo={`/app/academics/${resource.id}`}
+        returnTo={`/academics/${resource.id}`}
       />
     </div>
   );
