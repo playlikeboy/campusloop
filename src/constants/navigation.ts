@@ -53,52 +53,52 @@ export interface NavGroup {
 }
 
 export const DESKTOP_NAV_ITEMS: NavItem[] = [
-  { icon: AnimateHouse, href: "/app", label: "Home" },
-  { icon: AnimateCompass, href: "/app/discover", label: "Explore" },
+  { icon: AnimateHouse, href: "/feeds", label: "Home" },
+  { icon: AnimateCompass, href: "/discover", label: "Explore" },
   {
     icon: AnimateGraduationCap,
-    href: "/app/academics",
+    href: "/academics",
     label: "Academics",
   },
-  { icon: AnimateUsers, href: "/app/communities", label: "Communities" },
+  { icon: AnimateUsers, href: "/communities", label: "Communities" },
   {
     icon: AnimateFlame,
-    href: "/app/confessions",
+    href: "/confessions",
     label: "Confessions",
     badge: "HOT",
     badgeColor: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
   },
   {
     icon: AnimateVideo,
-    href: "/app/reels",
+    href: "/reels",
     label: "Reels",
     badge: "NEW",
     badgeColor: "bg-purple-500/15 text-purple-400 border border-purple-500/30",
   },
   {
     icon: AnimateCalendar,
-    href: "/app/events",
+    href: "/events",
     label: "Events",
   },
-  { icon: AnimateHeart, href: "/app/dating", label: "Match" },
-  { icon: AnimateUser, href: "/app/profile", label: "Profile" },
-  { icon: MoreHorizontal, href: "/app/more", label: "More" },
+  { icon: AnimateHeart, href: "/dating", label: "Match" },
+  { icon: AnimateUser, href: "/profile", label: "Profile" },
+  { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
 // Mobile has one persistent navigation system. Feature areas such as
 // academics, communities, confessions and events live under More & Explore
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
-  { icon: Home, href: "/app", label: "Home" },
-  { icon: Compass, href: "/app/discover", label: "Explore" },
-  { icon: Plus, href: "/app/post/new", label: "Create" },
-  { icon: MessageSquare, href: "/app/chat", label: "Chats" },
-  { icon: LayoutGrid, href: "/app/more", label: "More" },
+  { icon: Home, href: "/feeds", label: "Home" },
+  { icon: Compass, href: "/discover", label: "Explore" },
+  { icon: Plus, href: "/post/new", label: "Create" },
+  { icon: MessageSquare, href: "/chat", label: "Chats" },
+  { icon: LayoutGrid, href: "/more", label: "More" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
   {
     icon: AnimateShoppingBag,
-    href: "/app/marketplace",
+    href: "/marketplace",
     label: "Campus Marketplace",
     desc: "Buy, sell dorm essentials, books, cycles & order from campus canteens",
     badge: "BETA",
@@ -106,7 +106,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: AnimateZap,
-    href: "/app/random",
+    href: "/random",
     label: "Random Loop",
     desc: "Meet someone unexpected. Instant real-time serendipitous chat with verified peers",
     badge: "BETA",
@@ -114,7 +114,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: Hourglass,
-    href: "/app/capsule",
+    href: "/capsule",
     label: "Time Capsule",
     desc: "Batch memory vault locked until convocation & landmark dates",
     badge: "VAULT",
@@ -122,7 +122,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: Gamepad2,
-    href: "/app/gaming",
+    href: "/gaming",
     label: "Gaming & Esports Arena",
     desc: "Campus BGMI, Valorant, FIFA tournaments & hostel gaming lobbies",
     badge: "ESPORTS",
@@ -130,7 +130,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: AnimateZap,
-    href: "/app/ai",
+    href: "/ai",
     label: "Campus AI Assistant",
     desc: "Ask about campus fests, study roadmaps, hostel tips & navigate CampusLoop",
     badge: "AI",
@@ -138,7 +138,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: AnimateCompass,
-    href: "/app/atlas",
+    href: "/atlas",
     label: "CampusLoop Atlas",
     desc: "Sanity-powered agent that reasons over real campus clubs, schedules & multi-constraint queries",
     badge: "SANITY",
@@ -146,7 +146,7 @@ export const BETA_HUB_ITEMS: NavItem[] = [
   },
   {
     icon: Terminal,
-    href: "/app/developer",
+    href: "/developer",
     label: "Developer & MCP Hub",
     desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP server keys",
     badge: "MCP",
@@ -160,7 +160,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
     items: [
       {
         icon: AnimateGraduationCap,
-        href: "/app/academics",
+        href: "/academics",
         label: "Academic Vault",
         desc: "Notes, PPTs, Books, PYQs, syllabus & branch study resources",
         badge: "+20 LP",
@@ -168,7 +168,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateFlame,
-        href: "/app/confessions",
+        href: "/confessions",
         label: "Campus Confessions",
         desc: "Unfiltered campus confessions, spicy scoops & secrets",
         badge: "HOT",
@@ -176,7 +176,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateUsers,
-        href: "/app/communities",
+        href: "/communities",
         label: "Communities & Clubs",
         desc: "Student-created clubs, technical societies & campus interest groups",
         badge: "CLUBS",
@@ -184,7 +184,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: School,
-        href: "/app/colleges",
+        href: "/colleges",
         label: "Colleges Directory",
         desc: "1,350+ indexed Indian college hubs, rankings & hub request forms",
         badge: "1,350+",
@@ -197,7 +197,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
     items: [
       {
         icon: Calendar,
-        href: "/app/events",
+        href: "/events",
         label: "Events, Fests & Hackathons",
         desc: "College fests, hackathons, workshops, recruitments & registrations",
         badge: "EVENTS",
@@ -205,7 +205,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateBookOpen,
-        href: "/app/articles",
+        href: "/articles",
         label: "Articles & Roadmaps",
         desc: "Placement roadmaps, tech tutorials, interviews & campus long reads",
         badge: "READS",
@@ -213,7 +213,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: Building2,
-        href: "/app/housing",
+        href: "/housing",
         label: "Housing & Flatmates",
         desc: "Verified student flatmates, hostel rooms, PGs & apartments near campus",
         badge: "PG & FLATS",
@@ -221,7 +221,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateSearch,
-        href: "/app/lost-and-found",
+        href: "/lost-and-found",
         label: "Lost & Found Hub",
         desc: "Report and recover misplaced student ID cards, keys, earbuds & gadgets",
         badge: "RECOVERY",
@@ -229,7 +229,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: Car,
-        href: "/app/rideshare",
+        href: "/rideshare",
         label: "Ride Share & Carpools",
         desc: "Split cabs to airport, railway stations, weekend trips & daily commutes",
         badge: "CAB",
@@ -237,7 +237,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: Cake,
-        href: "/app/birthdays",
+        href: "/birthdays",
         label: "Campus Birthdays",
         desc: "Celebrate fellow classmates and batchmates born today",
         badge: "TODAY",
@@ -245,7 +245,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: Hourglass,
-        href: "/app/capsule",
+        href: "/capsule",
         label: "Time Capsule",
         desc: "Batch memory vault locked until convocation & landmark dates",
         badge: "VAULT",
@@ -258,7 +258,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
     items: [
       {
         icon: AnimateFlame,
-        href: "/app/confessions",
+        href: "/confessions",
         label: "Campus Confessions",
         desc: "Unfiltered campus thoughts with sealed identity escrow",
         badge: "ANON",
@@ -266,7 +266,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateLock,
-        href: "/app/crush",
+        href: "/crush",
         label: "Secret Crush Vault",
         desc: "5-slot intent-hidden encrypted campus crush match vault",
         badge: "SECRET",
@@ -274,7 +274,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateZap,
-        href: "/app/random",
+        href: "/random",
         label: "Random Loop",
         desc: "Meet someone unexpected. Instant real-time serendipitous chat with verified peers",
         badge: "BETA",
@@ -282,7 +282,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: AnimateZap,
-        href: "/app/ai",
+        href: "/ai",
         label: "Campus AI Assistant",
         desc: "Ask about campus fests, study roadmaps, hostel tips & navigate CampusLoop",
         badge: "AI",
@@ -290,7 +290,7 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
       {
         icon: Gamepad2,
-        href: "/app/gaming",
+        href: "/gaming",
         label: "Gaming & Esports Arena",
         desc: "Campus BGMI, Valorant, FIFA tournaments & hostel gaming lobbies",
         badge: "ESPORTS",
@@ -303,19 +303,19 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
     items: [
       {
         icon: AnimateBookmark,
-        href: "/app/saved",
+        href: "/saved",
         label: "Saved Posts",
         desc: "Your private vault of bookmarked posts, threads & resources",
       },
       {
         icon: Sliders,
-        href: "/app/settings",
+        href: "/settings",
         label: "Settings & Privacy",
         desc: "Account privacy, notification preferences & verification",
       },
       {
         icon: Terminal,
-        href: "/app/developer",
+        href: "/developer",
         label: "Developer & MCP Portal",
         desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP keys",
         badge: "MCP",
