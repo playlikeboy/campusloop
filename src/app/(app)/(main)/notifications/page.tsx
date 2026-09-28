@@ -22,7 +22,7 @@ export default async function NotificationsPage() {
     where: eq(userProfiles.userId, user.id),
   });
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   let sanitized: any[] = [];
   let unreadCount = 0;

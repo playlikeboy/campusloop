@@ -20,11 +20,11 @@ export default async function RandomLoopPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile?.onboardingCompleted) redirect("/app/onboarding");
+  if (!profile?.onboardingCompleted) redirect("/onboarding");
 
   const viewerMode = await isViewerProfile(profile);
   if (viewerMode) {
-    redirect("/app/more");
+    redirect("/more");
   }
 
   return (

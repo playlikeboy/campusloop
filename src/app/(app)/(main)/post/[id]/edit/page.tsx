@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: EditPostPageProps): Promise<M
       follow: false,
     },
     alternates: {
-      canonical: `/app/post/${id}/edit`,
+      canonical: `/post/${id}/edit`,
     },
   };
 }
@@ -48,7 +48,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   }
 
   if (await isViewerProfile(profile)) {
-    redirect("/app");
+    redirect("/feeds");
   }
 
   const post = await db.query.posts.findFirst({
@@ -70,7 +70,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   const isAdmin = profile.role === "ADMIN" || profile.role === "MODERATOR";
 
   if (!isAuthor && !isAnonAuthor && !isAdmin) {
-    redirect(`/app/post/${id}`);
+    redirect(`/post/${id}`);
   }
 
   return (

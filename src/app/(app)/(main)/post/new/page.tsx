@@ -33,7 +33,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     where: eq(userProfiles.userId, user.id),
   });
   if (profile && (await isViewerProfile(profile))) {
-    redirect("/app");
+    redirect("/feeds");
   }
 
   return (

@@ -41,7 +41,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
   });
 
   if (!currentProfile) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   const profile = currentProfile;
