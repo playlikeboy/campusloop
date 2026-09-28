@@ -1,4 +1,4 @@
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
@@ -23,8 +23,9 @@ export const ridesharePools = pgTable("rideshare_pools", {
   status: text("status").default("ACTIVE").notNull(), // 'ACTIVE' | 'FULL' | 'DEPARTED'
   passengers: text("passengers"), // JSON stringified array of [{ userId, username, displayName, seats }]
   createdAt,
-  updatedAt,
-});
+  updatedAt,;
+
+);
 
 export type RidesharePool = typeof ridesharePools.$inferSelect;
 export type NewRidesharePool = typeof ridesharePools.$inferInsert;
