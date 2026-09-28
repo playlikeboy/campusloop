@@ -39,8 +39,8 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
   if (!profile) redirect("/onboarding");
 
   return (
-    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex">
-      {/* Desktop Navigation Sidebar */}
+    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex flex-col">
+      {/* Navigation Header */}
       <Navigation
         profile={profile}
         collegeName={profile.institution?.name ?? "Your College"}
@@ -48,7 +48,7 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
       />
 
       {/* Main Messenger Area */}
-      <div className="flex-1 md:pl-64 h-full overflow-hidden">{children}</div>
+      <div className="flex-1 w-full h-[calc(100dvh-3.5rem)] overflow-hidden">{children}</div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ import {
   InlineHashtagsWidget,
   InlineReferralWidget,
 } from "@/components/ui/inline-feed-widgets";
+import { RightSidebar } from "@/components/ui/right-sidebar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { FeedLoadingMoreSkeleton, FeedSkeleton } from "@/components/ui/skeleton-card";
 import { StoryRing } from "@/components/ui/story-ring";
@@ -265,8 +266,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
   return (
     <>
-      <main className="mx-auto flex w-full flex-col min-h-screen max-w-2xl bg-background text-foreground pb-24">
-        <FeedHeader
+      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-24">
+        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-2xl border border-border/30 overflow-hidden shadow-xs">
+          <FeedHeader
           scope={scope}
           onScopeChange={handleScopeChange}
           sort={sort}
@@ -334,7 +336,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                       handleQuickPost(e);
                     }
                   }}
-                  className="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none resize-none pt-1.5"
+                  className="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1.5 border-0 shadow-none"
                 />
 
                 <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
@@ -479,6 +481,12 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
           )}
         </div>
       </main>
+
+      {/* ─── Desktop Context Sidebar (4 cols on lg, hidden on mobile) ─── */}
+      <aside className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-20">
+        <RightSidebar />
+      </aside>
+    </div>
 
       <ScrollToTop />
     </>

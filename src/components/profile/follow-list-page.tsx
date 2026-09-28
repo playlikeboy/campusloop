@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FollowListClient } from "@/components/profile/follow-list-client";
 import { Navigation } from "@/components/ui/navigation";
-import { RightSidebar } from "@/components/ui/right-sidebar";
 import { getDb } from "@/db";
 import { institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -100,7 +99,7 @@ export async function FollowListPageView({
             Join Campus
           </Link>
         </header>
-        <main className="mx-auto w-full max-w-2xl border-x border-border/20">{list}</main>
+        <main className="mx-auto w-full max-w-4xl px-4 py-6">{list}</main>
       </div>
     );
   }
@@ -119,14 +118,10 @@ export async function FollowListPageView({
         isAdmin={currentProfile.role === "ADMIN"}
       />
 
-      <div className="flex md:pl-64 min-h-screen">
-        <main className="flex-1 w-full max-w-2xl px-0 py-0 pb-28 md:pb-0 mx-auto min-h-screen border-r border-border/30">
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <main className="w-full pb-24 md:pb-8">
           {list}
         </main>
-
-        <aside className="hidden lg:block w-80 xl:w-[350px] shrink-0 px-4 py-3">
-          <RightSidebar />
-        </aside>
       </div>
     </div>
   );

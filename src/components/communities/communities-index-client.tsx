@@ -154,17 +154,20 @@ export function CommunitiesIndexClient({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground select-none">
-      {/* ─── Sticky Twitter/X Header ─── */}
-      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30">
+    <div className="mx-auto flex w-full max-w-7xl flex-col min-h-screen pb-24 px-2 sm:px-6 lg:px-8 bg-background text-foreground select-none">
+      {/* ─── Header ─── */}
+      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 rounded-2xl my-2">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">
-            Campus Communities
-          </h1>
+          <div>
+            <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">
+              Campus Communities
+            </h1>
+            <p className="text-xs text-muted-foreground">Discover student sub-hubs, tech clubs, and campus discussion spaces</p>
+          </div>
 
           <Link
-            href="/app/communities/new"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            href="/communities/new"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
           >
             <Plus className="size-3.5" />
             <span>New Community</span>
@@ -260,8 +263,8 @@ export function CommunitiesIndexClient({
             })}
           </div>
 
-          {/* Reddit-Style Sub-Hubs List */}
-          <div className="space-y-3 pt-1">
+          {/* Responsive Sub-Hubs Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
             {filteredCommunities.map((c) => {
               const isMember = c.members.some((m) => m.userId === profileId);
               const avatar = getAvatarUrl(c.avatarUrl, c.name);
@@ -269,51 +272,53 @@ export function CommunitiesIndexClient({
               return (
                 <div
                   key={c.id}
-                  className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all space-y-2.5 group shadow-2xs"
+                  className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all flex flex-col justify-between gap-3 group shadow-2xs"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <Link
-                      href={`/app/communities/${c.id}`}
-                      className="flex items-start gap-3 min-w-0 flex-1 cursor-pointer"
-                    >
-                      <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0 ring-2 ring-border/20">
-                        <AvatarImage src={avatar} />
-                        <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
-                          c/{c.name}
-                        </h3>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {c.privacy === "PRIVATE" ? (
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded-md shrink-0">
-                              <Lock className="size-2.5" />
-                              <span>Private</span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <Link
+                        href={`/communities/${c.slug || c.id}`}
+                        className="flex items-start gap-3 min-w-0 flex-1 cursor-pointer"
+                      >
+                        <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0 ring-2 ring-border/20">
+                          <AvatarImage src={avatar} />
+                          <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
+                            c/{c.name}
+                          </h3>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {c.privacy === "PRIVATE" ? (
+                              <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded-md shrink-0">
+                                <Lock className="size-2.5" />
+                                <span>Private</span>
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-0.5 text-[10px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.2 rounded-md shrink-0">
+                                <Globe className="size-2.5" />
+                                <span>Public</span>
+                              </span>
+                            )}
+                            <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.2 rounded-full shrink-0">
+                              {c.category}
                             </span>
-                          ) : (
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.2 rounded-md shrink-0">
-                              <Globe className="size-2.5" />
-                              <span>Public</span>
-                            </span>
-                          )}
-                          <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.2 rounded-full shrink-0">
-                            {c.category}
-                          </span>
+                          </div>
                         </div>
+                      </Link>
+
+                      {/* Join / Leave Button */}
+                      <div className="shrink-0 pt-0.5">
+                        <JoinCommunityButton communityId={c.id} initialIsMember={isMember} />
                       </div>
-                    </Link>
-
-                    {/* Join / Leave Button */}
-                    <div className="shrink-0 pt-0.5">
-                      <JoinCommunityButton communityId={c.id} initialIsMember={isMember} />
                     </div>
-                  </div>
 
-                  {c.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {c.description}
-                    </p>
-                  )}
+                    {c.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        {c.description}
+                      </p>
+                    )}
+                  </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-border/20 text-xs text-muted-foreground">
                     <div className="flex items-center gap-3">
@@ -323,12 +328,12 @@ export function CommunitiesIndexClient({
                       </span>
                       {c.creator && (
                         <span className="text-[11px] text-muted-foreground/80 truncate">
-                          Created by @{c.creator.username}
+                          @{c.creator.username}
                         </span>
                       )}
                     </div>
                     <Link
-                      href={`/app/communities/${c.id}`}
+                      href={`/communities/${c.slug || c.id}`}
                       className="text-[11px] font-black text-primary hover:underline cursor-pointer"
                     >
                       Visit Hub →
@@ -340,7 +345,7 @@ export function CommunitiesIndexClient({
 
             {/* Empty State when search returns 0 */}
             {filteredCommunities.length === 0 && (
-              <div className="py-16 text-center space-y-3 px-4 border border-dashed border-border/50 rounded-3xl bg-muted/10">
+              <div className="col-span-full py-16 text-center space-y-3 px-4 border border-dashed border-border/50 rounded-3xl bg-muted/10">
                 <div className="size-12 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">
                   <Users2 className="size-6 text-primary" />
                 </div>
@@ -351,7 +356,7 @@ export function CommunitiesIndexClient({
                   Start your own student community, club, or branch sub-hub on CampusLoop!
                 </p>
                 <Link
-                  href={`/app/communities/new${search ? `?name=${encodeURIComponent(search)}` : ""}`}
+                  href={`/communities/new${search ? `?name=${encodeURIComponent(search)}` : ""}`}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer"
                 >
                   <Plus className="size-3.5" />
@@ -419,43 +424,45 @@ export function CommunitiesIndexClient({
 
       {/* ─── TAB 3: My Communities (Joined Hubs) ─── */}
       {activeTab === "my_communities" && (
-        <div className="p-4 space-y-3">
+        <div className="pt-2">
           {myCommunities.length > 0 ? (
-            myCommunities.map((c) => {
-              const avatar = getAvatarUrl(c.avatarUrl, c.name);
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myCommunities.map((c) => {
+                const avatar = getAvatarUrl(c.avatarUrl, c.name);
 
-              return (
-                <div
-                  key={c.id}
-                  className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all flex items-center justify-between gap-3 group"
-                >
-                  <Link
-                    href={`/app/communities/${c.id}`}
-                    className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all flex items-center justify-between gap-3 group shadow-2xs"
                   >
-                    <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0">
-                      <AvatarImage src={avatar} />
-                      <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
-                        c/{c.name}
-                      </h3>
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 rounded-md shrink-0">
-                          {c.category}
-                        </span>
-                        <span className="font-semibold text-[11px]">{c.members.length} members</span>
+                    <Link
+                      href={`/communities/${c.slug || c.id}`}
+                      className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+                    >
+                      <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0">
+                        <AvatarImage src={avatar} />
+                        <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
+                          c/{c.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                          <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 rounded-md shrink-0">
+                            {c.category}
+                          </span>
+                          <span className="font-semibold text-[11px]">{c.members.length} members</span>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
 
-                  <div className="shrink-0">
-                    <JoinCommunityButton communityId={c.id} initialIsMember={true} />
+                    <div className="shrink-0">
+                      <JoinCommunityButton communityId={c.id} initialIsMember={true} />
+                    </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           ) : (
             <div className="py-16 text-center space-y-3 px-4 border border-dashed border-border/50 rounded-3xl bg-muted/10">
               <div className="size-12 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">

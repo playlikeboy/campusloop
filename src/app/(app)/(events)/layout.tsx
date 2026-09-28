@@ -58,8 +58,8 @@ export default async function EventsLayout({ children }: { children: React.React
           isViewer={viewerMode}
         />
 
-        <div className="flex md:pl-64 min-h-screen w-full">
-          <main className="flex-1 w-full min-w-0 min-h-screen">
+        <div className="flex min-h-screen w-full">
+          <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto min-h-screen px-3 sm:px-6 py-4">
             {viewerMode && (
               <div className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-[11px] font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
                 <span className="inline-flex items-center gap-1.5">

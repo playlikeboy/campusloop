@@ -213,9 +213,9 @@ export default function CollegesClient() {
   ];
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl select-none flex-col border-x border-border/20 pb-28">
+    <main className="mx-auto flex min-h-screen w-full max-w-7xl select-none flex-col px-2 sm:px-6 lg:px-8 pb-28">
       {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-40 border-b border-border/30 bg-background/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-border/30 bg-background/90 backdrop-blur-xl rounded-2xl my-2">
         <div className="flex items-center justify-between gap-2 px-4 py-3.5">
           <div className="min-w-0">
             <h1 className="text-lg font-black tracking-tight text-foreground">Colleges</h1>
