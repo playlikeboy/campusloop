@@ -68,32 +68,3 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const to = searchParams.get("to") || "shaswatraj3@gmail.com";
-
-  try {
-    const result = await sendEmail({
-      to,
-      subject: "Test from CampusLoop Cloudflare Email",
-      text: "Hello! This is a test email sent from CampusLoop via Cloudflare Email Sending.",
-      html: `
-        <div style="font-family: sans-serif; padding: 20px; color: #111;">
-          <h2>CampusLoop Cloudflare Email Test</h2>
-          <p>Hello! This is an automated diagnostic test of Cloudflare Email Sending on CampusLoop.</p>
-          <p>Timestamp: ${new Date().toISOString()}</p>
-        </div>
-      `,
-    });
-
-    return NextResponse.json(result);
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to send test email",
-      },
-      { status: 500 }
-    );
-  }
-}
