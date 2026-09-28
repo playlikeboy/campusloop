@@ -73,7 +73,7 @@ export function CollegeHeroHeader({
       {/* ─── Top Navigation Bar ─── */}
       <div className="flex items-center justify-between">
         <Link
-          href="/app/colleges"
+          href="/colleges"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-muted/40 hover:bg-muted px-3.5 py-1.5 rounded-full"
         >
           <ArrowLeft className="size-3.5" /> All Colleges

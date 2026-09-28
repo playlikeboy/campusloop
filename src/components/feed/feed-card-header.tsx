@@ -282,7 +282,7 @@ export function FeedCardHeader({
                   {currentUserId && post.authorId === currentUserId && (
                     <>
                       <Link
-                        href={`/app/post/${post.id}/edit`}
+                        href={`/post/${post.id}/edit`}
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowMenu(false);
@@ -327,7 +327,7 @@ export function FeedCardHeader({
       {post.community && (
         <div className="pt-0.5 text-[11px] font-medium text-muted-foreground/80 truncate">
           <Link
-            href={`/app/communities/${post.community.id}`}
+            href={`/communities/${post.community.id}`}
             onClick={(e) => e.stopPropagation()}
             className="inline-flex max-w-full items-center gap-1 font-bold text-primary hover:underline truncate"
             title={`c/${post.community.name}`}
