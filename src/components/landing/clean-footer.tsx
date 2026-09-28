@@ -5,18 +5,18 @@ const columns = [
   {
     title: "Campus",
     links: [
-      ["Campus Feed", "/app"],
-      ["Confessions", "/app/confessions"],
-      ["Events", "/app/events"],
-      ["Communities", "/app/communities"],
+      ["Campus Feed", "/feeds"],
+      ["Confessions", "/confessions"],
+      ["Events", "/events"],
+      ["Communities", "/communities"],
     ],
   },
   {
     title: "Academics",
     links: [
-      ["Notes & PYQs", "/app/academics"],
-      ["Study Playlists", "/app/academics/playlists"],
-      ["Upload Material", "/app/academics/upload"],
+      ["Notes & PYQs", "/academics"],
+      ["Study Playlists", "/academics/playlists"],
+      ["Upload Material", "/academics/upload"],
     ],
   },
   {
