@@ -129,7 +129,7 @@ export function SearchableSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          "flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-border/60 bg-transparent px-3 py-2.5 text-left text-sm font-medium text-foreground outline-none transition-colors",
+          "flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-border/60 bg-transparent px-3 py-2.5 text-left text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors",
           isOpen ? "border-primary" : "hover:border-border",
           disabled && "cursor-not-allowed opacity-60"
         )}
@@ -156,7 +156,7 @@ export function SearchableSelect({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={searchPlaceholder}
-              className="w-full bg-transparent py-2.5 pl-9 pr-8 text-sm text-foreground outline-none placeholder:text-muted-foreground/60"
+              className="w-full bg-transparent py-2.5 pl-9 pr-8 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary placeholder:text-muted-foreground/60"
             />
             {query && (
               <button
@@ -195,7 +195,7 @@ export function SearchableSelect({
                     <span
                       className={cn(
                         "min-w-0 flex-1 truncate",
-                        isSelected ? "font-black text-foreground" : "font-medium text-foreground/90"
+                        isSelected ? "font-bold text-foreground" : "font-medium text-foreground/90"
                       )}
                     >
                       {option.label}

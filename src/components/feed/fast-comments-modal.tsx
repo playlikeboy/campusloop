@@ -393,7 +393,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center select-none overflow-hidden">
+        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center overflow-hidden">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

@@ -98,7 +98,7 @@ export function FollowListClient({
   ];
 
   return (
-    <div className="flex w-full flex-col min-h-screen select-none">
+    <div className="flex w-full flex-col min-h-screen">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link

@@ -41,7 +41,7 @@ export default function HashtagFeed() {
   }, [loadMoreRef, isReachingEnd, isLoadingMore, setSize]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground pb-28 mx-auto max-w-2xl select-none border-x border-border/20">
+    <main className="min-h-screen bg-background text-foreground pb-28 mx-auto max-w-2xl border-x border-border/20">
       {/* Twitter/X Style Minimal Sticky Header */}
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/30 px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-3.5 min-w-0">

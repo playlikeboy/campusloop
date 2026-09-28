@@ -293,7 +293,7 @@ export function AcademicDetailClient({
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6 pb-24 text-foreground select-none">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6 pb-24 text-foreground">
       {/* ─── Breadcrumb Navigation & Share Bar ─── */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1">
         <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">

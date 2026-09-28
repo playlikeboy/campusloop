@@ -52,7 +52,7 @@ export function RightSidebar() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    router.push(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
   }
 
   async function handleRefreshPeers() {
@@ -101,16 +101,16 @@ export function RightSidebar() {
     .slice(0, 2);
 
   return (
-    <aside className="sticky top-3 space-y-4 text-foreground w-full select-none">
+    <aside className="sticky top-3 space-y-4 text-foreground w-full">
       {/* ─── Search Bar ─── */}
       <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <input
           type="text"
-          placeholder={isEventsPage ? "Search hackathons & fests..." : "Search"}
+          placeholder={isEventsPage ? "Search hackathons & fests..." : "Search CampusLoop..."}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full h-11 pl-11 pr-4 rounded-full bg-muted/60 border border-transparent focus:border-border/80 focus:bg-background text-[13px] font-normal placeholder:text-muted-foreground/70 outline-none transition-all"
+          className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border/50 focus:border-primary/80 focus:bg-background text-xs font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-all"
         />
       </form>
 
@@ -119,7 +119,7 @@ export function RightSidebar() {
         <>
           {/* Host Event Action Card */}
           <div className="rounded-2xl border border-primary/30 bg-linear-to-br from-primary/15 via-background to-card p-4 space-y-2.5">
-            <div className="flex items-center gap-2 text-primary font-black text-xs">
+            <div className="flex items-center gap-2 text-primary font-bold text-xs">
               <Zap className="size-4" />
               <span>Organising on Campus?</span>
             </div>
@@ -128,7 +128,7 @@ export function RightSidebar() {
             </p>
             <Link
               href="/events/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all w-full justify-center"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:opacity-90 active:scale-95 transition-all w-full justify-center"
             >
               <Plus className="size-3.5" />
               <span>Host Event (+25 LP)</span>
@@ -140,7 +140,7 @@ export function RightSidebar() {
             <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-2">
               <div className="px-1 flex items-center gap-1.5">
                 <Clock className="size-4 text-red-500" />
-                <h3 className="text-sm font-black tracking-tight text-foreground">Closing Soon</h3>
+                <h3 className="text-sm font-bold tracking-tight text-foreground">Closing Soon</h3>
               </div>
               <div className="divide-y divide-border/20">
                 {urgentDeadlines.map((ev) => (
@@ -150,7 +150,7 @@ export function RightSidebar() {
                     className="block px-2 py-2 hover:bg-muted/30 rounded-xl transition-colors group"
                   >
                     <p className="text-[11px] text-muted-foreground truncate">{ev.clubName}</p>
-                    <p className="text-xs font-black text-foreground group-hover:underline truncate">
+                    <p className="text-xs font-bold text-foreground group-hover:underline truncate">
                       {ev.title}
                     </p>
                     <p className="text-[10px] font-bold text-red-500 pt-0.5">
@@ -172,7 +172,7 @@ export function RightSidebar() {
               <div className="px-1 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Trophy className="size-4 text-amber-500" />
-                  <h3 className="text-sm font-black tracking-tight text-foreground">Top Campus Events</h3>
+                  <h3 className="text-sm font-bold tracking-tight text-foreground">Top Campus Events</h3>
                 </div>
               </div>
               <div className="divide-y divide-border/20">
@@ -186,11 +186,11 @@ export function RightSidebar() {
                       <span className="truncate">{ev.clubName}</span>
                       <span className="font-bold text-primary">{ev.mode}</span>
                     </div>
-                    <p className="text-xs font-black text-foreground group-hover:underline truncate">
+                    <p className="text-xs font-bold text-foreground group-hover:underline truncate">
                       {ev.title}
                     </p>
                     {ev.prizesDescription && (
-                      <p className="text-[10px] font-black text-amber-500 truncate flex items-center gap-1">
+                      <p className="text-[10px] font-bold text-amber-500 truncate flex items-center gap-1">
                         <Trophy className="size-2.5 shrink-0" />
                         <span>{ev.prizesDescription}</span>
                       </p>
@@ -207,7 +207,7 @@ export function RightSidebar() {
           {trends.length > 0 && (
             <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-1">
               <div className="px-1 pb-1">
-                <h3 className="text-[17px] font-black tracking-tight text-foreground">
+                <h3 className="text-[17px] font-bold tracking-tight text-foreground">
                   What&apos;s happening
                 </h3>
               </div>
@@ -234,7 +234,7 @@ export function RightSidebar() {
               </div>
 
               <Link
-                href="/discover"
+                href="/explore"
                 className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
               >
                 Show more
@@ -246,7 +246,7 @@ export function RightSidebar() {
           {peers.length > 0 && (
             <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-1">
               <div className="px-1 pb-1 flex items-center justify-between">
-                <h3 className="text-[17px] font-black tracking-tight text-foreground">Who to follow</h3>
+                <h3 className="text-[17px] font-bold tracking-tight text-foreground">Who to follow</h3>
                 <button
                   type="button"
                   onClick={handleRefreshPeers}
@@ -283,7 +283,7 @@ export function RightSidebar() {
                         </Avatar>
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-black text-foreground truncate group-hover:underline flex items-center gap-1">
+                          <p className="text-[13px] font-bold text-foreground truncate group-hover:underline flex items-center gap-1">
                             <span>{peer.displayName}</span>
                             {peer.points >= 150 && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
                           </p>
@@ -295,7 +295,7 @@ export function RightSidebar() {
                         type="button"
                         onClick={() => handleFollowToggle(peer)}
                         className={cn(
-                          "rounded-full px-4 py-1.5 text-xs font-black transition-all cursor-pointer shrink-0 active:scale-95",
+                          "rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
                           isFollowed
                             ? "border border-border/60 bg-transparent text-foreground hover:border-destructive/40 hover:text-destructive"
                             : "bg-foreground text-background hover:opacity-90"
@@ -309,7 +309,7 @@ export function RightSidebar() {
               </div>
 
               <Link
-                href="/discover"
+                href="/explore"
                 className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
               >
                 Show more

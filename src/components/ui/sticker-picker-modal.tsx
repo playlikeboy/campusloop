@@ -1,9 +1,28 @@
 "use client";
 
-import { Search, Smile, X, Zap } from "lucide-react";
+import { BookOpen, Code2, Coffee, Flame, Headphones, Search, Smile, X, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CAMPUS_STICKERS, type CampusSticker, STICKER_CATEGORIES } from "@/constants/stickers";
 import { cn } from "@/lib/utils";
+
+function getCategoryIcon(id: string) {
+  switch (id) {
+    case "all":
+      return <Flame className="size-3 text-amber-500" />;
+    case "campus":
+      return <Coffee className="size-3 text-amber-600 dark:text-amber-400" />;
+    case "exams":
+      return <BookOpen className="size-3 text-blue-500" />;
+    case "coding":
+      return <Code2 className="size-3 text-emerald-500" />;
+    case "reactions":
+      return <Smile className="size-3 text-purple-500" />;
+    case "fest":
+      return <Headphones className="size-3 text-pink-500" />;
+    default:
+      return <Flame className="size-3" />;
+  }
+}
 
 interface StickerPickerModalProps {
   isOpen: boolean;
@@ -45,7 +64,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
               <Smile className="size-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-foreground">Campus Stickers</h3>
+              <h3 className="text-sm font-bold text-foreground">Campus Stickers</h3>
               <p className="text-[10px] text-muted-foreground font-semibold">
                 React with hostel tea, exam panic &amp; college vibes
               </p>
@@ -69,7 +88,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
             placeholder="Search stickers (maggi, tea, exam, 75%, pass)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-xl bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-background transition-all"
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-background focus-visible:ring-2 focus-visible:ring-primary/40 transition-all"
             autoFocus
           />
         </div>
@@ -82,13 +101,13 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
               className={cn(
-                "px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1",
+                "px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 selectedCategory === cat.id
                   ? "bg-foreground text-background shadow-xs"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
-              <span>{cat.icon}</span>
+              {getCategoryIcon(cat.id)}
               <span>{cat.name}</span>
             </button>
           ))}
