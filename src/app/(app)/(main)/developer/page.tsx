@@ -33,7 +33,7 @@ export default async function DeveloperPortalPage() {
     },
   });
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   const initialKeys = await db.query.userMcpKeys.findMany({
     where: eq(userMcpKeys.userId, profile.id),
