@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     cleanSnippet(post.body, 150) ||
     "Explore student yaps, confessions, and campus discussions on CampusLoop.";
   const title = `${post.type === "CONFESSION" ? "Confession" : "Discussion"} by ${authorName} in ${post.institution?.name?.split(",")[0] || "Campus"}`;
-  const url = `https://campusloop.space/app/post/${id}`;
+  const url = `https://campusloop.space/post/${id}`;
 
   return {
     title,
@@ -235,7 +235,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   const campusName = rawPost.institution?.name?.split(",")[0] || "Campus";
   const postTitle = `${rawPost.type === "CONFESSION" ? "Confession" : "Discussion"} in ${campusName}`;
 
-  const postUrl = `https://campusloop.space/app/post/${rawPost.id}`;
+  const postUrl = `https://campusloop.space/post/${rawPost.id}`;
 
   const jsonLd = {
     "@context": "https://schema.org",

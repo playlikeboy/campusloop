@@ -73,7 +73,7 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
                   <td className="px-5 py-3 text-xs">
                     {row.targetType === "POST" ? (
                       <Link
-                        href={`/app/post/${row.targetId}`}
+                        href={`/post/${row.targetId}`}
                         target="_blank"
                         className="font-mono text-[10px] text-primary hover:underline"
                       >

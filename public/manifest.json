@@ -3,7 +3,7 @@
   "short_name": "CampusLoop",
   "description": "Verified campus community for college students. Find campus conversations, communities, events, notes and PYQs.",
   "id": "/",
-  "start_url": "/app",
+  "start_url": "/feeds",
   "scope": "/",
   "display": "standalone",
   "display_override": [
@@ -27,8 +27,9 @@
   },
   "handle_links": "preferred",
   "share_target": {
-    "action": "/app/post/new",
+    "action": "/post/new",
     "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "title",
       "text": "text",
@@ -90,7 +91,7 @@
       "name": "Campus Feed",
       "short_name": "Feed",
       "description": "View live campus discussions and confessions",
-      "url": "/app",
+      "url": "/feeds",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -102,7 +103,7 @@
       "name": "Campus Marketplace",
       "short_name": "Market",
       "description": "Order food, essentials, and hostel delivery",
-      "url": "/app/marketplace",
+      "url": "/marketplace",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -114,7 +115,7 @@
       "name": "Create Post",
       "short_name": "Post",
       "description": "Drop a confession, poll or campus thread",
-      "url": "/app/post/new",
+      "url": "/post/new",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -126,7 +127,7 @@
       "name": "Campus Match",
       "short_name": "Match",
       "description": "Connect with verified students in your campus radius",
-      "url": "/app/matching",
+      "url": "/dating",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -138,7 +139,7 @@
       "name": "Direct Messages",
       "short_name": "Chat",
       "description": "Private student chats and groups",
-      "url": "/app/chat",
+      "url": "/chat",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",

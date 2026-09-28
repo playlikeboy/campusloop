@@ -80,7 +80,7 @@ export async function GET() {
       limit: 1000,
     });
     for (const p of postList) {
-      urls.push(`https://${HOST}/app/post/${p.id}`);
+      urls.push(`https://${HOST}/post/${p.id}`);
     }
 
     // 6. Communities (Canonical URLs)

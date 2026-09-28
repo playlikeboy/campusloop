@@ -130,8 +130,8 @@ function buildUrl(type: string, referenceId: string | null): string {
   // Resolved before the null guard: CRUSH_ALERT deliberately stores no
   // reference id (naming the crush would defeat the point), but it still has a
   // fixed destination.
-  if (type === "CRUSH_ALERT") return "/app/crush";
-  if (!referenceId) return "/app/notifications";
+  if (type === "CRUSH_ALERT") return "/dating";
+  if (!referenceId) return "/notifications";
   switch (type) {
     case "LIKE":
     case "COMMENT":
@@ -139,19 +139,19 @@ function buildUrl(type: string, referenceId: string | null): string {
     case "MENTION":
     case "REPOST":
     case "NEW_POST":
-      return `/app/post/${referenceId}`;
+      return `/post/${referenceId}`;
     case "STORY_LIKE":
     case "STORY_REPLY":
-      return `/app/story/${referenceId}`;
+      return `/story/${referenceId}`;
     case "MESSAGE":
     case "MATCH":
-      return `/app/chat/${referenceId}`;
+      return `/chat/${referenceId}`;
     case "EVENT_REGISTRATION":
-      return `/app/events/${referenceId}`;
+      return `/events/${referenceId}`;
     case "FOLLOW":
     case "FRIEND":
       return `/@${referenceId}`;
     default:
-      return "/app/notifications";
+      return "/notifications";
   }
 }

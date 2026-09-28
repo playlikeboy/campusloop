@@ -81,7 +81,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     const text = post.body || "";
     const tags: string[] = [];
     const hashtagRegex = /#([\w-]+)/g;
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = hashtagRegex.exec(text)) !== null) {
       if (!tags.includes(match[1])) {
         tags.push(match[1]);
@@ -189,7 +189,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     startRouteProgress();
     clickTimeoutRef.current = setTimeout(() => {
       clickTimeoutRef.current = null;
-      router.push(`/app/post/${post.id}`);
+      router.push(`/post/${post.id}`);
     }, 120);
   }
 
@@ -211,8 +211,8 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     haptics.success();
     const postUrl =
       typeof window !== "undefined"
-        ? `${window.location.origin}/app/post/${post.id}`
-        : `https://campusloop.space/app/post/${post.id}`;
+        ? `${window.location.origin}/post/${post.id}`
+        : `https://campsy.app/post/${post.id}`;
     if (typeof window !== "undefined" && navigator.share) {
       try {
         await navigator.share({
@@ -251,7 +251,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
   return (
     <article
-      onMouseEnter={() => router.prefetch(`/app/post/${post.id}`)}
+      onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className="neo-card p-3.5 sm:p-4 mb-2.5 mx-2 sm:mx-3 relative cursor-pointer transition-all hover:-translate-y-0.5"
     >
       {/* Double Tap Heart Pop Overlay */}
@@ -413,7 +413,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               {extractedHashtags.slice(0, 3).map((tag, idx) => (
                 <Link
                   key={tag}
-                  href={`/app/hashtag/${tag}`}
+                  href={`/hashtag/${tag}`}
                   className={cn(
                     "min-h-7 rounded-full bg-muted/55 px-2.5 py-1 text-[10px] font-bold transition-colors shrink-0",
                     idx === 0
@@ -436,7 +436,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           {post.repostOf &&
             Boolean(post.repostComment) &&
             post.body?.trim() !== post.repostOf.body?.trim() && (
-              <Link href={`/app/post/${post.repostOf.id}`} onClick={(e) => e.stopPropagation()}>
+              <Link href={`/post/${post.repostOf.id}`} onClick={(e) => e.stopPropagation()}>
                 <div className="mt-2.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors p-3 text-xs space-y-1">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
                     <span className="font-bold text-foreground">

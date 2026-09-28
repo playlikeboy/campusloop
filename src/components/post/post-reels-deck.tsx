@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FastCommentsModal } from "@/components/feed/fast-comments-modal";
@@ -283,7 +283,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
               const currentItem = items[newIdx];
               if (currentItem && currentItem.type === "POST") {
                 const currentPost = currentItem.post;
-                window.history.replaceState(null, "", `/app/post/${currentPost.id}`);
+                window.history.replaceState(null, "", `/post/${currentPost.id}`);
                 const author = currentPost.isAnonymous
                   ? "Anonymous Student"
                   : currentPost.author?.displayName || "Student";
@@ -317,55 +317,68 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full h-dvh overflow-hidden bg-background select-none"
+      className="relative w-full h-full overflow-hidden bg-background"
     >
       {/* ─── Ambient Glow in Background ─── */}
       <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-purple-600/10 blur-[140px] rounded-full -z-10" />
 
       {/* ─── Top Header & Subheader Tabs ─── */}
-      <header className="absolute top-0 inset-x-0 z-30 px-4 pt-2.5 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
+      <header className="absolute top-0 inset-x-0 z-30 px-4 pt-2 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
         {/* Subheader Filter Tabs */}
-        <div className="flex items-center justify-between gap-2 mt-3 border-b border-border/20 pb-0.5">
-          <div className="flex items-center gap-5 sm:gap-6 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar py-0.5">
-            {[
-              { id: "for_you", label: "For You" },
-              { id: "latest", label: "Latest" },
-              { id: "clubs", label: "Clubs" },
-              { id: "opportunities", label: "Opportunities" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  "relative pb-2 transition-colors cursor-pointer select-none whitespace-nowrap",
-                  activeTab === tab.id
-                    ? "text-foreground font-black"
-                    : "text-muted-foreground hover:text-foreground font-semibold"
-                )}
-              >
-                {tab.label}
-                {activeTab === tab.id && (
-                  <span className="absolute bottom-0 inset-x-0 h-[3px] rounded-full bg-primary shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                )}
-              </button>
-            ))}
+        <div className="flex items-center justify-between gap-2 mt-2 border-b border-border/20 pb-1">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              href="/feeds"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0"
+              title="Back to Feeds"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span className="hidden sm:inline">Back to Feed</span>
+            </Link>
+
+            <div className="h-4 w-px bg-border/40 hidden sm:block shrink-0" />
+
+            <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar py-0.5">
+              {[
+                { id: "for_you", label: "For You" },
+                { id: "latest", label: "Latest" },
+                { id: "clubs", label: "Clubs" },
+                { id: "opportunities", label: "Opportunities" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabChange(tab.id)}
+                  className={cn(
+                    "relative pb-1.5 transition-colors cursor-pointer whitespace-nowrap",
+                    activeTab === tab.id
+                      ? "text-foreground font-black"
+                      : "text-muted-foreground hover:text-foreground font-semibold"
+                  )}
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <span className="absolute bottom-0 inset-x-0 h-[2.5px] rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
 
           <Link
-            href="/app/search"
-            className="size-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0 border border-border/40 bg-background/70"
-            aria-label="Search campus discussions"
+            href="/explore"
+            className="size-8.5 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0 border border-border/40 bg-background/70"
+            aria-label="Explore campus discussions"
           >
-            <Search className="size-5" strokeWidth={2.25} />
+            <Search className="size-4" strokeWidth={2.25} />
           </Link>
         </div>
       </header>
 
-      {/* ─── Vertical Snap Scroll Deck (Exact Viewport Bounds: top 88px, bottom 64px on mobile / 0 on desktop) ─── */}
+      {/* ─── Vertical Snap Scroll Deck (Exact Viewport Bounds: top 52px, bottom 64px on mobile / 0 on desktop) ─── */}
       <div
         ref={containerRef}
-        className="absolute inset-x-0 top-[88px] sm:top-[92px] bottom-[72px] md:bottom-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar"
+        className="absolute inset-x-0 top-[52px] sm:top-[56px] bottom-[64px] md:bottom-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar"
       >
         {items.map((item, index) => (
           <div
