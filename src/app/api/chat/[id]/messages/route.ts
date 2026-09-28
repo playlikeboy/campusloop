@@ -2,6 +2,7 @@ import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversations, messages, userProfiles } from "@/db/schema";
+import { requireConversationParticipant } from "@/lib/chat-auth";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { notifyNewMessage } from "@/lib/chat-notifications";
 import { recordHeartbeat } from "@/lib/presence-server";
@@ -32,6 +33,10 @@ export async function GET(req: Request, { params }: RouteParams) {
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 403 });
+    }
+
+    if (!(await requireConversationParticipant(id, profile.id))) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
     }
 
     recordHeartbeat(profile.id).catch(() => {});
@@ -89,15 +94,23 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Profile not found" }, { status: 403 });
     }
 
+    if (!(await requireConversationParticipant(id, profile.id))) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+    }
+
     recordHeartbeat(profile.id).catch(() => {});
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
-    const { body } = (await req.json()) as { body: string };
+    const payload = (await req.json().catch(() => ({}))) as { body?: string };
+    const body = payload.body?.trim() || "";
 
-    if (!body || body.trim().length === 0) {
+    if (!body) {
       return NextResponse.json({ error: "Message body is required" }, { status: 400 });
+    }
+    if (body.length > 4000) {
+      return NextResponse.json({ error: "Message body cannot exceed 4000 characters" }, { status: 400 });
     }
 
     // Insert message
