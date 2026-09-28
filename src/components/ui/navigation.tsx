@@ -86,24 +86,10 @@ function isMobileFlow(pathname: string) {
  * Dual-domain path normalizer ensuring campsy.app ("/") and campusloop.space ("/app")
  * match active tabs identically with zero desync.
  */
-function isPathActive(currentPath: string, targetHref: string): boolean {
-  const normCurrent =
-    currentPath === "/" ? "/app" : currentPath.startsWith("/app") ? currentPath : `/app${currentPath}`;
-  const normTarget =
-    targetHref === "/" ? "/app" : targetHref.startsWith("/app") ? targetHref : `/app${targetHref}`;
-
-  if (normTarget === "/app") {
-    return normCurrent === "/app";
-  }
-  if (normTarget === "/app/chat") {
-    return (
-      normCurrent === "/app/chat" ||
-      normCurrent.startsWith("/app/chat/") ||
-      normCurrent === "/app/chats" ||
-      normCurrent.startsWith("/app/chats/")
-    );
-  }
-  return normCurrent === normTarget || normCurrent.startsWith(`${normTarget}/`);
+function isPathActive(currentPath: string, targetHref: string) {
+  if (targetHref === "/feeds") return currentPath === "/feeds";
+  if (targetHref === "/chat") return currentPath === "/chat" || currentPath.startsWith("/chat/");
+  return currentPath === targetHref || currentPath.startsWith(`${targetHref}/`);
 }
 
 export function Navigation({ profile, collegeName, isViewer }: NavigationProps) {
