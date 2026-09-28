@@ -7,12 +7,12 @@ Welcome to **CampusLoop**, a verified student-only campus social network built f
 ## 🎯 Main Motive & Core Capabilities
 
 CampusLoop is designed to empower college students with a safe, engaging, and feature-rich campus platform:
-- **Campus Feed (`/app`)**: Dynamic feed supporting Confessions, Polls, Questions, Hashtags, and Twitter-style Reposts/Quotes.
-- **Campus Radius & Discovery (`/app/discover`)**: Switch between local campus feed and global across all colleges in India.
-- **Stories / Vibes (`/app/stories/new`)**: 24-hour visual campus vibe sharing with interactive fullscreen viewer.
-- **Campus Match / Dating (`/app/dating`)**: Swipe deck for connecting with verified fellow students, filtered by gender & scope.
-- **Campus Directory (`/app/colleges`)**: 1,350+ indexed Indian college hubs with instant search & hub request forms.
-- **Sub-Hubs & Communities (`/app/communities`)**: Student-created interest groups and discussion spaces.
+- **Campus Feed (`/feeds`)**: Dynamic feed supporting Confessions, Polls, Questions, Hashtags, and Twitter-style Reposts/Quotes.
+- **Campus Radius & Discovery (`/discover`)**: Switch between local campus feed and global across all colleges in India.
+- **Stories / Vibes (`/stories/new`)**: 24-hour visual campus vibe sharing with interactive fullscreen viewer.
+- **Campus Match / Dating (`/dating`)**: Swipe deck for connecting with verified fellow students, filtered by gender & scope.
+- **Campus Directory (`/colleges`)**: 1,350+ indexed Indian college hubs with instant search & hub request forms.
+- **Sub-Hubs & Communities (`/communities`)**: Student-created interest groups and discussion spaces.
 - **Clout & Gamification**: Loop Points (LP) system rewarding engagement, invites, and unlocking verified status.
 - **Admin Moderation (`/admin`)**: Content reporting, automated keyword filtering, user management.
 
@@ -53,11 +53,11 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 - If Qdrant is unavailable, times out, or encounters network errors, the application **MUST gracefully fallback 100% to PostgreSQL relational queries** with zero interruption to users.
 
 ### 6. Mobile Bottom Navigation Bar & Anonymity Mode Switcher
-- **Mobile Bottom Navigation**: The mobile bottom bar has 5 core tabs: **Home (`/app`)**, **Colleges (`/app/colleges`)**, **Post (`/app/post/new`)**, **Chat (`/chat`)**, and **Dating (`/app/dating`)**.
+- **Mobile Bottom Navigation**: The mobile bottom bar has 5 core tabs: **Home (`/feeds`)**, **Colleges (`/colleges`)**, **Post (`/post/new`)**, **Chat (`/chat`)**, and **Dating (`/dating`)**.
 - **Anonymity Mode Switcher**: Desktop sidebar and mobile drawer feature a quick switcher between **All Posts & Anon 🎭** and **Public Only (No Anon) 🛡️**. Switching dispatches `campusloop_feed_visibility_change` on the window and saves to `localStorage` + `/api/profile/me` for instant zero-reload timeline filtering.
 
 ### 7. Dedicated Full-Page Routes (`page.tsx`) with Maximum SEO Over Popups for Creation & Editing
-- **ALWAYS** create dedicated Next.js App Router full-page routes (`page.tsx`) with maximum SEO metadata, OpenGraph tags, JSON-LD Schema.org structured data, Twitter/X-style full-width clean UX, and robust backend/frontend, instead of modal popups for creation and editing workflows (e.g. Note/Resource Upload at `/app/academics/upload`, Study Playlist creation at `/app/academics/playlists/new`, Campus Hub posting, community creation, listing creation).
+- **ALWAYS** create dedicated Next.js App Router full-page routes (`page.tsx`) with maximum SEO metadata, OpenGraph tags, JSON-LD Schema.org structured data, Twitter/X-style full-width clean UX, and robust backend/frontend, instead of modal popups for creation and editing workflows (e.g. Note/Resource Upload at `/academics/upload`, Study Playlist creation at `/academics/playlists/new`, Campus Hub posting, community creation, listing creation).
 - Popups/modals are strictly forbidden for complex creation and editing forms and are reserved ONLY for micro-interactions (e.g. fast comment reply, quick repost quote, quick reaction).
 - Dedicated pages maximize Google/search indexing, utilize 100% of mobile screen real estate, avoid cramped modal scrolling, and enable deep linkability and shareability.
 
@@ -89,7 +89,7 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 - Post composer features real-time embed extraction, live preview cards, and per-item dismissal.
 
 ### 13. Borderless Clean Design & Admin Console Architecture
-- **Borderless Aesthetic**: High-density timelines and exploration hubs (`/app/birthdays`, `/app/discover`, feed cards) avoid harsh bounding borders. Use subtle tonal backgrounds (`bg-card/60`), soft ambient shadows (`shadow-2xs`), and borderless pill switchers.
+- **Borderless Aesthetic**: High-density timelines and exploration hubs (`/birthdays`, `/discover`, feed cards) avoid harsh bounding borders. Use subtle tonal backgrounds (`bg-card/60`), soft ambient shadows (`shadow-2xs`), and borderless pill switchers.
 - **Admin Operations Hub**: The Admin Console (`/admin`) is organized into dedicated operational domains:
   - **Operations & Safety**: Dashboard, Review Queue, Reports, Academics Vault (`/admin/academics`).
   - **Content & Campus**: Feed Curation, Posts, Comments, Users, Colleges, Campus Broadcasts (`/admin/broadcasts`).
@@ -112,7 +112,7 @@ campusloop/
 ├── src/
 │   ├── app/                   # Next.js App Router (Pages & API routes)
 │   │   ├── (main)/            # Main app shell & client components
-│   │   ├── (dating)/          # Standalone focused dating route (/app/dating)
+│   │   ├── (dating)/          # Standalone focused dating route (/dating)
 │   │   ├── api/               # REST API endpoints (/feed, /posts, /chat, /dating, /stories, etc.)
 │   │   └── admin/             # Admin moderation dashboard
 │   ├── components/            # Feature subcomponents & Shadcn primitives
