@@ -1,23 +1,19 @@
 "use client";
 
 import {
-  BookOpen,
-  Briefcase,
+  AlertCircle,
+  Bookmark,
   CheckCircle2,
   Clock,
-  Code2,
-  Cpu,
   Flame,
   Globe,
-  GraduationCap,
   Loader2,
   PenTool,
-  Rocket,
   RotateCw,
   School,
   Search,
   Sparkles,
-  Trophy,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,39 +22,40 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticlesRightSidebar } from "@/components/articles/articles-right-sidebar";
+import {
+  ARTICLE_CATEGORY_LIST,
+  ARTICLE_FEED_TABS,
+  type ArticleFeedTab,
+} from "@/constants/articles";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const ARTICLE_CATEGORIES = [
-  { id: "ALL", label: "All Topics", icon: Sparkles },
-  { id: "tech", label: "Tech & Code", icon: Code2 },
-  { id: "placements", label: "Placements", icon: Briefcase },
-  { id: "campus_life", label: "Campus Life", icon: School },
-  { id: "ai_research", label: "AI & Research", icon: Cpu },
-  { id: "startups", label: "Startups & Web3", icon: Rocket },
-  { id: "academics", label: "Academics", icon: GraduationCap },
-];
-
-const FEED_TABS = [
-  { id: "trending", label: "Trending Stories", icon: Flame },
-  { id: "latest", label: "Latest", icon: Clock },
-  { id: "top", label: "Top Rated", icon: Trophy },
-] as const;
-
 interface ArticlesHubClientProps {
   initialArticles?: any[];
+  initialProfile?: any | null;
 }
 
-export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientProps) {
+export function ArticlesHubClient({
+  initialArticles = [],
+  initialProfile = null,
+}: ArticlesHubClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeTab, setActiveTab] = useState<"trending" | "latest" | "top">("trending");
-  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  // Search and filter params from URL
+  const initialCategory = searchParams.get("category") || "ALL";
+  const initialTag = searchParams.get("tag") || "";
+  const initialQuery = searchParams.get("q") || "";
+  const initialTab = (searchParams.get("tab") as ArticleFeedTab) || "latest";
+
+  const [activeTab, setActiveTab] = useState<ArticleFeedTab>(initialTab);
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [activeTag, setActiveTag] = useState<string>(initialTag);
+  const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState<string>(initialQuery);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Pagination & infinite loading state
@@ -72,27 +69,94 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
   const rawScope = searchParams.get("scope");
   const scope: "CAMPUS" | "GLOBAL" = rawScope === "CAMPUS" ? "CAMPUS" : "GLOBAL";
 
-  function setScopeParam(nextScope: "CAMPUS" | "GLOBAL") {
-    const p = new URLSearchParams(searchParams.toString());
-    if (nextScope === "CAMPUS") {
-      p.set("scope", "CAMPUS");
-    } else {
-      p.delete("scope");
-    }
-    router.replace(`${pathname}?${p.toString()}`);
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Sync state to URL search params cleanly
+  const updateUrlParams = useCallback(
+    (updates: { tab?: string; category?: string; tag?: string; q?: string; scope?: string }) => {
+      const p = new URLSearchParams(searchParams.toString());
+
+      if (updates.tab !== undefined) {
+        if (updates.tab && updates.tab !== "latest") p.set("tab", updates.tab);
+        else p.delete("tab");
+      }
+      if (updates.category !== undefined) {
+        if (updates.category && updates.category !== "ALL") p.set("category", updates.category);
+        else p.delete("category");
+      }
+      if (updates.tag !== undefined) {
+        if (updates.tag) p.set("tag", updates.tag);
+        else p.delete("tag");
+      }
+      if (updates.q !== undefined) {
+        if (updates.q) p.set("q", updates.q);
+        else p.delete("q");
+      }
+      if (updates.scope !== undefined) {
+        if (updates.scope === "CAMPUS") p.set("scope", "CAMPUS");
+        else p.delete("scope");
+      }
+
+      const queryString = p.toString();
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+    },
+    [searchParams, pathname, router]
+  );
+
+  function handleTabChange(tab: ArticleFeedTab) {
+    sounds.tap();
+    haptics.light();
+    setActiveTab(tab);
+    setPage(1);
+    updateUrlParams({ tab });
+  }
+
+  function handleCategoryChange(catKey: string) {
+    sounds.tap();
+    haptics.light();
+    setSelectedCategory(catKey);
+    setPage(1);
+    updateUrlParams({ category: catKey });
+  }
+
+  function handleClearTag() {
+    sounds.tap();
+    setActiveTag("");
+    setPage(1);
+    updateUrlParams({ tag: "" });
+  }
+
+  function handleScopeChange(nextScope: "CAMPUS" | "GLOBAL") {
+    sounds.tap();
+    haptics.light();
+    updateUrlParams({ scope: nextScope });
   }
 
   // Primary page 1 SWR query
-  const endpoint = `/api/articles?page=1&limit=12&category=${selectedCategory}&scope=${scope}&sort=${activeTab}&q=${encodeURIComponent(
-    searchQuery
-  )}`;
+  const queryParams = new URLSearchParams({
+    page: "1",
+    limit: "12",
+    feed: activeTab,
+    category: selectedCategory,
+    scope,
+    sort: activeTab === "trending" ? "trending" : activeTab === "for_you" ? "popular" : "latest",
+  });
+  if (activeTag) queryParams.set("tag", activeTag);
+  if (debouncedQuery.trim()) queryParams.set("q", debouncedQuery.trim());
 
-  const { data, isLoading, mutate } = useSWR<{
+  const endpoint = `/api/articles?${queryParams.toString()}`;
+
+  const { data, error, isLoading, mutate } = useSWR<{
     articles: any[];
     hasMore: boolean;
-    currentProfile?: any;
   }>(endpoint, fetcher, {
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     dedupingInterval: 10000,
     onSuccess: (newData) => {
       if (newData?.articles) {
@@ -103,7 +167,7 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
     },
   });
 
-  // Load next page function
+  // Infinite scroll next page
   const loadNextPage = useCallback(async () => {
     if (isLoadingMore || !hasMore || isLoading) return;
 
@@ -111,10 +175,18 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
     const nextPage = page + 1;
 
     try {
-      const nextEndpoint = `/api/articles?page=${nextPage}&limit=12&category=${selectedCategory}&scope=${scope}&sort=${activeTab}&q=${encodeURIComponent(
-        searchQuery
-      )}`;
-      const res = await fetch(nextEndpoint);
+      const nextParams = new URLSearchParams({
+        page: String(nextPage),
+        limit: "12",
+        feed: activeTab,
+        category: selectedCategory,
+        scope,
+        sort: activeTab === "trending" ? "trending" : activeTab === "for_you" ? "popular" : "latest",
+      });
+      if (activeTag) nextParams.set("tag", activeTag);
+      if (debouncedQuery.trim()) nextParams.set("q", debouncedQuery.trim());
+
+      const res = await fetch(`/api/articles?${nextParams.toString()}`);
       if (!res.ok) throw new Error("Failed to load more articles");
 
       const payload = (await res.json()) as { articles: any[]; hasMore: boolean };
@@ -133,9 +205,8 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, hasMore, isLoading, page, selectedCategory, scope, activeTab, searchQuery]);
+  }, [isLoadingMore, hasMore, isLoading, page, activeTab, selectedCategory, scope, activeTag, debouncedQuery]);
 
-  // Setup IntersectionObserver for auto-infinite scrolling
   useEffect(() => {
     const target = observerTargetRef.current;
     if (!target) return;
@@ -163,217 +234,250 @@ export function ArticlesHubClient({ initialArticles = [] }: ArticlesHubClientPro
   }
 
   const displayArticles = articles.length > 0 ? articles : data?.articles || [];
+  const featuredArticle = page === 1 && !debouncedQuery && !activeTag && selectedCategory === "ALL" && displayArticles.length > 0
+    ? displayArticles[0]
+    : null;
+  const listArticles = featuredArticle ? displayArticles.slice(1) : displayArticles;
 
   return (
-    <div className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6 select-none">
-      {/* ─── Hashnode / Medium 2-Column Responsive Layout ─── */}
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* ─── Left / Main Publication Column ─── */}
-        <div className="flex-1 w-full min-w-0 max-w-3xl space-y-4 sm:space-y-5">
-          {/* ─── Sticky Controls Header (Search + Scope + Topic Chips) ─── */}
-          <div className="space-y-3">
-            {/* Search + Scope Bar */}
-            <div className="flex items-center gap-2 sm:gap-2.5">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search roadmap, interview, tech..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10.5 w-full rounded-2xl border border-border/50 bg-muted/30 pl-10 pr-9 text-xs sm:text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    aria-label="Clear search"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="size-4" />
-                  </button>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+      {/* ─── Top Editorial Title ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/40">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+            Campus Articles
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5 font-medium">
+            Ideas, guides &amp; placement roadmaps written by verified students
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {initialProfile?.institutionId && (
+            <div className="flex items-center rounded-full bg-muted/60 p-1 border border-border/40">
+              <button
+                type="button"
+                onClick={() => handleScopeChange("GLOBAL")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
+                  scope === "GLOBAL" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
                 )}
-              </div>
+              >
+                <Globe className="size-3" />
+                <span>All India</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleScopeChange("CAMPUS")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
+                  scope === "CAMPUS" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <School className="size-3" />
+                <span>My Campus</span>
+              </button>
+            </div>
+          )}
 
-              {/* Scope Switcher Pill */}
-              <div className="flex items-center rounded-2xl bg-muted/60 p-1 border border-border/40 shrink-0">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            aria-label="Refresh feed"
+            className="flex size-9 items-center justify-center rounded-full border border-border/40 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+            title="Refresh feed"
+          >
+            <RotateCw className={cn("size-4", isRefreshing && "animate-spin text-primary")} />
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Main 12-Column Responsive Grid ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6">
+        {/* Left Column (8 cols): Search, Tabs, Categories, Articles */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search articles, authors & topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-10 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="Clear search"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Active Tag Filter Indicator */}
+          {activeTag && (
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Showing articles tagged:</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">
+                <span>#{activeTag}</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setScopeParam("GLOBAL");
-                  }}
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
-                    scope === "GLOBAL"
-                      ? "bg-foreground text-background shadow-xs font-black"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  onClick={handleClearTag}
+                  aria-label="Remove tag filter"
+                  className="hover:opacity-75 cursor-pointer"
                 >
-                  <Globe className="size-3" />
-                  <span>India</span>
+                  <X className="size-3" />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setScopeParam("CAMPUS");
-                  }}
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
-                    scope === "CAMPUS"
-                      ? "bg-foreground text-background shadow-xs font-black"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <School className="size-3" />
-                  <span>Campus</span>
-                </button>
-              </div>
+              </span>
+            </div>
+          )}
 
-              {/* Refresh Button */}
+          {/* Primary Discovery Tabs */}
+          <div className="flex items-center gap-1 border-b border-border/30 overflow-x-auto no-scrollbar scroll-smooth">
+            {ARTICLE_FEED_TABS.map((tab) => {
+              if (tab.authRequired && !initialProfile) return null;
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabChange(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer",
+                    isActive
+                      ? "border-primary text-foreground font-bold"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("size-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Categories Horizontal Scroll Strip */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <button
+              type="button"
+              onClick={() => handleCategoryChange("ALL")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer",
+                selectedCategory === "ALL"
+                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                  : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"
+              )}
+            >
+              All Topics
+            </button>
+
+            {ARTICLE_CATEGORY_LIST.map((cat) => {
+              const isSelected = selectedCategory === cat.key;
+              const Icon = cat.icon;
+
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat.key)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"
+                  )}
+                >
+                  <Icon className="size-3" />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Articles Stream */}
+          {error ? (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center space-y-3">
+              <AlertCircle className="size-8 text-destructive mx-auto" />
+              <p className="text-sm font-semibold text-foreground">Failed to load articles.</p>
               <button
                 type="button"
                 onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="flex size-10.5 items-center justify-center rounded-2xl border border-border/50 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
-                title="Refresh feed"
+                className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
               >
-                <RotateCw className={cn("size-4", isRefreshing && "animate-spin text-primary")} />
+                Retry
               </button>
             </div>
-
-            {/* Horizontal Scrollable Category Chips (Rule 11: Zero Raw Emojis) */}
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto py-1">
-              {ARTICLE_CATEGORIES.map((cat) => {
-                const Icon = cat.icon;
-                const isActive = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                      setSelectedCategory(cat.id);
-                    }}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0",
-                      isActive
-                        ? "bg-foreground text-background shadow-xs font-black"
-                        : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40"
-                    )}
-                  >
-                    <Icon className="size-3.5" />
-                    <span>{cat.label}</span>
-                  </button>
-                );
-              })}
+          ) : isLoading && displayArticles.length === 0 ? (
+            <div className="space-y-4 py-4">
+              <div className="h-40 rounded-xl bg-muted/40 animate-pulse" />
+              <div className="h-28 rounded-xl bg-muted/40 animate-pulse" />
+              <div className="h-28 rounded-xl bg-muted/40 animate-pulse" />
             </div>
-          </div>
-
-          {/* ─── Medium-Style Feed Tabs ─── */}
-          <div className="flex items-center justify-between border-b border-border/30 pt-2">
-            <div className="flex items-center gap-5 sm:gap-6 text-xs sm:text-sm font-bold">
-              {FEED_TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                      setActiveTab(tab.id);
-                    }}
-                    className={cn(
-                      "pb-3 transition-colors relative cursor-pointer flex items-center gap-1.5",
-                      isActive ? "text-foreground font-black" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Icon className={cn("size-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
-                    <span>{tab.label}</span>
-                    {isActive && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />}
-                  </button>
-                );
-              })}
-            </div>
-
-            <span className="text-xs font-semibold text-muted-foreground hidden sm:inline">
-              {displayArticles.length} {displayArticles.length === 1 ? "article" : "articles"}
-            </span>
-          </div>
-
-          {/* ─── Article Cards Feed (Clean Medium / Hashnode Style) ─── */}
-          <div className="space-y-4">
-            {isLoading && displayArticles.length === 0 ? (
-              <div className="space-y-4">
-                <div className="h-48 rounded-3xl bg-muted/40 animate-pulse" />
-                <div className="h-48 rounded-3xl bg-muted/40 animate-pulse" />
-                <div className="h-48 rounded-3xl bg-muted/40 animate-pulse" />
+          ) : displayArticles.length === 0 ? (
+            <div className="rounded-2xl border border-border/40 bg-card/40 p-12 text-center space-y-3">
+              <Sparkles className="size-8 text-muted-foreground/60 mx-auto" />
+              <h3 className="text-base font-bold text-foreground">No articles found</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                {activeTab === "saved"
+                  ? "You haven't saved any articles yet. Bookmark articles while reading to find them here."
+                  : activeTab === "following"
+                  ? "You aren't following any authors yet. Explore top campus authors and follow them!"
+                  : "No student articles matched your query. Be the first to share your experience!"}
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/articles/new"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity"
+                >
+                  <PenTool className="size-3.5" />
+                  <span>Write First Article</span>
+                </Link>
               </div>
-            ) : displayArticles.length > 0 ? (
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Featured Card (Top Trending/Latest on initial view) */}
+              {featuredArticle && (
+                <div className="pb-2">
+                  <ArticleCard article={featuredArticle} featured={true} />
+                </div>
+              )}
+
+              {/* Standard Article Items */}
               <div className="divide-y divide-border/25">
-                {displayArticles.map((article) => (
-                  <div key={article.id} className="py-4 sm:py-5 first:pt-0 last:pb-0">
-                    <ArticleCard article={article} />
-                  </div>
+                {listArticles.map((art) => (
+                  <ArticleCard key={art.id} article={art} />
                 ))}
               </div>
-            ) : (
-              <div className="py-16 sm:py-20 text-center space-y-4 rounded-3xl border border-dashed border-border/60 bg-muted/10 p-6 sm:p-8">
-                <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary mx-auto">
-                  <BookOpen className="size-7" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-foreground">No articles found</h3>
-                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    {searchQuery
-                      ? "No articles matched your search query. Try searching for broader keywords."
-                      : "Be the pioneer author on your campus to publish an interview roadmap or research guide."}
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <Link
-                    href="/articles/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <PenTool className="size-3.5" />
-                    <span>Write First Article (+15 LP)</span>
-                  </Link>
-                </div>
-              </div>
-            )}
 
-            {/* ─── Infinite Scroll Loading Indicator & Observer Target ─── */}
-            <div ref={observerTargetRef} className="py-4">
-              {isLoadingMore && (
-                <div className="space-y-3">
-                  <div className="h-40 rounded-3xl bg-muted/30 animate-pulse" />
-                  <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-2 font-bold py-2">
-                    <Loader2 className="size-3.5 animate-spin text-primary" />
-                    <span>Loading more campus stories...</span>
-                  </p>
-                </div>
-              )}
-
-              {!hasMore && displayArticles.length > 6 && (
-                <div className="pt-6 pb-4 text-center space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 text-muted-foreground text-[11px] font-bold border border-border/40">
-                    <CheckCircle2 className="size-3.5 text-primary" />
-                    <span>You are all caught up with campus articles</span>
+              {/* Infinite Scroll Trigger */}
+              <div ref={observerTargetRef} className="py-6 text-center">
+                {isLoadingMore && (
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin text-primary" />
+                    <span>Loading more reads...</span>
                   </div>
-                </div>
-              )}
+                )}
+                {!hasMore && displayArticles.length > 6 && (
+                  <p className="text-xs text-muted-foreground/70">
+                    You&apos;ve reached the end of the publications stream.
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* ─── Right Editorial Sidebar (Desktop Only) ─── */}
-        <ArticlesRightSidebar />
+        {/* Right Column (4 cols): Editorial Sidebar */}
+        <div className="lg:col-span-4">
+          <ArticlesRightSidebar />
+        </div>
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export async function GET() {
       `https://${HOST}/app/academics`,
       `https://${HOST}/app/academics/sources`,
       `https://${HOST}/colleges`,
-      `https://${HOST}/app/articles`,
+      `https://${HOST}/articles`,
       `https://${HOST}/app/events`,
       `https://${HOST}/app/communities`,
       `https://${HOST}/overview`,
@@ -58,7 +58,7 @@ export async function GET() {
       limit: 1000,
     });
     for (const a of articleList) {
-      urls.push(`https://${HOST}/a/${a.slug}`);
+      urls.push(`https://${HOST}/articles/${a.slug}`);
     }
 
     // 4. Events (Published Canonical URLs)

@@ -280,14 +280,14 @@ export function InlineArticlesWidget() {
   if (articles.length === 0) return null;
 
   return (
-    <div className="py-3 px-4 space-y-3 select-none rounded-2xl border border-border/30 bg-gradient-to-br from-primary/5 via-card to-card">
+    <div className="py-3 px-4 space-y-3 rounded-2xl border border-border/30 bg-gradient-to-br from-primary/5 via-card to-card">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BookOpen className="size-4 text-primary" />
           <h3 className="text-[15px] font-black text-foreground tracking-tight">Articles &amp; Long Reads</h3>
         </div>
         <Link
-          href="/app/articles"
+          href="/articles"
           className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
         >
           Explore all
@@ -299,7 +299,7 @@ export function InlineArticlesWidget() {
         {articles.map((art) => (
           <Link
             key={art.id}
-            href={`/app/articles/${art.slug}`}
+            href={`/articles/${art.slug}`}
             className="group flex flex-col justify-between rounded-xl border border-border/40 bg-card p-3.5 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer"
           >
             <div className="space-y-1.5">

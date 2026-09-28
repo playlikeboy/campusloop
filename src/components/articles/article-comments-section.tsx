@@ -1,6 +1,6 @@
 "use client";
 
-import { CornerDownRight, Loader2, LogIn, MessageSquare, Send, ShieldCheck, ThumbsUp, X } from "lucide-react";
+import { CornerDownRight, Loader2, LogIn, MessageSquare, Send, ShieldCheck, ThumbsUp, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -106,12 +106,25 @@ export function ArticleCommentsSection({
       if (!res.ok) throw new Error("Vote failed");
       mutate();
     } catch {
-      toast.error("Failed to upvote comment");
+      toast.error("Failed to update vote");
+    }
+  }
+
+  async function handleDeleteComment(commentId: string) {
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+
+    try {
+      const res = await fetch(`/api/articles/${encodedSlug}/comments/${commentId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete comment");
+      toast.success("Comment deleted");
+      mutate();
+    } catch {
+      toast.error("Failed to delete comment");
     }
   }
 
   return (
-    <section id="discussion-comments" className="space-y-6 pt-10 border-t border-border/40 scroll-mt-20">
+    <section id="comments" className="space-y-6 pt-10 border-t border-border/40 scroll-mt-20">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-black text-foreground tracking-tight flex items-center gap-2">
@@ -257,6 +270,17 @@ export function ArticleCommentsSection({
                     <CornerDownRight className="size-3.5" />
                     <span>Reply</span>
                   </button>
+
+                  {effectiveProfile?.id === root.authorId && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteComment(root.id)}
+                      className="flex items-center gap-1 text-muted-foreground hover:text-destructive transition-colors cursor-pointer ml-auto"
+                      title="Delete comment"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Inline Reply Composer */}
@@ -333,7 +357,7 @@ export function ArticleCommentsSection({
                             {reply.body}
                           </p>
 
-                          <div className="pl-6 pt-0.5">
+                          <div className="flex items-center gap-3 pl-6 pt-0.5">
                             <button
                               type="button"
                               onClick={() => handleVoteComment(reply.id)}
@@ -347,6 +371,17 @@ export function ArticleCommentsSection({
                               <ThumbsUp className="size-3" />
                               <span>{reply.upvotesCount || 0}</span>
                             </button>
+
+                            {effectiveProfile?.id === reply.authorId && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteComment(reply.id)}
+                                className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer ml-auto"
+                                title="Delete reply"
+                              >
+                                <Trash2 className="size-3" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       );

@@ -559,7 +559,7 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
   }
 
   const internalArticleRegex =
-    /(?:^|\s)(?:https?:\/\/(?:campusloop\.space|localhost(?::\d+)?)\/)?(?:\/)?(?:app\/articles\/|a\/|articles\/)([a-zA-Z0-9_-]+)/g;
+    /(?:^|\s)(?:https?:\/\/(?:campsy\.app|campusloop\.space|localhost(?::\d+)?)\/)?(?:\/)?(?:app\/articles\/|a\/|articles\/)([a-zA-Z0-9_-]+)/g;
   while ((match = internalArticleRegex.exec(text)) !== null) {
     const slug = match[1];
     if (
@@ -570,7 +570,7 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
     ) {
       embeds.push({
         type: "internal_article",
-        rawUrl: `/app/articles/${slug}`,
+        rawUrl: `/articles/${slug}`,
         slug,
       });
     }

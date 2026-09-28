@@ -1,10 +1,13 @@
-import { asc, eq, or } from "drizzle-orm";
+import { and, asc, eq, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { articleComments, articleCommentVotes, articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
+import { rejectViewerWrite } from "@/lib/viewer";
+
+export const dynamic = "force-dynamic";
 
 interface RouteProps {
   params: Promise<{ slug: string }>;
@@ -37,10 +40,11 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    // Fetch all comments for this article
+    // Fetch comments for this article, ordered chronologically
     const allComments = await db.query.articleComments.findMany({
       where: eq(articleComments.articleId, article.id),
       orderBy: [asc(articleComments.createdAt)],
+      limit: 150,
       with: {
         author: {
           with: { institution: true },
@@ -111,6 +115,9 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
+    const blocked = await rejectViewerWrite(profile);
+    if (blocked) return blocked;
+
     const article = await db.query.articles.findFirst({
       where: or(
         eq(articles.slug, cleanSlug),
@@ -132,6 +139,17 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
       return NextResponse.json({ error: "Comment text is too short." }, { status: 400 });
     }
 
+    // Validate parent comment integrity (must belong to the exact same article)
+    let parentComment = null;
+    if (parentId) {
+      parentComment = await db.query.articleComments.findFirst({
+        where: and(eq(articleComments.id, parentId), eq(articleComments.articleId, article.id)),
+      });
+      if (!parentComment) {
+        return NextResponse.json({ error: "Invalid parent comment" }, { status: 400 });
+      }
+    }
+
     const commentId = crypto.randomUUID();
     await db.insert(articleComments).values({
       id: commentId,
@@ -139,6 +157,8 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
       authorId: profile.id,
       parentId,
       body: commentBody,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     const fullComment = await db.query.articleComments.findFirst({
@@ -157,8 +177,19 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
         actorId: profile.id,
         type: "COMMENT",
         referenceId: article.slug,
-        previewText: `${profile.displayName || profile.username} commented: "${commentBody.slice(0, 100)}"`,
+        previewText: `${profile.displayName || profile.username} commented on "${article.title.slice(0, 40)}"`,
       }).catch((err) => console.error("Article comment notification error:", err));
+    }
+
+    // If this is a reply to another comment, notify that parent comment author
+    if (parentComment && parentComment.authorId !== profile.id && parentComment.authorId !== article.authorId) {
+      createNotification({
+        userId: parentComment.authorId,
+        actorId: profile.id,
+        type: "COMMENT",
+        referenceId: article.slug,
+        previewText: `${profile.displayName || profile.username} replied to your comment on "${article.title.slice(0, 40)}"`,
+      }).catch((err) => console.error("Reply notification error:", err));
     }
 
     // Award LP to student for contributing an insightful comment (+5 LP)

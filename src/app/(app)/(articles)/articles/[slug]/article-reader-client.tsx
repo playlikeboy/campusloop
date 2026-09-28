@@ -1,14 +1,26 @@
 "use client";
 
-import { ArrowLeft, Bookmark, Edit3, Heart, MessageSquare, QrCode, Share2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUp,
+  Bookmark,
+  Check,
+  Clock,
+  Edit3,
+  MessageSquare,
+  Share2,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ArticleCard } from "@/components/articles/article-card";
 import { ArticleCommentsSection } from "@/components/articles/article-comments-section";
-import { BrandedQrModal } from "@/components/common/branded-qr-modal";
+import { ReadingProgress } from "@/components/articles/reading-progress";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -53,9 +65,12 @@ interface ArticleReaderClientProps {
   currentProfile?: {
     id: string;
     username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
     role?: string | null;
   } | null;
   initialUserVote?: number;
+  initialIsSaved?: boolean;
   initialIsFollowingAuthor?: boolean;
   relatedArticles?: any[];
 }
@@ -64,42 +79,58 @@ export function ArticleReaderClient({
   article,
   currentProfile,
   initialUserVote = 0,
+  initialIsSaved = false,
   initialIsFollowingAuthor = false,
   relatedArticles = [],
 }: ArticleReaderClientProps) {
-  const _router = useRouter();
-
   const [userVote, setUserVote] = useState(initialUserVote);
   const [upvotes, setUpvotes] = useState(article.upvotesCount || 0);
+  const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [isFollowing, setIsFollowing] = useState(initialIsFollowingAuthor);
-  const [showQrModal, setShowQrModal] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const hasSentViewRef = useRef(false);
 
   const isOwner = currentProfile?.id === article.authorId || currentProfile?.role === "ADMIN";
+  const catMeta = getCategoryMeta(article.category);
+  const authorName = article.author?.displayName || "Student Writer";
+  const authorUsername = article.author?.username || "student";
+  const isVerified = (article.author?.points || 0) >= 150;
+  const collegeName =
+    article.institution?.name?.split(",")[0] ||
+    article.author?.institution?.name?.split(",")[0] ||
+    "Campus";
 
-  // Track reading scroll progress
+  const formattedDate = article.publishedAt
+    ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : new Date(article.createdAt).toLocaleDateString("en-IN", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+
+  // Track meaningful view after 3 seconds of reading (once per session)
   useEffect(() => {
-    function handleScroll() {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
-        setScrollProgress(progress);
-      }
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    if (hasSentViewRef.current) return;
+    const timer = setTimeout(() => {
+      hasSentViewRef.current = true;
+      fetch(`/api/articles/${article.slug}/view`, { method: "POST" }).catch(() => {});
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [article.slug]);
 
-  async function handleVote(value: number) {
+  async function handleVote() {
     sounds.tap();
     haptics.medium();
 
-    const previousVote = userVote;
-    const nextVote = previousVote === value ? 0 : value;
-
+    const prevVote = userVote;
+    const nextVote = prevVote === 1 ? 0 : 1;
     setUserVote(nextVote);
-    setUpvotes((prev) => prev + (nextVote === 1 ? 1 : previousVote === 1 ? -1 : 0));
+    setUpvotes((prev) => prev + (nextVote === 1 ? 1 : -1));
 
     try {
       const res = await fetch(`/api/articles/${article.slug}/vote`, {
@@ -108,19 +139,41 @@ export function ArticleReaderClient({
         body: JSON.stringify({ value: nextVote }),
       });
       if (!res.ok) throw new Error();
-      if (nextVote === 1) {
-        sounds.tap();
+      const data = await res.json();
+      if (typeof data.upvotesCount === "number") {
+        setUpvotes(data.upvotesCount);
       }
     } catch {
-      setUserVote(previousVote);
-      setUpvotes((prev) => prev + (previousVote === 1 ? 1 : nextVote === 1 ? -1 : 0));
-      toast.error("Failed to update reaction");
+      setUserVote(prevVote);
+      setUpvotes((prev) => prev + (prevVote === 1 ? 1 : -1));
+      toast.error("Please sign in to upvote");
+    }
+  }
+
+  async function handleToggleSave() {
+    sounds.tap();
+    haptics.light();
+
+    const prevSaved = isSaved;
+    setIsSaved(!prevSaved);
+
+    try {
+      const res = await fetch(`/api/articles/${article.slug}/save`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setIsSaved(Boolean(data.isSaved));
+      toast.success(data.message || (data.isSaved ? "Saved to reading list" : "Removed from reading list"));
+    } catch {
+      setIsSaved(prevSaved);
+      toast.error("Please sign in to save articles");
     }
   }
 
   async function handleToggleFollow() {
     if (!currentProfile) {
-      toast.error("Please sign in to follow authors");
+      toast.info("Please sign in to follow authors");
       return;
     }
     if (currentProfile.id === article.authorId) return;
@@ -142,37 +195,55 @@ export function ArticleReaderClient({
     }
   }
 
-  const shortShareUrl = `https://campusloop.space/a/${article.slug}`;
+  function handleShare() {
+    const canonicalUrl = `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: article.title,
+          text: article.excerpt || article.title,
+          url: canonicalUrl,
+        })
+        .catch(() => {});
+    } else {
+      navigator.clipboard.writeText(canonicalUrl);
+      setCopied(true);
+      toast.success("Publication link copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
 
   return (
-    <div className="relative min-h-screen bg-background pb-32 select-none">
-      {/* ─── Top Reading Progress Bar ─── */}
-      <div
-        className="fixed top-14 left-0 h-1 bg-primary z-50 transition-all duration-75"
-        style={{ width: `${scrollProgress}%` }}
-      />
+    <div className="relative min-h-screen bg-background pb-32">
+      {/* ─── Top Reading Progress Bar (Isolated Client Island) ─── */}
+      <ReadingProgress />
 
       <article className="mx-auto max-w-3xl px-4 sm:px-6 pt-8 space-y-8">
-        {/* ─── Top Category & Back Row ─── */}
+        {/* ─── Top Category & Back Navigation ─── */}
         <div className="flex items-center justify-between gap-3 text-xs">
           <Link
             href="/articles"
             className="flex items-center gap-1.5 font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-3.5" />
-            <span>Campus Editorial</span>
+            <span>Articles</span>
           </Link>
 
           <div className="flex items-center gap-2">
-            {article.category && (
-              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-wider border border-primary/20">
-                {article.category.replace("_", " ")}
-              </span>
-            )}
+            <span
+              className={cn(
+                "px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider border",
+                catMeta.colorClass
+              )}
+            >
+              {catMeta.label}
+            </span>
+
             {isOwner && (
               <Link
                 href={`/articles/${article.slug}/edit`}
-                className="flex items-center gap-1 px-3 py-1 rounded-full border border-border/60 bg-card hover:bg-muted text-xs font-bold text-foreground transition-colors"
+                className="flex items-center gap-1 px-3 py-1 rounded-full border border-border/60 bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
               >
                 <Edit3 className="size-3" />
                 <span>Edit</span>
@@ -181,14 +252,14 @@ export function ArticleReaderClient({
           </div>
         </div>
 
-        {/* ─── Article Header (Medium / Hashnode Headline) ─── */}
+        {/* ─── Headline & Subtitle (Medium / Hashnode Readability) ─── */}
         <div className="space-y-4">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-[1.15]">
             {article.title}
           </h1>
 
           {article.subtitle && (
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed font-normal">
               {article.subtitle}
             </p>
           )}
@@ -196,11 +267,11 @@ export function ArticleReaderClient({
           {/* Author Byline Row */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-y border-border/30 py-4">
             <div className="flex items-center gap-3">
-              <Link href={`/@${article.author?.username}`}>
-                <Avatar className="size-11 border-2 border-primary/40 shadow-xs">
+              <Link href={`/${authorUsername}`}>
+                <Avatar className="size-11 border border-border/50 shadow-xs">
                   <AvatarImage src={article.author?.avatarUrl || ""} />
                   <AvatarFallback className="text-sm font-bold bg-muted text-foreground">
-                    {article.author?.displayName?.[0] || "A"}
+                    {authorName[0]}
                   </AvatarFallback>
                 </Avatar>
               </Link>
@@ -208,17 +279,19 @@ export function ArticleReaderClient({
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/@${article.author?.username}`}
-                    className="text-sm font-black text-foreground hover:underline"
+                    href={`/${authorUsername}`}
+                    className="text-sm font-bold text-foreground hover:underline"
                   >
-                    {article.author?.displayName}
+                    {authorName}
                   </Link>
+                  {isVerified && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
+
                   {currentProfile?.id !== article.authorId && (
                     <button
                       type="button"
                       onClick={handleToggleFollow}
                       className={cn(
-                        "text-xs font-bold transition-colors cursor-pointer",
+                        "text-xs font-semibold transition-colors cursor-pointer",
                         isFollowing
                           ? "text-muted-foreground hover:text-foreground"
                           : "text-primary hover:underline"
@@ -230,41 +303,40 @@ export function ArticleReaderClient({
                 </div>
 
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
-                  {article.institution?.name && <span>{article.institution.name.split(",")?.[0]} ·</span>}
-                  <span>{article.readingTimeMinutes || 4} min read ·</span>
-                  <span>
-                    {new Date(article.publishedAt || article.createdAt).toLocaleDateString("en-IN", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
+                  <span>{collegeName}</span>
+                  <span>·</span>
+                  <span>{article.readingTimeMinutes || 3} min read</span>
+                  <span>·</span>
+                  <span>{formattedDate}</span>
                 </p>
               </div>
             </div>
 
-            {/* Quick Share Triggers */}
+            {/* Quick Share / Bookmark Header Actions */}
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setShowQrModal(true)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-border/50 bg-muted/40 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                title="Download QR Card"
+                onClick={handleToggleSave}
+                aria-label={isSaved ? "Remove from saved" : "Save article"}
+                className={cn(
+                  "p-2 rounded-full border border-border/50 transition-colors cursor-pointer",
+                  isSaved
+                    ? "bg-primary/10 text-primary border-primary/30"
+                    : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+                title={isSaved ? "Saved" : "Save for later"}
               >
-                <QrCode className="size-3.5" />
-                <span>QR Card</span>
+                <Bookmark className={cn("size-4", isSaved && "fill-primary")} />
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(shortShareUrl);
-                  toast.success("Short link copied to clipboard");
-                }}
+                onClick={handleShare}
+                aria-label="Share article"
                 className="p-2 rounded-full border border-border/50 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                title="Copy share link"
+                title="Share article"
               >
-                <Share2 className="size-3.5" />
+                {copied ? <Check className="size-4 text-emerald-500" /> : <Share2 className="size-4" />}
               </button>
             </div>
           </div>
@@ -272,17 +344,17 @@ export function ArticleReaderClient({
 
         {/* ─── Cover Image ─── */}
         {article.coverImageUrl && (
-          <div className="overflow-hidden rounded-3xl border border-border/40 shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-border/40 shadow-xs">
             <img
               src={article.coverImageUrl}
               alt={article.title}
-              className="w-full max-h-[460px] object-cover"
+              className="w-full max-h-[480px] object-cover"
             />
           </div>
         )}
 
-        {/* ─── Long-Form Markdown / Content Body ─── */}
-        <div className="pt-2 text-foreground">
+        {/* ─── Long-Form Markdown Content Body (Zero select-none) ─── */}
+        <div className="pt-2 text-foreground font-normal leading-[1.8] text-[17px] sm:text-[19px]">
           <MarkdownContent content={article.content} />
         </div>
 
@@ -292,151 +364,130 @@ export function ArticleReaderClient({
             {article.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/articles?tag=${tag}`}
-                className="px-3.5 py-1.5 rounded-2xl bg-muted/50 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground border border-border/40 transition-colors"
+                href={`/articles?tag=${encodeURIComponent(tag.replace(/^#/, ""))}`}
+                className="px-3 py-1 rounded-lg bg-muted/40 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground border border-border/40 transition-colors"
               >
-                #{tag}
+                #{tag.replace(/^#/, "")}
               </Link>
             ))}
           </div>
         )}
 
-        {/* ─── Author Bio Card ─── */}
-        <div className="rounded-3xl border border-border/30 bg-card p-6 space-y-4 shadow-xs">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <Avatar className="size-14 border border-border/40">
-                <AvatarImage src={article.author?.avatarUrl || ""} />
-                <AvatarFallback className="text-base font-bold">
-                  {article.author?.displayName?.[0] || "A"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-base font-black text-foreground">
-                  Written by {article.author?.displayName}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  @{article.author?.username} · {article.author?.points || 0} Loop Points
-                </p>
-                {article.author?.bio && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.author.bio}</p>
-                )}
-              </div>
-            </div>
+        {/* ─── Engagement Actions Bar (Like / Comment / Save / Share) ─── */}
+        <div className="flex items-center justify-between border-y border-border/30 py-3.5 my-8">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleVote}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+                userVote === 1
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-muted/50 hover:bg-muted text-foreground border border-border/40"
+              )}
+            >
+              <ArrowUp className="size-4" />
+              <span>{upvotes} Upvotes</span>
+            </button>
 
-            {currentProfile?.id !== article.authorId && (
-              <button
-                type="button"
-                onClick={handleToggleFollow}
-                className={cn(
-                  "px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 shrink-0",
-                  isFollowing
-                    ? "border border-border/60 bg-muted hover:bg-muted/80 text-foreground"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                )}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </button>
-            )}
+            <a
+              href="#comments"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted text-foreground border border-border/40 text-xs font-semibold transition-colors"
+            >
+              <MessageSquare className="size-3.5 text-muted-foreground" />
+              <span>Discussion</span>
+            </a>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleToggleSave}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                isSaved
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Bookmark className={cn("size-3.5", isSaved && "fill-primary")} />
+              <span>{isSaved ? "Saved" : "Save"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            >
+              {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+              <span>{copied ? "Copied" : "Share"}</span>
+            </button>
           </div>
         </div>
 
-        {/* ─── Threaded Comments & Replies ─── */}
-        <div className="pt-6">
-          <ArticleCommentsSection articleSlug={article.slug} currentProfile={currentProfile} />
+        {/* ─── Author Bio Box ─── */}
+        <div className="rounded-2xl border border-border/40 bg-card/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <Link href={`/${authorUsername}`}>
+              <Avatar className="size-14 border border-border/50">
+                <AvatarImage src={article.author?.avatarUrl || ""} />
+                <AvatarFallback className="text-base font-bold bg-muted text-foreground">
+                  {authorName[0]}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/${authorUsername}`}
+                  className="font-bold text-foreground hover:underline text-base truncate"
+                >
+                  {authorName}
+                </Link>
+                {isVerified && <ShieldCheck className="size-4 text-primary shrink-0" />}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                @{authorUsername} · {collegeName}
+              </p>
+              {article.author?.bio && (
+                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed pt-0.5">
+                  {article.author.bio}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Link
+            href={`/${authorUsername}`}
+            className="px-4 py-2 rounded-full border border-border/50 bg-background hover:bg-muted text-xs font-bold text-foreground transition-colors shrink-0"
+          >
+            View Profile
+          </Link>
         </div>
 
-        {/* ─── Recommended Reads ─── */}
+        {/* ─── Threaded Comments Discussion ─── */}
+        <ArticleCommentsSection
+          articleSlug={article.slug}
+          currentProfile={currentProfile}
+        />
+
+        {/* ─── Related Reads ─── */}
         {relatedArticles.length > 0 && (
-          <div className="pt-8 space-y-4 border-t border-border/30">
-            <h3 className="text-lg font-black text-foreground">More from CampusLoop</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="pt-12 space-y-4 border-t border-border/40">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" />
+              <h3 className="text-lg font-bold text-foreground">Related Student Reads</h3>
+            </div>
+
+            <div className="divide-y divide-border/25">
               {relatedArticles.map((rel) => (
-                <Link
-                  key={rel.id}
-                  href={`/articles/${rel.slug}`}
-                  className="rounded-2xl border border-border/40 bg-card p-4 space-y-2 hover:border-primary/40 transition-all group block shadow-2xs"
-                >
-                  <h4 className="text-sm font-black text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                    {rel.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{rel.excerpt || rel.subtitle}</p>
-                  <p className="text-[11px] text-muted-foreground pt-1 font-semibold">
-                    By @{rel.author?.username} · {rel.readingTimeMinutes || 3} min read
-                  </p>
-                </Link>
+                <ArticleCard key={rel.id} article={rel} />
               ))}
             </div>
           </div>
         )}
       </article>
-
-      {/* ─── Sticky Bottom Floating Reading Bar ─── */}
-      <div className="fixed bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 sm:gap-1.5 rounded-full border border-border/50 bg-background/95 px-3.5 sm:px-4 py-2 shadow-2xl backdrop-blur-2xl max-w-[calc(100vw-2rem)]">
-        <button
-          type="button"
-          onClick={() => handleVote(1)}
-          className={cn(
-            "flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer active:scale-90",
-            userVote === 1
-              ? "bg-rose-500/15 text-rose-500 border border-rose-500/30"
-              : "hover:bg-muted text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <Heart
-            className={cn("size-4", userVote === 1 && "fill-rose-500 text-rose-500")}
-            fill={userVote === 1 ? "currentColor" : "none"}
-          />
-          <span>{upvotes}</span>
-        </button>
-
-        <div className="h-4 w-px bg-border/40 mx-0.5 sm:mx-1" />
-
-        <button
-          type="button"
-          onClick={() => {
-            const el = document.getElementById("discussion-comments");
-            el?.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-        >
-          <MessageSquare className="size-4" />
-          <span>Discuss</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setIsBookmarked(!isBookmarked);
-            toast.success(isBookmarked ? "Removed from reading list" : "Saved to reading list");
-          }}
-          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          title="Save to reading list"
-        >
-          <Bookmark className={cn("size-4", isBookmarked && "fill-primary text-primary")} />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowQrModal(true)}
-          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          title="Download QR Card"
-        >
-          <QrCode className="size-4" />
-        </button>
-      </div>
-
-      {/* ─── Branded QR Modal ─── */}
-      <BrandedQrModal
-        isOpen={showQrModal}
-        onClose={() => setShowQrModal(false)}
-        title={article.title}
-        subtitle={`By @${article.author?.username} · ${article.institution?.name?.split(",")?.[0] || "CampusLoop"}`}
-        badgeText="Verified Student Editorial"
-        shortUrl={shortShareUrl}
-        category="article"
-        avatarUrl={article.author?.avatarUrl}
-      />
     </div>
   );
 }

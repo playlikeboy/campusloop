@@ -33,6 +33,7 @@ export default async function ArticleDashboardPage() {
 
   const published = userArticles.filter((a) => a.status === "PUBLISHED");
   const drafts = userArticles.filter((a) => a.status === "DRAFT");
+  const archived = userArticles.filter((a) => a.status === "ARCHIVED");
 
   const totalViews = published.reduce((sum, a) => sum + (a.viewsCount || 0), 0);
   const totalUpvotes = published.reduce((sum, a) => sum + (a.upvotesCount || 0), 0);
@@ -41,11 +42,13 @@ export default async function ArticleDashboardPage() {
     <ArticleDashboardClient
       publishedArticles={published as any}
       draftArticles={drafts as any}
+      archivedArticles={archived as any}
       stats={{
         totalViews,
         totalUpvotes,
         publishedCount: published.length,
         draftsCount: drafts.length,
+        archivedCount: archived.length,
       }}
     />
   );
