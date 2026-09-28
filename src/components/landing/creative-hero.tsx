@@ -94,7 +94,7 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
           {/* Quick Action Triggers */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/app"
+              href="/feeds"
               onClick={() => {
                 sounds.tap();
                 haptics.medium();
