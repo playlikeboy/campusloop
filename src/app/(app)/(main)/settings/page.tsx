@@ -25,7 +25,7 @@ export default async function SettingsPage() {
     },
   });
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return (
     <SettingsClient

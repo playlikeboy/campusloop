@@ -47,7 +47,7 @@ export default async function StoryPage({ params }: PageProps) {
     where: eq(userProfiles.userId, user.id),
   });
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   // Fetch story details with user and likes
   const rawStory = await db.query.stories.findFirst({

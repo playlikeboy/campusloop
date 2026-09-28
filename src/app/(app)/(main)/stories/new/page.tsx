@@ -26,11 +26,11 @@ export default async function CreateStoryPage() {
   });
 
   if (!profile) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   if (await isViewerProfile(profile)) {
-    redirect("/app");
+    redirect("/feeds");
   }
 
   return <StoryCreator profile={profile} />;
