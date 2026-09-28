@@ -14,7 +14,7 @@ export default async function CheckoutPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <CheckoutClient profileId={profile.id} collegeName={profile.institution?.name} />;
 }

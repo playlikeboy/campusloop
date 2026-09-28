@@ -21,7 +21,7 @@ export default async function FoodMarketplacePage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <FoodMarketplaceClient profileId={profile.id} collegeName={profile.institution?.name} />;
 }
