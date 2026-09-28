@@ -59,7 +59,7 @@ export function CommunityHeader({
   const [copied, setCopied] = useState(false);
 
   const identifier = community.slug || community.id;
-  const baseUrl = `/app/communities/${identifier}`;
+  const baseUrl = `/communities/${identifier}`;
 
   function getInitialsGradient(name: string) {
     const charCodeSum = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -79,7 +79,7 @@ export function CommunityHeader({
   async function handleShareInvite() {
     const shareUrl =
       typeof window !== "undefined"
-        ? `${window.location.origin}/app/communities/${identifier}`
+        ? `${window.location.origin}/communities/${identifier}`
         : `https://campusloop.space/app/communities/${identifier}`;
 
     const shareText = `🚀 Join c/${community.name} on CampusLoop!\n${
@@ -101,7 +101,7 @@ export function CommunityHeader({
       <div className="sticky top-0 z-40 bg-background/88 px-3.5 py-2 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
-            href="/app/communities"
+            href="/communities"
             className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             aria-label="Back to communities"
           >

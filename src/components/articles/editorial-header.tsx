@@ -28,14 +28,14 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
         {/* Left: Feed Back Link + Logo & Publication Branding */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
-            href="/app"
+            href="/feeds"
             className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
             title="Back to Campus Feed"
           >
             <ArrowLeft className="size-4" />
           </Link>
 
-          <Link href="/app/articles" className="flex items-center gap-2 group min-w-0">
+          <Link href="/articles" className="flex items-center gap-2 group min-w-0">
             <img
               src="/logo.png"
               alt="CampusLoop"
@@ -58,7 +58,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
         {/* Right: Actions (Write, Dashboard, Theme, User) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Link
-            href="/app/articles/dashboard"
+            href="/articles/dashboard"
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
           >
             <LayoutDashboard className="size-3.5" />
@@ -66,7 +66,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
           </Link>
 
           <Link
-            href="/app/articles/new"
+            href="/articles/new"
             className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 shadow-xs shadow-primary/20 transition-all cursor-pointer active:scale-95"
           >
             <PenTool className="size-3.5" />
@@ -77,7 +77,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
           <ThemeToggle className="size-8.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted" />
 
           <Link
-            href="/app/profile"
+            href="/profile"
             className="flex items-center gap-2 pl-0.5 group cursor-pointer"
             title={`Logged in as @${profile.username}`}
           >

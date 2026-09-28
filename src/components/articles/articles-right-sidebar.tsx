@@ -52,7 +52,7 @@ export function ArticlesRightSidebar() {
           </p>
           <div className="pt-2">
             <Link
-              href="/app/articles/new"
+              href="/articles/new"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-sm"
             >
               <PenTool className="size-3.5" />
@@ -73,7 +73,7 @@ export function ArticlesRightSidebar() {
           {TRENDING_TAGS.map((tag) => (
             <Link
               key={tag.name}
-              href={`/app/articles?tag=${tag.name}`}
+              href={`/articles?tag=${tag.name}`}
               className="px-3 py-1.5 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
             >
               <span>#{tag.name}</span>
@@ -135,7 +135,7 @@ export function ArticlesRightSidebar() {
           <Link href="/contact" className="hover:underline">
             Help
           </Link>
-          <Link href="/app/articles/dashboard" className="hover:underline">
+          <Link href="/articles/dashboard" className="hover:underline">
             Author Dashboard
           </Link>
         </div>

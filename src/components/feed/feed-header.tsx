@@ -118,7 +118,7 @@ export function FeedHeader({
 
           {/* Academics shortcut */}
           <Link
-            href="/app/academics"
+            href="/academics"
             className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/15 bg-primary/10 px-2.5 text-primary transition-all hover:bg-primary/15 active:scale-95 cursor-pointer"
             aria-label="Open Academics"
             title="Academics"
@@ -138,7 +138,7 @@ export function FeedHeader({
               return (
                 <Link
                   key={s.id}
-                  href="/app/confessions"
+                  href="/confessions"
                   className={cn(
                     "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
                     isCurrent
@@ -156,7 +156,7 @@ export function FeedHeader({
               return (
                 <Link
                   key={s.id}
-                  href="/app/reels"
+                  href="/reels"
                   className={cn(
                     "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
                     isCurrent
