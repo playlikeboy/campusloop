@@ -549,7 +549,7 @@ export function ProfileClientView({
             <div className="absolute right-3 top-11 z-40 w-48 rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-xl">
               {isOwnProfile ? (
                 <Link
-                  href="/app/profile/edit"
+                  href="/profile/edit"
                   onClick={() => setShowProfileMenu(false)}
                   className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
                 >
@@ -558,7 +558,7 @@ export function ProfileClientView({
                 </Link>
               ) : (
                 <Link
-                  href={`/app/chat?userId=${profile.id}`}
+                  href={`/chat?userId=${profile.id}`}
                   onClick={() => setShowProfileMenu(false)}
                   className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
                 >
@@ -686,7 +686,7 @@ export function ProfileClientView({
                     <span>QR Card</span>
                   </button>
                   <Link
-                    href="/app/profile/edit"
+                    href="/profile/edit"
                     className="h-9 px-4 rounded-full border border-border/80 hover:bg-muted/60 text-xs font-bold text-foreground transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Edit3 className="size-3.5 text-muted-foreground" />
@@ -707,7 +707,7 @@ export function ProfileClientView({
                     }
                   />
                   <Link
-                    href={`/app/chat?userId=${profile.id}`}
+                    href={`/chat?userId=${profile.id}`}
                     className="size-10 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/20 flex items-center justify-center transition-all cursor-pointer shadow-2xs"
                     title="Direct Message"
                   >
@@ -869,7 +869,7 @@ export function ProfileClientView({
                 {profile.course && <span>{profile.course}</span>}
                 <span>·</span>
                 <Link
-                  href={branchSlug ? `/app/branch/${branchSlug}` : "#"}
+                  href={branchSlug ? `/branch/${branchSlug}` : "#"}
                   className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5"
                 >
                   {profile.branch && <span>{profile.branch}</span>}
@@ -914,7 +914,7 @@ export function ProfileClientView({
             </span>
             {isOwnProfile && (
               <Link
-                href="/app/profile/edit"
+                href="/profile/edit"
                 className="size-7 rounded-md bg-muted/40 border border-border/40 text-xs font-bold text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                 title="Add discipline tags"
               >
@@ -1009,7 +1009,7 @@ export function ProfileClientView({
                 {userPlaylists.slice(0, 2).map((pl: any) => (
                   <Link
                     key={pl.id}
-                    href={`/app/academics/playlists/${pl.slug}`}
+                    href={`/academics/playlists/${pl.slug}`}
                     className="p-2.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted/50 transition-colors block"
                   >
                     <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#1D9BF0]/10 text-primary">
@@ -1030,7 +1030,7 @@ export function ProfileClientView({
                 {userResources.slice(0, 3).map((res: any) => (
                   <Link
                     key={res.id}
-                    href={`/app/academics/${res.id}`}
+                    href={`/academics/${res.id}`}
                     className="flex items-center justify-between p-2.5 hover:bg-muted/40 transition-colors gap-2"
                   >
                     <div className="min-w-0 flex-1">
@@ -1099,7 +1099,7 @@ export function ProfileClientView({
                 <p className="font-bold text-foreground">No posts published yet.</p>
                 {isOwnProfile && (
                   <Link
-                    href="/app/post/new"
+                    href="/post/new"
                     className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer mt-2"
                   >
                     Share your first thought on CampusLoop!
@@ -1143,7 +1143,7 @@ export function ProfileClientView({
               </h3>
               {isOwnProfile && (
                 <Link
-                  href="/app/articles/new"
+                  href="/articles/new"
                   className="flex items-center gap-1 text-xs font-black text-primary hover:underline bg-primary/10 px-3 py-1 rounded-full border border-primary/20"
                 >
                   <PenTool className="size-3" />
@@ -1176,7 +1176,7 @@ export function ProfileClientView({
                 </p>
                 {isOwnProfile && (
                   <Link
-                    href="/app/articles/new"
+                    href="/articles/new"
                     className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer mt-2"
                   >
                     Write your first article
@@ -1201,14 +1201,14 @@ export function ProfileClientView({
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Link
-                    href="/app/academics/playlists/new"
+                    href="/academics/playlists/new"
                     className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold border border-border/70 hover:bg-muted/50 text-foreground transition-colors cursor-pointer"
                   >
                     <FolderPlus className="size-3" />
                     <span>New Stack</span>
                   </Link>
                   <Link
-                    href="/app/academics"
+                    href="/academics"
                     className="flex items-center gap-1 px-3.5 py-1.5 rounded-full text-[11px] font-bold bg-foreground text-background hover:bg-foreground/90 transition-colors cursor-pointer"
                   >
                     <span>Upload Notes</span>
@@ -1266,14 +1266,14 @@ export function ProfileClientView({
                 {isOwnProfile && (
                   <div className="pt-2 flex items-center justify-center gap-2">
                     <Link
-                      href="/app/academics/playlists/new"
+                      href="/academics/playlists/new"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-indigo-500/40 text-indigo-400 text-xs font-bold hover:bg-indigo-500/10 transition-colors shadow-xs cursor-pointer"
                     >
                       <FolderPlus className="size-3.5" />
                       <span>Create Playlist</span>
                     </Link>
                     <Link
-                      href="/app/academics"
+                      href="/academics"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-colors shadow-xs cursor-pointer"
                     >
                       <span>Upload Notes</span>
@@ -1318,7 +1318,7 @@ export function ProfileClientView({
             {isOwnProfile && (
               <div className="pt-2 text-center">
                 <Link
-                  href="/app/profile/edit"
+                  href="/profile/edit"
                   className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border border-border bg-card text-xs font-bold hover:bg-muted transition-colors cursor-pointer"
                 >
                   <Camera className="size-3.5 text-primary" /> Manage Dating & Profile Photos

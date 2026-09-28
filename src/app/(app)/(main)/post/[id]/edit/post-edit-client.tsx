@@ -139,7 +139,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
       toast.success("Post updated successfully!", { id: saveToastId });
 
       // Navigate back to post details with refresh
-      router.push(`/app/post/${post.id}`);
+      router.push(`/post/${post.id}`);
       router.refresh();
     } catch (err) {
       console.error("Failed to update post:", err);

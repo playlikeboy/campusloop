@@ -59,6 +59,6 @@ export async function updateProfile(
     })
     .where(eq(userProfiles.userId, user.id));
 
-  revalidatePath("/app/profile");
-  revalidatePath("/app");
+  revalidatePath("/profile");
+  revalidatePath("/feeds");
 }

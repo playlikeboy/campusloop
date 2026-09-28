@@ -71,10 +71,10 @@ const POST_TYPES: { id: PostType; label: string; icon: React.ElementType; accent
 
 interface PostComposerProps {
   communityId?: string;
-  /** "page" is the full /app/post/new screen; "modal" embeds it in a dialog. */
+  /** "page" is the full /post/new screen; "modal" embeds it in a dialog. */
   variant?: "page" | "modal";
   /**
-   * Preselects the composer type, so the "Confess" button on /app/confessions
+   * Preselects the composer type, so the "Confess" button on /confessions
    * lands on a confession rather than a blank post.
    */
   initialType?: PostType;
@@ -507,7 +507,7 @@ export function PostComposer({
     if (isModal) {
       onPublished?.(optimisticPost);
     } else {
-      router.push("/app");
+      router.push("/feeds");
     }
 
     fetch("/api/posts", {
@@ -543,7 +543,7 @@ export function PostComposer({
           description: "+5 LP earned · it's live at the top of your feed",
           action: {
             label: "View post",
-            onClick: () => router.push(`/app/post/${serverPost.id}`),
+            onClick: () => router.push(`/post/${serverPost.id}`),
           },
         });
       })

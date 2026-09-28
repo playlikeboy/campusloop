@@ -262,7 +262,7 @@ export function EditProfileClient() {
 
       toast.success("Profile & dating photos saved!");
       await mutate();
-      router.push("/app/profile");
+      router.push("/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -327,7 +327,7 @@ export function EditProfileClient() {
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
         <Link
-          href="/app/profile"
+          href="/profile"
           className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <ArrowLeft className="size-4" /> Back to Profile

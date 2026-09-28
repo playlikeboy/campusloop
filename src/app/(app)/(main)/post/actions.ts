@@ -49,8 +49,8 @@ export async function deletePost(postId: string) {
     .catch(() => {});
   await db.delete(posts).where(eq(posts.id, postId));
 
-  revalidatePath("/app");
-  revalidatePath("/app/profile");
+  revalidatePath("/feeds");
+  revalidatePath("/profile");
   revalidatePath(`/@${profile.username}`);
 
   return { success: true };
@@ -85,8 +85,8 @@ export async function archivePost(postId: string) {
 
   await db.update(posts).set({ status: newStatus }).where(eq(posts.id, postId));
 
-  revalidatePath("/app");
-  revalidatePath("/app/profile");
+  revalidatePath("/feeds");
+  revalidatePath("/profile");
   revalidatePath(`/@${profile.username}`);
 
   return { success: true, isArchived: newStatus === "ARCHIVED", newStatus };
