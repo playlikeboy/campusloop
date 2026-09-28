@@ -37,7 +37,7 @@ export default async function CommunitySettingsPage({ params }: PageProps) {
   // Parallelize user profile and community lookup with request cache
   const [profile, comm] = await Promise.all([getCachedUserProfile(user.id), getCachedCommunity(id)]);
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
   if (!comm) notFound();
 
   const userMembership = comm.members.find((m) => m.userId === profile.id);
@@ -46,7 +46,7 @@ export default async function CommunitySettingsPage({ params }: PageProps) {
 
   // If not admin, redirect to community page
   if (!isAdmin) {
-    redirect(`/app/communities/${comm.slug || comm.id}`);
+    redirect(`/communities/${comm.slug || comm.id}`);
   }
 
   const db = getDb();
