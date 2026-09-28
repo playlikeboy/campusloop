@@ -36,7 +36,7 @@ export function CleanCTA({ isAuthenticated = false }: CleanCTAProps) {
           {/* CTA Action Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/app"
+              href="/feeds"
               onClick={() => {
                 sounds.tap();
                 haptics.medium();
