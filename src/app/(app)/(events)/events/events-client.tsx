@@ -284,7 +284,7 @@ export function EventsClient() {
 
             {/* Host CTA */}
             <Link
-              href="/app/events/new"
+              href="/events/new"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -529,7 +529,7 @@ export function EventsClient() {
       {!isLoading && featuredEvent && !searchQuery && activeCategory === "ALL" && timeframeFilter === "ALL" && (
         <div className="pb-4">
           <Link
-            href={`/app/events/${featuredEvent.slug || featuredEvent.id}`}
+            href={`/events/${featuredEvent.slug || featuredEvent.id}`}
             className="group relative block overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-card p-4 sm:p-6 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -633,7 +633,7 @@ export function EventsClient() {
                 </Button>
               )}
               <Link
-                href="/app/events/new"
+                href="/events/new"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
               >
                 <Plus className="size-3.5" />

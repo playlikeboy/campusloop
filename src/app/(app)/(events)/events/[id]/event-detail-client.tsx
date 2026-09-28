@@ -127,7 +127,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       <div className="mx-auto max-w-3xl min-h-screen p-8 text-center border-x border-border/30 flex flex-col items-center justify-center space-y-3">
         <Calendar className="size-12 text-muted-foreground" />
         <h2 className="text-lg font-bold">Event Not Found</h2>
-        <Button onClick={() => router.push("/app/events")} variant="outline" className="rounded-full">
+        <Button onClick={() => router.push("/events")} variant="outline" className="rounded-full">
           Back to Events Hub
         </Button>
       </div>
@@ -704,7 +704,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <Zap className="size-4 text-primary" />
                 <span>Similar Campus Events</span>
               </h2>
-              <Link href="/app/events" className="text-xs font-bold text-primary hover:underline">
+              <Link href="/events" className="text-xs font-bold text-primary hover:underline">
                 View all
               </Link>
             </div>
@@ -713,7 +713,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               {relatedEvents.map((rel) => (
                 <Link
                   key={rel.id}
-                  href={`/app/events/${rel.slug || rel.id}`}
+                  href={`/events/${rel.slug || rel.id}`}
                   className="group block p-3.5 rounded-2xl border border-border/40 bg-card/60 hover:bg-card/90 hover:border-primary/40 transition-all space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-semibold">
