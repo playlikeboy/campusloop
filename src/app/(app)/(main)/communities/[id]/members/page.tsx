@@ -40,7 +40,7 @@ export default async function CommunityMembersPage({ params }: PageProps) {
   // Parallelize user profile and community lookup with request cache
   const [profile, comm] = await Promise.all([getCachedUserProfile(user.id), getCachedCommunity(id)]);
 
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
   if (!comm) notFound();
 
   const db = getDb();

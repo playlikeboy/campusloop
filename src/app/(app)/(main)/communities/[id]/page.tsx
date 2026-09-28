@@ -80,7 +80,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   }
 
   const profile = user ? await getCachedUserProfile(user.id) : null;
-  if (user && !profile) redirect("/app/onboarding");
+  if (user && !profile) redirect("/onboarding");
 
   const userMembership = profile ? comm.members.find((m) => m.userId === profile.id) : null;
   const isMember = Boolean(userMembership && userMembership.status === "ACTIVE");
