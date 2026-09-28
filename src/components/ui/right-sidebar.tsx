@@ -40,8 +40,8 @@ interface TrendsResponse {
 export function RightSidebar() {
   const router = useRouter();
   const pathname = usePathname() || "";
-  const isEventsPage = pathname.startsWith("/app/events");
-  const isCommunitiesPage = pathname.startsWith("/app/communities");
+  const isEventsPage = pathname.startsWith("/events");
+  const isCommunitiesPage = pathname.startsWith("/communities");
   const [searchQuery, setSearchQuery] = useState("");
   const [followedIds, setFollowedIds] = useState<Record<string, boolean>>({});
 
@@ -63,7 +63,7 @@ export function RightSidebar() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/app/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
   }
 
   async function handleRefreshPeers() {
@@ -125,7 +125,7 @@ export function RightSidebar() {
         />
       </form>
 
-      {/* ─── CONTEXT 1: EVENTS RIGHTBAR (When user is on /app/events) ─── */}
+      {/* ─── CONTEXT 1: EVENTS RIGHTBAR (When user is on /events) ─── */}
       {isEventsPage ? (
         <>
           {/* Host Event Action Card */}
@@ -138,7 +138,7 @@ export function RightSidebar() {
               List your college fest, hackathon, workshop or club recruitment to students across India.
             </p>
             <Link
-              href="/app/events/new"
+              href="/events/new"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all w-full justify-center"
             >
               <Plus className="size-3.5" />
@@ -157,7 +157,7 @@ export function RightSidebar() {
                 {urgentDeadlines.map((ev) => (
                   <Link
                     key={ev.id}
-                    href={`/app/events/${ev.slug || ev.id}`}
+                    href={`/events/${ev.slug || ev.id}`}
                     className="block px-2 py-2 hover:bg-muted/30 rounded-xl transition-colors group"
                   >
                     <p className="text-[11px] text-muted-foreground truncate">{ev.clubName}</p>
@@ -190,7 +190,7 @@ export function RightSidebar() {
                 {topEvents.map((ev) => (
                   <Link
                     key={ev.id}
-                    href={`/app/events/${ev.slug || ev.id}`}
+                    href={`/events/${ev.slug || ev.id}`}
                     className="block px-2 py-2 hover:bg-muted/30 rounded-xl transition-colors group"
                   >
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground">
@@ -245,7 +245,7 @@ export function RightSidebar() {
               </div>
 
               <Link
-                href="/app/discover"
+                href="/discover"
                 className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
               >
                 Show more
@@ -320,7 +320,7 @@ export function RightSidebar() {
               </div>
 
               <Link
-                href="/app/discover"
+                href="/discover"
                 className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
               >
                 Show more

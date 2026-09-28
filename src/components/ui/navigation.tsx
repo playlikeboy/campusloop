@@ -63,18 +63,18 @@ interface NavigationProps {
 
 /**
  * Fullscreen creation / viewer flows where bottom navigation should be temporarily hidden.
- * Deep hub pages (like /app/academics, /app/communities, /app/more) preserve the bottom bar.
+ * Deep hub pages (like /academics, /communities, /more) preserve the bottom bar.
  */
 const HIDE_GLOBAL_MOBILE_NAV = [
-  "/app/chat/",
   "/chat/",
-  "/app/stories/new",
+  "/chat/",
   "/stories/new",
-  "/app/story/",
+  "/stories/new",
   "/story/",
-  "/app/post/new",
+  "/story/",
   "/post/new",
-  "/app/academics/upload",
+  "/post/new",
+  "/academics/upload",
   "/academics/upload",
 ];
 
@@ -83,7 +83,7 @@ function isMobileFlow(pathname: string) {
 }
 
 /**
- * Dual-domain path normalizer ensuring campsy.app ("/") and campusloop.space ("/app")
+ * Dual-domain path normalizer ensuring campsy.app ("/") and campusloop.space ("/feeds")
  * match active tabs identically with zero desync.
  */
 function isPathActive(currentPath: string, targetHref: string) {
@@ -93,7 +93,7 @@ function isPathActive(currentPath: string, targetHref: string) {
 }
 
 export function Navigation({ profile, collegeName, isViewer }: NavigationProps) {
-  const pathname = usePathname() || "/app";
+  const pathname = usePathname() || "/feeds";
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
@@ -144,7 +144,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
   const desktopNavItems = useMemo(
     () =>
       DESKTOP_NAV_ITEMS.filter((item) => {
-        if (isViewer && ["/app/chat", "/app/dating", "/app/matching"].includes(item.href)) {
+        if (isViewer && ["/chat", "/dating", "/matching"].includes(item.href)) {
           return false;
         }
         return true;
@@ -155,8 +155,8 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
   const mobileBottomItems = useMemo(
     () =>
       MOBILE_BOTTOM_ITEMS.filter((item) => {
-        if (isViewer && item.href === "/app/chat") return false;
-        if (isViewer && item.href === "/app/post/new") return false;
+        if (isViewer && item.href === "/chat") return false;
+        if (isViewer && item.href === "/post/new") return false;
         return true;
       }),
     [isViewer]
@@ -168,11 +168,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
       <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[248px] flex-col justify-between overflow-y-auto border-r border-border/70 bg-background/92 px-3 py-4 backdrop-blur-xl md:flex">
         <div className="space-y-3">
           <div className="flex items-center justify-between px-2 py-1.5">
-            <BrandLogo href="/app" size="md" />
+            <BrandLogo href="/feeds" size="md" />
 
             <div className="flex items-center gap-1">
               <Link
-                href="/app/chat"
+                href="/chat"
                 prefetch
                 onClick={() => {
                   sounds.tap();
@@ -180,7 +180,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                 }}
                 className={cn(
                   "relative flex size-9 items-center justify-center rounded-xl transition-all",
-                  isPathActive(pathname, "/app/chat")
+                  isPathActive(pathname, "/chat")
                     ? "bg-foreground text-background"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
@@ -190,7 +190,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
               </Link>
 
               <Link
-                href="/app/notifications"
+                href="/notifications"
                 prefetch
                 onClick={() => {
                   sounds.tap();
@@ -198,7 +198,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                 }}
                 className={cn(
                   "relative flex size-9 items-center justify-center rounded-full transition-all",
-                  isPathActive(pathname, "/app/notifications")
+                  isPathActive(pathname, "/notifications")
                     ? "bg-foreground text-background"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
@@ -327,7 +327,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
             </div>
           ) : (
             <div className="px-1 pt-2">
-              <Link href="/app/post/new" className="block">
+              <Link href="/post/new" className="block">
                 <Button className="h-10.5 w-full rounded-2xl bg-primary text-sm font-bold text-primary-foreground shadow-md shadow-emerald-500/20">
                   <AnimatedIcon icon={AnimatePlus} animation="pop" size={18} strokeWidth={2.5} />
                   Post
@@ -356,7 +356,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                     className="absolute bottom-16 left-0 right-0 z-50 space-y-1 rounded-2xl border border-border/50 bg-card p-1.5 shadow-xl"
                   >
                     <Link
-                      href="/app/profile"
+                      href="/profile"
                       onClick={() => setShowProfileMenu(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-muted"
                     >
@@ -364,7 +364,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                       View Profile
                     </Link>
                     <Link
-                      href="/app/settings"
+                      href="/settings"
                       onClick={() => setShowProfileMenu(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-muted"
                     >
@@ -421,8 +421,8 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
           <div className="mx-auto flex h-16 w-full max-w-md items-center justify-around px-2">
             {mobileBottomItems.map((item) => {
               const Icon = item.icon;
-              const isCreate = item.href === "/app/post/new";
-              const isMore = item.href === "/app/more";
+              const isCreate = item.href === "/post/new";
+              const isMore = item.href === "/more";
               const active = isMore ? showMobileDrawer : isPathActive(pathname, item.href);
 
               if (isCreate) {
@@ -450,13 +450,13 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
               const getActiveColor = () => {
                 switch (item.href) {
-                  case "/app":
+                  case "/feeds":
                     return "text-emerald-500 dark:text-emerald-400";
-                  case "/app/discover":
+                  case "/discover":
                     return "text-cyan-500 dark:text-cyan-400";
-                  case "/app/chat":
+                  case "/chat":
                     return "text-violet-500 dark:text-violet-400";
-                  case "/app/more":
+                  case "/more":
                     return "text-amber-500 dark:text-amber-400";
                   default:
                     return "text-primary";
@@ -465,13 +465,13 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
               const getIndicatorGlow = () => {
                 switch (item.href) {
-                  case "/app":
+                  case "/feeds":
                     return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)]";
-                  case "/app/discover":
+                  case "/discover":
                     return "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.9)]";
-                  case "/app/chat":
+                  case "/chat":
                     return "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.9)]";
-                  case "/app/more":
+                  case "/more":
                     return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)]";
                   default:
                     return "bg-primary shadow-[0_0_8px_var(--primary)]";
@@ -577,7 +577,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
               <div className="space-y-4">
                 {/* Header: Brand + Close Button */}
                 <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                  <BrandLogo href="/app" size="md" />
+                  <BrandLogo href="/feeds" size="md" />
                   <button
                     type="button"
                     onClick={() => setShowMobileDrawer(false)}
@@ -591,7 +591,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                 {/* Profile Header */}
                 {profile ? (
                   <Link
-                    href="/app/profile"
+                    href="/profile"
                     onClick={() => setShowMobileDrawer(false)}
                     className="flex items-center gap-3 rounded-2xl border border-border/40 bg-card/60 p-3 hover:bg-muted/40 transition-colors shadow-2xs group"
                   >
@@ -678,11 +678,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
                   <div className="space-y-0.5 pt-1">
                     {/* Home Feed */}
                     <Link
-                      href="/app"
+                      href="/feeds"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app")
+                        isPathActive(pathname, "/feeds")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -695,11 +695,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Academics Vault - Prominently Displayed */}
                     <Link
-                      href="/app/academics"
+                      href="/academics"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/academics")
+                        isPathActive(pathname, "/academics")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -715,11 +715,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Communities & Clubs */}
                     <Link
-                      href="/app/communities"
+                      href="/communities"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/communities")
+                        isPathActive(pathname, "/communities")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -735,11 +735,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Colleges Directory */}
                     <Link
-                      href="/app/colleges"
+                      href="/colleges"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/colleges")
+                        isPathActive(pathname, "/colleges")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -755,11 +755,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Events & Fests */}
                     <Link
-                      href="/app/events"
+                      href="/events"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/events")
+                        isPathActive(pathname, "/events")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -775,11 +775,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Campus Match & Dating */}
                     <Link
-                      href="/app/dating"
+                      href="/dating"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/dating")
+                        isPathActive(pathname, "/dating")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -795,11 +795,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Confessions Wall */}
                     <Link
-                      href="/app/confessions"
+                      href="/confessions"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/confessions")
+                        isPathActive(pathname, "/confessions")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -815,11 +815,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Reels & Vibes */}
                     <Link
-                      href="/app/reels"
+                      href="/reels"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/reels")
+                        isPathActive(pathname, "/reels")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -835,11 +835,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Campus Articles */}
                     <Link
-                      href="/app/articles"
+                      href="/articles"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/articles")
+                        isPathActive(pathname, "/articles")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -852,11 +852,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Marketplace & Rentals */}
                     <Link
-                      href="/app/marketplace"
+                      href="/marketplace"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/marketplace")
+                        isPathActive(pathname, "/marketplace")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -872,11 +872,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Gaming Arena */}
                     <Link
-                      href="/app/gaming"
+                      href="/gaming"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/gaming")
+                        isPathActive(pathname, "/gaming")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -889,11 +889,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Housing & Flats */}
                     <Link
-                      href="/app/housing"
+                      href="/housing"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/housing")
+                        isPathActive(pathname, "/housing")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -906,11 +906,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Lost & Found */}
                     <Link
-                      href="/app/lost-and-found"
+                      href="/lost-and-found"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/lost-and-found")
+                        isPathActive(pathname, "/lost-and-found")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -923,11 +923,11 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
 
                     {/* Birthdays */}
                     <Link
-                      href="/app/birthdays"
+                      href="/birthdays"
                       onClick={() => setShowMobileDrawer(false)}
                       className={cn(
                         "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        isPathActive(pathname, "/app/birthdays")
+                        isPathActive(pathname, "/birthdays")
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-muted/60"
                       )}
@@ -944,7 +944,7 @@ export function Navigation({ profile, collegeName, isViewer }: NavigationProps) 
               {/* Drawer Footer Utilities */}
               <div className="space-y-2 border-t border-border/40 pt-3">
                 <Link
-                  href="/app/settings"
+                  href="/settings"
                   onClick={() => setShowMobileDrawer(false)}
                   className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
