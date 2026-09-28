@@ -20,7 +20,7 @@ export default async function DirectChatPage({ params }: DirectChatPageProps) {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   const resolved = await params;
   const conversationId = resolved.id;
