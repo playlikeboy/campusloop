@@ -76,21 +76,21 @@ export async function GET(req: Request) {
       requestedScope === "CAMPUS" && userInstitutionId
         ? sql`
           SELECT 
-            (regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1] as tag,
+            LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
             count(*)::int as count
           FROM posts
           WHERE status = 'PUBLISHED' AND institution_id = ${userInstitutionId}
-          GROUP BY tag
+          GROUP BY 1
           ORDER BY count DESC
           LIMIT 12;
         `
         : sql`
           SELECT 
-            (regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1] as tag,
+            LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
             count(*)::int as count
           FROM posts
           WHERE status = 'PUBLISHED'
-          GROUP BY tag
+          GROUP BY 1
           ORDER BY count DESC
           LIMIT 12;
         `;
@@ -102,11 +102,11 @@ export async function GET(req: Request) {
     if (requestedScope === "CAMPUS" && rows.length < 4) {
       const globalTags = await db.execute(sql`
         SELECT 
-          (regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1] as tag,
+          LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
           count(*)::int as count
         FROM posts
         WHERE status = 'PUBLISHED'
-        GROUP BY tag
+        GROUP BY 1
         ORDER BY count DESC
         LIMIT 10;
       `);
@@ -121,12 +121,18 @@ export async function GET(req: Request) {
 
     const categoryPrefix = requestedScope === "CAMPUS" ? `Trending in ${collegeName}` : "Trending in India";
 
+    function formatDisplayTag(rawTag: string): string {
+      const clean = rawTag.replace(/^#/, "");
+      if (!clean) return "#";
+      return `#${clean.charAt(0).toUpperCase()}${clean.slice(1)}`;
+    }
+
     const trends: TrendItem[] = rows.slice(0, 10).map((r) => ({
       category: categoryPrefix,
-      topic: r.tag.startsWith("#") ? r.tag : `#${r.tag}`,
+      topic: formatDisplayTag(r.tag),
       postCount: Number(r.count),
       formattedCount: Number(r.count) === 1 ? "1 post" : `${r.count} posts`,
-      href: `/app/hashtag/${encodeURIComponent(r.tag.replace(/^#/, ""))}`,
+      href: `/hashtag/${encodeURIComponent(r.tag.replace(/^#/, ""))}`,
     }));
 
     // 2. Extract Top News / Discussions (highest engagement)
@@ -159,7 +165,7 @@ export async function GET(req: Request) {
           postCount: `${postTotal} interactions`,
           authorName: p.isAnonymous ? "Anonymous Student" : p.author?.displayName || "Student",
           authorAvatar: p.isAnonymous ? null : p.author?.avatarUrl || null,
-          href: `/app/post/${p.id}`,
+          href: `/post/${p.id}`,
         };
       });
 

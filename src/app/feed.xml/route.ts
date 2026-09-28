@@ -39,8 +39,8 @@ export async function GET() {
       items += `
     <item>
       <title>${title}</title>
-      <link>https://campusloop.space/app/post/${item.id}</link>
-      <guid>https://campusloop.space/app/post/${item.id}</guid>
+      <link>https://campusloop.space/post/${item.id}</link>
+      <guid>https://campusloop.space/post/${item.id}</guid>
       <pubDate>${new Date(item.createdAt).toUTCString()}</pubDate>
       <description>${description}</description>
     </item>`;

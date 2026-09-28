@@ -192,7 +192,7 @@ export default function RootLayout({
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
-                  urlTemplate: "https://campusloop.space/app/search?q={search_term_string}",
+                  urlTemplate: "https://campusloop.space/explore?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },
@@ -214,14 +214,14 @@ export default function RootLayout({
                   position: 1,
                   name: "Campus Feed",
                   description: "Live campus threads, confessions, polls, and discussions",
-                  url: "https://campusloop.space/app",
+                  url: "https://campusloop.space/feeds",
                 },
                 {
                   "@type": "SiteNavigationElement",
                   position: 2,
                   name: "Campus Marketplace",
                   description: "Order night canteen snacks, food delivery, and campus essentials",
-                  url: "https://campusloop.space/app/marketplace",
+                  url: "https://campusloop.space/marketplace",
                 },
                 {
                   "@type": "SiteNavigationElement",
@@ -229,35 +229,35 @@ export default function RootLayout({
                   name: "Academic Study Vault & PYQs",
                   description:
                     "Free engineering notes, previous year question papers, formula cheat sheets, and lab manuals",
-                  url: "https://campusloop.space/app/academics",
+                  url: "https://campusloop.space/academics",
                 },
                 {
                   "@type": "SiteNavigationElement",
                   position: 4,
                   name: "College Directory",
                   description: "Directory of verified Indian college hubs and campus networks",
-                  url: "https://campusloop.space/app/colleges",
+                  url: "https://campusloop.space/colleges",
                 },
                 {
                   "@type": "SiteNavigationElement",
                   position: 5,
                   name: "Campus Match",
                   description: "Connect with verified students within your campus radius",
-                  url: "https://campusloop.space/app/matching",
+                  url: "https://campusloop.space/dating",
                 },
                 {
                   "@type": "SiteNavigationElement",
                   position: 6,
                   name: "Student Communities",
                   description: "Student-created clubs, technical societies, and hobby spaces",
-                  url: "https://campusloop.space/app/communities",
+                  url: "https://campusloop.space/communities",
                 },
                 {
                   "@type": "SiteNavigationElement",
                   position: 7,
                   name: "Campus Confessions",
                   description: "Anonymous confessions and campus thoughts",
-                  url: "https://campusloop.space/app/confessions",
+                  url: "https://campusloop.space/confessions",
                 },
                 {
                   "@type": "SiteNavigationElement",
@@ -355,7 +355,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <GoogleAnalyticsScripts />
         <HexclaveProvider app={hexclaveServerApp}>
           <HexclaveTheme>

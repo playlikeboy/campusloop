@@ -174,7 +174,7 @@ export default async function AdminDashboard() {
             {recentPosts.map((post) => (
               <Link
                 key={post.id}
-                href={`/app/post/${post.id}`}
+                href={`/post/${post.id}`}
                 className="block py-3 first:pt-0 last:pb-0 space-y-1 hover:bg-muted/40 rounded-lg px-2 -mx-2 transition-colors"
               >
                 <div className="flex justify-between items-baseline gap-2">

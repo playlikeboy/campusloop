@@ -40,7 +40,7 @@ import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, getCollegeShortName } from "@/lib/utils";
 
 interface NavigationProps {
   profile?: UserProfile;
@@ -164,9 +164,13 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             <BrandLogo href="/feeds" size="md" />
 
             {/* College Affiliation Pill Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate max-w-[200px] lg:max-w-xs">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[180px] lg:max-w-xs">
               <School className="size-3 text-primary shrink-0" />
-              <span className="truncate">{collegeName || "Campus"}</span>
+              <span className="truncate">
+                {collegeName && collegeName !== "Viewer Mode" && collegeName !== "Campus"
+                  ? getCollegeShortName({ name: collegeName }) || collegeName
+                  : collegeName || "Campus"}
+              </span>
               {profile?.onboardingCompleted && <ShieldCheck className="size-3 text-primary shrink-0" />}
             </div>
           </div>

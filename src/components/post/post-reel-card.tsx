@@ -368,7 +368,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   function handleShare() {
     sounds.tap();
     haptics.light();
-    const shareUrl = `https://campusloop.space/app/post/${post.id}`;
+    const shareUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/post/${post.id}`
+        : `https://campsy.app/post/${post.id}`;
     if (navigator.share) {
       navigator
         .share({
@@ -585,7 +588,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             >
               {currentUserId && post.authorId === currentUserId && (
                 <Link
-                  href={`/app/post/${post.id}/edit`}
+                  href={`/post/${post.id}/edit`}
                   onClick={() => setShowMoreMenu(false)}
                   className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 text-primary"
                 >
@@ -838,7 +841,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             {post.institution && (
               <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-medium min-w-0">
                 <Link
-                  href={`/app/college/${post.institution.slug || post.institution.id || post.institutionId}`}
+                  href={`/college/${post.institution.slug || post.institution.id || post.institutionId}`}
                   onClick={(e) => e.stopPropagation()}
                   className="hover:underline hover:text-white transition-colors truncate max-w-[200px]"
                 >
@@ -878,7 +881,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     <div
       data-no-pull-refresh
       onDoubleClick={handleDoubleTap}
-      className="relative w-full h-full flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto select-none overflow-hidden"
+      className="relative w-full h-full flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto overflow-hidden"
     >
       {/* Double Tap Heart Animation */}
       <AnimatePresence>
@@ -984,7 +987,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 mt-0.5 min-w-0">
                 <span className="size-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20 shrink-0" />
                 <Link
-                  href={`/app/college/${post.institution.slug || post.institution.id || post.institutionId}`}
+                  href={`/college/${post.institution.slug || post.institution.id || post.institutionId}`}
                   onClick={(e) => e.stopPropagation()}
                   className="truncate font-medium text-foreground/85 max-w-[200px] hover:underline hover:text-foreground transition-colors"
                 >
@@ -1057,7 +1060,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 <>
                   <span>·</span>
                   <Link
-                    href={`/app/college/${post.repostOf.institution.slug || post.repostOf.institution.id}`}
+                    href={`/college/${post.repostOf.institution.slug || post.repostOf.institution.id}`}
                     onClick={(e) => e.stopPropagation()}
                     className="hover:underline hover:text-foreground transition-colors"
                   >
@@ -1083,7 +1086,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             {tags.map((tag, idx) => (
               <Link
                 key={tag}
-                href={`/app/search?q=${encodeURIComponent(tag.replace(/^#/, ""))}`}
+                href={`/explore?q=${encodeURIComponent(tag.replace(/^#/, ""))}`}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",

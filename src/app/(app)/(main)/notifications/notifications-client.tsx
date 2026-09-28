@@ -235,7 +235,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
   const tabs: { id: NotificationTab; label: string }[] = [
     { id: "all", label: "All" },
     { id: "messages", label: "Messages" },
-    { id: "posts", label: "From people you follow" },
+    { id: "posts", label: "Following" },
     { id: "mentions", label: "Mentions" },
     { id: "replies", label: "Replies" },
     { id: "reactions", label: "Reactions" },
@@ -244,7 +244,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
   ];
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-28 select-none border-x border-border/20">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-28 border-x border-border/20">
       {/* ─── Sticky Header ─── */}
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3.5">

@@ -173,7 +173,7 @@ export function CollegeHubClient({
   }, [posts, searchQuery, categoryFilter, sortOrder]);
 
   function handleAskSenior() {
-    router.push(`/app/post/new?tag=AskSeniors&college=${college.slug}`);
+    router.push(`/post/new?tag=AskSeniors&college=${college.slug}`);
   }
 
   const shortName = college.name.split(",")[0];
@@ -402,7 +402,7 @@ export function CollegeHubClient({
               Have something on your mind about {shortName}?
             </p>
             <Link
-              href={`/app/post/new?college=${college.slug}`}
+              href={`/post/new?college=${college.slug}`}
               className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
             >
               <Plus className="size-3.5" />

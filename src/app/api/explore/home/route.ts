@@ -60,21 +60,21 @@ export async function GET(req: Request) {
         requestedScope === "CAMPUS" && userInstitutionId
           ? sql`
             SELECT 
-              (regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1] as tag,
+              LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
               count(*)::int as count
             FROM posts
             WHERE status = 'PUBLISHED' AND institution_id = ${userInstitutionId}
-            GROUP BY tag
+            GROUP BY 1
             ORDER BY count DESC
             LIMIT 6;
           `
           : sql`
             SELECT 
-              (regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1] as tag,
+              LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
               count(*)::int as count
             FROM posts
             WHERE status = 'PUBLISHED'
-            GROUP BY tag
+            GROUP BY 1
             ORDER BY count DESC
             LIMIT 6;
           `
@@ -214,14 +214,23 @@ export async function GET(req: Request) {
     ]);
 
     // Format tags
-    const rows = ((tagRows.rows || []) as Array<{ tag: string; count: number }>).slice();
-    const trends = rows.map((r) => ({
-      category: requestedScope === "CAMPUS" ? `Trending in ${collegeName}` : "Trending in India",
-      topic: r.tag.startsWith("#") ? r.tag : `#${r.tag}`,
-      postCount: Number(r.count),
-      formattedCount: Number(r.count) === 1 ? "1 post" : `${r.count} posts`,
-      href: `/explore?q=${encodeURIComponent(r.tag)}&type=posts`,
-    }));
+    const rows = (
+      Array.isArray(tagRows)
+        ? tagRows
+        : (tagRows as { rows?: Array<{ tag: string; count: number | string }> })?.rows || []
+    ) as Array<{ tag: string; count: number | string }>;
+
+    const trends = rows.map((r) => {
+      const clean = r.tag.replace(/^#/, "");
+      const formattedTopic = clean ? `#${clean.charAt(0).toUpperCase()}${clean.slice(1)}` : "#";
+      return {
+        category: requestedScope === "CAMPUS" ? `Trending in ${collegeName}` : "Trending in India",
+        topic: formattedTopic,
+        postCount: Number(r.count),
+        formattedCount: Number(r.count) === 1 ? "1 post" : `${r.count} posts`,
+        href: `/explore?q=${encodeURIComponent(r.tag)}&type=posts`,
+      };
+    });
 
     // Format top discussions
     const topDiscussions = topPosts

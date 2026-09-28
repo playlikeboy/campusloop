@@ -86,7 +86,7 @@ export default async function ReviewQueuePage() {
                   </Button>
                 </form>
                 <Link
-                  href={`/app/post/${post.id}`}
+                  href={`/post/${post.id}`}
                   target="_blank"
                   className="ml-auto text-[11px] font-semibold text-primary hover:underline"
                 >
