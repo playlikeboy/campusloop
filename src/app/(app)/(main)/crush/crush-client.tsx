@@ -342,7 +342,7 @@ export function CrushClient() {
                 <div className="flex items-center gap-2 shrink-0">
                   {slot.isMutual ? (
                     <Link
-                      href={`/app/chat?userId=${slot.targetId}`}
+                      href={`/chat?userId=${slot.targetId}`}
                       className="px-3.5 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 shadow-2xs transition-transform active:scale-95"
                     >
                       <MessageSquare className="size-3" />

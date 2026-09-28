@@ -99,7 +99,7 @@ export default function CollegesClient() {
     const basePath =
       typeof window !== "undefined" && window.location.pathname.startsWith("/colleges")
         ? "/colleges"
-        : "/app/colleges";
+        : "/colleges";
     const newUrl = query ? `${basePath}?${query}` : basePath;
 
     if (typeof window !== "undefined" && window.location.pathname + window.location.search !== newUrl) {
