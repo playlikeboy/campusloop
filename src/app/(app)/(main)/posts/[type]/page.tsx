@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FeedClient } from "../../feed-client";
+import { FeedClient } from "@/app/(app)/(main)/feeds/feed-client";
 
 interface PostsTypePageProps {
   params: Promise<{ type: string }>;

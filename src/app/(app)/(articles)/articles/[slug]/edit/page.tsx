@@ -1,7 +1,7 @@
 import { eq, or } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { ArticleEditorClient } from "@/app/app/(articles)/articles/new/article-editor-client";
+import { ArticleEditorClient } from "@/app/(app)/(articles)/articles/new/article-editor-client";
 import { getDb } from "@/db";
 import { articles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";

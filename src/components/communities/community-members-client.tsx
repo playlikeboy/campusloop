@@ -4,7 +4,7 @@ import { CheckCircle2, Clock, Crown, Loader2, Search, Users, XCircle } from "luc
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { approveJoinRequest, rejectJoinRequest } from "@/app/app/(main)/communities/actions";
+import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/communities/actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MemberItem {

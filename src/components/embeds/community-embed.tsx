@@ -6,7 +6,7 @@ import type React from "react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { JoinCommunityButton } from "@/app/app/(main)/communities/join-community-button";
+import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";

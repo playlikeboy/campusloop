@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DatingAppClient } from "@/app/app/(dating)/dating/dating-app-client";
+import { DatingAppClient } from "@/app/(app)/(dating)/dating/dating-app-client";
 
 export const metadata: Metadata = {
   title: "Campus Match · Friends, Peers & Vibes",

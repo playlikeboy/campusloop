@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import { JoinCommunityButton } from "@/app/app/(main)/communities/join-community-button";
+import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";

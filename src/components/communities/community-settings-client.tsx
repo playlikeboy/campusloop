@@ -4,7 +4,7 @@ import { CheckCircle2, EyeOff, Globe, Loader2, Lock, Plus, Sliders, Trash2, Webh
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { updateCommunitySettings } from "@/app/app/(main)/communities/actions";
+import { updateCommunitySettings } from "@/app/(app)/(main)/communities/actions";
 import { CommunityWebhooksManager } from "@/components/communities/community-webhooks-manager";
 import { cn } from "@/lib/utils";
 

@@ -25,7 +25,7 @@ import {
   regenerateCommunityWebhookToken,
   sendTestCommunityWebhookPost,
   toggleCommunityWebhook,
-} from "@/app/app/(main)/communities/actions";
+} from "@/app/(app)/(main)/communities/actions";
 import type { CommunityWebhook } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";

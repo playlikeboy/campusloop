@@ -39,7 +39,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { archivePost, deletePost } from "@/app/app/(main)/post/actions";
+import { archivePost, deletePost } from "@/app/(app)/(main)/post/actions";
 import { AcademicPlaylistCard } from "@/components/academics/academic-playlist-card";
 import { ArticleCard } from "@/components/articles/article-card";
 import { AcademicCard } from "@/components/communities/academic-card";

@@ -16,8 +16,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { recordCommunityInviteShare } from "@/app/app/(main)/communities/actions";
-import { JoinCommunityButton } from "@/app/app/(main)/communities/join-community-button";
+import { recordCommunityInviteShare } from "@/app/(app)/(main)/communities/actions";
+import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 

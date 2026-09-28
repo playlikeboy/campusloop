@@ -61,7 +61,7 @@ describe("campus upgrade contract", () => {
 
   it("only grants campus access at onboarding for a verified address", async () => {
     const source = await import("node:fs").then((fs) =>
-      fs.readFileSync("src/app/app/onboarding/actions.ts", "utf8")
+      fs.readFileSync("src/app/(app)/onboarding/actions.ts", "utf8")
     );
     expect(source).toMatch(/user\.primaryEmailVerified/);
     expect(source).toMatch(/isVerifiedCollegeEmail/);

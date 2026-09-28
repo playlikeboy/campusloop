@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { createCommunity } from "@/app/app/(main)/communities/actions";
+import { createCommunity } from "@/app/(app)/(main)/communities/actions";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
