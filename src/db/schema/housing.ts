@@ -1,4 +1,4 @@
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
@@ -24,8 +24,9 @@ export const housingListings = pgTable("housing_listings", {
   contactInfo: text("contact_info"), // Phone or WhatsApp
   status: text("status").default("AVAILABLE").notNull(), // 'AVAILABLE' | 'OCCUPIED'
   createdAt,
-  updatedAt,
-});
+  updatedAt,;
+
+);
 
 export type HousingListing = typeof housingListings.$inferSelect;
 export type NewHousingListing = typeof housingListings.$inferInsert;
