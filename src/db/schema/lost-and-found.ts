@@ -22,9 +22,11 @@ export const lostAndFoundItems = pgTable("lost_and_found_items", {
   reward: text("reward"),
   isResolved: boolean("is_resolved").default(false).notNull(),
   createdAt,
-  updatedAt,;
-
-);
+  updatedAt,
+}, (table) => [
+  index("lost_found_institution_created_idx").on(table.institutionId, table.createdAt),
+  index("lost_found_author_created_idx").on(table.authorId, table.createdAt),
+]);
 
 export type LostAndFoundItem = typeof lostAndFoundItems.$inferSelect;
 export type NewLostAndFoundItem = typeof lostAndFoundItems.$inferInsert;
