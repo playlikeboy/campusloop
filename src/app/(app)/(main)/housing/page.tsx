@@ -34,7 +34,7 @@ export default async function HousingPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <DedicatedHubClient hubType="housing" profileId={profile.id} />;
 }

@@ -15,7 +15,7 @@ export default async function NewLostAndFoundPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <HubCreateClient initialType="lost_found" profileId={profile.id} />;
 }
