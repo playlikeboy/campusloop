@@ -21,7 +21,7 @@ export default async function RentalsPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <BikeRentalsClient profileId={profile.id} collegeName={profile.institution?.name} />;
 }
