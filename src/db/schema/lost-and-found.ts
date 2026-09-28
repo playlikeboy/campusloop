@@ -1,4 +1,4 @@
-import { boolean, pgTable, text } from "drizzle-orm/pg-core";
+import { index, boolean, pgTable, text } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
@@ -22,8 +22,9 @@ export const lostAndFoundItems = pgTable("lost_and_found_items", {
   reward: text("reward"),
   isResolved: boolean("is_resolved").default(false).notNull(),
   createdAt,
-  updatedAt,
-});
+  updatedAt,;
+
+);
 
 export type LostAndFoundItem = typeof lostAndFoundItems.$inferSelect;
 export type NewLostAndFoundItem = typeof lostAndFoundItems.$inferInsert;
