@@ -16,7 +16,7 @@ export default async function PostLayout({ children }: { children: React.ReactNo
 
   // If user is authenticated but hasn't finished onboarding, complete onboarding
   if (user && !profile?.onboardingCompleted) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   const college = profile?.institution;
