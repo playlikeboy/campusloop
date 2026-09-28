@@ -94,7 +94,7 @@ export function inferContentGroup(pathname: string): string {
   if (pathname.startsWith("/app/matching") || pathname.startsWith("/app/dating")) return "dating";
   if (pathname.startsWith("/app/chat")) return "chat";
   if (pathname.startsWith("/app/marketplace")) return "marketplace";
-  if (pathname.startsWith("/app/articles") || pathname.startsWith("/a/")) return "articles";
+  if (pathname.startsWith("/articles") || pathname.startsWith("/app/articles") || pathname.startsWith("/a/")) return "articles";
   if (
     pathname.startsWith("/app/college") ||
     pathname.startsWith("/colleges") ||

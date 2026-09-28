@@ -117,7 +117,7 @@ export function NovelMarkdownEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert prose-zinc max-w-none focus:outline-none min-h-[360px] text-zinc-100 text-[15px] sm:text-base leading-relaxed px-4 sm:px-8 py-6 font-normal selection:bg-purple-500/30 selection:text-white",
+          "prose dark:prose-invert max-w-none focus:outline-none min-h-[360px] text-foreground text-[16px] sm:text-[17px] leading-relaxed px-4 sm:px-8 py-6 font-normal selection:bg-primary/20 selection:text-foreground",
       },
       handlePaste: (_view, event) => {
         const items = Array.from(event.clipboardData?.items || []);
@@ -375,7 +375,7 @@ export function NovelMarkdownEditor({
     <div
       ref={editorContainerRef}
       className={cn(
-        "relative flex flex-col rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl shadow-2xl transition-all overflow-hidden",
+        "relative flex flex-col rounded-2xl border border-border/50 bg-card text-foreground shadow-xs transition-all overflow-hidden",
         isFullscreen ? "fixed inset-0 z-50 rounded-none border-none" : "w-full",
         className
       )}
@@ -393,7 +393,7 @@ export function NovelMarkdownEditor({
       />
 
       {/* ─── Notion-Style Sticky Header Toolbar ─── */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-white/[0.08] bg-zinc-900/60 backdrop-blur-md flex-wrap gap-2 text-xs">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border/40 bg-muted/30 backdrop-blur-md flex-wrap gap-2 text-xs text-muted-foreground">
         {/* Left: Quick Format Bar */}
         <div className="flex items-center gap-1 flex-wrap">
           {editor && viewMode === "visual" && (
@@ -402,7 +402,7 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().undo()}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
                 title="Undo (Ctrl+Z)"
               >
                 <Undo className="size-3.5" />
@@ -411,13 +411,13 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().redo().run()}
                 disabled={!editor.can().redo()}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
                 title="Redo (Ctrl+Y)"
               >
                 <Redo className="size-3.5" />
               </button>
 
-              <div className="w-px h-4 bg-white/10 mx-1" />
+              <div className="w-px h-4 bg-border/60 mx-1" />
 
               <button
                 type="button"
@@ -425,8 +425,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg transition-colors cursor-pointer",
                   editor.isActive("bold")
-                    ? "bg-purple-500/20 text-purple-300 font-bold"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Bold (Ctrl+B)"
               >
@@ -438,8 +438,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg transition-colors cursor-pointer",
                   editor.isActive("italic")
-                    ? "bg-purple-500/20 text-purple-300 font-bold"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Italic (Ctrl+I)"
               >
@@ -451,15 +451,15 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg transition-colors cursor-pointer",
                   editor.isActive("code")
-                    ? "bg-purple-500/20 text-purple-300 font-bold"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Inline Code"
               >
                 <Code className="size-3.5" />
               </button>
 
-              <div className="w-px h-4 bg-white/10 mx-1" />
+              <div className="w-px h-4 bg-border/60 mx-1" />
 
               <button
                 type="button"
@@ -467,8 +467,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                   editor.isActive("heading", { level: 1 })
-                    ? "bg-purple-500/20 text-purple-300"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Heading 1"
               >
@@ -480,8 +480,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                   editor.isActive("heading", { level: 2 })
-                    ? "bg-purple-500/20 text-purple-300"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Heading 2"
               >
@@ -493,8 +493,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg transition-colors cursor-pointer",
                   editor.isActive("bulletList")
-                    ? "bg-purple-500/20 text-purple-300"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Bullet List"
               >
@@ -506,8 +506,8 @@ export function NovelMarkdownEditor({
                 className={cn(
                   "p-1.5 rounded-lg transition-colors cursor-pointer",
                   editor.isActive("blockquote")
-                    ? "bg-purple-500/20 text-purple-300"
-                    : "text-zinc-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 title="Quote"
               >
@@ -518,11 +518,11 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                 title="Embed image"
               >
                 {isUploading ? (
-                  <Loader2 className="size-3.5 animate-spin text-purple-400" />
+                  <Loader2 className="size-3.5 animate-spin text-primary" />
                 ) : (
                   <ImageIcon className="size-3.5" />
                 )}
@@ -534,15 +534,15 @@ export function NovelMarkdownEditor({
         {/* Right: View Mode, Stats & Fullscreen */}
         <div className="flex items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+          <div className="flex items-center bg-muted/60 border border-border/40 rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setViewMode("visual")}
               className={cn(
                 "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
                 viewMode === "visual"
-                  ? "bg-purple-600 text-white shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-background text-foreground shadow-xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               Visual
@@ -553,8 +553,8 @@ export function NovelMarkdownEditor({
               className={cn(
                 "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1",
                 viewMode === "split"
-                  ? "bg-purple-600 text-white shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-background text-foreground shadow-xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Columns2 className="size-3" />
@@ -566,8 +566,8 @@ export function NovelMarkdownEditor({
               className={cn(
                 "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
                 viewMode === "raw"
-                  ? "bg-purple-600 text-white shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-background text-foreground shadow-xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               Markdown
@@ -578,17 +578,17 @@ export function NovelMarkdownEditor({
           <button
             type="button"
             onClick={handleCopyMarkdown}
-            className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Copy Markdown"
           >
-            {copied ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
           </button>
 
           {/* Fullscreen Toggle */}
           <button
             type="button"
             onClick={() => setIsFullscreen((prev) => !prev)}
-            className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
@@ -606,14 +606,14 @@ export function NovelMarkdownEditor({
             transform: "translateX(-50%)",
             zIndex: 60,
           }}
-          className="flex items-center gap-0.5 rounded-xl border border-white/20 bg-zinc-950/95 backdrop-blur-2xl p-1 shadow-2xl text-zinc-100 animate-in fade-in zoom-in-95 duration-150"
+          className="flex items-center gap-0.5 rounded-xl border border-border/60 bg-popover/95 backdrop-blur-2xl p-1 shadow-2xl text-popover-foreground animate-in fade-in zoom-in-95 duration-150"
         >
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("bold") ? "bg-purple-600 text-white" : "hover:bg-white/10 text-zinc-300"
+              editor.isActive("bold") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
             )}
             title="Bold"
           >
@@ -624,7 +624,7 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("italic") ? "bg-purple-600 text-white" : "hover:bg-white/10 text-zinc-300"
+              editor.isActive("italic") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
             )}
             title="Italic"
           >
@@ -635,7 +635,7 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("strike") ? "bg-purple-600 text-white" : "hover:bg-white/10 text-zinc-300"
+              editor.isActive("strike") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
             )}
             title="Strikethrough"
           >
@@ -646,7 +646,7 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("code") ? "bg-purple-600 text-white" : "hover:bg-white/10 text-zinc-300"
+              editor.isActive("code") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
             )}
             title="Inline Code"
           >
@@ -658,8 +658,8 @@ export function NovelMarkdownEditor({
             className={cn(
               "px-2 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
               editor.isActive("heading", { level: 2 })
-                ? "bg-purple-600 text-white"
-                : "hover:bg-white/10 text-zinc-300"
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Heading 2"
           >
@@ -670,7 +670,7 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("blockquote") ? "bg-purple-600 text-white" : "hover:bg-white/10 text-zinc-300"
+              editor.isActive("blockquote") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
             )}
             title="Quote"
           >
@@ -682,19 +682,19 @@ export function NovelMarkdownEditor({
       {/* ─── Floating Slash Command Popover ─── */}
       {showSlashMenu && (
         <div
-          className="absolute z-50 w-72 rounded-2xl border border-white/15 bg-zinc-950/98 backdrop-blur-2xl shadow-2xl overflow-hidden p-1.5 text-zinc-200 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute z-50 w-72 rounded-2xl border border-border/60 bg-popover/98 backdrop-blur-2xl shadow-2xl overflow-hidden p-1.5 text-popover-foreground animate-in fade-in zoom-in-95 duration-100"
           style={{
             top: slashCoords ? Math.min(slashCoords.y, 450) : 100,
             left: slashCoords ? Math.min(slashCoords.x, 300) : 32,
           }}
         >
-          <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 border-b border-white/[0.06] mb-1">
+          <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/40 mb-1">
             Blocks & Commands
           </div>
 
           <div className="max-h-64 overflow-y-auto space-y-0.5">
             {filteredCommands.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-zinc-500">No matching blocks</div>
+              <div className="px-3 py-4 text-center text-xs text-muted-foreground">No matching blocks</div>
             ) : (
               filteredCommands.map((item, idx) => {
                 const Icon = item.icon;
@@ -708,23 +708,23 @@ export function NovelMarkdownEditor({
                     className={cn(
                       "w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer",
                       isSelected
-                        ? "bg-purple-600/20 text-white border border-purple-500/30"
-                        : "hover:bg-white/[0.06] text-zinc-300"
+                        ? "bg-primary/15 text-primary border border-primary/30"
+                        : "hover:bg-muted text-foreground"
                     )}
                   >
                     <div
                       className={cn(
                         "size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border",
                         isSelected
-                          ? "bg-purple-600 text-white border-purple-500"
-                          : "bg-white/[0.05] border-white/10 text-zinc-400"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted border-border/40 text-muted-foreground"
                       )}
                     >
                       <Icon className="size-3.5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-zinc-100">{item.title}</p>
-                      <p className="text-[11px] text-zinc-400 line-clamp-1">{item.description}</p>
+                      <p className="text-xs font-semibold text-foreground">{item.title}</p>
+                      <p className="text-[11px] text-muted-foreground line-clamp-1">{item.description}</p>
                     </div>
                   </button>
                 );
@@ -741,7 +741,7 @@ export function NovelMarkdownEditor({
           <div
             className={cn(
               "flex-1 overflow-y-auto overscroll-contain",
-              viewMode === "split" ? "border-r border-white/10" : ""
+              viewMode === "split" ? "border-r border-border/40" : ""
             )}
           >
             <EditorContent editor={editor} />
@@ -750,8 +750,8 @@ export function NovelMarkdownEditor({
 
         {/* Live Split Markdown Preview */}
         {viewMode === "split" && (
-          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 bg-zinc-950/40">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-purple-400 mb-4 pb-2 border-b border-purple-500/20 flex items-center gap-1.5">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 bg-muted/10">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-primary mb-4 pb-2 border-b border-primary/20 flex items-center gap-1.5">
               <Sparkles className="size-3" />
               <span>Live Student Article Preview</span>
             </div>
@@ -765,25 +765,25 @@ export function NovelMarkdownEditor({
             value={rawMarkdown}
             onChange={handleRawMarkdownChange}
             placeholder={placeholder}
-            className="flex-1 w-full bg-transparent p-6 text-sm font-mono text-zinc-200 placeholder:text-zinc-600 focus:outline-none resize-none leading-relaxed"
+            className="flex-1 w-full bg-transparent p-6 text-sm font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none resize-none leading-relaxed"
           />
         )}
       </div>
 
       {/* ─── Bottom Footer Status Bar ─── */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-white/[0.08] bg-zinc-950/90 text-[11px] text-zinc-400 select-none">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-border/40 bg-card/80 text-[11px] text-muted-foreground">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <strong className="text-zinc-200">{wordCount}</strong> words
+            <strong className="text-foreground">{wordCount}</strong> words
           </span>
-          <span className="text-zinc-600">·</span>
+          <span className="text-border">·</span>
           <span>
-            ~<strong className="text-zinc-200">{readingTime}</strong> min read
+            ~<strong className="text-foreground">{readingTime}</strong> min read
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-zinc-400 border border-white/10">
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+          <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-muted-foreground border border-border/40">
             /
           </kbd>
           <span>for slash commands</span>

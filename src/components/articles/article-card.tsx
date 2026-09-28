@@ -1,10 +1,21 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, Clock, Eye, QrCode, ShieldCheck, ThumbsUp } from "lucide-react";
+import {
+  ArrowUp,
+  Bookmark,
+  Check,
+  Clock,
+  MessageSquare,
+  Share2,
+  ShieldCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { BrandedQrModal } from "@/components/common/branded-qr-modal";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
+import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 export interface ArticleCardProps {
@@ -20,7 +31,11 @@ export interface ArticleCardProps {
     readingTimeMinutes?: number | null;
     viewsCount?: number | null;
     upvotesCount?: number | null;
+    userVote?: number;
+    isSaved?: boolean;
+    commentsCount?: number;
     publishedAt?: Date | string | null;
+    createdAt?: Date | string;
     author?: {
       id: string;
       username: string;
@@ -40,27 +55,20 @@ export interface ArticleCardProps {
   featured?: boolean;
 }
 
-const CATEGORY_LABELS: Record<string, { label: string; color: string }> = {
-  GENERAL: { label: "General", color: "bg-slate-500/10 text-slate-500 border-slate-500/20" },
-  TECH_AND_CODE: { label: "Tech & Code", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" },
-  PLACEMENTS: { label: "Placements", color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
-  CAMPUS_LIFE: { label: "Campus Life", color: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
-  RESEARCH: { label: "Research", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
-  INTERNSHIPS: { label: "Internships", color: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
-  PROJECTS: { label: "Projects", color: "bg-rose-500/10 text-rose-500 border-rose-500/20" },
-  GUIDES: { label: "Guides", color: "bg-teal-500/10 text-teal-500 border-teal-500/20" },
-  OPINION: { label: "Opinion", color: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
-};
-
 export function ArticleCard({ article, featured = false }: ArticleCardProps) {
-  const [showQrModal, setShowQrModal] = useState(false);
+  const [upvotes, setUpvotes] = useState(article.upvotesCount || 0);
+  const [userVote, setUserVote] = useState(article.userVote || 0);
+  const [isSaved, setIsSaved] = useState(Boolean(article.isSaved));
+  const [copied, setCopied] = useState(false);
 
-  const catInfo = CATEGORY_LABELS[article.category || "GENERAL"] || CATEGORY_LABELS.GENERAL;
-  const authorName = article.author?.displayName || "Campus Writer";
+  const catMeta = getCategoryMeta(article.category);
+  const authorName = article.author?.displayName || "Student Writer";
   const authorUsername = article.author?.username || "student";
   const isVerified = (article.author?.points || 0) >= 150;
   const collegeShort =
-    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
+    article.institution?.name?.split(",")[0] ||
+    article.author?.institution?.name?.split(",")[0] ||
+    "Campus";
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
@@ -69,167 +77,316 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
       })
     : "Recent";
 
-  return (
-    <>
-      <article
-        className={cn(
-          "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/40 bg-card/60 transition-all duration-300 hover:border-primary/40 hover:bg-card hover:shadow-xl select-none",
-          featured ? "md:grid md:grid-cols-12 md:gap-6" : ""
-        )}
-      >
-        {/* Cover Image */}
-        <Link
-          href={`/app/articles/${article.slug}`}
-          className={cn(
-            "relative block overflow-hidden bg-muted/40",
-            featured ? "md:col-span-6 aspect-16/10 md:aspect-auto md:h-full" : "aspect-16/9 w-full"
-          )}
-        >
-          {article.coverImageUrl ? (
-            <img
-              src={article.coverImageUrl}
-              alt={article.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-primary/15 via-purple-500/10 to-indigo-500/5 p-6">
-              <BookOpen className="size-12 text-primary/30 group-hover:scale-110 transition-transform" />
-            </div>
-          )}
+  async function handleVote(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    sounds.tap();
+    haptics.medium();
 
-          {/* Category Tag Overlay */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5">
-            <span
-              className={cn(
-                "rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider backdrop-blur-md border shadow-xs",
-                catInfo.color
-              )}
+    const prevVote = userVote;
+    const nextVote = prevVote === 1 ? 0 : 1;
+    setUserVote(nextVote);
+    setUpvotes((prev) => prev + (nextVote === 1 ? 1 : -1));
+
+    try {
+      const res = await fetch(`/api/articles/${article.slug}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: nextVote }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (typeof data.upvotesCount === "number") {
+        setUpvotes(data.upvotesCount);
+      }
+    } catch {
+      setUserVote(prevVote);
+      setUpvotes((prev) => prev + (prevVote === 1 ? 1 : -1));
+      toast.error("Sign in to upvote articles");
+    }
+  }
+
+  async function handleToggleSave(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    sounds.tap();
+    haptics.light();
+
+    const prevSaved = isSaved;
+    setIsSaved(!prevSaved);
+
+    try {
+      const res = await fetch(`/api/articles/${article.slug}/save`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setIsSaved(Boolean(data.isSaved));
+      toast.success(data.message || (data.isSaved ? "Saved to reading list" : "Removed"));
+    } catch {
+      setIsSaved(prevSaved);
+      toast.error("Sign in to save articles");
+    }
+  }
+
+  function handleShare(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareUrl = `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: article.title,
+          text: article.excerpt || article.title,
+          url: shareUrl,
+        })
+        .catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success("Link copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  if (featured) {
+    return (
+      <article className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 transition-all hover:border-primary/40 hover:bg-card hover:shadow-md">
+        <div className="flex flex-col md:flex-row gap-6 p-6">
+          {/* Featured Cover */}
+          {article.coverImageUrl && (
+            <Link
+              href={`/articles/${article.slug}`}
+              className="relative block md:w-2/5 aspect-16/10 rounded-xl overflow-hidden bg-muted/30 shrink-0"
             >
-              {catInfo.label}
-            </span>
-          </div>
+              <img
+                src={article.coverImageUrl}
+                alt={article.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute top-2.5 left-2.5">
+                <span className={cn("px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md", catMeta.colorClass)}>
+                  {catMeta.label}
+                </span>
+              </div>
+            </Link>
+          )}
 
-          {/* Reading Time Badge */}
-          <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/65 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
-            <Clock className="size-3" />
-            <span>{article.readingTimeMinutes || 3} min</span>
-          </div>
-        </Link>
+          {/* Featured Content */}
+          <div className="flex flex-1 flex-col justify-between space-y-4">
+            <div className="space-y-2.5">
+              {/* Author Row */}
+              <div className="flex items-center gap-2 text-xs">
+                <Link href={`/${authorUsername}`} className="flex items-center gap-2 group/author">
+                  <Avatar className="size-6 border border-border/40">
+                    <AvatarImage src={article.author?.avatarUrl || ""} />
+                    <AvatarFallback className="text-[10px] font-bold bg-muted text-foreground">
+                      {authorName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold text-foreground group-hover/author:underline truncate">
+                    {authorName}
+                  </span>
+                  {isVerified && <ShieldCheck className="size-3 text-primary shrink-0" />}
+                </Link>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-muted-foreground truncate">{collegeShort}</span>
+              </div>
 
-        {/* Content Details */}
-        <div
-          className={cn("flex flex-1 flex-col justify-between p-5", featured ? "md:col-span-6 md:p-6" : "")}
-        >
-          <div className="space-y-2.5">
-            {/* Author Header */}
-            <div className="flex items-center justify-between gap-2">
-              <Link
-                href={`/@${authorUsername}`}
-                className="flex items-center gap-2 min-w-0 hover:opacity-85 transition-opacity"
-              >
-                <Avatar className="size-6 shrink-0 border border-border/40">
-                  <AvatarImage src={article.author?.avatarUrl || ""} />
-                  <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
-                    {authorName[0]}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate flex items-center gap-1">
-                    <span>{authorName}</span>
-                    {isVerified && <ShieldCheck className="size-3 text-brand shrink-0" />}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    @{authorUsername} · {collegeShort}
-                  </p>
-                </div>
+              {/* Title & Excerpt */}
+              <Link href={`/articles/${article.slug}`} className="block group-hover:text-primary transition-colors">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
+                  {article.title}
+                </h2>
               </Link>
 
-              <span className="text-[10px] text-muted-foreground/80 font-medium shrink-0">
-                {formattedDate}
-              </span>
-            </div>
-
-            {/* Title & Excerpt */}
-            <Link
-              href={`/app/articles/${article.slug}`}
-              className="block group-hover:text-primary transition-colors"
-            >
-              <h3
-                className={cn(
-                  "font-black text-foreground tracking-tight line-clamp-2 leading-snug",
-                  featured ? "text-lg md:text-xl" : "text-base"
-                )}
-              >
-                {article.title}
-              </h3>
               {article.excerpt && (
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                   {article.excerpt}
                 </p>
               )}
-            </Link>
+            </div>
 
-            {/* Tags preview */}
-            {article.tags && article.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 pt-1">
-                {article.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] font-medium text-muted-foreground/80 bg-muted/40 px-2 py-0.5 rounded-md"
-                  >
-                    #{tag.replace(/^#/, "")}
-                  </span>
-                ))}
+            {/* Bottom Actions Row */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/20">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 font-medium">
+                  <Clock className="size-3.5" />
+                  <span>{article.readingTimeMinutes || 3} min read</span>
+                </span>
+                <span>·</span>
+                <span>{formattedDate}</span>
               </div>
-            )}
+
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={handleVote}
+                  aria-label="Upvote article"
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer",
+                    userVote === 1
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <ArrowUp className="size-3.5" />
+                  <span>{upvotes}</span>
+                </button>
+
+                <Link
+                  href={`/articles/${article.slug}#comments`}
+                  aria-label="View discussion"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <MessageSquare className="size-3.5" />
+                  <span>{article.commentsCount ?? 0}</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleToggleSave}
+                  aria-label={isSaved ? "Remove from saved" : "Save article"}
+                  className={cn(
+                    "p-1.5 rounded-full transition-colors cursor-pointer",
+                    isSaved
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  <Bookmark className={cn("size-3.5", isSaved && "fill-primary")} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  aria-label="Share article"
+                  className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                >
+                  {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article className="group py-5 first:pt-2 border-b border-border/30 last:border-b-0 transition-colors">
+      <div className="flex items-start justify-between gap-4">
+        {/* Left: Article Details */}
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Author Byline */}
+          <div className="flex items-center gap-2 text-xs">
+            <Link href={`/${authorUsername}`} className="flex items-center gap-1.5 group/author">
+              <Avatar className="size-5.5 border border-border/40 shrink-0">
+                <AvatarImage src={article.author?.avatarUrl || ""} />
+                <AvatarFallback className="text-[9px] font-bold bg-muted text-foreground">
+                  {authorName[0]}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-semibold text-foreground group-hover/author:underline truncate">
+                {authorName}
+              </span>
+              {isVerified && <ShieldCheck className="size-3 text-primary shrink-0" />}
+            </Link>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground truncate">{collegeShort}</span>
           </div>
 
-          {/* Footer Metrics & Actions */}
-          <div className="mt-4 flex items-center justify-between border-t border-border/30 pt-3">
-            <div className="flex items-center gap-3 text-[11px] font-bold text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <ThumbsUp className="size-3 text-primary" />
-                <span>{article.upvotesCount || 0}</span>
+          {/* Title */}
+          <Link href={`/articles/${article.slug}`} className="block group-hover:text-primary transition-colors">
+            <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
+              {article.title}
+            </h3>
+          </Link>
+
+          {/* Excerpt */}
+          {article.excerpt && (
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+              {article.excerpt}
+            </p>
+          )}
+
+          {/* Card Footer: Metadata + Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2.5">
+              <span className={cn("px-2 py-0.5 rounded text-[10px] font-semibold border", catMeta.colorClass)}>
+                {catMeta.label}
               </span>
-              <span className="flex items-center gap-1">
-                <Eye className="size-3" />
-                <span>{article.viewsCount || 0}</span>
-              </span>
+              <span>{article.readingTimeMinutes || 3} min read</span>
+              <span>·</span>
+              <span>{formattedDate}</span>
             </div>
 
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => setShowQrModal(true)}
-                title="Share Cute QR Code"
-                className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
+                onClick={handleVote}
+                aria-label="Upvote article"
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer",
+                  userVote === 1
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
               >
-                <QrCode className="size-3.5" />
+                <ArrowUp className="size-3.5" />
+                <span>{upvotes}</span>
               </button>
 
               <Link
-                href={`/app/articles/${article.slug}`}
-                className="flex items-center gap-1 text-xs font-black text-primary hover:underline pl-1 cursor-pointer"
+                href={`/articles/${article.slug}#comments`}
+                aria-label="View comments"
+                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
-                <span>Read</span>
-                <ArrowUpRight className="size-3.5" />
+                <MessageSquare className="size-3.5" />
+                <span>{article.commentsCount ?? 0}</span>
               </Link>
+
+              <button
+                type="button"
+                onClick={handleToggleSave}
+                aria-label={isSaved ? "Remove from saved" : "Save article"}
+                className={cn(
+                  "p-1.5 rounded-md transition-colors cursor-pointer",
+                  isSaved
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <Bookmark className={cn("size-3.5", isSaved && "fill-primary")} />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label="Share article"
+                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+              </button>
             </div>
           </div>
         </div>
-      </article>
 
-      {/* Cute Branded QR Code Modal */}
-      <BrandedQrModal
-        isOpen={showQrModal}
-        onClose={() => setShowQrModal(false)}
-        title={article.title}
-        subtitle={`By @${authorUsername} • ${article.readingTimeMinutes || 3} min read`}
-        badgeText="Campus Article"
-        shortUrl={`https://campusloop.space/a/${article.slug}`}
-        category="article"
-      />
-    </>
+        {/* Right: Optional Thumbnail */}
+        {article.coverImageUrl && (
+          <Link
+            href={`/articles/${article.slug}`}
+            className="hidden sm:block size-24 sm:size-28 rounded-xl overflow-hidden bg-muted/30 shrink-0 border border-border/40"
+          >
+            <img
+              src={article.coverImageUrl}
+              alt={article.title}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </Link>
+        )}
+      </div>
+    </article>
   );
 }

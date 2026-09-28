@@ -112,7 +112,7 @@ describe("Link and Embed Parsing Engine", () => {
     expect(event).toBeDefined();
     expect(event?.id).toBe("hackbit-2026");
 
-    const articleText = "Check out this guide: https://campusloop.space/app/articles/getting-started-ai";
+    const articleText = "Check out this guide: https://campsy.app/articles/getting-started-ai";
     const articleEmbeds = extractEmbedsFromText(articleText);
     const article = articleEmbeds.find((e) => e.type === "internal_article");
     expect(article).toBeDefined();

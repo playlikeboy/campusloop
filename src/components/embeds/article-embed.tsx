@@ -104,7 +104,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
 
   return (
     <Link
-      href={`/app/articles/${article.slug}`}
+      href={`/articles/${article.slug}`}
       onClick={(e) => e.stopPropagation()}
       className="mt-2.5 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/15 transition-all shadow-xs group"
     >
