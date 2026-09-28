@@ -80,7 +80,7 @@ export function CommunityHeader({
     const shareUrl =
       typeof window !== "undefined"
         ? `${window.location.origin}/communities/${identifier}`
-        : `https://campusloop.space/app/communities/${identifier}`;
+        : `https://campusloop.space/communities/${identifier}`;
 
     const shareText = `🚀 Join c/${community.name} on CampusLoop!\n${
       community.description || "Verified student sub-hub"

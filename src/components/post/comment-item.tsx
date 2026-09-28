@@ -1,8 +1,9 @@
 "use client";
 
-import { MoreHorizontal, User, VenetianMask } from "lucide-react";
+import { Copy, Link2, MoreHorizontal, User, VenetianMask } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   AnimatedIcon,
   AnimateHeart,
@@ -37,6 +38,7 @@ export type CommentWithAuthor = Omit<Comment, "createdAt" | "updatedAt"> & {
 
 interface CommentItemProps {
   comment: CommentWithAuthor;
+  postId?: string;
   depth?: number;
   isPostAuthor?: boolean;
   hasReplies?: boolean;
@@ -53,6 +55,7 @@ interface CommentItemProps {
 
 export function CommentItem({
   comment,
+  postId,
   depth = 0,
   isPostAuthor = false,
   hasReplies = false,
@@ -68,6 +71,7 @@ export function CommentItem({
 }: CommentItemProps) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
   const [replyMentionTrigger, setReplyMentionTrigger] = useState<TriggerContext | null>(null);
   const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
   const reply = useIconHandle();
@@ -99,6 +103,25 @@ export function CommentItem({
       haptics.medium();
       setLiked(true);
       setLikesCount((c) => c + 1);
+    }
+  }
+
+  async function handleCopyCommentLink() {
+    const targetPostId = postId || comment.postId;
+    if (!targetPostId) {
+      toast.error("Unable to find post identifier");
+      return;
+    }
+    const commentUrl = `https://campusloop.space/post/${targetPostId}/comment/${comment.id}`;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(commentUrl);
+        toast.success("Comment link copied to clipboard");
+      } catch {
+        toast.error("Failed to copy comment link");
+      }
+    } else {
+      toast.error("Clipboard not supported");
     }
   }
 
@@ -194,12 +217,66 @@ export function CommentItem({
               </span>
             </div>
 
-            <button
-              type="button"
-              className="size-7 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <MoreHorizontal className="size-3.5" />
-            </button>
+            {/* Options Menu */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu((prev) => !prev);
+                }}
+                className="size-7 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Comment options"
+              >
+                <MoreHorizontal className="size-3.5" />
+              </button>
+
+              {showMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowMenu(false);
+                    }}
+                  />
+                  <div
+                    className="absolute right-0 mt-1 w-48 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-xl z-30 py-1 animate-in fade-in zoom-in-95"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMenu(false);
+                        handleCopyCommentLink();
+                      }}
+                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <Link2 className="size-3.5 text-brand" />
+                      <span>Copy link to comment</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setShowMenu(false);
+                        if (typeof navigator !== "undefined" && navigator.clipboard) {
+                          try {
+                            await navigator.clipboard.writeText(comment.body || "");
+                            toast.success("Comment text copied to clipboard");
+                          } catch {
+                            toast.error("Failed to copy text");
+                          }
+                        }
+                      }}
+                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <Copy className="size-3.5 text-muted-foreground" />
+                      <span>Copy text</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Comment Content */}
@@ -264,6 +341,20 @@ export function CommentItem({
                 />
               </div>
               {likesCount > 0 && <span className="text-[11px] font-semibold">{likesCount}</span>}
+            </button>
+
+            {/* Copy link to comment / Share Button */}
+            <button
+              type="button"
+              onClick={handleCopyCommentLink}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-brand transition-colors cursor-pointer group/share"
+              title="Copy link to comment"
+              aria-label="Copy link to comment"
+            >
+              <div className="size-7 rounded-full group-hover/share:bg-brand/10 flex items-center justify-center transition-colors">
+                <Link2 className="size-3.5 text-muted-foreground group-hover/share:text-brand transition-colors" />
+              </div>
+              <span className="text-[11px] font-semibold">Share</span>
             </button>
           </div>
 

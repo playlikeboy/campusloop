@@ -218,7 +218,7 @@ export function StoryViewerClient({
   async function handleShare() {
     sounds.tap();
     haptics.light();
-    const url = `https://campusloop.space/app/story/${story.id}`;
+    const url = `https://campusloop.space/story/${story.id}`;
     if (typeof window !== "undefined" && navigator.share) {
       try {
         await navigator.share({

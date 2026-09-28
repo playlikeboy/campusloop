@@ -28,7 +28,7 @@ const featureBlocks = [
     label: "Find people",
     title: "Clubs, teams and communities without the hunt.",
     description: "See what your campus is building, joining and showing up for.",
-    href: "/app/communities",
+    href: "/communities",
     cta: "Browse communities",
     icon: Users2,
     tone: "bg-[#f4faf6] dark:bg-emerald-950/10",

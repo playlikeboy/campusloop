@@ -62,6 +62,10 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "CampusLoop",
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+  },
   formatDetection: {
     email: false,
     address: false,

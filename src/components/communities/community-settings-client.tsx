@@ -119,7 +119,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       });
 
       toast.success("Community settings updated successfully!");
-      router.push(`/app/communities/${community.slug || community.id}`);
+      router.push(`/communities/${community.slug || community.id}`);
     } catch (err: unknown) {
       toast.error((err as Error)?.message || "Failed to update settings");
       setLoading(false);

@@ -11,6 +11,33 @@ const RATE_LIMIT_EXEMPT_PREFIXES = [
   "/api/notifications/unread-count",
 ];
 
+const SENSITIVE_AUTH_PREFIXES = ["/api/merchant/auth/login"];
+const SENSITIVE_AUTH_MAX_REQUESTS = 10;
+const SENSITIVE_AUTH_WINDOW_SECONDS = 60;
+
+// Lightweight in-memory fallback rate limiter when Redis is unconfigured or degraded
+const memoryRateLimitMap = new Map<string, { count: number; expiresAt: number }>();
+
+function checkMemoryRateLimit(key: string, limit: number, windowSec: number): boolean {
+  const now = Date.now();
+  const entry = memoryRateLimitMap.get(key);
+
+  // Periodic pruning of expired entries
+  if (memoryRateLimitMap.size > 2000) {
+    for (const [k, v] of memoryRateLimitMap.entries()) {
+      if (v.expiresAt <= now) memoryRateLimitMap.delete(k);
+    }
+  }
+
+  if (!entry || entry.expiresAt <= now) {
+    memoryRateLimitMap.set(key, { count: 1, expiresAt: now + windowSec * 1000 });
+    return true;
+  }
+
+  entry.count++;
+  return entry.count <= limit;
+}
+
 function getClientKey(req: NextRequest): string {
   return (
     req.headers.get("cf-connecting-ip") ||
@@ -39,29 +66,54 @@ async function enforceMutationRateLimit(req: NextRequest): Promise<NextResponse 
   )
     return null;
 
+  const isSensitiveAuth = SENSITIVE_AUTH_PREFIXES.some(
+    (prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`)
+  );
+  const maxRequests = isSensitiveAuth ? SENSITIVE_AUTH_MAX_REQUESTS : RATE_LIMIT_MAX_REQUESTS;
+  const windowSeconds = isSensitiveAuth ? SENSITIVE_AUTH_WINDOW_SECONDS : RATE_LIMIT_WINDOW_SECONDS;
+
+  const clientKey = getClientKey(req);
+  const key = `rl:v1:${clientKey}:${req.method}:${req.nextUrl.pathname}`;
+
   const redis = getRedis();
-  if (!redis) return null;
+  if (redis) {
+    try {
+      const count = Number(await redis.incr(key));
+      if (count === 1) await redis.expire(key, windowSeconds);
 
-  const key = `rl:v1:${getClientKey(req)}:${req.method}:${req.nextUrl.pathname}`;
-  try {
-    const count = Number(await redis.incr(key));
-    if (count === 1) await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS);
-
-    if (count > RATE_LIMIT_MAX_REQUESTS) {
-      return NextResponse.json(
-        { error: "Too many requests. Please slow down." },
-        {
-          status: 429,
-          headers: {
-            "retry-after": String(RATE_LIMIT_WINDOW_SECONDS),
-            "x-ratelimit-limit": String(RATE_LIMIT_MAX_REQUESTS),
-            "x-ratelimit-remaining": "0",
-          },
-        }
-      );
+      if (count > maxRequests) {
+        return NextResponse.json(
+          { error: "Too many requests. Please slow down." },
+          {
+            status: 429,
+            headers: {
+              "retry-after": String(windowSeconds),
+              "x-ratelimit-limit": String(maxRequests),
+              "x-ratelimit-remaining": "0",
+            },
+          }
+        );
+      }
+      return null;
+    } catch {
+      // Redis error: fall through to in-memory limiter
     }
-  } catch {
-    // Fail open when Redis is unavailable; availability of the core app wins.
+  }
+
+  // In-memory fallback
+  const isAllowed = checkMemoryRateLimit(key, maxRequests, windowSeconds);
+  if (!isAllowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down." },
+      {
+        status: 429,
+        headers: {
+          "retry-after": String(windowSeconds),
+          "x-ratelimit-limit": String(maxRequests),
+          "x-ratelimit-remaining": "0",
+        },
+      }
+    );
   }
 
   return null;

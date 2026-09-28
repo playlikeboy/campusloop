@@ -275,7 +275,7 @@ export function RichText({
         parts.push(
           <Link
             key={`tag-${tokenMatch.index}`}
-            href={`/app/hashtag/${tag}`}
+            href={`/hashtag/${tag}`}
             onClick={(e) => e.stopPropagation()}
             className="text-primary font-bold hover:underline cursor-pointer"
           >

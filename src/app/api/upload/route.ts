@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY || "";
 
-// Whitelist of dangerous file extensions to reject immediately
+// Blacklist of dangerous, executable, or scriptable file extensions
 const DISALLOWED_EXTENSIONS = new Set([
   "exe",
   "bat",
@@ -16,10 +16,16 @@ const DISALLOWED_EXTENSIONS = new Set([
   "bin",
   "php",
   "phtml",
+  "pht",
   "cgi",
   "pl",
   "html",
   "htm",
+  "shtml",
+  "xhtml",
+  "xml",
+  "svg",
+  "svgz",
   "js",
   "mjs",
   "ts",
@@ -29,6 +35,15 @@ const DISALLOWED_EXTENSIONS = new Set([
   "so",
   "app",
   "jar",
+  "jsp",
+  "asp",
+  "aspx",
+  "wasm",
+  "vbs",
+  "scr",
+  "hta",
+  "msi",
+  "com",
 ]);
 
 export async function POST(req: NextRequest) {
@@ -47,11 +62,18 @@ export async function POST(req: NextRequest) {
     }
 
     const originalName = file.name || "upload";
-    const mimeType = file.type || "application/octet-stream";
+    const mimeType = (file.type || "application/octet-stream").toLowerCase();
     const fileExt = originalName.includes(".") ? (originalName.split(".").pop() || "").toLowerCase() : "";
 
-    // Reject dangerous executable scripts and files
-    if (DISALLOWED_EXTENSIONS.has(fileExt)) {
+    // Reject dangerous executable scripts, SVGs, and active HTML content
+    const isDangerousMime =
+      mimeType.includes("image/svg+xml") ||
+      mimeType.includes("text/html") ||
+      mimeType.includes("application/xhtml+xml") ||
+      mimeType.includes("javascript") ||
+      mimeType.includes("application/x-msdownload");
+
+    if (DISALLOWED_EXTENSIONS.has(fileExt) || isDangerousMime) {
       return NextResponse.json(
         { error: "This file type cannot be uploaded for security reasons." },
         { status: 400 }

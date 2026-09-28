@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { tag } = await params;
   const title = `#${tag} Posts & Discussions | CampusLoop`;
   const description = `Explore trending student confessions, polls, and discussions for #${tag} on CampusLoop.`;
-  const url = `https://campusloop.space/app/hashtag/${encodeURIComponent(tag)}`;
+  const url = `https://campusloop.space/hashtag/${encodeURIComponent(tag)}`;
 
   return {
     title,
@@ -48,7 +48,7 @@ export default async function HashtagPage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `#${tag} Discussions`,
-    url: `https://campusloop.space/app/hashtag/${encodeURIComponent(tag)}`,
+    url: `https://campusloop.space/hashtag/${encodeURIComponent(tag)}`,
     description: `Student posts and campus threads tagged with #${tag}.`,
   };
 

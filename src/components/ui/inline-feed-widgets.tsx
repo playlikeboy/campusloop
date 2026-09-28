@@ -73,7 +73,7 @@ export function InlineCommunitiesWidget() {
           <h3 className="text-[15px] font-bold text-foreground tracking-tight">Communities for you</h3>
         </div>
         <Link
-          href="/app/communities"
+          href="/communities"
           className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
         >
           Show more
@@ -103,7 +103,7 @@ export function InlineCommunitiesWidget() {
 
                 <div className="min-w-0 flex-1">
                   <Link
-                    href={`/app/communities/${comm.id}`}
+                    href={`/communities/${comm.id}`}
                     className="font-bold text-sm text-foreground hover:underline truncate block"
                   >
                     {comm.name}
@@ -153,7 +153,7 @@ export function InlineDatingWidget() {
       </div>
 
       <Link
-        href="/app/dating"
+        href="/dating"
         className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs transition-all shadow-2xs active:scale-95 cursor-pointer"
       >
         Explore Match
@@ -209,7 +209,7 @@ export function InlineHashtagsWidget() {
           <Flame className="size-4 text-primary" />
           <h3 className="text-[15px] font-bold text-foreground tracking-tight">Trending on Campus</h3>
         </div>
-        <Link href="/app/discover" className="text-xs font-bold text-primary hover:underline cursor-pointer">
+        <Link href="/explore" className="text-xs font-bold text-primary hover:underline cursor-pointer">
           Explore
         </Link>
       </div>
@@ -218,7 +218,7 @@ export function InlineHashtagsWidget() {
         {tags.map((item) => (
           <Link
             key={item.tag}
-            href={`/app/hashtag/${item.tag}`}
+            href={`/hashtag/${item.tag}`}
             className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20 hover:bg-muted/40 transition-colors border border-border/30"
           >
             <div className="min-w-0">

@@ -1,15 +1,15 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { bikeBookings, bikes } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const allBikes = await db.query.bikes.findMany({
       orderBy: [desc(bikes.createdAt)],
@@ -44,8 +44,9 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const body = (await req.json()) as Record<string, any>;
     const { bookingId, status, depositRefundStatus } = body;

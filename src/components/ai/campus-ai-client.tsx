@@ -450,14 +450,14 @@ export function CampusAiClient() {
                       {m.sources.map((s) => {
                         const href =
                           s.type === "post"
-                            ? `/app/post/${s.id}`
+                            ? `/post/${s.id}`
                             : s.type === "event"
-                              ? `/app/events/${s.id}`
+                              ? `/events/${s.id}`
                               : s.type === "marketplace"
-                                ? `/app/marketplace`
+                                ? `/marketplace`
                                 : s.type === "academic"
-                                  ? `/app/academics`
-                                  : `/app`;
+                                  ? `/academics`
+                                  : `/feeds`;
 
                         return (
                           <Link

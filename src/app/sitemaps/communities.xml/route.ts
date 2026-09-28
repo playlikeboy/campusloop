@@ -20,7 +20,7 @@ export async function GET() {
       .map(
         (item) => `
   <url>
-    <loc>https://campusloop.space/app/communities/${item.id}</loc>
+    <loc>https://campusloop.space/communities/${item.id}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>`

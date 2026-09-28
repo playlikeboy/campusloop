@@ -274,7 +274,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     return {
       success: true,
       postId: newPost.id,
-      postUrl: `/app/post/${newPost.id}`,
+      postUrl: `/post/${newPost.id}`,
       title: newPost.title,
       status: newPost.status,
       createdAt: newPost.createdAt,
@@ -315,7 +315,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     return {
       success: true,
       confessionId: newPost.id,
-      postUrl: `/app/post/${newPost.id}`,
+      postUrl: `/post/${newPost.id}`,
       pseudonym: newPost.pseudonym,
       status: newPost.status,
       message: "Confession published with cryptographic identity escrow.",
@@ -373,7 +373,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     return {
       success: true,
       pollId: newPost.id,
-      postUrl: `/app/post/${newPost.id}`,
+      postUrl: `/post/${newPost.id}`,
       question,
       options: createdOptions,
       createdAt: newPost.createdAt,
@@ -721,7 +721,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     return {
       success: true,
       postId: newPost.id,
-      postUrl: `/app/post/${newPost.id}`,
+      postUrl: `/post/${newPost.id}`,
       communityName: comm.name,
       createdAt: newPost.createdAt,
     };
@@ -1273,7 +1273,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     return {
       success: true,
       postId: newPost.id,
-      postUrl: `/app/post/${newPost.id}`,
+      postUrl: `/post/${newPost.id}`,
       communityName: comm.name,
       botName,
       message: "Automated alert published via community webhook pipeline.",

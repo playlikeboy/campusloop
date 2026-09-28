@@ -515,6 +515,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
               <div key={comment.id} className="pt-2 pb-1">
                 <CommentItem
                   comment={comment}
+                  postId={postId}
                   isPostAuthor={isAuthor}
                   hasReplies={replies.length > 0}
                   onReply={(id) => setReplyingToId(id)}
@@ -535,6 +536,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
                     <CommentItem
                       key={reply.id}
                       comment={reply}
+                      postId={postId}
                       depth={1}
                       isPostAuthor={isReplyAuthor}
                       onReply={(id) => setReplyingToId(id)}

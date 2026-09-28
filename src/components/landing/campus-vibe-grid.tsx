@@ -28,7 +28,7 @@ export function CampusVibeGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: 24h Stories */}
           <Link
-            href="/app/stories/new"
+            href="/stories/new"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -59,7 +59,7 @@ export function CampusVibeGrid() {
 
           {/* Card 2: Campus Match / Dating */}
           <Link
-            href="/app/dating"
+            href="/dating"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -88,7 +88,7 @@ export function CampusVibeGrid() {
 
           {/* Card 3: Communities & Sub-Hubs */}
           <Link
-            href="/app/communities"
+            href="/communities"
             onClick={() => {
               sounds.tap();
               haptics.light();

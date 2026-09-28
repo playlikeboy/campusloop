@@ -108,7 +108,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
     if (target.closest("button") || target.closest("a")) return;
     sounds.tap();
     haptics.light();
-    router.push(`/app/communities/${community?.id}`);
+    router.push(`/communities/${community?.id}`);
   }
 
   const memberCount = community.membersCount ?? community.members?.length ?? 0;

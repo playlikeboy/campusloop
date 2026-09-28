@@ -90,7 +90,7 @@ export function CreateCommunityClient() {
       });
 
       toast.success(`c/${newComm.name} created! +100 LP awarded 🎉`);
-      router.push(`/app/communities/${newComm.slug || newComm.id}`);
+      router.push(`/communities/${newComm.slug || newComm.id}`);
     } catch (err: unknown) {
       toast.error((err as Error)?.message || "Failed to create community");
       setLoading(false);
@@ -102,7 +102,7 @@ export function CreateCommunityClient() {
       {/* Top Bar Navigation */}
       <div className="flex items-center justify-between">
         <Link
-          href="/app/communities"
+          href="/communities"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-muted/40 hover:bg-muted px-3.5 py-1.5 rounded-full"
         >
           <ArrowLeft className="size-3.5" /> Back to Communities
@@ -158,7 +158,7 @@ export function CreateCommunityClient() {
             {name.trim() && (
               <p className="text-[11px] text-muted-foreground pl-3">
                 URL Preview:{" "}
-                <strong className="text-foreground">campusloop.space/app/communities/{generatedSlug}</strong>
+                <strong className="text-foreground">campusloop.space/communities/{generatedSlug}</strong>
               </p>
             )}
           </div>

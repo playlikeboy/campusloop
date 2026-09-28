@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isMediaImageUrl } from "@/lib/embeds";
+import { isSafePublicUrl, safeFetch } from "@/lib/security/ssrf";
 
 export const dynamic = "force-dynamic";
 
@@ -26,27 +27,26 @@ export async function GET(req: Request) {
       return NextResponse.json({ url: targetUrl, isMedia: true });
     }
 
-    // Validate URL format
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(targetUrl);
-      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-        return NextResponse.json({ error: "Invalid URL protocol" }, { status: 400 });
-      }
-    } catch {
-      return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+    // SSRF Prevention: Validate URL format, scheme, IP ranges, and internal hostnames
+    const ssrfCheck = isSafePublicUrl(targetUrl);
+    if (!ssrfCheck.safe || !ssrfCheck.url) {
+      return NextResponse.json(
+        { error: "Invalid or restricted URL destination" },
+        { status: 400 }
+      );
     }
 
+    const parsedUrl = ssrfCheck.url;
     const host = parsedUrl.hostname;
     const favicon = `https://www.google.com/s2/favicons?domain=${host}&sz=128`;
 
-    // Fetch HTML with timeout
+    // Fetch HTML with timeout and SSRF redirect validation
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3500);
 
     let html = "";
     try {
-      const response = await fetch(targetUrl, {
+      const response = await safeFetch(targetUrl, {
         signal: controller.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 (compatible; CampusLoopBot/1.0; +https://campusloop.space)",

@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description =
     comm.description ||
     `Join c/${comm.name} student sub-community on CampusLoop for hot posts, confessions, and campus discussions.`;
-  const url = `https://campusloop.space/app/communities/${comm.slug || comm.id}`;
+  const url = `https://campusloop.space/communities/${comm.slug || comm.id}`;
 
   return {
     title,

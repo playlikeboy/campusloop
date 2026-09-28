@@ -938,7 +938,7 @@ function SingleReelItem({
     e.stopPropagation();
     haptics.light();
     const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = `${origin}/app/post/${post.id}`;
+    const shareUrl = `${origin}/post/${post.id}`;
     trackReelTelemetry({
       postId: post.id,
       watchDurationMs: Date.now() - watchStartTimeRef.current,

@@ -1,6 +1,6 @@
 import { desc } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { requireAdminProfile } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
 
@@ -16,7 +16,9 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: NextRequest) {
   try {
-    const { profile } = await requireAdminProfile();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const profile = auth.profile;
     const body = (await req.json()) as any;
     const { action, payload } = body;
 

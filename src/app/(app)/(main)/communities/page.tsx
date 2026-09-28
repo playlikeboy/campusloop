@@ -20,11 +20,11 @@ export const metadata: Metadata = {
     "Student Groups India",
     "Coding Clubs",
   ],
-  alternates: { canonical: "https://campusloop.space/app/communities" },
+  alternates: { canonical: "https://campusloop.space/communities" },
   openGraph: {
     title: "Student Communities & Sub-Hubs | CampusLoop",
     description: "Browse interest groups and student communities on CampusLoop.",
-    url: "https://campusloop.space/app/communities",
+    url: "https://campusloop.space/communities",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -114,7 +114,7 @@ export default async function CommunitiesPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Student Communities & Campus Sub-Hubs",
-    url: "https://campusloop.space/app/communities",
+    url: "https://campusloop.space/communities",
     description:
       "Directory of student-created technical clubs, cultural societies, and special interest groups across Indian colleges.",
     publisher: {

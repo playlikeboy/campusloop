@@ -30,13 +30,13 @@ export function FeedCaughtUpCard() {
         </p>
         <div className="flex items-center justify-center gap-2 pt-1">
           <Link
-            href="/app/colleges"
+            href="/colleges"
             className="px-3.5 py-1.5 rounded-xl border border-primary/30 bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
           >
             Campus Directory
           </Link>
           <Link
-            href="/app/dating"
+            href="/dating"
             className="px-3.5 py-1.5 rounded-xl border border-primary/30 bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
           >
             Campus Match

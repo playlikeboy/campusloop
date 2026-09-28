@@ -7,7 +7,7 @@ export const hexclaveClientApp = new HexclaveClientApp({
     signIn: "/handler/sign-in",
     signUp: "/handler/sign-up",
     afterSignIn: "/app",
-    afterSignUp: "/app/onboarding",
+    afterSignUp: "/onboarding",
     afterSignOut: "/handler/sign-in",
     oauthCallback: "/handler/oauth-callback",
 

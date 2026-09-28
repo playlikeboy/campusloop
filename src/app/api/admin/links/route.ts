@@ -1,6 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { linkClicks, shortLinks } from "@/db/schema";
 
@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const [links, recentClicks, deviceStats, topReferrers] = await Promise.all([
       db.query.shortLinks.findMany({
@@ -49,13 +50,16 @@ export async function GET() {
     });
   } catch (err) {
     console.error("Failed to fetch admin short links:", err);
-    return NextResponse.json({ error: "Unauthorized or server error" }, { status: 401 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const admin = await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const body = (await req.json()) as any;
     const slug = (body.slug || "")
       .trim()
@@ -68,11 +72,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Slug and target URL are required." }, { status: 400 });
     }
 
+    // Disallow javascript: or unsafe schemes
+    if (/^(?:javascript|data|vbscript):/i.test(targetUrl)) {
+      return NextResponse.json({ error: "Target URL cannot use script or data protocols." }, { status: 400 });
+    }
+
     if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://") && !targetUrl.startsWith("/")) {
       targetUrl = `https://${targetUrl}`;
     }
-
-    const db = getDb();
 
     // Check collision
     const existing = await db.query.shortLinks.findFirst({
@@ -89,7 +96,7 @@ export async function POST(req: Request) {
         slug,
         targetUrl,
         title,
-        createdBy: admin.profile?.id || null,
+        createdBy: auth.profile.id,
       })
       .returning();
 
@@ -102,7 +109,10 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    await resolveAdminSession();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
@@ -110,7 +120,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Missing link ID" }, { status: 400 });
     }
 
-    const db = getDb();
     await db.delete(shortLinks).where(eq(shortLinks.id, id));
 
     return NextResponse.json({ success: true });

@@ -208,7 +208,7 @@ export async function POST(req: Request, { params }: RouteProps) {
       {
         success: true,
         postId: newPost.id,
-        postUrl: `/app/post/${newPost.id}`,
+        postUrl: `/post/${newPost.id}`,
         community: {
           id: comm.id,
           name: comm.name,

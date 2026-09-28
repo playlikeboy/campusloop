@@ -29,7 +29,7 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
       colSpan: 2,
       hasPersistentHover: true,
       cta: "Launch App",
-      ctaHref: "/app",
+      ctaHref: "/feeds",
       contentNode: (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
           {appProduct.highlights.map((h, i) => (
@@ -52,7 +52,7 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
       tags: ["Dating", "Safe Match", "No Catfish"],
       colSpan: 1,
       cta: "Discover",
-      ctaHref: "/app/dating",
+      ctaHref: "/dating",
     },
     {
       id: "academics-vault-product",
@@ -65,7 +65,7 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
       tags: ["PYQs", "Study Vault", "Fast PDF"],
       colSpan: 1,
       cta: "Browse Vault",
-      ctaHref: "/app/academics",
+      ctaHref: "/academics",
     },
     {
       id: "digital-observatory",

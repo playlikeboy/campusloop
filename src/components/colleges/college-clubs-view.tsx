@@ -82,7 +82,7 @@ export function CollegeClubsView({ collegeName }: CollegeClubsViewProps) {
         </div>
 
         <Link
-          href="/app/communities"
+          href="/communities"
           className="px-3.5 py-1.5 rounded-full border border-border/80 bg-card text-xs font-bold text-foreground hover:bg-muted transition-colors flex items-center gap-1.5 shrink-0 shadow-2xs"
         >
           <Plus className="size-3.5 text-primary" />
@@ -94,7 +94,7 @@ export function CollegeClubsView({ collegeName }: CollegeClubsViewProps) {
         {BIT_MESRA_CLUBS.map((club, idx) => {
           const Icon = club.icon;
           return (
-            <Link key={idx} href={`/app/hashtag/${club.tag}`}>
+            <Link key={idx} href={`/hashtag/${club.tag}`}>
               <div className="rounded-3xl bg-card p-4 hover:bg-muted/40 transition-all cursor-pointer space-y-2.5 shadow-2xs group">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">

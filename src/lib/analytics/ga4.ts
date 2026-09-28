@@ -92,8 +92,8 @@ export function inferContentGroup(pathname: string): string {
   if (pathname.startsWith("/app/academics/sources")) return "academic_sources";
   if (pathname.startsWith("/app/academics")) return "academics";
   if (pathname.startsWith("/app/matching") || pathname.startsWith("/app/dating")) return "dating";
-  if (pathname.startsWith("/app/chat")) return "chat";
-  if (pathname.startsWith("/app/marketplace")) return "marketplace";
+  if (pathname.startsWith("/chat") || pathname.startsWith("/app/chat")) return "chat";
+  if (pathname.startsWith("/marketplace") || pathname.startsWith("/app/marketplace")) return "marketplace";
   if (pathname.startsWith("/articles") || pathname.startsWith("/app/articles") || pathname.startsWith("/a/")) return "articles";
   if (
     pathname.startsWith("/app/college") ||
@@ -101,11 +101,11 @@ export function inferContentGroup(pathname: string): string {
     pathname.startsWith("/college/")
   )
     return "colleges";
-  if (pathname.startsWith("/app/communities") || pathname.startsWith("/c/")) return "communities";
-  if (pathname.startsWith("/app/post")) return "post_detail";
-  if (pathname.startsWith("/app/profile") || pathname.startsWith("/@")) return "student_profile";
-  if (pathname.startsWith("/app/confessions")) return "confessions";
-  if (pathname === "/app") return "campus_feed";
+  if (pathname.startsWith("/communities") || pathname.startsWith("/app/communities") || pathname.startsWith("/c/")) return "communities";
+  if (pathname.startsWith("/post") || pathname.startsWith("/app/post")) return "post_detail";
+  if (pathname.startsWith("/profile") || pathname.startsWith("/app/profile") || pathname.startsWith("/@")) return "student_profile";
+  if (pathname.startsWith("/confessions") || pathname.startsWith("/app/confessions")) return "confessions";
+  if (pathname === "/app" || pathname === "/feeds") return "campus_feed";
   if (pathname.startsWith("/admin")) return "admin";
   return "other";
 }

@@ -1,6 +1,6 @@
 import { and, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { resolveAdminSession } from "@/app/admin/_lib/guard";
+import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { feedBoosts, posts, userProfiles } from "@/db/schema";
 import { invalidateBoostCache } from "@/lib/feed-boosts";
@@ -30,8 +30,10 @@ function clampMultiplier(value: unknown): number {
  */
 export async function GET(req: NextRequest) {
   try {
-    const { profile } = await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+    const profile = auth.profile;
 
     const { searchParams } = new URL(req.url);
     const includeExpired = searchParams.get("includeExpired") === "true";
@@ -116,8 +118,10 @@ export async function GET(req: NextRequest) {
 /** Create or replace a boost for one target. */
 export async function POST(req: NextRequest) {
   try {
-    const { profile } = await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
+    const profile = auth.profile;
 
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const targetType = body.targetType === "PROFILE" ? "PROFILE" : "POST";
@@ -192,8 +196,9 @@ export async function POST(req: NextRequest) {
 /** Lift a boost. */
 export async function DELETE(req: NextRequest) {
   try {
-    await resolveAdminSession();
-    const db = getDb();
+    const auth = await requireAdminApi();
+    if (!auth.authorized) return auth.errorResponse;
+    const db = auth.db;
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
