@@ -14,7 +14,7 @@ export default async function NewHousingPage() {
   if (!user) redirect("/handler/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/app/onboarding");
+  if (!profile) redirect("/onboarding");
 
   return <HubCreateClient initialType="housing" profileId={profile.id} />;
 }
