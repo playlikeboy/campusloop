@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ArrowUp,
-  Bookmark,
-  Check,
-  Clock,
-  MessageSquare,
-  Share2,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowUp, Bookmark, Check, Clock, MessageSquare, Share2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -66,9 +58,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   const authorUsername = article.author?.username || "student";
   const isVerified = (article.author?.points || 0) >= 150;
   const collegeShort =
-    article.institution?.name?.split(",")[0] ||
-    article.author?.institution?.name?.split(",")[0] ||
-    "Campus";
+    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
@@ -95,7 +85,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
         body: JSON.stringify({ value: nextVote }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = (await res.json()) as { upvotesCount?: number };
       if (typeof data.upvotesCount === "number") {
         setUpvotes(data.upvotesCount);
       }
@@ -120,7 +110,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
         method: "POST",
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = (await res.json()) as { isSaved?: boolean; message?: string };
       setIsSaved(Boolean(data.isSaved));
       toast.success(data.message || (data.isSaved ? "Saved to reading list" : "Removed"));
     } catch {
@@ -166,7 +156,12 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-2.5 left-2.5">
-                <span className={cn("px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md", catMeta.colorClass)}>
+                <span
+                  className={cn(
+                    "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md",
+                    catMeta.colorClass
+                  )}
+                >
                   {catMeta.label}
                 </span>
               </div>
@@ -195,7 +190,10 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
               </div>
 
               {/* Title & Excerpt */}
-              <Link href={`/articles/${article.slug}`} className="block group-hover:text-primary transition-colors">
+              <Link
+                href={`/articles/${article.slug}`}
+                className="block group-hover:text-primary transition-colors"
+              >
                 <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
                   {article.title}
                 </h2>
@@ -298,7 +296,10 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           </div>
 
           {/* Title */}
-          <Link href={`/articles/${article.slug}`} className="block group-hover:text-primary transition-colors">
+          <Link
+            href={`/articles/${article.slug}`}
+            className="block group-hover:text-primary transition-colors"
+          >
             <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
               {article.title}
             </h3>
@@ -314,7 +315,9 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           {/* Card Footer: Metadata + Actions */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-2.5">
-              <span className={cn("px-2 py-0.5 rounded text-[10px] font-semibold border", catMeta.colorClass)}>
+              <span
+                className={cn("px-2 py-0.5 rounded text-[10px] font-semibold border", catMeta.colorClass)}
+              >
                 {catMeta.label}
               </span>
               <span>{article.readingTimeMinutes || 3} min read</span>

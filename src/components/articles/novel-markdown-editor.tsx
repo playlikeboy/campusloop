@@ -613,7 +613,9 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("bold") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+              editor.isActive("bold")
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Bold"
           >
@@ -624,7 +626,9 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("italic") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+              editor.isActive("italic")
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Italic"
           >
@@ -635,7 +639,9 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("strike") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+              editor.isActive("strike")
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Strikethrough"
           >
@@ -646,7 +652,9 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("code") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+              editor.isActive("code")
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Inline Code"
           >
@@ -670,7 +678,9 @@ export function NovelMarkdownEditor({
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={cn(
               "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("blockquote") ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+              editor.isActive("blockquote")
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-foreground"
             )}
             title="Quote"
           >

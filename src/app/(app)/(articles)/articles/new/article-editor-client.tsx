@@ -4,22 +4,15 @@ import confetti from "canvas-confetti";
 import {
   AlertCircle,
   ArrowLeft,
-  BookOpen,
   Check,
   ChevronRight,
-  Clock,
   Eye,
-  Image as ImageIcon,
   Loader2,
-  PenTool,
-  Save,
   Send,
-  ShieldCheck,
   Sparkles,
   Upload,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -28,11 +21,7 @@ import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ARTICLE_CATEGORY_LIST,
-  ARTICLES_CANONICAL_HOST,
-  getCategoryMeta,
-} from "@/constants/articles";
+import { ARTICLE_CATEGORY_LIST, getCategoryMeta } from "@/constants/articles";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadImageToImgBB } from "@/lib/upload";
@@ -166,7 +155,7 @@ export function ArticleEditorClient({
       });
 
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = (await res.json()) as { article?: { id: string; slug: string } };
 
       if (data.article) {
         if (!slug && data.article.slug) setSlug(data.article.slug);
@@ -307,7 +296,7 @@ export function ArticleEditorClient({
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as { article?: { id: string; slug: string }; error?: string };
       if (!res.ok) {
         throw new Error(data.error || "Failed to publish article");
       }
@@ -380,9 +369,7 @@ export function ArticleEditorClient({
                   <span>Saved</span>
                 </span>
               )}
-              {saveStatus === "unsaved" && (
-                <span className="text-muted-foreground/70">Unsaved changes</span>
-              )}
+              {saveStatus === "unsaved" && <span className="text-muted-foreground/70">Unsaved changes</span>}
               {saveStatus === "error" && (
                 <span className="flex items-center gap-1 text-amber-500">
                   <AlertCircle className="size-3" />
@@ -537,7 +524,12 @@ export function ArticleEditorClient({
                   {currentProfile?.displayName || `@${currentProfile?.username || "student"}`}
                 </p>
                 <p className="text-[11px]">
-                  {readingTime} min read · {new Date().toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                  {readingTime} min read ·{" "}
+                  {new Date().toLocaleDateString("en-IN", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
             </div>
