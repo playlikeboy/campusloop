@@ -561,7 +561,7 @@ export function NewEventClient() {
         status === "DRAFT" ? "Draft saved. Publish whenever you're ready." : "Campus Event published live!"
       );
       mutate("/api/events");
-      router.push(`/app/events/${data.event?.slug || data.event?.id}`);
+      router.push(`/events/${data.event?.slug || data.event?.id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create event");
       haptics.error();

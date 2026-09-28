@@ -63,7 +63,7 @@ export function BranchDirectoryClient() {
           </div>
         </div>
 
-        <Link href="/app/colleges" className="text-xs font-bold text-primary hover:underline shrink-0 pl-2">
+        <Link href="/colleges" className="text-xs font-bold text-primary hover:underline shrink-0 pl-2">
           All Colleges
         </Link>
       </header>
@@ -199,7 +199,7 @@ export function BranchDirectoryClient() {
                       Profile
                     </Link>
                     <Link
-                      href={`/app/chat?userId=${student.id}`}
+                      href={`/chat?userId=${student.id}`}
                       className="size-7 rounded-full bg-primary/10 text-primary hover:bg-primary/20 flex items-center justify-center transition-colors cursor-pointer"
                       title="Direct Message"
                     >
@@ -211,7 +211,7 @@ export function BranchDirectoryClient() {
                 {/* College / Institution with Direct Hyperlink */}
                 {student.institution && (
                   <Link
-                    href={`/app/college/${student.institution.slug || student.institution.id}`}
+                    href={`/college/${student.institution.slug || student.institution.id}`}
                     className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1 truncate max-w-full"
                   >
                     <School className="size-3.5 shrink-0 text-primary/70" />
@@ -249,7 +249,7 @@ export function BranchDirectoryClient() {
               </p>
             </div>
             <Link
-              href="/app/profile/edit"
+              href="/profile/edit"
               className="py-2 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer"
             >
               Add {branchTitle} to Profile

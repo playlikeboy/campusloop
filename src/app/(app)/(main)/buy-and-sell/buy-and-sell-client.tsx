@@ -202,7 +202,7 @@ export function BuyAndSellClient({ profileId }: BuyAndSellClientProps) {
           </div>
 
           <Link
-            href="/app/buy-and-sell/new"
+            href="/buy-and-sell/new"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -330,7 +330,7 @@ export function BuyAndSellClient({ profileId }: BuyAndSellClientProps) {
               </p>
             </div>
             <Link
-              href="/app/buy-and-sell/new"
+              href="/buy-and-sell/new"
               onClick={() => {
                 sounds.tap();
                 haptics.light();

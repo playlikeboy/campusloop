@@ -158,7 +158,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
 
       toast.success("Item listed on Buy & Sell Hub! 🎉");
       mutate((key) => typeof key === "string" && key.includes("/api/communities/feed"));
-      router.push("/app/buy-and-sell");
+      router.push("/buy-and-sell");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to post listing");
       setIsSubmitting(false);
