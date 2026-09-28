@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages, userProfiles } from "@/db/schema";
@@ -197,8 +197,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
           .set({ readAt: new Date() })
           .where(
             and(
-              eq(messages.conversationId, conversationId)
-              // sender is NOT the current user
+              eq(messages.conversationId, conversationId),
+              ne(messages.senderId, profile.id)
             )
           );
         break;
