@@ -186,7 +186,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             "@type": "DiscussionForum",
             name: `c/${comm.name}`,
             description: comm.description || `Sub-hub community for ${comm.name} on CampusLoop.`,
-            url: `https://campusloop.space/app/communities/${comm.slug || comm.id}`,
+            url: `https://campusloop.space/communities/${comm.slug || comm.id}`,
             memberCount: activeMembersCount,
           }),
         }}

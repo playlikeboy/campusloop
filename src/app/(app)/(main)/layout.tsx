@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { Navigation } from "@/components/ui/navigation";
-import { RightSidebar } from "@/components/ui/right-sidebar";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
@@ -34,26 +33,21 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="app-surface relative min-h-screen bg-pastel-mesh text-foreground">
+    <div className="app-surface relative min-h-screen bg-pastel-mesh text-foreground flex flex-col">
       <Navigation
         profile={profile || undefined}
         collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
         isAdmin={profile?.role === "ADMIN"}
         isViewer={viewerMode}
       />
-      <div className="flex md:pl-[248px] min-h-screen max-w-full overflow-x-clip">
-        <main className="flex-1 w-full min-w-0 max-w-full min-h-screen">
-          {viewerMode && (
-            <div className="sticky top-0 z-30 flex min-h-8 items-center justify-center border-b border-amber-500/15 bg-amber-500/8 px-3 py-1.5 text-center text-[11px] font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md">
-              <span>Preview mode · <strong>Verify your college email</strong> to post, vote &amp; chat.</span>
-            </div>
-          )}
-          {children}
-          <FirstVisitNotificationPrompt />
-        </main>
-        <aside className="hidden lg:block w-80 xl:w-[350px] shrink-0 border-l border-border/45 bg-background/35 px-4 py-4">
-          <RightSidebar />
-        </aside>
+      <div className="flex-1 w-full min-w-0 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {viewerMode && (
+          <div className="mb-4 flex min-h-8 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-center text-xs font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md">
+            <span>Preview mode · <strong>Verify your college email</strong> to post, vote &amp; chat.</span>
+          </div>
+        )}
+        {children}
+        <FirstVisitNotificationPrompt />
       </div>
     </div>
   );

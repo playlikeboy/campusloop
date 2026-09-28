@@ -8,7 +8,6 @@ import { ShareQrButton } from "@/components/common/share-qr-button";
 import { PublicFollowButton } from "@/components/profile/public-follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
-import { RightSidebar } from "@/components/ui/right-sidebar";
 import { getBranchIcon } from "@/constants";
 import { getDb } from "@/db";
 import { academicPlaylists, academicResources, externalPosts, institutions, posts, userProfiles } from "@/db/schema";
@@ -218,8 +217,8 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
             isAdmin={currentProfile.role === "ADMIN"}
           />
 
-          <div className="flex md:pl-64 min-h-screen max-w-full overflow-x-clip">
-            <main className="flex-1 w-full min-w-0 max-w-2xl px-0 py-0 pb-28 md:pb-0 mx-auto min-h-screen border-r border-border/30 overflow-x-clip">
+          <div className="min-h-screen max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <main className="w-full min-w-0 pb-24 md:pb-8">
               <Suspense
                 fallback={
                   <div className="p-8 text-center text-xs text-muted-foreground">Loading profile...</div>
@@ -237,10 +236,6 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                 />
               </Suspense>
             </main>
-
-            <aside className="hidden lg:block w-80 xl:w-[350px] shrink-0 px-4 py-3">
-              <RightSidebar />
-            </aside>
           </div>
         </div>
       );
@@ -330,8 +325,8 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
       </header>
 
       {/* Main Container Layout */}
-      <div className="flex max-w-5xl mx-auto w-full pt-20 px-4 gap-6 items-start">
-        <main className="flex-1 w-full max-w-2xl space-y-4">
+      <div className="max-w-4xl mx-auto w-full pt-20 px-4 pb-16">
+        <main className="w-full space-y-4">
           {/* Profile Card (Clean Twitter/X Architecture) */}
           <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 shadow-xs">
             <div className="relative h-28 sm:h-40 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
@@ -467,7 +462,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                     {userPlaylists.map((pl) => (
                       <Link
                         key={pl.id}
-                        href={`/app/academics/playlists/${pl.slug}`}
+                        href={`/academics/playlists/${pl.slug}`}
                         className="p-3 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-all flex flex-col justify-between gap-2"
                       >
                         <div className="space-y-1 min-w-0">
@@ -499,7 +494,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                     {userAcademicResources.map((res) => (
                       <Link
                         key={res.id}
-                        href={`/app/academics/${res.id}`}
+                        href={`/academics/${res.id}`}
                         className="flex items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-3"
                       >
                         <div className="min-w-0 flex-1 space-y-0.5">
@@ -548,7 +543,7 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
                   return (
                     <Link
                       key={p.id}
-                      href={`/app/post/${p.id}`}
+                      href={`/post/${p.id}`}
                       className="block p-3.5 hover:bg-muted/30 transition-colors space-y-1"
                     >
                       <div className="flex items-center gap-2 min-w-0">
@@ -642,10 +637,6 @@ export default async function VanityProfilePage({ params }: VanityProfileProps) 
             </div>
           </div>
         </main>
-
-        <aside className="hidden lg:block w-80 shrink-0 sticky top-24">
-          <RightSidebar />
-        </aside>
       </div>
     </div>
   );

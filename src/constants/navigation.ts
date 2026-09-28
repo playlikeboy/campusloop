@@ -69,13 +69,6 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
     badgeColor: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
   },
   {
-    icon: AnimateVideo,
-    href: "/reels",
-    label: "Reels",
-    badge: "NEW",
-    badgeColor: "bg-purple-500/15 text-purple-400 border border-purple-500/30",
-  },
-  {
     icon: AnimateCalendar,
     href: "/events",
     label: "Events",
