@@ -1,4 +1,4 @@
-import { FiltersClient } from "@/app/app/(dating)/dating/filters/filters-client";
+import { FiltersClient } from "@/app/(app)/(dating)/dating/filters/filters-client";
 
 export const metadata = {
   title: "Matching Preferences · Campus Match",

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
-import ArticleReaderPage from "@/app/app/(articles)/articles/[slug]/page";
+import ArticleReaderPage from "@/app/(app)/(articles)/articles/[slug]/page";
 import { getDb } from "@/db";
 import { articles } from "@/db/schema";
 

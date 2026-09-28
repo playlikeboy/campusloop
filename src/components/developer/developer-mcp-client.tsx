@@ -27,7 +27,7 @@ import {
   regenerateMcpKey,
   testExecuteMcpTool,
   toggleMcpKey,
-} from "@/app/app/(main)/developer/actions";
+} from "@/app/(app)/(main)/developer/actions";
 import { CAMPUSLOOP_MCP_TOOLS } from "@/lib/mcp/tools-catalog";
 import type { UserMcpKey } from "@/db/schema";
 import { haptics } from "@/lib/haptics";

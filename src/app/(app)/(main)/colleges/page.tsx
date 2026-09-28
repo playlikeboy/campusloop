@@ -14,11 +14,11 @@ export const metadata: Metadata = {
     "Campus Directory",
     "Verified Student Communities",
   ],
-  alternates: { canonical: "https://campusloop.space/app/colleges" },
+  alternates: { canonical: "https://campusloop.space/colleges" },
   openGraph: {
     title: "Campus Directory & Colleges",
     description: "Browse and search over 1,350+ verified colleges in India on CampusLoop.",
-    url: "https://campusloop.space/app/colleges",
+    url: "https://campusloop.space/colleges",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -46,7 +46,7 @@ export default function CollegesPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Indian College Directory & Campus Hubs",
-    url: "https://campusloop.space/app/colleges",
+    url: "https://campusloop.space/colleges",
     description: "Directory of 1,350+ accredited Indian universities and colleges on the CampusLoop network.",
     publisher: {
       "@type": "Organization",

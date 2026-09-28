@@ -1,4 +1,4 @@
-import { LikesClient } from "@/app/app/(dating)/dating/likes/likes-client";
+import { LikesClient } from "@/app/(app)/(dating)/dating/likes/likes-client";
 
 export const metadata = {
   title: "Likes You · Campus Match",

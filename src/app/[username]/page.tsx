@@ -15,7 +15,7 @@ import { academicPlaylists, academicResources, externalPosts, institutions, post
 import { hexclaveServerApp } from "@/hexclave/server";
 import type { ExternalPostInfo, FeedPost } from "@/hooks/use-feed";
 import { getFollowCounts, getFollowState } from "@/lib/follows";
-import { ProfileClientView } from "../app/(main)/profile/profile-client";
+import { ProfileClientView } from "@/app/(app)/(main)/profile/profile-client";
 
 interface VanityProfileProps {
   params: Promise<{ username: string }>;
