@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { and, count, desc, eq, ilike, ne, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -13,8 +14,10 @@ export async function GET(request: Request) {
     const q = searchParams.get("q") || "";
     const state = searchParams.get("state");
     const category = searchParams.get("category");
-    const page = Number(searchParams.get("page")) || 1;
-    const limit = Number(searchParams.get("limit")) || 12;
+    const requestedPage = Number(searchParams.get("page"));
+    const requestedLimit = Number(searchParams.get("limit"));
+    const page = Number.isFinite(requestedPage) ? Math.max(1, Math.floor(requestedPage)) : 1;
+    const limit = Number.isFinite(requestedLimit) ? Math.min(100, Math.max(1, Math.floor(requestedLimit))) : 12;
     const offset = (page - 1) * limit;
 
     const conditions: (SQL | undefined)[] = [ne(institutions.slug, "viewer-hub")];
@@ -142,6 +145,10 @@ export async function POST(request: Request) {
       .replace(/^-+|-+$/g, "")
       .slice(0, 80);
 
+    if (!slug) {
+      return NextResponse.json({ error: "College name must contain letters or numbers" }, { status: 400 });
+    }
+
     // Return the existing hub instead of creating a near-duplicate
     const existing = await db.query.institutions.findFirst({
       where: eq(institutions.slug, slug),
@@ -150,23 +157,33 @@ export async function POST(request: Request) {
       return NextResponse.json(existing);
     }
 
-    const aisheCode = `CUSTOM_${Date.now().toString().slice(-8)}`;
+    const aisheCode = `CUSTOM_${randomUUID()}`;
 
-    const [newCollege] = await db
-      .insert(institutions)
-      .values({
-        aisheCode,
-        name: cleanName,
-        slug,
-        state: state?.trim().slice(0, 80) || "India",
-        district: district?.trim().slice(0, 80) || null,
-        website: website?.trim().slice(0, 200) || null,
-        country: "India",
-        source: "user_added",
-      })
-      .returning();
+    try {
+      const [newCollege] = await db
+        .insert(institutions)
+        .values({
+          aisheCode,
+          name: cleanName,
+          slug,
+          state: state?.trim().slice(0, 80) || "India",
+          district: district?.trim().slice(0, 80) || null,
+          website: website?.trim().slice(0, 200) || null,
+          country: "India",
+          source: "user_added",
+        })
+        .returning();
 
-    return NextResponse.json(newCollege);
+      return NextResponse.json(newCollege);
+    } catch (error) {
+      if ((error as { code?: string }).code === "23505") {
+        const raced = await db.query.institutions.findFirst({
+          where: eq(institutions.slug, slug),
+        });
+        if (raced) return NextResponse.json(raced);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error("Failed to add college:", error);
     return NextResponse.json({ error: "Failed to add college" }, { status: 500 });
