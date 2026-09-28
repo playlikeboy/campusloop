@@ -52,7 +52,7 @@ export function CartClient() {
             </p>
           </div>
           <Link
-            href="/app/marketplace"
+            href="/marketplace"
             onClick={() => {
               sounds.tap();
               haptics.light();
@@ -127,7 +127,7 @@ export function CartClient() {
               {/* Store Header */}
               <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
                 <Link
-                  href={`/app/marketplace/store/${group.merchantId}`}
+                  href={`/marketplace/store/${group.merchantId}`}
                   className="flex items-center gap-2 font-black text-sm text-foreground hover:underline"
                 >
                   <Store className="size-4 text-primary" />
@@ -234,7 +234,7 @@ export function CartClient() {
         {/* ─── Checkout Action Button ─── */}
         <div className="pt-2">
           <Link
-            href="/app/marketplace/checkout"
+            href="/marketplace/checkout"
             onClick={() => {
               sounds.send();
               haptics.success();

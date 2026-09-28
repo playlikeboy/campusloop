@@ -145,7 +145,7 @@ export function SavedClient() {
             </div>
             {!searchQuery && selectedCategory === "ALL" && (
               <Link
-                href="/app/discover"
+                href="/discover"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
               >
                 <Compass className="size-3.5" /> Explore Campuses

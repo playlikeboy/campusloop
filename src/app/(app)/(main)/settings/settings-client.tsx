@@ -398,7 +398,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </p>
 
           <Link
-            href="/app/profile"
+            href="/profile"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
           >
             View Verification Badges &amp; Invites →
@@ -421,7 +421,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </p>
 
           <Link
-            href="/app/developer"
+            href="/developer"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-1"
           >
             Manage MCP Keys &amp; IDE Setup →

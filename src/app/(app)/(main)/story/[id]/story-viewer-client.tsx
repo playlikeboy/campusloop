@@ -68,11 +68,11 @@ export function StoryViewerClient({
     if (prevStoryId) {
       sounds.pop();
       haptics.light();
-      router.push(`/app/story/${prevStoryId}`);
+      router.push(`/story/${prevStoryId}`);
     } else {
       sounds.tap();
       haptics.light();
-      router.push("/app");
+      router.push("/feeds");
     }
   }, [prevStoryId, router]);
 
@@ -80,18 +80,18 @@ export function StoryViewerClient({
     if (nextStoryId) {
       sounds.pop();
       haptics.light();
-      router.push(`/app/story/${nextStoryId}`);
+      router.push(`/story/${nextStoryId}`);
     } else {
       sounds.tap();
       haptics.light();
-      router.push("/app");
+      router.push("/feeds");
     }
   }, [nextStoryId, router]);
 
   const closeViewer = useCallback(() => {
     sounds.tap();
     haptics.light();
-    router.push("/app");
+    router.push("/feeds");
   }, [router]);
 
   // Auto-progress bar timer & auto-advance (pauses on touch/mouse hold or when typing)
