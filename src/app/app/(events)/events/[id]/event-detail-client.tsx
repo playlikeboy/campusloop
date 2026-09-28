@@ -81,8 +81,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   // Live countdown ticker
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
   useEffect(() => {
+    setNow(Date.now());
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -95,7 +96,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const relatedEvents = relatedData?.related || [];
 
   const countdown = useMemo(() => {
-    if (!event) return null;
+    if (!event || now === 0) return null;
     const startMs = new Date(event.startDate).getTime();
     const endMs = new Date(event.endDate).getTime();
     if (now >= startMs && now <= endMs) {

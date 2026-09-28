@@ -439,6 +439,11 @@ export function MessengerPane({
     }
   }, [handleLoadOlder, isLoadingOlder, hasMoreOlder, messages]);
 
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
+    setShowJumpToBottom(false);
+  }, []);
+
   // Auto scroll to bottom smoothly on message updates (unless user is searching or viewing older history)
   useEffect(() => {
     if (!chatSearchQuery.trim()) {
@@ -824,11 +829,6 @@ export function MessengerPane({
   function formatMemberCount(count: number) {
     return count === 1 ? "1 member" : count + " members";
   }
-
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
-    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
-    setShowJumpToBottom(false);
-  }, []);
 
   if (!conversationId) {
     return (

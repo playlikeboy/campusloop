@@ -80,6 +80,15 @@ const feedFetcher = async <T>(url: string): Promise<T> => {
 
 const PAGE_LIMIT = 20;
 
+function hashStringToSeed(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) % 2_147_483_647;
+}
+
 export function useFeed(
   scope: "CAMPUS" | "GLOBAL" = "CAMPUS",
   type?: string,
@@ -96,12 +105,12 @@ export function useFeed(
   // cannot move items between pages while the user is reading.
   const snapshotKeyRef = useRef(cacheKey);
   const snapshotAtRef = useRef(new Date().toISOString());
-  const sessionSeedRef = useRef(seed ?? Math.floor(Math.random() * 2_147_483_647));
+  const sessionSeedRef = useRef(seed ?? hashStringToSeed(cacheKey));
 
   if (snapshotKeyRef.current !== cacheKey) {
     snapshotKeyRef.current = cacheKey;
     snapshotAtRef.current = new Date().toISOString();
-    sessionSeedRef.current = seed ?? Math.floor(Math.random() * 2_147_483_647);
+    sessionSeedRef.current = seed ?? hashStringToSeed(cacheKey);
   }
 
   const effectiveSeed = sort === "random" ? sessionSeedRef.current : seed;

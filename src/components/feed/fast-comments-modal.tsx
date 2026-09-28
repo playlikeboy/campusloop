@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowUp,
   ChevronDown,
@@ -415,7 +415,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] sm:rounded-2xl border-t border-white/10 sm:border sm:border-white/15 bg-zinc-950/98 backdrop-blur-2xl text-zinc-100 shadow-2xl sm:max-w-lg"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             {/* ─── Mobile Drag Indicator ─── */}
             <div className="w-full flex items-center justify-center pt-2.5 pb-1 sm:hidden shrink-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { BadgeCheck, Flame, Heart, MessageSquare, Repeat, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { useState } from "react";
 import { haptics } from "@/lib/haptics";

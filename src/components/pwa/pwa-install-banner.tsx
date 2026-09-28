@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { PlusSquare, Share, Zap } from "lucide-react";
 import { AnimateDownload, AnimateX } from "@/components/ui/animated-icon";
 import { usePathname } from "next/navigation";
