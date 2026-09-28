@@ -61,8 +61,8 @@ export async function createMcpKey(name?: string) {
     })
     .returning();
 
-  revalidatePath("/app/developer");
-  revalidatePath("/app/settings");
+  revalidatePath("/developer");
+  revalidatePath("/settings");
   return newKey;
 }
 
@@ -85,7 +85,7 @@ export async function toggleMcpKey(keyId: string, isActive: boolean) {
     .where(and(eq(userMcpKeys.id, keyId), eq(userMcpKeys.userId, profile.id)))
     .returning();
 
-  revalidatePath("/app/developer");
+  revalidatePath("/developer");
   return updated;
 }
 
@@ -110,7 +110,7 @@ export async function regenerateMcpKey(keyId: string) {
     .where(and(eq(userMcpKeys.id, keyId), eq(userMcpKeys.userId, profile.id)))
     .returning();
 
-  revalidatePath("/app/developer");
+  revalidatePath("/developer");
   return updated;
 }
 
@@ -128,7 +128,7 @@ export async function deleteMcpKey(keyId: string) {
     .delete(userMcpKeys)
     .where(and(eq(userMcpKeys.id, keyId), eq(userMcpKeys.userId, profile.id)));
 
-  revalidatePath("/app/developer");
+  revalidatePath("/developer");
   return { success: true };
 }
 

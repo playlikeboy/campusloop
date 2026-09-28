@@ -94,7 +94,7 @@ export async function createCommunity(input: CreateCommunityInput) {
       .set({ points: sql`${userProfiles.points} + 100` })
       .where(eq(userProfiles.id, profile.id));
 
-    revalidatePath("/app/communities");
+    revalidatePath("/communities");
     return newComm;
   } catch (error) {
     if ((error as { code?: string }).code === "23505") {
@@ -149,8 +149,8 @@ export async function updateCommunitySettings(input: UpdateCommunitySettingsInpu
     .where(eq(communities.id, input.id))
     .returning();
 
-  revalidatePath(`/app/communities/${input.id}`);
-  revalidatePath(`/app/communities/${input.id}/settings`);
+  revalidatePath(`/communities/${input.id}`);
+  revalidatePath(`/communities/${input.id}/settings`);
   return updated;
 }
 
@@ -182,8 +182,8 @@ export async function joinCommunity(communityId: string) {
       .delete(communityMembers)
       .where(and(eq(communityMembers.communityId, communityId), eq(communityMembers.userId, profile.id)));
 
-    revalidatePath(`/app/communities/${communityId}`);
-    revalidatePath("/app/communities");
+    revalidatePath(`/communities/${communityId}`);
+    revalidatePath("/communities");
     return { joined: false, status: "NONE" };
   } else {
     // Join community: for PRIVATE groups, status is PENDING; for PUBLIC or UNLISTED, status is ACTIVE
@@ -204,8 +204,8 @@ export async function joinCommunity(communityId: string) {
         .where(eq(communities.id, communityId));
     }
 
-    revalidatePath(`/app/communities/${communityId}`);
-    revalidatePath("/app/communities");
+    revalidatePath(`/communities/${communityId}`);
+    revalidatePath("/communities");
     return { joined: initialStatus === "ACTIVE", status: initialStatus };
   }
 }
@@ -250,7 +250,7 @@ export async function approveJoinRequest(communityId: string, targetUserId: stri
     .set({ points: sql`${communities.points} + 15` })
     .where(eq(communities.id, communityId));
 
-  revalidatePath(`/app/communities/${communityId}/members`);
+  revalidatePath(`/communities/${communityId}/members`);
   return { success: true };
 }
 
@@ -275,7 +275,7 @@ export async function rejectJoinRequest(communityId: string, targetUserId: strin
       )
     );
 
-  revalidatePath(`/app/communities/${communityId}/members`);
+  revalidatePath(`/communities/${communityId}/members`);
   return { success: true };
 }
 
@@ -395,7 +395,7 @@ export async function createCommunityWebhook(input: CreateCommunityWebhookInput)
     })
     .returning();
 
-  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  revalidatePath(`/communities/${comm.slug || comm.id}/settings`);
   return newWebhook;
 }
 
@@ -441,7 +441,7 @@ export async function toggleCommunityWebhook(webhookId: string, isActive: boolea
     .where(eq(communityWebhooks.id, webhookId))
     .returning();
 
-  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  revalidatePath(`/communities/${comm.slug || comm.id}/settings`);
   return updated;
 }
 
@@ -489,7 +489,7 @@ export async function regenerateCommunityWebhookToken(webhookId: string) {
     .where(eq(communityWebhooks.id, webhookId))
     .returning();
 
-  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  revalidatePath(`/communities/${comm.slug || comm.id}/settings`);
   return updated;
 }
 
@@ -530,7 +530,7 @@ export async function deleteCommunityWebhook(webhookId: string) {
     .delete(communityWebhooks)
     .where(eq(communityWebhooks.id, webhookId));
 
-  revalidatePath(`/app/communities/${comm.slug || comm.id}/settings`);
+  revalidatePath(`/communities/${comm.slug || comm.id}/settings`);
   return { success: true };
 }
 
@@ -583,6 +583,6 @@ export async function sendTestCommunityWebhookPost(webhookId: string) {
     })
     .where(eq(communityWebhooks.id, webhook.id));
 
-  revalidatePath(`/app/communities/${comm.slug || comm.id}`);
+  revalidatePath(`/communities/${comm.slug || comm.id}`);
   return { success: true, postId: newPost.id };
 }

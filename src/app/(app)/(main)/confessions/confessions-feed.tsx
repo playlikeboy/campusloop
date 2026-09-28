@@ -164,7 +164,7 @@ export function ConfessionsFeed() {
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <Link
-                href="/app/post/new?type=CONFESSION"
+                href="/post/new?type=CONFESSION"
                 prefetch
                 onClick={() => {
                   sounds.tap();
@@ -264,7 +264,7 @@ export function ConfessionsFeed() {
               </div>
               <div className="pt-2">
                 <Link
-                  href="/app/post/new?type=CONFESSION"
+                  href="/post/new?type=CONFESSION"
                   className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                 >
                   Spill First Confession
