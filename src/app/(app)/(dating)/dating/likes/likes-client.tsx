@@ -54,7 +54,7 @@ export function LikesClient() {
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 bg-background text-foreground select-none">
       <header className="flex items-center gap-3 py-3 border-b border-border/30">
         <Link
-          href="/app/matching"
+          href="/matching"
           aria-label="Back"
           className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border border-border/40 cursor-pointer"
         >
@@ -88,7 +88,7 @@ export function LikesClient() {
               </p>
             </div>
             <Link
-              href="/app/profile/edit"
+              href="/profile/edit"
               className="text-xs font-bold text-primary hover:underline bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
             >
               Add photos &amp; interests

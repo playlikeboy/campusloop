@@ -74,7 +74,7 @@ export function ArticleDashboardClient({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/app/articles")}
+            onClick={() => router.push("/articles")}
             className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title="Back to Articles Hub"
           >
@@ -87,7 +87,7 @@ export function ArticleDashboardClient({
         </div>
 
         <Link
-          href="/app/articles/new"
+          href="/articles/new"
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 shadow-md shadow-primary/20 transition-all cursor-pointer active:scale-95"
         >
           <Plus className="size-3.5" strokeWidth={3} />
@@ -194,8 +194,8 @@ export function ArticleDashboardClient({
                   <Link
                     href={
                       item.status === "PUBLISHED"
-                        ? `/app/articles/${item.slug}`
-                        : `/app/articles/${item.slug}/edit`
+                        ? `/articles/${item.slug}`
+                        : `/articles/${item.slug}/edit`
                     }
                     className="text-base font-black text-foreground hover:text-primary transition-colors line-clamp-1 cursor-pointer"
                   >
@@ -234,7 +234,7 @@ export function ArticleDashboardClient({
                       </button>
 
                       <Link
-                        href={`/app/articles/${item.slug}`}
+                        href={`/articles/${item.slug}`}
                         className="flex size-8 items-center justify-center rounded-xl border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         title="View Article"
                       >
@@ -244,7 +244,7 @@ export function ArticleDashboardClient({
                   )}
 
                   <Link
-                    href={`/app/articles/${item.slug}/edit`}
+                    href={`/articles/${item.slug}/edit`}
                     className="flex size-8 items-center justify-center rounded-xl border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     title="Edit Article"
                   >
@@ -270,7 +270,7 @@ export function ArticleDashboardClient({
               {activeTab === "published" ? "No published articles yet" : "No drafts saved"}
             </p>
             <Link
-              href="/app/articles/new"
+              href="/articles/new"
               className="px-4 py-2 rounded-full bg-primary text-white text-xs font-black hover:opacity-95 transition-all shadow-sm"
             >
               Write an Article
