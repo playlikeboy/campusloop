@@ -27,14 +27,11 @@ import {
   AnimateHeart,
   AnimateHouse,
   AnimateLock,
-  AnimatePlus,
-  AnimateMessageSquare,
   AnimateSearch,
   AnimateShieldCheck,
   AnimateShoppingBag,
   AnimateUser,
   AnimateUsers,
-  AnimateVideo,
   AnimateZap,
 } from "@/components/ui/animated-icon";
 

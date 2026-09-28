@@ -1,7 +1,7 @@
 "use client";
 
 import { Image as ImageIcon, Loader2, RefreshCw, Search, X, Zap } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import type { GifItem } from "@/app/api/gifs/search/route";
 import { GIF_POPULAR_TAGS } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -82,9 +82,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
       console.error("[GIF Picker] Failed to fetch GIFs:", error);
       setStatus("error");
       setErrorMessage(
-        error instanceof Error && error.message
-          ? error.message
-          : "GIFs could not be loaded right now."
+        error instanceof Error && error.message ? error.message : "GIFs could not be loaded right now."
       );
     } finally {
       if (requestId === requestIdRef.current) {
@@ -286,11 +284,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
           aria-busy={status === "loading"}
         >
           {showInitialSkeleton ? (
-            <div
-              className="columns-2 gap-2 sm:columns-3"
-              aria-label="Loading GIFs"
-              role="status"
-            >
+            <div className="columns-2 gap-2 sm:columns-3" aria-label="Loading GIFs" role="status">
               {SKELETONS.map((height, index) => (
                 <div
                   key={index}

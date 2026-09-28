@@ -126,13 +126,16 @@ export function useHlsVideo({
               if (!isActiveRef.current) return;
               // Browser policy restricted unmuted playback; fallback to muted
               video.muted = true;
-              video.play().then(() => {
-                if (isSubscribed && isActiveRef.current) {
-                  setIsPlaying(true);
-                } else {
-                  video.pause();
-                }
-              }).catch(() => {});
+              video
+                .play()
+                .then(() => {
+                  if (isSubscribed && isActiveRef.current) {
+                    setIsPlaying(true);
+                  } else {
+                    video.pause();
+                  }
+                })
+                .catch(() => {});
             });
           }
         }
@@ -154,9 +157,12 @@ export function useHlsVideo({
                 if (videoUrl) {
                   video.src = videoUrl;
                   if (isActiveRef.current) {
-                    video.play().then(() => {
-                      if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-                    }).catch(() => {});
+                    video
+                      .play()
+                      .then(() => {
+                        if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+                      })
+                      .catch(() => {});
                   }
                 } else {
                   setHasError(true);
@@ -174,9 +180,12 @@ export function useHlsVideo({
               if (videoUrl) {
                 video.src = videoUrl;
                 if (isActiveRef.current) {
-                  video.play().then(() => {
-                    if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-                  }).catch(() => {});
+                  video
+                    .play()
+                    .then(() => {
+                      if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+                    })
+                    .catch(() => {});
                 }
               } else {
                 setHasError(true);
@@ -206,9 +215,12 @@ export function useHlsVideo({
           }).catch(() => {
             if (!isActiveRef.current) return;
             video.muted = true;
-            video.play().then(() => {
-              if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-            }).catch(() => {});
+            video
+              .play()
+              .then(() => {
+                if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+              })
+              .catch(() => {});
           });
         }
       }
@@ -230,9 +242,12 @@ export function useHlsVideo({
           }).catch(() => {
             if (!isActiveRef.current) return;
             video.muted = true;
-            video.play().then(() => {
-              if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-            }).catch(() => {});
+            video
+              .play()
+              .then(() => {
+                if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+              })
+              .catch(() => {});
           });
         }
       }
@@ -299,7 +314,8 @@ export function useHlsVideo({
             if (!isActiveRef.current) return;
 
             video.muted = true;
-            video.play()
+            video
+              .play()
               .then(() => {
                 if (isActiveRef.current) setIsPlaying(true);
                 else video.pause();
@@ -419,7 +435,8 @@ export function useHlsVideo({
         setIsPlaying(false);
       } else if (isActiveRef.current) {
         if (video && video.paused) {
-          video.play()
+          video
+            .play()
             .then(() => {
               if (isActiveRef.current) {
                 setIsPlaying(true);
@@ -447,17 +464,20 @@ export function useHlsVideo({
     if (!video || !isActiveRef.current) return;
 
     if (video.paused) {
-      video.play().then(() => {
-        if (!isActiveRef.current) {
-          video.pause();
-          return;
-        }
-        setIsPlaying(true);
-        if (!usingHls && audio && audioUrl) {
-          audio.currentTime = video.currentTime;
-          audio.play().catch(() => {});
-        }
-      }).catch(() => {});
+      video
+        .play()
+        .then(() => {
+          if (!isActiveRef.current) {
+            video.pause();
+            return;
+          }
+          setIsPlaying(true);
+          if (!usingHls && audio && audioUrl) {
+            audio.currentTime = video.currentTime;
+            audio.play().catch(() => {});
+          }
+        })
+        .catch(() => {});
     } else {
       video.pause();
       setIsPlaying(false);

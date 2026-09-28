@@ -195,12 +195,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         await db
           .update(messages)
           .set({ readAt: new Date() })
-          .where(
-            and(
-              eq(messages.conversationId, conversationId),
-              ne(messages.senderId, profile.id)
-            )
-          );
+          .where(and(eq(messages.conversationId, conversationId), ne(messages.senderId, profile.id)));
         break;
 
       case "mark_unread": {

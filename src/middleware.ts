@@ -5,7 +5,11 @@ const LEGACY_APP_PREFIX = "/app";
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 120;
-const RATE_LIMIT_EXEMPT_PREFIXES = ["/api/behavior/track", "/api/presence", "/api/notifications/unread-count"];
+const RATE_LIMIT_EXEMPT_PREFIXES = [
+  "/api/behavior/track",
+  "/api/presence",
+  "/api/notifications/unread-count",
+];
 
 function getClientKey(req: NextRequest): string {
   return (
@@ -30,7 +34,8 @@ async function enforceMutationRateLimit(req: NextRequest): Promise<NextResponse 
     RATE_LIMIT_EXEMPT_PREFIXES.some(
       (prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`)
     )
-  ) return null;
+  )
+    return null;
 
   const redis = getRedis();
   if (!redis) return null;

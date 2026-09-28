@@ -63,9 +63,7 @@ export function FeedHeader({
           >
             <Menu className="size-4.5" />
           </button>
-          <h1 className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">
-            News Feed
-          </h1>
+          <h1 className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">News Feed</h1>
         </div>
 
         <div className="flex items-center gap-2">

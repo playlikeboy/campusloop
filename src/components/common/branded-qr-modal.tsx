@@ -1,13 +1,12 @@
 "use client";
 
-import { Check, Copy, Download, Share2, Sparkles, X } from "lucide-react";
+import { Check, Copy, Download, Share2, X } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 export interface BrandedQrModalProps {
   isOpen: boolean;
@@ -176,15 +175,16 @@ export function BrandedQrModal({
       ctx.font = "500 16px system-ui, sans-serif";
       ctx.fillText("Scan with phone camera · campusloop.space", width / 2, 890);
 
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/png", 1.0)
-      );
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png", 1.0));
       if (!blob) throw new Error("Could not create image blob");
 
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      const fileSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24);
+      const fileSlug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .slice(0, 24);
       a.download = `campusloop-${fileSlug}-qr.png`;
       document.body.appendChild(a);
       a.click();
@@ -256,9 +256,7 @@ export function BrandedQrModal({
 
             <div className="space-y-0.5 px-2">
               <h4 className="text-sm font-black text-foreground truncate">{title}</h4>
-              {subtitle && (
-                <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
-              )}
+              {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
             </div>
 
             {/* QR code canvas */}

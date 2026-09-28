@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PostEmbedRenderer } from "@/components/embeds/post-embed-renderer";
 import { AudioPlayer } from "@/components/media/audio-player";

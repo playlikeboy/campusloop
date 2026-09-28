@@ -436,8 +436,8 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSelectedBranch(e.target.value);
               }}
-                className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-              >
+              className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+            >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
                   {b === "All" ? "All Branches" : b}
@@ -451,11 +451,11 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 aria-label="Filter by semester"
                 value={selectedSemester}
                 onChange={(e) => {
-                sounds.tap();
-                setSelectedSemester(e.target.value);
-              }}
-              className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-            >
+                  sounds.tap();
+                  setSelectedSemester(e.target.value);
+                }}
+                className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              >
                 {SEMESTERS.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.label}
@@ -705,9 +705,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-black tracking-tight text-foreground">Study playlists</h2>
-                <p className="text-xs text-muted-foreground">
-                  Curated notes, PYQs and revision material
-                </p>
+                <p className="text-xs text-muted-foreground">Curated notes, PYQs and revision material</p>
               </div>
               <Link
                 href="/academics/playlists/new"
@@ -817,12 +815,15 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                               <School className="size-4" />
                             </div>
                             <div className="min-w-0">
-                              <h3 className="text-xs font-black text-foreground truncate">Campus Study Vault</h3>
+                              <h3 className="text-xs font-black text-foreground truncate">
+                                Campus Study Vault
+                              </h3>
                               <p className="text-[10px] text-muted-foreground">Syllabus-aligned repository</p>
                             </div>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            Exam-tested PYQs, verified topper notes, formula sheets, and lab manuals shared by college students.
+                            Exam-tested PYQs, verified topper notes, formula sheets, and lab manuals shared by
+                            college students.
                           </p>
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
@@ -936,7 +937,8 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                             <span>Curate Exam Stacks</span>
                           </div>
                           <p className="text-[11px] text-muted-foreground leading-relaxed">
-                            Bundle past 5 years of exam papers, formulas, and lecture notes into a 1-click stack for your classmates.
+                            Bundle past 5 years of exam papers, formulas, and lecture notes into a 1-click
+                            stack for your classmates.
                           </p>
                           <Link
                             href="/academics/playlists/new"

@@ -1,13 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { desc, eq, sql } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { reelComments, reels, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
-export async function GET(
-  req: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
     const { id: reelId } = await props.params;
     const db = getDb();
@@ -49,10 +46,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
     const { id: reelId } = await props.params;
     const user = await hexclaveServerApp.getUser();
@@ -90,10 +84,7 @@ export async function POST(
 
     const commentsCount = actualCount?.count || 0;
 
-    await db
-      .update(reels)
-      .set({ commentsCount })
-      .where(eq(reels.id, reelId));
+    await db.update(reels).set({ commentsCount }).where(eq(reels.id, reelId));
 
     return NextResponse.json({
       success: true,

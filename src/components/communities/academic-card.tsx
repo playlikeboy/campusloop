@@ -633,11 +633,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
           </div>
 
           {/* Title + description */}
-          <Link
-            href={`/app/academics/${item.id}`}
-            onClick={() => sounds.tap()}
-            className="mt-2.5 block"
-          >
+          <Link href={`/app/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-2.5 block">
             <h3 className="text-[16px] sm:text-[17px] font-extrabold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
               {item.title}
             </h3>
@@ -727,7 +723,11 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             >
               {(item.fileUrl || item.driveUrl || "").match(
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              ) ? <FolderOpen className="size-3.5" /> : <ExternalLink className="size-3" />}
+              ) ? (
+                <FolderOpen className="size-3.5" />
+              ) : (
+                <ExternalLink className="size-3" />
+              )}
               <span>Open</span>
             </button>
           </div>

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         ...parseIds(searchParams.get("seenIds")),
         ...parseIds(req.headers.get("x-seen-ids")),
         ...parseIds(req.cookies.get("campusloop_seen_reels")?.value || null),
-      ]),
+      ])
     ).slice(0, 800);
 
     const db = getDb();
@@ -195,7 +195,7 @@ export async function GET(req: NextRequest) {
     console.error("[GET /api/reels error]:", error);
     return NextResponse.json(
       { error: "Failed to fetch reels", reels: [], posts: [], hasMore: false },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

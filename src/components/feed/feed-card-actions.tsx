@@ -154,9 +154,7 @@ export function FeedCardActions({
             size={15}
             animateOnHover={false}
           />
-          <span className="tabular-nums text-xs font-bold">
-            {displayCommentsCount ?? 0}
-          </span>
+          <span className="tabular-nums text-xs font-bold">{displayCommentsCount ?? 0}</span>
         </button>
 
         {/* Share Action */}

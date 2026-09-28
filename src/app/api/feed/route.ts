@@ -55,10 +55,7 @@ export async function GET(req: Request) {
     }
 
     const isViewer = institutionId ? await isViewerProfile({ institutionId }) : false;
-    const conditions: SQL[] = [
-      eq(posts.status, "PUBLISHED"),
-      eq(posts.isSeeded, false),
-    ];
+    const conditions: SQL[] = [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
 
     if (beforeParam) {
       const beforeDate = new Date(beforeParam);
@@ -78,7 +75,7 @@ export async function GET(req: Request) {
     const excludeIdsParam = searchParams.get("excludeIds");
     const seenIdsParam = searchParams.get("seenIds") || req.headers.get("x-seen-ids");
 
-    let combinedSeenIds: string[] = [];
+    const combinedSeenIds: string[] = [];
     if (excludeIdsParam) {
       combinedSeenIds.push(
         ...excludeIdsParam
@@ -101,7 +98,12 @@ export async function GET(req: Request) {
       .slice(0, 500);
 
     if (uniqueSeenIds.length > 0) {
-      conditions.push(sql`${posts.id} NOT IN (${sql.join(uniqueSeenIds.map((eid) => sql`${eid}`), sql`, `)})`);
+      conditions.push(
+        sql`${posts.id} NOT IN (${sql.join(
+          uniqueSeenIds.map((eid) => sql`${eid}`),
+          sql`, `
+        )})`
+      );
     }
 
     if (sort === "memes" || (type && (type === "MEME" || type === "memes"))) {

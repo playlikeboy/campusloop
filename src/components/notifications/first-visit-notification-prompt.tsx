@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { Bell, BellRing, Loader2, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { haptics } from "@/lib/haptics";

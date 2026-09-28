@@ -97,7 +97,7 @@ export function cleanSnippet(text?: string | null, maxLength = 80): string {
   const cleaned = stripMarkdown(text);
   if (!cleaned) return "";
   if (cleaned.length <= maxLength) return cleaned;
-  return cleaned.slice(0, maxLength).trim() + "...";
+  return `${cleaned.slice(0, maxLength).trim()}...`;
 }
 
 /**

@@ -56,7 +56,8 @@ export async function POST(req: Request) {
         id: null,
         error: {
           code: -32001,
-          message: "Unauthorized: Missing MCP API key. Provide via ?key=cl_mcp_..., Authorization: Bearer cl_mcp_..., or x-campusloop-mcp-key header.",
+          message:
+            "Unauthorized: Missing MCP API key. Provide via ?key=cl_mcp_..., Authorization: Bearer cl_mcp_..., or x-campusloop-mcp-key header.",
         },
       },
       { status: 401, headers: CORS_HEADERS }

@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import {
   BadgeCheck,
   Bookmark,
@@ -16,22 +15,23 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
-import type { UserCapability } from "@/lib/capabilities";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PollCard } from "@/components/ui/poll-card";
 import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
+import { useHlsVideo } from "@/hooks/use-hls-video";
 import { repostPost, voteOnPost } from "@/lib/api";
+import type { UserCapability } from "@/lib/capabilities";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
-import { useHlsVideo } from "@/hooks/use-hls-video";
 
 // Dynamically import heavy modals to keep the reels bundle ultra-lightweight
 const FeedCardRepostModal = dynamic(
@@ -46,19 +46,20 @@ const PreviewLockedModal = dynamic(
   () => import("@/components/preview/preview-locked-modal").then((m) => m.PreviewLockedModal),
   { ssr: false }
 );
-const ReportDialog = dynamic(
-  () => import("@/components/ui/report-dialog").then((m) => m.ReportDialog),
-  { ssr: false }
-);
+const ReportDialog = dynamic(() => import("@/components/ui/report-dialog").then((m) => m.ReportDialog), {
+  ssr: false,
+});
 const ShareStoryModal = dynamic(
   () => import("@/components/ui/share-story-modal").then((m) => m.ShareStoryModal),
   { ssr: false }
 );
 
 // Hoisted regular expressions to avoid repeated compilation on every render
-const MD_VIDEO_REGEX = /!\[.*?\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)(?:\.(?:mp4|webm|mov|ogg)[^\s)]*|[^\s)]*videos[^\s)]*))\)/i;
+const MD_VIDEO_REGEX =
+  /!\[.*?\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)(?:\.(?:mp4|webm|mov|ogg)[^\s)]*|[^\s)]*videos[^\s)]*))\)/i;
 const R2_VIDEO_REGEX = /((?:https?:\/\/[^\s<>"']*)?\/api\/files\/r2\/videos\/[^\s<>"']+)/i;
-const RAW_VIDEO_REGEX = /((?:https?:\/\/[^\s<>"']+|\/api\/files\/r2\/[^\s<>"']+)\.(?:mp4|webm|mov|ogg)[^\s<>"']*)/i;
+const RAW_VIDEO_REGEX =
+  /((?:https?:\/\/[^\s<>"']+|\/api\/files\/r2\/[^\s<>"']+)\.(?:mp4|webm|mov|ogg)[^\s<>"']*)/i;
 const HASHTAG_EXTRACTION_REGEX = /#([a-zA-Z0-9_-]+)/g;
 
 interface PostReelCardProps {
@@ -375,7 +376,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           text: cleanSnippet(post.body, 100),
           url: shareUrl,
         })
-          .catch(() => {});
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
       toast.success("Loop link copied to clipboard!");
@@ -500,7 +501,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={21} />
         </button>
-        <span className="text-[11px] sm:text-xs font-bold text-foreground/75 tabular-nums">{commentsCount}</span>
+        <span className="text-[11px] sm:text-xs font-bold text-foreground/75 tabular-nums">
+          {commentsCount}
+        </span>
       </div>
 
       {/* 3. Repost / Loop (single tap = instant repost, tap again = quote) */}
@@ -575,10 +578,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
         {showMoreMenu && (
           <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setShowMoreMenu(false)}
-            />
+            <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
             <div
               className="absolute right-full mr-2 bottom-0 w-44 rounded-2xl border border-white/15 bg-zinc-900/95 backdrop-blur-xl text-white shadow-2xl z-50 py-1.5 animate-in fade-in zoom-in-95"
               onClick={(e) => e.stopPropagation()}
@@ -1013,7 +1013,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       </div>
 
       {/* ─── Main Content Body (Natural top-aligned scroll, full reading without clipping) ─── */}
-      <div data-no-pull-refresh className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar pr-2 sm:pr-16 space-y-3 sm:space-y-4 py-3 pb-14 sm:pb-3">
+      <div
+        data-no-pull-refresh
+        className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar pr-2 sm:pr-16 space-y-3 sm:space-y-4 py-3 pb-14 sm:pb-3"
+      >
         {headline && (
           <h2 className="text-lg sm:text-xl md:text-2xl font-black text-foreground tracking-tight leading-snug">
             {headline}
@@ -1086,7 +1089,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",
                   idx === 0
                     ? "bg-purple-950/70 border border-purple-500/40 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.25)] hover:bg-purple-900/80"
-                     : "bg-muted/70 border border-border text-foreground/75 hover:bg-muted hover:text-foreground"
+                    : "bg-muted/70 border border-border text-foreground/75 hover:bg-muted hover:text-foreground"
                 )}
               >
                 {tag.startsWith("#") ? tag : `#${tag}`}

@@ -266,11 +266,7 @@ export default function CollegesClient() {
         <>
           {/* Direct Top 3 Podium: Immediately rendered when on default directory view */}
           {!search.trim() && page === 1 && (
-            <AllIndiaCollegePodium
-              leaderboard={leaderboard}
-              loading={leaderboardLoading}
-              compact={true}
-            />
+            <AllIndiaCollegePodium leaderboard={leaderboard} loading={leaderboardLoading} compact={true} />
           )}
 
           {/* Search */}
@@ -556,10 +552,7 @@ export default function CollegesClient() {
           </div>
 
           {/* Top 3 Podium Component */}
-          <AllIndiaCollegePodium
-            leaderboard={leaderboard}
-            loading={leaderboardLoading}
-          />
+          <AllIndiaCollegePodium leaderboard={leaderboard} loading={leaderboardLoading} />
 
           {leaderboardLoading ? (
             <div className="divide-y divide-border/20 px-4 pt-2">

@@ -71,8 +71,7 @@ const defaultFeatures: FeatureItem[] = [
   },
   {
     title: "Seamless Integrations",
-    description:
-      "Connect with the tools you already use. One-click setup, zero configuration drift.",
+    description: "Connect with the tools you already use. One-click setup, zero configuration drift.",
   },
   {
     title: "Scalable Infrastructure",
@@ -138,10 +137,7 @@ export function FeatureHighlights({
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[5fr_7fr] md:gap-8">
           {/* ── Feature list ──────────────────────────── */}
-          <div
-            ref={listRef}
-            className="relative order-2 self-center md:order-1"
-          >
+          <div ref={listRef} className="relative order-2 self-center md:order-1">
             {/* Track line */}
             <div className="absolute bottom-0 left-0 top-0 w-px bg-border" />
 
@@ -174,9 +170,7 @@ export function FeatureHighlights({
                     <span
                       className={cn(
                         "font-mono text-xs tabular-nums transition-all duration-300",
-                        isActive
-                          ? "text-foreground"
-                          : "text-muted-foreground/60",
+                        isActive ? "text-foreground" : "text-muted-foreground/60"
                       )}
                     >
                       {String(i + 1).padStart(2, "0")}
@@ -194,8 +188,7 @@ export function FeatureHighlights({
                     className="grid w-full"
                     style={{
                       gridTemplateRows: isActive ? "1fr" : "0fr",
-                      transition:
-                        "grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                      transition: "grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                   >
                     <div className="overflow-hidden">
@@ -203,9 +196,7 @@ export function FeatureHighlights({
                         className="pt-1.5 pl-7 text-xs leading-relaxed text-muted-foreground"
                         style={{
                           opacity: isActive ? 1 : 0,
-                          transform: isActive
-                            ? "translateY(0)"
-                            : "translateY(6px)",
+                          transform: isActive ? "translateY(0)" : "translateY(6px)",
                           transition: isActive
                             ? "opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.08s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.08s"
                             : "opacity 0.15s ease, transform 0.15s ease",
@@ -251,9 +242,7 @@ export function FeatureHighlights({
               >
                 {feature.image || (
                   <div className="flex h-full w-full items-center justify-center">
-                    <span className="text-lg font-medium text-muted-foreground/20">
-                      {feature.title}
-                    </span>
+                    <span className="text-lg font-medium text-muted-foreground/20">{feature.title}</span>
                   </div>
                 )}
               </div>

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/landing/reveal";
+import { cn } from "@/lib/utils";
 
 export interface LandingSectionProps {
   id?: string;
@@ -12,12 +12,7 @@ export interface LandingSectionProps {
 /**
  * Standardized full-width section container with generous spacing and subtle dividing borders.
  */
-export function LandingSection({
-  id,
-  bg = "default",
-  className,
-  children,
-}: LandingSectionProps) {
+export function LandingSection({ id, bg = "default", className, children }: LandingSectionProps) {
   const bgClasses = {
     default: "bg-background",
     subtle: "bg-zinc-50/50 dark:bg-[#0E131F]/60",
@@ -47,11 +42,7 @@ export interface LandingContainerProps {
  * Maximum width container with unified layout discipline.
  */
 export function LandingContainer({ className, children }: LandingContainerProps) {
-  return (
-    <div className={cn("mx-auto w-full max-w-6xl space-y-16", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("mx-auto w-full max-w-6xl space-y-16", className)}>{children}</div>;
 }
 
 export interface LandingSectionHeaderProps {
@@ -81,13 +72,7 @@ export function LandingSectionHeader({
   const isCenter = align === "center";
 
   return (
-    <Reveal
-      className={cn(
-        "space-y-4",
-        isCenter && "text-center max-w-2xl mx-auto",
-        className
-      )}
-    >
+    <Reveal className={cn("space-y-4", isCenter && "text-center max-w-2xl mx-auto", className)}>
       {badge && (
         <div className={cn("flex items-center", isCenter && "justify-center")}>
           <LandingBadge>{badge}</LandingBadge>
@@ -101,15 +86,9 @@ export function LandingSectionHeader({
 
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
         {headlineMain}
-        {headlineSub && (
-          <span className="block text-muted-foreground font-medium mt-1">
-            {headlineSub}
-          </span>
-        )}
+        {headlineSub && <span className="block text-muted-foreground font-medium mt-1">{headlineSub}</span>}
         {headlineHighlight && (
-          <span className="block text-blue-600 dark:text-blue-400 font-bold mt-1">
-            {headlineHighlight}
-          </span>
+          <span className="block text-blue-600 dark:text-blue-400 font-bold mt-1">{headlineHighlight}</span>
         )}
       </h2>
 
@@ -137,16 +116,12 @@ export interface LandingBadgeProps {
 /**
  * Clean pill badge with optional active status dot inspired by reference mockups.
  */
-export function LandingBadge({
-  className,
-  variant = "default",
-  dot = false,
-  children,
-}: LandingBadgeProps) {
+export function LandingBadge({ className, variant = "default", dot = false, children }: LandingBadgeProps) {
   const variantStyles = {
     default: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-    neutral: "bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800",
+    neutral:
+      "bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800",
     warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   }[variant];
 
@@ -180,16 +155,13 @@ export interface LandingCardProps {
 /**
  * Standardized reference-grade card with large radius, hairline border, and gentle shadow.
  */
-export function LandingCard({
-  className,
-  hoverable = true,
-  children,
-}: LandingCardProps) {
+export function LandingCard({ className, hoverable = true, children }: LandingCardProps) {
   return (
     <div
       className={cn(
         "relative rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-6 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all duration-300",
-        hoverable && "hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-zinc-300/90 dark:hover:border-white/20 hover:-translate-y-0.5",
+        hoverable &&
+          "hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-zinc-300/90 dark:hover:border-white/20 hover:-translate-y-0.5",
         className
       )}
     >

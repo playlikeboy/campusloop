@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Disc } from "lucide-react";
+import { Disc, ExternalLink } from "lucide-react";
 
 interface SpotifyEmbedProps {
   embedUrl: string;

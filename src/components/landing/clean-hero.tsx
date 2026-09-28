@@ -1,11 +1,4 @@
-import {
-  ArrowUpRight,
-  BookOpen,
-  CalendarDays,
-  Heart,
-  MessageCircle,
-  Users,
-} from "lucide-react";
+import { ArrowUpRight, BookOpen, CalendarDays, Heart, MessageCircle, Users } from "lucide-react";
 import Link from "next/link";
 
 interface CleanHeroProps {
@@ -46,8 +39,8 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           </h1>
 
           <p className="cl-hero-copy">
-            One place for the people, conversations, clubs, events, notes and everyday moments that make your college
-            feel like home.
+            One place for the people, conversations, clubs, events, notes and everyday moments that make your
+            college feel like home.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -61,7 +54,9 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           </div>
 
           <div className="cl-proof-row">
-            <span><span className="cl-mini-check">✓</span> Verified students</span>
+            <span>
+              <span className="cl-mini-check">✓</span> Verified students
+            </span>
             <span>•</span>
             <span>Free to join</span>
             <span>•</span>
@@ -87,7 +82,9 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
                   <p className="cl-window-meta">BIT Mesra · your campus</p>
                 </div>
               </div>
-              <span className="cl-verified-pill"><span /> Verified</span>
+              <span className="cl-verified-pill">
+                <span /> Verified
+              </span>
             </div>
 
             <div className="cl-window-body">
@@ -104,14 +101,20 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
                     Anyone heading to the library after 8? I need a partner for the CN assignment.
                   </p>
                   <div className="cl-card-actions">
-                    <span><MessageCircle className="size-3.5" /> 12</span>
-                    <span><Heart className="size-3.5" /> 31</span>
+                    <span>
+                      <MessageCircle className="size-3.5" /> 12
+                    </span>
+                    <span>
+                      <Heart className="size-3.5" /> 31
+                    </span>
                   </div>
                 </article>
 
                 <article className="cl-academic-card">
                   <div className="flex items-center gap-2">
-                    <span className="cl-academic-icon"><BookOpen className="size-4" /></span>
+                    <span className="cl-academic-icon">
+                      <BookOpen className="size-4" />
+                    </span>
                     <span className="cl-card-label">ACADEMICS</span>
                   </div>
                   <p className="mt-2 cl-card-title">Computer Networks — Module 2</p>
@@ -125,13 +128,21 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
                     <span className="cl-dark-label">TONIGHT · 7 PM</span>
                     <CalendarDays className="size-4 text-white/60" />
                   </div>
-                  <p className="cl-event-title">Build.<br />Ship.<br />Show off.</p>
+                  <p className="cl-event-title">
+                    Build.
+                    <br />
+                    Ship.
+                    <br />
+                    Show off.
+                  </p>
                   <p className="cl-event-meta">6 projects · Innovation Lab</p>
                   <div className="mt-5 flex -space-x-2">
                     <Avatar className="bg-[#7867f5]">S</Avatar>
                     <Avatar className="bg-[#2fc7cf]">R</Avatar>
                     <Avatar className="bg-[#ff8aa1]">N</Avatar>
-                    <span className="grid size-9 place-items-center rounded-full border-2 border-[#16152a] bg-white/10 text-[10px] font-bold text-white/70">+24</span>
+                    <span className="grid size-9 place-items-center rounded-full border-2 border-[#16152a] bg-white/10 text-[10px] font-bold text-white/70">
+                      +24
+                    </span>
                   </div>
                 </article>
 
@@ -162,9 +173,11 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
 
       <div className="cl-feature-strip">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 text-center sm:justify-between sm:px-8">
-          {["CONVERSATIONS", "NOTES & PYQS", "COMMUNITIES", "EVENTS", "MARKETPLACE", "CAMPUS DIRECTORY"].map((item) => (
-            <span key={item}>{item}</span>
-          ))}
+          {["CONVERSATIONS", "NOTES & PYQS", "COMMUNITIES", "EVENTS", "MARKETPLACE", "CAMPUS DIRECTORY"].map(
+            (item) => (
+              <span key={item}>{item}</span>
+            )
+          )}
         </div>
       </div>
     </section>

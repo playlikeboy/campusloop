@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Compass,
-  Sparkles,
-  Database,
-  Calendar,
-  MapPin,
-  Users,
-  CheckCircle2,
-  XCircle,
   AlertTriangle,
-  Code2,
-  ExternalLink,
+  Calendar,
+  CheckCircle2,
   ChevronRight,
-  ShieldCheck,
+  Code2,
+  Compass,
+  Database,
+  ExternalLink,
+  Info,
+  Layers,
+  MapPin,
   RefreshCw,
   Search,
-  Layers,
-  Info,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  XCircle,
 } from "lucide-react";
+import { useState } from "react";
 import type { AtlasResponse } from "@/lib/atlas/agent";
 
 interface AtlasClientProps {
@@ -62,11 +62,7 @@ const PRESET_QUERIES = [
   },
 ];
 
-export function AtlasClient({
-  initialSanityConfigured,
-  projectId,
-  dataset,
-}: AtlasClientProps) {
+export function AtlasClient({ initialSanityConfigured, projectId, dataset }: AtlasClientProps) {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<AtlasResponse | null>(null);
@@ -111,21 +107,23 @@ export function AtlasClient({
                 {initialSanityConfigured ? "Sanity Live" : "Sanity Content Lake"}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              CampusLoop Atlas
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">CampusLoop Atlas</h1>
             <p className="text-sm text-muted-foreground max-w-xl">
-              An agent that answers complex questions about clubs, events, eligibility,
-              and schedules by reasoning over structured Sanity content rather than plain text search.
+              An agent that answers complex questions about clubs, events, eligibility, and schedules by
+              reasoning over structured Sanity content rather than plain text search.
             </p>
           </div>
 
           <div className="flex flex-col items-start md:items-end text-xs text-muted-foreground border-t md:border-t-0 md:border-l border-border/50 pt-3 md:pt-0 md:pl-6 space-y-1">
             <div className="flex items-center gap-1.5 font-medium text-foreground">
               <ShieldCheck className="size-4 text-emerald-500" />
-              <span>Project ID: <code className="font-mono text-primary">{projectId}</code></span>
+              <span>
+                Project ID: <code className="font-mono text-primary">{projectId}</code>
+              </span>
             </div>
-            <div>Dataset: <span className="font-mono text-foreground">{dataset}</span></div>
+            <div>
+              Dataset: <span className="font-mono text-foreground">{dataset}</span>
+            </div>
             <div className="flex items-center gap-3 pt-1">
               <a
                 href="https://dev.to/sh20raj/campusloop-atlas-i-built-an-agent-that-knows-what-is-actually-happening-on-campus-1iai"
@@ -170,9 +168,7 @@ export function AtlasClient({
                 <span>{preset.label}</span>
                 <ChevronRight className="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <p className="text-muted-foreground line-clamp-2 leading-relaxed">
-                "{preset.prompt}"
-              </p>
+              <p className="text-muted-foreground line-clamp-2 leading-relaxed">"{preset.prompt}"</p>
             </button>
           ))}
         </div>
@@ -267,9 +263,7 @@ export function AtlasClient({
                       className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 space-y-2.5"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-sm text-foreground">
-                          {event.title}
-                        </h4>
+                        <h4 className="font-semibold text-sm text-foreground">{event.title}</h4>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
                           {event.status || "Open"}
                         </span>
@@ -294,8 +288,7 @@ export function AtlasClient({
                         <div className="flex items-center gap-1.5">
                           <MapPin className="size-3.5 shrink-0" />
                           <span>
-                            {event.venue?.name || "Campus Hall"} (
-                            {event.venue?.building || "Main Block"})
+                            {event.venue?.name || "Campus Hall"} ({event.venue?.building || "Main Block"})
                           </span>
                         </div>
                       </div>
@@ -330,9 +323,7 @@ export function AtlasClient({
                       <div className="font-medium text-foreground shrink-0 w-36 md:w-48 truncate">
                         {ex.title}
                       </div>
-                      <div className="text-muted-foreground">
-                        {ex.reasons.join("; ")}
-                      </div>
+                      <div className="text-muted-foreground">{ex.reasons.join("; ")}</div>
                     </div>
                   ))}
                 </div>

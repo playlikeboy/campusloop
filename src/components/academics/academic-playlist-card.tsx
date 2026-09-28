@@ -157,9 +157,7 @@ export function AcademicPlaylistCard({ playlist, onStarToggle, className }: Acad
         </div>
 
         {playlist.description && (
-          <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-            {playlist.description}
-          </p>
+          <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">{playlist.description}</p>
         )}
 
         <div className="flex items-center justify-between gap-2 border-t border-border/30 pt-3 text-[11px]">

@@ -312,7 +312,9 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             )}
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight max-w-3xl">{playlist.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight max-w-3xl">
+            {playlist.title}
+          </h1>
 
           {playlist.description && (
             <p className="text-xs sm:text-sm text-white/85 leading-relaxed max-w-2xl pt-0.5 line-clamp-3">
@@ -370,9 +372,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <ListOrdered className="size-4 text-indigo-400" />
-                <h2 className="text-xs font-bold tracking-tight text-foreground">
-                  {items.length} materials
-                </h2>
+                <h2 className="text-xs font-bold tracking-tight text-foreground">{items.length} materials</h2>
                 <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 text-[10px] font-bold">
                   {items.length}
                 </span>

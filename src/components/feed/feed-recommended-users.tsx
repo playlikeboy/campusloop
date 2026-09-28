@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { FollowButton } from "@/components/profile/follow-button";

@@ -5,7 +5,6 @@ import {
   BellOff,
   CheckCheck,
   Loader2,
-  MessageSquare,
   MoreVertical,
   Pin,
   Plus,
@@ -346,7 +345,9 @@ export function MessengerView({
           {/* Active contacts */}
           {conversations && conversations.length > 0 && (
             <div className="flex items-center justify-between px-0.5 pt-0.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Active now</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Active now
+              </span>
               <span className="text-[10px] text-muted-foreground">Recent chats</span>
             </div>
           )}
@@ -355,7 +356,7 @@ export function MessengerView({
               {conversations.slice(0, 10).map((c) => {
                 const p = c.otherParticipant;
                 if (!p) return null;
-                const isOnlineNow = p.lastSeenAt && (Date.now() - new Date(p.lastSeenAt).getTime() < 300000);
+                const isOnlineNow = p.lastSeenAt && Date.now() - new Date(p.lastSeenAt).getTime() < 300000;
                 return (
                   <button
                     key={c.id}

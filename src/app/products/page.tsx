@@ -49,8 +49,7 @@ export default async function ProductsPage() {
     "@type": "CollectionPage",
     name: "CampusLoop Products",
     url: "https://campusloop.space/products",
-    description:
-      "CampusLoop products: the verified student-only campus network and Digital Observatory.",
+    description: "CampusLoop products: the verified student-only campus network and Digital Observatory.",
     publisher: { "@type": "Organization", name: "CampusLoop", url: "https://campusloop.space" },
     hasPart: [
       {

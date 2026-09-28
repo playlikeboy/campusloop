@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  BarChart3,
-  Copy,
-  ExternalLink,
-  Globe,
-  Laptop,
-  Link2,
-  Loader2,
-  Plus,
-  QrCode,
-  Smartphone,
-  Tablet,
-  Trash2,
-} from "lucide-react";
+import { Copy, ExternalLink, Laptop, Link2, Loader2, Plus, Smartphone, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";

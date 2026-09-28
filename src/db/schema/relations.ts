@@ -7,7 +7,7 @@ import {
   savedAcademicResources,
 } from "./academic-resources";
 import { aiConversations, aiFeedback, aiMessages, aiUsageEvents } from "./ai";
-import { articleComments, articleCommentVotes, articles, articleVotes } from "./articles";
+import { articleComments, articleCommentVotes, articles, articleVotes, savedArticles } from "./articles";
 import { callSessions, userBehaviorEvents } from "./calls-and-analytics";
 import { conversationParticipants, conversations, messages } from "./chat";
 import {
@@ -43,16 +43,16 @@ import { housingListings } from "./housing";
 import { institutionDomains, institutions } from "./institutions";
 import { lostAndFoundItems } from "./lost-and-found";
 import { marketplaceItems } from "./marketplace";
+import { mcpAuditLogs, userMcpKeys } from "./mcp";
 import { notificationMutes, notificationPreferences, notifications } from "./notifications";
 import { comments, pollOptions, pollVotes, posts, votes } from "./posts";
 import { randomMessages, randomQueue, randomReports, randomSessions } from "./random-loop";
+import { reelBookmarks, reelComments, reelLikes, reels } from "./reels";
 import { ridesharePools } from "./rideshare";
-import { reels, reelLikes, reelComments, reelBookmarks } from "./reels";
 import { savedPosts } from "./saved-posts";
 import { stories, storyHighlights, storyLikes } from "./stories";
 import { capsuleEntries, timeCapsules } from "./time-capsule";
 import { follows, userProfiles } from "./users";
-import { mcpAuditLogs, userMcpKeys } from "./mcp";
 
 export const institutionsRelations = relations(institutions, ({ many }) => ({
   domains: many(institutionDomains),
@@ -82,6 +82,7 @@ export const userProfilesRelations = relations(userProfiles, ({ one, many }) => 
   storyHighlights: many(storyHighlights),
   savedPosts: many(savedPosts),
   articles: many(articles),
+  savedArticles: many(savedArticles),
   reels: many(reels),
   reelLikes: many(reelLikes),
   reelComments: many(reelComments),
@@ -810,6 +811,18 @@ export const articlesRelations = relations(articles, ({ one, many }) => ({
   }),
   votes: many(articleVotes),
   comments: many(articleComments),
+  savedBy: many(savedArticles),
+}));
+
+export const savedArticlesRelations = relations(savedArticles, ({ one }) => ({
+  article: one(articles, {
+    fields: [savedArticles.articleId],
+    references: [articles.id],
+  }),
+  profile: one(userProfiles, {
+    fields: [savedArticles.profileId],
+    references: [userProfiles.id],
+  }),
 }));
 
 export const articleVotesRelations = relations(articleVotes, ({ one }) => ({
@@ -1033,4 +1046,3 @@ export const mcpAuditLogsRelations = relations(mcpAuditLogs, ({ one }) => ({
     references: [userMcpKeys.id],
   }),
 }));
-

@@ -38,11 +38,10 @@ export async function GET() {
     </image:image>`
           : "";
 
-        // Only the public `/a/` form is listed: `/app/articles/...` sits behind
-        // the auth gate and would serve Googlebot a sign-in redirect.
+        // Canonical public article publication URL
         return `
   <url>
-    <loc>https://campusloop.space/a/${item.slug}</loc>
+    <loc>https://campsy.app/articles/${item.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>${image}

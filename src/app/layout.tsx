@@ -1,6 +1,6 @@
-import { DM_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
 import { HexclaveProvider, HexclaveTheme } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
+import { DM_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -14,7 +14,12 @@ import "./globals.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
-const dmMono = DM_Mono({ subsets: ["latin"], variable: "--font-mono-custom", weight: ["400", "500"], display: "swap" });
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono-custom",
+  weight: ["400", "500"],
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -140,7 +145,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`font-sans antialiased ${dmSans.variable} ${spaceGrotesk.variable} ${dmMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`font-sans antialiased ${dmSans.variable} ${spaceGrotesk.variable} ${dmMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, BookOpen, Compass, Flame, Heart, Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -47,7 +47,10 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
         </Link>
 
         {/* Desktop Pill Navigation */}
-        <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/30">
+        <nav
+          aria-label="Primary navigation"
+          className="hidden md:flex items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/30"
+        >
           {links.map((link) => {
             const Icon = link.icon;
             return (

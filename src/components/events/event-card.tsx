@@ -228,9 +228,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
               {event.title}
             </h3>
             {event.tagline && (
-              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                {event.tagline}
-              </p>
+              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{event.tagline}</p>
             )}
           </div>
 
@@ -285,9 +283,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
 
             <div className="text-xs truncate">
               <span className="font-black text-foreground">{event.entryFee || "Free"}</span>
-              <span className="text-[10px] text-muted-foreground ml-1.5">
-                · {attendeeCount} going
-              </span>
+              <span className="text-[10px] text-muted-foreground ml-1.5">· {attendeeCount} going</span>
             </div>
           </div>
 

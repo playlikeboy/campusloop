@@ -1,22 +1,17 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import {
   Bell,
-  BookOpen,
   Building2,
   Cake,
   Calendar,
   Compass,
-  Flame,
   Gamepad2,
   GraduationCap,
   Heart,
   Home,
-  LayoutGrid,
   Menu,
   MessageSquare,
-  MoreHorizontal,
   Plus,
   School,
   Search,
@@ -25,30 +20,22 @@ import {
   ShoppingBag,
   Sparkles,
   User,
-  UserCircle,
   Users,
   VenetianMask,
-  Video,
   X,
   Zap,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CampusUnlockedModal } from "@/components/preview/campus-unlocked-modal";
 import { DreamCampusesModal } from "@/components/preview/dream-campuses-modal";
-import {
-  AnimateBellRing,
-  AnimateMessageSquare,
-  AnimatePlus,
-  AnimatedIcon,
-} from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { DESKTOP_NAV_ITEMS, MOBILE_BOTTOM_ITEMS, type NavItem } from "@/constants/navigation";
+import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { haptics } from "@/lib/haptics";
@@ -65,13 +52,7 @@ interface NavigationProps {
 /**
  * Fullscreen creation / viewer flows where bottom navigation should be temporarily hidden.
  */
-const HIDE_GLOBAL_MOBILE_NAV = [
-  "/chat/",
-  "/stories/new",
-  "/story/",
-  "/post/new",
-  "/academics/upload",
-];
+const HIDE_GLOBAL_MOBILE_NAV = ["/chat/", "/stories/new", "/story/", "/post/new", "/academics/upload"];
 
 function isMobileFlow(pathname: string) {
   return HIDE_GLOBAL_MOBILE_NAV.some((prefix) => pathname.startsWith(prefix));
@@ -87,7 +68,13 @@ function isPathActive(currentPath: string, targetHref: string) {
 const TOP_NAV_TABS = [
   { href: "/feeds", label: "Feeds", icon: Home },
   { href: "/discover", label: "Explore", icon: Compass },
-  { href: "/academics", label: "Academics", icon: GraduationCap, badge: "Vault", badgeColor: "bg-indigo-500/15 text-indigo-400" },
+  {
+    href: "/academics",
+    label: "Academics",
+    icon: GraduationCap,
+    badge: "Vault",
+    badgeColor: "bg-indigo-500/15 text-indigo-400",
+  },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/colleges", label: "Colleges", icon: Building2 },
   { href: "/events", label: "Events", icon: Calendar },
@@ -180,9 +167,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate max-w-[200px] lg:max-w-xs">
               <School className="size-3 text-primary shrink-0" />
               <span className="truncate">{collegeName || "Campus"}</span>
-              {profile?.onboardingCompleted && (
-                <ShieldCheck className="size-3 text-primary shrink-0" />
-              )}
+              {profile?.onboardingCompleted && <ShieldCheck className="size-3 text-primary shrink-0" />}
             </div>
           </div>
 
@@ -236,7 +221,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             >
               <Search className="size-3.5" />
               <span className="hidden xl:inline text-[11px]">Search</span>
-              <kbd className="hidden 2xl:inline text-[9px] font-mono px-1 rounded bg-muted text-muted-foreground">⌘K</kbd>
+              <kbd className="hidden 2xl:inline text-[9px] font-mono px-1 rounded bg-muted text-muted-foreground">
+                ⌘K
+              </kbd>
             </Link>
 
             {/* Desktop Anonymity Mode Toggle */}
@@ -359,10 +346,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 <AnimatePresence>
                   {showProfileMenu && (
                     <>
-                      <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setShowProfileMenu(false)}
-                      />
+                      <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: -8 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -379,7 +363,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                               <Zap className="size-3" />
                               <span>{profile.points || 0} LP</span>
                             </span>
-                            <span className="text-muted-foreground truncate max-w-[120px]">{collegeName}</span>
+                            <span className="text-muted-foreground truncate max-w-[120px]">
+                              {collegeName}
+                            </span>
                           </div>
                         </div>
 
@@ -495,7 +481,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                           <ShieldCheck className="size-3.5 text-primary shrink-0" />
                         )}
                       </div>
-                      <span className="block truncate text-xs text-muted-foreground">@{profile.username}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        @{profile.username}
+                      </span>
                       <div className="mt-1 flex items-center gap-2 text-[10px] font-bold">
                         <span className="text-primary flex items-center gap-0.5">
                           <Zap className="size-2.5" /> {profile.points || 0} LP
@@ -571,7 +559,12 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                         { href: "/communities", label: "Communities & Clubs", icon: Users },
                         { href: "/colleges", label: "College Directory", icon: Building2 },
                         { href: "/events", label: "Events & Hackathons", icon: Calendar },
-                        { href: "/confessions", label: "Confessions Vault", icon: VenetianMask, badge: "Anon" },
+                        {
+                          href: "/confessions",
+                          label: "Confessions Vault",
+                          icon: VenetianMask,
+                          badge: "Anon",
+                        },
                         { href: "/dating", label: "Campus Dating", icon: Heart },
                       ].map((item) => {
                         const Icon = item.icon;
@@ -712,10 +705,12 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   )}
                   aria-label="Open full campus menu drawer"
                 >
-                  <span className={cn(
-                    "flex size-9 items-center justify-center rounded-2xl transition-all",
-                    showDrawer ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
-                  )}>
+                  <span
+                    className={cn(
+                      "flex size-9 items-center justify-center rounded-2xl transition-all",
+                      showDrawer ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
+                    )}
+                  >
                     <Menu className="size-5" />
                   </span>
                   <span className="text-[10px] font-black tracking-tight">Menu</span>
@@ -758,13 +753,20 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   isActive ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <span className={cn(
-                  "flex size-9 items-center justify-center rounded-2xl transition-all",
-                  isActive ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
-                )}>
+                <span
+                  className={cn(
+                    "flex size-9 items-center justify-center rounded-2xl transition-all",
+                    isActive ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
+                  )}
+                >
                   <Icon className={cn("size-5 transition-transform", isActive && "scale-110 stroke-[2.5]")} />
                 </span>
-                <span className={cn("text-[10px] tracking-tight", isActive ? "font-black text-primary" : "font-semibold")}>
+                <span
+                  className={cn(
+                    "text-[10px] tracking-tight",
+                    isActive ? "font-black text-primary" : "font-semibold"
+                  )}
+                >
                   {item.label}
                 </span>
                 {item.href === "/chat" && !isViewer && (

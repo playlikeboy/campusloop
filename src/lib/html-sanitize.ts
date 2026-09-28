@@ -14,7 +14,7 @@ export function cleanPostHtml(text: string): string {
     cleaned.includes("<!-- SC_OFF -->") ||
     cleaned.includes("<!-- SC_ON -->") ||
     cleaned.includes("<table") ||
-    cleaned.includes("<div class=\"md\">") ||
+    cleaned.includes('<div class="md">') ||
     /<[a-z][\s\S]*>/i.test(cleaned)
   ) {
     // Extract images inside <img src="..."> before stripping tags

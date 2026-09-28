@@ -1,25 +1,11 @@
 "use client";
 
-import {
-  AlertCircle,
-  CheckCircle2,
-  ExternalLink,
-  Globe,
-  Layers,
-  Link2,
-  Music,
-  Play,
-  Search,
-  Shield,
-  ShieldAlert,
-  Sparkles,
-  Tv,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, Globe, Link2, Play, Shield, Tv } from "lucide-react";
 import { useState } from "react";
 import { PostEmbedRenderer } from "@/components/embeds/post-embed-renderer";
 import { extractEmbedsFromText, type ParsedEmbed } from "@/lib/embeds";
-import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 
 const SAMPLE_URLS = [
   { label: "9GAG Meme", url: "https://9gag.com/gag/aYV9Xq1" },

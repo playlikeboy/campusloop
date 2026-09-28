@@ -108,10 +108,7 @@ export function likeReel(reelId: string) {
 }
 
 export function saveReel(reelId: string) {
-  return apiRequest<{ success: boolean; isSaved: boolean }>(
-    `/api/reels/${reelId}/save`,
-    "POST"
-  );
+  return apiRequest<{ success: boolean; isSaved: boolean }>(`/api/reels/${reelId}/save`, "POST");
 }
 
 // ─── Story API Actions ───

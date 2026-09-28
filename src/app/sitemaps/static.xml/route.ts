@@ -14,7 +14,7 @@ export async function GET() {
     { url: "https://campusloop.space/app/academics/sources", priority: "0.9", changefreq: "daily" },
     { url: "https://campusloop.space/app/colleges", priority: "0.9", changefreq: "daily" },
     { url: "https://campusloop.space/app/reels", priority: "0.9", changefreq: "daily" },
-    { url: "https://campusloop.space/app/articles", priority: "0.8", changefreq: "daily" },
+    { url: "https://campsy.app/articles", priority: "0.8", changefreq: "daily" },
     { url: "https://campusloop.space/app/events", priority: "0.8", changefreq: "daily" },
     { url: "https://campusloop.space/app/communities", priority: "0.8", changefreq: "daily" },
     { url: "https://campusloop.space/overview", priority: "0.9", changefreq: "weekly" },

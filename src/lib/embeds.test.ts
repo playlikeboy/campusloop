@@ -40,7 +40,9 @@ describe("Link and Embed Parsing Engine", () => {
 
   it("extracts Apple Music embed URLs", () => {
     const albumUrl = "https://music.apple.com/in/album/starboy/1440871441";
-    expect(extractAppleMusicEmbedUrl(albumUrl)).toBe("https://embed.music.apple.com/in/album/starboy/1440871441");
+    expect(extractAppleMusicEmbedUrl(albumUrl)).toBe(
+      "https://embed.music.apple.com/in/album/starboy/1440871441"
+    );
   });
 
   it("extracts Spotify embed URLs for tracks and playlists", () => {
@@ -48,7 +50,9 @@ describe("Link and Embed Parsing Engine", () => {
     expect(extractSpotifyEmbedUrl(track)).toBe("https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT");
 
     const playlist = "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M";
-    expect(extractSpotifyEmbedUrl(playlist)).toBe("https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M");
+    expect(extractSpotifyEmbedUrl(playlist)).toBe(
+      "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
+    );
   });
 
   it("extracts short youtu.be URLs and shorts", () => {
@@ -129,7 +133,8 @@ describe("Link and Embed Parsing Engine", () => {
   });
 
   it("extracts 9GAG home and specific gag embeds from post text", () => {
-    const textWith9gag = "Check out https://9gag.com/home for fresh memes or see https://9gag.com/gag/aeM4p25";
+    const textWith9gag =
+      "Check out https://9gag.com/home for fresh memes or see https://9gag.com/gag/aeM4p25";
     const embeds = extractEmbedsFromText(textWith9gag);
     expect(embeds).toHaveLength(2);
 

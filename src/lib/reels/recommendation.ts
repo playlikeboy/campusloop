@@ -122,9 +122,7 @@ const CAMPUS_SUBREDDITS = new Set([
 ]);
 
 function textOf(reel: Pick<RecommendedReel, "title" | "caption" | "tags">) {
-  return [reel.title || "", reel.caption || "", ...reel.tags]
-    .join(" ")
-    .toLowerCase();
+  return [reel.title || "", reel.caption || "", ...reel.tags].join(" ").toLowerCase();
 }
 
 function campusRelevance(reel: Pick<RecommendedReel, "title" | "caption" | "tags" | "subreddit">) {
@@ -244,10 +242,10 @@ export async function getRecommendedReels({
           + ${reels.sharesCount} * 5
           + ln(greatest(1, ${reels.viewsCount})) * 3
           + case when ${reels.isFeatured} then 12 else 0 end
-        )`,
+        )`
       ),
       desc(reels.createdAt),
-      asc(reels.id),
+      asc(reels.id)
     )
     .limit(candidateLimit);
 
@@ -269,9 +267,9 @@ export async function getRecommendedReels({
         or(
           eq(userBehaviorEvents.eventType, "REEL_LOOP"),
           eq(userBehaviorEvents.eventType, "REEL_WATCH"),
-          eq(userBehaviorEvents.eventType, "REEL_SKIP"),
-        ),
-      ),
+          eq(userBehaviorEvents.eventType, "REEL_SKIP")
+        )
+      )
     )
     .groupBy(userBehaviorEvents.targetId, userBehaviorEvents.eventType);
 
@@ -344,7 +342,7 @@ export async function getRecommendedReels({
 
       return { reel, score, relevance };
     })
-    .filter(({ relevance }) => mode === "for_you" ? relevance >= 0 || rows.length < safeLimit * 2 : true)
+    .filter(({ relevance }) => (mode === "for_you" ? relevance >= 0 || rows.length < safeLimit * 2 : true))
     .sort((a, b) => b.score - a.score);
 
   // Keep generic viral material out of the main experience whenever the candidate pool
@@ -359,7 +357,7 @@ export async function getRecommendedReels({
   const freshSet = new Set(
     ranked
       .filter(({ reel }) => Date.now() - reel.createdAt.getTime() < 36 * 3600000)
-      .map(({ reel }) => reel.id),
+      .map(({ reel }) => reel.id)
   );
 
   const final: RecommendedReel[] = [];

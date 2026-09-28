@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  ExternalLink,
-  Sparkles,
-} from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { buildAcademicStudyPrompt, getChatGptStudyUrl, getClaudeStudyUrl } from "@/lib/academics/ai-prompts";
@@ -133,7 +126,12 @@ export function AcademicAiStudyBar({
 
   // ─── MINIMAL PROFESSIONAL STUDY WITH AI UI ───
   return (
-    <div className={cn("rounded-2xl border border-border/40 bg-card/40 p-4 sm:p-5 space-y-3.5 select-none", className)}>
+    <div
+      className={cn(
+        "rounded-2xl border border-border/40 bg-card/40 p-4 sm:p-5 space-y-3.5 select-none",
+        className
+      )}
+    >
       {/* Header Row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">

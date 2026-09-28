@@ -1,8 +1,8 @@
+import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminProfile } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { notifications, posts, userProfiles } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
       priority === "URGENT"
         ? "[URGENT NOTICE]"
         : priority === "WARNING"
-        ? "[CAMPUS ALERT]"
-        : "[OFFICIAL ANNOUNCEMENT]";
+          ? "[CAMPUS ALERT]"
+          : "[OFFICIAL ANNOUNCEMENT]";
 
     const postBody = `**${announcementPrefix} ${title.trim()}**\n\n${message.trim()}`;
 
@@ -56,9 +56,7 @@ export async function POST(req: NextRequest) {
     if (sendNotification) {
       const targetUsers = await db.query.userProfiles.findMany({
         where:
-          postScope === "CAMPUS" && targetInstId
-            ? eq(userProfiles.institutionId, targetInstId)
-            : undefined,
+          postScope === "CAMPUS" && targetInstId ? eq(userProfiles.institutionId, targetInstId) : undefined,
         columns: { id: true },
         limit: 200,
       });

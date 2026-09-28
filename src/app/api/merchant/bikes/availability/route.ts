@@ -1,9 +1,8 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { bikeAvailabilityBlocks, bikeBookings, bikes, merchants, userProfiles } from "@/db/schema";
+import { bikeAvailabilityBlocks, bikeBookings, bikes } from "@/db/schema";
 import { resolveMerchantSession } from "@/lib/merchant-session";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 

@@ -8,7 +8,6 @@ import {
   MessageSquare,
   ThumbsUp,
   UploadCloud,
-  X,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -92,9 +91,7 @@ export function AcademicAuthModal({
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span
-                className="flex size-10 items-center justify-center rounded-xl bg-muted text-foreground border border-border/40 shadow-xs"
-              >
+              <span className="flex size-10 items-center justify-center rounded-xl bg-muted text-foreground border border-border/40 shadow-xs">
                 <CurrentIcon className="size-5 text-foreground" />
               </span>
               <div>

@@ -38,23 +38,28 @@ export const MCP_RESOURCES = [
 export const MCP_PROMPTS = [
   {
     name: "campus_exam_cram",
-    description: "Generate a targeted revision roadmap and study plan using verified notes from your college's vault.",
+    description:
+      "Generate a targeted revision roadmap and study plan using verified notes from your college's vault.",
     arguments: [
-      { name: "subject", description: "Subject or course code (e.g. Operating Systems, CS201)", required: true },
+      {
+        name: "subject",
+        description: "Subject or course code (e.g. Operating Systems, CS201)",
+        required: true,
+      },
       { name: "hoursLeft", description: "Hours remaining until the exam", required: false },
     ],
   },
   {
     name: "campus_gossip_digest",
-    description: "Synthesize the freshest campus confessions, buzz, and hostel chatter from the last 24-48 hours.",
+    description:
+      "Synthesize the freshest campus confessions, buzz, and hostel chatter from the last 24-48 hours.",
     arguments: [],
   },
   {
     name: "doxx_shield_preflight",
-    description: "Audit any draft post or announcement for phone numbers, room numbers, or accidental private data.",
-    arguments: [
-      { name: "content", description: "Draft text to audit", required: true },
-    ],
+    description:
+      "Audit any draft post or announcement for phone numbers, room numbers, or accidental private data.",
+    arguments: [{ name: "content", description: "Draft text to audit", required: true }],
   },
 ];
 
@@ -183,7 +188,10 @@ export async function handleMcpJsonRpc(
           const feed = await MCP_TOOL_EXECUTORS.campusloop_get_feed(context, { limit: 10 });
           content = JSON.stringify(feed, null, 2);
         } else if (uri === "campusloop://notes/popular") {
-          const notes = await MCP_TOOL_EXECUTORS.campusloop_search_academic_notes(context, { query: "", limit: 10 });
+          const notes = await MCP_TOOL_EXECUTORS.campusloop_search_academic_notes(context, {
+            query: "",
+            limit: 10,
+          });
           content = JSON.stringify(notes, null, 2);
         } else if (uri === "campusloop://communities") {
           const comms = await MCP_TOOL_EXECUTORS.campusloop_list_communities(context, { filter: "JOINED" });

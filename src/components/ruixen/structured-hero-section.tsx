@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -43,11 +43,7 @@ export interface StructuredHeroSectionProps {
 
 /* ── component ───────────────────────────────────────────────── */
 
-const cardPositions = [
-  "left-0 z-[1]",
-  "left-1/2 -translate-x-1/2 z-[2]",
-  "right-0 z-[3]",
-] as const;
+const cardPositions = ["left-0 z-[1]", "left-1/2 -translate-x-1/2 z-[2]", "right-0 z-[3]"] as const;
 
 export function StructuredHeroSection({
   announcement = "New release available",
@@ -61,10 +57,7 @@ export function StructuredHeroSection({
   className,
 }: StructuredHeroSectionProps) {
   return (
-    <section
-      className={cn("relative w-full bg-background", className)}
-      aria-label="Hero"
-    >
+    <section className={cn("relative w-full bg-background", className)} aria-label="Hero">
       <div className="pt-20 md:pt-28">
         <div className="relative z-10 mx-auto max-w-6xl">
           {/* ── announcement pill ────────────────────────────── */}
@@ -74,10 +67,7 @@ export function StructuredHeroSection({
               {announcementAction && (
                 <>
                   <span className="block h-3 w-px bg-foreground/10" />
-                  <Link
-                    href={announcementAction.href}
-                    className="text-sm text-primary"
-                  >
+                  <Link href={announcementAction.href} className="text-sm text-primary">
                     {announcementAction.label}
                   </Link>
                 </>
@@ -94,9 +84,7 @@ export function StructuredHeroSection({
             {(description || primaryAction || secondaryAction) && (
               <div className="max-w-2xl">
                 {description && (
-                  <p className="mb-8 text-balance text-lg text-muted-foreground">
-                    {description}
-                  </p>
+                  <p className="mb-8 text-balance text-lg text-muted-foreground">{description}</p>
                 )}
 
                 {(primaryAction || secondaryAction) && (
@@ -131,10 +119,7 @@ export function StructuredHeroSection({
               {cards.slice(0, 3).map((card, idx) => (
                 <div
                   key={idx}
-                  className={cn(
-                    "absolute top-0 w-[75%] sm:w-[55%] md:w-[45%]",
-                    cardPositions[idx],
-                  )}
+                  className={cn("absolute top-0 w-[75%] sm:w-[55%] md:w-[45%]", cardPositions[idx])}
                 >
                   <div className="overflow-hidden rounded-xl bg-muted shadow-2xl shadow-black/15 ring-1 ring-foreground/[0.06]">
                     <div className="aspect-[3/4]">
@@ -165,9 +150,7 @@ export function StructuredHeroSection({
                     </div>
                   </div>
                   {card.label && (
-                    <p className="mt-2 text-center text-xs text-muted-foreground">
-                      {card.label}
-                    </p>
+                    <p className="mt-2 text-center text-xs text-muted-foreground">{card.label}</p>
                   )}
                 </div>
               ))}
@@ -185,24 +168,17 @@ export function StructuredHeroSection({
               <div className="grid items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-6">
                 <div className="space-y-4 max-lg:text-center">
                   <p className="w-fit max-w-sm text-balance text-xl text-foreground max-lg:mx-auto">
-                    {trustedBy.heading ||
-                      "Trusted by fast-growing companies around the world"}
+                    {trustedBy.heading || "Trusted by fast-growing companies around the world"}
                   </p>
                   {trustedBy.action && (
-                    <Link
-                      href={trustedBy.action.href}
-                      className="text-sm text-primary underline"
-                    >
+                    <Link href={trustedBy.action.href} className="text-sm text-primary underline">
                       {trustedBy.action.label}
                     </Link>
                   )}
                 </div>
                 <div className="grid grid-cols-3 items-center gap-y-12 text-foreground/60 sm:grid-cols-4 [&_svg]:fill-foreground/60">
                   {trustedBy.logos.map((logo, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-center px-2"
-                    >
+                    <div key={idx} className="flex items-center justify-center px-2">
                       {logo}
                     </div>
                   ))}

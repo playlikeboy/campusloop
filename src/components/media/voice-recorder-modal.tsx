@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import { Mic, RotateCcw, Send, StopCircle, Trash2, X } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
@@ -69,16 +69,11 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
       haptics.medium();
       toast.loading("Saving voice note...", { id: "voice-upload" });
 
-      const res = await uploadMediaFile(
-        audioBlob,
-        "audio",
-        `voice_memo_${Date.now()}.webm`,
-        (progress) => {
-          if (progress.percent > 0 && progress.percent < 100) {
-            toast.loading(`Saving voice note... ${progress.percent}%`, { id: "voice-upload" });
-          }
+      const res = await uploadMediaFile(audioBlob, "audio", `voice_memo_${Date.now()}.webm`, (progress) => {
+        if (progress.percent > 0 && progress.percent < 100) {
+          toast.loading(`Saving voice note... ${progress.percent}%`, { id: "voice-upload" });
         }
-      );
+      });
       toast.success("Voice note attached! 🎙️", { id: "voice-upload" });
       onAudioRecorded(res.url, recordingTime || 1);
       clearRecording();

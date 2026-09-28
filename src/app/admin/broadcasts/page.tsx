@@ -53,10 +53,7 @@ export default async function AdminBroadcastsPage() {
         </div>
       </header>
 
-      <BroadcastsClient
-        institutions={institutionsList}
-        recentBroadcasts={recentBroadcasts}
-      />
+      <BroadcastsClient institutions={institutionsList} recentBroadcasts={recentBroadcasts} />
     </div>
   );
 }

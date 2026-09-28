@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import { MarketplaceCard } from "@/components/communities/marketplace-card";
 import { Skeleton } from "@/components/ui/skeleton";

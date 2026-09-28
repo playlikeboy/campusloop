@@ -1,23 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import {
-  ArrowRight,
-  BarChart3,
-  Cpu,
-  Database,
-  Globe2,
-  GraduationCap,
-  Layers,
-  Lock,
-  Network,
-  Radio,
-  Server,
-  ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { BarChart3, Lock, Network, Server, ShieldAlert, ShieldCheck } from "lucide-react";
 import { CompanyNav } from "@/components/marketing/company-nav";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/system";
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
@@ -163,19 +146,28 @@ export function OverviewClient() {
                 <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                   <li className="flex items-start gap-2">
                     <span className="text-rose-500 font-bold">•</span>
-                    <span>Noisy WhatsApp groups exposing personal mobile numbers to hundreds of strangers.</span>
+                    <span>
+                      Noisy WhatsApp groups exposing personal mobile numbers to hundreds of strangers.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-rose-500 font-bold">•</span>
-                    <span>Anonymous Instagram pages turning toxic with unchecked cyberbullying and harassment.</span>
+                    <span>
+                      Anonymous Instagram pages turning toxic with unchecked cyberbullying and harassment.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-rose-500 font-bold">•</span>
-                    <span>Outsiders, predators, and fake profiles dominating campus-area dating applications.</span>
+                    <span>
+                      Outsiders, predators, and fake profiles dominating campus-area dating applications.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-rose-500 font-bold">•</span>
-                    <span>Exam notes and PYQs scattered across broken Google Drive folders that 404 during mid-sems.</span>
+                    <span>
+                      Exam notes and PYQs scattered across broken Google Drive folders that 404 during
+                      mid-sems.
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -188,19 +180,29 @@ export function OverviewClient() {
                 <ul className="space-y-3 text-sm text-foreground/90 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">•</span>
-                    <span>Access restricted strictly to .ac.in / .edu.in verified students. Zero outsiders.</span>
+                    <span>
+                      Access restricted strictly to .ac.in / .edu.in verified students. Zero outsiders.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">•</span>
-                    <span>Accountable anonymity: dynamic handles with cryptographic identity escrow to prevent harassment.</span>
+                    <span>
+                      Accountable anonymity: dynamic handles with cryptographic identity escrow to prevent
+                      harassment.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">•</span>
-                    <span>Campus Match with verified badges, dual-radius radius filters, and zero catfish.</span>
+                    <span>
+                      Campus Match with verified badges, dual-radius radius filters, and zero catfish.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">•</span>
-                    <span>Academics Vault with permanent multi-file cloud storage organized by course and semester.</span>
+                    <span>
+                      Academics Vault with permanent multi-file cloud storage organized by course and
+                      semester.
+                    </span>
                   </li>
                 </ul>
               </div>

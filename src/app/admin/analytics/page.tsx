@@ -1,20 +1,11 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
-  Activity,
-  ArrowUpRight,
-  CheckCircle2,
   Cpu,
   Database,
   EyeOff,
-  Flame,
-  Globe,
   Heart,
-  Layers,
   MessageSquare,
-  Radio,
   School,
-  Server,
-  Shield,
   ShieldCheck,
   TrendingUp,
   Users,
@@ -22,7 +13,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { comments, institutions, posts, userProfiles, votes } from "@/db/schema";
+import { posts, votes } from "@/db/schema";
 import { resolveAdminSession } from "../_lib/guard";
 import { getActivitySeries, getDashboardStats, getTopColleges } from "../_lib/queries";
 
@@ -113,10 +104,8 @@ export default async function AdminAnalyticsPage() {
           </p>
           <p className="text-2xl font-black text-foreground">{stats.totalComments}</p>
           <p className="text-[11px] text-muted-foreground">
-            {stats.totalPosts > 0
-              ? (stats.totalComments / stats.totalPosts).toFixed(1)
-              : "0"}{" "}
-            comments per post avg
+            {stats.totalPosts > 0 ? (stats.totalComments / stats.totalPosts).toFixed(1) : "0"} comments per
+            post avg
           </p>
         </div>
 
@@ -228,14 +217,8 @@ export default async function AdminAnalyticsPage() {
               <span className="text-primary">Public ({publicPct}%)</span>
             </div>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden flex">
-              <div
-                className="h-full bg-purple-500 transition-all"
-                style={{ width: `${anonPct}%` }}
-              />
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${publicPct}%` }}
-              />
+              <div className="h-full bg-purple-500 transition-all" style={{ width: `${anonPct}%` }} />
+              <div className="h-full bg-primary transition-all" style={{ width: `${publicPct}%` }} />
             </div>
             <div className="flex justify-between text-[11px] text-muted-foreground pt-1">
               <span>{stats.anonymousPosts} anon posts</span>
@@ -262,10 +245,7 @@ export default async function AdminAnalyticsPage() {
               <span className="text-rose-500">Downvotes ({100 - sentimentPct}%)</span>
             </div>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden flex">
-              <div
-                className="h-full bg-emerald-500 transition-all"
-                style={{ width: `${sentimentPct}%` }}
-              />
+              <div className="h-full bg-emerald-500 transition-all" style={{ width: `${sentimentPct}%` }} />
               <div
                 className="h-full bg-rose-500 transition-all"
                 style={{ width: `${100 - sentimentPct}%` }}

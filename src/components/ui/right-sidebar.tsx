@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Calendar,
-  Clock,
-  MoreHorizontal,
-  Plus,
-  RotateCw,
-  Search,
-  ShieldCheck,
-  Trophy,
-  Users,
-  Zap,
-} from "lucide-react";
+import { Clock, MoreHorizontal, Plus, RotateCw, Search, ShieldCheck, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";

@@ -103,7 +103,7 @@ export function FeedBoostsClient() {
 
       const modeLabel = MODES.find((m) => m.mode === mode)?.label ?? mode;
       toast.success(
-        `${selection.kind === "POST" ? "Post" : "@" + selection.label} — ${modeLabel} applied, live within a minute`
+        `${selection.kind === "POST" ? "Post" : `@${selection.label}`} — ${modeLabel} applied, live within a minute`
       );
       setSelection(null);
       setReason("");

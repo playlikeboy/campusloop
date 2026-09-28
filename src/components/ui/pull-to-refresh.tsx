@@ -79,7 +79,14 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
-      if (startYRef.current === null || startXRef.current === null || disabled || isRefreshing || e.touches.length !== 1) return;
+      if (
+        startYRef.current === null ||
+        startXRef.current === null ||
+        disabled ||
+        isRefreshing ||
+        e.touches.length !== 1
+      )
+        return;
 
       const currentY = e.touches[0].clientY;
       const currentX = e.touches[0].clientX;

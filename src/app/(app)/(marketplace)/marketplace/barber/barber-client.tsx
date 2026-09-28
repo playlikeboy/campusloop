@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Phone,
-  Rocket,
-  Scissors,
-  ShieldCheck,
-  Star,
-  Ticket,
-  User,
-  Users,
-  Zap,
-} from "lucide-react";
-import Link from "next/link";
+import { CheckCircle2, MapPin, Rocket, Scissors, Ticket } from "lucide-react";
 import { useState } from "react";
 import useSWR from "swr";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +8,6 @@ import { InstagramIcon } from "@/components/ui/social-icons";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface BarberMarketplaceClientProps {
   profileId: string;

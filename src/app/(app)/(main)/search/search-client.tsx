@@ -5,7 +5,6 @@ import {
   BookOpen,
   Building2,
   ChevronRight,
-  Compass,
   Download,
   FileText,
   Flame,
@@ -143,20 +142,20 @@ export function SearchClient({ initialQuery = "" }: { initialQuery?: string }) {
         {/* Trending Suggestions Carousel */}
         <div className="relative">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 pr-6">
-          <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 shrink-0 pr-1">
-            <Zap className="size-3 text-amber-500" />
-            <span>Popular</span>
-          </span>
-          {TRENDING_SEARCH_SUGGESTIONS.map((term) => (
-            <button
-              key={term}
-              type="button"
-              onClick={() => handleSuggestionClick(term)}
-              className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold bg-card border border-border/60 hover:border-foreground/40 text-foreground transition-all cursor-pointer shadow-2xs active:scale-95"
-            >
-              {term}
-            </button>
-          ))}
+            <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 shrink-0 pr-1">
+              <Zap className="size-3 text-amber-500" />
+              <span>Popular</span>
+            </span>
+            {TRENDING_SEARCH_SUGGESTIONS.map((term) => (
+              <button
+                key={term}
+                type="button"
+                onClick={() => handleSuggestionClick(term)}
+                className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold bg-card border border-border/60 hover:border-foreground/40 text-foreground transition-all cursor-pointer shadow-2xs active:scale-95"
+              >
+                {term}
+              </button>
+            ))}
           </div>
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background via-background/80 to-transparent" />
         </div>

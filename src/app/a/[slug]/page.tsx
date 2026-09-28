@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
-import ArticleReaderPage from "@/app/(app)/(articles)/articles/[slug]/page";
+import { redirect } from "next/navigation";
+import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles } from "@/db/schema";
 
@@ -16,39 +17,40 @@ export async function generateMetadata({ params }: ArticleShortLinkProps): Promi
   });
 
   if (!article) {
-    return { title: "Article" };
+    return { title: "Article Not Found" };
   }
 
-  // The root layout's title template already appends " | CampusLoop".
   const title = article.title;
   const description = article.excerpt || article.subtitle || "Read student articles on CampusLoop.";
-  const url = `https://campusloop.space/a/${slug}`;
+  const canonicalUrl = `${ARTICLES_CANONICAL_HOST}/articles/${slug}`;
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: canonicalUrl },
     robots: { index: true, follow: true },
     openGraph: {
       title,
       description,
-      url,
+      url: canonicalUrl,
       images: article.coverImageUrl
         ? [{ url: article.coverImageUrl }]
-        : [{ url: "https://campusloop.space/og-image.png" }],
+        : [{ url: `${ARTICLES_CANONICAL_HOST}/og-image.png` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: article.coverImageUrl ? [article.coverImageUrl] : ["https://campusloop.space/og-image.png"],
+      images: article.coverImageUrl ? [article.coverImageUrl] : [`${ARTICLES_CANONICAL_HOST}/og-image.png`],
     },
   };
 }
 
 /**
- * Public reader. This route lives outside the auth-gated `(main)` layout so a
- * shared link, a QR scan or Googlebot reaches the article itself rather than the
- * sign-in wall. Interactions on the page still require an account.
+ * Short URL share route.
+ * Redirects to the canonical `/articles/[slug]` publication route.
  */
-export default ArticleReaderPage;
+export default async function ArticleShortLinkPage({ params }: ArticleShortLinkProps) {
+  const { slug } = await params;
+  redirect(`/articles/${slug}`);
+}

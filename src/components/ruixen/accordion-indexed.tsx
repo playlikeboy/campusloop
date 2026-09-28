@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
 export interface AccordionIndexedItem {
@@ -80,11 +75,7 @@ export default function AccordionIndexed({
         collapsible={collapsible}
       >
         {items.map((item, index) => (
-          <AccordionItem
-            value={item.id}
-            key={item.id}
-            className="group/item border-border/20 last:border-b"
-          >
+          <AccordionItem value={item.id} key={item.id} className="group/item border-border/20 last:border-b">
             <AccordionTrigger className="cursor-pointer py-4 hover:no-underline [&>svg]:hidden">
               <div className="flex items-baseline gap-4">
                 <span className="shrink-0 font-mono text-lg tabular-nums text-foreground/15 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[state=open]/item:text-foreground/50 group-data-[state=open]/item:translate-y-0">
@@ -96,9 +87,7 @@ export default function AccordionIndexed({
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <p className="pb-3 pl-[2.35rem] text-[13px] leading-[1.7] text-foreground/40">
-                {item.content}
-              </p>
+              <p className="pb-3 pl-[2.35rem] text-[13px] leading-[1.7] text-foreground/40">{item.content}</p>
             </AccordionContent>
           </AccordionItem>
         ))}

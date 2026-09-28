@@ -186,18 +186,19 @@ export async function GET(req: Request) {
 
     const enriched = items.map((item) => {
       const rawAtts = (item as any).attachments;
-      const attachments = Array.isArray(rawAtts) && rawAtts.length > 0
-        ? rawAtts
-        : (item.fileUrl || item.driveUrl)
-          ? [
-              {
-                id: `${item.id}-att-1`,
-                title: item.title,
-                url: item.fileUrl || item.driveUrl,
-                type: item.driveUrl ? "DRIVE" : "PDF",
-              },
-            ]
-          : [];
+      const attachments =
+        Array.isArray(rawAtts) && rawAtts.length > 0
+          ? rawAtts
+          : item.fileUrl || item.driveUrl
+            ? [
+                {
+                  id: `${item.id}-att-1`,
+                  title: item.title,
+                  url: item.fileUrl || item.driveUrl,
+                  type: item.driveUrl ? "DRIVE" : "PDF",
+                },
+              ]
+            : [];
 
       return {
         ...item,
@@ -326,8 +327,12 @@ export async function POST(req: Request) {
 
     // Backfill fileUrl and driveUrl from attachments if not explicitly provided
     if (!fileUrl && !driveUrl && cleanAttachments.length > 0) {
-      const firstDrive = cleanAttachments.find((a) => a.type === "DRIVE" || a.url.includes("drive.google.com"));
-      const firstFile = cleanAttachments.find((a) => a.type !== "DRIVE" && !a.url.includes("drive.google.com"));
+      const firstDrive = cleanAttachments.find(
+        (a) => a.type === "DRIVE" || a.url.includes("drive.google.com")
+      );
+      const firstFile = cleanAttachments.find(
+        (a) => a.type !== "DRIVE" && !a.url.includes("drive.google.com")
+      );
       if (firstFile) fileUrl = firstFile.url;
       if (firstDrive) driveUrl = firstDrive.url;
       if (!fileUrl && !driveUrl) fileUrl = cleanAttachments[0].url;

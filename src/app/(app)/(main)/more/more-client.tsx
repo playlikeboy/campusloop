@@ -5,7 +5,6 @@ import {
   Building2,
   ChevronDown,
   ChevronRight,
-  ExternalLink,
   Flame,
   FlaskConical,
   Shield,
@@ -234,15 +233,16 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                   </div>
                   <div className="text-left min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-foreground truncate">
-                        {section.group}
-                      </span>
+                      <span className="text-sm font-bold text-foreground truncate">{section.group}</span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40 shrink-0">
                         {section.items.length}
                       </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground truncate">
-                      {section.items.map((i) => i.label).slice(0, 3).join(" · ")}
+                      {section.items
+                        .map((i) => i.label)
+                        .slice(0, 3)
+                        .join(" · ")}
                     </p>
                   </div>
                 </div>
@@ -308,77 +308,77 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
         })}
       </div>
 
-        {/* ─── Admin Moderation Console ─── */}
-        {isAdmin && (
-          <div className="space-y-2">
-            <h2 className="text-xs font-black uppercase tracking-wider text-destructive px-1">
-              Administration
-            </h2>
-            <div className="rounded-3xl border border-destructive/30 bg-destructive/5 overflow-hidden shadow-xs">
-              <Link
-                href="/admin"
-                className="flex items-center justify-between p-4 hover:bg-destructive/10 transition-colors group cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="flex size-10 items-center justify-center rounded-2xl bg-destructive/15 text-destructive border border-destructive/30 shrink-0">
-                    <Shield className="size-4.5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-black text-foreground group-hover:text-destructive transition-colors">
-                      Admin Moderation Console
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Reports, content moderation, keyword triggers &amp; campus analytics
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground shrink-0 ml-2" />
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* ─── Official Social Media Channels (Instagram highlighted per AGENTS.md rule 10) ─── */}
-        <div className="space-y-2 pt-2">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground px-1">
-            Official Channels
+      {/* ─── Admin Moderation Console ─── */}
+      {isAdmin && (
+        <div className="space-y-2">
+          <h2 className="text-xs font-black uppercase tracking-wider text-destructive px-1">
+            Administration
           </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <a
-              href={SOCIAL_LINKS.instagram.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center p-3 rounded-2xl border border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/10 text-pink-400 hover:text-pink-300 transition-all cursor-pointer group shadow-2xs"
+          <div className="rounded-3xl border border-destructive/30 bg-destructive/5 overflow-hidden shadow-xs">
+            <Link
+              href="/admin"
+              className="flex items-center justify-between p-4 hover:bg-destructive/10 transition-colors group cursor-pointer"
             >
-              <InstagramIcon className="size-5 transition-transform group-hover:scale-110" />
-              <span className="text-[11px] font-bold mt-1 text-foreground">Instagram</span>
-              <span className="text-[9px] text-pink-400 font-bold">{SOCIAL_LINKS.instagram.handle}</span>
-            </a>
-
-            <a
-              href={SOCIAL_LINKS.linkedin.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center p-3 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 transition-all cursor-pointer group shadow-2xs"
-            >
-              <LinkedinIcon className="size-5 transition-transform group-hover:scale-110" />
-              <span className="text-[11px] font-bold mt-1 text-foreground">LinkedIn</span>
-              <span className="text-[9px] text-blue-400 font-bold">{SOCIAL_LINKS.linkedin.handle}</span>
-            </a>
-
-            <a
-              href={SOCIAL_LINKS.x.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center p-3 rounded-2xl border border-border/50 bg-card hover:bg-muted/40 text-foreground transition-all cursor-pointer group shadow-2xs"
-            >
-              <XIcon className="size-5 transition-transform group-hover:scale-110" />
-              <span className="text-[11px] font-bold mt-1 text-foreground">X (Twitter)</span>
-              <span className="text-[9px] text-muted-foreground font-bold">{SOCIAL_LINKS.x.handle}</span>
-            </a>
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex size-10 items-center justify-center rounded-2xl bg-destructive/15 text-destructive border border-destructive/30 shrink-0">
+                  <Shield className="size-4.5" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-foreground group-hover:text-destructive transition-colors">
+                    Admin Moderation Console
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Reports, content moderation, keyword triggers &amp; campus analytics
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground shrink-0 ml-2" />
+            </Link>
           </div>
         </div>
+      )}
+
+      {/* ─── Official Social Media Channels (Instagram highlighted per AGENTS.md rule 10) ─── */}
+      <div className="space-y-2 pt-2">
+        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground px-1">
+          Official Channels
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <a
+            href={SOCIAL_LINKS.instagram.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/10 text-pink-400 hover:text-pink-300 transition-all cursor-pointer group shadow-2xs"
+          >
+            <InstagramIcon className="size-5 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold mt-1 text-foreground">Instagram</span>
+            <span className="text-[9px] text-pink-400 font-bold">{SOCIAL_LINKS.instagram.handle}</span>
+          </a>
+
+          <a
+            href={SOCIAL_LINKS.linkedin.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 transition-all cursor-pointer group shadow-2xs"
+          >
+            <LinkedinIcon className="size-5 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold mt-1 text-foreground">LinkedIn</span>
+            <span className="text-[9px] text-blue-400 font-bold">{SOCIAL_LINKS.linkedin.handle}</span>
+          </a>
+
+          <a
+            href={SOCIAL_LINKS.x.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-border/50 bg-card hover:bg-muted/40 text-foreground transition-all cursor-pointer group shadow-2xs"
+          >
+            <XIcon className="size-5 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold mt-1 text-foreground">X (Twitter)</span>
+            <span className="text-[9px] text-muted-foreground font-bold">{SOCIAL_LINKS.x.handle}</span>
+          </a>
+        </div>
       </div>
+    </div>
   );
 }

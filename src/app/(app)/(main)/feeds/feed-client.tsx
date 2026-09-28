@@ -269,224 +269,224 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-24">
         <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-2xl border border-border/30 overflow-hidden shadow-xs">
           <FeedHeader
-          scope={scope}
-          onScopeChange={handleScopeChange}
-          sort={sort}
-          onSortChange={handleSortChange}
-          type={type}
-          onTypeChange={handleTypeChange}
-          visibility={visibility}
-          onVisibilityChange={handleVisibilityChange}
-          institutionSlug={
-            profile?.institution?.slug ||
-            (profile?.institution?.name ? profile.institution.name.split(",")[0] : null)
-          }
-          onRefresh={refresh}
-          isRefreshing={isValidating}
-        />
+            scope={scope}
+            onScopeChange={handleScopeChange}
+            sort={sort}
+            onSortChange={handleSortChange}
+            type={type}
+            onTypeChange={handleTypeChange}
+            visibility={visibility}
+            onVisibilityChange={handleVisibilityChange}
+            institutionSlug={
+              profile?.institution?.slug ||
+              (profile?.institution?.name ? profile.institution.name.split(",")[0] : null)
+            }
+            onRefresh={refresh}
+            isRefreshing={isValidating}
+          />
 
-        {/* ─── Story Ring ─── */}
-        <div className="w-full">
-          {storiesLoading ? (
-            <div className="flex gap-4 px-4 py-5 overflow-x-auto border-b border-border/40 bg-card/20">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex flex-col items-center gap-1.5 shrink-0">
-                  <div className="h-14 w-14 rounded-full bg-muted/65 shimmer-effect" />
-                  <div className="h-2.5 w-10 bg-muted/65 rounded shimmer-effect" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <StoryRing
-              users={(stories || [])
-                .filter((s) => s?.user)
-                .map((s) => ({
-                  id: s.user.id,
-                  displayName: s.user.displayName,
-                  username: s.user.username,
-                  avatarUrl: s.user.avatarUrl,
-                  stories: s.stories,
-                }))}
-              mutateStories={mutateStories}
-            />
-          )}
-        </div>
+          {/* ─── Story Ring ─── */}
+          <div className="w-full">
+            {storiesLoading ? (
+              <div className="flex gap-4 px-4 py-5 overflow-x-auto border-b border-border/40 bg-card/20">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex flex-col items-center gap-1.5 shrink-0">
+                    <div className="h-14 w-14 rounded-full bg-muted/65 shimmer-effect" />
+                    <div className="h-2.5 w-10 bg-muted/65 rounded shimmer-effect" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <StoryRing
+                users={(stories || [])
+                  .filter((s) => s?.user)
+                  .map((s) => ({
+                    id: s.user.id,
+                    displayName: s.user.displayName,
+                    username: s.user.username,
+                    avatarUrl: s.user.avatarUrl,
+                    stories: s.stories,
+                  }))}
+                mutateStories={mutateStories}
+              />
+            )}
+          </div>
 
-        {/* ─── Twitter-Style Quick Composer Row with Instant Optimistic Post ─── */}
-        <form onSubmit={handleQuickPost} className="border-b border-border/30 px-4 py-3 bg-card/30">
-          <div className="flex gap-3 items-start">
-            <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">
-              <AvatarImage src={profile?.avatarUrl || ""} />
-              <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
-                {profile?.displayName?.[0] || "U"}
-              </AvatarFallback>
-            </Avatar>
+          {/* ─── Twitter-Style Quick Composer Row with Instant Optimistic Post ─── */}
+          <form onSubmit={handleQuickPost} className="border-b border-border/30 px-4 py-3 bg-card/30">
+            <div className="flex gap-3 items-start">
+              <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">
+                <AvatarImage src={profile?.avatarUrl || ""} />
+                <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
+                  {profile?.displayName?.[0] || "U"}
+                </AvatarFallback>
+              </Avatar>
 
-            <div className="flex-1 min-w-0 flex flex-col gap-2">
-              {/* Row 1: Textarea + Always-visible Post Button */}
-              <div className="flex items-start gap-2 w-full min-w-0">
-                <textarea
-                  rows={quickText ? 2 : 1}
-                  placeholder="What is happening on campus?!"
-                  value={quickText}
-                  onChange={(e) => setQuickText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                      e.preventDefault();
-                      handleQuickPost(e);
-                    }
-                  }}
-                  className="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1.5 border-0 shadow-none"
-                />
-
-                <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-                  <button
-                    type={quickText.trim() ? "submit" : "button"}
-                    onClick={(e) => {
-                      if (!quickText.trim()) {
+              <div className="flex-1 min-w-0 flex flex-col gap-2">
+                {/* Row 1: Textarea + Always-visible Post Button */}
+                <div className="flex items-start gap-2 w-full min-w-0">
+                  <textarea
+                    rows={quickText ? 2 : 1}
+                    placeholder="What is happening on campus?!"
+                    value={quickText}
+                    onChange={(e) => setQuickText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault();
-                        router.push("/post/new");
+                        handleQuickPost(e);
                       }
                     }}
-                    disabled={isQuickPosting}
-                    className={cn(
-                      "px-4 py-1.5 rounded-full text-xs font-black transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0",
-                      quickText.trim()
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/25 shadow-sm"
-                        : "bg-muted hover:bg-muted/80 text-foreground"
-                    )}
-                    title={quickText.trim() ? "Post now" : "Create a post"}
-                  >
-                    {isQuickPosting ? (
-                      <>
-                        <span className="size-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                        <span>Posting...</span>
-                      </>
-                    ) : (
-                      "Post"
-                    )}
-                  </button>
-                </div>
-              </div>
+                    className="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1.5 border-0 shadow-none"
+                  />
 
-              {/* Row 2: Sub-toolbar shown when user has started typing */}
-              {quickText && (
-                <div className="space-y-2 pt-1 border-t border-border/20 w-full min-w-0">
-                  {trendingTags.length > 0 && (
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
-                      <span className="text-[10px] font-black text-muted-foreground uppercase shrink-0 flex items-center gap-0.5">
-                        <Flame className="size-2.5 text-primary" />
-                      </span>
-                      {trendingTags.slice(0, 6).map((t) => (
-                        <button
-                          key={t.tag}
-                          type="button"
-                          onClick={() => setQuickText((prev) => `${prev.trim()} ${t.tag} `)}
-                          className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 shrink-0 cursor-pointer transition-colors"
-                        >
-                          {t.tag}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between gap-2 pt-0.5 w-full min-w-0">
+                  <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
                     <button
-                      type="button"
-                      onClick={() => {
-                        if (quickText.trim()) {
-                          try {
-                            sessionStorage.setItem("campusloop_draft_post", quickText.trim());
-                          } catch {}
+                      type={quickText.trim() ? "submit" : "button"}
+                      onClick={(e) => {
+                        if (!quickText.trim()) {
+                          e.preventDefault();
+                          router.push("/post/new");
                         }
-                        router.push(
-                          quickText.trim()
-                            ? `/post/new?text=${encodeURIComponent(quickText.trim())}`
-                            : "/post/new"
-                        );
                       }}
-                      className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors min-w-0 truncate text-left"
+                      disabled={isQuickPosting}
+                      className={cn(
+                        "px-4 py-1.5 rounded-full text-xs font-black transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0",
+                        quickText.trim()
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/25 shadow-sm"
+                          : "bg-muted hover:bg-muted/80 text-foreground"
+                      )}
+                      title={quickText.trim() ? "Post now" : "Create a post"}
                     >
-                      <span className="truncate">Open full editor (poll, photos, confession)</span>
-                      <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shrink-0">
-                        <Zap className="size-2.5" />
-                        <span>Draft saved</span>
-                      </span>
+                      {isQuickPosting ? (
+                        <>
+                          <span className="size-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                          <span>Posting...</span>
+                        </>
+                      ) : (
+                        "Post"
+                      )}
                     </button>
-                    <span className="text-[11px] text-muted-foreground/80 font-mono font-medium shrink-0">
-                      {quickText.length}/2000
-                    </span>
                   </div>
                 </div>
-              )}
+
+                {/* Row 2: Sub-toolbar shown when user has started typing */}
+                {quickText && (
+                  <div className="space-y-2 pt-1 border-t border-border/20 w-full min-w-0">
+                    {trendingTags.length > 0 && (
+                      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase shrink-0 flex items-center gap-0.5">
+                          <Flame className="size-2.5 text-primary" />
+                        </span>
+                        {trendingTags.slice(0, 6).map((t) => (
+                          <button
+                            key={t.tag}
+                            type="button"
+                            onClick={() => setQuickText((prev) => `${prev.trim()} ${t.tag} `)}
+                            className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 shrink-0 cursor-pointer transition-colors"
+                          >
+                            {t.tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-2 pt-0.5 w-full min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (quickText.trim()) {
+                            try {
+                              sessionStorage.setItem("campusloop_draft_post", quickText.trim());
+                            } catch {}
+                          }
+                          router.push(
+                            quickText.trim()
+                              ? `/post/new?text=${encodeURIComponent(quickText.trim())}`
+                              : "/post/new"
+                          );
+                        }}
+                        className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors min-w-0 truncate text-left"
+                      >
+                        <span className="truncate">Open full editor (poll, photos, confession)</span>
+                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shrink-0">
+                          <Zap className="size-2.5" />
+                          <span>Draft saved</span>
+                        </span>
+                      </button>
+                      <span className="text-[11px] text-muted-foreground/80 font-mono font-medium shrink-0">
+                        {quickText.length}/2000
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+          </form>
+
+          {/* ─── Main Feed Stream (Twitter-Style Flat Timeline) ─── */}
+          <div className="flex flex-col">
+            {feedLoading && (!feed || feed.length === 0) ? (
+              <FeedSkeleton />
+            ) : isError && (!feed || feed.length === 0) ? (
+              <FeedErrorState onRetry={() => refresh()} />
+            ) : displayedPosts && displayedPosts.length > 0 ? (
+              <>
+                {displayedPosts.map((post, idx) => (
+                  <div key={post.id}>
+                    <FeedCard post={post} currentUserId={profile?.id} />
+                    {idx === 2 && (
+                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                        <InlineCommunitiesWidget />
+                      </div>
+                    )}
+                    {idx === 3 && (
+                      <div className="border-b border-border/30 bg-muted/10">
+                        <FeedRecommendedUsers />
+                      </div>
+                    )}
+                    {idx === 4 && (
+                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                        <InlineArticlesWidget />
+                      </div>
+                    )}
+                    {idx === 6 && (
+                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                        <InlineDatingWidget />
+                      </div>
+                    )}
+                    {idx === 10 && (
+                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                        <InlineHashtagsWidget />
+                      </div>
+                    )}
+                    {idx === 14 && (
+                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                        <InlineReferralWidget />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Load more trigger anchor */}
+                {!isReachingEnd && (
+                  <div ref={setLoadMoreRef} className="w-full">
+                    <FeedLoadingMoreSkeleton />
+                  </div>
+                )}
+
+                {isReachingEnd && <FeedCaughtUpCard />}
+              </>
+            ) : (
+              <FeedEmptyState />
+            )}
           </div>
-        </form>
+        </main>
 
-        {/* ─── Main Feed Stream (Twitter-Style Flat Timeline) ─── */}
-        <div className="flex flex-col">
-          {feedLoading && (!feed || feed.length === 0) ? (
-            <FeedSkeleton />
-          ) : isError && (!feed || feed.length === 0) ? (
-            <FeedErrorState onRetry={() => refresh()} />
-          ) : displayedPosts && displayedPosts.length > 0 ? (
-            <>
-              {displayedPosts.map((post, idx) => (
-                <div key={post.id}>
-                  <FeedCard post={post} currentUserId={profile?.id} />
-                  {idx === 2 && (
-                    <div className="p-3 border-b border-border/30 bg-muted/10">
-                      <InlineCommunitiesWidget />
-                    </div>
-                  )}
-                  {idx === 3 && (
-                    <div className="border-b border-border/30 bg-muted/10">
-                      <FeedRecommendedUsers />
-                    </div>
-                  )}
-                  {idx === 4 && (
-                    <div className="p-3 border-b border-border/30 bg-muted/10">
-                      <InlineArticlesWidget />
-                    </div>
-                  )}
-                  {idx === 6 && (
-                    <div className="p-3 border-b border-border/30 bg-muted/10">
-                      <InlineDatingWidget />
-                    </div>
-                  )}
-                  {idx === 10 && (
-                    <div className="p-3 border-b border-border/30 bg-muted/10">
-                      <InlineHashtagsWidget />
-                    </div>
-                  )}
-                  {idx === 14 && (
-                    <div className="p-3 border-b border-border/30 bg-muted/10">
-                      <InlineReferralWidget />
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Load more trigger anchor */}
-              {!isReachingEnd && (
-                <div ref={setLoadMoreRef} className="w-full">
-                  <FeedLoadingMoreSkeleton />
-                </div>
-              )}
-
-              {isReachingEnd && <FeedCaughtUpCard />}
-            </>
-          ) : (
-            <FeedEmptyState />
-          )}
-        </div>
-      </main>
-
-      {/* ─── Desktop Context Sidebar (4 cols on lg, hidden on mobile) ─── */}
-      <aside className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-20">
-        <RightSidebar />
-      </aside>
-    </div>
+        {/* ─── Desktop Context Sidebar (4 cols on lg, hidden on mobile) ─── */}
+        <aside className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-20">
+          <RightSidebar />
+        </aside>
+      </div>
 
       <ScrollToTop />
     </>

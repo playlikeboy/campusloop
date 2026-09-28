@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
 
@@ -41,17 +41,36 @@ export const articles = pgTable("articles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const articleVotes = pgTable("article_votes", {
-  id: text("id").primaryKey(),
-  articleId: text("article_id")
-    .notNull()
-    .references(() => articles.id, { onDelete: "cascade" }),
-  profileId: text("profile_id")
-    .notNull()
-    .references(() => userProfiles.id, { onDelete: "cascade" }),
-  value: integer("value").notNull(), // 1 for upvote, -1 for downvote
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const articleVotes = pgTable(
+  "article_votes",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    value: integer("value").notNull(), // 1 for upvote, -1 for downvote
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("article_votes_profile_article_idx").on(t.profileId, t.articleId)]
+);
+
+export const savedArticles = pgTable(
+  "saved_articles",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("saved_articles_profile_article_idx").on(t.profileId, t.articleId)]
+);
 
 export const articleComments = pgTable("article_comments", {
   id: text("id").primaryKey(),
@@ -84,6 +103,8 @@ export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;
 export type ArticleVote = typeof articleVotes.$inferSelect;
 export type NewArticleVote = typeof articleVotes.$inferInsert;
+export type SavedArticle = typeof savedArticles.$inferSelect;
+export type NewSavedArticle = typeof savedArticles.$inferInsert;
 export type ArticleComment = typeof articleComments.$inferSelect;
 export type NewArticleComment = typeof articleComments.$inferInsert;
 export type ArticleCommentVote = typeof articleCommentVotes.$inferSelect;

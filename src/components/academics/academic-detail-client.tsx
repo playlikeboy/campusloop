@@ -11,20 +11,12 @@ import {
   ChevronRight,
   Download,
   ExternalLink,
-  FileCheck2,
-  FileText,
-  FolderOpen,
   FolderPlus,
-  Globe,
-  GraduationCap,
   Layers,
-  Play,
   Share2,
   ShieldCheck,
   Sparkles,
-  Target,
   ThumbsUp,
-  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -35,8 +27,8 @@ import { AcademicAuthModal } from "@/components/academics/academic-auth-modal";
 import { AcademicPdfViewer } from "@/components/academics/academic-pdf-viewer";
 import { AddToPlaylistModal } from "@/components/academics/add-to-playlist-modal";
 import { SimilarResourcesWidget } from "@/components/academics/similar-resources-widget";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
 import {
   gtagEvent,
@@ -347,7 +339,12 @@ export function AcademicDetailClient({
             )}
             title="Save to Study Vault"
           >
-            <AnimatedIcon icon={Bookmark} animation="lift" size={15} className={cn(isSaved && "fill-current")} />
+            <AnimatedIcon
+              icon={Bookmark}
+              animation="lift"
+              size={15}
+              className={cn(isSaved && "fill-current")}
+            />
           </button>
 
           <button
@@ -484,7 +481,9 @@ export function AcademicDetailClient({
                   <Layers className="size-3.5 text-primary" />
                   <span>All Included Files &amp; Links ({resource.attachments.length})</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground font-semibold">Switch in reader above</span>
+                <span className="text-[10px] text-muted-foreground font-semibold">
+                  Switch in reader above
+                </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {resource.attachments.map((att: any, idx: number) => (
@@ -493,7 +492,9 @@ export function AcademicDetailClient({
                     className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/70 border border-border/30 text-xs"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-mono font-bold text-muted-foreground">#{idx + 1}</span>
+                      <span className="text-[10px] font-mono font-bold text-muted-foreground">
+                        #{idx + 1}
+                      </span>
                       <span className="font-semibold text-foreground truncate">
                         {att.title || `Document ${idx + 1}`}
                       </span>
@@ -546,7 +547,10 @@ export function AcademicDetailClient({
             </div>
 
             {/* Inline review form */}
-            <form onSubmit={handleSubmitComment} className="flex items-start gap-3 py-3 border-y border-border/20">
+            <form
+              onSubmit={handleSubmitComment}
+              className="flex items-start gap-3 py-3 border-y border-border/20"
+            >
               <Avatar className="size-9 rounded-full border border-border/40 shrink-0 mt-0.5">
                 <AvatarImage src={uploaderAvatar} />
                 <AvatarFallback className="text-xs font-bold">You</AvatarFallback>
@@ -730,7 +734,9 @@ export function AcademicDetailClient({
               </div>
               <div className="py-2 flex items-center justify-between">
                 <span className="text-muted-foreground">Department</span>
-                <span className="font-semibold text-foreground truncate max-w-[180px]">{resource.branch}</span>
+                <span className="font-semibold text-foreground truncate max-w-[180px]">
+                  {resource.branch}
+                </span>
               </div>
               <div className="py-2 flex items-center justify-between">
                 <span className="text-muted-foreground">Semester</span>
@@ -792,7 +798,9 @@ export function AcademicDetailClient({
 
             {aiAnalysis && (
               <div className="p-3 rounded-xl bg-card border border-primary/20 text-xs text-foreground/90 space-y-1.5 leading-relaxed">
-                <p className="font-bold text-primary text-[11px] uppercase tracking-wider">Generated Insights:</p>
+                <p className="font-bold text-primary text-[11px] uppercase tracking-wider">
+                  Generated Insights:
+                </p>
                 <div className="whitespace-pre-line text-[11px]">{aiAnalysis}</div>
               </div>
             )}

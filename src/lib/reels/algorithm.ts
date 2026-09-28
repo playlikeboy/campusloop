@@ -1,5 +1,5 @@
 import { SQL, sql } from "drizzle-orm";
-import { comments, follows, posts, userBehaviorEvents, votes } from "@/db/schema";
+import { comments, follows, userBehaviorEvents, votes } from "@/db/schema";
 import { getRedis } from "@/lib/redis";
 
 /**
@@ -160,7 +160,8 @@ export function getAddictiveReelsScoreSql(
 
   if (cleanInterests.length > 0) {
     const conditions = cleanInterests.map(
-      (interest) => sql`("posts"."body" ilike ${`%#${interest}%`} or "posts"."title" ilike ${`%${interest}%`})`
+      (interest) =>
+        sql`("posts"."body" ilike ${`%#${interest}%`} or "posts"."title" ilike ${`%${interest}%`})`
     );
     interestAffinitySql = sql<number>`(case when (${sql.join(conditions, sql` or `)}) then 40.0 else 0.0 end)`;
   }
@@ -242,10 +243,7 @@ export interface ReelCandidate {
 /**
  * In-memory addictive scoring function for client/edge reranking and unit testing.
  */
-export function calculateReelScore(
-  reel: ReelCandidate,
-  ctx: ViewerReelContext = {}
-): number {
+export function calculateReelScore(reel: ReelCandidate, ctx: ViewerReelContext = {}): number {
   const seenSet = ctx.seenPostIds instanceof Set ? ctx.seenPostIds : new Set(ctx.seenPostIds || []);
   if (seenSet.has(reel.id)) {
     return -100000;
@@ -271,7 +269,7 @@ export function calculateReelScore(
   score += Math.max(0, reel.commentsCount) * 5;
 
   // 4. Freshness gravity decay
-  score -= Math.pow(hoursSince + 1, 0.75) * 6;
+  score -= (hoursSince + 1) ** 0.75 * 6;
 
   // 5. Personal interest tag affinity
   if (ctx.affinityTags && ctx.affinityTags.length > 0) {
@@ -309,10 +307,7 @@ export function calculateReelScore(
 /**
  * Rerank an array of reel candidates by addictive score.
  */
-export function rerankReels<T extends ReelCandidate>(
-  reels: T[],
-  ctx: ViewerReelContext = {}
-): T[] {
+export function rerankReels<T extends ReelCandidate>(reels: T[], ctx: ViewerReelContext = {}): T[] {
   const ranked = [...reels].sort((a, b) => {
     const scoreA = calculateReelScore(a, ctx);
     const scoreB = calculateReelScore(b, ctx);
@@ -328,9 +323,9 @@ export function rerankReels<T extends ReelCandidate>(
  * 2. Never shows more than two consecutive reels from the same institution.
  * Intelligently interleaves items without dropping them.
  */
-export function applyReelDiversityFilter<T extends { authorId?: string | null; institutionId?: string | null }>(
-  items: T[]
-): T[] {
+export function applyReelDiversityFilter<
+  T extends { authorId?: string | null; institutionId?: string | null },
+>(items: T[]): T[] {
   if (items.length <= 2) return items;
 
   const result: T[] = [];

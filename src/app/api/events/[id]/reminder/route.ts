@@ -1,8 +1,9 @@
-import { and, eq, or } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
+import { and, eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
+
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";

@@ -13,11 +13,7 @@ export const HERO_CONTENT = {
   ctaPrimary: "Get verified with college email",
   ctaPrimaryAuthenticated: "Enter Campus Feed",
   ctaSecondary: "Explore a campus",
-  trustPoints: [
-    "College email verified",
-    "Real or anonymous mode",
-    "100% free for students",
-  ],
+  trustPoints: ["College email verified", "Real or anonymous mode", "100% free for students"],
   preview: {
     hubTitle: "Campus Hub",
     hubSubtitle: "100% Student Verified",
@@ -117,7 +113,8 @@ export const VERIFIED_IDENTITY_CONTENT = {
     flaggedBadge: "Contact info detected",
     cleanBadge: "Safe to post",
     inputLabel: "Draft your post (Try typing a phone number or email)",
-    inputDefault: "Lost my lab manual near the main canteen. Call 9876543210 or email me at senior@college.ac.in!",
+    inputDefault:
+      "Lost my lab manual near the main canteen. Call 9876543210 or email me at senior@college.ac.in!",
     statusTitle: "Campus Privacy Engine",
     phoneDetector: "Phone Number Check:",
     emailDetector: "Email Address Check:",
@@ -176,7 +173,8 @@ export const HOW_IT_WORKS_CONTENT = {
     placeholder: "you@iitd.ac.in",
     buttonText: "Check domain",
     recognizedMessage: "is a recognized campus domain. You can sign up with your student email right now!",
-    unrecognizedMessage: "We haven't indexed this domain yet. Request your college and we'll add it within 24 hours.",
+    unrecognizedMessage:
+      "We haven't indexed this domain yet. Request your college and we'll add it within 24 hours.",
     idleMessage: "Test any .ac.in or .edu.in domain to see instant support.",
     footnote: "Indexed across 1,350+ verified Indian university and college domains.",
   },

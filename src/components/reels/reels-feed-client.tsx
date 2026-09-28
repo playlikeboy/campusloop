@@ -1,51 +1,44 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  Bookmark,
+  Check,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
   Heart,
   MessageCircle,
   MoreHorizontal,
-  Repeat2,
-  Bookmark,
-  Share2,
-  ExternalLink,
-  Check,
-  UserPlus,
   Music2,
   Pause,
   Play,
+  Repeat2,
+  Share2,
   Sparkles,
+  UserPlus,
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimateVideo } from "@/components/ui/animated-icon";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PresenceDot } from "@/components/ui/presence-dot";
 import type { FeedPost } from "@/hooks/use-feed";
-import {
-  fetcher,
-  likeReel,
-  repostPost,
-  saveReel,
-  toggleFollowUser,
-  trackReelTelemetry,
-} from "@/lib/api";
+import { pauseAllReelMedia, useHlsVideo } from "@/hooks/use-hls-video";
+import { fetcher, likeReel, repostPost, saveReel, toggleFollowUser, trackReelTelemetry } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { isOnline } from "@/lib/presence";
 import { sounds } from "@/lib/sounds";
-import { useHlsVideo, pauseAllReelMedia } from "@/hooks/use-hls-video";
 import { cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PresenceDot } from "@/components/ui/presence-dot";
 
 const FastCommentsModal = dynamic(
   () => import("@/components/feed/fast-comments-modal").then((m) => m.FastCommentsModal),
@@ -61,9 +54,11 @@ const PostLikesModal = dynamic(
 );
 
 const HASHTAG_REGEX = /#[a-zA-Z0-9_]+/g;
-const MD_VIDEO_REGEX = /!\[.*?\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)(?:\.(?:mp4|webm|mov|ogg)[^\s)]*|[^\s)]*videos[^\s)]*))\)/i;
+const MD_VIDEO_REGEX =
+  /!\[.*?\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)(?:\.(?:mp4|webm|mov|ogg)[^\s)]*|[^\s)]*videos[^\s)]*))\)/i;
 const R2_VIDEO_REGEX = /((?:https?:\/\/[^\s<>"']*)?\/api\/files\/r2\/videos\/[^\s<>"']+)/i;
-const RAW_VIDEO_REGEX = /((?:https?:\/\/[^\s<>"']+|\/api\/files\/r2\/[^\s<>"']+)\.(?:mp4|webm|mov|ogg)[^\s<>"']*)/i;
+const RAW_VIDEO_REGEX =
+  /((?:https?:\/\/[^\s<>"']+|\/api\/files\/r2\/[^\s<>"']+)\.(?:mp4|webm|mov|ogg)[^\s<>"']*)/i;
 
 interface ReelsFeedClientProps {
   initialPosts: FeedPost[];
@@ -169,14 +164,14 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
         isProgrammaticScrollRef.current = false;
       }, 400);
     },
-    [posts.length],
+    [posts.length]
   );
 
   const fetchMode = useCallback(async (mode: FeedMode, nextPage = 1) => {
     const seen = getLocalSeenIds().slice(0, 160);
     const exclude = seen.length ? `&excludeIds=${encodeURIComponent(seen.join(","))}` : "";
     const data = await fetcher<{ posts?: FeedPost[]; reels?: unknown[] }>(
-      `/api/reels?page=${nextPage}&limit=14&mode=${mode}${exclude}`,
+      `/api/reels?page=${nextPage}&limit=14&mode=${mode}${exclude}`
     );
     return Array.isArray(data) ? data : data.posts || [];
   }, []);
@@ -199,7 +194,7 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
         setIsSwitchingMode(false);
       }
     },
-    [feedMode, fetchMode, isSwitchingMode],
+    [feedMode, fetchMode, isSwitchingMode]
   );
 
   const loadMoreReels = useCallback(async () => {
@@ -211,10 +206,10 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
       const exclude = Array.from(new Set([...localSeen, ...inMemory])).slice(0, 500);
       const query = exclude.length ? `&excludeIds=${encodeURIComponent(exclude.join(","))}` : "";
       const data = await fetcher<{ posts?: FeedPost[]; reels?: unknown[] }>(
-        `/api/reels?page=${page + 1}&limit=14&mode=${feedMode}${query}`,
+        `/api/reels?page=${page + 1}&limit=14&mode=${feedMode}${query}`
       );
       const fresh = (Array.isArray(data) ? data : data.posts || []).filter(
-        (post) => !new Set(posts.map((item) => item.id.split("-cycle-")[0])).has(post.id.split("-cycle-")[0]),
+        (post) => !new Set(posts.map((item) => item.id.split("-cycle-")[0])).has(post.id.split("-cycle-")[0])
       );
       if (fresh.length) {
         setPosts((current) => [...current, ...fresh]);
@@ -262,7 +257,7 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
       setActiveIndex((index) => Math.max(0, Math.min(index, posts.length - 2)));
       toast.success("We'll tune your next reels from this");
     },
-    [posts.length],
+    [posts.length]
   );
 
   const handleWheel = useCallback(
@@ -279,13 +274,16 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
         isWheelingRef.current = false;
       }, 420);
     },
-    [activeIndex, posts.length, scrollToIndex, selectedPostForComments, selectedPostForRepost],
+    [activeIndex, posts.length, scrollToIndex, selectedPostForComments, selectedPostForRepost]
   );
 
-  const handleTouchStart = useCallback((event: React.TouchEvent) => {
-    if (selectedPostForComments || selectedPostForRepost) return;
-    touchStartYRef.current = event.touches[0]?.clientY ?? null;
-  }, [selectedPostForComments, selectedPostForRepost]);
+  const handleTouchStart = useCallback(
+    (event: React.TouchEvent) => {
+      if (selectedPostForComments || selectedPostForRepost) return;
+      touchStartYRef.current = event.touches[0]?.clientY ?? null;
+    },
+    [selectedPostForComments, selectedPostForRepost]
+  );
 
   const handleTouchEnd = useCallback(
     (event: React.TouchEvent) => {
@@ -296,7 +294,7 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
       if (delta > 0 && activeIndex < posts.length - 1) scrollToIndex(activeIndex + 1);
       if (delta < 0 && activeIndex > 0) scrollToIndex(activeIndex - 1);
     },
-    [activeIndex, posts.length, scrollToIndex, selectedPostForComments, selectedPostForRepost],
+    [activeIndex, posts.length, scrollToIndex, selectedPostForComments, selectedPostForRepost]
   );
 
   useEffect(() => {
@@ -400,7 +398,9 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
                 title={mode.description}
                 className={cn(
                   "rounded-xl px-4 py-2 text-xs font-bold transition",
-                  feedMode === mode.id ? "bg-white text-black" : "text-white/65 hover:bg-white/10 hover:text-white",
+                  feedMode === mode.id
+                    ? "bg-white text-black"
+                    : "text-white/65 hover:bg-white/10 hover:text-white"
                 )}
               >
                 {mode.label}
@@ -410,16 +410,27 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
 
           <div className="pointer-events-auto flex items-center gap-2">
             <div className="hidden rounded-2xl border border-white/10 bg-black/45 px-3 py-2 text-right backdrop-blur-xl sm:block">
-              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">{collegeName || "CampusLoop"}</p>
-              <p className="text-[11px] font-bold text-white">{activeIndex + 1} <span className="text-white/35">/</span> {posts.length}</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">
+                {collegeName || "CampusLoop"}
+              </p>
+              <p className="text-[11px] font-bold text-white">
+                {activeIndex + 1} <span className="text-white/35">/</span> {posts.length}
+              </p>
             </div>
             <button
               type="button"
-              onClick={() => { toggleMute(); haptics.light(); }}
+              onClick={() => {
+                toggleMute();
+                haptics.light();
+              }}
               className="inline-flex h-10 items-center gap-2 rounded-2xl border border-white/10 bg-black/45 px-3 text-xs font-bold text-white backdrop-blur-xl transition hover:bg-black/60"
               aria-label={isMuted ? "Unmute sound" : "Mute sound"}
             >
-              {isMuted ? <VolumeX className="size-4 text-white/70" /> : <Volume2 className="size-4 text-emerald-300" />}
+              {isMuted ? (
+                <VolumeX className="size-4 text-white/70" />
+              ) : (
+                <Volume2 className="size-4 text-emerald-300" />
+              )}
               <span className="hidden sm:inline">{isMuted ? "Sound off" : "Sound on"}</span>
             </button>
           </div>
@@ -435,7 +446,7 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
                 disabled={isSwitchingMode}
                 className={cn(
                   "min-w-max rounded-xl px-4 py-2 text-xs font-bold transition",
-                  feedMode === mode.id ? "bg-white text-black" : "text-white/65",
+                  feedMode === mode.id ? "bg-white text-black" : "text-white/65"
                 )}
               >
                 {mode.label}
@@ -511,7 +522,9 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
           onClose={() => setSelectedPostForComments(null)}
           onCommentCountChange={(newCount) => {
             setPosts((prev) =>
-              prev.map((item) => (item.id === selectedPostForComments.id ? { ...item, commentsCount: newCount } : item)),
+              prev.map((item) =>
+                item.id === selectedPostForComments.id ? { ...item, commentsCount: newCount } : item
+              )
             );
           }}
         />
@@ -718,8 +731,7 @@ function SingleReelItem({
         const watchDurationMs = Date.now() - watchStartTimeRef.current;
         const videoDurationMs = (videoRef.current?.duration || 0) * 1000;
         const completed =
-          (videoDurationMs > 0 && watchDurationMs / videoDurationMs >= 0.85) ||
-          loopCountRef.current > 0;
+          (videoDurationMs > 0 && watchDurationMs / videoDurationMs >= 0.85) || loopCountRef.current > 0;
         const skippedQuickly = watchDurationMs < 2000 && loopCountRef.current === 0;
 
         trackReelTelemetry({
@@ -960,7 +972,8 @@ function SingleReelItem({
     : post.externalPost?.canonicalUrl || null;
   const authorName = post.isAnonymous
     ? post.pseudonym || "Anonymous Student"
-    : post.author?.displayName || (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
+    : post.author?.displayName ||
+      (isExternalReddit ? `r/${post.externalPost?.subreddit || "reddit"}` : "Student");
   const authorHandle = post.isAnonymous
     ? "anonymous"
     : post.author?.username || (isExternalReddit ? post.externalPost?.subreddit || "reddit" : "campusloop");
@@ -1089,7 +1102,8 @@ function SingleReelItem({
                 <Heart
                   className={cn(
                     "size-6 transition-all",
-                    userVote === 1 && "fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+                    userVote === 1 &&
+                      "fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
                   )}
                 />
               </div>
@@ -1282,33 +1296,30 @@ function SingleReelItem({
                 </span>
 
                 {/* Follow Creator Button */}
-                {!post.isAnonymous &&
-                  currentUserId &&
-                  post.author &&
-                  post.author.id !== currentUserId && (
-                    <button
-                      type="button"
-                      onClick={handleFollowClick}
-                      className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm",
-                        isFollowing
-                          ? "bg-white/20 text-white/90 hover:bg-white/30 border border-white/20"
-                          : "bg-rose-500 hover:bg-rose-600 text-white border border-rose-400/30"
-                      )}
-                    >
-                      {isFollowing ? (
-                        <>
-                          <Check className="size-3" />
-                          <span>Following</span>
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="size-3" />
-                          <span>Follow</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+                {!post.isAnonymous && currentUserId && post.author && post.author.id !== currentUserId && (
+                  <button
+                    type="button"
+                    onClick={handleFollowClick}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm",
+                      isFollowing
+                        ? "bg-white/20 text-white/90 hover:bg-white/30 border border-white/20"
+                        : "bg-rose-500 hover:bg-rose-600 text-white border border-rose-400/30"
+                    )}
+                  >
+                    {isFollowing ? (
+                      <>
+                        <Check className="size-3" />
+                        <span>Following</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="size-3" />
+                        <span>Follow</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

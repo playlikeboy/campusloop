@@ -19,13 +19,13 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" }) {
 
 export {
   LandingBadge,
+  type LandingBadgeProps,
   LandingCard,
+  type LandingCardProps,
   LandingContainer,
+  type LandingContainerProps,
   LandingSection,
   LandingSectionHeader,
-  type LandingBadgeProps,
-  type LandingCardProps,
-  type LandingContainerProps,
   type LandingSectionHeaderProps,
   type LandingSectionProps,
 } from "@/components/landing/landing-design-system";

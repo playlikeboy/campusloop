@@ -4,7 +4,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 1. FEED & POSTS ────────────────────────────────────────────────────────
   {
     name: "campusloop_get_feed",
-    description: "Fetch personalized campus feed posts for the authenticated student's institution or across all Indian colleges.",
+    description:
+      "Fetch personalized campus feed posts for the authenticated student's institution or across all Indian colleges.",
     category: "Feed & Posts",
     inputSchema: {
       type: "object",
@@ -12,7 +13,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
         scope: {
           type: "string",
           enum: ["CAMPUS", "GLOBAL"],
-          description: "Feed scope: 'CAMPUS' restricts to student's college, 'GLOBAL' expands across all colleges in India. Defaults to CAMPUS.",
+          description:
+            "Feed scope: 'CAMPUS' restricts to student's college, 'GLOBAL' expands across all colleges in India. Defaults to CAMPUS.",
         },
         filter: {
           type: "string",
@@ -59,7 +61,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_get_post_details",
-    description: "Get full details of a specific post including text, comments thread, votes count, and community tags.",
+    description:
+      "Get full details of a specific post including text, comments thread, votes count, and community tags.",
     category: "Feed & Posts",
     inputSchema: {
       type: "object",
@@ -100,14 +103,16 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_create_confession",
-    description: "Publish an anonymous confession protected by one-way HMAC identity vault and automated PII scrubbing.",
+    description:
+      "Publish an anonymous confession protected by one-way HMAC identity vault and automated PII scrubbing.",
     category: "Feed & Posts",
     inputSchema: {
       type: "object",
       properties: {
         body: {
           type: "string",
-          description: "Confession text. Do NOT include real phone numbers, hostel room numbers, or personal doxxing.",
+          description:
+            "Confession text. Do NOT include real phone numbers, hostel room numbers, or personal doxxing.",
         },
         title: {
           type: "string",
@@ -115,7 +120,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
         },
         pseudonym: {
           type: "string",
-          description: "Optional custom anonymous alias handle (e.g. 'midnight_coder', 'hostel_philosopher').",
+          description:
+            "Optional custom anonymous alias handle (e.g. 'midnight_coder', 'hostel_philosopher').",
         },
       },
       required: ["body"],
@@ -200,7 +206,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 2. DIRECT MESSAGING & CHAT ─────────────────────────────────────────────
   {
     name: "campusloop_list_chats",
-    description: "List the student's recent direct message conversations with unread message counts and last message previews.",
+    description:
+      "List the student's recent direct message conversations with unread message counts and last message previews.",
     category: "Direct Messaging",
     inputSchema: {
       type: "object",
@@ -348,14 +355,16 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 4. ACADEMICS & NOTES VAULT ─────────────────────────────────────────────
   {
     name: "campusloop_search_academic_notes",
-    description: "Search verified academic notes, Previous Year Questions (PYQs), lab manuals, and study guides by branch, subject, or semester.",
+    description:
+      "Search verified academic notes, Previous Year Questions (PYQs), lab manuals, and study guides by branch, subject, or semester.",
     category: "Academics & Vault",
     inputSchema: {
       type: "object",
       properties: {
         query: {
           type: "string",
-          description: "Subject, professor name, or topic (e.g. 'Operating Systems', 'Data Structures', 'Fourier Transform').",
+          description:
+            "Subject, professor name, or topic (e.g. 'Operating Systems', 'Data Structures', 'Fourier Transform').",
         },
         category: {
           type: "string",
@@ -395,7 +404,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_upload_academic_note",
-    description: "Submit a new study resource, Google Drive link, or PDF notes to the campus academic vault (+20 LP reward).",
+    description:
+      "Submit a new study resource, Google Drive link, or PDF notes to the campus academic vault (+20 LP reward).",
     category: "Academics & Vault",
     inputSchema: {
       type: "object",
@@ -434,7 +444,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 5. COLLEGES & CAMPUSES ─────────────────────────────────────────────────
   {
     name: "campusloop_search_colleges",
-    description: "Search through 1,350+ indexed Indian college hubs, institutes of national importance, and universities.",
+    description:
+      "Search through 1,350+ indexed Indian college hubs, institutes of national importance, and universities.",
     category: "Colleges & Campuses",
     inputSchema: {
       type: "object",
@@ -463,7 +474,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
       properties: {
         collegeIdOrSlug: {
           type: "string",
-          description: "College ID or slug (e.g. 'iit-bombay', 'bits-pilani'). If omitted, uses authenticated student's college.",
+          description:
+            "College ID or slug (e.g. 'iit-bombay', 'bits-pilani'). If omitted, uses authenticated student's college.",
         },
       },
       required: [],
@@ -474,7 +486,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 6. PROFILE & LOOP POINTS ───────────────────────────────────────────────
   {
     name: "campusloop_get_my_profile",
-    description: "Get the authenticated student's complete profile, college, branch, role, Loop Points (LP) clout balance, and status.",
+    description:
+      "Get the authenticated student's complete profile, college, branch, role, Loop Points (LP) clout balance, and status.",
     category: "Profile & Loop Points",
     inputSchema: {
       type: "object",
@@ -551,7 +564,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   // ─── 8. EXCLUSIVE AI & AGENT POWER FEATURES ─────────────────────────────────
   {
     name: "campusloop_generate_campus_digest",
-    description: "EXCLUSIVE AI FEATURE: Synthesize today's top campus discussions, confessions, placement updates, upcoming fests, and memes into an executive campus morning briefing.",
+    description:
+      "EXCLUSIVE AI FEATURE: Synthesize today's top campus discussions, confessions, placement updates, upcoming fests, and memes into an executive campus morning briefing.",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",
@@ -559,7 +573,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
         scope: {
           type: "string",
           enum: ["CAMPUS", "GLOBAL"],
-          description: "Scope of the digest: student's own campus (CAMPUS) or pan-India (GLOBAL). Defaults to CAMPUS.",
+          description:
+            "Scope of the digest: student's own campus (CAMPUS) or pan-India (GLOBAL). Defaults to CAMPUS.",
         },
         focusArea: {
           type: "string",
@@ -573,7 +588,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_ask_academic_tutor",
-    description: "EXCLUSIVE AI FEATURE: An intelligent campus tutor that answers exam questions, explains difficult formulas, and synthesizes study concepts grounded in verified notes from the student's college vault.",
+    description:
+      "EXCLUSIVE AI FEATURE: An intelligent campus tutor that answers exam questions, explains difficult formulas, and synthesizes study concepts grounded in verified notes from the student's college vault.",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",
@@ -593,7 +609,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_audit_post_safety",
-    description: "EXCLUSIVE AI FEATURE: Doxx-Shield Preflight Check. Analyzes a draft post for accidental phone numbers, hostel room numbers, personal emails, or confidential placement disclosures before publishing.",
+    description:
+      "EXCLUSIVE AI FEATURE: Doxx-Shield Preflight Check. Analyzes a draft post for accidental phone numbers, hostel room numbers, personal emails, or confidential placement disclosures before publishing.",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",
@@ -613,7 +630,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_dating_vibe_compatibility",
-    description: "EXCLUSIVE AI FEATURE: Calculates multi-dimensional campus compatibility between the student and a target profile based on shared interests, branch, campus vibe, and activity vectors.",
+    description:
+      "EXCLUSIVE AI FEATURE: Calculates multi-dimensional campus compatibility between the student and a target profile based on shared interests, branch, campus vibe, and activity vectors.",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",
@@ -629,7 +647,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_trigger_community_webhook",
-    description: "EXCLUSIVE AGENT FEATURE: Programmatically trigger an inbound webhook to publish an automated alert, GitHub release, or bot announcement into a community managed by the student.",
+    description:
+      "EXCLUSIVE AGENT FEATURE: Programmatically trigger an inbound webhook to publish an automated alert, GitHub release, or bot announcement into a community managed by the student.",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",
@@ -657,7 +676,8 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   },
   {
     name: "campusloop_get_campus_sentiment_pulse",
-    description: "EXCLUSIVE AI FEATURE: Evaluates real-time campus mood and sentiment analysis across recent posts (exam pressure, fest excitement, hostel food satisfaction, placement climate).",
+    description:
+      "EXCLUSIVE AI FEATURE: Evaluates real-time campus mood and sentiment analysis across recent posts (exam pressure, fest excitement, hostel food satisfaction, placement climate).",
     category: "Exclusive AI & Intelligence",
     inputSchema: {
       type: "object",

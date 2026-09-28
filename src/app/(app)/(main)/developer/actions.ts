@@ -124,19 +124,13 @@ export async function deleteMcpKey(keyId: string) {
   });
   if (!profile) throw new Error("Student profile not found");
 
-  await db
-    .delete(userMcpKeys)
-    .where(and(eq(userMcpKeys.id, keyId), eq(userMcpKeys.userId, profile.id)));
+  await db.delete(userMcpKeys).where(and(eq(userMcpKeys.id, keyId), eq(userMcpKeys.userId, profile.id)));
 
   revalidatePath("/developer");
   return { success: true };
 }
 
-export async function testExecuteMcpTool(
-  keyString: string,
-  toolName: string,
-  args: Record<string, unknown>
-) {
+export async function testExecuteMcpTool(keyString: string, toolName: string, args: Record<string, unknown>) {
   const startTime = Date.now();
   try {
     const context = await authenticateMcpKey(keyString, "CampusLoop Playground");

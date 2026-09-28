@@ -19,10 +19,7 @@ export async function recordHeartbeat(profileId: string): Promise<void> {
         eq(userProfiles.id, profileId),
         or(
           sql`${userProfiles.lastSeenAt} IS NULL`,
-          lt(
-            userProfiles.lastSeenAt,
-            sql`now() - (${WRITE_THROTTLE_SECONDS} * interval '1 second')`
-          )
+          lt(userProfiles.lastSeenAt, sql`now() - (${WRITE_THROTTLE_SECONDS} * interval '1 second')`)
         )
       )
     );

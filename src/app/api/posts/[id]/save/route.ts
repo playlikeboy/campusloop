@@ -130,9 +130,7 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     }
 
     await Promise.all([
-      db
-        .delete(savedPosts)
-        .where(and(eq(savedPosts.profileId, profile.id), eq(savedPosts.postId, postId))),
+      db.delete(savedPosts).where(and(eq(savedPosts.profileId, profile.id), eq(savedPosts.postId, postId))),
       db
         .delete(reelBookmarks)
         .where(and(eq(reelBookmarks.userId, profile.id), eq(reelBookmarks.reelId, postId))),

@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   calculateReelScore,
   getAddictiveReelsScoreSql,
-  rerankReels,
   type ReelCandidate,
+  rerankReels,
   type ViewerReelContext,
 } from "./algorithm";
 
@@ -30,14 +30,8 @@ describe("Addictive Reels Recommendation Engine", () => {
   });
 
   it("awards high completion bonus for videos watched past 85%", () => {
-    const incompleteScore = calculateReelScore(
-      { ...baseReel, completionRate: 0.4 },
-      { randomJitter: false }
-    );
-    const completedScore = calculateReelScore(
-      { ...baseReel, completionRate: 0.95 },
-      { randomJitter: false }
-    );
+    const incompleteScore = calculateReelScore({ ...baseReel, completionRate: 0.4 }, { randomJitter: false });
+    const completedScore = calculateReelScore({ ...baseReel, completionRate: 0.95 }, { randomJitter: false });
 
     // Completion bonus is +30
     expect(completedScore - incompleteScore).toBe(30);

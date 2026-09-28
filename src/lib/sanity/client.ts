@@ -2,8 +2,7 @@ import { createClient } from "@sanity/client";
 import { campusSeedData } from "../../../sanity/seed/campus-data";
 
 export const isLiveSanityConfigured = Boolean(
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID &&
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID !== "demo-campusloop"
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID && process.env.NEXT_PUBLIC_SANITY_PROJECT_ID !== "demo-campusloop"
 );
 
 export const sanityClient = isLiveSanityConfigured
@@ -35,7 +34,7 @@ export async function querySanity<T = any>(groqQuery: string, params: Record<str
 
 function executeMockGroq<T>(query: string, params: Record<string, any>): T {
   // 1. Resolve document types
-  let docs = campusSeedData;
+  const docs = campusSeedData;
 
   // Hydrate references for graph queries
   const docMap = new Map(docs.map((d) => [d._id, d]));

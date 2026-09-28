@@ -1,7 +1,16 @@
 import { and, asc, desc, eq, inArray, or, type SQL, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
-import { comments, externalPosts, follows, institutions, posts, reports, userProfiles, votes } from "@/db/schema";
+import {
+  comments,
+  externalPosts,
+  follows,
+  institutions,
+  posts,
+  reports,
+  userProfiles,
+  votes,
+} from "@/db/schema";
 import type { ExternalPostInfo } from "@/hooks/use-feed";
 import {
   type ActiveBoost,
@@ -217,7 +226,6 @@ const recentQualitySql = sql<number>`ln(greatest(1.0, ${totalVoteScoreSql} + (${
 const momentum6hSql = sql<number>`(${recentVoteScore6hSql} * 4.5 + ${recentCommentCount6hSql} * 8.0)`;
 const momentum24hSql = sql<number>`(${recentVoteScore24hSql} * 2.0 + ${recentCommentCount24hSql} * 3.5)`;
 const controversySql = sql<number>`(least(${positiveVoteCountSql}, ${negativeVoteCountSql}) * 3.0 / greatest(2.0, ${positiveVoteCountSql} + ${negativeVoteCountSql}))`;
-
 
 /**
  * Social affinity between the viewer and a post's author.
@@ -443,11 +451,7 @@ export function getFeedOrderBy(
       orderClauses.push(desc(weighted(getViralScoreSql(viewerProfileId))));
       break;
     case "random":
-      orderClauses.push(
-        seed === undefined
-          ? sql`random()`
-          : sql`hashtextextended(${posts.id}, ${seed})`
-      );
+      orderClauses.push(seed === undefined ? sql`random()` : sql`hashtextextended(${posts.id}, ${seed})`);
       return orderClauses;
     case "for_you": {
       const forYouScore = getForYouScoreSql(userInstitutionId, seenIds, viewerProfileId);

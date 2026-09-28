@@ -217,9 +217,7 @@ export function CommunityHeader({
         {/* ─── Community Info & Bio (Row 2 - Strictly Below Avatar) ─── */}
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-lg sm:text-xl font-black tracking-tight text-foreground">
-              {community.name}
-            </h1>
+            <h1 className="text-lg sm:text-xl font-black tracking-tight text-foreground">{community.name}</h1>
             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
               <ShieldCheck className="size-3" /> Verified Hub
             </span>

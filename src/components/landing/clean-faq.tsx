@@ -59,9 +59,7 @@ export function CleanFAQ() {
                   <Plus className="size-4" />
                 </span>
               </summary>
-              <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                {item.answer}
-              </p>
+              <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
             </details>
           ))}
         </div>

@@ -255,7 +255,9 @@ export default async function PostDetailPage({ params }: PostPageProps) {
           : {
               "@type": "Person",
               name: rawPost.author?.displayName || "Student",
-              url: rawPost.author?.username ? `https://campusloop.space/@${rawPost.author.username}` : undefined,
+              url: rawPost.author?.username
+                ? `https://campusloop.space/@${rawPost.author.username}`
+                : undefined,
             },
         publisher: {
           "@type": "Organization",

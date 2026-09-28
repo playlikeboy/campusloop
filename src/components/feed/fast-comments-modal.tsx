@@ -1,9 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowUp,
-  ChevronDown,
   Flame,
   Heart,
   History,
@@ -11,13 +9,13 @@ import {
   Loader2,
   MessageCircle,
   Reply,
-  Shield,
   VenetianMask,
   X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -344,9 +342,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     }
   };
 
-  const authorHandle = post.isAnonymous
-    ? post.pseudonym || "anonymous"
-    : post.author?.username || "student";
+  const authorHandle = post.isAnonymous ? post.pseudonym || "anonymous" : post.author?.username || "student";
 
   // Clean, markdown-free caption snippet for the minimal context bar
   const cleanSnippet = useMemo(() => {
@@ -563,7 +559,9 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/[0.06] border border-white/10 w-full">
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-zinc-200">Want to join the conversation?</p>
-                    <p className="text-[11px] text-zinc-400">Sign in with your student email to reply and vote.</p>
+                    <p className="text-[11px] text-zinc-400">
+                      Sign in with your student email to reply and vote.
+                    </p>
                   </div>
                   <Link
                     href={`/handler/sign-in?returnTo=${typeof window !== "undefined" ? encodeURIComponent(window.location.pathname) : ""}`}
@@ -578,7 +576,11 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                   <Avatar className="size-8 rounded-full border border-white/15 shrink-0">
                     <AvatarImage src={isAnonymous ? "" : profile?.avatarUrl || ""} />
                     <AvatarFallback className="text-[10px] font-bold bg-zinc-800 text-zinc-300">
-                      {isAnonymous ? <VenetianMask className="size-4 text-purple-400" /> : profile?.displayName?.[0] || "U"}
+                      {isAnonymous ? (
+                        <VenetianMask className="size-4 text-purple-400" />
+                      ) : (
+                        profile?.displayName?.[0] || "U"
+                      )}
                     </AvatarFallback>
                   </Avatar>
 
@@ -714,7 +716,9 @@ function CommentRowItem({
   const isAnon = comment.isAnonymous;
   const cDisplayName = isAnon ? "Anonymous Student" : comment.author?.displayName || "Student";
   const cHandle = isAnon ? comment.pseudonym || "anonymous" : comment.author?.username || "student";
-  const cAvatar = isAnon ? "" : getAvatarUrl(comment.author?.avatarUrl, comment.author?.username ?? "student");
+  const cAvatar = isAnon
+    ? ""
+    : getAvatarUrl(comment.author?.avatarUrl, comment.author?.username ?? "student");
   const isCurrentUser = currentUserId && comment.authorId === currentUserId;
   const isOP = postAuthorId && comment.authorId === postAuthorId;
 

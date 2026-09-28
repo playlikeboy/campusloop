@@ -417,7 +417,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </div>
 
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Connect Cursor, Windsurf, Claude Desktop, and AI agents directly to your campus account with personal MCP server keys.
+            Connect Cursor, Windsurf, Claude Desktop, and AI agents directly to your campus account with
+            personal MCP server keys.
           </p>
 
           <Link

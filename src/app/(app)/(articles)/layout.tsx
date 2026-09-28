@@ -3,54 +3,57 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EditorialHeader } from "@/components/articles/editorial-header";
+import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
   title: {
-    default: "CampusLoop Editorial | Student Articles, Placement Roadmaps & Tech Deep Dives",
-    template: "%s | CampusLoop Editorial",
+    default: "CampusLoop Articles | Student Stories, Guides & Placement Roadmaps",
+    template: "%s | CampusLoop Articles",
   },
   description:
-    "Long-form placement guides, interview experiences, AI research, and campus journalism written by verified students across 1,350+ Indian colleges.",
+    "Long-form placement guides, interview experiences, tech deep-dives, and campus journalism written by verified students across 1,350+ Indian colleges.",
+  alternates: {
+    canonical: `${ARTICLES_CANONICAL_HOST}/articles`,
+  },
   openGraph: {
-    title: "CampusLoop Editorial | Student Articles & Placement Roadmaps",
-    description: "Read long-form campus stories and placement roadmaps written by verified seniors.",
-    url: "https://campusloop.space/app/articles",
-    siteName: "CampusLoop Editorial",
+    title: "CampusLoop Articles | Student Stories & Placement Roadmaps",
+    description:
+      "Read long-form campus stories, tech guides, and placement roadmaps written by verified college students.",
+    url: `${ARTICLES_CANONICAL_HOST}/articles`,
+    siteName: "CampusLoop Articles",
     images: [
       {
-        url: "https://campusloop.space/og-articles.png",
+        url: `${ARTICLES_CANONICAL_HOST}/og-articles.png`,
         width: 1536,
         height: 1024,
-        alt: "CampusLoop Editorial",
+        alt: "CampusLoop Articles",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CampusLoop Editorial | Student Articles & Placement Roadmaps",
-    description: "Read long-form campus stories and placement roadmaps written by verified seniors.",
-    images: ["https://campusloop.space/og-articles.png"],
+    title: "CampusLoop Articles | Student Stories & Placement Roadmaps",
+    description:
+      "Read long-form campus stories, tech guides, and placement roadmaps written by verified college students.",
+    images: [`${ARTICLES_CANONICAL_HOST}/og-articles.png`],
   },
 };
 
 export default async function ArticlesLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
-  if (!user) {
-    redirect("/handler/sign-in");
-  }
+  const profile = user ? await getCachedUserProfile(user.id) : null;
 
-  const profile = await getCachedUserProfile(user.id);
-  if (!profile?.onboardingCompleted) {
+  if (user && profile && !profile.onboardingCompleted) {
     redirect("/onboarding");
   }
 
-  const viewerMode = await isViewerProfile(profile);
+  const viewerMode = profile ? await isViewerProfile(profile) : false;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-primary/20">
-      {/* ─── Editorial Navigation Bar (Hidden on Writer/Editor on mobile & desktop) ─── */}
+      {/* ─── Editorial Navigation Bar ─── */}
       <EditorialHeader profile={profile} />
 
       {/* ─── Viewer Mode Banner ─── */}
@@ -68,11 +71,11 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
       <main className="flex-1 w-full">{children}</main>
 
       {/* ─── Minimal Publication Footer ─── */}
-      <footer className="border-t border-border/30 bg-muted/20 py-8 text-center text-xs text-muted-foreground select-none">
+      <footer className="border-t border-border/30 bg-muted/20 py-8 text-center text-xs text-muted-foreground">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
-            <span className="font-bold text-foreground">CampusLoop Editorial Hub</span>
+            <span className="font-bold text-foreground">CampusLoop Articles</span>
             <span>— Verified Indian Student Network</span>
           </div>
 
