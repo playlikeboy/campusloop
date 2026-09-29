@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Terminal,
-  UserRound,
   VenetianMask,
   Zap,
 } from "lucide-react";
