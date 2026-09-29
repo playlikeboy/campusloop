@@ -29,15 +29,13 @@ export function StoryAvatarItem({
     >
       <div
         className={cn(
-          "p-0.5 rounded-full transition-all duration-300 group-hover:scale-105 active:scale-95",
+          "rounded-full transition-all duration-200 group-hover:scale-105 active:scale-95",
           hasUnseen
-            ? isFriend
-              ? "bg-linear-to-tr from-emerald-500 via-teal-500 to-green-400 p-[2.5px] shadow-sm shadow-emerald-500/25"
-              : "bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 p-[2.5px] shadow-sm"
-            : "p-[1.5px] border-2 border-muted-foreground/30 opacity-60 group-hover:opacity-100"
+            ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+            : "ring-1 ring-border/60 ring-offset-2 ring-offset-background opacity-60 group-hover:opacity-100"
         )}
       >
-        <Avatar className="h-14 w-14 border-2 border-background shadow-xs">
+        <Avatar className="size-14 border border-background shadow-xs">
           <AvatarImage src={avatarUrl || ""} />
           <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
             {fallback}

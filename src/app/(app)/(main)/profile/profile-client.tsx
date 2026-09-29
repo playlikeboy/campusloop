@@ -32,6 +32,7 @@ import {
   TrendingUp,
   Trophy,
   X,
+  Zap,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -480,122 +481,9 @@ export function ProfileClientView({
         onChange={handlePfpFileSelected}
       />
 
-      {/* ─── Sticky Minimal Top Header Bar (Twitter/X Style) ─── */}
-      <div className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="flex items-center justify-between h-13 px-4 max-w-4xl mx-auto">
-          <div className="flex items-center gap-6 min-w-0">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="size-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted/60 transition-colors cursor-pointer shrink-0"
-              title="Back"
-            >
-              <ArrowLeft className="size-4" />
-            </button>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-1 min-w-0">
-                <span className="text-base font-bold text-foreground truncate tracking-tight">
-                  {profile.displayName}
-                </span>
-                <BadgeCheck className="size-4 text-primary shrink-0" />
-              </div>
-              <p className="text-xs text-muted-foreground truncate">
-                {posts.length} {posts.length === 1 ? "post" : "posts"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowQrModal(true)}
-              className="size-8 sm:size-9 rounded-full border border-border/60 hover:bg-muted/60 text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              title="Profile QR Card"
-            >
-              <QrCode className="size-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleShareVibe}
-              className="size-8 sm:size-9 rounded-full border border-border/60 hover:bg-muted/60 text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              title="Share Profile"
-            >
-              <Share2 className="size-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowProfileMenu((value) => !value)}
-              className="cl-interactive flex size-8 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
-              title="More profile actions"
-              aria-label="More profile actions"
-              aria-expanded={showProfileMenu}
-            >
-              <MoreVertical className="size-4" />
-            </button>
-          </div>
-        </div>
-
-        {showProfileMenu && (
-          <>
-            <button
-              type="button"
-              aria-label="Close profile actions"
-              className="fixed inset-0 z-30 cursor-default bg-transparent"
-              onClick={() => setShowProfileMenu(false)}
-            />
-            <div className="absolute right-3 top-11 z-40 w-48 rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-xl">
-              {isOwnProfile ? (
-                <Link
-                  href="/profile/edit"
-                  onClick={() => setShowProfileMenu(false)}
-                  className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
-                >
-                  <Edit3 className="size-4 text-primary" />
-                  Edit profile
-                </Link>
-              ) : (
-                <Link
-                  href={`/chat?userId=${profile.id}`}
-                  onClick={() => setShowProfileMenu(false)}
-                  className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold hover:bg-muted"
-                >
-                  <MessageSquare className="size-4" />
-                  Message
-                </Link>
-              )}
-              <button
-                type="button"
-                onClick={async () => {
-                  setShowProfileMenu(false);
-                  await handleShareVibe();
-                }}
-                className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-semibold hover:bg-muted"
-              >
-                <Share2 className="size-4" />
-                Share profile
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowProfileMenu(false);
-                  setShowQrModal(true);
-                }}
-                className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-semibold hover:bg-muted"
-              >
-                <QrCode className="size-4" />
-                QR card
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      <main className="mx-auto min-h-screen w-full max-w-4xl border-x border-border/40">
-        {/* ─── Profile Cover Banner (Clean Neutral Canvas) ─── */}
-        <div className="relative h-32 sm:h-44 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
+      <main className="mx-auto min-h-screen w-full max-w-4xl border-x border-border/30">
+        {/* ─── Profile Cover Banner (Clean Neutral Canvas with Floating Actions) ─── */}
+        <div className="relative h-36 sm:h-52 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
           {currentBannerUrl ? (
             <img src={currentBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
           ) : (
@@ -604,44 +492,138 @@ export function ProfileClientView({
             </div>
           )}
 
-          {/* Banner Edit / Camera Controls for Owner */}
-          {isOwnProfile && (
-            <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+          {/* Floating Back Button (Top-Left) */}
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="absolute top-3 left-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+            title="Back"
+            aria-label="Back"
+          >
+            <ArrowLeft className="size-4" />
+          </button>
+
+          {/* Floating Action Controls (Top-Right: QR, Share, More, Banner edit) */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
+            <button
+              type="button"
+              onClick={() => setShowQrModal(true)}
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+              title="Profile QR Card"
+            >
+              <QrCode className="size-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShareVibe}
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+              title="Share Profile"
+            >
+              <Share2 className="size-4" />
+            </button>
+
+            <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowUnsplashBannerPicker(true)}
-                className="h-8 px-3 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center gap-1.5 backdrop-blur-md transition-all cursor-pointer text-xs font-semibold border border-white/10"
-                title="Choose Cover from Unsplash"
+                onClick={() => setShowProfileMenu((v) => !v)}
+                className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+                title="More Options"
+                aria-label="More profile actions"
               >
-                <Sparkles className="size-3.5 text-primary" />
-                <span className="hidden sm:inline">Unsplash</span>
+                <MoreVertical className="size-4" />
               </button>
 
-              {currentBannerUrl && (
+              {showProfileMenu && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close profile actions"
+                    className="fixed inset-0 z-30 cursor-default bg-transparent"
+                    onClick={() => setShowProfileMenu(false)}
+                  />
+                  <div className="absolute right-0 top-11 z-40 w-48 rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-xl">
+                    {isOwnProfile ? (
+                      <Link
+                        href="/profile/edit"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold hover:bg-muted"
+                      >
+                        <Edit3 className="size-4 text-primary" />
+                        Edit profile
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/chat?userId=${profile.id}`}
+                        onClick={() => setShowProfileMenu(false)}
+                        className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold hover:bg-muted"
+                      >
+                        <MessageSquare className="size-4" />
+                        Message
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setShowProfileMenu(false);
+                        await handleShareVibe();
+                      }}
+                      className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold hover:bg-muted"
+                    >
+                      <Share2 className="size-4" />
+                      Share profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        setShowQrModal(true);
+                      }}
+                      className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold hover:bg-muted"
+                    >
+                      <QrCode className="size-4" />
+                      QR card
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {isOwnProfile && (
+              <>
                 <button
                   type="button"
-                  onClick={() => {
-                    setCropImageUrl(currentBannerUrl || "");
-                    setCropMode("banner");
-                    setCropModalOpen(true);
-                  }}
-                  className="size-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer border border-white/10"
-                  title="Reposition Banner"
+                  onClick={() => setShowUnsplashBannerPicker(true)}
+                  className="hidden sm:flex size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 items-center justify-center transition-all cursor-pointer shadow-md"
+                  title="Choose Cover from Unsplash"
                 >
-                  <Move className="size-3.5" />
+                  <Sparkles className="size-4 text-primary" />
                 </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => bannerInputRef.current?.click()}
-                className="size-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer border border-white/10"
-                title="Change Cover Banner"
-              >
-                <Camera className="size-3.5" />
-              </button>
-            </div>
-          )}
+                {currentBannerUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCropImageUrl(currentBannerUrl || "");
+                      setCropMode("banner");
+                      setCropModalOpen(true);
+                    }}
+                    className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                    title="Reposition Banner"
+                  >
+                    <Move className="size-4" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => bannerInputRef.current?.click()}
+                  className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                  title="Change Cover Banner"
+                >
+                  <Camera className="size-4" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* ─── Profile Header Main Info (Twitter Architecture) ─── */}
@@ -654,7 +636,7 @@ export function ProfileClientView({
                 onClick={() => {
                   if (isOwnProfile) setShowAvatarMenu(true);
                 }}
-                className="relative size-24 sm:size-28 rounded-full border-4 border-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
+                className="relative size-24 sm:size-28 rounded-full border-4 border-background ring-2 ring-primary ring-offset-2 ring-offset-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
               >
                 <Avatar className="size-full">
                   <AvatarImage src={currentAvatarUrl || ""} className="object-cover size-full" />
@@ -687,9 +669,9 @@ export function ProfileClientView({
                   </button>
                   <Link
                     href="/profile/edit"
-                    className="h-9 px-4 rounded-full border border-border/80 hover:bg-muted/60 text-xs font-bold text-foreground transition-all cursor-pointer inline-flex items-center gap-1.5"
+                    className="h-9 px-5 rounded-full bg-primary hover:bg-primary/95 text-xs font-bold text-primary-foreground shadow-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
-                    <Edit3 className="size-3.5 text-muted-foreground" />
+                    <Edit3 className="size-3.5" />
                     <span>Edit profile</span>
                   </Link>
                 </>
@@ -699,7 +681,7 @@ export function ProfileClientView({
                     username={profile.username}
                     displayName={profile.displayName}
                     initialIsFollowing={isFollowedByViewer}
-                    className="h-10 px-6 rounded-full font-bold shadow-xs"
+                    className="h-9 px-6 rounded-full font-bold shadow-xs bg-primary hover:bg-primary/95 text-primary-foreground"
                     onChange={(nowFollowing, counts) =>
                       setFollowers((prev) =>
                         counts ? counts.followersCount : Math.max(prev + (nowFollowing ? 1 : -1), 0)
@@ -708,10 +690,11 @@ export function ProfileClientView({
                   />
                   <Link
                     href={`/chat?userId=${profile.id}`}
-                    className="size-10 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/20 flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                    className="h-9 px-4 rounded-full border border-border/60 bg-secondary hover:bg-muted/70 text-secondary-foreground text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
                     title="Direct Message"
                   >
-                    <MessageSquare className="size-4.5" />
+                    <MessageSquare className="size-3.5" />
+                    <span>Message</span>
                   </Link>
                   <SecretCrushButton targetId={profile.id} targetName={profile.displayName} />
                 </div>
@@ -728,6 +711,10 @@ export function ProfileClientView({
                 </h1>
                 <span title="Verified Campus Student">
                   <BadgeCheck className="size-5 text-primary shrink-0" />
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold ml-1">
+                  <Zap className="size-3 fill-primary/20" />
+                  <span>{points} LP</span>
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
@@ -786,26 +773,26 @@ export function ProfileClientView({
             {/* Social / Portfolio Links */}
             <ProfileSocialLinks links={profile.socialLinks} />
 
-            {/* 3-Column Stats Row (Mockup Architecture) */}
+            {/* 3-Column Stats Row (Mockup Architecture: Posts | Followers | Following) */}
             <div className="grid grid-cols-3 py-3 border-y border-border/30 my-3 text-center divide-x divide-border/20 select-none">
-              <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
-                <p className="text-lg font-black text-foreground">{followingCount}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Following</p>
-              </Link>
+              <button
+                type="button"
+                onClick={() => handleTabChange("posts")}
+                className="hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <p className="text-lg font-black text-foreground">{posts.length}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Posts</p>
+              </button>
 
               <Link href={`/@${profile.username}/followers`} className="hover:opacity-80 transition-opacity">
                 <p className="text-lg font-black text-foreground">{followers}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Followers</p>
               </Link>
 
-              <button
-                type="button"
-                onClick={() => handleTabChange("clout")}
-                className="hover:opacity-80 transition-opacity cursor-pointer"
-              >
-                <p className="text-lg font-black text-primary">{points}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Clout</p>
-              </button>
+              <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
+                <p className="text-lg font-black text-foreground">{followingCount}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">Following</p>
+              </Link>
             </div>
 
             {/* Clean Monochromatic Topic Pills (No Joker colors!) */}

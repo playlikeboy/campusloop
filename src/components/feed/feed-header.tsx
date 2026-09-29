@@ -48,7 +48,7 @@ export function FeedHeader({
   const visibleSorts = SORT_TABS.filter((item) => primarySorts.includes(item.id) || item.id === sort);
 
   return (
-    <div className="sticky top-14 z-30 border-b border-border/30 bg-background/95 backdrop-blur-xl">
+    <div className="sticky top-14 z-30 border-b border-border/30 bg-background/98 backdrop-blur-xl shadow-2xs">
       {/* Consolidated Header: Location Scope + Sub-tabs + Filter Trigger */}
       <div className="flex items-center justify-between gap-2 px-3 py-2">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
@@ -64,7 +64,7 @@ export function FeedHeader({
               aria-pressed={scope === "CAMPUS"}
             >
               <School className="size-3 shrink-0 text-primary" />
-              <span className="max-w-[100px] truncate">
+              <span className="max-w-[120px] truncate">
                 {institutionSlug
                   ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
                   : "Campus"}

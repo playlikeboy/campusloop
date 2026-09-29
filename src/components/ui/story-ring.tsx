@@ -68,55 +68,44 @@ export function StoryRing({ users }: StoryRingProps) {
   }
 
   return (
-    <div className="flex h-[106px] w-full min-w-0 items-center gap-3.5 overflow-x-auto border-b border-border/30 px-4 py-2 no-scrollbar select-none">
-      {/* Current User Story Item (You / Add story) */}
-      <div className="flex shrink-0 flex-col items-center gap-1 select-none">
-        <div className="relative group">
+    <div className="flex h-[106px] w-full min-w-0 items-center gap-3.5 overflow-x-auto border-b border-border/25 px-4 py-2 no-scrollbar select-none bg-background/60">
+      {/* 1. Add Story Circular Button (Reference Screenshot 1) */}
+      <div className="flex shrink-0 flex-col items-center gap-1.5 select-none">
+        <button
+          type="button"
+          onClick={handleCreateStory}
+          className="flex size-14 items-center justify-center rounded-full bg-primary/10 hover:bg-primary/15 text-primary transition-transform active:scale-95 cursor-pointer border border-primary/20 shadow-2xs"
+          aria-label="Add story"
+        >
+          <Plus className="size-6 stroke-[2.75]" />
+        </button>
+        <span className="text-[11px] font-semibold text-muted-foreground truncate max-w-[64px]">
+          Add story
+        </span>
+      </div>
+
+      {/* 2. Current User Story Item (if active) */}
+      {myStoryGroup && myStoryGroup.stories.length > 0 && (
+        <div className="flex shrink-0 flex-col items-center gap-1 select-none">
           <button
             type="button"
-            onClick={() => {
-              if (myStoryGroup && myStoryGroup.stories.length > 0) {
-                handleOpenStory(myStoryGroup.stories[0].id);
-              } else {
-                handleCreateStory();
-              }
-            }}
-            className={cn(
-              "flex items-center justify-center rounded-full p-0.5 transition-transform active:scale-95 cursor-pointer",
-              myStoryGroup && myStoryGroup.stories.length > 0
-                ? "bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-sm p-[2.5px]"
-                : "bg-muted hover:scale-105"
-            )}
-            aria-label={myStoryGroup?.stories?.length ? "View your story" : "Add story"}
+            onClick={() => handleOpenStory(myStoryGroup.stories[0].id)}
+            className="rounded-full ring-2 ring-primary ring-offset-2 ring-offset-background transition-transform active:scale-95 cursor-pointer"
+            aria-label="View your story"
           >
-            <Avatar className="h-14 w-14 border-2 border-background shadow-xs">
+            <Avatar className="size-14 border border-background shadow-xs">
               <AvatarImage src={profile?.avatarUrl || ""} />
               <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
                 {(profile?.displayName?.[0] || "U").toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </button>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCreateStory();
-            }}
-            className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-primary text-white shadow-xs transition-transform hover:scale-110 active:scale-90 cursor-pointer"
-            aria-label="Add new story"
-          >
-            <Plus className="h-3.5 w-3.5 stroke-3" />
-          </button>
+          <div className="flex flex-col items-center leading-tight">
+            <span className="text-[11px] font-bold text-foreground">You</span>
+            <span className="text-[9px] font-semibold text-primary">Active</span>
+          </div>
         </div>
-
-        <div className="flex flex-col items-center leading-tight">
-          <span className="text-[11px] font-bold text-foreground">You</span>
-          <span className="text-[9px] font-medium text-muted-foreground">
-            {myStoryGroup?.stories?.length ? "Active" : "Add story"}
-          </span>
-        </div>
-      </div>
+      )}
 
       {otherUsers.map((userGroup) => {
         const firstStory = userGroup.stories[0];

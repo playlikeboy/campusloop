@@ -203,8 +203,8 @@ export function ExploreHeader({
             onFocus={() => setIsFocused(true)}
             placeholder="Search CampusLoop by keyword, @person, or #topic..."
             className={cn(
-              "w-full h-11 pl-10 pr-10 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm font-normal text-foreground placeholder:text-muted-foreground transition-all",
-              "focus:bg-background focus:border-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              "w-full h-11 pl-10 pr-10 rounded-full bg-muted/30 border border-border/40 text-xs sm:text-sm font-normal text-foreground placeholder:text-muted-foreground transition-all",
+              "focus:bg-background focus:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
             )}
           />
 

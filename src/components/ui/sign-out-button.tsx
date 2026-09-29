@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@hexclave/next";
 import { Loader2, LogOut } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -18,7 +17,6 @@ export function SignOutButton({
   variant = "button",
   showText = true,
 }: SignOutButtonProps) {
-  useUser({ or: "return-null" });
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleSignOut(e: React.MouseEvent) {

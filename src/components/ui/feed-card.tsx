@@ -276,7 +276,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onClick={(e) => handleCardClick(e)}
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
-      className="w-full max-w-full min-w-0 border-b border-border/30 bg-card/40 sm:bg-card sm:rounded-2xl sm:border sm:border-border/35 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 sm:mx-2 relative cursor-pointer transition-all hover:bg-muted/15 select-none overflow-x-clip"
+      className="w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border sm:border-border/30 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 relative cursor-pointer transition-all hover:bg-muted/10 select-none overflow-x-clip shadow-2xs"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>
@@ -424,22 +424,17 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         {/* Compact topic metadata / hashtags */}
         {extractedHashtags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-2" onClick={(e) => e.stopPropagation()}>
-            {extractedHashtags.slice(0, 4).map((tag, idx) => (
+            {extractedHashtags.slice(0, 4).map((tag) => (
               <Link
                 key={tag}
                 href={`/hashtag/${tag}`}
-                className={cn(
-                  "min-h-7 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-colors shrink-0",
-                  idx === 0
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-300"
-                    : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
+                className="min-h-6 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors shrink-0"
               >
                 #{tag}
               </Link>
             ))}
             {extractedHashtags.length > 4 && (
-              <span className="min-h-7 rounded-full bg-muted/40 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+              <span className="min-h-6 rounded-full bg-muted/30 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 +{extractedHashtags.length - 4}
               </span>
             )}
