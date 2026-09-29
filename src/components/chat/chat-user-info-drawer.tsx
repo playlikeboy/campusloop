@@ -633,7 +633,7 @@ export function ChatUserInfoDrawer({
           <hr className="border-border/30 my-2" />
 
           <Link
-            href="/app/settings"
+            href="/settings"
             className="flex w-full items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ShieldAlert className="size-4" />

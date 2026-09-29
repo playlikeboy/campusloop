@@ -260,20 +260,56 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
   return (
     <div className="min-h-screen w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-28 select-none">
-      {/* ─── Sticky Header ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/40 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8">
-        {/* Top bar: Title & Quick Actions */}
-        <div className="flex h-14 items-center justify-between">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <h1 className="text-base font-black tracking-tight text-foreground sm:text-xl">Academics</h1>
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-1 text-[10px] font-bold text-primary border border-primary/15">
-              <GraduationCap className="size-3" />
-              1,350+ campus hubs
-            </span>
+      {/* ─── Unified Mobile-First Sticky Header (Fits <15% Viewport Budget) ─── */}
+      <header className="sticky top-14 z-30 bg-background/92 backdrop-blur-xl border-b border-border/30 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-2 space-y-2">
+        {/* Row 1: Title, Scope Toggle & Action Buttons */}
+        <div className="flex h-9 items-center justify-between gap-2">
+          {/* Left: Title + Scope Toggle */}
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-base font-black tracking-tight text-foreground truncate">
+              Academics
+            </h1>
+
+            {/* Campus / Global Scope Toggle */}
+            <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 shrink-0 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  setScope("campus");
+                }}
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                  scope === "campus"
+                    ? "bg-card text-foreground shadow-xs font-black"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <School className="size-3 text-amber-500" />
+                <span className="hidden sm:inline">My Campus</span>
+                <span className="sm:hidden">Campus</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  setScope("global");
+                }}
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                  scope === "global"
+                    ? "bg-card text-foreground shadow-xs font-black"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Globe className="size-3 text-sky-500" />
+                <span>All India</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-0.5 sm:gap-1.5">
-            {/* Search Toggle Icon Button */}
+          {/* Right: Search, Saved, Upload */}
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -282,17 +318,17 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setIsSearchOpen((prev) => !prev);
               }}
               className={cn(
-                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
+                "flex size-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full transition-colors cursor-pointer",
                 isSearchOpen
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
               title="Toggle search"
+              aria-label="Toggle search"
             >
               <Search className="size-4" />
             </button>
 
-            {/* Saved Materials Quick Icon Button */}
             <button
               type="button"
               onClick={() => {
@@ -301,43 +337,58 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setActiveTab("SAVED");
               }}
               className={cn(
-                "flex size-9 items-center justify-center rounded-xl transition-colors cursor-pointer",
+                "flex size-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full transition-colors cursor-pointer",
                 activeTab === "SAVED"
-                  ? "bg-amber-500/15 text-amber-500"
+                  ? "bg-amber-500/15 text-amber-500 font-bold"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
               title="Saved study materials"
+              aria-label="Saved materials"
             >
               <Bookmark className="size-4" />
             </button>
 
-            {/* Create Playlist Icon */}
-            <Link
-              href="/academics/playlists/new"
-              onClick={() => sounds.tap()}
-              className="hidden sm:flex size-8.5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-              title="Create Study Playlist"
-            >
-              <FolderPlus className="size-4" />
-            </Link>
-
-            {/* Upload Notes Button */}
             <Link
               href="/academics/upload"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex h-9 items-center gap-1.5 rounded-xl bg-primary px-3 sm:px-3.5 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-1"
+              className="flex h-8.5 items-center gap-1 rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-0.5"
             >
-              <Plus className="size-3.5" />
+              <Plus className="size-3.5 stroke-[2.5]" />
               <span>Upload</span>
             </Link>
           </div>
         </div>
 
-        {/* ─── Twitter Tabs (Underlined) ────────────────────────────────────── */}
-        <div className="flex border-b border-border/30">
+        {/* Inline Search Bar (When toggled or active) */}
+        {(isSearchOpen || searchQuery) && (
+          <form onSubmit={handleSearchSubmit} className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search notes, PYQs, subjects, codes..."
+              className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
+              autoFocus={isSearchOpen}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="size-3" />
+              </button>
+            )}
+          </form>
+        )}
+
+        {/* Row 2: Unified Horizontal Scroll Filter & Tabs Strip */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+          {/* Tabs */}
           {PRIMARY_TABS.map((tab) => {
             const isSelected = activeTab === tab.id;
             return (
@@ -350,193 +401,88 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   setActiveTab(tab.id);
                 }}
                 className={cn(
-                  "relative flex-1 py-3 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer",
+                  "min-h-[30px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                   isSelected
-                    ? "text-foreground font-black"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 )}
               >
-                <span>{tab.label}</span>
-                {isSelected && (
-                  <div className="absolute bottom-0 left-1/4 right-1/4 h-1 rounded-full bg-primary transition-all" />
-                )}
+                {tab.label}
               </button>
             );
           })}
-        </div>
 
-        {/* ─── Compact Filter Ribbon ────────────────────────────────────────── */}
-        <div className="px-0 sm:px-4 py-2 flex flex-col gap-2 bg-background/50 border-b border-border/20">
-          {/* Inline Search Bar (Expanded or has text) */}
-          {(isSearchOpen || searchQuery) && (
-            <form onSubmit={handleSearchSubmit} className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notes, PYQs, subjects..."
-                className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
-                autoFocus={isSearchOpen}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              )}
-            </form>
-          )}
+          <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
 
-          {/* Filter Chips Horizontal Scroll */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
-            {/* Campus / Global Scope Toggle */}
-            <div className="flex items-center rounded-full bg-muted/40 p-0.5 border border-border/40 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setScope("campus");
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
-                  scope === "campus"
-                    ? "bg-background text-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <School className="size-3 text-amber-500" />
-                <span>My Campus</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setScope("global");
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
-                  scope === "global"
-                    ? "bg-background text-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Globe className="size-3 text-sky-500" />
-                <span>All India</span>
-              </button>
-            </div>
+          {/* Branch Select */}
+          <select
+            value={selectedBranch}
+            onChange={(e) => {
+              sounds.tap();
+              setSelectedBranch(e.target.value);
+            }}
+            className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+          >
+            {BRANCHES.map((b) => (
+              <option key={b} value={b}>
+                {b === "All" ? "All Branches" : b}
+              </option>
+            ))}
+          </select>
 
-            {/* Branch Select */}
+          {/* Semester Select */}
+          {activeTab !== "SAVED" && (
             <select
-              value={selectedBranch}
+              aria-label="Filter by semester"
+              value={selectedSemester}
               onChange={(e) => {
                 sounds.tap();
-                setSelectedBranch(e.target.value);
+                setSelectedSemester(e.target.value);
               }}
-              className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
-              {BRANCHES.map((b) => (
-                <option key={b} value={b}>
-                  {b === "All" ? "All Branches" : b}
+              {SEMESTERS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
                 </option>
               ))}
             </select>
+          )}
 
-            {/* Semester Select */}
-            {activeTab !== "SAVED" && (
-              <select
-                aria-label="Filter by semester"
-                value={selectedSemester}
-                onChange={(e) => {
-                  sounds.tap();
-                  setSelectedSemester(e.target.value);
-                }}
-                className="h-7 rounded-full bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-              >
-                {SEMESTERS.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            )}
+          {/* Sort Select */}
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              sounds.tap();
+              setSortBy(e.target.value as any);
+            }}
+            className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+          >
+            <option value="for_you">Recommended</option>
+            <option value="latest">Latest</option>
+            <option value="popular">Most Upvoted</option>
+            <option value="downloads">Most Downloaded</option>
+          </select>
 
-            {/* Sort Select */}
-            <select
-              value={sortBy}
-              onChange={(e) => {
+          {/* Reset Active Filters */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={() => {
                 sounds.tap();
-                setSortBy(e.target.value as any);
+                setSelectedBranch("All");
+                setSelectedSemester("all");
+                setSortBy("for_you");
+                setScope("campus");
+                setSearchQuery("");
               }}
-              className="h-7 rounded-lg bg-muted/30 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted/60 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              title="Reset filters"
             >
-              <option value="for_you">Recommended</option>
-              <option value="latest">Latest</option>
-              <option value="popular">Most Upvoted</option>
-              <option value="downloads">Most Downloaded</option>
-            </select>
-
-            {/* Reset Filter Button */}
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setSelectedBranch("All");
-                  setSelectedSemester("all");
-                  setSortBy("for_you");
-                  setScope("campus");
-                  setSearchQuery("");
-                }}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/50 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-                title="Reset filters"
-              >
-                <RotateCcw className="size-2.5" />
-                <span>Reset</span>
-              </button>
-            )}
-
-            {/* Desktop View Mode Switcher */}
-            <div className="hidden sm:flex items-center rounded-full bg-muted/40 p-0.5 border border-border/40 ml-auto shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setViewMode("row");
-                  localStorage.setItem("campusloop_academics_view_mode", "row");
-                }}
-                className={cn(
-                  "p-1 rounded-full transition-all cursor-pointer",
-                  viewMode === "row"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Twitter list view"
-              >
-                <List className="size-3" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setViewMode("grid");
-                  localStorage.setItem("campusloop_academics_view_mode", "grid");
-                }}
-                className={cn(
-                  "p-1 rounded-full transition-all cursor-pointer",
-                  viewMode === "grid"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Grid view"
-              >
-                <LayoutGrid className="size-3" />
-              </button>
-            </div>
-          </div>
+              <RotateCcw className="size-2.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </header>
 

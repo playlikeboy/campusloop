@@ -213,18 +213,18 @@ export default function CollegesClient() {
   ];
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-2 sm:px-6 lg:px-8 pb-28">
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-40 border-b border-border/30 bg-background/90 backdrop-blur-xl rounded-2xl my-2">
-        <div className="flex items-center justify-between gap-2 px-4 py-3.5">
+    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-0 sm:px-6 lg:px-8 pb-28">
+      {/* ─── Sticky Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
+      <header className="sticky top-14 z-30 border-b border-border/30 bg-background/95 backdrop-blur-xl rounded-none sm:rounded-2xl my-0 sm:my-2 shadow-2xs">
+        <div className="flex items-center justify-between gap-2 px-3.5 py-2 sm:px-4 sm:py-3">
           <div className="min-w-0">
-            <h1 className="text-lg font-black tracking-tight text-foreground">Colleges</h1>
+            <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">Colleges</h1>
           </div>
 
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
+            className="flex h-8 sm:h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-primary px-3 sm:px-4 text-xs font-black text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
           >
             <Plus className="size-3.5" />
             <span className="hidden sm:inline">Request campus</span>
@@ -245,7 +245,7 @@ export default function CollegesClient() {
                   setPage(1);
                 }}
                 className={cn(
-                  "relative flex-1 cursor-pointer py-3 text-[14px] font-bold transition-colors",
+                  "relative flex-1 cursor-pointer py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-colors min-h-[44px] flex items-center justify-center",
                   isActive
                     ? "font-black text-foreground"
                     : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
@@ -253,7 +253,7 @@ export default function CollegesClient() {
               >
                 <span>{tab.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-primary" />
+                  <span className="absolute bottom-0 left-1/2 h-0.5 sm:h-1 w-10 sm:w-12 -translate-x-1/2 rounded-full bg-primary" />
                 )}
               </button>
             );
@@ -270,7 +270,7 @@ export default function CollegesClient() {
           )}
 
           {/* Search */}
-          <div className="border-b border-border/30 px-4 py-3">
+          <div className="border-b border-border/30 px-3 py-2 sm:px-4 sm:py-3">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -281,7 +281,7 @@ export default function CollegesClient() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="h-10 w-full rounded-full border border-border/60 bg-muted/30 pl-10 pr-9 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
+                className="h-9 w-full rounded-xl sm:rounded-full border border-border/60 bg-muted/30 pl-10 pr-9 text-xs sm:text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
               />
               {search && (
                 <button
@@ -297,7 +297,7 @@ export default function CollegesClient() {
           </div>
 
           {/* Filters */}
-          <div className="space-y-2 border-b border-border/30 px-4 py-3">
+          <div className="space-y-1.5 border-b border-border/30 px-3 py-2 sm:px-4 sm:py-3">
             <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
               {CATEGORY_FILTERS.map((cat) => {
                 const Icon = cat.icon;

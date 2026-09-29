@@ -38,7 +38,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "7,800+ Official PYQs",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://bitmesra.ac.in/Other-Department-Pages/content/1/258/361",
-    campusLoopFilterUrl: "/app/academics?scope=campus",
+    campusLoopFilterUrl: "/academics?scope=campus",
     highlights: ["Official Mid-Sem & End-Sem Papers", "Direct PDF Downloads", "Covers Semesters 1 to 8"],
   },
   {
@@ -52,7 +52,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "250+ Notes & Lab Manuals",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://bithub.co.in",
-    campusLoopFilterUrl: "/app/academics?resourceType=NOTES",
+    campusLoopFilterUrl: "/academics?resourceType=NOTES",
     highlights: ["Verified Lab Manuals", "Multisim Circuits", "First Year Cycles"],
   },
   {
@@ -66,7 +66,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "Complete CBCS Catalog",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://bitsyll.com",
-    campusLoopFilterUrl: "/app/academics",
+    campusLoopFilterUrl: "/academics",
     highlights: ["Subject Codes Mapping", "Credit Schemes", "Prerequisite Tracking"],
   },
   {
@@ -80,7 +80,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "500+ Curated Files",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://github.com/madhurimarawat/Semester-Notes",
-    campusLoopFilterUrl: "/app/academics?branch=Computer%20Science",
+    campusLoopFilterUrl: "/academics?branch=Computer%20Science",
     highlights: ["Handwritten Unit Notes", "Visual Diagram Guides", "Quick Revision Sheets"],
   },
   {
@@ -94,7 +94,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "120+ Specialized Notes",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://github.com/ashishtiwari-07/BTech-CSAI-Study-Archive",
-    campusLoopFilterUrl: "/app/academics?branch=Computer%20Science",
+    campusLoopFilterUrl: "/academics?branch=Computer%20Science",
     highlights: ["AI/ML Notebooks", "Solved Numerical Methods", "Unit Question Banks"],
   },
   {
@@ -108,7 +108,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "Quantum Series & PYQs",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://aktu.ac.in",
-    campusLoopFilterUrl: "/app/academics?scope=global",
+    campusLoopFilterUrl: "/academics?scope=global",
     highlights: ["10-Year Question Bank", "Unit-Wise Quantum Prep", "Exam Oriented Answers"],
   },
   {
@@ -122,7 +122,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "Model Papers & Notes",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://vturesource.com",
-    campusLoopFilterUrl: "/app/academics?scope=global",
+    campusLoopFilterUrl: "/academics?scope=global",
     highlights: ["CBCS Model Question Papers", "Scheme-Aligned Notes", "Semester Solved Papers"],
   },
   {
@@ -136,7 +136,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "Regulation Modules",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://jntuhnotes.net",
-    campusLoopFilterUrl: "/app/academics?scope=global",
+    campusLoopFilterUrl: "/academics?scope=global",
     highlights: ["R18 / R22 Regulation Notes", "Important Questions List", "Lab Experiments Manuals"],
   },
   {
@@ -150,7 +150,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "Lecture Notes & 2-Marks",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://brainkart.com",
-    campusLoopFilterUrl: "/app/academics?scope=global",
+    campusLoopFilterUrl: "/academics?scope=global",
     highlights: ["2-Mark & 16-Mark Solved Bank", "Regulation 2021 Syllabi", "Step-by-Step Derivations"],
   },
   {
@@ -164,7 +164,7 @@ export const VERIFIED_ACADEMIC_SOURCES: AcademicSource[] = [
     indexedCount: "National IIT Modules",
     status: "ACTIVE_INDEXED",
     officialUrl: "https://nptel.ac.in",
-    campusLoopFilterUrl: "/app/academics",
+    campusLoopFilterUrl: "/academics",
     highlights: ["IIT Professor Lectures", "Verified Assignments", "Comprehensive Transcripts"],
   },
 ];

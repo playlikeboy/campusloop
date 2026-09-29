@@ -301,7 +301,7 @@ export function InteractiveShowcase() {
                     </div>
 
                     <Link
-                      href="/app/academics"
+                      href="/academics"
                       className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-foreground"
                     >
                       Open the full academic vault <ArrowRight className="size-3.5" />

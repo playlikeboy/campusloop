@@ -82,7 +82,7 @@ export function SecretCrushButton({ targetId, targetName, className }: SecretCru
             </div>
 
             <Link
-              href="/app/crush"
+              href="/crush"
               className="inline-flex items-center justify-center gap-1 rounded-xl bg-muted/50 p-2 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
             >
               <Lock className="size-3 text-primary" />

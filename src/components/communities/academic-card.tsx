@@ -176,7 +176,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/app/academics/${item.id}`;
+            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });
@@ -240,7 +240,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/app/academics/${item.id}`;
+            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });
@@ -295,7 +295,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     trackAcademicShare(item.id, item.subjectCode, "clipboard");
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = `${baseUrl}/app/academics/${item.id}`;
+    const shareUrl = `${baseUrl}/academics/${item.id}`;
 
     if (navigator.share) {
       navigator
@@ -320,7 +320,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/app/academics/${item.id}`;
+            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });
@@ -451,7 +451,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
 
             {/* Title */}
             <Link
-              href={`/app/academics/${item.id}`}
+              href={`/academics/${item.id}`}
               onClick={() => sounds.tap()}
               className="block group/title pt-0.5"
             >
@@ -560,7 +560,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     <article
       id={`academic-${item.id}`}
       className={cn(
-        "group border-b border-border/30 bg-background px-4 py-4 sm:px-5 sm:py-5 transition-colors hover:bg-muted/10 select-none",
+        "group border-b border-border/30 bg-background px-3.5 py-3 sm:px-5 sm:py-4 transition-colors hover:bg-muted/10 select-none",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
     >
@@ -600,11 +600,11 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             <button
               type="button"
               onClick={handleShare}
-              className="ml-auto size-7 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
+              className="ml-auto size-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
               title="Share resource"
               aria-label="Share resource"
             >
-              <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
+              <AnimatedIcon icon={AnimateShare} animation="pop" size={14} />
             </button>
           </div>
 
@@ -633,7 +633,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
           </div>
 
           {/* Title + description */}
-          <Link href={`/app/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-2.5 block">
+          <Link href={`/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-2.5 block">
             <h3 className="text-[16px] sm:text-[17px] font-extrabold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
               {item.title}
             </h3>
@@ -665,15 +665,15 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             </span>
           </div>
 
-          {/* Actions: compact, thumb-friendly */}
+          {/* Actions: compact, thumb-friendly with 44px min touch targets */}
           <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
             <button
               type="button"
               onClick={() => setShowComments(!showComments)}
-              className="flex min-h-9 items-center gap-1.5 rounded-full px-2.5 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
+              className="flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
               aria-label={`Comments: ${commentsList.length || item.commentsCount || 0}`}
             >
-              <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={14} />
+              <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={15} />
               <span className="text-[11px] font-semibold tabular-nums">
                 {commentsList.length || item.commentsCount || 0}
               </span>
@@ -683,12 +683,12 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               type="button"
               onClick={() => handleVote("UP")}
               className={cn(
-                "flex min-h-9 items-center gap-1 rounded-full px-2.5 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
+                "flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
                 userVote === "UP" && "bg-primary/10 text-primary font-bold"
               )}
               title="Upvote"
             >
-              <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-[2.5]")} />
+              <ArrowUp className={cn("size-4", userVote === "UP" && "stroke-[2.5]")} />
               <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
             </button>
 
@@ -696,13 +696,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               type="button"
               onClick={() => handleVote("DOWN")}
               className={cn(
-                "flex size-9 items-center justify-center rounded-full hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
+                "flex size-11 items-center justify-center rounded-full hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
                 userVote === "DOWN" && "bg-rose-500/10 text-rose-400"
               )}
               title="Report incorrect material"
               aria-label="Report incorrect material"
             >
-              <ArrowDown className="size-3.5" />
+              <ArrowDown className="size-4" />
             </button>
 
             <div className="ml-auto flex items-center gap-2.5 text-[10px] text-muted-foreground/70">
@@ -719,14 +719,14 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             <button
               type="button"
               onClick={handleDownload}
-              className="ml-1 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-[11px] font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-[.98] transition-all cursor-pointer"
+              className="ml-1 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-[.98] transition-all cursor-pointer"
             >
               {(item.fileUrl || item.driveUrl || "").match(
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
               ) ? (
-                <FolderOpen className="size-3.5" />
+                <FolderOpen className="size-4" />
               ) : (
-                <ExternalLink className="size-3" />
+                <ExternalLink className="size-3.5" />
               )}
               <span>Open</span>
             </button>

@@ -34,7 +34,7 @@ const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/overview", label: "Overview" },
   { href: "/products", label: "Products" },
-  { href: "/app/colleges", label: "Colleges" },
+  { href: "/colleges", label: "Colleges" },
   { href: "/safety", label: "Safety" },
 ];
 
@@ -55,7 +55,7 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {isAuthenticated ? (
-            <Link href="/app" className={cn(buttonVariants({ size: "sm" }), "gap-1")}>
+            <Link href="/feeds" className={cn(buttonVariants({ size: "sm" }), "gap-1")}>
               Open app
               <ArrowRight className="size-3.5" />
             </Link>
@@ -85,7 +85,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
       { href: "/products", label: "All Products" },
       { href: "/overview", label: "Platform Overview" },
       { href: "/demo", label: "Testing & Demo Access" },
-      { href: "/app/colleges", label: "College Directory" },
+      { href: "/colleges", label: "College Directory" },
       { href: "/handler/sign-up", label: "Join CampusLoop" },
     ],
   },
@@ -94,7 +94,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
     title: "Company",
     links: [
       { href: "/about", label: "About Us" },
-      { href: "/app/colleges", label: "Campus Hubs" },
+      { href: "/colleges", label: "Campus Hubs" },
       { href: "/contact", label: "Contact" },
     ],
   },

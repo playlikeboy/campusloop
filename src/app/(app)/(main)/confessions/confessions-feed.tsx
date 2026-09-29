@@ -110,14 +110,14 @@ export function ConfessionsFeed() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-background">
-      {/* ─── Compact Confessions Header ─── */}
-      <header className="sticky top-0 z-40 border-b border-border/25 bg-background/90 backdrop-blur-xl">
+      {/* ─── Compact Confessions Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
+      <header className="sticky top-14 z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl shadow-2xs">
         <div className="flex min-h-12 items-center justify-between gap-2 px-3.5 sm:px-4">
           <div className="flex min-w-0 items-center gap-2">
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer"
               title="Go back"
               aria-label="Go back"
             >

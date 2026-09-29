@@ -154,25 +154,26 @@ export function CommunitiesIndexClient({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col min-h-screen pb-24 px-2 sm:px-6 lg:px-8 bg-background text-foreground">
-      {/* ─── Header ─── */}
-      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 rounded-2xl my-2">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div>
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">
+    <div className="mx-auto flex w-full max-w-7xl flex-col min-h-screen pb-24 px-0 sm:px-6 lg:px-8 bg-background text-foreground">
+      {/* ─── Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
+      <header className="sticky top-14 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 rounded-none sm:rounded-2xl my-0 sm:my-2 shadow-2xs">
+        <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 gap-2">
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground truncate">
               Campus Communities
             </h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground truncate hidden sm:block">
               Discover student sub-hubs, tech clubs, and campus discussion spaces
             </p>
           </div>
 
           <Link
             href="/communities/new"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0 min-h-[36px]"
           >
             <Plus className="size-3.5" />
-            <span>New Community</span>
+            <span className="hidden sm:inline">New Community</span>
+            <span className="sm:hidden">New</span>
           </Link>
         </div>
 
@@ -182,15 +183,15 @@ export function CommunitiesIndexClient({
             type="button"
             onClick={() => handleTabChange("explore")}
             className={cn(
-              "flex-1 py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer",
+              "flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer min-h-[44px] flex items-center justify-center",
               activeTab === "explore"
                 ? "text-foreground font-black"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
             )}
           >
-            <span>Explore Sub-Hubs</span>
+            <span>Explore</span>
             {activeTab === "explore" && (
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-0.5 bg-primary rounded-full" />
             )}
           </button>
 
@@ -198,15 +199,15 @@ export function CommunitiesIndexClient({
             type="button"
             onClick={() => handleTabChange("feed")}
             className={cn(
-              "flex-1 py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer",
+              "flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer min-h-[44px] flex items-center justify-center",
               activeTab === "feed"
                 ? "text-foreground font-black"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
             )}
           >
-            <span>Community Feed</span>
+            <span>Feed</span>
             {activeTab === "feed" && (
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-0.5 bg-primary rounded-full" />
             )}
           </button>
 
@@ -214,7 +215,7 @@ export function CommunitiesIndexClient({
             type="button"
             onClick={() => handleTabChange("my_communities")}
             className={cn(
-              "flex-1 py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer",
+              "flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all relative cursor-pointer min-h-[44px] flex items-center justify-center",
               activeTab === "my_communities"
                 ? "text-foreground font-black"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
@@ -222,7 +223,7 @@ export function CommunitiesIndexClient({
           >
             <span>My Hubs ({myCommunities.length})</span>
             {activeTab === "my_communities" && (
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-0.5 bg-primary rounded-full" />
             )}
           </button>
         </div>
@@ -230,7 +231,7 @@ export function CommunitiesIndexClient({
 
       {/* ─── TAB 1: Explore Student Communities (Reddit-Style Sub-Hubs) ─── */}
       {activeTab === "explore" && (
-        <div className="p-4 space-y-4">
+        <div className="px-2 py-3 sm:p-4 space-y-3">
           {/* Search Box */}
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -266,7 +267,7 @@ export function CommunitiesIndexClient({
           </div>
 
           {/* Responsive Sub-Hubs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-1">
             {filteredCommunities.map((c) => {
               const isMember = c.members.some((m) => m.userId === profileId);
               const avatar = getAvatarUrl(c.avatarUrl, c.name);
@@ -274,19 +275,19 @@ export function CommunitiesIndexClient({
               return (
                 <div
                   key={c.id}
-                  className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all flex flex-col justify-between gap-3 group shadow-2xs"
+                  className="rounded-xl sm:rounded-2xl border border-border/30 bg-card p-3 sm:p-4 hover:border-border/80 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 group shadow-2xs"
                 >
-                  <div className="space-y-2.5">
-                    <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2.5">
                       <Link
                         href={`/communities/${c.slug || c.id}`}
-                        className="flex items-start gap-3 min-w-0 flex-1 cursor-pointer"
+                        className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1 cursor-pointer"
                       >
-                        <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0 ring-2 ring-border/20">
+                        <Avatar className="size-9 sm:size-11 rounded-xl sm:rounded-2xl border border-border/50 shrink-0 ring-2 ring-border/20">
                           <AvatarImage src={avatar} />
                           <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
                         </Avatar>
-                        <div className="min-w-0 flex-1 space-y-1">
+                        <div className="min-w-0 flex-1 space-y-0.5">
                           <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
                             c/{c.name}
                           </h3>
@@ -428,24 +429,24 @@ export function CommunitiesIndexClient({
       {activeTab === "my_communities" && (
         <div className="pt-2">
           {myCommunities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {myCommunities.map((c) => {
                 const avatar = getAvatarUrl(c.avatarUrl, c.name);
 
                 return (
                   <div
                     key={c.id}
-                    className="rounded-2xl border border-border/40 bg-card p-4 hover:border-border/80 transition-all flex items-center justify-between gap-3 group shadow-2xs"
+                    className="rounded-xl sm:rounded-2xl border border-border/30 bg-card p-3 sm:p-4 hover:border-border/80 transition-all flex items-center justify-between gap-3 group shadow-2xs"
                   >
                     <Link
                       href={`/communities/${c.slug || c.id}`}
-                      className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+                      className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 cursor-pointer"
                     >
-                      <Avatar className="size-11 rounded-2xl border border-border/50 shrink-0">
+                      <Avatar className="size-9 sm:size-11 rounded-xl sm:rounded-2xl border border-border/50 shrink-0">
                         <AvatarImage src={avatar} />
                         <AvatarFallback className="text-xs font-black bg-muted">{c.name[0]}</AvatarFallback>
                       </Avatar>
-                      <div className="min-w-0 flex-1 space-y-1">
+                      <div className="min-w-0 flex-1 space-y-0.5">
                         <h3 className="text-sm font-black text-foreground group-hover:text-primary transition-colors truncate">
                           c/{c.name}
                         </h3>

@@ -89,7 +89,7 @@ export function MerchantLoginClient() {
         </Link>
 
         <Link
-          href="/app/marketplace"
+          href="/marketplace"
           className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
         >
           Back to Campus Store

@@ -134,7 +134,7 @@ export function AcademicsQuickVault() {
           {filtered.map((item) => (
             <Link
               key={item.id}
-              href="/app/academics"
+              href="/academics"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -180,7 +180,7 @@ export function AcademicsQuickVault() {
         {/* Bottom Vault Action */}
         <div className="text-center pt-2">
           <Link
-            href="/app/academics"
+            href="/academics"
             onClick={() => {
               sounds.tap();
               haptics.medium();

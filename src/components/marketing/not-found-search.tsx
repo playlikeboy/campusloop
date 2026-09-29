@@ -14,7 +14,7 @@ export function NotFoundSearch() {
       onSubmit={(e) => {
         e.preventDefault();
         const q = query.trim();
-        router.push(q ? `/app/search?q=${encodeURIComponent(q)}` : "/app/search");
+        router.push(q ? `/explore?q=${encodeURIComponent(q)}` : "/explore");
       }}
     >
       <label className="relative block">

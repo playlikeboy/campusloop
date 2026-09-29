@@ -102,7 +102,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
 
       const data = (await res.json()) as { id: string };
       toast.success("Direct chat opened! 💬", { id: "chat-seller" });
-      router.push(`/app/chat/${data.id}`);
+      router.push(`/chat/${data.id}`);
     } catch {
       toast.error("Could not open chat with seller. Please try again.", { id: "chat-seller" });
     } finally {
@@ -159,7 +159,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
   function handleShare() {
     sounds.tap();
     haptics.light();
-    const url = `${window.location.origin}/app/buy-and-sell?id=${item.id}`;
+    const url = `${window.location.origin}/buy-and-sell?id=${item.id}`;
     if (navigator.share) {
       navigator
         .share({
@@ -176,7 +176,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
 
   return (
     <>
-      <div className="p-4 border-b border-border/20 hover:bg-muted/4 transition-colors select-none">
+      <div className="px-3.5 py-3 sm:p-4 border-b border-border/20 hover:bg-muted/4 transition-colors select-none">
         {/* Seller Info Header */}
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -314,7 +314,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
               onClick={handleChatSeller}
               disabled={isStartingChat || sold}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95",
+                "flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95",
                 sold
                   ? "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
                   : "bg-emerald-500 hover:bg-emerald-400 text-black"
@@ -334,7 +334,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
                 onClick={handleToggleSold}
                 disabled={isUpdatingSold}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer active:scale-95",
+                  "flex min-h-[44px] items-center gap-1 px-3.5 py-2 rounded-full text-xs font-bold border transition-colors cursor-pointer active:scale-95",
                   sold
                     ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/25"
                     : "bg-muted hover:bg-muted/80 text-foreground border-border/60"
@@ -348,7 +348,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
                 type="button"
                 onClick={handleDeleteListing}
                 disabled={isDeleting}
-                className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                className="flex size-11 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                 title="Delete listing"
               >
                 <Trash2 className="size-3.5" />
@@ -359,7 +359,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
           <button
             type="button"
             onClick={handleShare}
-            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground px-2 py-1 rounded-md transition-colors cursor-pointer"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground px-2 py-1 rounded-md transition-colors cursor-pointer"
           >
             <Share2 className="size-3.5" />
             <span className="hidden sm:inline">Share</span>

@@ -48,7 +48,7 @@ export function createGoogleCalendarUrl(event: CalendarEvent): string {
 
   const cleanDesc = stripMarkdown(event.description || "");
   const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-  const eventLink = event.url || (event.slug ? `${origin}/app/events/${event.slug}` : window.location.href);
+  const eventLink = event.url || (event.slug ? `${origin}/events/${event.slug}` : window.location.href);
 
   const detailsText = [
     cleanDesc ? cleanDesc.slice(0, 1000) : "",
@@ -104,7 +104,7 @@ export function createIcsContent(event: CalendarEvent): string {
   const nowIso = formatCalendarDate(new Date());
 
   const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-  const eventLink = event.url || (event.slug ? `${origin}/app/events/${event.slug}` : `${origin}/app/events`);
+  const eventLink = event.url || (event.slug ? `${origin}/events/${event.slug}` : `${origin}/events`);
   const uid = `${event.id || event.slug || Date.now()}@campusloop.space`;
 
   const cleanDesc = stripMarkdown(event.description || "").replace(/\r?\n/g, "\\n");

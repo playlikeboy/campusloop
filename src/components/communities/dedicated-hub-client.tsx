@@ -65,7 +65,7 @@ const HUB_META: Record<
       "Report lost student IDs, keys, earphones, lab coats, and reclaim found items safely on campus.",
     icon: PackageSearch,
     actionLabel: "+ Report Item",
-    createHref: "/app/lost-and-found/new",
+    createHref: "/lost-and-found/new",
     badgeColor: "bg-rose-500/15 text-rose-500 border-rose-500/30",
     gradient: "from-rose-500/15 via-rose-500/5 to-transparent",
   },
@@ -76,7 +76,7 @@ const HUB_META: Record<
       "Buy and sell second-hand bicycles, coolers, mattresses, textbooks, drafters, and calculators with batchmates.",
     icon: ShoppingBag,
     actionLabel: "+ Sell Item",
-    createHref: "/app/buy-and-sell/new",
+    createHref: "/buy-and-sell/new",
     badgeColor: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
     gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
   },
@@ -87,7 +87,7 @@ const HUB_META: Record<
       "Find teammates, recruit for college tournaments, and play Valorant, BGMI, Chess, and EA FC scrimmage matches.",
     icon: Gamepad2,
     actionLabel: "+ Create Lobby",
-    createHref: "/app/gaming/new",
+    createHref: "/gaming/new",
     badgeColor: "bg-purple-500/15 text-purple-500 border-purple-500/30",
     gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
   },
@@ -98,7 +98,7 @@ const HUB_META: Record<
       "Split airport, railway station, and weekend city cab fares with verified students to save money.",
     icon: Car,
     actionLabel: "+ Offer / Request Ride",
-    createHref: "/app/rideshare/new",
+    createHref: "/rideshare/new",
     badgeColor: "bg-sky-500/15 text-sky-500 border-sky-500/30",
     gradient: "from-sky-500/15 via-sky-500/5 to-transparent",
   },
@@ -109,7 +109,7 @@ const HUB_META: Record<
       "Discover verified PGs, apartments, shared flats, and find student roommates near your college campus.",
     icon: Home,
     actionLabel: "+ List Room / PG",
-    createHref: "/app/housing/new",
+    createHref: "/housing/new",
     badgeColor: "bg-amber-500/15 text-amber-500 border-amber-500/30",
     gradient: "from-amber-500/15 via-amber-500/5 to-transparent",
   },
@@ -120,7 +120,7 @@ const HUB_META: Record<
       "Previous year exam question papers, verified professor notes, formula cheat sheets, and placement drives.",
     icon: BookOpen,
     actionLabel: "+ Upload Resource",
-    createHref: "/app/hub/new?type=academics",
+    createHref: "/hub/new?type=academics",
     badgeColor: "bg-indigo-500/15 text-indigo-500 border-indigo-500/30",
     gradient: "from-indigo-500/15 via-indigo-500/5 to-transparent",
   },
@@ -186,12 +186,12 @@ export function DedicatedHubClient({ hubType, profileId }: DedicatedHubClientPro
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground">
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3 min-w-0">
+      {/* ─── Sticky Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
+      <header className="sticky top-14 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-3.5 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
           <Link
             href="/communities"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             aria-label="Back to communities"
           >
             <ArrowLeft className="size-4.5" />
