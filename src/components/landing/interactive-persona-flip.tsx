@@ -29,7 +29,7 @@ export function InteractivePersonaFlip() {
         <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground">
           Speak your mind. Or rep your clout.
         </h2>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto font-medium">
+        <p className="w-full max-w-lg mx-auto text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
           Toggle seamlessly between zero-log anonymous confessions and verified student status in one tap.
         </p>
 
