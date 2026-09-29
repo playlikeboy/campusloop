@@ -1,6 +1,6 @@
 "use client";
 
-import { Crown, Search, Users } from "lucide-react";
+import { BadgeCheck, Crown, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -132,9 +132,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                 <div className="text-center w-full min-w-0">
                   <p className="text-xs font-extrabold text-foreground truncate flex items-center justify-center gap-1">
                     <span>{top1.displayName}</span>
-                    <span className="text-brand text-[11px]" title="Verified">
-                      ✓
-                    </span>
+                    <BadgeCheck className="size-3.5 text-brand inline shrink-0" title="Verified Campus Student" />
                   </p>
                   <p className="text-[10px] text-muted-foreground truncate">@{top1.username}</p>
                 </div>
@@ -284,9 +282,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                       <p className="text-xs font-extrabold text-foreground truncate flex items-center gap-1">
                         <span>{student.displayName}</span>
                         {(student.points || 0) >= 150 && (
-                          <span className="text-brand text-[10px]" title="Verified Student">
-                            ✓
-                          </span>
+                          <BadgeCheck className="size-3 text-brand inline shrink-0" title="Verified Student" />
                         )}
                       </p>
                       <p className="text-[10px] text-muted-foreground truncate">

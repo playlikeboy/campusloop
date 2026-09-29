@@ -2,21 +2,32 @@
 
 import {
   AlertTriangle,
+  ArrowUpRight,
   Briefcase,
   Building2,
+  Check,
   CheckCircle2,
   ChevronDown,
   Code,
+  Copy,
+  ExternalLink,
   HelpCircle,
+  Mail,
   PartyPopper,
+  ShieldCheck,
   Star,
   Utensils,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import type { AllowedDomainItem } from "./college-hero-header";
 
 interface CollegeRealityScorecardProps {
   collegeName: string;
+  collegeSlug?: string;
+  allowedDomains?: AllowedDomainItem[];
   studentCount: number;
   nirfRank?: number | null;
   description?: string | null;
@@ -33,13 +44,25 @@ interface CollegeRealityScorecardProps {
 
 export function CollegeRealityScorecard({
   collegeName,
+  collegeSlug,
+  allowedDomains = [],
   nirfRank,
   description,
   extraData,
 }: CollegeRealityScorecardProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
 
   const shortName = collegeName.split(",")[0];
+
+  function handleCopy(domain: string) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(`@${domain}`);
+      setCopiedDomain(domain);
+      toast.success(`Copied @${domain} to clipboard`);
+      setTimeout(() => setCopiedDomain(null), 2500);
+    }
+  }
 
   const RATINGS = [
     {
@@ -111,7 +134,7 @@ export function CollegeRealityScorecard({
   return (
     <div className="space-y-4 select-none animate-in fade-in">
       {/* ─── Institutional Overview & Key Facts ─── */}
-      <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs">
+      <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs border border-border/40">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
             <Building2 className="size-4 text-primary" /> Campus Facts &amp; Accreditation
@@ -124,7 +147,7 @@ export function CollegeRealityScorecard({
               className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1"
             >
               <span>Wikipedia</span>
-              <span>↗</span>
+              <ArrowUpRight className="size-3" />
             </a>
           )}
         </div>
@@ -163,12 +186,72 @@ export function CollegeRealityScorecard({
         </div>
       </div>
 
+      {/* ─── Allowed Student Email & Verification Protocol Card ─── */}
+      <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs border border-border/40">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+            <ShieldCheck className="size-4 text-emerald-500" /> Student Verification &amp; Allowed Domains
+          </h4>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+            Strict Campus Gate
+          </span>
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          CampusLoop enforces verified college email onboarding to eliminate spam, protect student anonymity,
+          and ensure only genuine students at <strong>{shortName}</strong> can vote in campus polls and join
+          exclusive batch loops.
+        </p>
+
+        {allowedDomains.length > 0 && (
+          <div className="space-y-2 pt-1">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider block">
+              Official Whitelisted Email Domains:
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {allowedDomains.map((d) => (
+                <div
+                  key={d.domain}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-bold text-foreground"
+                >
+                  <Mail className="size-3.5 text-emerald-500" />
+                  <span className="font-mono text-xs">@{d.domain}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(d.domain)}
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    title={`Copy @${d.domain}`}
+                  >
+                    {copiedDomain === d.domain ? (
+                      <Check className="size-3 text-emerald-500" />
+                    ) : (
+                      <Copy className="size-3" />
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <span>Using a different departmental or university email?</span>
+          <Link
+            href={`/college-request?suggestedInstitutionName=${encodeURIComponent(collegeName)}`}
+            className="text-primary font-bold hover:underline flex items-center gap-1"
+          >
+            <span>Request extra email domain</span>
+            <ExternalLink className="size-3" />
+          </Link>
+        </div>
+      </div>
+
       {/* ─── Ratings Scorecard Grid ─── */}
       <div className="grid gap-3 sm:grid-cols-2">
         {RATINGS.map((r, i) => {
           const Icon = r.icon;
           return (
-            <div key={i} className="rounded-3xl bg-card p-4 space-y-2.5 shadow-2xs">
+            <div key={i} className="rounded-3xl bg-card p-4 space-y-2.5 shadow-2xs border border-border/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={cn("p-2 rounded-xl bg-muted/40", r.color)}>
@@ -248,7 +331,7 @@ export function CollegeRealityScorecard({
       </div>
 
       {/* ─── Frequently Asked Questions for Aspirants ─── */}
-      <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-sm">
+      <div className="rounded-3xl bg-card p-6 space-y-4 shadow-2xs border border-border/40">
         <h3 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
           <HelpCircle className="size-4 text-primary" /> Aspirants FAQ: Direct Answers from Seniors
         </h3>
@@ -257,7 +340,7 @@ export function CollegeRealityScorecard({
           {FAQS.map((faq, idx) => (
             <div
               key={idx}
-              className="rounded-2xl border border-border/60 bg-muted/20 overflow-hidden transition-colors"
+              className="rounded-2xl border border-border/50 bg-muted/20 overflow-hidden transition-colors"
             >
               <button
                 type="button"
