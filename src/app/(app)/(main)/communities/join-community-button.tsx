@@ -3,6 +3,7 @@
 import { Check, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { notifyAuthRequired } from "@/components/auth/auth-required-overlay";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,6 @@ interface JoinButtonProps {
   communityId: string;
   initialIsMember?: boolean;
   className?: string;
-  /** Notified immediately on the optimistic flip, and again if it is rolled back. */
   onMembershipChange?: (isMember: boolean) => void;
 }
 
@@ -33,23 +33,22 @@ export function JoinCommunityButton({
     }
     if (isPending) return;
 
-    const next = !isMember;
-    // Flip first — the server call reconciles below.
-    setIsMember(next);
     setIsPending(true);
-    onMembershipChange?.(next);
     haptics.light();
-    if (next) sounds.tap();
 
     try {
       const res = await joinCommunity(communityId);
       setIsMember(res.joined);
-      if (res.joined !== next) onMembershipChange?.(res.joined);
+      onMembershipChange?.(res.joined);
+      if (res.joined) sounds.tap();
       toast.success(res.joined ? "Joined community" : "Left community");
-    } catch (e) {
-      setIsMember(!next);
-      onMembershipChange?.(!next);
-      toast.error(e instanceof Error ? e.message : "Failed to update membership");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update membership";
+      if (/not authenticated|unauthorized|login|required/i.test(message)) {
+        notifyAuthRequired("join");
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsPending(false);
     }
