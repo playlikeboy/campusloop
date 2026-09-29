@@ -4,15 +4,9 @@ import {
   Cake,
   Calendar,
   Car,
-  Compass,
   Gamepad2,
   HelpCircle,
-  Home,
   Hourglass,
-  LayoutGrid,
-  MessageSquare,
-  MoreHorizontal,
-  Plus,
   School,
   Sliders,
   Terminal,
@@ -27,6 +21,8 @@ import {
   AnimateHeart,
   AnimateHouse,
   AnimateLock,
+  AnimateMessageCircle,
+  AnimatePlus,
   AnimateSearch,
   AnimateShieldCheck,
   AnimateShoppingBag,
@@ -75,13 +71,14 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
-// Mobile has one persistent navigation system. Feature areas such as
-// academics, communities, confessions and events live under More & Explore
+// Mobile keeps one focused persistent navigation system. Search/Explore is
+// already available from the top bar, so the bottom bar prioritizes the
+// high-frequency social destination: Communities.
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
-  { icon: Home, href: "/feeds", label: "Home" },
-  { icon: Compass, href: "/explore", label: "Explore" },
-  { icon: Plus, href: "/post/new", label: "Create" },
-  { icon: MessageSquare, href: "/chat", label: "Chats" },
+  { icon: AnimateHouse, href: "/feeds", label: "Home" },
+  { icon: AnimateUsers, href: "/communities", label: "Communities" },
+  { icon: AnimatePlus, href: "/post/new", label: "Create" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Chats" },
   { icon: AnimateUser, href: "/profile", label: "Profile" },
 ];
 
