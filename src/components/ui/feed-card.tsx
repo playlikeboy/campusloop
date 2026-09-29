@@ -276,7 +276,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onClick={(e) => handleCardClick(e)}
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
-      className="border-b border-border/30 bg-card/40 sm:bg-card sm:rounded-2xl sm:border sm:border-border/35 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 sm:mx-2 relative cursor-pointer transition-all hover:bg-muted/15 select-none"
+      className="w-full max-w-full min-w-0 border-b border-border/30 bg-card/40 sm:bg-card sm:rounded-2xl sm:border sm:border-border/35 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 sm:mx-2 relative cursor-pointer transition-all hover:bg-muted/15 select-none overflow-x-clip"
     >
       {/* Double Tap Heart Pop Overlay */}
       <AnimatePresence>
@@ -304,7 +304,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       )}
 
       {/* Twitter 2-Column Layout */}
-      <div className="flex gap-3">
+      <div className="flex w-full min-w-0 gap-3">
         {/* Left Column: Author Avatar */}
         <div className="shrink-0 pt-0.5">
           {!post.isAnonymous && post.author?.username ? (
@@ -370,7 +370,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         </div>
 
         {/* Right Column: Header, Body, Media, Actions */}
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex min-w-0 w-0 flex-1 basis-0 space-y-1">
           <FeedCardHeader
             post={post}
             currentUserId={currentUserId}
