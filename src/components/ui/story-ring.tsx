@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { StoryAvatarItem } from "@/components/stories/story-avatar-item";
 import { useProfile } from "@/hooks/use-profile";
@@ -137,6 +137,21 @@ export function StoryRing({ users }: StoryRingProps) {
           />
         );
       })}
+
+      {otherUsers.length === 0 && (
+        <div className="flex items-center gap-2 pl-1 select-none">
+          <div className="h-8 w-px bg-border/40 mr-1 hidden sm:block" />
+          <button
+            type="button"
+            onClick={handleCreateStory}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground cursor-pointer text-xs font-semibold"
+          >
+            <Sparkles className="size-3.5 text-primary shrink-0" />
+            <span className="hidden sm:inline">No other campus vibes right now · Be the first to share!</span>
+            <span className="sm:hidden">Drop today&apos;s campus vibe</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

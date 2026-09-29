@@ -347,17 +347,19 @@ export default function CollegesClient() {
           </div>
 
           {/* Results */}
-          <div className="divide-y divide-border/30">
+          <div>
             {loading ? (
-              Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex animate-pulse items-center gap-3.5 px-4 py-3.5">
-                  <div className="size-11 shrink-0 rounded-full bg-muted/60" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3.5 w-2/3 rounded bg-muted/60" />
-                    <div className="h-2.5 w-1/3 rounded bg-muted/40" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex animate-pulse items-center gap-3.5 p-3.5 rounded-2xl border border-border/25 bg-card/30">
+                    <div className="size-11 shrink-0 rounded-full bg-muted/60" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3.5 w-2/3 rounded bg-muted/60" />
+                      <div className="h-2.5 w-1/3 rounded bg-muted/40" />
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : colleges.length > 0 ? (
               <>
                 <div className="flex items-center justify-between px-4 py-2.5 text-[13px] text-muted-foreground border-b border-border/20">
@@ -379,9 +381,16 @@ export default function CollegesClient() {
                   )}
                 </div>
 
-                {colleges.map((college) => (
-                  <CollegeHubRow key={college.id} college={college} />
-                ))}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
+                  {colleges.map((college) => (
+                    <div
+                      key={college.id}
+                      className="rounded-2xl border border-border/25 bg-card/40 hover:bg-muted/20 hover:border-border/50 transition-all shadow-2xs overflow-hidden"
+                    >
+                      <CollegeHubRow college={college} />
+                    </div>
+                  ))}
+                </div>
 
                 {/* ─── Interactive Pagination Bar ─── */}
                 {totalPages > 1 && (
@@ -576,40 +585,46 @@ export default function CollegesClient() {
             </div>
           ) : (
             /* Ranks 4 and above */
-            <div className="divide-y divide-border/30 pt-2">
-              <div className="px-4 py-2 text-[12px] font-bold text-muted-foreground flex items-center justify-between">
+            <div className="pt-2">
+              <div className="px-4 py-2 text-[12px] font-bold text-muted-foreground flex items-center justify-between border-b border-border/20">
                 <span>Campuses {leaderboard.length >= 3 ? `4–${leaderboard.length}` : "Standings"}</span>
                 <span>Clout & Engagement</span>
               </div>
 
-              {(leaderboard.length >= 3 ? leaderboard.slice(3) : leaderboard).map((col) => (
-                <CollegeHubRow
-                  key={col.id}
-                  rank={col.rank}
-                  college={{
-                    id: col.id,
-                    slug: col.slug,
-                    name: col.name,
-                    state: col.state,
-                    district: col.district,
-                    website: col.website,
-                    yearOfEstablishment: col.yearOfEstablishment,
-                    aisheCode: "",
-                    logoUrl: col.logoUrl,
-                    nirfRank: col.nirfRank,
-                  }}
-                  trailing={
-                    <div className="text-right">
-                      <span className="block text-[13px] font-black text-primary tabular-nums">
-                        {col.points.toLocaleString("en-IN")} LP
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {col.studentCount} verified {col.studentCount === 1 ? "student" : "students"}
-                      </span>
-                    </div>
-                  }
-                />
-              ))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
+                {(leaderboard.length >= 3 ? leaderboard.slice(3) : leaderboard).map((col) => (
+                  <div
+                    key={col.id}
+                    className="rounded-2xl border border-border/25 bg-card/40 hover:bg-muted/20 hover:border-border/50 transition-all shadow-2xs overflow-hidden"
+                  >
+                    <CollegeHubRow
+                      rank={col.rank}
+                      college={{
+                        id: col.id,
+                        slug: col.slug,
+                        name: col.name,
+                        state: col.state,
+                        district: col.district,
+                        website: col.website,
+                        yearOfEstablishment: col.yearOfEstablishment,
+                        aisheCode: "",
+                        logoUrl: col.logoUrl,
+                        nirfRank: col.nirfRank,
+                      }}
+                      trailing={
+                        <div className="text-right">
+                          <span className="block text-[13px] font-black text-primary tabular-nums">
+                            {col.points.toLocaleString("en-IN")} LP
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {col.studentCount} verified {col.studentCount === 1 ? "student" : "students"}
+                          </span>
+                        </div>
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

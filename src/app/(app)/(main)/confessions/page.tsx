@@ -13,11 +13,11 @@ export const metadata: Metadata = {
     "Anonymous Student Posts",
     "Campus Secrets",
   ],
-  alternates: { canonical: "https://campusloop.space/app/confessions" },
+  alternates: { canonical: "https://campusloop.space/confessions" },
   openGraph: {
     title: "Campus Confessions — 100% Anonymous",
     description: "Read and share anonymous confessions from your college safely.",
-    url: "https://campusloop.space/app/confessions",
+    url: "https://campusloop.space/confessions",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -44,7 +44,7 @@ export default function ConfessionsPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Campus Confessions Feed",
-    url: "https://campusloop.space/app/confessions",
+    url: "https://campusloop.space/confessions",
     description: "Cryptographically protected anonymous student confessions feed.",
     publisher: {
       "@type": "Organization",

@@ -13,11 +13,11 @@ export const metadata: Metadata = {
     "College Swipe Deck",
     "Campus Romance Soft Dating",
   ],
-  alternates: { canonical: "https://campusloop.space/app/matching" },
+  alternates: { canonical: "https://campusloop.space/matching" },
   openGraph: {
     title: "Campus Match · Verified Student Matchmaking",
     description: "Connect with verified college students for friends, study partners, and vibe matching.",
-    url: "https://campusloop.space/app/matching",
+    url: "https://campusloop.space/matching",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

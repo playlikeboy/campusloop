@@ -156,7 +156,7 @@ export function ExploreClient({
   });
 
   return (
-    <div className="mx-auto w-full max-w-4xl min-h-screen px-3 sm:px-6 py-4 pb-28 space-y-6">
+    <div className="mx-auto w-full max-w-7xl min-h-screen px-3 sm:px-6 py-4 pb-28 space-y-7">
       {/* ─── Header & Search bar (shared across both states) ─── */}
       <ExploreHeader
         searchQuery={searchQuery}
@@ -182,7 +182,7 @@ export function ExploreClient({
         />
       ) : (
         /* ─── STATE A: NO QUERY (Explore Dashboard) ─── */
-        <div className="space-y-7">
+        <div className="space-y-8">
           {/* Quick Explore Category Chips */}
           <QuickExploreNav />
 
@@ -190,7 +190,7 @@ export function ExploreClient({
           {homeLoading && !homeData && (
             <div className="space-y-6">
               <Skeleton className="h-44 w-full rounded-2xl" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <Skeleton className="h-28 rounded-xl" />
                 <Skeleton className="h-28 rounded-xl" />
                 <Skeleton className="h-28 rounded-xl" />
@@ -218,7 +218,7 @@ export function ExploreClient({
               viewAllHref="/communities"
               viewAllLabel="Explore all clubs"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.communities.map((c: any) => (
                   <CommunityPreviewCard key={c.id} community={c} />
                 ))}
@@ -236,7 +236,7 @@ export function ExploreClient({
               viewAllHref="/events"
               viewAllLabel="View all events"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.events.map((ev: any) => (
                   <EventPreviewCard key={ev.id} event={ev} />
                 ))}
@@ -254,7 +254,7 @@ export function ExploreClient({
               viewAllHref="/academics"
               viewAllLabel="Open vault"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.academics.map((res: any) => (
                   <AcademicPreviewCard key={res.id} resource={res} />
                 ))}
@@ -272,7 +272,7 @@ export function ExploreClient({
               viewAllHref="/articles"
               viewAllLabel="Read more"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.articles.map((art: any) => (
                   <ArticlePreviewCard key={art.id} article={art} />
                 ))}
@@ -290,7 +290,7 @@ export function ExploreClient({
               viewAllHref="/colleges"
               viewAllLabel="All 1,350+ hubs"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.colleges.map((col: any) => (
                   <CollegePreviewCard key={col.id} college={col} />
                 ))}
@@ -308,7 +308,7 @@ export function ExploreClient({
               viewAllHref="/colleges"
               viewAllLabel="Find more peers"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.people.map((p: any) => (
                   <PersonPreviewCard key={p.id} person={p} />
                 ))}
@@ -326,7 +326,7 @@ export function ExploreClient({
               viewAllHref="/marketplace"
               viewAllLabel="Visit marketplace"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.marketplace.map((m: any) => (
                   <StorePreviewCard key={m.id} store={m} />
                 ))}

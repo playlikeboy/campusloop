@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Messages",
     description: "Chat privately with verified students across your campus loop.",
-    url: "https://campusloop.space/app/chat",
+    url: "https://campusloop.space/chat",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

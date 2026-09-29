@@ -482,7 +482,7 @@ export function ProfileClientView({
 
       {/* ─── Sticky Minimal Top Header Bar (Twitter/X Style) ─── */}
       <div className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="flex items-center justify-between h-13 px-4 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between h-13 px-4 max-w-4xl mx-auto">
           <div className="flex items-center gap-6 min-w-0">
             <button
               type="button"
@@ -593,7 +593,7 @@ export function ProfileClientView({
         )}
       </div>
 
-      <main className="mx-auto min-h-screen w-full max-w-2xl border-x border-border/40">
+      <main className="mx-auto min-h-screen w-full max-w-4xl border-x border-border/40">
         {/* ─── Profile Cover Banner (Clean Neutral Canvas) ─── */}
         <div className="relative h-32 sm:h-44 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
           {currentBannerUrl ? (

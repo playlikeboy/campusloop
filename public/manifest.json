@@ -2,15 +2,15 @@
   "name": "CampusLoop — Verified Campus Network",
   "short_name": "CampusLoop",
   "description": "Verified campus community for college students. Find campus conversations, communities, events, notes and PYQs.",
-  "id": "/",
-  "start_url": "/feeds",
+  "id": "/feeds",
+  "start_url": "/feeds?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": [
-    "standalone",
-    "fullscreen"
+    "window-controls-overlay",
+    "standalone"
   ],
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "prefer_related_applications": false,

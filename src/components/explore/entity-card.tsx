@@ -37,7 +37,7 @@ export function CommunityPreviewCard({
 }) {
   return (
     <Link
-      href={`/communities/${community.id}`}
+      href={`/communities/${community.slug || community.id}`}
       className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
     >
       <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">

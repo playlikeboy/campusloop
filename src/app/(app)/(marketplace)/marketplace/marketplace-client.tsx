@@ -108,7 +108,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
   const categoryLabel = CATEGORIES.find((c) => c.id === selectedCategory)?.label ?? "Stores";
 
   return (
-    <PageShell>
+    <PageShell maxWidth="6xl">
       <PageHeader
         title="Marketplace"
         subtitle={collegeName}
@@ -204,7 +204,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
       )}
 
       {/* ─── 6 Campus Marketplace Vertical Hub Cards ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 px-4 py-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-4 py-2">
         <Link
           href="/marketplace/food"
           onClick={() => {

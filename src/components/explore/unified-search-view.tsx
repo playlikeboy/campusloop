@@ -279,7 +279,7 @@ export function UnifiedSearchView({
           <p className="text-xs text-muted-foreground px-1">
             Found {totalResults} {totalResults === 1 ? "result" : "results"} for &ldquo;{query}&rdquo;
           </p>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {results.map((item) => (
               <EntityResult key={item.id + item.type} result={item} />
             ))}
@@ -351,7 +351,7 @@ function GroupedSection({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {results.slice(0, 3).map((item) => (
           <EntityResult key={item.id + item.type} result={item} />
         ))}
