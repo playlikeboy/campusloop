@@ -68,11 +68,10 @@ export function StoryRing({ users }: StoryRingProps) {
   }
 
   return (
-    <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-3 px-4 border-b border-border/30 select-none">
+    <div className="flex min-h-[94px] items-start gap-4 overflow-x-auto border-b border-border/30 px-4 pb-2 pt-3 no-scrollbar select-none">
       {/* Current User Story Item (You / Add story) */}
-      <div className="flex flex-col items-center gap-1 shrink-0 select-none">
+      <div className="flex shrink-0 flex-col items-center gap-1 select-none">
         <div className="relative group">
-          {/* Avatar button */}
           <button
             type="button"
             onClick={() => {
@@ -83,7 +82,7 @@ export function StoryRing({ users }: StoryRingProps) {
               }
             }}
             className={cn(
-              "flex items-center justify-center p-0.5 rounded-full transition-transform active:scale-95 cursor-pointer",
+              "flex items-center justify-center rounded-full p-0.5 transition-transform active:scale-95 cursor-pointer",
               myStoryGroup && myStoryGroup.stories.length > 0
                 ? "bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-sm p-[2.5px]"
                 : "bg-muted hover:scale-105"
@@ -98,14 +97,13 @@ export function StoryRing({ users }: StoryRingProps) {
             </Avatar>
           </button>
 
-          {/* Plus action icon to add story */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               handleCreateStory();
             }}
-            className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-primary text-white flex items-center justify-center border-2 border-background shadow-xs hover:scale-110 active:scale-90 transition-transform cursor-pointer"
+            className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-primary text-white shadow-xs transition-transform hover:scale-110 active:scale-90 cursor-pointer"
             aria-label="Add new story"
           >
             <Plus className="h-3.5 w-3.5 stroke-3" />
@@ -120,13 +118,11 @@ export function StoryRing({ users }: StoryRingProps) {
         </div>
       </div>
 
-      {/* Other Students Story Avatars Row with Timestamps */}
       {otherUsers.map((userGroup) => {
         const firstStory = userGroup.stories[0];
         if (!firstStory) return null;
 
         const allSeen = userGroup.stories.every((s) => isStorySeen(s.id));
-
         const timeAgo = formatTimeAgo(firstStory.createdAt);
 
         return (
