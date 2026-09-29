@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, isNotNull, lt, or } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, isNotNull, lt, lte, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import {
@@ -151,6 +151,10 @@ export async function GET(req: NextRequest) {
 
       if (tab === "marketplace" || tab === "buy-and-sell" || tab === "buy_and_sell") {
         const conditions: any[] = [];
+        const category = searchParams.get("category");
+        const priceFilter = searchParams.get("price");
+        const hideSold = searchParams.get("available") === "1";
+
         if (q) {
           conditions.push(
             or(
@@ -161,6 +165,11 @@ export async function GET(req: NextRequest) {
             )
           );
         }
+        if (category && category !== "all") conditions.push(eq(marketplaceItems.category, category));
+        if (hideSold) conditions.push(eq(marketplaceItems.isSold, false));
+        if (priceFilter === "under_500") conditions.push(lte(marketplaceItems.price, 499));
+        if (priceFilter === "500_2000") conditions.push(and(gte(marketplaceItems.price, 500), lte(marketplaceItems.price, 2000)));
+        if (priceFilter === "above_2000") conditions.push(gte(marketplaceItems.price, 2001));
         const where = conditions.length ? and(...conditions) : undefined;
         const [{ value: totalValue }] = await db
           .select({ value: count(marketplaceItems.id) })
