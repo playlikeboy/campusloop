@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { AnimatedIcon, type IconMotionName } from "@/components/ui/animated-icon";
 import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
@@ -84,6 +85,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [showDreamModal, setShowDreamModal] = useState(false);
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
+  const [mobileNavPulse, setMobileNavPulse] = useState<{ href: string; key: number } | null>(null);
   const unreadNotificationsCount = useUnreadNotificationsCount();
 
   // Close menus on route change
@@ -124,6 +126,20 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
     }
     sounds.tap();
     haptics.light();
+  };
+
+  const mobileIconAnimations: Record<string, IconMotionName> = {
+    "/feeds": "lift",
+    "/explore": "nudge-right",
+    "/post/new": "pop",
+    "/chat": "beat",
+    "/profile": "pop",
+  };
+
+  const handleMobileNavPress = (href: string) => {
+    sounds.tap();
+    haptics.light();
+    setMobileNavPulse({ href, key: Date.now() });
   };
 
   const mobileBottomItems = useMemo(
@@ -623,12 +639,20 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
       {/* ─── Mobile Bottom Navigation Dock ─── */}
       {!isMobileFlow(pathname) && (
         <nav
-          className="fixed bottom-3 left-1/2 z-40 flex h-[68px] w-[calc(100%-20px)] max-w-[430px] -translate-x-1/2 items-center gap-1.5 rounded-[22px] border border-border/40 bg-card/95 px-1.5 shadow-[0_14px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl md:hidden select-none"
+          className="fixed inset-x-0 bottom-0 z-40 mx-auto flex h-[64px] w-[calc(100%-24px)] max-w-[420px] -translate-y-2 items-center gap-1 rounded-[20px] border border-border/50 bg-card/95 p-1 shadow-[0_12px_36px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:hidden select-none bottom-[max(8px,env(safe-area-inset-bottom))]"
           aria-label="Mobile bottom navigation"
         >
           {mobileBottomItems.map((item) => {
             const Icon = item.icon;
-            const isActive = isPathActive(pathname, item.href);
+            const isActive =
+              item.href === "/profile"
+                ? profile
+                  ? pathname.startsWith("/@" + profile.username) || pathname === "/profile"
+                  : pathname === "/handler/sign-in"
+                : isPathActive(pathname, item.href);
+            const animation = mobileIconAnimations[item.href] ?? "pop";
+            const playKey =
+              mobileNavPulse?.href === item.href ? mobileNavPulse.key : undefined;
 
             if (item.href === "/post/new") {
               return (
@@ -636,15 +660,20 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   key="post-create"
                   href="/post/new"
                   prefetch
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                  }}
+                  onClick={() => handleMobileNavPress(item.href)}
                   className="mobile-nav-item mobile-nav-create group"
                   aria-label="Create new campus post"
                 >
                   <span className="mobile-nav-icon mobile-nav-create-icon" aria-hidden="true">
-                    <Plus className="size-5.5 stroke-[2.6]" />
+                    <AnimatedIcon
+                      icon={Icon}
+                      animation="pop"
+                      size={22}
+                      strokeWidth={2.6}
+                      animateOnHover={false}
+                      playKey={playKey}
+                      className="size-full"
+                    />
                   </span>
                   <span className="mobile-nav-label">Create</span>
                 </Link>
@@ -652,25 +681,20 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             }
 
             if (item.href === "/profile") {
-              const profileHref = profile ? `/@${profile.username}` : "/handler/sign-in";
-              const isProfileActive = profile
-                ? pathname.startsWith(`/@${profile.username}`) || pathname === "/profile"
-                : pathname === "/handler/sign-in";
+              const profileHref = profile ? "/@" + profile.username : "/handler/sign-in";
 
               return (
                 <Link
                   key="profile"
                   href={profileHref}
                   prefetch
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                  }}
+                  onClick={() => handleMobileNavPress(item.href)}
                   className={cn(
                     "mobile-nav-item",
-                    isProfileActive && "mobile-nav-item-active"
+                    isActive && "mobile-nav-item-active"
                   )}
                   aria-label="View user profile"
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <span className="mobile-nav-icon mobile-nav-avatar" aria-hidden="true">
                     {profile ? (
@@ -681,7 +705,15 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                         </AvatarFallback>
                       </Avatar>
                     ) : (
-                      <User className="size-5.5 stroke-[1.8]" />
+                      <AnimatedIcon
+                        icon={Icon}
+                        animation={animation}
+                        size={21}
+                        strokeWidth={1.8}
+                        animateOnHover={false}
+                        playKey={playKey}
+                        className="size-full"
+                      />
                     )}
                   </span>
                   <span className="mobile-nav-label">Profile</span>
@@ -694,28 +726,29 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 key={item.href}
                 href={item.href}
                 prefetch
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                }}
+                onClick={() => handleMobileNavPress(item.href)}
                 className={cn(
                   "mobile-nav-item",
                   isActive && "mobile-nav-item-active"
                 )}
                 aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
               >
                 <span className="mobile-nav-icon" aria-hidden="true">
-                  <Icon
-                    className={cn(
-                      "size-5.5 stroke-[1.8] transition-transform",
-                      isActive && "stroke-[2.2] scale-105"
-                    )}
+                  <AnimatedIcon
+                    icon={Icon}
+                    animation={animation}
+                    size={21}
+                    strokeWidth={1.8}
+                    animateOnHover={false}
+                    playKey={playKey}
+                    className="size-full"
                   />
                 </span>
                 <span className="mobile-nav-label">{item.label}</span>
                 {item.href === "/chat" && !isViewer && (
                   <span
-                    className="absolute right-3 top-2 size-1.5 rounded-full bg-primary ring-2 ring-card"
+                    className="absolute right-1.5 top-1 size-1.5 rounded-full bg-primary ring-2 ring-card"
                     aria-label="New messages"
                   />
                 )}
