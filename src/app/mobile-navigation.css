@@ -1,0 +1,100 @@
+/* CampusLoop mobile navigation — visual-only layer.
+   Keep tap targets large while removing decorative icon containers and labels. */
+
+@media (max-width: 767px) {
+  /* Bottom navigation: compact, quiet, icon-first. */
+  nav[aria-label="Mobile bottom navigation"] {
+    height: calc(3.25rem + max(env(safe-area-inset-bottom, 0px), 0px)) !important;
+    padding-inline: 0.75rem !important;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px) !important;
+    border-top-color: color-mix(in srgb, var(--border) 55%, transparent) !important;
+    box-shadow: 0 -10px 30px rgb(0 0 0 / 0.18) !important;
+  }
+
+  nav[aria-label="Mobile bottom navigation"] > a,
+  nav[aria-label="Mobile bottom navigation"] > button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 52px;
+    padding: 0 !important;
+    gap: 0 !important;
+    transform: none !important;
+  }
+
+  /* Hide the text labels; keep aria-labels/tooltips for accessibility. */
+  nav[aria-label="Mobile bottom navigation"] > a > span:last-child,
+  nav[aria-label="Mobile bottom navigation"] > button > span:last-child {
+    display: none !important;
+  }
+
+  /* Remove decorative icon bubbles. The icon itself carries the state. */
+  nav[aria-label="Mobile bottom navigation"] > a > span:first-child,
+  nav[aria-label="Mobile bottom navigation"] > button > span:first-child {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  nav[aria-label="Mobile bottom navigation"] > a > span:first-child svg,
+  nav[aria-label="Mobile bottom navigation"] > button > span:first-child svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Create action stays visually prominent, but without a heavy circular shell. */
+  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] {
+    transform: none !important;
+    width: 52px;
+  }
+
+  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] > span:first-child {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-shadow: none !important;
+    color: var(--primary) !important;
+  }
+
+  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] > span:first-child svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Active state: color + slightly stronger stroke, never a pill/bubble. */
+  nav[aria-label="Mobile bottom navigation"] > a.text-primary > span:first-child svg,
+  nav[aria-label="Mobile bottom navigation"] > button.text-primary > span:first-child svg {
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 32%, transparent));
+  }
+
+  /* Top-bar utility controls: preserve 44px hit areas, remove visual circles. */
+  header a[aria-label="Explore & Search"],
+  header a[aria-label="Notifications"],
+  header button[aria-label="Open navigation menu"] {
+    border-color: transparent !important;
+    background: transparent !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  header a[aria-label="Explore & Search"]:hover,
+  header a[aria-label="Notifications"]:hover,
+  header button[aria-label="Open navigation menu"]:hover {
+    background: color-mix(in srgb, var(--muted) 55%, transparent) !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  nav[aria-label="Mobile bottom navigation"] a,
+  nav[aria-label="Mobile bottom navigation"] button {
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  nav[aria-label="Mobile bottom navigation"] a:active,
+  nav[aria-label="Mobile bottom navigation"] button:active {
+    transform: scale(0.92) !important;
+  }
+}
