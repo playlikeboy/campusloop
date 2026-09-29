@@ -138,10 +138,10 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
 
   return (
     <>
-      {/* ─── Modern Sticky Top Navigation Bar (Utilizes Space Full on PC) ─── */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/35 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
-          {/* Left: Hamburger Drawer Toggle + Brand Logo + Campus Badge */}
+      {/* ─── Modern Minimal Top Navigation Bar (Open, Airy, Restrained) ─── */}
+      <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
+          {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
@@ -150,17 +150,17 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 haptics.light();
                 setShowDrawer(true);
               }}
-              className="flex size-11 sm:size-9 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-xl border border-border/40 bg-card/60 hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+              className="flex size-9 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
               aria-label="Open navigation menu"
-              title="All Hubs &amp; Navigation"
+              title="All Hubs & Navigation"
             >
-              <Menu className="size-5 sm:size-4.5" />
+              <Menu className="size-5" />
             </button>
 
             <BrandLogo href="/feeds" size="md" />
 
-            {/* College Affiliation Pill Badge (Only on ultra-wide screens to prevent navbar collision) */}
-            <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[170px]">
+            {/* College Affiliation Pill Badge (Compact on xl+) */}
+            <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/30 bg-muted/20 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[170px]">
               <School className="size-3 text-primary shrink-0" />
               <span className="truncate">
                 {collegeName && collegeName !== "Viewer Mode" && collegeName !== "Campus"
@@ -187,11 +187,11 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     haptics.light();
                   }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0",
                     tab.xlOnly && "hidden xl:inline-flex",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-xs font-black"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      ? "bg-primary/10 text-primary font-bold shadow-2xs"
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   )}
                 >
                   <Icon className="size-3.5 shrink-0" />
@@ -211,56 +211,24 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             })}
           </nav>
 
-          {/* Right: Search, Mode Switcher, Post CTA, Chat, Notifications, Profile */}
+          {/* Right: Search, Post CTA, Chat, Notifications, Theme, Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Search Pill (Icon on compact viewports, Pill on xl+) */}
+            {/* Search Pill */}
             <Link
               href="/explore"
               prefetch
-              className="flex size-11 sm:size-8.5 xl:w-auto xl:px-3 xl:py-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
+              className="flex size-9 xl:w-auto xl:px-3 xl:py-1.5 items-center justify-center rounded-full bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
               title="Explore & Search CampusLoop"
               aria-label="Explore & Search"
             >
-              <Search className="size-4.5 sm:size-3.5 shrink-0" />
-              <span className="hidden xl:inline text-[11px] ml-1.5">Search</span>
-              <kbd className="hidden 2xl:inline text-[9px] font-mono px-1 rounded bg-muted text-muted-foreground ml-1">
+              <Search className="size-4 shrink-0" />
+              <span className="hidden xl:inline text-xs ml-1.5">Search</span>
+              <kbd className="hidden 2xl:inline text-[9px] font-mono px-1 rounded bg-muted text-muted-foreground ml-1.5">
                 ⌘K
               </kbd>
             </Link>
 
-            {/* Desktop Anonymity Mode Toggle (Only on xl+ viewports to preserve navbar space) */}
-            <div className="hidden xl:flex items-center rounded-full bg-muted/50 p-0.5 border border-border/40 text-xs shrink-0">
-              <button
-                type="button"
-                onClick={() => toggleAnonMode("ALL")}
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
-                  anonMode === "ALL"
-                    ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="All posts including anonymous confessions"
-              >
-                <VenetianMask className="size-3 text-purple-400" />
-                <span>Anon</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => toggleAnonMode("NON_ANONYMOUS")}
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
-                  anonMode === "NON_ANONYMOUS"
-                    ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Verified public posts only"
-              >
-                <ShieldCheck className="size-3 text-emerald-400" />
-                <span>Public</span>
-              </button>
-            </div>
-
-            {/* + Post Button (Desktop only, mobile uses docked bottom FAB) */}
+            {/* + Post Button (Desktop only) */}
             {!isViewer && (
               <Link
                 href="/post/new"
@@ -652,44 +620,15 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
         )}
       </AnimatePresence>
 
-      {/* ─── Mobile Bottom Navigation Bar (md:hidden) ─── */}
+      {/* ─── Mobile Bottom Floating Navigation Dock (md:hidden) ─── */}
       {!isMobileFlow(pathname) && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-30 flex h-[calc(3.75rem+max(env(safe-area-inset-bottom,0px),0px))] items-center justify-around border-t border-border/40 bg-background/95 px-2 backdrop-blur-xl md:hidden pb-[max(env(safe-area-inset-bottom,0px),6px)] shadow-lg"
+          className="fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 max-w-md mx-auto flex h-16 items-center justify-around rounded-full border border-border/30 bg-card/95 px-3 backdrop-blur-2xl shadow-[0_10px_35px_rgba(0,0,0,0.08)] md:hidden select-none"
           aria-label="Mobile bottom navigation"
         >
           {mobileBottomItems.map((item) => {
             const Icon = item.icon;
             const isActive = isPathActive(pathname, item.href);
-
-            if (item.href === "/more") {
-              return (
-                <button
-                  key="more"
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setShowDrawer(true);
-                  }}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-0.5 py-1 transition-all active:scale-90 cursor-pointer min-w-14 min-h-[44px]",
-                    showDrawer ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
-                  )}
-                  aria-label="Open full campus menu drawer"
-                >
-                  <span
-                    className={cn(
-                      "flex size-9 items-center justify-center rounded-2xl transition-all",
-                      showDrawer ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
-                    )}
-                  >
-                    <Menu className="size-5" />
-                  </span>
-                  <span className="text-[10px] font-black tracking-tight">Menu</span>
-                </button>
-              );
-            }
 
             if (item.href === "/post/new") {
               return (
@@ -701,13 +640,12 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     sounds.tap();
                     haptics.light();
                   }}
-                  className="relative flex flex-col items-center justify-center -translate-y-3.5 group cursor-pointer active:scale-95 transition-transform shrink-0 min-w-14"
+                  className="relative -top-4 flex flex-col items-center justify-center group cursor-pointer active:scale-95 transition-transform shrink-0"
                   aria-label="Create new campus post"
                 >
-                  <span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-background transition-transform duration-200 group-hover:scale-105">
-                    <Plus className="size-6 stroke-[2.75] transition-transform duration-200 group-hover:rotate-90" />
+                  <span className="flex size-12.5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/35 ring-4 ring-card transition-transform duration-200 group-hover:scale-105 active:scale-95">
+                    <Plus className="size-6 stroke-[2.75]" />
                   </span>
-                  <span className="text-[10px] font-black text-primary mt-0.5">Post</span>
                 </Link>
               );
             }
@@ -728,36 +666,22 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     haptics.light();
                   }}
                   className={cn(
-                    "relative flex flex-col items-center justify-center gap-0.5 py-1 transition-all active:scale-90 cursor-pointer min-w-14 min-h-[44px]",
-                    isProfileActive ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                    "flex flex-col items-center justify-center gap-1 py-1 transition-all active:scale-95 cursor-pointer min-w-12",
+                    isProfileActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
                   )}
                   aria-label="View user profile"
                 >
-                  <span
-                    className={cn(
-                      "flex size-9 items-center justify-center rounded-2xl transition-all",
-                      isProfileActive ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
-                    )}
-                  >
-                    {profile ? (
-                      <Avatar className="size-6 border border-border/50">
-                        <AvatarImage src={profile.avatarUrl || ""} alt={profile.displayName} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
-                          {profile.displayName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <User className="size-5" />
-                    )}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[10px] tracking-tight",
-                      isProfileActive ? "font-black text-primary" : "font-semibold"
-                    )}
-                  >
-                    Profile
-                  </span>
+                  {profile ? (
+                    <Avatar className={cn("size-6 border transition-all", isProfileActive ? "border-primary ring-1 ring-primary/30" : "border-border/40")}>
+                      <AvatarImage src={profile.avatarUrl || ""} alt={profile.displayName} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
+                        {profile.displayName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <User className="size-5.5 stroke-[1.8]" />
+                  )}
+                  <span className="text-[10px] tracking-tight leading-none">Profile</span>
                 </Link>
               );
             }
@@ -772,28 +696,14 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   haptics.light();
                 }}
                 className={cn(
-                  "relative flex flex-col items-center justify-center gap-0.5 py-1 transition-all active:scale-90 cursor-pointer min-w-14 min-h-[44px]",
-                  isActive ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                  "relative flex flex-col items-center justify-center gap-1 py-1 transition-all active:scale-95 cursor-pointer min-w-12",
+                  isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <span
-                  className={cn(
-                    "flex size-9 items-center justify-center rounded-2xl transition-all",
-                    isActive ? "bg-primary/15 text-primary shadow-xs" : "text-muted-foreground"
-                  )}
-                >
-                  <Icon className={cn("size-5 transition-transform", isActive && "scale-110 stroke-[2.5]")} />
-                </span>
-                <span
-                  className={cn(
-                    "text-[10px] tracking-tight",
-                    isActive ? "font-black text-primary" : "font-semibold"
-                  )}
-                >
-                  {item.label}
-                </span>
+                <Icon className={cn("size-5.5 stroke-[1.8] transition-transform", isActive && "stroke-[2.2] scale-105 text-primary")} />
+                <span className="text-[10px] tracking-tight leading-none">{item.label}</span>
                 {item.href === "/chat" && !isViewer && (
-                  <span className="absolute top-1.5 right-3 size-2 rounded-full bg-primary ring-2 ring-background" />
+                  <span className="absolute top-1 right-2 size-2 rounded-full bg-primary ring-2 ring-card" />
                 )}
               </Link>
             );

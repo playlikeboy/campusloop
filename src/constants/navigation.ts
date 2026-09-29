@@ -77,9 +77,9 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
 // high-frequency social destination: Communities.
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateUsers, href: "/communities", label: "Communities" },
+  { icon: AnimateSearch, href: "/explore", label: "Search" },
   { icon: AnimatePlus, href: "/post/new", label: "Create" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Chats" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Message" },
   { icon: AnimateUser, href: "/profile", label: "Profile" },
 ];
 

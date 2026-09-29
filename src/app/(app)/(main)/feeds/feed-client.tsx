@@ -28,7 +28,7 @@ import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import type { TrendingHashtag } from "@/lib/trending-hashtags";
-import { cn } from "@/lib/utils";
+import { cn, getCollegeShortName } from "@/lib/utils";
 
 export function FeedClient({ forcedType }: { forcedType?: string }) {
   const router = useRouter();
@@ -268,24 +268,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     <>
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-start pb-28">
         <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-none sm:rounded-2xl border-0 sm:border border-border/30 overflow-hidden shadow-none sm:shadow-xs pb-20 sm:pb-8">
-          <FeedHeader
-            scope={scope}
-            onScopeChange={handleScopeChange}
-            sort={sort}
-            onSortChange={handleSortChange}
-            type={type}
-            onTypeChange={handleTypeChange}
-            visibility={visibility}
-            onVisibilityChange={handleVisibilityChange}
-            institutionSlug={
-              profile?.institution?.slug ||
-              (profile?.institution?.name ? profile.institution.name.split(",")[0] : null)
-            }
-            onRefresh={refresh}
-            isRefreshing={isValidating}
-          />
-
-          {/* ─── Story Ring Rail ─── */}
+          {/* ─── 1. Campus Vibes & Stories Rail (Top of Feed) ─── */}
           <section className="w-full min-w-0 bg-card/15" aria-label="Campus vibes and stories">
             {storiesLoading ? (
               <div className="flex h-[106px] w-full items-center gap-3.5 px-4 py-2 overflow-x-auto border-b border-border/30 bg-card/20 no-scrollbar">
@@ -312,7 +295,26 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             )}
           </section>
 
-          {/* ─── Desktop Quick Composer (Hidden on mobile where bottom docked FAB is sole CTA) ─── */}
+          {/* ─── 2. Sticky Feed Filter Header (Location Scope + Sub-tabs + Filter Trigger) ─── */}
+          <FeedHeader
+            scope={scope}
+            onScopeChange={handleScopeChange}
+            sort={sort}
+            onSortChange={handleSortChange}
+            type={type}
+            onTypeChange={handleTypeChange}
+            visibility={visibility}
+            onVisibilityChange={handleVisibilityChange}
+            institutionSlug={
+              (profile?.institution?.name && getCollegeShortName({ name: profile.institution.name })) ||
+              profile?.institution?.slug ||
+              "Campus"
+            }
+            onRefresh={refresh}
+            isRefreshing={isValidating}
+          />
+
+          {/* ─── 3. Desktop Quick Composer (Hidden on mobile where bottom docked FAB is sole CTA) ─── */}
           <form onSubmit={handleQuickPost} className="hidden md:block border-b border-border/30 px-4 py-3 bg-card/30">
             <div className="flex gap-3 items-start">
               <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">

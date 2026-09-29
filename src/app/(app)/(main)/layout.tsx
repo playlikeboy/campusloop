@@ -36,7 +36,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="app-surface relative min-h-screen bg-pastel-mesh text-foreground flex flex-col">
+    <div className="app-surface relative min-h-screen bg-background text-foreground flex flex-col">
       <Navigation
         profile={profile || undefined}
         collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
