@@ -187,7 +187,7 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
         setPage(1);
         setActiveIndex(0);
         containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-        window.history.replaceState(null, "", "/app/reels");
+        window.history.replaceState(null, "", "/reels");
       } catch {
         toast.error("Couldn't refresh this reel mix");
       } finally {
@@ -233,8 +233,8 @@ export function ReelsFeedClient({ initialPosts, currentUserId, collegeName }: Re
     if (!active) return;
     const id = active.id.split("-cycle-")[0];
     recordLocalSeenId(id);
-    if (window.location.pathname !== `/app/reels/${id}`) {
-      window.history.replaceState(null, "", `/app/reels/${id}`);
+    if (window.location.pathname !== `/reels/${id}`) {
+      window.history.replaceState(null, "", `/reels/${id}`);
     }
   }, [activeIndex, posts]);
 

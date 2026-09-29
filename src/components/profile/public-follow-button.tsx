@@ -29,7 +29,7 @@ export function PublicFollowButton({
     return (
       <div className="flex items-center gap-2">
         <Link
-          href={`/app/chat?userId=${profileId}`}
+          href={`/chat?userId=${profileId}`}
           className="flex items-center justify-center gap-1.5 rounded-full border border-border bg-card h-8 sm:h-9 px-3 sm:px-4 text-xs font-bold text-foreground shadow-2xs hover:bg-muted transition-all cursor-pointer"
         >
           <MessageSquare className="size-3.5" />

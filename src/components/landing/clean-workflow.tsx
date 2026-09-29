@@ -15,7 +15,7 @@ const steps = [
     label: "Academics",
     title: "Find the exact module you need.",
     text: "Move from course → module → notes or PYQs without searching old group chats.",
-    href: "/app/academics",
+    href: "/academics",
     icon: GraduationCap,
   },
   {
@@ -31,7 +31,7 @@ const steps = [
     label: "Events",
     title: "Know where to show up.",
     text: "Competitions, talks, fests and campus activities in one place.",
-    href: "/app/events",
+    href: "/events",
     icon: CalendarDays,
   },
 ];
@@ -90,7 +90,7 @@ export function CleanWorkflow() {
           })}
           <div className="grid grid-cols-2 border-t border-zinc-800">
             <Link
-              href="/app/marketplace"
+              href="/marketplace"
               className="group flex items-center gap-3 border-r border-zinc-800 p-5"
             >
               <Store className="size-4 text-zinc-500 group-hover:text-white" />

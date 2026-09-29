@@ -6,7 +6,7 @@
   "start_url": "/merchant-portal",
   "scope": "/merchant-portal",
   "display": "standalone",
-  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
+  "display_override": ["standalone", "fullscreen"],
   "orientation": "portrait-primary",
   "background_color": "#09090b",
   "theme_color": "#09090b",

@@ -18,7 +18,7 @@ const featureBlocks = [
     label: "Study",
     title: "The material you need, where students actually use it.",
     description: "Notes, PYQs, lab manuals and playlists organized around courses, modules and campuses.",
-    href: "/app/academics",
+    href: "/academics",
     cta: "Open academic vault",
     icon: BookOpen,
     tone: "bg-[#fbf8f1] dark:bg-amber-950/10",

@@ -240,7 +240,7 @@ export function BirthdaysClient() {
                   </button>
                 ) : (
                   <Link
-                    href="/app/profile/edit"
+                    href="/profile/edit"
                     className="rounded-full bg-primary px-3.5 py-1 text-[11px] font-bold text-white hover:opacity-90 transition-all cursor-pointer flex items-center gap-1 shadow-xs border-0"
                   >
                     <Plus className="size-3" />

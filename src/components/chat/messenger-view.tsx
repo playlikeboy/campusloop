@@ -178,7 +178,7 @@ export function MessengerView({
   const handleBackToInbox = useCallback(() => {
     setActiveConversationId(null);
     if (typeof window !== "undefined") {
-      window.history.pushState(null, "", "/app/chat");
+      window.history.pushState(null, "", "/chat");
     }
   }, []);
 
@@ -315,7 +315,7 @@ export function MessengerView({
 
             <div className="flex items-center gap-2">
               <Link
-                href="/app/random"
+                href="/random"
                 onClick={() => {
                   sounds.pop();
                   haptics.medium();

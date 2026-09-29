@@ -368,7 +368,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
         sounds.ting();
         haptics.success();
         toast.success("Conversation saved to Messages!");
-        router.push(`/app/chat`);
+        router.push(`/chat`);
       } else {
         toast.info("Connection saved! Waiting for partner to also click Keep Talking.");
       }
@@ -423,7 +423,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <header className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
               <Link
-                href="/app/more"
+                href="/more"
                 className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all"
                 aria-label="Back to more"
               >

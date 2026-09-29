@@ -50,8 +50,8 @@ export function CollegeHubRow({
 
   return (
     <Link
-      href={`/app/college/${college.slug || college.id}`}
-      className="group flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-muted/25"
+      href={`/college/${college.slug || college.id}`}
+      className="group flex items-center gap-3.5 px-3.5 py-3 sm:px-4 sm:py-3.5 transition-colors hover:bg-muted/25"
     >
       {typeof rank === "number" && (
         <span

@@ -101,14 +101,14 @@ export function FeedCardActions({
       {/* Floating Reaction Capsule (Matching Reference Mockup) */}
       <div className="flex min-w-0 items-center gap-0.5">
         {/* Like / Heart Action */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <motion.button
             whileTap={{ scale: 0.8 }}
             type="button"
             onClick={onVote}
             {...like.handlers}
             className={cn(
-              "cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs cursor-pointer group transition-colors hover:bg-muted/70",
+              "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs cursor-pointer group transition-colors hover:bg-muted/70 active:scale-95",
               isLiked ? "text-rose-500 font-bold" : "text-muted-foreground hover:text-rose-500"
             )}
             aria-label={isLiked ? "Unlike post" : "Like post"}
@@ -117,7 +117,7 @@ export function FeedCardActions({
               ref={like.ref}
               icon={AnimateHeart}
               animation="beat"
-              size={15}
+              size={16}
               animateOnHover={false}
               playKey={isLiked}
               iconClassName={cn(
@@ -144,14 +144,14 @@ export function FeedCardActions({
           type="button"
           onClick={onOpenComments}
           {...reply.handlers}
-          className="cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer"
+          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
           aria-label="Reply"
         >
           <AnimatedIcon
             ref={reply.ref}
             icon={AnimateMessageCircle}
             animation="pop"
-            size={15}
+            size={16}
             animateOnHover={false}
           />
           <span className="tabular-nums text-xs font-bold">{displayCommentsCount ?? 0}</span>
@@ -162,14 +162,14 @@ export function FeedCardActions({
           type="button"
           onClick={onShare}
           {...share.handlers}
-          className="cl-interactive flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer"
+          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
           aria-label="Share"
         >
           <AnimatedIcon
             ref={share.ref}
             icon={AnimateShare}
             animation="nudge-up"
-            size={14}
+            size={15}
             animateOnHover={false}
           />
           <span className="tabular-nums text-xs font-bold">
@@ -179,7 +179,7 @@ export function FeedCardActions({
       </div>
 
       {/* Right Side Utility Actions: Repost & Bookmark */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {/* Repost Action */}
         <button
           type="button"
@@ -187,7 +187,7 @@ export function FeedCardActions({
           {...repost.handlers}
           aria-pressed={hasReposted}
           className={cn(
-            "cl-interactive size-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer",
+            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center transition-colors cursor-pointer active:scale-95",
             hasReposted
               ? "text-emerald-500 bg-emerald-500/10"
               : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
@@ -212,7 +212,7 @@ export function FeedCardActions({
           onClick={handleToggleSave}
           {...bookmark.handlers}
           className={cn(
-            "cl-interactive size-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer",
+            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center transition-colors cursor-pointer active:scale-95",
             isSaved
               ? "text-amber-500 bg-amber-500/10"
               : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"

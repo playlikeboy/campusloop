@@ -77,7 +77,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
             </Link>
 
             <Link
-              href="/app/marketplace"
+              href="/marketplace"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
@@ -104,15 +104,15 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
           {/* Right: Cart Trigger, Orders, Theme, Profile */}
           <div className="flex items-center gap-2">
             <Link
-              href="/app/marketplace/orders"
+              href="/marketplace/orders"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
               }}
               className={cn(
                 "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer",
-                pathname.startsWith("/app/marketplace/orders") ||
-                  pathname.startsWith("/app/marketplace/order")
+                pathname.startsWith("/marketplace/orders") ||
+                  pathname.startsWith("/marketplace/order")
                   ? "border-primary/50 bg-primary/10 text-primary"
                   : "border-border/50 bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
               )}
@@ -123,7 +123,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
 
             {/* Live Cart Link */}
             <Link
-              href="/app/marketplace/cart"
+              href="/marketplace/cart"
               onClick={() => {
                 sounds.tap();
                 haptics.medium();
@@ -142,7 +142,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
             <ThemeToggle className="size-8.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted" />
 
             <Link
-              href="/app/profile"
+              href="/profile"
               className="flex items-center gap-2 pl-1 group cursor-pointer"
               title={`Logged in as @${profile.username}`}
             >
@@ -173,11 +173,11 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
               {VERTICAL_NAV.map((v) => {
                 const Icon = v.icon;
                 const pathSlug = v.slug === "essentials" ? "supermarket" : v.slug;
-                const isActive = pathname.startsWith(`/app/marketplace/${pathSlug}`);
+                const isActive = pathname.startsWith(`/marketplace/${pathSlug}`);
                 return (
                   <Link
                     key={v.slug}
-                    href={`/app/marketplace/${pathSlug}`}
+                    href={`/marketplace/${pathSlug}`}
                     onClick={() => {
                       sounds.tap();
                       haptics.light();
@@ -229,18 +229,18 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
       {/* ─── Dedicated Marketplace Mobile Bottom Bar (5 Core Tabs) ─── */}
       <nav
         aria-label="Marketplace navigation"
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl px-2 py-1.5 select-none"
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none"
       >
         <div className="grid grid-cols-5 items-center">
           <Link
-            href="/app/marketplace"
+            href="/marketplace"
             onClick={() => {
               sounds.tap();
               haptics.light();
             }}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-black transition-colors",
-              pathname === "/app/marketplace" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              "flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-black transition-colors min-h-[44px]",
+              pathname === "/marketplace" ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Home className="size-4.5" />
@@ -248,38 +248,38 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
           </Link>
 
           <Link
-            href="/app/marketplace#categories"
+            href="/marketplace#categories"
             onClick={() => {
               sounds.tap();
               haptics.light();
             }}
-            className="flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+            className="flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
           >
             <Grid className="size-4.5" />
             <span>Services</span>
           </Link>
 
           <Link
-            href="/app/marketplace?focus=search"
+            href="/marketplace?focus=search"
             onClick={() => {
               sounds.tap();
               haptics.light();
             }}
-            className="flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+            className="flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
           >
             <Search className="size-4.5" />
             <span>Search</span>
           </Link>
 
           <Link
-            href="/app/marketplace/cart"
+            href="/marketplace/cart"
             onClick={() => {
               sounds.tap();
               haptics.medium();
             }}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-black transition-colors",
-              pathname.startsWith("/app/marketplace/cart")
+              "relative flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-black transition-colors min-h-[44px]",
+              pathname.startsWith("/marketplace/cart")
                 ? "text-primary"
                 : "text-muted-foreground hover:text-foreground"
             )}
@@ -296,14 +296,14 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
           </Link>
 
           <Link
-            href="/app/marketplace/orders"
+            href="/marketplace/orders"
             onClick={() => {
               sounds.tap();
               haptics.light();
             }}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold transition-colors",
-              pathname.startsWith("/app/marketplace/orders") || pathname.startsWith("/app/marketplace/order")
+              "flex flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-bold transition-colors min-h-[44px]",
+              pathname.startsWith("/marketplace/orders") || pathname.startsWith("/marketplace/order")
                 ? "text-primary"
                 : "text-muted-foreground hover:text-foreground"
             )}

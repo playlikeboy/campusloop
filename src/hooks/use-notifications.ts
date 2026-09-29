@@ -94,7 +94,7 @@ export function useNotifications(tab: NotificationTab = "all") {
           const actorName = top.actor?.displayName || "A classmate";
           triggerBrowserNotification(`CampusLoop: ${actorName}`, {
             body: top.previewText || "Sent you a new campus notification",
-            url: "/app/notifications",
+            url: "/notifications",
           });
         }
       }

@@ -178,23 +178,23 @@ export function BuyAndSellClient({ profileId }: BuyAndSellClientProps) {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24">
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-40 bg-background/85 px-4 pt-3 pb-2 backdrop-blur-xl border-b border-border/30 space-y-3">
+      {/* ─── Sticky Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
+      <header className="sticky top-14 z-30 bg-background/95 px-3 py-2 sm:px-4 sm:py-2.5 backdrop-blur-xl border-b border-border/30 space-y-2 shadow-2xs">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 sounds.tap();
                 router.back();
               }}
-              className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="flex size-10 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title="Go back"
             >
               <ArrowLeft className="size-4.5" />
             </button>
-            <h1 className="text-base font-black text-foreground tracking-tight flex items-center gap-1.5 leading-none">
-              <span>Buy & Sell Hub</span>
+            <h1 className="text-sm sm:text-base font-black text-foreground tracking-tight flex items-center gap-1.5 leading-none">
+              <span>Buy &amp; Sell</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
                 Verified
               </span>
@@ -207,7 +207,7 @@ export function BuyAndSellClient({ profileId }: BuyAndSellClientProps) {
               sounds.tap();
               haptics.light();
             }}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0 cursor-pointer min-h-[36px]"
           >
             <Plus className="size-3.5 stroke-3" />
             <span>Sell Item</span>

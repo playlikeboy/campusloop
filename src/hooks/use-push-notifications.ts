@@ -30,7 +30,7 @@ export async function triggerBrowserNotification(
   if (Notification.permission !== "granted") return;
 
   const body = options?.body || "You have a new update on CampusLoop";
-  const url = options?.url || "/app/notifications";
+  const url = options?.url || "/notifications";
   const tag = options?.tag || "campusloop-alert";
 
   try {
@@ -151,7 +151,7 @@ export function usePushNotifications() {
       // Trigger a celebratory welcome notification
       await triggerBrowserNotification("CampusLoop Notifications Enabled! 🎉", {
         body: "You'll now receive alerts for campus replies, secret crushes, and direct chats.",
-        url: "/app/notifications",
+        url: "/notifications",
       });
 
       return true;
@@ -174,7 +174,7 @@ export function usePushNotifications() {
     haptics.success();
     await triggerBrowserNotification("CampusLoop: New Notification 🔔", {
       body: "Test ping: Your browser notifications and PWA alerts are working perfectly!",
-      url: "/app/notifications",
+      url: "/notifications",
     });
     toast.success("Test notification sent! Check your system banner.");
   }, [permission, subscribe]);

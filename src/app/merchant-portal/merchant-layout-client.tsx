@@ -116,7 +116,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
 
         <div className="flex items-center gap-2">
           <Link
-            href="/app/marketplace"
+            href="/marketplace"
             className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1"
           >
             <ArrowLeft className="size-3.5" />
@@ -316,7 +316,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           )}
 
           <Link
-            href="/app/marketplace"
+            href="/marketplace"
             className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <ArrowLeft className="size-3.5" />
