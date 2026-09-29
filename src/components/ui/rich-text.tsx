@@ -307,14 +307,14 @@ export function RichText({
   }
 
   return (
-    <div className={`space-y-2 leading-relaxed ${className}`}>
+    <div className={`w-full min-w-0 max-w-full space-y-2 leading-relaxed ${className}`}>
       {/* Render Text Body */}
       {textWithoutMedia && (
         <div className="relative">
           <div
             ref={textContainerRef}
             className={cn(
-              "whitespace-pre-wrap break-words transition-all duration-200",
+              "w-full min-w-0 max-w-full whitespace-pre-wrap break-words transition-all duration-200 overflow-wrap-anywhere",
               maxHeight && isClamped && !isExpanded && "overflow-hidden relative"
             )}
             style={maxHeight && isClamped && !isExpanded ? { maxHeight: `${maxHeight}px` } : undefined}
