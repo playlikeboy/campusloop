@@ -11,21 +11,21 @@ interface FeaturedCampusCardProps {
 }
 
 const CAMPUS_COLORS = [
-  "from-blue-500/10 to-cyan-500/5",
-  "from-violet-500/10 to-purple-500/5",
-  "from-emerald-500/10 to-teal-500/5",
-  "from-amber-500/10 to-orange-500/5",
-  "from-rose-500/10 to-pink-500/5",
-  "from-indigo-500/10 to-blue-500/5",
+  "border-sky-500/20 bg-sky-500/[0.03]",
+  "border-emerald-500/20 bg-emerald-500/[0.03]",
+  "border-amber-500/20 bg-amber-500/[0.03]",
+  "border-rose-500/20 bg-rose-500/[0.03]",
+  "border-teal-500/20 bg-teal-500/[0.03]",
+  "border-primary/20 bg-primary/[0.03]",
 ];
 
 const CAMPUS_GLOWS = [
-  "hover:shadow-blue-500/10 hover:bg-blue-500/15",
-  "hover:shadow-purple-500/10 hover:bg-purple-500/15",
-  "hover:shadow-emerald-500/10 hover:bg-emerald-500/15",
-  "hover:shadow-amber-500/10 hover:bg-amber-500/15",
-  "hover:shadow-rose-500/10 hover:bg-rose-500/15",
-  "hover:shadow-indigo-500/10 hover:bg-indigo-500/15",
+  "hover:border-sky-500/40 hover:bg-sky-500/[0.07]",
+  "hover:border-emerald-500/40 hover:bg-emerald-500/[0.07]",
+  "hover:border-amber-500/40 hover:bg-amber-500/[0.07]",
+  "hover:border-rose-500/40 hover:bg-rose-500/[0.07]",
+  "hover:border-teal-500/40 hover:bg-teal-500/[0.07]",
+  "hover:border-primary/40 hover:bg-primary/[0.07]",
 ];
 
 export function FeaturedCampusCard({ college, index }: FeaturedCampusCardProps) {
@@ -33,7 +33,7 @@ export function FeaturedCampusCard({ college, index }: FeaturedCampusCardProps) 
     <Link
       href={`/college/${college.slug || college.id}`}
       className={cn(
-        "group relative overflow-hidden rounded-2xl bg-linear-to-br p-4 transition-all duration-300 shadow-2xs",
+        "group relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 shadow-2xs",
         "hover:-translate-y-0.5 hover:shadow-md",
         CAMPUS_COLORS[index % CAMPUS_COLORS.length],
         CAMPUS_GLOWS[index % CAMPUS_GLOWS.length]

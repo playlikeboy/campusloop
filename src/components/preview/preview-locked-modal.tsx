@@ -15,22 +15,22 @@ const FEATURE_TITLES: Partial<Record<UserCapability, { title: string; desc: stri
   LIKE_POST: {
     title: "Upvotes Unlock in Student Mode",
     desc: "React, upvote, and boost campus discussions once you connect your official college email.",
-    iconBg: "from-rose-500/20 to-pink-500/20 text-rose-500 border-rose-500/30",
+    iconBg: "bg-rose-500/10 text-rose-500 border-rose-500/25",
   },
   COMMENT_POST: {
     title: "Comments Unlock in Student Mode",
     desc: "Join real-time banter and answer questions from verified students across Indian campuses.",
-    iconBg: "from-blue-500/20 to-cyan-500/20 text-blue-500 border-blue-500/30",
+    iconBg: "bg-sky-500/10 text-sky-500 border-sky-500/25",
   },
   CREATE_POST: {
     title: "Posting Unlocks in Student Mode",
     desc: "Share your thoughts, confessions, polls, and campus vibes with verified classmates.",
-    iconBg: "from-violet-500/20 to-purple-500/20 text-violet-500 border-violet-500/30",
+    iconBg: "bg-primary/10 text-primary border-primary/25",
   },
   SEND_MESSAGE: {
     title: "Direct Messages Unlock in Student Mode",
     desc: "Connect directly with verified students, batchmates, and friends in your campus network.",
-    iconBg: "from-emerald-500/20 to-teal-500/20 text-emerald-500 border-emerald-500/30",
+    iconBg: "bg-emerald-500/10 text-emerald-500 border-emerald-500/25",
   },
   CAMPUS_MATCH: {
     title: "Campus Match Unlocks in Student Mode",

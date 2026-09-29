@@ -668,8 +668,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                     className={cn(
                       "size-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-md",
                       commentText.trim() && !isSubmitting
-                        ? "bg-gradient-to-tr from-purple-600 to-indigo-500 text-white hover:opacity-95 active:scale-90 shadow-purple-500/25"
-                        : "bg-white/10 text-zinc-500 cursor-not-allowed"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/95 active:scale-90 shadow-primary/25"
+                        : "bg-muted text-muted-foreground/50 cursor-not-allowed"
                     )}
                     aria-label="Send comment"
                   >

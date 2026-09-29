@@ -188,7 +188,7 @@ export function buildNotificationEmail({
     </p>
     ${
       snippet
-        ? `<div style="background-color: #0c0e14; border-left: 3px solid #6366f1; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #e2e8f0; font-style: italic;">
+        ? `<div style="background-color: #0c0e14; border: 1px solid #1e293b; padding: 14px 18px; border-radius: 12px; margin: 16px 0; color: #e2e8f0; font-style: italic;">
              "${snippet}"
            </div>`
         : ""
