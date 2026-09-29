@@ -127,7 +127,7 @@ export function ConfessionsFeed() {
         {/* ─── Confessions Feed Column (8 cols on lg) ─── */}
         <main className="lg:col-span-8 flex flex-col min-h-screen pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-card/30 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
           {/* ─── Compact Confessions Header ─── */}
-          <header className="sticky top-14 z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl shadow-2xs">
+          <header className="sticky top-0 md:top-14 z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl shadow-2xs">
             <div className="flex min-h-12 items-center justify-between gap-2 px-3.5 sm:px-4">
               <div className="flex min-w-0 items-center gap-2">
                 <button
