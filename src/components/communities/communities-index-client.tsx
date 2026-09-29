@@ -91,6 +91,13 @@ export function CommunitiesIndexClient({
     setSearch(urlSearch);
   }, [urlSearch]);
 
+  const updateUrl = useCallback((mutator: (params: URLSearchParams) => void) => {
+    const params = new URLSearchParams(searchParams.toString());
+    mutator(params);
+    const query = params.toString();
+    router.replace(query ? pathname + "?" + query : pathname, { scroll: true });
+  }, [pathname, router, searchParams]);
+
   useEffect(() => {
     const next = search.trim();
     if (next === urlSearch) return;
@@ -105,13 +112,6 @@ export function CommunitiesIndexClient({
 
     return () => window.clearTimeout(timer);
   }, [search, updateUrl, urlSearch]);
-
-  const updateUrl = useCallback((mutator: (params: URLSearchParams) => void) => {
-    const params = new URLSearchParams(searchParams.toString());
-    mutator(params);
-    const query = params.toString();
-    router.replace(query ? pathname + "?" + query : pathname, { scroll: true });
-  }, [pathname, router, searchParams]);
 
   function handleTabChange(tab: Tab) {
     sounds.tap();

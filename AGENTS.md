@@ -97,6 +97,16 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
   - **Marketplace**: Overview, Merchants, Products, Rentals.
   - **Telemetry & System**: Platform Analytics & Pulse (`/admin/analytics`), System Health Matrix (`/admin/system`), Audit Log (`/admin/audit`).
 
+### 14. Impeccable Design Guidelines & Quality Floor (https://impeccable.style/#why)
+- **Eliminate AI Slop & Cookie-Cutter Layouts**: Never generate repetitive same-size 3-card rows, cheesy gradient-text hero metrics, or faux-brutalist zero-blur block shadows. Interfaces must feel custom-crafted, intentional, and production-grade.
+- **Strict Craft Floor Checks**:
+  - **Contrast**: Body text and placeholder contrast must strictly satisfy ≥4.5:1 (large text ≥3:1). Never use unreadable washed-out grays.
+  - **Depth & Hierarchy**: Declare elevation once (subtle border or soft shadow, never competing double-elevation). Radii stay cohesive (12–16px for cards, pills reserved strictly for small interactive chips).
+  - **Spacing & Typography**: Maintain deliberate typographic hierarchy without gradient text hacks. Tight element clusters with generous whitespace between sections; headings carry more spacing above than below.
+  - **Browser Surfaces**: Theme native focus rings (`focus-visible:ring-2`), carets, scrollbars, and selection styling (`selection:bg-primary/20`).
+  - **Iconography**: Icons must be drawn from `lucide-react` or custom SVGs in uniform stroke and weight. Zero raw emojis in UI.
+  - **Complete States**: Every component and view must handle hover, focus, disabled, loading, empty, and error states gracefully.
+
 ---
 
 ## 📁 Workspace Directory Sitemap
