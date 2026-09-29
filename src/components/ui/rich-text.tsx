@@ -314,7 +314,7 @@ export function RichText({
           <div
             ref={textContainerRef}
             className={cn(
-              "w-full min-w-0 max-w-full whitespace-pre-wrap break-words transition-all duration-200 overflow-wrap-anywhere",
+              "w-full min-w-0 max-w-full whitespace-pre-wrap break-words [overflow-wrap:anywhere] transition-all duration-200",
               maxHeight && isClamped && !isExpanded && "overflow-hidden relative"
             )}
             style={maxHeight && isClamped && !isExpanded ? { maxHeight: `${maxHeight}px` } : undefined}
