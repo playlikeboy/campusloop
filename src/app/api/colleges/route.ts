@@ -95,6 +95,7 @@ export async function GET(request: Request) {
       bannerUrl: college.bannerUrl,
       nirfRank: college.nirfRank,
       description: college.description,
+      websiteDomain: college.websiteDomain,
       postCount: 0,
     }));
 
