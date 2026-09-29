@@ -227,7 +227,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
       </header>
 
       <section className="relative overflow-hidden px-3 pb-4 sm:px-5">
-        <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b", meta.gradient)} />
+        <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b", meta.gradient)} />
         <div className="relative space-y-3 rounded-[28px] bg-card/65 p-4 shadow-sm sm:p-5">
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{meta.description}</p>
           <div className="relative">
