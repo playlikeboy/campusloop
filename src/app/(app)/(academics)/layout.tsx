@@ -1,11 +1,8 @@
-import { ArrowLeft, Eye, GraduationCap, Search, Zap } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
-import { Navigation } from "@/components/ui/navigation";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
+import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
+import { WorkspaceHeader } from "@/components/layout/workspace-header";
 
 export const metadata: Metadata = {
   title: {
@@ -25,134 +22,35 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AcademicsLayout({ children }: { children: React.ReactNode }) {
+export default async function AcademicsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const user = await getCachedAuthUser();
   const profile = user ? await getCachedUserProfile(user.id) : null;
+  const authenticated = Boolean(profile?.onboardingCompleted);
+  const viewerMode = authenticated && profile ? await isViewerProfile(profile) : false;
 
-  // If user is authenticated and completed onboarding, render standard logged-in layout without rightbar
-  if (profile?.onboardingCompleted) {
-    const college = profile.institution;
-    const viewerMode = await isViewerProfile(profile);
-
-    return (
-      <div className="relative min-h-screen overflow-x-clip bg-background">
-        <Navigation
-          profile={profile}
-          collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Your College")}
-          isAdmin={profile.role === "ADMIN"}
-          isViewer={viewerMode}
-        />
-
-        <div className="flex min-h-screen w-full min-w-0 overflow-x-clip">
-          <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto min-h-screen overflow-x-clip px-3 sm:px-6 py-4">
-            {viewerMode && (
-              <div className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-[11px] font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
-                <span className="inline-flex items-center gap-1.5">
-                  <Eye className="size-3.5 shrink-0" />
-                  <span>
-                    You&apos;re browsing in <strong>Viewer Mode</strong> — sign up with your college email to
-                    post, vote, and chat.
-                  </span>
-                </span>
-              </div>
-            )}
-            {children}
-            <FirstVisitNotificationPrompt />
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── Guest / Public Visitor View (Zero Login Required to Browse & Download) ───
   return (
-    <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-background text-foreground flex flex-col antialiased selection:bg-indigo-500/20">
-      {/* Public Top Navbar */}
-      <header className="sticky top-0 z-50 border-b border-border/30 bg-background/90 backdrop-blur-xl select-none">
-        <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6">
-          {/* Brand & Hub identifier */}
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            <Link
-              href="/feeds"
-              className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
-              title="Campus Feed"
-            >
-              <ArrowLeft className="size-4" />
-            </Link>
+    <div
+      data-workspace="academics"
+      className="min-h-[100dvh] w-full overflow-x-clip bg-background text-foreground"
+    >
+      <WorkspaceHeader section="academics" authenticated={authenticated} />
 
-            <Link href="/academics" className="flex min-w-0 items-center gap-2.5 group">
-              <img
-                src="/logo.png"
-                alt="CampusLoop"
-                className="size-7.5 object-contain shrink-0 transition-transform group-hover:scale-105"
-              />
-              <div className="flex min-w-0 flex-col">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-black tracking-tight text-foreground group-hover:text-indigo-400 transition-colors">
-                    CampusLoop
-                  </span>
-                  <span className="hidden text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 sm:inline">
-                    Academics
-                  </span>
-                </div>
-                <span className="text-[10px] font-medium text-muted-foreground/80 hidden sm:inline">
-                  BIT Mesra Hub &amp; All-India Engineering Vault
-                </span>
-              </div>
-            </Link>
+      <main className="mx-auto min-h-[calc(100dvh-3rem)] w-full max-w-7xl min-w-0 overflow-x-clip px-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 sm:min-h-[calc(100dvh-3.5rem)] sm:px-6 sm:pt-3">
+        {viewerMode && (
+          <div className="mb-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-center text-[11px] font-medium text-amber-700 dark:text-amber-300">
+            You&apos;re browsing in Viewer Mode. Sign in with your college email to save notes,
+            upload resources, and use student-only features.
           </div>
+        )}
 
-          {/* Right: Search, Guest CTAs & Theme Toggle */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/academics/search"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
-              title="Search Vault"
-            >
-              <Search className="size-3.5" />
-              <span className="hidden sm:inline">Search</span>
-            </Link>
-
-            <ThemeToggle />
-
-            <Link
-              href="/handler/sign-in?returnTo=/academics"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
-            >
-              <Zap className="size-3.5 fill-amber-400 text-amber-400" />
-              <span>Join Hub</span>
-              <span className="hidden sm:inline px-1.5 py-0.2 text-[9px] rounded-full bg-indigo-700/80 text-white font-mono">
-                +50 LP
-              </span>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-3 py-4 sm:px-6">
         {children}
       </main>
 
-      {/* Bottom Sticky Guest Perk Callout on Mobile */}
-      <div className="sticky bottom-0 z-40 border-t border-indigo-500/20 bg-background/95 backdrop-blur-md p-2.5 sm:hidden">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-400 shrink-0">
-              <GraduationCap className="size-4" />
-            </span>
-            <p className="text-[11px] text-muted-foreground truncate">
-              Sign in to save notes to your vault &amp; earn 50 LP!
-            </p>
-          </div>
-          <Link
-            href="/handler/sign-in?returnTo=/academics"
-            className="px-3 py-1.5 rounded-full text-[11px] font-black bg-indigo-600 text-white shrink-0 shadow-xs"
-          >
-            Claim 50 LP
-          </Link>
-        </div>
-      </div>
+      {authenticated && <FirstVisitNotificationPrompt />}
     </div>
   );
 }

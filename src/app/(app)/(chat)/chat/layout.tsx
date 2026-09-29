@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/ui/navigation";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
@@ -31,7 +30,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function ChatLayout({ children }: { children: React.ReactNode }) {
+export default async function ChatLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const user = await getCachedAuthUser();
   if (!user) redirect("/handler/sign-in");
 
@@ -39,16 +42,11 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
   if (!profile) redirect("/onboarding");
 
   return (
-    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex flex-col">
-      {/* Navigation Header */}
-      <Navigation
-        profile={profile}
-        collegeName={profile.institution?.name ?? "Your College"}
-        isAdmin={profile.role === "ADMIN"}
-      />
-
-      {/* Main Messenger Area */}
-      <div className="flex-1 w-full h-[calc(100dvh-3.5rem)] overflow-hidden">{children}</div>
+    <div
+      data-workspace="chat"
+      className="flex h-[100dvh] min-h-0 w-full flex-col overflow-hidden bg-background text-foreground"
+    >
+      <main className="min-h-0 flex-1 w-full overflow-hidden">{children}</main>
     </div>
   );
 }
