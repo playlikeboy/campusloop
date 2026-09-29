@@ -620,10 +620,10 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
         )}
       </AnimatePresence>
 
-      {/* ─── Mobile Bottom Floating Navigation Dock (md:hidden) ─── */}
+      {/* ─── Mobile Bottom Navigation Dock ─── */}
       {!isMobileFlow(pathname) && (
         <nav
-          className="fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 max-w-md mx-auto flex h-16 items-center justify-around rounded-full border border-border/30 bg-card/95 px-3 backdrop-blur-2xl shadow-[0_10px_35px_rgba(0,0,0,0.08)] md:hidden select-none"
+          className="fixed bottom-3 left-1/2 z-40 flex h-[68px] w-[calc(100%-20px)] max-w-[430px] -translate-x-1/2 items-center gap-1.5 rounded-[22px] border border-border/40 bg-card/95 px-1.5 shadow-[0_14px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl md:hidden select-none"
           aria-label="Mobile bottom navigation"
         >
           {mobileBottomItems.map((item) => {
@@ -640,12 +640,13 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     sounds.tap();
                     haptics.light();
                   }}
-                  className="relative -top-4 flex flex-col items-center justify-center group cursor-pointer active:scale-95 transition-transform shrink-0"
+                  className="mobile-nav-item mobile-nav-create group"
                   aria-label="Create new campus post"
                 >
-                  <span className="flex size-12.5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/35 ring-4 ring-card transition-transform duration-200 group-hover:scale-105 active:scale-95">
-                    <Plus className="size-6 stroke-[2.75]" />
+                  <span className="mobile-nav-icon mobile-nav-create-icon" aria-hidden="true">
+                    <Plus className="size-5.5 stroke-[2.6]" />
                   </span>
+                  <span className="mobile-nav-label">Create</span>
                 </Link>
               );
             }
@@ -666,22 +667,24 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     haptics.light();
                   }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 py-1 transition-all active:scale-95 cursor-pointer min-w-12",
-                    isProfileActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
+                    "mobile-nav-item",
+                    isProfileActive && "mobile-nav-item-active"
                   )}
                   aria-label="View user profile"
                 >
-                  {profile ? (
-                    <Avatar className={cn("size-6 border transition-all", isProfileActive ? "border-primary ring-1 ring-primary/30" : "border-border/40")}>
-                      <AvatarImage src={profile.avatarUrl || ""} alt={profile.displayName} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
-                        {profile.displayName[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <User className="size-5.5 stroke-[1.8]" />
-                  )}
-                  <span className="text-[10px] tracking-tight leading-none">Profile</span>
+                  <span className="mobile-nav-icon mobile-nav-avatar" aria-hidden="true">
+                    {profile ? (
+                      <Avatar className="size-7 border border-border/50">
+                        <AvatarImage src={profile.avatarUrl || ""} alt="" />
+                        <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
+                          {profile.displayName[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <User className="size-5.5 stroke-[1.8]" />
+                    )}
+                  </span>
+                  <span className="mobile-nav-label">Profile</span>
                 </Link>
               );
             }
@@ -696,14 +699,25 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   haptics.light();
                 }}
                 className={cn(
-                  "relative flex flex-col items-center justify-center gap-1 py-1 transition-all active:scale-95 cursor-pointer min-w-12",
-                  isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
+                  "mobile-nav-item",
+                  isActive && "mobile-nav-item-active"
                 )}
+                aria-label={item.label}
               >
-                <Icon className={cn("size-5.5 stroke-[1.8] transition-transform", isActive && "stroke-[2.2] scale-105 text-primary")} />
-                <span className="text-[10px] tracking-tight leading-none">{item.label}</span>
+                <span className="mobile-nav-icon" aria-hidden="true">
+                  <Icon
+                    className={cn(
+                      "size-5.5 stroke-[1.8] transition-transform",
+                      isActive && "stroke-[2.2] scale-105"
+                    )}
+                  />
+                </span>
+                <span className="mobile-nav-label">{item.label}</span>
                 {item.href === "/chat" && !isViewer && (
-                  <span className="absolute top-1 right-2 size-2 rounded-full bg-primary ring-2 ring-card" />
+                  <span
+                    className="absolute right-3 top-2 size-1.5 rounded-full bg-primary ring-2 ring-card"
+                    aria-label="New messages"
+                  />
                 )}
               </Link>
             );
