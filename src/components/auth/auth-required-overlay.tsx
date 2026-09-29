@@ -162,7 +162,7 @@ export function AuthRequiredOverlay() {
             </button>
 
             <Link
-              href="/colleges?request=1"
+              href="/college-request"
               onClick={() => setOpen(false)}
               className="flex min-h-11 w-full items-center justify-center rounded-xl border border-border/70 px-4 text-sm font-bold text-foreground transition-colors hover:bg-muted"
             >
