@@ -90,7 +90,7 @@ export function MessengerView({
     }
   };
 
-  // Keep state in sync if URL route changes to another /app/chat/[id]
+  // Keep state in sync if URL route changes to another /chat/[id]
   useEffect(() => {
     if (initialConversationId) {
       setActiveConversationId(initialConversationId);
@@ -114,7 +114,7 @@ export function MessengerView({
     },
   });
 
-  // Auto-select first conversation on desktop if visiting /app/chat root
+  // Auto-select first conversation on desktop if visiting /chat root
   useEffect(() => {
     if (
       !initialConversationId &&
@@ -126,14 +126,14 @@ export function MessengerView({
     ) {
       const firstId = conversations[0].id;
       setActiveConversationId(firstId);
-      window.history.replaceState(null, "", `/app/chat/${firstId}`);
+      window.history.replaceState(null, "", `/chat/${firstId}`);
     }
   }, [conversations, activeConversationId, initialConversationId]);
 
   // Sync state when browser back / forward buttons are pressed
   useEffect(() => {
     const handlePopState = () => {
-      const match = window.location.pathname.match(/\/app\/chat\/([^/]+)/);
+      const match = window.location.pathname.match(/(?:\/app)?\/chat\/([^/]+)/);
       setActiveConversationId(match ? match[1] : null);
     };
     window.addEventListener("popstate", handlePopState);
@@ -147,7 +147,7 @@ export function MessengerView({
     }
     setActiveConversationId(convId);
     if (typeof window !== "undefined") {
-      window.history.pushState(null, "", `/app/chat/${convId}`);
+      window.history.pushState(null, "", `/chat/${convId}`);
     }
   }, []);
 

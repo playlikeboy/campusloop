@@ -31,7 +31,7 @@ const CAMPUS_GLOWS = [
 export function FeaturedCampusCard({ college, index }: FeaturedCampusCardProps) {
   return (
     <Link
-      href={`/app/college/${college.slug || college.id}`}
+      href={`/college/${college.slug || college.id}`}
       className={cn(
         "group relative overflow-hidden rounded-2xl bg-linear-to-br p-4 transition-all duration-300 shadow-2xs",
         "hover:-translate-y-0.5 hover:shadow-md",

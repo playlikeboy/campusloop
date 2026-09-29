@@ -180,7 +180,7 @@ export function AdminMerchantsClient() {
                           Manage
                         </Link>
                         <Link
-                          href={`/app/marketplace/store/${m.id}`}
+                          href={`/marketplace/store/${m.id}`}
                           target="_blank"
                           className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-0.5"
                         >

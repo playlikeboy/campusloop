@@ -171,7 +171,7 @@ export function AdminProductsClient() {
                     </td>
                     <td className="p-3 font-semibold text-foreground">
                       <Link
-                        href={`/app/marketplace/store/${p.merchantId}`}
+                        href={`/marketplace/store/${p.merchantId}`}
                         target="_blank"
                         className="hover:underline flex items-center gap-1"
                       >

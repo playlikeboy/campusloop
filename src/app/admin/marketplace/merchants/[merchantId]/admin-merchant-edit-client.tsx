@@ -415,7 +415,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
         <div className="flex items-center gap-2 shrink-0">
           <Link
-            href={`/app/marketplace/store/${merchant.id}`}
+            href={`/marketplace/store/${merchant.id}`}
             target="_blank"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -1045,7 +1045,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             </div>
 
             <Link
-              href={`/app/marketplace/store/${merchant.id}`}
+              href={`/marketplace/store/${merchant.id}`}
               target="_blank"
               className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
             >
@@ -1118,7 +1118,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
         <div className="p-8 rounded-2xl bg-card border border-border text-center space-y-4 max-w-sm mx-auto shadow-xs">
           <div className="mx-auto flex items-center justify-center">
             <CampusQrCode
-              value={`https://campusloop.space/app/marketplace/store/${merchant.id}`}
+              value={`https://campusloop.space/marketplace/store/${merchant.id}`}
               size={200}
               logoUrl="/logo.png"
               bordered={true}

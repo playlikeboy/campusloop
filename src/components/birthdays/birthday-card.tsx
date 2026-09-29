@@ -133,7 +133,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
         )}
 
         <Link
-          href={`/app/chat?recipientId=${student.id}`}
+          href={`/chat?recipientId=${student.id}`}
           className="size-8 rounded-full bg-muted/40 border-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
           title="Send Direct Message"
         >

@@ -112,7 +112,7 @@ export function MerchantDashboardClient() {
     if (!merchant) return;
     sounds.tap();
     haptics.light();
-    navigator.clipboard.writeText(`https://campusloop.space/app/marketplace/store/${merchant.id}`);
+    navigator.clipboard.writeText(`https://campusloop.space/marketplace/store/${merchant.id}`);
     toast.success("Public store link copied to clipboard!");
   }
 
@@ -147,7 +147,7 @@ export function MerchantDashboardClient() {
           {merchant?.id && (
             <>
               <Link
-                href={`/app/marketplace/store/${merchant.id}`}
+                href={`/marketplace/store/${merchant.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors"

@@ -477,7 +477,7 @@ export function MessengerPane({
       if (typeof document !== "undefined" && document.visibilityState === "hidden") {
         triggerBrowserNotification(`CampusLoop: ${effectiveParticipant?.displayName || "New Message"}`, {
           body: last.body,
-          url: `/app/chat/${conversationId}`,
+          url: `/chat/${conversationId}`,
         });
       }
     }
@@ -1097,7 +1097,7 @@ export function MessengerPane({
 
                     {!effectiveParticipant.isGroup && effectiveParticipant.username && (
                       <Link
-                        href={`/app/profile/${effectiveParticipant.username}`}
+                        href={`/@${effectiveParticipant.username}`}
                         onClick={() => setShowChatHeaderMenu(false)}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors"
                       >

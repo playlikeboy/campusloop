@@ -440,7 +440,7 @@ export function AdminMarketplaceClient() {
                   </div>
 
                   <Link
-                    href={`/app/marketplace/${catSlug === "essentials" ? "supermarket" : catSlug}`}
+                    href={`/marketplace/${catSlug === "essentials" ? "supermarket" : catSlug}`}
                     target="_blank"
                     className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
                   >

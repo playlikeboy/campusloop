@@ -50,7 +50,7 @@ export function DatingMatchModal({ matchResult, onClose }: DatingMatchModalProps
 
         <div className="space-y-2 pt-2">
           {matchResult.conversationId && (
-            <Link href={`/app/chat/${matchResult.conversationId}`}>
+            <Link href={`/chat/${matchResult.conversationId}`}>
               <Button className="w-full bg-primary text-primary-foreground font-bold h-10 rounded-xl gap-2 cursor-pointer shadow-md">
                 <MessageCircle className="h-4 w-4" /> Start Direct Chat
               </Button>

@@ -108,7 +108,7 @@ export function AcademicPlaylistCard({ playlist, onStarToggle, className }: Acad
 
   return (
     <Link
-      href={`/app/academics/playlists/${playlist.slug || playlist.id}`}
+      href={`/academics/playlists/${playlist.slug || playlist.id}`}
       className={cn(
         "group relative flex flex-col rounded-2xl border border-border/50 bg-card overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-md",
         className

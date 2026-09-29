@@ -272,7 +272,7 @@ export function ChatUserInfoDrawer({
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
               {otherParticipant.institutionId && (
                 <Link
-                  href={`/app/college/${otherParticipant.institutionId}`}
+                  href={`/college/${otherParticipant.institutionId}`}
                   className="text-primary hover:underline font-semibold inline-flex items-center gap-1"
                 >
                   <School className="size-3.5" />
@@ -360,7 +360,7 @@ export function ChatUserInfoDrawer({
                 type="button"
                 onClick={() => {
                   if (typeof navigator !== "undefined" && navigator.clipboard) {
-                    navigator.clipboard.writeText(`https://campusloop.space/app/chat/${conversationId}`);
+                    navigator.clipboard.writeText(`https://campusloop.space/chat/${conversationId}`);
                     toast.success("Group link copied to clipboard! 📋");
                   }
                 }}
