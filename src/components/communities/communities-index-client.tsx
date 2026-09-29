@@ -46,6 +46,7 @@ interface Props {
   page: number;
   totalPages: number;
   totalCount: number;
+  myCommunityCount: number;
 }
 
 const CATEGORIES = [
@@ -73,6 +74,7 @@ export function CommunitiesIndexClient({
   page,
   totalPages,
   totalCount,
+  myCommunityCount,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -176,7 +178,7 @@ export function CommunitiesIndexClient({
                   )}
                 >
                   {tab.label}
-                  {tab.id === "my_communities" ? " (" + (activeTab === "my_communities" ? totalCount : "…") + ")" : ""}
+                  {tab.id === "my_communities" ? " (" + myCommunityCount + ")" : ""}
                 </button>
               );
             })}
