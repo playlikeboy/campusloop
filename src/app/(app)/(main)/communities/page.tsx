@@ -119,6 +119,28 @@ export default async function CommunitiesPage({
     .from(communities)
     .where(communityWhere);
 
+  let myCommunityCount = 0;
+  if (profile) {
+    const [{ value: myTotal }] = await db
+      .select({ value: count(communities.id) })
+      .from(communities)
+      .where(
+        exists(
+          db
+            .select({ id: communityMembers.id })
+            .from(communityMembers)
+            .where(
+              and(
+                eq(communityMembers.communityId, communities.id),
+                eq(communityMembers.userId, profile.id),
+                eq(communityMembers.status, "ACTIVE")
+              )
+            )
+        )
+      );
+    myCommunityCount = Number(myTotal || 0);
+  }
+
   const totalCommunities = Number(communityTotal || 0);
   const totalCommunityPages = Math.max(1, Math.ceil(totalCommunities / COMMUNITY_PAGE_SIZE));
   const communityPage = Math.min(requestedPage, totalCommunityPages);
@@ -221,6 +243,7 @@ export default async function CommunitiesPage({
         page={tab === "feed" ? Math.min(requestedPage, feedTotalPages) : communityPage}
         totalPages={tab === "feed" ? feedTotalPages : totalCommunityPages}
         totalCount={tab === "feed" ? feedTotal : totalCommunities}
+        myCommunityCount={myCommunityCount}
       />
     </>
   );
