@@ -18,6 +18,7 @@ export interface CollegeItem {
   bannerUrl?: string | null;
   nirfRank?: number | null;
   description?: string | null;
+  websiteDomain?: string | null;
   postCount?: number;
 }
 
@@ -94,12 +95,20 @@ export function CollegeHubRow({
           ) : null}
         </div>
 
-        <p className="mt-0.5 flex items-center gap-1 truncate text-[13px] text-muted-foreground">
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[13px] text-muted-foreground">
           <MapPin className="size-3 shrink-0" />
           <span className="truncate">{location}</span>
+          {college.websiteDomain ? (
+            <>
+              <span aria-hidden className="text-muted-foreground/40">·</span>
+              <span className="shrink-0 font-mono text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded-md">
+                @{college.websiteDomain}
+              </span>
+            </>
+          ) : null}
           {college.yearOfEstablishment ? (
             <>
-              <span aria-hidden>·</span>
+              <span aria-hidden className="text-muted-foreground/40">·</span>
               <span className="shrink-0">Est. {college.yearOfEstablishment}</span>
             </>
           ) : null}
