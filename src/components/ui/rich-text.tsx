@@ -20,6 +20,7 @@ import { AudioPlayer } from "@/components/media/audio-player";
 import { DocumentCard } from "@/components/media/document-card";
 import { VideoPlayer } from "@/components/media/video-player";
 import { isMediaImageUrl } from "@/lib/embeds";
+import { extractMediaAttachments } from "@/lib/media-attachments";
 import { cleanPostHtml } from "@/lib/html-sanitize";
 import { cn, formatImagePostDate } from "@/lib/utils";
 
@@ -79,56 +80,39 @@ export function RichText({
 
   const sanitizedContent = cleanPostHtml(content);
 
-  // Regex to extract markdown media elements: ![tag:extra](url)
-  const mediaRegex = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
+  const parsedMedia = extractMediaAttachments(sanitizedContent);
 
-  const images: { alt: string; url: string }[] = [];
-  const videos: { title: string; url: string }[] = [];
-  const audios: { title: string; url: string }[] = [];
-  const documents: { name: string; url: string; size?: number }[] = [];
+  const images = parsedMedia.attachments
+    .filter((attachment) => attachment.type === "image")
+    .map((attachment) => ({
+      alt: attachment.label || "Attached image",
+      url: attachment.url,
+    }));
 
-  let match: RegExpExecArray | null;
+  const videos = parsedMedia.attachments
+    .filter((attachment) => attachment.type === "video")
+    .map((attachment) => ({
+      title: attachment.label || "Campus Video Clip",
+      url: attachment.url,
+    }));
 
-  while ((match = mediaRegex.exec(sanitizedContent)) !== null) {
-    const rawTag = match[1] || "";
-    const url = match[2];
+  const audios = parsedMedia.attachments
+    .filter((attachment) => attachment.type === "audio")
+    .map((attachment) => ({
+      title: attachment.label || "Voice Memo",
+      url: attachment.url,
+    }));
 
-    const isVideo =
-      rawTag.startsWith("video") ||
-      /\.(mp4|webm|mov|mkv)($|\?)/i.test(url) ||
-      url.includes("/api/files/r2/videos/");
+  const documents = parsedMedia.attachments
+    .filter((attachment) => attachment.type === "document")
+    .map((attachment) => ({
+      name: attachment.label || "Campus Study Notes",
+      url: attachment.url,
+      size: attachment.size,
+    }));
 
-    const isAudio =
-      rawTag.startsWith("audio") ||
-      rawTag.startsWith("voice") ||
-      /\.(mp3|wav|m4a|ogg|aac|webm)($|\?)/i.test(url) ||
-      url.includes("/api/files/r2/audio/");
-
-    const isDoc =
-      rawTag.startsWith("document") ||
-      rawTag.startsWith("pdf") ||
-      rawTag.startsWith("notes") ||
-      /\.(pdf|docx|doc|zip|rar|xlsx|pptx)($|\?)/i.test(url) ||
-      url.includes("/api/files/r2/documents/");
-
-    if (isVideo) {
-      const parts = rawTag.split(":");
-      videos.push({ title: parts[1] || "Campus Video Clip", url });
-    } else if (isAudio) {
-      const parts = rawTag.split(":");
-      audios.push({ title: parts[1] || "Voice Memo", url });
-    } else if (isDoc) {
-      const parts = rawTag.split(":");
-      const name = parts[1] || "Campus Study Notes";
-      const size = parts[2] ? Number.parseInt(parts[2], 10) : undefined;
-      documents.push({ name, url, size });
-    } else {
-      images.push({ alt: rawTag || "Attached image", url });
-    }
-  }
-
-  // Text with markdown media markers removed
-  const textWithoutMedia = sanitizedContent.replace(mediaRegex, "").trim();
+  // Never expose internal media markers as user-authored text.
+  const textWithoutMedia = parsedMedia.text;
 
   function handleOpenImage(e: React.MouseEvent, url: string) {
     e.preventDefault();

@@ -238,9 +238,6 @@ export function isMediaImageUrl(url: string): boolean {
       host.includes("media.tenor.com") ||
       host.includes("giphy.com") ||
       parsed.pathname.includes("/api/files/r2/images/") ||
-      parsed.pathname.includes("/api/files/r2/videos/") ||
-      parsed.pathname.includes("/api/files/r2/audio/") ||
-      parsed.pathname.includes("/api/files/r2/documents/")
     ) {
       return true;
     }
