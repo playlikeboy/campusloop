@@ -73,8 +73,8 @@ const TOP_NAV_TABS = [
   },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/colleges", label: "Colleges", icon: Building2 },
-  { href: "/events", label: "Events", icon: Calendar },
-  { href: "/dating", label: "Match", icon: Heart },
+  { href: "/events", label: "Events", icon: Calendar, xlOnly: true },
+  { href: "/dating", label: "Match", icon: Heart, xlOnly: true },
 ];
 
 export function Navigation({ profile, collegeName, isViewer, isAdmin }: NavigationProps) {
@@ -140,9 +140,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
     <>
       {/* ─── Modern Sticky Top Navigation Bar (Utilizes Space Full on PC) ─── */}
       <header className="sticky top-0 z-40 w-full border-b border-border/35 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
           {/* Left: Hamburger Drawer Toggle + Brand Logo + Campus Badge */}
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -159,8 +159,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
 
             <BrandLogo href="/feeds" size="md" />
 
-            {/* College Affiliation Pill Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[180px] lg:max-w-xs">
+            {/* College Affiliation Pill Badge (Only on ultra-wide screens to prevent navbar collision) */}
+            <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/30 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[170px]">
               <School className="size-3 text-primary shrink-0" />
               <span className="truncate">
                 {collegeName && collegeName !== "Viewer Mode" && collegeName !== "Campus"
@@ -172,7 +172,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
           </div>
 
           {/* Center: Desktop Hub Navigation Tabs */}
-          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar py-1">
+          <nav className="hidden lg:flex items-center gap-1 py-1 shrink-0">
             {TOP_NAV_TABS.map((tab) => {
               const isActive = isPathActive(pathname, tab.href);
               const Icon = tab.icon;
@@ -187,7 +187,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     haptics.light();
                   }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0",
+                    tab.xlOnly && "hidden xl:inline-flex",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-xs font-black"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -212,11 +213,11 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
 
           {/* Right: Search, Mode Switcher, Post CTA, Chat, Notifications, Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Search Pill (Compact Icon on Mobile, Pill on Desktop) */}
+            {/* Search Pill (Icon on compact viewports, Pill on xl+) */}
             <Link
               href="/explore"
               prefetch
-              className="flex size-11 sm:size-auto sm:px-3 sm:py-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95"
+              className="flex size-11 sm:size-8.5 xl:w-auto xl:px-3 xl:py-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
               title="Explore & Search CampusLoop"
               aria-label="Explore & Search"
             >
@@ -227,8 +228,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
               </kbd>
             </Link>
 
-            {/* Desktop Anonymity Mode Toggle */}
-            <div className="hidden sm:flex items-center rounded-full bg-muted/50 p-0.5 border border-border/40 text-xs">
+            {/* Desktop Anonymity Mode Toggle (Only on xl+ viewports to preserve navbar space) */}
+            <div className="hidden xl:flex items-center rounded-full bg-muted/50 p-0.5 border border-border/40 text-xs shrink-0">
               <button
                 type="button"
                 onClick={() => toggleAnonMode("ALL")}
@@ -241,7 +242,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 title="All posts including anonymous confessions"
               >
                 <VenetianMask className="size-3 text-purple-400" />
-                <span className="hidden md:inline">Anon</span>
+                <span>Anon</span>
               </button>
               <button
                 type="button"
@@ -255,7 +256,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 title="Verified public posts only"
               >
                 <ShieldCheck className="size-3 text-emerald-400" />
-                <span className="hidden md:inline">Public</span>
+                <span>Public</span>
               </button>
             </div>
 
@@ -268,7 +269,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   sounds.tap();
                   haptics.light();
                 }}
-                className="hidden sm:flex items-center gap-1.5 h-8.5 px-3.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+                className="hidden sm:flex items-center gap-1.5 h-8.5 px-3 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 <Plus className="size-3.5" />
                 <span>Post</span>
@@ -519,6 +520,42 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     </Link>
                   </div>
                 )}
+
+                {/* Anonymity Mode Switcher (Always accessible in Drawer for Mobile & Desktop) */}
+                <div className="rounded-2xl border border-border/40 bg-card/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">Timeline Privacy</span>
+                    <span className="text-[10px] text-muted-foreground font-semibold">Feed Filter</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-muted/50 p-1 border border-border/40 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => toggleAnonMode("ALL")}
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                        anonMode === "ALL"
+                          ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <VenetianMask className="size-3.5 text-purple-400" />
+                      <span>All + Anon</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleAnonMode("NON_ANONYMOUS")}
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                        anonMode === "NON_ANONYMOUS"
+                          ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <ShieldCheck className="size-3.5 text-emerald-400" />
+                      <span>Public Only</span>
+                    </button>
+                  </div>
+                </div>
 
                 {/* Categorized Navigation Links */}
                 <div className="space-y-4 pt-1">

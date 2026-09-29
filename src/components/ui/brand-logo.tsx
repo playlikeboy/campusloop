@@ -40,12 +40,12 @@ export function BrandLogoIcon({
 
 export function BrandLogo({ className, size = "md", showWordmark = true, href = "/app" }: BrandLogoProps) {
   const content = (
-    <div className={cn("inline-flex items-center gap-2.5 select-none group", className)}>
+    <div className={cn("inline-flex items-center gap-2.5 select-none group shrink-0", className)}>
       <BrandLogoIcon size={size} />
       {showWordmark && (
         <span
           className={cn(
-            "font-heading font-bold tracking-[-0.04em] text-foreground transition-colors group-hover:text-primary leading-none",
+            "font-heading font-bold tracking-[-0.04em] text-foreground transition-colors group-hover:text-primary leading-none shrink-0",
             size === "sm" && "text-sm",
             size === "md" && "text-[17px]",
             size === "lg" && "text-xl",
@@ -60,7 +60,7 @@ export function BrandLogo({ className, size = "md", showWordmark = true, href = 
 
   if (href) {
     return (
-      <Link href={href} className="inline-flex items-center">
+      <Link href={href} className="inline-flex items-center shrink-0">
         {content}
       </Link>
     );
