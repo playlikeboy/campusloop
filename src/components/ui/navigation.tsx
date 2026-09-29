@@ -3,10 +3,8 @@
 import {
   Bell,
   Building2,
-  Cake,
   Calendar,
   Compass,
-  Gamepad2,
   GraduationCap,
   Heart,
   Home,
@@ -17,8 +15,6 @@ import {
   Search,
   Settings,
   ShieldCheck,
-  ShoppingBag,
-  Sparkles,
   User,
   Users,
   VenetianMask,
@@ -568,43 +564,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                                 {item.badge}
                               </span>
                             )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Campus Marketplace & Tools (Deduplicated: Merged Marketplace) */}
-                  <div>
-                    <span className="px-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Campus Life &amp; Services
-                    </span>
-                    <div className="mt-1 space-y-0.5">
-                      {[
-                        { href: "/marketplace", label: "Student Marketplace", icon: ShoppingBag },
-                        { href: "/housing-and-flats", label: "Hostels & Flatmates", icon: Home },
-                        { href: "/rideshare", label: "Campus Rideshare", icon: Compass },
-                        { href: "/lost-and-found", label: "Lost & Found", icon: Search },
-                        { href: "/gaming-arena", label: "Gaming Arena", icon: Gamepad2 },
-                        { href: "/capsule", label: "Time Capsule", icon: Sparkles },
-                        { href: "/birthdays", label: "Campus Birthdays", icon: Cake },
-                      ].map((item) => {
-                        const Icon = item.icon;
-                        const active = isPathActive(pathname, item.href);
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setShowDrawer(false)}
-                            className={cn(
-                              "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all",
-                              active
-                                ? "bg-primary text-primary-foreground font-bold shadow-xs"
-                                : "text-foreground hover:bg-muted/60"
-                            )}
-                          >
-                            <Icon className="size-4 shrink-0 text-muted-foreground" />
-                            <span>{item.label}</span>
                           </Link>
                         );
                       })}
