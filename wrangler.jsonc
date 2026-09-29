@@ -37,12 +37,12 @@
 			"name": "EMAIL"
 		}
 	],
-	// "r2_buckets": [
-	// 	{
-	// 		"binding": "MEDIA_BUCKET",
-	// 		"bucket_name": "campusloop-media"
-	// 	}
-	// ],
+	"r2_buckets": [
+		{
+			"binding": "MEDIA_BUCKET",
+			"bucket_name": "campusloop-media"
+		}
+	],
 	"routes": [
 		{
 			"pattern": "campusloop.space",

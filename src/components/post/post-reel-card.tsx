@@ -31,6 +31,7 @@ import type { UserCapability } from "@/lib/capabilities";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { extractMediaAttachments, stripMediaAttachmentMarkers } from "@/lib/media-attachments";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
 
 // Dynamically import heavy modals to keep the reels bundle ultra-lightweight
@@ -54,12 +55,6 @@ const ShareStoryModal = dynamic(
   { ssr: false }
 );
 
-// Hoisted regular expressions to avoid repeated compilation on every render
-const MD_VIDEO_REGEX =
-  /!\[.*?\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/[^\s)]+)(?:\.(?:mp4|webm|mov|ogg)[^\s)]*|[^\s)]*videos[^\s)]*))\)/i;
-const R2_VIDEO_REGEX = /((?:https?:\/\/[^\s<>"']*)?\/api\/files\/r2\/videos\/[^\s<>"']+)/i;
-const RAW_VIDEO_REGEX =
-  /((?:https?:\/\/[^\s<>"']+|\/api\/files\/r2\/[^\s<>"']+)\.(?:mp4|webm|mov|ogg)[^\s<>"']*)/i;
 const HASHTAG_EXTRACTION_REGEX = /#([a-zA-Z0-9_-]+)/g;
 
 interface PostReelCardProps {
@@ -98,23 +93,15 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   const [showLockedModal, setShowLockedModal] = useState(false);
   const [lockedCapability, setLockedCapability] = useState<UserCapability>("LIKE_POST");
 
-  // Extract direct video URL if present in body or external media
+  // Resolve uploaded CampusLoop videos through the shared media parser.
   const rawVideoUrl = useMemo(() => {
-    if (post.externalPost?.media && post.externalPost.media.length > 0) {
-      const vidMedia = post.externalPost.media.find((m) => m.mediaType === "VIDEO");
-      if (vidMedia?.mediaUrl) return vidMedia.mediaUrl;
-    }
-    if (!post.body) return null;
-    const mdMatch = post.body.match(MD_VIDEO_REGEX);
-    if (mdMatch) return mdMatch[1];
+    const externalVideo = post.externalPost?.media?.find((m) => m.mediaType === "VIDEO" && m.mediaUrl);
+    if (externalVideo?.mediaUrl) return externalVideo.mediaUrl;
 
-    const r2Match = post.body.match(R2_VIDEO_REGEX);
-    if (r2Match) return r2Match[1];
-
-    const rawMatch = post.body.match(RAW_VIDEO_REGEX);
-    if (rawMatch) return rawMatch[1];
-
-    return null;
+    return (
+      extractMediaAttachments(post.body || "").attachments.find((attachment) => attachment.type === "video")
+        ?.url ?? null
+    );
   }, [post.body, post.externalPost]);
 
   const streamInfo = useMemo(() => {
@@ -134,11 +121,11 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     loop: true,
   });
 
-  // Clean body text by stripping raw video URL for caption display
+  // Show only author-written text. Media markers and internal media URLs
+  // are implementation details and must stay invisible.
   const captionText = useMemo(() => {
     if (!post.body) return "";
-    return post.body
-      .replace(/!\[.*?\]\(https?:\/\/[^\s)]+\)/gi, "")
+    return stripMediaAttachmentMarkers(post.body)
       .replace(/https?:\/\/v\.redd\.it\/[^\s]+/gi, "")
       .replace(/https?:\/\/[^\s]+\.(?:mp4|webm|mov|m3u8)[^\s]*/gi, "")
       .trim();
@@ -147,8 +134,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   // Split content into clean headline & body description and extract tags without duplication
   const { headline, descriptionText, tags } = useMemo(() => {
     const rawBody = post.body || "";
+    const visibleBody = stripMediaAttachmentMarkers(rawBody);
     let h = post.title || "";
-    let desc = rawBody;
+    let desc = visibleBody;
 
     if (!h) {
       if (rawBody.startsWith("# ")) {

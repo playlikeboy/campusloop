@@ -80,8 +80,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const size = bytes.byteLength;
+    const size = file.size;
 
     // Detect media category
     const isImage = mimeType.startsWith("image/");
@@ -148,10 +147,10 @@ export async function POST(req: NextRequest) {
 
       // Resilient secure server storage
       const key = `images/${safeUserId}/${today}/${randomId}${safeExt || ".jpg"}`;
-      const r2Result = await putR2Object(key, bytes, mimeType, {
+      const r2Result = await putR2Object(key, file.stream(), mimeType, {
         uploadedBy: user.id,
         originalName: originalName.slice(0, 100),
-      });
+      }, size);
 
       return NextResponse.json({
         url: r2Result.url,
@@ -174,10 +173,10 @@ export async function POST(req: NextRequest) {
       }
 
       const key = `videos/${safeUserId}/${today}/${randomId}${safeExt || ".mp4"}`;
-      const r2Result = await putR2Object(key, bytes, mimeType || "video/mp4", {
+      const r2Result = await putR2Object(key, file.stream(), mimeType || "video/mp4", {
         uploadedBy: user.id,
         originalName: originalName.slice(0, 100),
-      });
+      }, size);
 
       return NextResponse.json({
         url: r2Result.url,
@@ -195,10 +194,10 @@ export async function POST(req: NextRequest) {
       }
 
       const key = `audio/${safeUserId}/${today}/${randomId}${safeExt || ".webm"}`;
-      const r2Result = await putR2Object(key, bytes, mimeType || "audio/webm", {
+      const r2Result = await putR2Object(key, file.stream(), mimeType || "audio/webm", {
         uploadedBy: user.id,
         originalName: originalName.slice(0, 100),
-      });
+      }, size);
 
       return NextResponse.json({
         url: r2Result.url,
@@ -219,12 +218,13 @@ export async function POST(req: NextRequest) {
       const key = `documents/${safeUserId}/${today}/${randomId}_${cleanFilename}`;
       const r2Result = await putR2Object(
         key,
-        bytes,
+        file.stream(),
         mimeType || (originalName.endsWith(".pdf") ? "application/pdf" : "application/octet-stream"),
         {
           uploadedBy: user.id,
           originalName: originalName.slice(0, 100),
-        }
+        },
+        size
       );
 
       return NextResponse.json({
@@ -242,10 +242,10 @@ export async function POST(req: NextRequest) {
     }
 
     const key = `files/${safeUserId}/${today}/${randomId}${safeExt}`;
-    const r2Result = await putR2Object(key, bytes, mimeType, {
+    const r2Result = await putR2Object(key, file.stream(), mimeType, {
       uploadedBy: user.id,
       originalName: originalName.slice(0, 100),
-    });
+    }, size);
 
     return NextResponse.json({
       url: r2Result.url,

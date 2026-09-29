@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// In-memory fallback store for local development when outside Cloudflare runtime
+// Local fallback used by Vitest/dev only. Production uploads must use a real
+// Cloudflare R2 binding and must never silently fall back to transient memory.
 const localDevMemoryStorage = new Map<
   string,
   {
@@ -19,19 +20,25 @@ export interface R2UploadResult {
   size: number;
 }
 
-/**
- * Access the Cloudflare R2 bucket binding
- */
+type R2Body = Uint8Array | ArrayBuffer | Blob | ReadableStream<Uint8Array>;
+
+function isReadableStream(value: R2Body): value is ReadableStream<Uint8Array> {
+  return typeof ReadableStream !== "undefined" && value instanceof ReadableStream;
+}
+
+function isProductionRuntime(): boolean {
+  return typeof process !== "undefined" && process.env?.NODE_ENV === "production";
+}
+
 export function getR2Bucket(): any | null {
   try {
     const ctx = getCloudflareContext();
     const env = ctx?.env as { MEDIA_BUCKET?: any } | undefined;
-    if (env?.MEDIA_BUCKET) {
-      return env.MEDIA_BUCKET;
-    }
-  } catch {}
+    if (env?.MEDIA_BUCKET) return env.MEDIA_BUCKET;
+  } catch {
+    // Expected outside an active Cloudflare request, e.g. unit tests.
+  }
 
-  // Check globalThis in case of Cloudflare Workers execution
   if (typeof (globalThis as any).MEDIA_BUCKET !== "undefined") {
     return (globalThis as any).MEDIA_BUCKET;
   }
@@ -42,49 +49,69 @@ export function getR2Bucket(): any | null {
   return null;
 }
 
+async function toUint8Array(data: R2Body): Promise<Uint8Array> {
+  if (data instanceof Uint8Array) return data;
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  if (data instanceof Blob) return new Uint8Array(await data.arrayBuffer());
+  if (isReadableStream(data)) {
+    return new Uint8Array(await new Response(data).arrayBuffer());
+  }
+  throw new TypeError("Unsupported R2 body");
+}
+
 /**
- * Put an object into Cloudflare R2 with content type and metadata
+ * Write an object to R2. ReadableStreams are forwarded directly to R2 in
+ * production so video/audio uploads are not unnecessarily buffered twice.
  */
 export async function putR2Object(
   key: string,
-  data: Uint8Array | ArrayBuffer | Blob,
+  data: R2Body,
   contentType: string,
-  customMetadata: Record<string, string> = {}
+  customMetadata: Record<string, string> = {},
+  sizeHint?: number
 ): Promise<R2UploadResult> {
   const bucket = getR2Bucket();
-  const buffer = data instanceof Uint8Array ? data : new Uint8Array(data as ArrayBuffer);
-  const size = buffer.byteLength;
 
   if (bucket && typeof bucket.put === "function") {
-    await bucket.put(key, buffer, {
+    await bucket.put(key, data, {
       httpMetadata: {
         contentType,
         cacheControl: "public, max-age=31536000, immutable",
       },
       customMetadata,
     });
-  } else {
-    // Local dev memory storage fallback
-    localDevMemoryStorage.set(key, {
-      data: buffer,
+
+    return {
+      key,
+      url: `/api/files/r2/${key}`,
       contentType,
-      size,
-      uploadedAt: new Date(),
-      metadata: customMetadata,
-    });
+      size: sizeHint ?? 0,
+    };
   }
+
+  if (isProductionRuntime()) {
+    throw new Error(
+      "Cloudflare R2 MEDIA_BUCKET is not configured. Refusing to store production media in transient Worker memory."
+    );
+  }
+
+  const buffer = await toUint8Array(data);
+  localDevMemoryStorage.set(key, {
+    data: buffer,
+    contentType,
+    size: buffer.byteLength,
+    uploadedAt: new Date(),
+    metadata: customMetadata,
+  });
 
   return {
     key,
     url: `/api/files/r2/${key}`,
     contentType,
-    size,
+    size: buffer.byteLength,
   };
 }
 
-/**
- * Get an object from Cloudflare R2 with optional HTTP Range header support
- */
 export async function getR2Object(
   key: string,
   rangeHeader?: string | null
@@ -104,11 +131,12 @@ export async function getR2Object(
       if (match) {
         const start = Number.parseInt(match[1], 10);
         const end = match[2] ? Number.parseInt(match[2], 10) : undefined;
-        if (!Number.isNaN(start)) {
+
+        if (Number.isFinite(start) && start >= 0) {
           getOptions = {
             range: {
               offset: start,
-              length: end !== undefined ? end - start + 1 : undefined,
+              length: end !== undefined && end >= start ? end - start + 1 : undefined,
             },
           };
         }
@@ -126,7 +154,12 @@ export async function getR2Object(
     };
   }
 
-  // Local fallback
+  if (isProductionRuntime()) {
+    throw new Error(
+      "Cloudflare R2 MEDIA_BUCKET is not configured. Refusing to read production media from transient Worker memory."
+    );
+  }
+
   const local = localDevMemoryStorage.get(key);
   if (!local) return null;
 
@@ -134,10 +167,12 @@ export async function getR2Object(
     const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
     if (match) {
       const start = Number.parseInt(match[1], 10);
-      const end = match[2] ? Number.parseInt(match[2], 10) : local.size - 1;
-      if (!Number.isNaN(start) && start < local.size) {
-        const actualEnd = Math.min(end, local.size - 1);
+      const requestedEnd = match[2] ? Number.parseInt(match[2], 10) : local.size - 1;
+
+      if (Number.isFinite(start) && start >= 0 && start < local.size) {
+        const actualEnd = Math.min(Math.max(requestedEnd, start), local.size - 1);
         const sliced = local.data.subarray(start, actualEnd + 1);
+
         return {
           body: sliced,
           contentType: local.contentType,
@@ -155,15 +190,20 @@ export async function getR2Object(
   };
 }
 
-/**
- * Delete an object from Cloudflare R2
- */
 export async function deleteR2Object(key: string): Promise<boolean> {
   const bucket = getR2Bucket();
+
   if (bucket && typeof bucket.delete === "function") {
     await bucket.delete(key);
     return true;
   }
+
+  if (isProductionRuntime()) {
+    throw new Error(
+      "Cloudflare R2 MEDIA_BUCKET is not configured. Refusing to mutate transient production storage."
+    );
+  }
+
   localDevMemoryStorage.delete(key);
   return true;
 }

@@ -172,11 +172,13 @@ export function PostComposer({
             }
           });
           const finalUrl = uploaded.displayUrl || uploaded.url;
-          // Swap optimistic local preview with the permanent remote URL
+          // Swap optimistic local preview with the permanent remote URL.
           setUploadedImages((prev) => prev.map((url) => (url === pair.localUrl ? finalUrl : url)));
+          URL.revokeObjectURL(pair.localUrl);
         } catch (uploadErr) {
           // Revert this specific optimistic image if upload fails
           setUploadedImages((prev) => prev.filter((url) => url !== pair.localUrl));
+          URL.revokeObjectURL(pair.localUrl);
           throw uploadErr;
         }
       }
@@ -216,10 +218,12 @@ export function PostComposer({
               toast.loading(`Uploading video... ${progress.percent}%`, { id: "video-upload" });
             }
           });
-          // Swap local preview with remote URL
+          // Swap local preview with the permanent remote URL.
           setUploadedVideos((prev) => prev.map((u) => (u === localPreview ? res.url : u)));
+          URL.revokeObjectURL(localPreview);
         } catch (vidErr) {
           setUploadedVideos((prev) => prev.filter((u) => u !== localPreview));
+          URL.revokeObjectURL(localPreview);
           throw vidErr;
         }
       }
@@ -420,9 +424,23 @@ export function PostComposer({
     let body = editor?.getText() || "";
     const anon = isAnonymous || postType === "CONFESSION";
 
+    // Legacy attachment markers are retained only for database backwards compatibility;
+    // renderers must strip them and display real media components.
+    if (uploadedImages.some((url) => url.startsWith("blob:"))) {
+      setError("Please wait for the photo upload to finish before publishing.");
+      setIsLoading(false);
+      return;
+    }
+
     if (uploadedImages.length > 0) {
       const imageMarkdown = uploadedImages.map((img) => `\n\n![Image](${img})`).join("");
       body = `${body.trim()}${imageMarkdown}`;
+    }
+
+    if (uploadedVideos.some((url) => url.startsWith("blob:"))) {
+      setError("Please wait for the video upload to finish before publishing.");
+      setIsLoading(false);
+      return;
     }
 
     if (uploadedVideos.length > 0) {
