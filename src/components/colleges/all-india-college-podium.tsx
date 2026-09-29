@@ -77,7 +77,7 @@ export function AllIndiaCollegePodium({
         {/* Rank 2 - Silver */}
         {second && (
           <Link
-            href={`/app/college/${second.slug || second.id}`}
+            href={`/college/${second.slug || second.id}`}
             className="group flex flex-col items-center min-w-0 cursor-pointer transition-transform hover:-translate-y-1"
           >
             <div className="relative mb-2 shrink-0">
@@ -120,7 +120,7 @@ export function AllIndiaCollegePodium({
         {/* Rank 1 - Gold */}
         {first && (
           <Link
-            href={`/app/college/${first.slug || first.id}`}
+            href={`/college/${first.slug || first.id}`}
             className="group flex flex-col items-center min-w-0 cursor-pointer transition-transform hover:-translate-y-1.5"
           >
             <Crown className="size-5 sm:size-6 text-amber-500 animate-bounce mb-1" />
@@ -164,7 +164,7 @@ export function AllIndiaCollegePodium({
         {/* Rank 3 - Bronze */}
         {third && (
           <Link
-            href={`/app/college/${third.slug || third.id}`}
+            href={`/college/${third.slug || third.id}`}
             className="group flex flex-col items-center min-w-0 cursor-pointer transition-transform hover:-translate-y-1"
           >
             <div className="relative mb-2 shrink-0">

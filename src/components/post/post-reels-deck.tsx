@@ -24,6 +24,8 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<LoopDeckItem[]>(initialItems);
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(0);
+  const hasUserInteractedRef = useRef(false);
   const [selectedPostForComments, setSelectedPostForComments] = useState<FeedPost | null>(null);
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("for_you");
@@ -33,10 +35,30 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
   const isWheelingRef = useRef(false);
   const touchStartYRef = useRef<number | null>(null);
 
+  // Keep state firmly anchored at the requested post when initialItems changes
+  const initialPostId = initialItems[0]?.type === "POST" ? initialItems[0].post.id : "";
+  useEffect(() => {
+    setItems(initialItems);
+    setActiveIndex(0);
+    activeIndexRef.current = 0;
+    hasUserInteractedRef.current = false;
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [initialPostId]);
+
+  // Ensure scroll is at 0 on initial mount
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, []);
+
   // Smooth scroll to target index
   const scrollToIndex = useCallback(
     (index: number) => {
       if (!containerRef.current || index < 0 || index >= items.length) return;
+      hasUserInteractedRef.current = true;
       sounds.tap();
       haptics.light();
       isProgrammaticScrollRef.current = true;
@@ -44,12 +66,27 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
+      activeIndexRef.current = index;
       setActiveIndex(index);
+
+      const currentItem = items[index];
+      if (currentItem && currentItem.type === "POST") {
+        const currentPost = currentItem.post;
+        const targetUrl = `/post/${currentPost.id}`;
+        if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+          window.history.replaceState(null, "", targetUrl);
+        }
+        const author = currentPost.isAnonymous
+          ? "Anonymous Student"
+          : currentPost.author?.displayName || "Student";
+        document.title = `${author}'s Loop | CampusLoop`;
+      }
+
       setTimeout(() => {
         isProgrammaticScrollRef.current = false;
       }, 450);
     },
-    [items.length]
+    [items]
   );
 
   // Desktop Mouse Wheel / Trackpad Snap Gesture Handler
@@ -58,52 +95,59 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       // Don't intercept if user is inside comments drawer
       if (selectedPostForComments) return;
       if (isWheelingRef.current || isProgrammaticScrollRef.current) return;
+      hasUserInteractedRef.current = true;
 
       const threshold = 28;
       if (e.deltaY > threshold) {
-        if (activeIndex < items.length - 1) {
+        if (activeIndexRef.current < items.length - 1) {
           isWheelingRef.current = true;
-          scrollToIndex(activeIndex + 1);
+          scrollToIndex(activeIndexRef.current + 1);
           setTimeout(() => {
             isWheelingRef.current = false;
           }, 450);
         }
       } else if (e.deltaY < -threshold) {
-        if (activeIndex > 0) {
+        if (activeIndexRef.current > 0) {
           isWheelingRef.current = true;
-          scrollToIndex(activeIndex - 1);
+          scrollToIndex(activeIndexRef.current - 1);
           setTimeout(() => {
             isWheelingRef.current = false;
           }, 450);
         }
       }
     },
-    [activeIndex, items.length, scrollToIndex, selectedPostForComments]
+    [items.length, scrollToIndex, selectedPostForComments]
   );
 
   // Mobile Touch Swipe Gesture Handlers
   function handleTouchStart(e: React.TouchEvent) {
     if (selectedPostForComments) return;
+    hasUserInteractedRef.current = true;
     touchStartYRef.current = e.touches[0].clientY;
+  }
+
+  function handleTouchMove() {
+    hasUserInteractedRef.current = true;
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
     if (selectedPostForComments || touchStartYRef.current === null) return;
+    hasUserInteractedRef.current = true;
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartYRef.current - touchEndY;
     touchStartYRef.current = null;
 
     const swipeThreshold = 40;
     if (deltaY > swipeThreshold) {
-      if (activeIndex < items.length - 1) {
-        scrollToIndex(activeIndex + 1);
+      if (activeIndexRef.current < items.length - 1) {
+        scrollToIndex(activeIndexRef.current + 1);
       } else {
         // At bottom of deck: load more and advance
         loadMorePosts(true);
       }
     } else if (deltaY < -swipeThreshold) {
-      if (activeIndex > 0) {
-        scrollToIndex(activeIndex - 1);
+      if (activeIndexRef.current > 0) {
+        scrollToIndex(activeIndexRef.current - 1);
       }
     }
   }
@@ -147,14 +191,12 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
         const rawPosts: FeedPost[] = Array.isArray(data) ? data : data?.posts || [];
 
         if (rawPosts.length > 0) {
-          let addedCount = 0;
           setItems((prev) => {
             const existingPostIds = new Set(
               prev.filter((i) => i.type === "POST").map((i) => (i as { post: FeedPost }).post.id)
             );
             const freshPosts = rawPosts.filter((p) => !existingPostIds.has(p.id));
             if (freshPosts.length === 0) return prev;
-            addedCount = freshPosts.length;
             const newItems: LoopDeckItem[] = freshPosts.map((p) => ({ type: "POST", post: p }));
             return [...prev, ...newItems];
           });
@@ -162,7 +204,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
 
           if (autoAdvance) {
             setTimeout(() => {
-              scrollToIndex(activeIndex + 1);
+              scrollToIndex(activeIndexRef.current + 1);
             }, 150);
           }
         } else {
@@ -184,7 +226,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
             });
             if (autoAdvance) {
               setTimeout(() => {
-                scrollToIndex(activeIndex + 1);
+                scrollToIndex(activeIndexRef.current + 1);
               }, 150);
             }
           }
@@ -195,7 +237,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
         setIsLoadingMore(false);
       }
     },
-    [isLoadingMore, page, activeTab, getFeedUrl, activeIndex, scrollToIndex]
+    [isLoadingMore, page, activeTab, getFeedUrl, scrollToIndex]
   );
 
   // Pre-fetch next posts on mount so user always has immediate swipe continuity
@@ -209,6 +251,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
   const handleTabChange = useCallback(
     async (tabId: string) => {
       setActiveTab(tabId);
+      hasUserInteractedRef.current = true;
       sounds.tap();
       haptics.light();
       try {
@@ -220,9 +263,16 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
           const newItems: LoopDeckItem[] = rawPosts.map((p) => ({ type: "POST", post: p }));
           setItems(newItems);
           setActiveIndex(0);
+          activeIndexRef.current = 0;
           setPage(1);
           if (containerRef.current) {
             containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+          }
+          if (newItems[0]?.type === "POST") {
+            const targetUrl = `/post/${newItems[0].post.id}`;
+            if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+              window.history.replaceState(null, "", targetUrl);
+            }
           }
         } else {
           // Fallback to general feed if tab-specific filter yields no results
@@ -231,11 +281,19 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
           );
           const fbPosts: FeedPost[] = Array.isArray(fallback) ? fallback : fallback?.posts || [];
           if (fbPosts.length > 0) {
-            setItems(fbPosts.map((p) => ({ type: "POST", post: p })));
+            const newItems: LoopDeckItem[] = fbPosts.map((p) => ({ type: "POST", post: p }));
+            setItems(newItems);
             setActiveIndex(0);
+            activeIndexRef.current = 0;
             setPage(1);
             if (containerRef.current) {
               containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+            }
+            if (newItems[0]?.type === "POST") {
+              const targetUrl = `/post/${newItems[0].post.id}`;
+              if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+                window.history.replaceState(null, "", targetUrl);
+              }
             }
           }
         }
@@ -255,42 +313,89 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
 
       if (e.key === "ArrowDown" || e.key.toLowerCase() === "j") {
         e.preventDefault();
-        scrollToIndex(activeIndex + 1);
+        hasUserInteractedRef.current = true;
+        scrollToIndex(activeIndexRef.current + 1);
       } else if (e.key === "ArrowUp" || e.key.toLowerCase() === "k") {
         e.preventDefault();
-        scrollToIndex(activeIndex - 1);
+        hasUserInteractedRef.current = true;
+        scrollToIndex(activeIndexRef.current - 1);
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeIndex, scrollToIndex, selectedPostForComments]);
+  }, [scrollToIndex, selectedPostForComments]);
 
-  // IntersectionObserver to detect currently centered item & update URL
+  // Deterministic scroll position sync (detects snapped page index directly)
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || !hasUserInteractedRef.current || isProgrammaticScrollRef.current) return;
+    const container = containerRef.current;
+    const h = container.clientHeight;
+    if (h <= 0) return;
+    const newIdx = Math.round(container.scrollTop / h);
+    if (newIdx >= 0 && newIdx < items.length && newIdx !== activeIndexRef.current) {
+      activeIndexRef.current = newIdx;
+      setActiveIndex(newIdx);
+
+      const currentItem = items[newIdx];
+      if (currentItem && currentItem.type === "POST") {
+        const currentPost = currentItem.post;
+        const targetUrl = `/post/${currentPost.id}`;
+        if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+          window.history.replaceState(null, "", targetUrl);
+        }
+        const author = currentPost.isAnonymous
+          ? "Anonymous Student"
+          : currentPost.author?.displayName || "Student";
+        document.title = `${author}'s Loop | CampusLoop`;
+      }
+
+      if (newIdx >= items.length - 2) {
+        loadMorePosts();
+      }
+    }
+  }, [items, loadMorePosts]);
+
+  // IntersectionObserver as secondary detector to sync URL when centered
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // CRITICAL: NEVER update URL or active item on initial mount or hydration before user has interacted!
+        if (!hasUserInteractedRef.current || isProgrammaticScrollRef.current) return;
+
+        let bestEntry: IntersectionObserverEntry | null = null;
         for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
-            const indexAttr = entry.target.getAttribute("data-index");
-            if (indexAttr !== null) {
-              const newIdx = Number.parseInt(indexAttr, 10);
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+              bestEntry = entry;
+            }
+          }
+        }
+
+        if (bestEntry) {
+          const indexAttr = bestEntry.target.getAttribute("data-index");
+          if (indexAttr !== null) {
+            const newIdx = Number.parseInt(indexAttr, 10);
+            if (newIdx >= 0 && newIdx < items.length && newIdx !== activeIndexRef.current) {
+              activeIndexRef.current = newIdx;
               setActiveIndex(newIdx);
 
               const currentItem = items[newIdx];
               if (currentItem && currentItem.type === "POST") {
                 const currentPost = currentItem.post;
-                window.history.replaceState(null, "", `/post/${currentPost.id}`);
+                const targetUrl = `/post/${currentPost.id}`;
+                if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+                  window.history.replaceState(null, "", targetUrl);
+                }
                 const author = currentPost.isAnonymous
                   ? "Anonymous Student"
                   : currentPost.author?.displayName || "Student";
                 document.title = `${author}'s Loop | CampusLoop`;
               }
 
-              // Preload more early when approaching end
               if (newIdx >= items.length - 2) {
                 loadMorePosts();
               }
@@ -300,7 +405,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       },
       {
         root: container,
-        threshold: 0.55,
+        threshold: [0.6, 0.8],
       }
     );
 
@@ -316,6 +421,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
     <div
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       className="relative w-full h-full overflow-hidden bg-background"
     >
@@ -378,6 +484,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       {/* ─── Vertical Snap Scroll Deck (Exact Viewport Bounds: top 52px, bottom 64px on mobile / 0 on desktop) ─── */}
       <div
         ref={containerRef}
+        onScroll={handleScroll}
         className="absolute inset-x-0 top-[52px] sm:top-[56px] bottom-[64px] md:bottom-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar"
       >
         {items.map((item, index) => (

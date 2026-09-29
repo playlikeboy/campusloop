@@ -288,7 +288,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               <p className="text-xs font-black text-foreground truncate">{merchant.name}</p>
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/app/marketplace/store/${merchant.id}`}
+                  href={`/marketplace/store/${merchant.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 h-8 rounded-xl bg-foreground text-background font-bold text-[11px] flex items-center justify-center gap-1 hover:opacity-90 transition-opacity"
@@ -302,7 +302,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                     sounds.tap();
                     haptics.light();
                     navigator.clipboard.writeText(
-                      `https://campusloop.space/app/marketplace/store/${merchant.id}`
+                      `https://campusloop.space/marketplace/store/${merchant.id}`
                     );
                     toast.success("Store link copied!");
                   }}
@@ -381,7 +381,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                   <p className="text-xs font-black text-foreground truncate">{merchant.name}</p>
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/app/marketplace/store/${merchant.id}`}
+                      href={`/marketplace/store/${merchant.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 h-8 rounded-xl bg-foreground text-background font-bold text-[11px] flex items-center justify-center gap-1 hover:opacity-90 transition-opacity"
@@ -395,7 +395,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                         sounds.tap();
                         haptics.light();
                         navigator.clipboard.writeText(
-                          `https://campusloop.space/app/marketplace/store/${merchant.id}`
+                          `https://campusloop.space/marketplace/store/${merchant.id}`
                         );
                         toast.success("Store link copied!");
                       }}

@@ -17,8 +17,8 @@ export function MerchantQrClient() {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
 
   const targetUrl = merchant
-    ? `${baseUrl}/app/marketplace/store/${merchant.id}`
-    : `${baseUrl}/app/marketplace`;
+    ? `${baseUrl}/marketplace/store/${merchant.id}`
+    : `${baseUrl}/marketplace`;
 
   function handleCopyLink() {
     sounds.tap();

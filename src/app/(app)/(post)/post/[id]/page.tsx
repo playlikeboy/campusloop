@@ -288,15 +288,15 @@ export default async function PostDetailPage({ params }: PostPageProps) {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://campusloop.space/app",
+            item: "https://campusloop.space/feeds",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: rawPost.institution?.name ? campusName : "Colleges",
             item: rawPost.institution
-              ? `https://campusloop.space/app/college/${rawPost.institution.slug || rawPost.institution.id}`
-              : "https://campusloop.space/app/colleges",
+              ? `https://campusloop.space/college/${rawPost.institution.slug || rawPost.institution.id}`
+              : "https://campusloop.space/colleges",
           },
           {
             "@type": "ListItem",

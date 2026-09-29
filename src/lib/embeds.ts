@@ -552,7 +552,7 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
     if (id && id !== "new" && !embeds.some((e) => e.type === "internal_event" && e.id === id)) {
       embeds.push({
         type: "internal_event",
-        rawUrl: `/app/events/${id}`,
+        rawUrl: `/events/${id}`,
         id,
       });
     }

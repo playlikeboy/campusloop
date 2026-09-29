@@ -229,7 +229,7 @@ export default async function AdminDashboard() {
             {topColleges.map((c, i) => (
               <Link
                 key={c.id}
-                href={`/app/college/${c.slug}`}
+                href={`/college/${c.slug}`}
                 className="flex items-center gap-3 py-1.5 group"
               >
                 <span

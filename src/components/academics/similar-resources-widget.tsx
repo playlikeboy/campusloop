@@ -94,7 +94,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
           return (
             <Link
               key={item.id}
-              href={`/app/academics/${item.id}`}
+              href={`/academics/${item.id}`}
               onClick={() => sounds.tap()}
               className="group rounded-2xl border border-border/40 bg-card/60 p-3.5 transition-all hover:border-primary/35 hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >

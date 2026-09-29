@@ -151,7 +151,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   if (variant === "grid") {
     return (
       <Link
-        href={`/app/events/${event.slug || event.id}`}
+        href={`/events/${event.slug || event.id}`}
         className="group relative flex flex-col justify-between rounded-3xl border border-border/30 bg-card/60 hover:bg-card/90 p-3 sm:p-4 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden"
       >
         <div className="space-y-3">
@@ -343,7 +343,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   // ─── Row / List View Variant ───
   return (
     <Link
-      href={`/app/events/${event.slug || event.id}`}
+      href={`/events/${event.slug || event.id}`}
       className="group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-3xl border border-border/30 bg-card/60 hover:bg-card/90 transition-all duration-300 hover:border-primary/40 hover:shadow-md"
     >
       {/* Thumbnail with Mode & Live Status */}

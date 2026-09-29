@@ -98,7 +98,7 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
 
   return (
     <Link
-      href={`/app/events/${event.slug || event.id}`}
+      href={`/events/${event.slug || event.id}`}
       onClick={(e) => e.stopPropagation()}
       className="mt-3 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-all shadow-xs group"
     >
