@@ -11,6 +11,7 @@ import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { RouteProgress } from "@/components/ui/route-progress";
 import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
+import "./mobile-navigation.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
