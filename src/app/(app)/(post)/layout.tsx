@@ -23,7 +23,7 @@ export default async function PostLayout({ children }: { children: React.ReactNo
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="relative min-h-screen w-full bg-background overflow-hidden flex flex-col">
+    <div className="relative h-screen h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
       <Navigation
         profile={profile || undefined}
         collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
@@ -32,8 +32,8 @@ export default async function PostLayout({ children }: { children: React.ReactNo
       />
 
       {/* Main Canvas without RightSidebar so wheel scroll controls the deck 100% */}
-      <div className="flex-1 w-full overflow-hidden">
-        <main className="w-full h-full overflow-hidden">{children}</main>
+      <div className="flex-1 w-full min-h-0 overflow-hidden relative flex flex-col">
+        <main className="w-full h-full min-h-0 overflow-hidden relative flex flex-col">{children}</main>
       </div>
     </div>
   );
