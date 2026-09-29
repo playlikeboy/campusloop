@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { MarketplaceCard } from "@/components/communities/marketplace-card";
 import { Pagination } from "@/components/ui/pagination";
@@ -74,12 +74,12 @@ export function BuyAndSellClient({ profileId }: Props) {
 
   useEffect(() => setSearchQuery(urlSearch), [urlSearch]);
 
-  function updateUrl(mutator: (params: URLSearchParams) => void) {
+  const updateUrl = useCallback((mutator: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
     mutator(params);
     const query = params.toString();
     router.replace(query ? pathname + "?" + query : pathname, { scroll: true });
-  }
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     const next = searchQuery.trim();
@@ -94,7 +94,7 @@ export function BuyAndSellClient({ profileId }: Props) {
     }, 350);
 
     return () => window.clearTimeout(timer);
-  }, [searchQuery, urlSearch]);
+  }, [searchQuery, updateUrl, urlSearch]);
 
   const requestUrl = useMemo(() => {
     const params = new URLSearchParams({
