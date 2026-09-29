@@ -266,8 +266,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-start pb-24">
-        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-none sm:rounded-2xl border-0 sm:border border-border/30 overflow-hidden shadow-none sm:shadow-xs">
+      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-start pb-28">
+        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-none sm:rounded-2xl border-0 sm:border border-border/30 overflow-hidden shadow-none sm:shadow-xs pb-20 sm:pb-8">
           <FeedHeader
             scope={scope}
             onScopeChange={handleScopeChange}
@@ -285,11 +285,11 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             isRefreshing={isValidating}
           />
 
-          {/* ─── Story Ring ─── */}
-          <div className="w-full">
+          {/* ─── Story Ring Rail ─── */}
+          <section className="w-full min-w-0 bg-card/15" aria-label="Campus vibes and stories">
             {storiesLoading ? (
-              <div className="flex gap-4 px-4 py-5 overflow-x-auto border-b border-border/40 bg-card/20">
-                {[1, 2, 3, 4].map((i) => (
+              <div className="flex h-[106px] w-full items-center gap-3.5 px-4 py-2 overflow-x-auto border-b border-border/30 bg-card/20 no-scrollbar">
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5 shrink-0">
                     <div className="h-14 w-14 rounded-full bg-muted/65 shimmer-effect" />
                     <div className="h-2.5 w-10 bg-muted/65 rounded shimmer-effect" />
@@ -310,7 +310,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                 mutateStories={mutateStories}
               />
             )}
-          </div>
+          </section>
 
           {/* ─── Desktop Quick Composer (Hidden on mobile where bottom docked FAB is sole CTA) ─── */}
           <form onSubmit={handleQuickPost} className="hidden md:block border-b border-border/30 px-4 py-3 bg-card/30">

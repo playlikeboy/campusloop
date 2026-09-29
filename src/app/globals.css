@@ -367,7 +367,6 @@
   /* Mobile layout guardrails: keep app surfaces and feed content from collapsing or overflowing. */
   @media screen and (max-width: 768px) {
     .app-surface,
-    .app-surface > div,
     .app-surface main,
     .app-surface article {
       width: 100%;

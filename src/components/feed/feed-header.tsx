@@ -49,109 +49,116 @@ export function FeedHeader({
 
   return (
     <div className="sticky top-14 z-30 border-b border-border/30 bg-background/95 backdrop-blur-xl">
-      {/* Scope: where the feed comes from. Kept separate from feed sorting. */}
-      <div className="flex items-center justify-between gap-3 px-4 pt-2.5 pb-1.5">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground/70">Feed</span>
-          <div className="flex min-w-0 items-center rounded-xl border border-border/40 bg-muted/35 p-0.5">
+      {/* Consolidated Header: Location Scope + Sub-tabs + Filter Trigger */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
+          {/* Location Scope Pill */}
+          <div className="flex shrink-0 items-center rounded-full border border-border/40 bg-muted/40 p-0.5 shadow-2xs">
             <button
               type="button"
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
-                "flex min-h-8 max-w-[132px] items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors",
-                scope === "CAMPUS" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
+                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold transition-all cursor-pointer",
+                scope === "CAMPUS" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               )}
               aria-pressed={scope === "CAMPUS"}
             >
-              <School className="size-3.5 shrink-0 text-primary" />
-              <span className="truncate">
+              <School className="size-3 shrink-0 text-primary" />
+              <span className="max-w-[100px] truncate">
                 {institutionSlug
                   ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
-                  : "My campus"}
+                  : "Campus"}
               </span>
             </button>
             <button
               type="button"
               onClick={() => onScopeChange("GLOBAL")}
               className={cn(
-                "flex min-h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors",
-                scope === "GLOBAL" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
+                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold transition-all cursor-pointer",
+                scope === "GLOBAL" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               )}
               aria-pressed={scope === "GLOBAL"}
             >
-              <Globe className="size-3.5 shrink-0" />
+              <Globe className="size-3 shrink-0 text-emerald-500" />
               <span>Global</span>
             </button>
           </div>
+
+          <div className="h-4 w-px bg-border/40 shrink-0" />
+
+          {/* Sub-tabs: For you | Trending | Latest | Confessions */}
+          <div className="flex items-center gap-1 shrink-0" role="tablist" aria-label="Feed mode">
+            {visibleSorts.map((item) => {
+              const isCurrent = sort === item.id;
+              if (item.id === "confessions") {
+                return (
+                  <Link
+                    key={item.id}
+                    href="/confessions"
+                    role="tab"
+                    aria-selected={isCurrent}
+                    className={cn(
+                      "flex h-7 shrink-0 items-center gap-1 rounded-full px-3 text-xs font-bold whitespace-nowrap transition-colors",
+                      isCurrent
+                        ? "bg-secondary text-secondary-foreground shadow-2xs"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    )}
+                  >
+                    <span>{item.label}</span>
+                    <Flame className="size-3 text-amber-500" />
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isCurrent}
+                  onClick={() => onSortChange(item.id)}
+                  className={cn(
+                    "flex h-7 shrink-0 items-center rounded-full px-3 text-xs font-bold whitespace-nowrap transition-colors cursor-pointer",
+                    isCurrent
+                      ? "bg-secondary text-secondary-foreground shadow-2xs"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+
+            {sort !== "for_you" && !visibleSorts.some((item) => item.id === sort) && (
+              <button
+                type="button"
+                onClick={() => onSortChange("for_you")}
+                className="flex h-7 shrink-0 items-center rounded-full px-3 text-xs font-bold text-muted-foreground hover:text-foreground"
+              >
+                For you
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* Filter Toggle Trigger Button */}
         <button
           type="button"
           onClick={() => setShowFilters((value) => !value)}
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-xl transition-colors",
+            "relative flex size-8 shrink-0 items-center justify-center rounded-full border border-border/40 transition-colors cursor-pointer",
             showFilters || activeFiltersCount > 1
-              ? "bg-primary/10 text-primary"
+              ? "bg-primary/10 text-primary border-primary/30"
               : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
           )}
           aria-label="Open feed filters"
           aria-expanded={showFilters}
         >
-          <ListFilter className="size-4" />
-          {activeFiltersCount > 1 && <span className="absolute" />}
+          <ListFilter className="size-3.5" />
+          {activeFiltersCount > 1 && (
+            <span className="absolute top-1 right-1 size-1.5 rounded-full bg-primary" />
+          )}
         </button>
-      </div>
-
-      {/* Feed mode: what the user wants to see. Horizontal scrolling is intentional. */}
-      <div className="flex items-center gap-1 overflow-x-auto px-3 pb-1.5 no-scrollbar" role="tablist" aria-label="Feed mode">
-        {visibleSorts.map((item) => {
-          const isCurrent = sort === item.id;
-          if (item.id === "confessions") {
-            return (
-              <Link
-                key={item.id}
-                href="/confessions"
-                role="tab"
-                aria-selected={isCurrent}
-                className={cn(
-                  "flex min-h-9 shrink-0 items-center gap-1 rounded-lg px-3 text-xs font-semibold whitespace-nowrap transition-colors",
-                  isCurrent ? "bg-secondary text-secondary-foreground font-bold" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                )}
-              >
-                <span>{item.label}</span>
-                <Flame className="size-3 text-amber-500" />
-              </Link>
-            );
-          }
-
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={isCurrent}
-              onClick={() => onSortChange(item.id)}
-              className={cn(
-                "flex min-h-9 shrink-0 items-center rounded-lg px-3 text-xs font-semibold whitespace-nowrap transition-colors",
-                isCurrent ? "bg-secondary text-secondary-foreground font-bold" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-              )}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-
-        {sort !== "for_you" && !visibleSorts.some((item) => item.id === sort) && (
-          <button
-            type="button"
-            onClick={() => onSortChange("for_you")}
-            className="min-h-9 shrink-0 rounded-lg px-3 text-xs font-semibold text-muted-foreground"
-          >
-            For you
-          </button>
-        )}
-
-        <ChevronDown className="ml-auto mr-1 size-3.5 shrink-0 text-muted-foreground/60" aria-hidden="true" />
       </div>
 
       {/* Secondary filters stay out of the primary feed navigation. */}

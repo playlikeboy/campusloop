@@ -68,7 +68,7 @@ export function StoryRing({ users }: StoryRingProps) {
   }
 
   return (
-    <div className="flex min-h-[94px] items-start gap-4 overflow-x-auto border-b border-border/30 px-4 pb-2 pt-3 no-scrollbar select-none">
+    <div className="flex h-[106px] w-full min-w-0 items-center gap-3.5 overflow-x-auto border-b border-border/30 px-4 py-2 no-scrollbar select-none">
       {/* Current User Story Item (You / Add story) */}
       <div className="flex shrink-0 flex-col items-center gap-1 select-none">
         <div className="relative group">
