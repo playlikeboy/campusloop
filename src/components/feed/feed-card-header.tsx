@@ -23,6 +23,7 @@ interface FeedCardHeaderProps {
   onOpenRepostModal: () => void;
   onOpenReportModal: () => void;
   onShare: () => void;
+  avatarSlot?: React.ReactNode;
 }
 
 export function FeedCardHeader({
@@ -31,6 +32,7 @@ export function FeedCardHeader({
   onOpenRepostModal,
   onOpenReportModal,
   onShare,
+  avatarSlot,
 }: FeedCardHeaderProps) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
@@ -84,124 +86,126 @@ export function FeedCardHeader({
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
 
   return (
-    <div className="min-w-0 pb-0.5">
-      {/* Primary Author & Time Row */}
-      <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
-        <div className="min-w-0 flex-1">
-          {/* Author Name + Badges */}
-          <div className="flex items-center gap-1.5 min-w-0">
-            {!isBotPost && !post.isAnonymous && post.author?.username ? (
-              <Link
-                href={`/@${post.author.username}`}
-                onClick={(e) => e.stopPropagation()}
-                className="min-w-0 max-w-[min(100%,180px)] sm:max-w-[240px] font-bold text-[15px] text-foreground hover:underline truncate shrink-0"
-              >
-                {authorName}
-              </Link>
-            ) : !post.isAnonymous && isExternalReddit ? (
-              <a
-                href={post.externalPost?.canonicalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="font-bold text-[15px] text-foreground hover:text-orange-500 hover:underline truncate max-w-[180px] sm:max-w-[240px] shrink-0"
-              >
-                {authorName}
-              </a>
-            ) : (
-              <span className="font-bold text-[15px] text-foreground truncate max-w-[180px] sm:max-w-[240px] shrink-0">
-                {authorName}
-              </span>
-            )}
+    <div className="w-full min-w-0 pb-0.5 select-none">
+      <div className="flex items-center gap-3 w-full min-w-0">
+        {/* Author Avatar (fixed 40x40px) */}
+        {avatarSlot && <div className="size-10 shrink-0">{avatarSlot}</div>}
 
-            {isVerified && (
-              <AnimatedIcon
-                icon={AnimateShieldCheck}
-                animation="pop"
-                size={14}
-                className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
-              />
-            )}
+      {/* Author Details + Badges */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+          {!isBotPost && !post.isAnonymous && post.author?.username ? (
+            <Link
+              href={`/@${post.author.username}`}
+              onClick={(e) => e.stopPropagation()}
+              className="font-bold text-[15px] text-foreground hover:underline truncate max-w-[160px] sm:max-w-[220px] shrink-0"
+            >
+              {authorName}
+            </Link>
+          ) : !post.isAnonymous && isExternalReddit ? (
+            <a
+              href={post.externalPost?.canonicalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="font-bold text-[15px] text-foreground hover:text-orange-500 hover:underline truncate max-w-[160px] sm:max-w-[220px] shrink-0"
+            >
+              {authorName}
+            </a>
+          ) : (
+            <span className="font-bold text-[15px] text-foreground truncate max-w-[160px] sm:max-w-[220px] shrink-0">
+              {authorName}
+            </span>
+          )}
 
-            {isBotPost && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/25 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
-                <Bot className="size-2.5" />
-                <span>BOT</span>
-              </span>
-            )}
+          {isVerified && (
+            <AnimatedIcon
+              icon={AnimateShieldCheck}
+              animation="pop"
+              size={14}
+              className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
+            />
+          )}
 
-            {authorHandle && (
-              <span className="min-w-0 max-w-[90px] sm:max-w-[130px] text-muted-foreground text-xs truncate">
-                {authorHandle}
-              </span>
-            )}
+          {isBotPost && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/25 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
+              <Bot className="size-2.5" />
+              <span>BOT</span>
+            </span>
+          )}
 
-            {isExternalReddit && (
-              <a
-                href={post.externalPost?.canonicalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[10px] font-bold shrink-0 transition-colors"
-                title={`From r/${post.externalPost?.subreddit || "reddit"}`}
-              >
-                <span>r/{post.externalPost?.subreddit}</span>
-                <ExternalLink className="size-2.5 opacity-70" />
-              </a>
-            )}
-          </div>
+          {authorHandle && (
+            <span className="text-muted-foreground text-xs truncate max-w-[90px] sm:max-w-[130px] shrink-0">
+              {authorHandle}
+            </span>
+          )}
 
-          {/* Subtitle: Campus / Location · Time (Mockup style) */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
-            {institutionDisplayName && (
-              <>
-                <span className="font-medium truncate max-w-[160px] sm:max-w-[220px]">
-                  {institutionDisplayName}
-                </span>
-                <span className="text-muted-foreground/40">·</span>
-              </>
-            )}
-            <span className="whitespace-nowrap">{formatTimeAgo(post.createdAt)}</span>
-            {post.isEdited && (
-              <span
-                className="text-muted-foreground/60 text-[10px] italic shrink-0"
-                title={`Edited ${post.updatedAt ? formatTimeAgo(post.updatedAt) : ""}`}
-              >
-                (edited)
-              </span>
-            )}
-          </div>
+          {isExternalReddit && (
+            <a
+              href={post.externalPost?.canonicalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[10px] font-bold shrink-0 transition-colors"
+              title={`From r/${post.externalPost?.subreddit || "reddit"}`}
+            >
+              <span>r/{post.externalPost?.subreddit}</span>
+              <ExternalLink className="size-2.5 opacity-70" />
+            </a>
+          )}
         </div>
 
-        {/* Right Actions: Confession/Meme Pill, Reddit Attribution & More Menu */}
-        <div className="flex max-w-full flex-wrap items-center justify-end gap-1.5 self-stretch sm:self-auto shrink-0">
-          {post.externalPost && <RedditAttribution externalPost={post.externalPost} variant="subtle" />}
+        {/* Subtitle: College Tag · Timestamp · Tags */}
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0 pt-0.5 flex-wrap">
+          {institutionDisplayName && (
+            <>
+              <span className="font-medium text-muted-foreground/90 truncate max-w-[130px] sm:max-w-[180px]">
+                {institutionDisplayName}
+              </span>
+              <span className="text-muted-foreground/40">·</span>
+            </>
+          )}
+          <span className="whitespace-nowrap shrink-0">{formatTimeAgo(post.createdAt)}</span>
+          {post.isEdited && (
+            <span
+              className="text-muted-foreground/60 text-[10px] italic shrink-0"
+              title={`Edited ${post.updatedAt ? formatTimeAgo(post.updatedAt) : ""}`}
+            >
+              (edited)
+            </span>
+          )}
           {post.type === "CONFESSION" && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
               Confession
             </span>
           )}
           {post.type === "MEME" && (
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center gap-1">
-              <span>Meme</span>
+            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+              Meme
             </span>
           )}
+        </div>
+      </div>
 
-          {/* Circular More Options Button */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu(!showMenu);
-              }}
-              className="cl-interactive size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
-              aria-label="More options"
-            >
-              <MoreHorizontal className="size-4" />
-            </button>
+      {/* Right Actions: Context menu pushed to far top-right using ml-auto */}
+      <div className="flex items-center gap-1.5 shrink-0 ml-auto self-start pt-0.5">
+        {post.externalPost && <RedditAttribution externalPost={post.externalPost} variant="subtle" />}
 
-            {showMenu && (
+        {/* Circular More Options Button */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
+            className="cl-interactive size-8 rounded-full bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
+            aria-label="More options"
+          >
+            <MoreHorizontal className="size-4" />
+          </button>
+
+          {showMenu && (
               <>
                 <div
                   className="fixed inset-0 z-20"

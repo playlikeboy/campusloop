@@ -303,11 +303,11 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         </div>
       )}
 
-      {/* Twitter 2-Column Layout */}
-      <div className="flex w-full min-w-0 gap-3">
-        {/* Left Column: Author Avatar */}
-        <div className="shrink-0 pt-0.5">
-          {!post.isAnonymous && post.author?.username ? (
+      {/* 1. TOP ROW: Clean Author Header (Avatar + Name/Handle/College/Time + Context Menu) */}
+      <FeedCardHeader
+        post={post}
+        avatarSlot={
+          !post.isAnonymous && post.author?.username ? (
             <Link
               href={`/@${post.author.username}`}
               onClick={(e) => e.stopPropagation()}
@@ -342,126 +342,117 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               <div className="size-10 rounded-full border border-orange-500/30 bg-orange-500/10 flex items-center justify-center text-orange-500 hover:scale-105 hover:bg-orange-500/20 transition-all shadow-xs">
                 <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.702zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
-                </svg>
-              </div>
-            </a>
-          ) : isBotPost ? (
-            <Avatar className="size-10 rounded-full border border-sky-500/30 bg-sky-500/10">
-              <AvatarFallback className="bg-transparent flex items-center justify-center">
-                <Bot className="size-5 text-sky-500 dark:text-sky-400" />
-              </AvatarFallback>
-            </Avatar>
-          ) : !post.isAnonymous ? (
-            <Link href={`/@${authorHandle}`} onClick={(e) => e.stopPropagation()}>
-              <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
-                <AvatarImage src={avatarUrl || ""} />
-                <AvatarFallback className="font-bold text-xs bg-muted text-foreground">
-                  {avatarFallback}
+                  </svg>
+                </div>
+              </a>
+            ) : isBotPost ? (
+              <Avatar className="size-10 rounded-full border border-sky-500/30 bg-sky-500/10">
+                <AvatarFallback className="bg-transparent flex items-center justify-center">
+                  <Bot className="size-5 text-sky-500 dark:text-sky-400" />
                 </AvatarFallback>
               </Avatar>
-            </Link>
-          ) : (
-            <Avatar className="size-10 rounded-full border border-purple-500/30 bg-purple-500/10">
-              <AvatarFallback className="bg-transparent flex items-center justify-center">
-                <VenetianMask className="size-5 text-purple-400" />
-              </AvatarFallback>
-            </Avatar>
+            ) : !post.isAnonymous ? (
+              <Link href={`/@${authorHandle}`} onClick={(e) => e.stopPropagation()}>
+                <Avatar className="size-10 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+                  <AvatarImage src={avatarUrl || ""} />
+                  <AvatarFallback className="font-bold text-xs bg-muted text-foreground">
+                    {avatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : (
+              <Avatar className="size-10 rounded-full border border-purple-500/30 bg-purple-500/10">
+                <AvatarFallback className="bg-transparent flex items-center justify-center">
+                  <VenetianMask className="size-5 text-purple-400" />
+                </AvatarFallback>
+              </Avatar>
+            )
+          }
+          currentUserId={currentUserId}
+          onOpenRepostModal={() => setShowRepostModal(true)}
+          onOpenReportModal={() => setShowReport(true)}
+          onShare={handleSharePost}
+        />
+
+        {/* 2. CONTENT BODY: Placed directly below the author header taking 100% full width */}
+        <div className="w-full min-w-0 space-y-2 pt-1 pb-1">
+          {post.title && (
+            <h3 className="w-full text-[16px] font-bold text-foreground tracking-tight leading-snug break-words">
+              {post.title}
+            </h3>
+          )}
+          {displayContent && (
+            <div className="w-full min-w-0 text-[15px] leading-relaxed text-foreground font-normal break-words [overflow-wrap:anywhere]">
+              <RichText
+                content={displayContent}
+                createdAt={post.createdAt}
+                collegeName={collegeDisplayName}
+              />
+            </div>
+          )}
+
+          {displayContent.length > 420 && (
+            <button
+              type="button"
+              data-no-nav
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded((value) => !value);
+              }}
+              className="cl-interactive mt-0.5 inline-flex min-h-8 items-center rounded-lg px-1.5 text-[11px] font-bold text-primary hover:bg-primary/8 hover:underline cursor-pointer"
+            >
+              {isExpanded ? "Show less" : "Read more"}
+            </button>
           )}
         </div>
 
-        {/* Right Column: Header, Body, Media, Actions */}
-        <div className="flex min-w-0 w-0 flex-1 basis-0 space-y-1">
-          <FeedCardHeader
-            post={post}
-            currentUserId={currentUserId}
-            onOpenRepostModal={() => setShowRepostModal(true)}
-            onOpenReportModal={() => setShowReport(true)}
-            onShare={handleSharePost}
-          />
+        {/* External Reddit Media Renderers (HTML5 Video / Gallery) */}
+        {post.externalPost && post.externalPost.contentType === "VIDEO" && post.externalPost.media[0] && (
+          <div className="w-full min-w-0 pt-1 pb-2" onClick={(e) => e.stopPropagation()}>
+            <RedditVideo media={post.externalPost.media[0]} externalPost={post.externalPost} />
+          </div>
+        )}
 
-          {/* Content Body */}
-          <div className="pt-0.5">
-            <div
-              className={cn(
-                "space-y-1.5 text-[15px] leading-relaxed text-foreground font-normal break-words",
-                !isExpanded && displayContent.length > 420 && "line-clamp-5"
-              )}
-            >
-              {post.title && (
-                <h3 className="text-[16px] font-black text-foreground tracking-tight leading-snug">
-                  {post.title}
-                </h3>
-              )}
-              {displayContent && (
-                <RichText
-                  content={displayContent}
-                  createdAt={post.createdAt}
-                  collegeName={collegeDisplayName}
-                />
-              )}
+        {post.externalPost &&
+          post.externalPost.contentType === "GALLERY" &&
+          post.externalPost.media.length > 0 && (
+            <div className="w-full min-w-0 pt-1 pb-2" onClick={(e) => e.stopPropagation()}>
+              <RedditGallery mediaList={post.externalPost.media} externalPost={post.externalPost} />
             </div>
+          )}
 
-            {displayContent.length > 420 && (
-              <button
-                type="button"
-                data-no-nav
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsExpanded((value) => !value);
-                }}
-                className="cl-interactive mt-1 inline-flex min-h-9 items-center rounded-lg px-1.5 text-[11px] font-bold text-primary hover:bg-primary/8 hover:underline cursor-pointer"
+        {/* Compact topic metadata / hashtags */}
+        {extractedHashtags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-2" onClick={(e) => e.stopPropagation()}>
+            {extractedHashtags.slice(0, 4).map((tag, idx) => (
+              <Link
+                key={tag}
+                href={`/hashtag/${tag}`}
+                className={cn(
+                  "min-h-7 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-colors shrink-0",
+                  idx === 0
+                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-300"
+                    : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
               >
-                {isExpanded ? "Show less" : "Read more"}
-              </button>
+                #{tag}
+              </Link>
+            ))}
+            {extractedHashtags.length > 4 && (
+              <span className="min-h-7 rounded-full bg-muted/40 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                +{extractedHashtags.length - 4}
+              </span>
             )}
           </div>
+        )}
 
-          {/* External Reddit Media Renderers (HTML5 Video / Gallery) */}
-          {post.externalPost && post.externalPost.contentType === "VIDEO" && post.externalPost.media[0] && (
-            <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
-              <RedditVideo media={post.externalPost.media[0]} externalPost={post.externalPost} />
-            </div>
-          )}
-
-          {post.externalPost &&
-            post.externalPost.contentType === "GALLERY" &&
-            post.externalPost.media.length > 0 && (
-              <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
-                <RedditGallery mediaList={post.externalPost.media} externalPost={post.externalPost} />
-              </div>
-            )}
-
-          {/* Compact topic metadata; the trailing hashtag block is removed from body above. */}
-          {extractedHashtags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1" onClick={(e) => e.stopPropagation()}>
-              {extractedHashtags.slice(0, 3).map((tag, idx) => (
-                <Link
-                  key={tag}
-                  href={`/hashtag/${tag}`}
-                  className={cn(
-                    "min-h-7 rounded-full bg-muted/55 px-2.5 py-1 text-[10px] font-bold transition-colors shrink-0",
-                    idx === 0
-                      ? "bg-purple-500/10 text-purple-600 dark:text-purple-300"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  #{tag}
-                </Link>
-              ))}
-              {extractedHashtags.length > 3 && (
-                <span className="min-h-7 rounded-full bg-muted/40 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
-                  +{extractedHashtags.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Embedded Original Quoted Post (only when user provided separate quote thoughts) */}
-          {post.repostOf &&
-            Boolean(post.repostComment) &&
-            post.body?.trim() !== post.repostOf.body?.trim() && (
-              <Link href={`/post/${post.repostOf.id}`} onClick={(e) => e.stopPropagation()}>
-                <div className="mt-2.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors p-3 text-xs space-y-1">
+        {/* Embedded Original Quoted Post */}
+        {post.repostOf &&
+          Boolean(post.repostComment) &&
+          post.body?.trim() !== post.repostOf.body?.trim() && (
+            <div className="w-full min-w-0 pb-2" onClick={(e) => e.stopPropagation()}>
+              <Link href={`/post/${post.repostOf.id}`}>
+                <div className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors p-3 text-xs space-y-1">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
                     <span className="font-bold text-foreground">
                       @{post.repostOf.author?.username || "student"}
@@ -478,16 +469,18 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                   <p className="text-foreground/90 line-clamp-3 leading-relaxed">{post.repostOf.body}</p>
                 </div>
               </Link>
-            )}
-
-          {/* Poll Component */}
-          {post.type === "POLL" && post.pollOptions && (
-            <div className="mt-2.5" onClick={(e) => e.stopPropagation()}>
-              <PollCard post={post} />
             </div>
           )}
 
-          {/* Facebook / Twitter Style Liked By Row */}
+        {/* Poll Component */}
+        {post.type === "POLL" && post.pollOptions && (
+          <div className="w-full min-w-0 pb-2" onClick={(e) => e.stopPropagation()}>
+            <PollCard post={post} />
+          </div>
+        )}
+
+        {/* 3. FOOTER ROW: Action Bar aligned horizontally along the bottom */}
+        <div className="w-full min-w-0 pt-1">
           {(() => {
             const effectiveVotesCount = userVote === 1 && votesCount <= 0 ? 1 : votesCount;
             return (
@@ -498,7 +491,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                       e.stopPropagation();
                       setShowLikesModal(true);
                     }}
-                    className="flex items-center gap-1.5 pt-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer group w-fit"
+                    className="flex items-center gap-1.5 pb-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer group w-fit"
                   >
                     <div className="size-4 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0 shadow-2xs">
                       <Heart className="size-2.5 fill-white text-white" />
@@ -511,7 +504,6 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                   </div>
                 )}
 
-                {/* Action Bar */}
                 <FeedCardActions
                   post={post}
                   userVote={userVote}
@@ -527,7 +519,6 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             );
           })()}
         </div>
-      </div>
 
       {/* Post Likes Modal (Facebook-style who liked list) */}
       <PostLikesModal
