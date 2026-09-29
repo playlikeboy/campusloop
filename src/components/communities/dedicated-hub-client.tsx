@@ -14,7 +14,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { AcademicCard } from "@/components/communities/academic-card";
 import { GamingLobbyCard } from "@/components/communities/gaming-lobby-card";
@@ -134,12 +134,12 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
 
   useEffect(() => setSearch(urlSearch), [urlSearch]);
 
-  function updateUrl(mutator: (params: URLSearchParams) => void) {
+  const updateUrl = useCallback((mutator: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
     mutator(params);
     const query = params.toString();
     router.replace(query ? pathname + "?" + query : pathname, { scroll: true });
-  }
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     const next = search.trim();
@@ -154,7 +154,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
     }, 350);
 
     return () => window.clearTimeout(timer);
-  }, [search, urlSearch]);
+  }, [search, updateUrl, urlSearch]);
 
   const feedUrl = useMemo(() => {
     const params = new URLSearchParams({
