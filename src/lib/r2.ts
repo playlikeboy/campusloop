@@ -130,6 +130,24 @@ export async function getR2Object(
   const local = localDevMemoryStorage.get(key);
   if (!local) return null;
 
+  if (rangeHeader) {
+    const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+    if (match) {
+      const start = Number.parseInt(match[1], 10);
+      const end = match[2] ? Number.parseInt(match[2], 10) : local.size - 1;
+      if (!Number.isNaN(start) && start < local.size) {
+        const actualEnd = Math.min(end, local.size - 1);
+        const sliced = local.data.subarray(start, actualEnd + 1);
+        return {
+          body: sliced,
+          contentType: local.contentType,
+          size: local.size,
+          range: { offset: start, length: sliced.byteLength },
+        };
+      }
+    }
+  }
+
   return {
     body: local.data,
     contentType: local.contentType,
