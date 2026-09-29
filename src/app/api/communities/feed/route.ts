@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
       const offset = (page - 1) * limit;
 
       if (tab === "discussions") {
-        const conditions = [isNotNull(posts.communityId)];
-        if (q) conditions.push(or(ilike(posts.title, q), ilike(posts.body, q)) as never);
+        const conditions: any[] = [isNotNull(posts.communityId)];
+        if (q) conditions.push(or(ilike(posts.title, q), ilike(posts.body, q)));
         const where = and(...conditions);
         const [{ value: totalValue }] = await db.select({ value: count(posts.id) }).from(posts).where(where);
         const total = Number(totalValue || 0);
