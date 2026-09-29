@@ -607,7 +607,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-50" />
           <div className="absolute inset-2 rounded-full border border-primary/50 animate-pulse" />
           <div className="size-20 rounded-full bg-primary/15 border-2 border-primary flex items-center justify-center shadow-lg">
-            <Zap className="size-8 text-primary fill-primary animate-bounce" />
+            <Zap className="size-8 text-primary fill-primary transition-transform duration-300 ease-out" />
           </div>
         </div>
 

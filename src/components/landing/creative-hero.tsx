@@ -82,7 +82,7 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
         <div className="text-center max-w-3xl mx-auto space-y-3.5 sm:space-y-4">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground leading-[1.08]">
             Your campus,{" "}
-            <span className="bg-gradient-to-r from-emerald-500 via-teal-400 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-primary">
               unhinged & alive.
             </span>
           </h1>

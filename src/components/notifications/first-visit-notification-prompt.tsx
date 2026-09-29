@@ -75,7 +75,7 @@ export function FirstVisitNotificationPrompt() {
 
           <div className="flex items-start gap-3.5">
             <div className="size-11 rounded-2xl bg-linear-to-tr from-primary to-primary/80 text-primary-foreground flex items-center justify-center shadow-md shrink-0">
-              <BellRing className="size-5.5 animate-bounce" />
+              <BellRing className="size-5.5 transition-transform duration-300 ease-out" />
             </div>
 
             <div className="space-y-1 min-w-0 pr-5">
