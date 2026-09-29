@@ -132,7 +132,9 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                 <div className="text-center w-full min-w-0">
                   <p className="text-xs font-extrabold text-foreground truncate flex items-center justify-center gap-1">
                     <span>{top1.displayName}</span>
-                    <BadgeCheck className="size-3.5 text-brand inline shrink-0" title="Verified Campus Student" />
+                    <span title="Verified Campus Student" className="inline-flex shrink-0">
+                      <BadgeCheck className="size-3.5 text-brand" />
+                    </span>
                   </p>
                   <p className="text-[10px] text-muted-foreground truncate">@{top1.username}</p>
                 </div>
@@ -282,7 +284,9 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                       <p className="text-xs font-extrabold text-foreground truncate flex items-center gap-1">
                         <span>{student.displayName}</span>
                         {(student.points || 0) >= 150 && (
-                          <BadgeCheck className="size-3 text-brand inline shrink-0" title="Verified Student" />
+                          <span title="Verified Student" className="inline-flex shrink-0">
+                            <BadgeCheck className="size-3 text-brand" />
+                          </span>
                         )}
                       </p>
                       <p className="text-[10px] text-muted-foreground truncate">
