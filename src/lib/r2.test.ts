@@ -38,6 +38,21 @@ describe("R2 Cloudflare Storage Engine", () => {
     expect(nonExistent).toBeNull();
   });
 
+  it("should support HTTP byte range slicing for media streaming", async () => {
+    const key = "test/range-probe.mp4";
+    const data = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    await putR2Object(key, data, "video/mp4");
+    const ranged = await getR2Object(key, "bytes=2-6");
+
+    expect(ranged).not.toBeNull();
+    expect(ranged?.range).toEqual({ offset: 2, length: 5 });
+    expect(ranged?.size).toBe(10);
+    if (ranged?.body instanceof Uint8Array) {
+      expect(Array.from(ranged.body)).toEqual([2, 3, 4, 5, 6]);
+    }
+  });
+
   it("should successfully delete objects from storage", async () => {
     const key = "test/delete-target.txt";
     const data = new TextEncoder().encode("to be deleted");
