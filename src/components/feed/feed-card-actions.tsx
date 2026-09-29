@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/animated-icon";
 import { notifyAuthRequired, type AuthRequiredAction } from "@/components/auth/auth-required-overlay";
 import type { FeedPost } from "@/hooks/use-feed";
+import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 interface FeedCardActionsProps {
@@ -42,6 +44,8 @@ export function FeedCardActions({
   onOpenComments,
   onOpenLikes,
 }: FeedCardActionsProps) {
+  const { profile } = useProfile();
+  const isAuthenticated = Boolean(currentUserId || profile?.userId);
   const [repostSpin, setRepostSpin] = useState(false);
   const [hasReposted, setHasReposted] = useState(false);
   const [isSaved, setIsSaved] = useState(Boolean(post.isSaved));
@@ -58,7 +62,7 @@ export function FeedCardActions({
   const displayCommentsCount = commentsCount ?? post.commentsCount;
 
   function requireAuth(action: AuthRequiredAction, callback: () => void) {
-    if (!currentUserId) {
+    if (!isAuthenticated) {
       notifyAuthRequired(action);
       return;
     }
@@ -78,7 +82,7 @@ export function FeedCardActions({
 
   async function handleToggleSave(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!currentUserId) {
+    if (!isAuthenticated) {
       notifyAuthRequired("save");
       return;
     }
