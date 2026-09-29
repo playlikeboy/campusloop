@@ -123,13 +123,13 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="mt-3.5 block overflow-hidden rounded-3xl border border-purple-500/20 bg-[#12111d]/95 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-purple-950/20 space-y-4 select-none cursor-pointer group/comm hover:border-purple-500/40 hover:bg-[#151322] transition-all no-card-nav"
+      className="mt-3.5 block overflow-hidden rounded-3xl border border-border/60 bg-card p-4 sm:p-5 shadow-md space-y-4 select-none cursor-pointer group/comm hover:border-primary/40 hover:shadow-lg transition-all no-card-nav"
       data-no-nav="true"
     >
       {/* Top Row: Community Icon, Badge, Share, Title & Description */}
       <div className="flex items-start gap-3.5">
         {/* Squircle Icon Container */}
-        <div className="size-14 sm:size-16 rounded-2xl bg-gradient-to-br from-purple-700/30 to-purple-950/60 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-inner overflow-hidden">
+        <div className="size-14 sm:size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
           {community.avatarUrl ? (
             <img
               src={community.avatarUrl}
@@ -138,20 +138,20 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
               loading="lazy"
             />
           ) : (
-            <Users className="size-7 sm:size-8 text-purple-200 fill-purple-300/30" />
+            <Users className="size-7 sm:size-8 text-primary" />
           )}
         </div>
 
         {/* Info Column */}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-purple-500/15 text-purple-300 border border-purple-500/30">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
               Community
             </span>
             <button
               type="button"
               onClick={handleShare}
-              className="size-8 rounded-full border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              className="size-8 rounded-full border border-border/60 hover:border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
               title="Share Community"
               aria-label="Share community"
             >
@@ -159,11 +159,11 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
             </button>
           </div>
 
-          <h3 className="font-black text-base sm:text-lg text-white tracking-tight leading-snug truncate group-hover/comm:text-purple-200 transition-colors">
+          <h3 className="font-black text-base sm:text-lg text-foreground tracking-tight leading-snug truncate group-hover/comm:text-primary transition-colors">
             {community.name}
           </h3>
 
-          <p className="text-xs text-white/65 line-clamp-2 leading-relaxed">{community.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{community.description}</p>
         </div>
       </div>
 
@@ -177,17 +177,17 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
                   key={i}
                   src={src}
                   alt="Member avatar"
-                  className="size-6 sm:size-6.5 rounded-full border-2 border-[#12111d] object-cover ring-1 ring-white/10"
+                  className="size-6 sm:size-6.5 rounded-full border-2 border-card object-cover ring-1 ring-border/20"
                   loading="lazy"
                 />
               ))}
             </div>
           ) : (
-            <div className="size-6 rounded-full bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+            <div className="size-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
               <Users className="size-3" />
             </div>
           )}
-          <span className="text-xs font-semibold text-white/85 truncate">
+          <span className="text-xs font-semibold text-foreground/80 truncate">
             {memberCount} {memberCount === 1 ? "member" : "members"}
           </span>
         </div>
@@ -195,7 +195,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
         <div onClick={(e) => e.stopPropagation()} className="shrink-0">
           <JoinCommunityButton
             communityId={community.id}
-            className="h-8.5 px-5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm rounded-full shadow-lg shadow-purple-900/30 border-0"
+            className="h-8.5 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs sm:text-sm rounded-full shadow-md shadow-primary/20 border-0"
           />
         </div>
       </div>
@@ -206,7 +206,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
           {community.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] sm:text-xs font-semibold text-white/80 hover:bg-white/10 transition-colors cursor-default"
+              className="rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-[11px] sm:text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-default"
             >
               {tag}
             </span>
@@ -215,13 +215,13 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
       )}
 
       {/* Bottom Row: Link Capsule Bar */}
-      <div className="rounded-2xl border border-white/10 bg-black/40 hover:bg-black/60 transition-colors px-3.5 py-2.5 flex items-center justify-between group/link">
+      <div className="rounded-2xl border border-border/60 bg-muted/30 hover:bg-muted/50 transition-colors px-3.5 py-2.5 flex items-center justify-between group/link">
         <div className="flex items-center gap-2 min-w-0 text-xs font-medium">
-          <Link2 className="size-3.5 text-white/60 shrink-0" />
-          <span className="font-semibold text-white truncate">campusloop.space</span>
-          <span className="text-white/45 truncate">/c/{community.slug || community.id}</span>
+          <Link2 className="size-3.5 text-muted-foreground shrink-0" />
+          <span className="font-semibold text-foreground truncate">campusloop.space</span>
+          <span className="text-muted-foreground truncate">/c/{community.slug || community.id}</span>
         </div>
-        <ChevronRight className="size-4 text-white/40 group-hover/link:text-white transition-colors shrink-0" />
+        <ChevronRight className="size-4 text-muted-foreground group-hover/link:text-foreground transition-colors shrink-0" />
       </div>
     </div>
   );

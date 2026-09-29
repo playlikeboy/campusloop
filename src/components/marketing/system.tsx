@@ -7,10 +7,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import { cn } from "@/lib/utils";
 
-export const BRAND_GRADIENT = "bg-linear-to-r from-indigo-500 via-violet-600 to-purple-600";
+export const BRAND_GRADIENT = "bg-primary";
 
 export function GradientText({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <span className={cn(BRAND_GRADIENT, "bg-clip-text text-transparent", className)}>{children}</span>;
+  return <span className={cn("text-primary font-bold", className)}>{children}</span>;
 }
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" }) {

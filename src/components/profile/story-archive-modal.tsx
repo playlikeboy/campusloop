@@ -200,7 +200,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
                       <div
                         className={cn(
                           "size-full p-2 flex items-center justify-center text-center text-[11px] font-bold text-white leading-tight",
-                          story.backgroundColor || "bg-linear-to-tr from-violet-600 to-indigo-600"
+                          story.backgroundColor || "bg-linear-to-tr from-primary to-primary/80"
                         )}
                       >
                         <p className="line-clamp-4">{story.text || "Campus Vibe"}</p>
