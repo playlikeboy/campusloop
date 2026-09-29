@@ -85,6 +85,7 @@ export default async function MainCollegePage({ params }: PageProps) {
       (await db.query.institutions.findFirst({
         with: {
           profiles: true,
+          domains: true,
         },
       })) ?? null;
   }
