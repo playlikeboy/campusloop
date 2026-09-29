@@ -109,7 +109,7 @@ export function ConfessionsFeed() {
   const campusShortName = profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-background">
+    <main className="mx-auto flex w-full min-w-0 max-w-2xl flex-col min-h-screen basis-full overflow-x-clip pb-[calc(4.25rem+env(safe-area-inset-bottom))] bg-background">
       {/* ─── Compact Confessions Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
       <header className="sticky top-14 z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl shadow-2xs">
         <div className="flex min-h-12 items-center justify-between gap-2 px-3.5 sm:px-4">
