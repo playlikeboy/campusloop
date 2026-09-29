@@ -26,6 +26,24 @@ export interface RecommendedUser {
   isFollowing?: boolean;
 }
 
+export function formatBranchShort(branch: string): string {
+  const b = branch.trim().toLowerCase();
+  if (b.includes("computer science") || b === "cse" || b.includes("cs")) return "CSE";
+  if (b.includes("information tech") || b === "it") return "IT";
+  if ((b.includes("electronics") && b.includes("communication")) || b === "ece") return "ECE";
+  if (b.includes("electrical") || b === "eee" || b === "ee") return "EE";
+  if (b.includes("mechanical") || b === "me") return "Mech";
+  if (b.includes("civil") || b === "ce") return "Civil";
+  if (b.includes("chemical") || b === "che") return "Chem";
+  if (b.includes("biotechnology") || b.includes("biotech")) return "Biotech";
+  if (b.includes("artificial intelligence") || b.includes("ai")) return "AI/ML";
+  if (b.includes("data science") || b === "ds") return "Data Sci";
+  if (b.includes("aerospace")) return "Aero";
+  if (b.includes("production")) return "Prod";
+  if (branch.length > 12) return `${branch.slice(0, 10).toUpperCase()}…`;
+  return branch.toUpperCase();
+}
+
 /**
  * Recommends student profiles tailored to the viewer using:
  * 1. Qdrant Cloud Vector embeddings (semantic vibe similarity from bio & interests).
@@ -148,17 +166,18 @@ export async function getRecommendedUsers(
     const clampedScore = Math.max(35, Math.min(99, score));
 
     // Determine intuitive match reason badge
-    let matchReason = "🌟 Active Looper";
+    let matchReason = "Active";
     if (vectorSim && vectorSim >= 0.5) {
-      matchReason = `✨ ${clampedScore}% Vibe Match`;
+      matchReason = `${clampedScore}% Match`;
     } else if (sameCampus) {
-      matchReason = "🏛️ Same Campus";
-    } else if (sharedInterests.length > 0) {
-      matchReason = `⚡ ${sharedInterests[0]}`;
+      matchReason = "Same Campus";
     } else if (sameBranch && cand.branch) {
-      matchReason = `🎓 ${cand.branch.toUpperCase()}`;
+      matchReason = formatBranchShort(cand.branch);
+    } else if (sharedInterests.length > 0) {
+      const interest = sharedInterests[0];
+      matchReason = interest.length > 12 ? `${interest.slice(0, 10)}…` : interest;
     } else if (clampedScore >= 65) {
-      matchReason = `✨ ${clampedScore}% Vibe`;
+      matchReason = `${clampedScore}% Vibe`;
     }
 
     return {

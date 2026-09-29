@@ -43,9 +43,9 @@ export function CampusPulseSection({
         <h2 className="text-base font-bold tracking-tight text-foreground">Campus Pulse</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Trending Topics Column */}
-        <div className="rounded-2xl border border-border/40 bg-card/60 p-4 backdrop-blur-xs flex flex-col justify-between space-y-3">
+        <div className="lg:col-span-5 rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-xs flex flex-col justify-between space-y-3 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             <TrendingUp className="size-3.5 text-primary" />
             <span>Trending Topics</span>
@@ -55,7 +55,7 @@ export function CampusPulseSection({
             {trends.length === 0 ? (
               <p className="text-xs text-muted-foreground py-3">No active trends yet on campus.</p>
             ) : (
-              trends.slice(0, 5).map((item, idx) => (
+              trends.slice(0, 6).map((item, idx) => (
                 <div
                   key={item.topic + idx}
                   onClick={() => {
@@ -83,7 +83,7 @@ export function CampusPulseSection({
         </div>
 
         {/* Top Discussions Column */}
-        <div className="rounded-2xl border border-border/40 bg-card/60 p-4 backdrop-blur-xs flex flex-col justify-between space-y-3">
+        <div className="lg:col-span-7 rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-xs flex flex-col justify-between space-y-3 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             <MessageSquare className="size-3.5 text-violet-500" />
             <span>Top Discussions</span>
@@ -93,7 +93,7 @@ export function CampusPulseSection({
             {topDiscussions.length === 0 ? (
               <p className="text-xs text-muted-foreground py-3">No trending discussions yet today.</p>
             ) : (
-              topDiscussions.slice(0, 4).map((d) => (
+              topDiscussions.slice(0, 6).map((d) => (
                 <Link
                   key={d.id}
                   href={d.href}

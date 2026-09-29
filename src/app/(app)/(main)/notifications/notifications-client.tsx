@@ -244,9 +244,12 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
   ];
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-28 border-x border-border/20">
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ─── Main Notifications Feed Column (8 cols on lg) ─── */}
+        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 bg-card/30 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
+          {/* ─── Sticky Header ─── */}
+          <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-2.5">
             <h1 className="text-lg font-black tracking-tight text-foreground">Notifications</h1>
@@ -527,6 +530,72 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           </div>
         )}
       </div>
+        </main>
+
+        {/* ─── Desktop Context & Settings Rail (4 cols on lg, sticky) ─── */}
+        <aside className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-20 select-none">
+          {/* Push Notifications Card */}
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-primary">
+              <Bell className="size-4" />
+              <h3 className="text-sm font-bold text-foreground">Push Notifications</h3>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Never miss campus replies, confession interactions, study invites, or match alerts even when your browser is closed.
+            </p>
+            <PushNotificationToggle variant="row" />
+          </div>
+
+          {/* Quick Actions Card */}
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notification Actions</h3>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleMarkAllAsRead}
+                disabled={effectiveUnread === 0}
+                className={cn(
+                  "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-all",
+                  effectiveUnread > 0
+                    ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 cursor-pointer shadow-2xs"
+                    : "border-border/30 text-muted-foreground/60 cursor-not-allowed opacity-60"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <AnimatedIcon icon={AnimateCheckCheck} animation="nudge-right" size={15} />
+                  <span>Mark all as read</span>
+                </div>
+                {effectiveUnread > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-primary text-primary-foreground">
+                    {effectiveUnread}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPendingClear("read")}
+                disabled={displayList.length === 0}
+                className="flex items-center gap-2 p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              >
+                <Eraser className="size-3.5" />
+                <span>Clear read notifications</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Student Privacy & Safety */}
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
+              <ShieldCheck className="size-4 text-emerald-500" />
+              <span>Campus Security</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">
+              Your notifications stream is private and encrypted. Notifications from anonymous confessions protect author privacy while keeping you informed.
+            </p>
+          </div>
+        </aside>
+      </div>
 
       <ConfirmDialog
         isOpen={pendingClear !== null}
@@ -552,6 +621,6 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           if (!isClearing) setPendingClear(null);
         }}
       />
-    </main>
+    </div>
   );
 }

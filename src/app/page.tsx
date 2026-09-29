@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AcademicsQuickVault } from "@/components/landing/academics-quick-vault";
 import { CampusTicker } from "@/components/landing/campus-ticker";
 import { CampusVibeGrid } from "@/components/landing/campus-vibe-grid";
@@ -9,6 +10,7 @@ import { CreativeHero } from "@/components/landing/creative-hero";
 import { InteractivePersonaFlip } from "@/components/landing/interactive-persona-flip";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
 import { MobileStickyBar } from "@/components/landing/mobile-sticky-bar";
+import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 const SITE_URL = "https://campusloop.space";
@@ -76,7 +78,10 @@ export const metadata: Metadata = {
 
 export default async function LandingPage() {
   const user = await hexclaveServerApp.getUser();
-  const isAuthenticated = !!user;
+  if (user) {
+    redirect("/feeds");
+  }
+  const isAuthenticated = false;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -167,6 +172,7 @@ export default async function LandingPage() {
 
   return (
     <div className="campusloop-landing min-h-screen flex flex-col bg-pastel-mesh text-foreground selection:bg-primary/20 selection:text-primary">
+      <PwaLaunchRedirect />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Floating Pill Navigation */}

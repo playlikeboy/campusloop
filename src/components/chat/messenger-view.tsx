@@ -299,7 +299,7 @@ export function MessengerView({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <Link
-                href="/app"
+                href="/feeds"
                 className="size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 title="Back to Campus Feed"
               >
@@ -315,16 +315,16 @@ export function MessengerView({
 
             <div className="flex items-center gap-2">
               <Link
-                href="/random"
+                href="/dating"
                 onClick={() => {
                   sounds.pop();
                   haptics.medium();
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95"
-                title="Meet someone unexpected in Random Loop"
+                title="Discover classmates on Campus Match"
               >
                 <Zap className="size-3.5 fill-amber-500 text-amber-500" />
-                <span>Random</span>
+                <span>Match</span>
               </Link>
 
               {/* Circular Search Trigger */}

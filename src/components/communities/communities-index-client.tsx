@@ -266,8 +266,7 @@ export function CommunitiesIndexClient({
             })}
           </div>
 
-          {/* Responsive Sub-Hubs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 pt-1">
             {filteredCommunities.map((c) => {
               const isMember = c.members.some((m) => m.userId === profileId);
               const avatar = getAvatarUrl(c.avatarUrl, c.name);
@@ -429,7 +428,7 @@ export function CommunitiesIndexClient({
       {activeTab === "my_communities" && (
         <div className="pt-2">
           {myCommunities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {myCommunities.map((c) => {
                 const avatar = getAvatarUrl(c.avatarUrl, c.name);
 

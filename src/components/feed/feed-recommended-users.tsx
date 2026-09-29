@@ -90,11 +90,11 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
         {users.map((user) => (
           <div
             key={user.id}
-            className="w-44 sm:w-48 snap-start shrink-0 flex flex-col justify-between rounded-2xl border border-border/50 bg-card/90 p-3.5 shadow-2xs hover:border-border transition-all group"
+            className="w-48 sm:w-52 snap-start shrink-0 flex flex-col justify-between rounded-2xl border border-border/50 bg-card/90 p-3.5 shadow-2xs hover:border-border transition-all group overflow-hidden"
           >
             {/* Top Row: Avatar & Match Badge */}
             <div className="space-y-2">
-              <div className="flex items-start justify-between gap-1.5">
+              <div className="flex items-start justify-between gap-1.5 min-w-0">
                 <Link href={`/@${user.username}`} className="shrink-0">
                   <Avatar className="size-11 rounded-full border border-border/60 group-hover:scale-105 transition-transform">
                     <AvatarImage src={user.avatarUrl || ""} alt={user.displayName} />
@@ -105,8 +105,11 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
                 </Link>
 
                 {/* Vibe Badge */}
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary border border-primary/20 shrink-0">
-                  {user.matchReason}
+                <span
+                  title={user.matchReason}
+                  className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary border border-primary/20 max-w-[110px] truncate shrink leading-tight"
+                >
+                  <span className="truncate">{user.matchReason}</span>
                 </span>
               </div>
 

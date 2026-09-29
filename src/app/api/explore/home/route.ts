@@ -93,7 +93,7 @@ export async function GET(req: Request) {
 
       // 3. Communities
       db.query.communities.findMany({
-        limit: 4,
+        limit: 8,
         orderBy: [desc(communities.createdAt)],
         columns: {
           id: true,
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
       // 4. Events
       db.query.events.findMany({
         where: eq(events.status, "PUBLISHED"),
-        limit: 4,
+        limit: 8,
         orderBy: [desc(events.startDate)],
         columns: {
           id: true,
@@ -127,7 +127,7 @@ export async function GET(req: Request) {
 
       // 5. Academic Vault resources
       db.query.academicResources.findMany({
-        limit: 4,
+        limit: 8,
         orderBy: [desc(academicResources.createdAt)],
         columns: {
           id: true,
@@ -144,7 +144,7 @@ export async function GET(req: Request) {
       // 6. Articles & Long Reads
       db.query.articles.findMany({
         where: eq(articles.status, "PUBLISHED"),
-        limit: 4,
+        limit: 8,
         orderBy: [desc(articles.publishedAt)],
         columns: {
           id: true,
@@ -166,7 +166,7 @@ export async function GET(req: Request) {
 
       // 7. Colleges
       db.query.institutions.findMany({
-        limit: 4,
+        limit: 8,
         columns: {
           id: true,
           slug: true,
@@ -180,7 +180,7 @@ export async function GET(req: Request) {
 
       // 8. People to follow
       db.query.userProfiles.findMany({
-        limit: 4,
+        limit: 8,
         orderBy: [desc(userProfiles.points)],
         columns: {
           id: true,
@@ -201,7 +201,7 @@ export async function GET(req: Request) {
       // 9. Marketplace / Stores
       db.query.merchants.findMany({
         where: eq(merchants.status, "ACTIVE"),
-        limit: 4,
+        limit: 8,
         columns: {
           id: true,
           name: true,
