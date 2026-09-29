@@ -82,7 +82,7 @@ export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: Compass, href: "/explore", label: "Explore" },
   { icon: Plus, href: "/post/new", label: "Create" },
   { icon: MessageSquare, href: "/chat", label: "Chats" },
-  { icon: LayoutGrid, href: "/more", label: "More" },
+  { icon: AnimateUser, href: "/profile", label: "Profile" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [

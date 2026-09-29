@@ -43,9 +43,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
         isAdmin={profile?.role === "ADMIN"}
         isViewer={viewerMode}
       />
-      <div className="flex-1 w-full min-w-0 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="flex-1 w-full min-w-0 max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-0 sm:py-6">
         {viewerMode && (
-          <div className="mb-4 flex min-h-8 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-center text-xs font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md">
+          <div className="mx-3 sm:mx-0 my-2 sm:my-0 sm:mb-4 flex min-h-8 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-center text-xs font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md">
             <span>
               Preview mode · <strong>Verify your college email</strong> to post, vote &amp; chat.
             </span>
