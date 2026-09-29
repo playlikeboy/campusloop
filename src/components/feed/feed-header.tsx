@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Globe, GraduationCap, ListFilter, Menu, RotateCw, School } from "lucide-react";
+import { Flame, Globe, ListFilter, RotateCw, School } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -46,90 +46,50 @@ export function FeedHeader({
     (visibility !== "all" ? 1 : 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/92 backdrop-blur-xl border-b border-border/35 px-3.5 py-3 sm:px-4">
-      {/* Top Bar Header (Matching Mockup: News Feed + Search + Scope) */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
-              }
-            }}
-            className="md:hidden flex size-9 shrink-0 items-center justify-center rounded-xl bg-card/80 hover:bg-muted text-foreground border border-border/50 active:scale-95 transition-all shadow-2xs cursor-pointer"
-            aria-label="Open sidebar navigation"
-            title="Open Menu"
-          >
-            <Menu className="size-4.5" />
-          </button>
-          <h1 className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">News Feed</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {onRefresh && (
+    <div className="sticky top-14 z-30 bg-background/92 backdrop-blur-xl border-b border-border/30 px-3 py-2 sm:px-4">
+      {/* Consolidated Pill Bar: Location Toggle + Feed Tabs + Quick Actions */}
+      <div className="flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 min-w-0 flex-1">
+          {/* Scope selection pill */}
+          <div className="flex rounded-full bg-muted/60 p-0.5 text-[11px] font-bold shrink-0 border border-border/40">
             <button
               type="button"
-              onClick={() => onRefresh()}
-              disabled={isRefreshing}
-              className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer active:scale-95"
-              title="Refresh feed"
-              aria-label="Refresh feed"
-            >
-              <RotateCw
-                className={cn("size-3.5 transition-transform", isRefreshing && "animate-spin text-primary")}
-              />
-            </button>
-          )}
-
-          {/* Scope selection pill */}
-          <div className="flex rounded-full bg-muted/70 p-1 text-[11px] font-bold">
-            <button
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
+                "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer min-h-[30px]",
                 scope === "CAMPUS"
-                  ? "bg-card text-foreground shadow-xs"
+                  ? "bg-card text-foreground shadow-xs font-black"
                   : "text-muted-foreground hover:text-foreground"
               )}
+              title="Campus Feed"
             >
-              <School className="h-3 w-3 text-primary" />
-              <span className="truncate max-w-[120px]">
+              <School className="size-3 text-primary shrink-0" />
+              <span className="truncate max-w-[90px] sm:max-w-[130px]">
                 {institutionSlug
                   ? `${institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)}`
                   : "Campus"}
               </span>
             </button>
             <button
+              type="button"
               onClick={() => onScopeChange("GLOBAL")}
               className={cn(
-                "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
+                "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer min-h-[30px]",
                 scope === "GLOBAL"
-                  ? "bg-card text-foreground shadow-xs"
+                  ? "bg-card text-foreground shadow-xs font-black"
                   : "text-muted-foreground hover:text-foreground"
               )}
+              title="Global Feed"
             >
-              <Globe className="h-3 w-3 text-secondary" />
-              Global
+              <Globe className="size-3 text-secondary shrink-0" />
+              <span>Global</span>
             </button>
           </div>
 
-          {/* Academics shortcut */}
-          <Link
-            href="/academics"
-            className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/15 bg-primary/10 px-2.5 text-primary transition-all hover:bg-primary/15 active:scale-95 cursor-pointer"
-            aria-label="Open Academics"
-            title="Academics"
-          >
-            <GraduationCap className="size-4" />
-            <span className="hidden sm:inline text-xs font-black">Academics</span>
-          </Link>
-        </div>
-      </div>
+          {/* Subtle separator */}
+          <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
 
-      {/* Segmented Sort Pills */}
-      <div className="flex items-center justify-between border-t border-border/20 pt-2 mt-2 -mx-1 px-1">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 flex-1">
+          {/* Segmented Sort Pills */}
           {SORT_TABS.map((s) => {
             const isCurrent = sort === s.id;
             if (s.id === "confessions") {
@@ -138,14 +98,14 @@ export function FeedHeader({
                   key={s.id}
                   href="/confessions"
                   className={cn(
-                    "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full flex items-center gap-1.5 group",
+                    "min-h-[30px] px-3 py-1 font-bold transition-all cursor-pointer shrink-0 text-xs rounded-full flex items-center gap-1 group whitespace-nowrap",
                     isCurrent
-                      ? "bg-secondary text-secondary-foreground shadow-xs"
+                      ? "bg-secondary text-secondary-foreground shadow-xs font-black"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   )}
                 >
                   <span>{s.label}</span>
-                  <Flame className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <Flame className="size-3 text-amber-500 fill-amber-500 shrink-0" />
                 </Link>
               );
             }
@@ -156,7 +116,7 @@ export function FeedHeader({
                 type="button"
                 onClick={() => onSortChange(s.id)}
                 className={cn(
-                  "min-h-9 px-3 py-1.5 font-bold transition-all cursor-pointer shrink-0 text-[11px] sm:text-xs rounded-full",
+                  "min-h-[30px] px-3 py-1 font-bold transition-all cursor-pointer shrink-0 text-xs rounded-full whitespace-nowrap",
                   isCurrent
                     ? "bg-secondary text-secondary-foreground shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -168,31 +128,48 @@ export function FeedHeader({
           })}
         </div>
 
-        {/* Filter button */}
-        <button
-          type="button"
-          onClick={() => setShowFilters(!showFilters)}
-          className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ml-1",
-            showFilters || activeFiltersCount > 1
-              ? "bg-primary/10 text-primary"
-              : "hover:bg-muted text-muted-foreground hover:text-foreground"
+        {/* Right Action Icons: Refresh + Filter */}
+        <div className="flex items-center gap-1 shrink-0">
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={() => onRefresh()}
+              disabled={isRefreshing}
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer active:scale-95"
+              title="Refresh feed"
+              aria-label="Refresh feed"
+            >
+              <RotateCw
+                className={cn("size-3.5 transition-transform", isRefreshing && "animate-spin text-primary")}
+              />
+            </button>
           )}
-          aria-label="Filter feed"
-          title="Filter feed"
-        >
-          <ListFilter className="size-4" />
-        </button>
+
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              "flex size-8 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer",
+              showFilters || activeFiltersCount > 1
+                ? "bg-primary/10 text-primary"
+                : "hover:bg-muted/70 text-muted-foreground hover:text-foreground"
+            )}
+            aria-label="Filter feed"
+            title="Filter feed"
+          >
+            <ListFilter className="size-4" />
+          </button>
+        </div>
       </div>
 
       {/* Advanced Filters Dropdown */}
       <div
         className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out border-t border-transparent bg-muted/10 rounded-2xl",
-          showFilters ? "max-h-[160px] border-border/30 pb-3.5 pt-3 px-3.5 mt-2" : "max-h-0 pb-0 pt-0"
+          "overflow-hidden transition-all duration-300 ease-in-out border-t border-transparent bg-muted/20 rounded-2xl",
+          showFilters ? "max-h-[160px] border-border/30 pb-3 pt-2.5 px-3 mt-2" : "max-h-0 pb-0 pt-0"
         )}
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {/* Identity filter */}
           <div className="space-y-1">
             <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -237,7 +214,7 @@ export function FeedHeader({
             </div>
           </div>
         </div>
-        <div className="flex justify-end pt-3 text-[10px] font-bold">
+        <div className="flex justify-end pt-2 text-[10px] font-bold">
           <button
             onClick={() => {
               onScopeChange("GLOBAL");
@@ -251,6 +228,6 @@ export function FeedHeader({
           </button>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

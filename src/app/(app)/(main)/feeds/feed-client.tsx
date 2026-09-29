@@ -266,8 +266,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-24">
-        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-2xl border border-border/30 overflow-hidden shadow-xs">
+      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-start pb-24">
+        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-none sm:rounded-2xl border-0 sm:border border-border/30 overflow-hidden shadow-none sm:shadow-xs">
           <FeedHeader
             scope={scope}
             onScopeChange={handleScopeChange}
@@ -312,8 +312,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             )}
           </div>
 
-          {/* ─── Twitter-Style Quick Composer Row with Instant Optimistic Post ─── */}
-          <form onSubmit={handleQuickPost} className="border-b border-border/30 px-4 py-3 bg-card/30">
+          {/* ─── Desktop Quick Composer (Hidden on mobile where bottom docked FAB is sole CTA) ─── */}
+          <form onSubmit={handleQuickPost} className="hidden md:block border-b border-border/30 px-4 py-3 bg-card/30">
             <div className="flex gap-3 items-start">
               <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">
                 <AvatarImage src={profile?.avatarUrl || ""} />
