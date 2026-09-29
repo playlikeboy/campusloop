@@ -49,7 +49,14 @@ export default function SignUpPage({
               <span>Only College Emails Accepted</span>
             </div>
             <p className="text-xs text-amber-800/90 dark:text-amber-300/90 leading-relaxed font-medium">
-              Only use your <strong>college provided email</strong> (.ac.in, .edu.in, college domain) to Join. Personal Gmail, Yahoo, or Outlook will not work.
+              Only email provided by college will work (no gmail/yahoomail/any). Also if your college isn&apos;t listed,{" "}
+              <Link
+                href="/colleges"
+                className="font-bold underline underline-offset-2 hover:text-amber-950 dark:hover:text-amber-200 transition-colors"
+              >
+                view the list
+              </Link>{" "}
+              and request here.
             </p>
           </div>
 
