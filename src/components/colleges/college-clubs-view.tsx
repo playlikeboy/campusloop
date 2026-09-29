@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Car, Code, Music, Plus, Rocket, Users, Zap } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Car, Code, Music, Plus, Rocket, Users, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface CollegeClubsViewProps {
@@ -119,7 +119,10 @@ export function CollegeClubsView({ collegeName }: CollegeClubsViewProps) {
 
                 <div className="pt-0.5 flex items-center justify-between text-[10px] font-bold text-primary">
                   <span>#{club.tag}</span>
-                  <span>Explore →</span>
+                  <span className="flex items-center gap-1">
+                    <span>Explore</span>
+                    <ArrowRight className="size-3" />
+                  </span>
                 </div>
               </div>
             </Link>

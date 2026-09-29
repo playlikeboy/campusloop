@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CollegeHubClient } from "@/components/colleges/college-hub-client";
 import { getDb } from "@/db";
-import { institutions, posts } from "@/db/schema";
+import { academicResources, institutions, posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { getCachedAuthUser, getCachedInstitution, getCachedUserProfile } from "@/lib/server-cache";
@@ -93,8 +93,8 @@ export default async function MainCollegePage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch posts and competitor campuses in parallel for optimal TTFB
-  const [collegePosts, rawRelatedColleges] = await Promise.all([
+  // Fetch posts, competitor campuses, and academic resources in parallel for optimal TTFB
+  const [collegePosts, rawRelatedColleges, collegeAcademics] = await Promise.all([
     db.query.posts.findMany({
       where: eq(posts.institutionId, college.id),
       orderBy: [desc(posts.createdAt)],
@@ -119,6 +119,21 @@ export default async function MainCollegePage({ params }: PageProps) {
           },
         })
       : Promise.resolve([]),
+    db.query.academicResources.findMany({
+      where: eq(academicResources.institutionId, college.id),
+      orderBy: [desc(academicResources.upvotesCount), desc(academicResources.createdAt)],
+      limit: 25,
+      with: {
+        uploader: {
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    }),
   ]);
 
   const formattedPosts: FeedPost[] = collegePosts.map((post) => {
@@ -198,6 +213,62 @@ export default async function MainCollegePage({ params }: PageProps) {
       ),
     }));
 
+  // Extract and deduplicate allowed email domains for this college
+  const domainMap = new Map<string, { domain: string; type: string; isPrimary: boolean }>();
+
+  if (college.websiteDomain) {
+    const d = college.websiteDomain.toLowerCase().trim();
+    domainMap.set(d, { domain: d, type: "STUDENT_EMAIL", isPrimary: true });
+  }
+
+  (college.domains || []).forEach((row) => {
+    if (row.domain && row.verificationStatus !== "REJECTED") {
+      const clean = row.domain.toLowerCase().trim();
+      const existing = domainMap.get(clean);
+      domainMap.set(clean, {
+        domain: clean,
+        type: row.domainType || (existing ? existing.type : "EMAIL"),
+        isPrimary: existing ? existing.isPrimary : false,
+      });
+    }
+  });
+
+  if (domainMap.size === 0 && college.website) {
+    try {
+      const parsed = college.website.startsWith("http")
+        ? new URL(college.website)
+        : new URL(`https://${college.website}`);
+      const host = parsed.hostname.replace(/^www\./, "").toLowerCase().trim();
+      if (host) {
+        domainMap.set(host, { domain: host, type: "WEBSITE", isPrimary: true });
+      }
+    } catch {
+      // Ignore invalid URL
+    }
+  }
+
+  const allowedDomains = Array.from(domainMap.values());
+
+  const formattedAcademics = collegeAcademics.map((item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    subjectCode: item.subjectCode,
+    subjectName: item.subjectName,
+    branch: item.branch,
+    semester: item.semester,
+    resourceType: item.resourceType,
+    moduleOrChapter: item.moduleOrChapter,
+    fileUrl: item.fileUrl,
+    driveUrl: item.driveUrl,
+    upvotesCount: item.upvotesCount,
+    downloadsCount: item.downloadsCount,
+    viewsCount: item.viewsCount,
+    isVerified: item.isVerified,
+    createdAt: item.createdAt,
+    uploader: item.uploader,
+  }));
+
   const isEnrolledHere = Boolean(profile && profile.institutionId === college.id);
   const canonicalCollegeUrl = `https://campusloop.space/app/college/${college.slug || college.id}`;
 
@@ -259,6 +330,7 @@ export default async function MainCollegePage({ params }: PageProps) {
           state: college.state,
           district: college.district,
           website: college.website,
+          websiteDomain: college.websiteDomain,
           yearOfEstablishment: college.yearOfEstablishment,
           aisheCode: college.aisheCode,
           locationType: college.locationType,
@@ -267,7 +339,9 @@ export default async function MainCollegePage({ params }: PageProps) {
           nirfRank: college.nirfRank,
           description: college.description,
         }}
+        allowedDomains={allowedDomains}
         initialPosts={formattedPosts}
+        academics={formattedAcademics}
         students={students}
         relatedColleges={relatedColleges}
         collectivePoints={collectivePoints}

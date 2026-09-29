@@ -1,10 +1,29 @@
 "use client";
 
-import { ArrowLeft, Check, Globe, MapPin, MessageSquarePlus, Share2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Check,
+  Copy,
+  ExternalLink,
+  Globe,
+  Mail,
+  MapPin,
+  MessageSquarePlus,
+  Share2,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ShareQrButton } from "@/components/common/share-qr-button";
+
+export interface AllowedDomainItem {
+  domain: string;
+  type: string;
+  isPrimary?: boolean;
+}
 
 interface CollegeHeroHeaderProps {
   college: {
@@ -14,6 +33,7 @@ interface CollegeHeroHeaderProps {
     state?: string | null;
     district?: string | null;
     website?: string | null;
+    websiteDomain?: string | null;
     yearOfEstablishment?: number | null;
     aisheCode?: string | null;
     locationType?: string | null;
@@ -22,24 +42,31 @@ interface CollegeHeroHeaderProps {
     nirfRank?: number | null;
     description?: string | null;
   };
+  allowedDomains: AllowedDomainItem[];
   studentCount: number;
   postsCount: number;
+  academicsCount?: number;
   collectivePoints: number;
   stateRank?: number;
   isEnrolledHere: boolean;
   onAskSeniorClick?: () => void;
+  onViewAcademicsClick?: () => void;
 }
 
 export function CollegeHeroHeader({
   college,
+  allowedDomains,
   studentCount,
   postsCount,
+  academicsCount = 0,
   collectivePoints,
   stateRank = 1,
   isEnrolledHere,
   onAskSeniorClick,
+  onViewAcademicsClick,
 }: CollegeHeroHeaderProps) {
-  const [copied, setCopied] = useState(false);
+  const [copiedShare, setCopiedShare] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
   const [bannerError, setBannerError] = useState(false);
 
@@ -56,15 +83,30 @@ export function CollegeHeroHeader({
       typeof window !== "undefined"
         ? window.location.href
         : `https://campusloop.space/college/${college.slug}`;
-    const shareText = `🎓 Official Student Hub for ${college.name} on CampusLoop:\n• State Rank: #${stateRank} in ${
-      college.state || "State"
-    }\n• Verified Students: ${studentCount}+\n• Loop Score: ${collectivePoints.toLocaleString()} LP 🔥\n\nExplore confessions, leaderboards & discussions: ${shareUrl}`;
+
+    const domainsText =
+      allowedDomains.length > 0
+        ? allowedDomains.map((d) => `@${d.domain}`).join(", ")
+        : "Official College Email";
+
+    const shareText = `Official Student Hub for ${college.name} on CampusLoop:\n- State Rank: #${stateRank} in ${
+      college.state || "India"
+    }\n- Verified Students: ${studentCount}+\n- Loop Score: ${collectivePoints.toLocaleString()} LP\n- Allowed Student Email: ${domainsText}\n\nExplore confessions, academic notes, leaderboards & campus discussions: ${shareUrl}`;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      toast.success("College link & stats copied! Share with batchmates 🚀");
-      setTimeout(() => setCopied(false), 2500);
+      setCopiedShare(true);
+      toast.success("College hub link and stats copied to clipboard");
+      setTimeout(() => setCopiedShare(false), 2500);
+    }
+  }
+
+  function handleCopyDomain(domain: string) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(`@${domain}`);
+      setCopiedDomain(domain);
+      toast.success(`Copied @${domain} to clipboard`);
+      setTimeout(() => setCopiedDomain(null), 2500);
     }
   }
 
@@ -85,14 +127,18 @@ export function CollegeHeroHeader({
             onClick={handleShareCollege}
             className="flex items-center gap-1.5 text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer bg-muted/40 hover:bg-muted px-3.5 py-1.5 rounded-full shadow-2xs"
           >
-            {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
-            <span>{copied ? "Copied!" : "Share"}</span>
+            {copiedShare ? (
+              <Check className="size-3.5 text-emerald-500" />
+            ) : (
+              <Share2 className="size-3.5" />
+            )}
+            <span>{copiedShare ? "Copied" : "Share Hub"}</span>
           </button>
         </div>
       </div>
 
       {/* ─── Clean College Header Card ─── */}
-      <div className="relative overflow-hidden rounded-3xl bg-card shadow-2xs">
+      <div className="relative overflow-hidden rounded-3xl bg-card shadow-2xs border border-border/40">
         {/* Banner Area */}
         <div className="relative h-36 sm:h-48 w-full bg-muted/30 overflow-hidden">
           {college.bannerUrl && !bannerError ? (
@@ -127,7 +173,7 @@ export function CollegeHeroHeader({
         </div>
 
         {/* Hero Content Body */}
-        <div className="px-5 pb-5 pt-0 relative space-y-3.5">
+        <div className="px-5 pb-5 pt-0 relative space-y-4">
           {/* Logo & Actions Top Row */}
           <div className="flex items-end justify-between -mt-12 sm:-mt-14 gap-3">
             {/* College Logo / Crest */}
@@ -148,26 +194,37 @@ export function CollegeHeroHeader({
             </div>
 
             {/* CTAs Row */}
-            <div className="flex items-center gap-2 shrink-0 pb-1">
+            <div className="flex items-center gap-2 shrink-0 pb-1 flex-wrap justify-end">
               <button
                 type="button"
                 onClick={onAskSeniorClick}
-                className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="h-9 px-3.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <MessageSquarePlus className="size-3.5" />
                 <span>Ask Seniors</span>
               </button>
+
+              {onViewAcademicsClick && (
+                <button
+                  type="button"
+                  onClick={onViewAcademicsClick}
+                  className="h-9 px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                >
+                  <BookOpen className="size-3.5 text-primary" />
+                  <span>Notes &amp; PYQs</span>
+                </button>
+              )}
 
               {college.website && (
                 <a
                   href={college.website.startsWith("http") ? college.website : `https://${college.website}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="h-9 px-4 rounded-full border border-border/80 bg-card hover:bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  className="h-9 px-3 rounded-full border border-border/80 bg-card hover:bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
                   title="Official Website"
                 >
                   <Globe className="size-3.5 text-muted-foreground" />
-                  <span>Website</span>
+                  <span className="hidden sm:inline">Website</span>
                 </a>
               )}
 
@@ -183,7 +240,7 @@ export function CollegeHeroHeader({
             </div>
           </div>
 
-          {/* College Identity & Metadata — rendered cleanly below banner and logo */}
+          {/* College Identity & Metadata */}
           <div className="space-y-1 pt-1">
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground leading-tight">
               {college.name}
@@ -206,6 +263,12 @@ export function CollegeHeroHeader({
                   <span>Est. {college.yearOfEstablishment}</span>
                 </>
               )}
+              {college.aisheCode && (
+                <>
+                  <span>•</span>
+                  <span className="font-mono text-[11px]">AISHE: {college.aisheCode}</span>
+                </>
+              )}
             </p>
           </div>
 
@@ -214,8 +277,82 @@ export function CollegeHeroHeader({
             <p className="text-xs text-muted-foreground leading-relaxed">{college.description}</p>
           )}
 
+          {/* ─── Prominent Allowed Student Email Domains Section ─── */}
+          <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  <ShieldCheck className="size-4" />
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xs font-black tracking-tight text-foreground">
+                      Allowed College Email Domains
+                    </h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                      Verified Campus Access
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Students registering with these domains unlock verified student badges and campus feeds.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href={`/college-request?suggestedInstitutionName=${encodeURIComponent(college.name)}`}
+                className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 shrink-0"
+              >
+                <span>Request missing domain</span>
+                <ExternalLink className="size-3" />
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {allowedDomains.length > 0 ? (
+                allowedDomains.map((item) => (
+                  <div
+                    key={item.domain}
+                    className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-3 py-1.5 text-xs font-bold text-foreground shadow-2xs hover:border-primary/50 transition-colors"
+                  >
+                    <Mail className="size-3.5 text-emerald-500 shrink-0" />
+                    <span className="font-mono text-xs font-bold text-foreground">
+                      @{item.domain}
+                    </span>
+
+                    <div className="flex items-center gap-1 border-l border-border/60 pl-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyDomain(item.domain)}
+                        title={`Copy @${item.domain}`}
+                        className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      >
+                        {copiedDomain === item.domain ? (
+                          <Check className="size-3 text-emerald-500" />
+                        ) : (
+                          <Copy className="size-3" />
+                        )}
+                      </button>
+
+                      <Link
+                        href={`/sign-up?college=${college.slug}&domain=${item.domain}`}
+                        className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black hover:bg-primary/20 transition-colors"
+                      >
+                        Join
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-xs text-muted-foreground font-medium">
+                  Official college email required for verified student enrollment.
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Horizontal Stats Row */}
-          <div className="flex items-center gap-4 py-2 px-4 rounded-2xl bg-muted/30 text-xs font-semibold text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2 px-4 rounded-2xl bg-muted/30 text-xs font-semibold text-muted-foreground">
             <span className="text-foreground">
               <strong className="text-foreground font-black">{studentCount}</strong> Verified Students
             </span>
@@ -223,10 +360,18 @@ export function CollegeHeroHeader({
             <span className="text-foreground">
               <strong className="text-foreground font-black">{postsCount}</strong> Discussions
             </span>
+            {academicsCount > 0 && (
+              <>
+                <span>•</span>
+                <span className="text-foreground">
+                  <strong className="text-foreground font-black">{academicsCount}</strong> Notes &amp; PYQs
+                </span>
+              </>
+            )}
             <span>•</span>
-            <span className="text-foreground">
-              <strong className="text-foreground font-black">{collectivePoints.toLocaleString()}</strong> LP
-              Clout
+            <span className="text-foreground flex items-center gap-1">
+              <Sparkles className="size-3 text-amber-500 inline" />
+              <strong className="text-foreground font-black">{collectivePoints.toLocaleString()}</strong> LP Clout
             </span>
           </div>
         </div>

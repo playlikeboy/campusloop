@@ -74,6 +74,7 @@ export const getCachedInstitution = cache(async (idOrSlug: string) => {
     where: or(eq(institutions.slug, idOrSlug), eq(institutions.id, idOrSlug)),
     with: {
       profiles: true,
+      domains: true,
     },
   });
   if (exact) return exact;
@@ -87,6 +88,7 @@ export const getCachedInstitution = cache(async (idOrSlug: string) => {
     ),
     with: {
       profiles: true,
+      domains: true,
     },
   });
 });

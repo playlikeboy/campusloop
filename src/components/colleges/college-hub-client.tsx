@@ -1,14 +1,24 @@
 "use client";
 
-import { ArrowUpDown, Compass, Hash, Loader2, Lock, Plus, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  BookOpen,
+  Compass,
+  Hash,
+  Loader2,
+  Lock,
+  Plus,
+  Search,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
 import { cn } from "@/lib/utils";
+import { CollegeAcademicsView, type CollegeAcademicResourceItem } from "./college-academics-view";
 import { CollegeClubsView } from "./college-clubs-view";
-import { CollegeHeroHeader } from "./college-hero-header";
+import { CollegeHeroHeader, type AllowedDomainItem } from "./college-hero-header";
 import { CollegeLeaderboardPodium } from "./college-leaderboard-podium";
 import { CollegeRealityScorecard } from "./college-reality-scorecard";
 
@@ -42,6 +52,7 @@ interface CollegeHubClientProps {
     state?: string | null;
     district?: string | null;
     website?: string | null;
+    websiteDomain?: string | null;
     yearOfEstablishment?: number | null;
     aisheCode?: string | null;
     locationType?: string | null;
@@ -50,7 +61,9 @@ interface CollegeHubClientProps {
     nirfRank?: number | null;
     description?: string | null;
   };
+  allowedDomains: AllowedDomainItem[];
   initialPosts: FeedPost[];
+  academics?: CollegeAcademicResourceItem[];
   students: StudentItem[];
   relatedColleges: CompetitorCollege[];
   collectivePoints: number;
@@ -59,13 +72,15 @@ interface CollegeHubClientProps {
   trendingTags: string[];
 }
 
-type TabType = "feed" | "students" | "clubs" | "info";
+type TabType = "feed" | "academics" | "students" | "clubs" | "info";
 type PostCategoryFilter = "ALL" | "CONFESSION" | "QUESTION" | "POLL" | "EVENT" | "NORMAL";
 type PostSortOrder = "LATEST" | "TOP_VOTED" | "MOST_DISCUSSED";
 
 export function CollegeHubClient({
   college,
+  allowedDomains,
   initialPosts,
+  academics = [],
   students,
   collectivePoints,
   currentUserId,
@@ -183,12 +198,15 @@ export function CollegeHubClient({
       {/* ─── Clean College Header ─── */}
       <CollegeHeroHeader
         college={college}
+        allowedDomains={allowedDomains}
         studentCount={students.length}
         postsCount={posts.length}
+        academicsCount={academics.length}
         collectivePoints={collectivePoints}
         stateRank={1}
         isEnrolledHere={isEnrolledHere}
         onAskSeniorClick={handleAskSenior}
+        onViewAcademicsClick={() => setActiveTab("academics")}
       />
 
       {/* ─── Clean Navigation Underline / Pill Tabs ─── */}
@@ -216,7 +234,34 @@ export function CollegeHubClient({
             </span>
           </button>
 
-          {/* Tab 2: Students & Leaderboard */}
+          {/* Tab 2: Academics Vault */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("academics")}
+            className={cn(
+              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              activeTab === "academics"
+                ? "bg-foreground text-background font-black"
+                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <BookOpen className="size-3.5" />
+            <span>Notes &amp; PYQs</span>
+            {academics.length > 0 && (
+              <span
+                className={cn(
+                  "text-[10px] px-1.5 py-0.2 rounded-full",
+                  activeTab === "academics"
+                    ? "bg-background/20 text-background"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                {academics.length}
+              </span>
+            )}
+          </button>
+
+          {/* Tab 3: Students & Leaderboard */}
           <button
             type="button"
             onClick={() => setActiveTab("students")}
@@ -230,7 +275,7 @@ export function CollegeHubClient({
             <span>Students ({students.length})</span>
           </button>
 
-          {/* Tab 3: Societies & Clubs */}
+          {/* Tab 4: Societies & Clubs */}
           <button
             type="button"
             onClick={() => setActiveTab("clubs")}
@@ -244,7 +289,7 @@ export function CollegeHubClient({
             <span>Clubs &amp; Societies</span>
           </button>
 
-          {/* Tab 4: Campus Info & Insights */}
+          {/* Tab 5: Campus Info & Verification */}
           <button
             type="button"
             onClick={() => setActiveTab("info")}
@@ -255,7 +300,7 @@ export function CollegeHubClient({
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
-            <span>Campus Info &amp; Q&amp;A</span>
+            <span>Campus Info &amp; Verification</span>
           </button>
         </div>
       </div>
@@ -380,7 +425,7 @@ export function CollegeHubClient({
 
           {/* Trending Hashtags in this college */}
           {trendingTags.length > 0 && (
-            <div className="rounded-3xl bg-card p-3.5 space-y-2 shadow-2xs">
+            <div className="rounded-3xl bg-card p-3.5 space-y-2 shadow-2xs border border-border/40">
               <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                 <Hash className="size-3 text-primary" /> Trending in {shortName}
               </span>
@@ -397,17 +442,25 @@ export function CollegeHubClient({
           )}
 
           {/* Quick Post Prompt Bar */}
-          <div className="rounded-3xl bg-card p-4 flex items-center justify-between gap-3 shadow-2xs">
+          <div className="rounded-3xl bg-card p-4 flex items-center justify-between gap-3 shadow-2xs border border-border/40">
             <p className="text-xs font-bold text-foreground">
               Have something on your mind about {shortName}?
             </p>
-            <Link
-              href={`/post/new?college=${college.slug}`}
-              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
-            >
-              <Plus className="size-3.5" />
-              <span>New Post</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/post/new?college=${college.slug}&tag=AskSeniors`}
+                className="px-3.5 py-1.5 rounded-full border border-border/70 bg-card text-xs font-bold text-foreground hover:bg-muted transition-colors"
+              >
+                Ask Seniors
+              </Link>
+              <Link
+                href={`/post/new?college=${college.slug}`}
+                className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
+              >
+                <Plus className="size-3.5" />
+                <span>New Post</span>
+              </Link>
+            </div>
           </div>
 
           {/* Posts Stream */}
@@ -417,7 +470,7 @@ export function CollegeHubClient({
             ))}
 
             {filteredPosts.length === 0 && (
-              <div className="text-center py-16 rounded-3xl bg-card text-muted-foreground text-xs font-semibold space-y-3 shadow-2xs">
+              <div className="text-center py-16 rounded-3xl bg-card text-muted-foreground text-xs font-semibold space-y-3 shadow-2xs border border-border/40">
                 <Compass className="size-8 mx-auto text-muted-foreground/40" />
                 <p className="font-bold text-foreground">No posts found matching your filter.</p>
                 <button
@@ -448,18 +501,29 @@ export function CollegeHubClient({
         </div>
       )}
 
-      {/* ─── TAB 2: STUDENTS & LEADERBOARD ─── */}
+      {/* ─── TAB 2: ACADEMICS & STUDY VAULT ─── */}
+      {activeTab === "academics" && (
+        <CollegeAcademicsView
+          collegeName={college.name}
+          collegeSlug={college.slug}
+          resources={academics}
+        />
+      )}
+
+      {/* ─── TAB 3: STUDENTS & LEADERBOARD ─── */}
       {activeTab === "students" && (
         <CollegeLeaderboardPodium students={students} collegeName={college.name} />
       )}
 
-      {/* ─── TAB 3: SOCIETIES & CLUBS ─── */}
+      {/* ─── TAB 4: SOCIETIES & CLUBS ─── */}
       {activeTab === "clubs" && <CollegeClubsView collegeName={college.name} />}
 
-      {/* ─── TAB 4: CAMPUS INFO & Q&A ─── */}
+      {/* ─── TAB 5: CAMPUS INFO & VERIFICATION ─── */}
       {activeTab === "info" && (
         <CollegeRealityScorecard
           collegeName={college.name}
+          collegeSlug={college.slug}
+          allowedDomains={allowedDomains}
           studentCount={students.length}
           nirfRank={college.nirfRank}
           description={college.description}
@@ -469,19 +533,22 @@ export function CollegeHubClient({
 
       {/* ─── Guest Onboarding Invitation if Not Signed In ─── */}
       {!currentUserId && (
-        <div className="rounded-3xl bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
+        <div className="rounded-3xl bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs border border-border/40">
           <div className="space-y-1 text-center sm:text-left">
             <h4 className="text-sm font-black text-foreground flex items-center justify-center sm:justify-start gap-1.5">
               <Lock className="size-4 text-primary" /> Are you a student at {shortName}?
             </h4>
             <p className="text-xs text-muted-foreground">
-              Sign up with your college email to unlock verified student badges, campus leaderboards, and
-              direct messaging.
+              Sign up with your college email (
+              {allowedDomains.length > 0
+                ? allowedDomains.map((d) => `@${d.domain}`).join(", ")
+                : "your university email"}
+              ) to unlock verified student badges, campus leaderboards, and direct messaging.
             </p>
           </div>
 
           <Link
-            href="/join"
+            href={`/sign-up?college=${college.slug}${allowedDomains[0] ? `&domain=${allowedDomains[0].domain}` : ""}`}
             className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer shadow-md shrink-0"
           >
             Join {shortName} Hub

@@ -53,3 +53,5 @@ next-env.d.ts
 .commandcode/
 .cron-deploy.log
 *.log
+.agents/skills/npm-tools/SKILL.md
+__pycache__/
