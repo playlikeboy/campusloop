@@ -364,6 +364,18 @@
     overscroll-behavior-y: none;
   }
 
+  /* Mobile layout guardrails: keep app surfaces and feed content from collapsing or overflowing. */
+  @media screen and (max-width: 768px) {
+    .app-surface,
+    .app-surface > div,
+    .app-surface main,
+    .app-surface article {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+  }
+
   /* Prevent automatic zooming on iOS Safari when tapping inputs */
   @media screen and (max-width: 768px) {
     input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
