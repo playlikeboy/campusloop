@@ -139,26 +139,26 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     let desc = visibleBody;
 
     if (!h) {
-      if (rawBody.startsWith("# ")) {
-        const firstLineEnd = rawBody.indexOf("\n");
+      if (visibleBody.startsWith("# ")) {
+        const firstLineEnd = visibleBody.indexOf("\n");
         if (firstLineEnd !== -1) {
-          h = rawBody.slice(2, firstLineEnd).trim();
-          desc = rawBody.slice(firstLineEnd + 1).trim();
+          h = visibleBody.slice(2, firstLineEnd).trim()
+          desc = visibleBody.slice(firstLineEnd + 1).trim();
         } else {
-          h = rawBody.slice(2).trim();
+          h = visibleBody.slice(2).trim();
           desc = "";
         }
       } else {
-        const doubleNewlineIdx = rawBody.indexOf("\n\n");
+        const doubleNewlineIdx = visibleBody.indexOf("\n\n");
         if (doubleNewlineIdx > 0 && doubleNewlineIdx <= 55) {
-          const candidateTitle = rawBody.slice(0, doubleNewlineIdx).trim();
+          const candidateTitle = visibleBody.slice(0, doubleNewlineIdx).trim();
           if (
             !candidateTitle.endsWith(".") &&
             !candidateTitle.endsWith("?") &&
             !candidateTitle.endsWith("!")
           ) {
             h = candidateTitle;
-            desc = rawBody.slice(doubleNewlineIdx + 2).trim();
+            desc = visibleBody.slice(doubleNewlineIdx + 2).trim();
           }
         }
       }
