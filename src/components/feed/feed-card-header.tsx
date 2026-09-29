@@ -86,7 +86,7 @@ export function FeedCardHeader({
   return (
     <div className="min-w-0 pb-0.5">
       {/* Primary Author & Time Row */}
-      <div className="flex items-start justify-between gap-2 min-w-0">
+      <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
         <div className="min-w-0 flex-1">
           {/* Author Name + Badges */}
           <div className="flex items-center gap-1.5 min-w-0">
@@ -94,7 +94,7 @@ export function FeedCardHeader({
               <Link
                 href={`/@${post.author.username}`}
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold text-[15px] text-foreground hover:underline truncate max-w-[180px] sm:max-w-[240px] shrink-0"
+                className="min-w-0 max-w-[min(100%,180px)] sm:max-w-[240px] font-bold text-[15px] text-foreground hover:underline truncate shrink-0"
               >
                 {authorName}
               </Link>
@@ -131,7 +131,7 @@ export function FeedCardHeader({
             )}
 
             {authorHandle && (
-              <span className="text-muted-foreground text-xs truncate max-w-[90px] sm:max-w-[130px]">
+              <span className="min-w-0 max-w-[90px] sm:max-w-[130px] text-muted-foreground text-xs truncate">
                 {authorHandle}
               </span>
             )}
@@ -174,7 +174,7 @@ export function FeedCardHeader({
         </div>
 
         {/* Right Actions: Confession/Meme Pill, Reddit Attribution & More Menu */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex max-w-full flex-wrap items-center justify-end gap-1.5 self-stretch sm:self-auto shrink-0">
           {post.externalPost && <RedditAttribution externalPost={post.externalPost} variant="subtle" />}
           {post.type === "CONFESSION" && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
