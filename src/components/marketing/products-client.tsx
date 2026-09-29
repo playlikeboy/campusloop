@@ -135,7 +135,7 @@ export function ProductsClient({ isAuthenticated }: ProductsClientProps) {
 
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] text-foreground">
               Tools Built Exclusively for{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1D9BF0] via-sky-400 to-indigo-500">
+              <span className="text-primary">
                 University Life
               </span>
             </h1>

@@ -87,7 +87,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
 
         {success ? (
           <div className="py-8 text-center space-y-2">
-            <CheckCircle2 className="size-10 text-emerald-500 mx-auto animate-bounce" />
+            <CheckCircle2 className="size-10 text-emerald-500 mx-auto animate-in zoom-in-75 duration-300 ease-out" />
             <p className="text-sm font-bold text-foreground">Report Submitted</p>
             <p className="text-xs text-muted-foreground">Our campus safety team will review this shortly.</p>
           </div>

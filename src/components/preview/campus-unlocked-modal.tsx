@@ -127,7 +127,7 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
           <div className="space-y-6 py-4 relative z-10 animate-in zoom-in-95 duration-300">
             {/* Emblem */}
             <div className="mx-auto size-20 rounded-3xl bg-linear-to-tr from-amber-500/20 via-primary/20 to-emerald-500/20 border border-primary/40 flex items-center justify-center shadow-lg">
-              <GraduationCap className="size-10 text-primary animate-bounce" />
+              <GraduationCap className="size-10 text-primary transition-transform duration-300 ease-out" />
             </div>
 
             <div className="space-y-2">

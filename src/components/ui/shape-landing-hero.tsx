@@ -172,7 +172,7 @@ export function ShapeLandingHero({
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] text-foreground">
                 {titlePrimary}
                 <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1D9BF0] via-sky-400 to-indigo-500">
+                <span className="text-primary">
                   {titleAccent}
                 </span>
               </h1>
