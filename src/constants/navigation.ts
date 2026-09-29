@@ -7,6 +7,7 @@ import {
   Gamepad2,
   HelpCircle,
   Hourglass,
+  MoreHorizontal,
   School,
   Sliders,
   Terminal,
