@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
@@ -104,14 +104,14 @@ export function CommunitiesIndexClient({
     }, 350);
 
     return () => window.clearTimeout(timer);
-  }, [search, urlSearch]);
+  }, [search, updateUrl, urlSearch]);
 
-  function updateUrl(mutator: (params: URLSearchParams) => void) {
+  const updateUrl = useCallback((mutator: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
     mutator(params);
     const query = params.toString();
     router.replace(query ? pathname + "?" + query : pathname, { scroll: true });
-  }
+  }, [pathname, router, searchParams]);
 
   function handleTabChange(tab: Tab) {
     sounds.tap();
@@ -235,7 +235,7 @@ export function CommunitiesIndexClient({
 
           {initialCommunities.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {initialCommunities.map((community) => (
                   <CommunityCard
                     key={community.id}
@@ -310,7 +310,7 @@ export function CommunitiesIndexClient({
         <section className="space-y-5 pt-3 sm:pt-5">
           {initialCommunities.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {initialCommunities.map((community) => (
                   <CommunityCard
                     key={community.id}
