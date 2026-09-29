@@ -12,9 +12,9 @@ import {
   AnimateShare,
   useIconHandle,
 } from "@/components/ui/animated-icon";
+import { notifyAuthRequired, type AuthRequiredAction } from "@/components/auth/auth-required-overlay";
 import type { FeedPost } from "@/hooks/use-feed";
 import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 interface FeedCardActionsProps {
@@ -22,6 +22,7 @@ interface FeedCardActionsProps {
   userVote: number;
   votesCount: number;
   commentsCount?: number;
+  currentUserId?: string;
   onVote: () => void;
   onInstantRepost: () => void;
   onShare: () => void;
@@ -34,6 +35,7 @@ export function FeedCardActions({
   userVote,
   votesCount,
   commentsCount,
+  currentUserId,
   onVote,
   onInstantRepost,
   onShare,
@@ -55,20 +57,32 @@ export function FeedCardActions({
   const share = useIconHandle();
   const displayCommentsCount = commentsCount ?? post.commentsCount;
 
+  function requireAuth(action: AuthRequiredAction, callback: () => void) {
+    if (!currentUserId) {
+      notifyAuthRequired(action);
+      return;
+    }
+    callback();
+  }
+
   function triggerRepostAnimation(e: React.MouseEvent) {
     e.stopPropagation();
-    if (hasReposted) return;
-
-    setRepostSpin(true);
-    setHasReposted(true);
-    sounds.tap();
-    haptics.light();
-    setTimeout(() => setRepostSpin(false), 320);
-    onInstantRepost();
+    requireAuth("repost", () => {
+      if (hasReposted) return;
+      setRepostSpin(true);
+      setHasReposted(true);
+      setTimeout(() => setRepostSpin(false), 320);
+      onInstantRepost();
+    });
   }
 
   async function handleToggleSave(e: React.MouseEvent) {
     e.stopPropagation();
+    if (!currentUserId) {
+      notifyAuthRequired("save");
+      return;
+    }
+
     const nextState = !isSaved;
     setIsSaved(nextState);
     sounds.pop();
@@ -98,14 +112,12 @@ export function FeedCardActions({
       className="flex items-center justify-between border-t border-border/25 pt-1.5 select-none"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Floating Reaction Capsule (Matching Reference Mockup) */}
       <div className="flex min-w-0 items-center gap-0.5">
-        {/* Like / Heart Action */}
         <div className="flex items-center gap-1">
           <motion.button
             whileTap={{ scale: 0.8 }}
             type="button"
-            onClick={onVote}
+            onClick={() => requireAuth("like", onVote)}
             {...like.handlers}
             className={cn(
               "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs cursor-pointer group transition-colors hover:bg-muted/70 active:scale-95",
@@ -139,25 +151,17 @@ export function FeedCardActions({
           </motion.button>
         </div>
 
-        {/* Reply Action */}
         <button
           type="button"
-          onClick={onOpenComments}
+          onClick={() => requireAuth("comment", () => onOpenComments?.())}
           {...reply.handlers}
           className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
           aria-label="Reply"
         >
-          <AnimatedIcon
-            ref={reply.ref}
-            icon={AnimateMessageCircle}
-            animation="pop"
-            size={16}
-            animateOnHover={false}
-          />
+          <AnimatedIcon ref={reply.ref} icon={AnimateMessageCircle} animation="pop" size={16} animateOnHover={false} />
           <span className="tabular-nums text-xs font-bold">{displayCommentsCount ?? 0}</span>
         </button>
 
-        {/* Share Action */}
         <button
           type="button"
           onClick={onShare}
@@ -165,22 +169,12 @@ export function FeedCardActions({
           className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
           aria-label="Share"
         >
-          <AnimatedIcon
-            ref={share.ref}
-            icon={AnimateShare}
-            animation="nudge-up"
-            size={15}
-            animateOnHover={false}
-          />
-          <span className="tabular-nums text-xs font-bold">
-            {(post as any)?.sharesCount || (post as any)?.repostsCount || "Share"}
-          </span>
+          <AnimatedIcon ref={share.ref} icon={AnimateShare} animation="nudge-up" size={15} animateOnHover={false} />
+          <span className="tabular-nums text-xs font-bold">{(post as any)?.sharesCount || (post as any)?.repostsCount || "Share"}</span>
         </button>
       </div>
 
-      {/* Right Side Utility Actions: Repost & Bookmark */}
       <div className="flex items-center gap-0.5">
-        {/* Repost Action */}
         <button
           type="button"
           onClick={triggerRepostAnimation}
@@ -188,9 +182,7 @@ export function FeedCardActions({
           aria-pressed={hasReposted}
           className={cn(
             "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            hasReposted
-              ? "text-emerald-500 bg-emerald-500/10"
-              : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
+            hasReposted ? "text-emerald-500 bg-emerald-500/10" : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
           )}
           aria-label={hasReposted ? "Reposted" : "Repost"}
         >
@@ -205,7 +197,6 @@ export function FeedCardActions({
           />
         </button>
 
-        {/* Save / Bookmark Action */}
         <motion.button
           whileTap={{ scale: 0.8 }}
           type="button"
@@ -213,9 +204,7 @@ export function FeedCardActions({
           {...bookmark.handlers}
           className={cn(
             "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            isSaved
-              ? "text-amber-500 bg-amber-500/10"
-              : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"
+            isSaved ? "text-amber-500 bg-amber-500/10" : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"
           )}
           aria-label={isSaved ? "Saved in vault" : "Save post"}
         >
