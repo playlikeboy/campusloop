@@ -2,75 +2,98 @@
    Keep tap targets large while removing decorative icon containers and labels. */
 
 @media (max-width: 767px) {
-  /* Bottom navigation: compact, quiet, icon-first. */
+  /* Mobile bottom navigation: compact floating dock with consistent item geometry. */
   nav[aria-label="Mobile bottom navigation"] {
-    height: calc(3.25rem + max(env(safe-area-inset-bottom, 0px), 0px)) !important;
-    padding-inline: 0.75rem !important;
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px) !important;
-    border-top-color: color-mix(in srgb, var(--border) 55%, transparent) !important;
-    box-shadow: 0 -10px 30px rgb(0 0 0 / 0.18) !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    height: 68px !important;
+    width: calc(100% - 20px) !important;
+    max-width: 430px !important;
+    padding: 6px !important;
+    gap: 6px !important;
+    border-radius: 22px !important;
+    border-color: color-mix(in srgb, var(--border) 72%, transparent) !important;
+    background: color-mix(in srgb, var(--card) 94%, transparent) !important;
+    box-shadow:
+      0 14px 40px rgb(0 0 0 / 0.28),
+      inset 0 1px 0 rgb(255 255 255 / 0.04) !important;
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    overflow: visible !important;
   }
 
-  nav[aria-label="Mobile bottom navigation"] > a,
-  nav[aria-label="Mobile bottom navigation"] > button {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    width: 52px;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-item {
+    position: relative;
+    flex: 1 1 0%;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 54px !important;
+    min-height: 0 !important;
     padding: 0 !important;
-    gap: 0 !important;
+    border-radius: 16px !important;
+    gap: 2px !important;
+    color: var(--muted-foreground);
     transform: none !important;
   }
 
-  /* Hide the text labels; keep aria-labels/tooltips for accessibility. */
-  nav[aria-label="Mobile bottom navigation"] > a > span:last-child,
-  nav[aria-label="Mobile bottom navigation"] > button > span:last-child {
-    display: none !important;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-item:hover {
+    background: color-mix(in srgb, var(--muted) 45%, transparent);
+    color: var(--foreground);
   }
 
-  /* Remove decorative icon bubbles. The icon itself carries the state. */
-  nav[aria-label="Mobile bottom navigation"] > a > span:first-child,
-  nav[aria-label="Mobile bottom navigation"] > button > span:first-child {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-item-active {
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
   }
 
-  nav[aria-label="Mobile bottom navigation"] > a > span:first-child svg,
-  nav[aria-label="Mobile bottom navigation"] > button > span:first-child svg {
-    width: 22px;
-    height: 22px;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-icon {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
   }
 
-  /* Create action stays visually prominent, but without a heavy circular shell. */
-  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] {
-    transform: none !important;
-    width: 52px;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-avatar .size-7 {
+    width: 28px !important;
+    height: 28px !important;
   }
 
-  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] > span:first-child {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    box-shadow: none !important;
-    color: var(--primary) !important;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-label {
+    display: block !important;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
-  nav[aria-label="Mobile bottom navigation"] > a[href="/post/new"] > span:first-child svg {
-    width: 28px;
-    height: 28px;
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-create {
+    color: var(--primary);
   }
 
-  /* Active state: color + slightly stronger stroke, never a pill/bubble. */
-  nav[aria-label="Mobile bottom navigation"] > a.text-primary > span:first-child svg,
-  nav[aria-label="Mobile bottom navigation"] > button.text-primary > span:first-child svg {
-    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 32%, transparent));
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-create-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    background: color-mix(in srgb, var(--primary) 13%, transparent);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
   }
 
-  /* Top-bar utility controls: preserve 44px hit areas, remove visual circles. */
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-create:hover .mobile-nav-create-icon {
+    background: color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+
+  nav[aria-label="Mobile bottom navigation"] .mobile-nav-item > .absolute {
+    top: 8px !important;
+    right: 10px !important;
+  }
+
+  /* Top-bar utility controls: keep large hit areas without decorative circles. */
   header a[aria-label="Explore & Search"],
   header a[aria-label="Notifications"],
   header button[aria-label="Open navigation menu"] {
