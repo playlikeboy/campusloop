@@ -87,7 +87,7 @@ export function CreativeHero({ isAuthenticated = false }: CreativeHeroProps) {
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed">
+          <p className="w-full max-w-xl mx-auto text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
             No professors. No parents. Just verified students sharing real confessions, 24-hour campus vibes,
             semester PYQs, and daily buzz.
           </p>
