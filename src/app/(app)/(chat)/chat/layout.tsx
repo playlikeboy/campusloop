@@ -45,6 +45,7 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
         profile={profile}
         collegeName={profile.institution?.name ?? "Your College"}
         isAdmin={profile.role === "ADMIN"}
+        hideHeader
       />
 
       {/* Main Messenger Area */}

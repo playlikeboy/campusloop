@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ChevronDown,
+  ChevronRight,
   Compass,
   Globe,
   Lock,
@@ -137,32 +137,32 @@ export function CommunitiesIndexClient({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl bg-background px-3 pb-28 text-foreground sm:px-5 lg:px-8">
-      <header className="sticky top-14 z-30 -mx-3 bg-background/85 backdrop-blur-xl sm:-mx-5 lg:-mx-8">
-        <div className="flex items-center justify-between gap-4 px-3 py-4 sm:px-5 lg:px-8">
+      <div className="-mx-3 sm:-mx-5 lg:-mx-8 px-3 sm:px-5 lg:px-8 pt-2 sm:pt-4 pb-2 border-b border-border/30 bg-background/50">
+        <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="mb-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-              Student network
+            <p className="mb-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+              Student Network
             </p>
-            <h1 className="truncate text-xl font-black tracking-tight sm:text-2xl">
+            <h1 className="truncate text-xl sm:text-2xl font-black tracking-tight text-foreground">
               Campus Communities
             </h1>
-            <p className="mt-1 hidden max-w-2xl truncate text-sm text-muted-foreground sm:block">
+            <p className="mt-0.5 hidden text-xs sm:text-sm text-muted-foreground sm:block">
               Discover student sub-hubs, tech clubs, societies, and campus discussion spaces.
             </p>
           </div>
 
           <Link
             href="/communities/new"
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full bg-primary px-4 text-xs font-extrabold text-primary-foreground shadow-sm transition hover:brightness-95 active:scale-95"
+            className="inline-flex h-9 sm:h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 sm:px-4 text-xs font-bold text-primary-foreground shadow-xs transition hover:opacity-90 active:scale-95"
           >
-            <Plus className="size-4" />
+            <Plus className="size-3.5" />
             <span className="hidden sm:inline">New Community</span>
             <span className="sm:hidden">New</span>
           </Link>
         </div>
 
-        <div className="flex px-3 pb-2 sm:px-5 lg:px-8">
-          <div className="inline-flex rounded-full bg-muted/45 p-1">
+        <div className="flex pt-1 pb-1">
+          <div className="inline-flex rounded-full bg-muted/50 p-0.5 border border-border/40">
             {TABS.map((tab) => {
               const active = activeTab === tab.id;
               return (
@@ -171,20 +171,20 @@ export function CommunitiesIndexClient({
                   type="button"
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "min-h-9 rounded-full px-4 text-xs font-bold transition sm:px-5 sm:text-sm",
+                    "h-8 rounded-full px-3.5 sm:px-4 text-xs font-semibold transition-all cursor-pointer",
                     active
-                      ? "bg-card text-foreground shadow-sm"
+                      ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {tab.label}
-                  {tab.id === "my_communities" ? " (" + myCommunityCount + ")" : ""}
+                  {tab.id === "my_communities" && myCommunityCount > 0 ? ` (${myCommunityCount})` : ""}
                 </button>
               );
             })}
           </div>
         </div>
-      </header>
+      </div>
 
       {activeTab === "explore" && (
         <section className="space-y-5 pt-3 sm:pt-5">
@@ -367,40 +367,35 @@ function CommunityCard({
   const avatar = getAvatarUrl(community.avatarUrl, community.name);
 
   return (
-    <article className="group flex min-h-[270px] flex-col rounded-[28px] bg-card/80 p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:bg-card hover:shadow-lg sm:p-5">
-      <div className="flex items-start gap-3">
+    <article className="group relative flex min-h-[280px] flex-col rounded-3xl border border-border/40 bg-card/60 p-4.5 sm:p-5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 hover:border-border/80 hover:bg-card hover:shadow-md">
+      {/* Top Header: Avatar + Category & Privacy on left, Join button on right */}
+      <div className="flex items-center justify-between gap-3">
         <Link
           href={"/communities/" + (community.slug || community.id)}
-          className="flex min-w-0 flex-1 items-start gap-3"
+          className="flex items-center gap-3 min-w-0 flex-1"
         >
-          <Avatar className="size-12 shrink-0 rounded-2xl shadow-2xs sm:size-14">
+          <Avatar className="size-11 sm:size-12 shrink-0 rounded-2xl shadow-2xs border border-border/40">
             <AvatarImage src={avatar} alt="" />
-            <AvatarFallback className="bg-muted text-sm font-black">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
               {community.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-
-          <div className="min-w-0 pt-0.5">
-            <p className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-primary">
+          <div className="min-w-0 flex-1">
+            <span className="block text-[10px] font-black uppercase tracking-wider text-primary truncate">
               {community.category}
-            </p>
-            <h2 className="line-clamp-2 text-[15px] font-extrabold leading-tight tracking-tight text-foreground sm:text-base">
-              c/{community.name}
-            </h2>
-            <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                {community.privacy === "PRIVATE" ? (
-                  <>
-                    <Lock className="size-3 text-amber-500" /> Private
-                  </>
-                ) : (
-                  <>
-                    <Globe className="size-3" /> Public
-                  </>
-                )}
-              </span>
-              <span aria-hidden="true">·</span>
-              <span>{members} members</span>
+            </span>
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+              {community.privacy === "PRIVATE" ? (
+                <span className="inline-flex items-center gap-1 text-amber-500">
+                  <Lock className="size-3" /> Private
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-muted-foreground/80">
+                  <Globe className="size-3" /> Public
+                </span>
+              )}
+              <span>·</span>
+              <span>{members} {members === 1 ? "member" : "members"}</span>
             </div>
           </div>
         </Link>
@@ -408,32 +403,43 @@ function CommunityCard({
         <JoinCommunityButton
           communityId={community.id}
           initialIsMember={isMember}
-          className="h-9 min-w-[84px] shrink-0 px-3 text-xs"
+          className="h-8 shrink-0 text-xs px-3"
         />
       </div>
 
-      <p className="mt-5 line-clamp-3 min-h-[66px] text-sm leading-relaxed text-muted-foreground">
+      {/* Community Title: 100% full width across card so title wraps nicely across 2 lines */}
+      <Link
+        href={"/communities/" + (community.slug || community.id)}
+        className="mt-3.5 block group-hover:text-primary transition-colors"
+      >
+        <h2 className="line-clamp-2 text-[15px] sm:text-base font-bold leading-snug tracking-tight text-foreground">
+          c/{community.name}
+        </h2>
+      </Link>
+
+      {/* Description */}
+      <p className="mt-2 line-clamp-3 text-xs sm:text-sm leading-relaxed text-muted-foreground min-h-[54px]">
         {community.description || "A student-led community for sharing ideas, questions, updates, and campus life."}
       </p>
 
-      <div className="mt-auto space-y-3 pt-4">
-        <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
-          <Users className="size-3.5 text-primary" />
-          <span>{members} active members</span>
-          {community.creator ? (
-            <>
-              <span aria-hidden="true">·</span>
-              <span className="min-w-0 truncate">@{community.creator.username}</span>
-            </>
-          ) : null}
+      {/* Footer */}
+      <div className="mt-auto pt-4 space-y-2.5">
+        <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground/80">
+          <div className="flex items-center gap-1.5">
+            <Users className="size-3 text-primary shrink-0" />
+            <span>{members} active</span>
+          </div>
+          {community.creator && (
+            <span className="truncate max-w-[120px]">@{community.creator.username}</span>
+          )}
         </div>
 
         <Link
           href={"/communities/" + (community.slug || community.id)}
-          className="flex min-h-10 w-full items-center justify-center gap-2 rounded-2xl bg-muted/45 text-xs font-extrabold text-foreground transition hover:bg-muted group-hover:bg-primary/10 group-hover:text-primary"
+          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-muted/30 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground group-hover:border-primary/40 active:scale-98"
         >
-          Open community
-          <ChevronDown className="size-3.5 -rotate-90" />
+          <span>Open community</span>
+          <ChevronRight className="size-3.5" />
         </Link>
       </div>
     </article>

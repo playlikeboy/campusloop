@@ -45,6 +45,7 @@ interface NavigationProps {
   collegeName?: string;
   isAdmin?: boolean;
   isViewer?: boolean;
+  hideHeader?: boolean;
 }
 
 /**
@@ -83,7 +84,7 @@ const EXPANDABLE_NAV_TABS = [
   { href: "/dating", label: "Match", icon: Heart },
 ];
 
-export function Navigation({ profile, collegeName, isViewer, isAdmin }: NavigationProps) {
+export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader }: NavigationProps) {
   const router = useRouter();
   const pathname = usePathname() || "/feeds";
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -110,6 +111,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
       pathname.startsWith("/post/"),
     [pathname]
   );
+
+  const shouldHideHeader = hideHeader || isDedicatedHeaderRoute;
 
   // Desktop navigation expansion state (defaults to true if user is on an expandable hub)
   const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
@@ -215,7 +218,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   return (
     <>
       {/* ─── Modern Minimal Top Navigation Bar (Open, Airy, Restrained) ─── */}
-      {!isDedicatedHeaderRoute && (
+      {!shouldHideHeader && (
         <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
           {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
