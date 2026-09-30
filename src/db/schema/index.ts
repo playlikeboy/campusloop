@@ -29,3 +29,4 @@ export * from "./saved-posts";
 export * from "./stories";
 export * from "./time-capsule";
 export * from "./users";
+export * from "./r2-storage";
