@@ -100,6 +100,16 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
     [pathname]
   );
 
+  // Dedicated routes (/chat and /events) have their own specialized headers; hide main global header
+  const isDedicatedHeaderRoute = useMemo(
+    () =>
+      pathname === "/chat" ||
+      pathname.startsWith("/chat/") ||
+      pathname === "/events" ||
+      pathname.startsWith("/events/"),
+    [pathname]
+  );
+
   // Desktop navigation expansion state (defaults to true if user is on an expandable hub)
   const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -204,7 +214,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   return (
     <>
       {/* ─── Modern Minimal Top Navigation Bar (Open, Airy, Restrained) ─── */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
+      {!isDedicatedHeaderRoute && (
+        <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
           {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -543,7 +554,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             </div>
           </div>
         </div>
-      </header>
+        </header>
+      )}
 
       {/* ─── Slide-Over Navigation Drawer (Available for BOTH Desktop & Mobile) ─── */}
       <AnimatePresence>

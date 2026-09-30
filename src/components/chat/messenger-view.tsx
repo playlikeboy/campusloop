@@ -5,6 +5,7 @@ import {
   BellOff,
   CheckCheck,
   Loader2,
+  Menu,
   MoreVertical,
   Pin,
   Plus,
@@ -286,7 +287,7 @@ export function MessengerView({
   const activeParticipant = activeConv ? activeConv.otherParticipant : null;
 
   return (
-    <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-background select-none">
+    <div className="flex h-full w-full overflow-hidden bg-background select-none">
       {/* ─── Inbox / Conversation List (Left Column) ─── */}
       <aside
         className={cn(
@@ -297,7 +298,22 @@ export function MessengerView({
         {/* Top Header */}
         <div className="p-3.5 sm:p-4 border-b border-border/30 space-y-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  haptics.light();
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
+                  }
+                }}
+                className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+                aria-label="Open navigation menu"
+                title="All Hubs & Navigation"
+              >
+                <Menu className="size-4.5" />
+              </button>
               <Link
                 href="/feeds"
                 className="size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
