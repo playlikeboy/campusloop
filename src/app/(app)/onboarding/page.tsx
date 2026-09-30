@@ -19,7 +19,7 @@ export default async function OnboardingPage() {
   const user = await hexclaveServerApp.getUser();
 
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const db = getDb();

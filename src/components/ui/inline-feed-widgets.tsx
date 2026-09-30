@@ -238,7 +238,7 @@ export function InlineHashtagsWidget() {
 export function InlineReferralWidget() {
   function handleCopy() {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("https://campusloop.space/handler/sign-up");
+      navigator.clipboard.writeText("https://campusloop.space/sign-up");
       toast.success("CampusLoop invite link copied to clipboard");
     }
   }

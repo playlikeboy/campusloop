@@ -176,7 +176,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
+            window.location.href = `/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });
@@ -240,7 +240,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
+            window.location.href = `/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });
@@ -320,7 +320,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=/academics/${item.id}`;
+            window.location.href = `/sign-in?returnTo=/academics/${item.id}`;
           },
         },
       });

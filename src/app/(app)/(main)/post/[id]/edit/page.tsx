@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: EditPostPageProps): Promise<M
 export default async function EditPostPage({ params }: EditPostPageProps) {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const { id } = await params;
@@ -44,7 +44,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   });
 
   if (!profile) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   if (await isViewerProfile(profile)) {

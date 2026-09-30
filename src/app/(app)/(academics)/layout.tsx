@@ -116,7 +116,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
             <ThemeToggle />
 
             <Link
-              href="/handler/sign-in?returnTo=/academics"
+              href="/sign-in?returnTo=/academics"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <Zap className="size-3.5 fill-amber-400 text-amber-400" />
@@ -146,7 +146,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
             </p>
           </div>
           <Link
-            href="/handler/sign-in?returnTo=/academics"
+            href="/sign-in?returnTo=/academics"
             className="px-3 py-1.5 rounded-full text-[11px] font-black bg-indigo-600 text-white shrink-0 shadow-xs"
           >
             Claim 50 LP

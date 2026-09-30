@@ -183,7 +183,7 @@ export function ArticleCommentsSection({
             </button>
           ) : (
             <Link
-              href="/handler/sign-in"
+              href="/sign-in"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
             >
               <LogIn className="size-3.5" />

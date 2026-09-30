@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function CartPage() {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   return <CartClient />;
 }

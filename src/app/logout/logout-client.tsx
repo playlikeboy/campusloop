@@ -55,11 +55,11 @@ export function LogoutClient() {
           setStatus("Redirecting to sign in...");
         }
 
-        // 5. Hard replace window location to Hexclave default sign-in handler
-        window.location.replace("/handler/sign-in");
+        // 5. Hard replace window location to custom sign-in page
+        window.location.replace("/sign-in");
       } catch (error) {
         console.error("Strict logout error:", error);
-        window.location.replace("/handler/sign-in");
+        window.location.replace("/sign-in");
       }
     }
 

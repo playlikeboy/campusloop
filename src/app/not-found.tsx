@@ -40,7 +40,7 @@ export default async function NotFound() {
           </div>
 
           <Link
-            href={user ? "/app" : "/handler/sign-up"}
+            href={user ? "/app" : "/sign-up"}
             className={cn(buttonVariants({ size: "lg" }), "mt-4 w-full sm:w-auto")}
           >
             {user ? "Back to feed" : "Get verified"}
