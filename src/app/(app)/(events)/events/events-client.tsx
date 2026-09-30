@@ -11,6 +11,7 @@ import {
   Grid3X3,
   LayoutList,
   MapPin,
+  Menu,
   PartyPopper,
   Plus,
   Radio,
@@ -186,12 +187,27 @@ export function EventsClient() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col bg-background pb-28 px-3 sm:px-6">
-      {/* ─── Top Sticky Omnibar & Filter Strip: Capped to 15-18% viewport, sticky below top-14 nav ─── */}
-      <header className="sticky top-14 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 border-b border-border/30 bg-background/95 backdrop-blur-xl transition-all shadow-2xs">
+      {/* ─── Top Sticky Omnibar & Filter Strip: Dedicated events header, sticky top-0 ─── */}
+      <header className="sticky top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 border-b border-border/30 bg-background/95 backdrop-blur-xl transition-all shadow-2xs">
         {/* Row 1: Title, Scope Switcher, View Switcher & Host Button */}
         <div className="flex h-12 sm:h-14 items-center justify-between gap-2.5">
           {/* Title & Count */}
           <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
+                }
+              }}
+              className="flex size-8 sm:size-9 items-center justify-center rounded-xl sm:rounded-2xl hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+              aria-label="Open navigation menu"
+              title="All Hubs & Navigation"
+            >
+              <Menu className="size-4.5" />
+            </button>
             <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 text-primary shrink-0 border border-primary/20">
               <Calendar className="size-4 sm:size-4.5" />
             </div>
