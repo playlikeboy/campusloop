@@ -639,7 +639,16 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
       {/* ─── Mobile Bottom Navigation Dock ─── */}
       {!isMobileFlow(pathname) && (
         <nav
-          className="fixed inset-x-0 bottom-0 z-40 mx-auto flex h-[64px] w-[calc(100%-24px)] max-w-[420px] -translate-y-2 items-center gap-1 rounded-[20px] border border-border/50 bg-card/95 p-1 shadow-[0_12px_36px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:hidden select-none bottom-[max(8px,env(safe-area-inset-bottom))]"
+          className={cn(
+            "fixed left-1/2 -translate-x-1/2 z-40",
+            "w-[calc(100%-24px)] max-w-[420px] h-[62px]",
+            "bottom-[max(10px,env(safe-area-inset-bottom,0px))]",
+            "grid items-center justify-items-center",
+            mobileBottomItems.length === 5 ? "grid-cols-5" : mobileBottomItems.length === 4 ? "grid-cols-4" : "grid-cols-3",
+            "rounded-[22px] border border-border/50 bg-card/95 p-1",
+            "shadow-[0_12px_36px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,255,255,0.06)]",
+            "backdrop-blur-2xl md:hidden select-none"
+          )}
           aria-label="Mobile bottom navigation"
         >
           {mobileBottomItems.map((item) => {
@@ -668,8 +677,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     <AnimatedIcon
                       icon={Icon}
                       animation="pop"
-                      size={22}
-                      strokeWidth={2.6}
+                      size={20}
+                      strokeWidth={2.4}
                       animateOnHover={false}
                       playKey={playKey}
                       className="size-full"
@@ -698,7 +707,12 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 >
                   <span className="mobile-nav-icon mobile-nav-avatar" aria-hidden="true">
                     {profile ? (
-                      <Avatar className="size-7 border border-border/50">
+                      <Avatar
+                        className={cn(
+                          "size-6.5 border transition-all",
+                          isActive ? "border-primary ring-2 ring-primary/30" : "border-border/50"
+                        )}
+                      >
                         <AvatarImage src={profile.avatarUrl || ""} alt="" />
                         <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
                           {profile.displayName[0]}
@@ -709,7 +723,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                         icon={Icon}
                         animation={animation}
                         size={21}
-                        strokeWidth={1.8}
+                        strokeWidth={isActive ? 2.2 : 1.8}
                         animateOnHover={false}
                         playKey={playKey}
                         className="size-full"
@@ -739,19 +753,19 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     icon={Icon}
                     animation={animation}
                     size={21}
-                    strokeWidth={1.8}
+                    strokeWidth={isActive ? 2.2 : 1.8}
                     animateOnHover={false}
                     playKey={playKey}
                     className="size-full"
                   />
+                  {item.href === "/chat" && !isViewer && (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary ring-2 ring-card"
+                      aria-label="New messages"
+                    />
+                  )}
                 </span>
                 <span className="mobile-nav-label">{item.label}</span>
-                {item.href === "/chat" && !isViewer && (
-                  <span
-                    className="absolute right-1.5 top-1 size-1.5 rounded-full bg-primary ring-2 ring-card"
-                    aria-label="New messages"
-                  />
-                )}
               </Link>
             );
           })}
