@@ -483,9 +483,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         </div>
 
         {/* Footer Actions Row */}
-        <div className="px-4 sm:px-5 py-3 border-t border-border/20 bg-muted/15 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="px-3.5 py-2.5 sm:px-4 sm:py-3 border-t border-border/20 bg-muted/15 flex items-center justify-between text-xs text-muted-foreground w-full min-w-0">
           {/* Voting */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               type="button"
               onClick={() => handleVote("UP")}
@@ -512,12 +512,12 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
           </div>
 
           {/* Views & Downloads */}
-          <div className="flex items-center gap-2.5 text-[11px]">
-            <span className="flex items-center gap-1 opacity-75" title="Views">
+          <div className="hidden xs:flex items-center gap-2 text-[10px] opacity-75">
+            <span className="flex items-center gap-1" title="Views">
               <Eye className="size-3" />
               <span>{views}</span>
             </span>
-            <span className="flex items-center gap-1 opacity-75" title="Downloads">
+            <span className="flex items-center gap-1" title="Downloads">
               <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={11} />
               <span>{downloads}</span>
             </span>
@@ -528,7 +528,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             type="button"
             onClick={handleDownload}
             className={cn(
-              "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0",
               (item.fileUrl || item.driveUrl || "").match(
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
               )
@@ -547,8 +547,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               {(item.fileUrl || item.driveUrl || "").match(
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
               )
-                ? "Open Folder"
-                : "Preview PDF"}
+                ? "Folder"
+                : "Open"}
             </span>
           </button>
         </div>
@@ -560,13 +560,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     <article
       id={`academic-${item.id}`}
       className={cn(
-        "group border-b border-border/30 bg-background px-3.5 py-3 sm:px-5 sm:py-4 transition-colors hover:bg-muted/10 select-none",
+        "group border-b border-border/25 bg-background px-3 py-2.5 sm:px-4 sm:py-3.5 transition-colors hover:bg-muted/10 select-none w-full max-w-full overflow-hidden",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
     >
-      <div className="flex items-start gap-3.5">
+      <div className="flex items-start gap-2.5 sm:gap-3">
         <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0 pt-0.5">
-          <Avatar className="size-9 sm:size-10 rounded-full border border-border/50 shadow-2xs">
+          <Avatar className="size-8 sm:size-9 rounded-full border border-border/50 shadow-2xs">
             <AvatarImage src={avatar} />
             <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
               {item.uploader.displayName?.[0] || "U"}
@@ -575,11 +575,11 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         </Link>
 
         <div className="min-w-0 flex-1">
-          {/* Identity + institution + time: one compact line */}
+          {/* 1. Author line */}
           <div className="flex items-center gap-1.5 min-w-0 text-[11px] sm:text-xs">
             <Link
               href={`/@${item.uploader.username}?tab=academics`}
-              className="font-extrabold text-foreground hover:text-primary transition-colors truncate max-w-[130px] sm:max-w-[220px]"
+              className="font-bold text-foreground hover:text-primary transition-colors truncate max-w-[130px] sm:max-w-[200px]"
             >
               {item.uploader.displayName}
             </Link>
@@ -591,145 +591,163 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                 className="text-primary shrink-0"
               />
             )}
-            <span className="text-muted-foreground/50 shrink-0">·</span>
-            <span className="text-muted-foreground truncate max-w-[150px] sm:max-w-[260px]">
+            <span className="text-muted-foreground/40 shrink-0">·</span>
+            <span className="text-muted-foreground truncate max-w-[140px] sm:max-w-[240px]">
               {getCollegeShortName(item.institution) || "Campus"}
             </span>
-            <span className="text-muted-foreground/50 shrink-0">·</span>
-            <span className="text-muted-foreground/75 shrink-0">{formatTimeAgo(item.createdAt)}</span>
+            <span className="text-muted-foreground/40 shrink-0">·</span>
+            <span className="text-muted-foreground/75 shrink-0 text-[10px]">{formatTimeAgo(item.createdAt)}</span>
             <button
               type="button"
               onClick={handleShare}
-              className="ml-auto size-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
+              className="ml-auto size-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
               title="Share resource"
               aria-label="Share resource"
             >
-              <AnimatedIcon icon={AnimateShare} animation="pop" size={14} />
+              <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
             </button>
           </div>
 
-          {/* High-signal metadata */}
-          <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-black font-mono text-primary">
+          {/* 2. Course / Subject & Semester / Dept / Resource Type */}
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-black font-mono text-primary">
               {item.subjectCode}
             </span>
-            <span className="text-[11px] font-semibold text-foreground/80 truncate max-w-[180px] sm:max-w-[280px]">
+            <span className="text-[11px] font-semibold text-foreground/85 truncate max-w-[170px] sm:max-w-[260px]">
               {item.subjectName}
             </span>
             <span className="text-muted-foreground/40">·</span>
             <span className="text-[10px] font-semibold text-muted-foreground">Sem {item.semester}</span>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[120px]">
+            <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[110px]">
               {item.branch}
+            </span>
+            <span className="inline-flex items-center rounded-full bg-muted/80 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-muted-foreground border border-border/30">
+              {(item.resourceType || "RESOURCE").replace("_", " ")}
             </span>
             {item.moduleOrChapter && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <span className="text-[10px] font-bold text-amber-500 truncate max-w-[130px]">
+                <span className="text-[10px] font-bold text-amber-500 truncate max-w-[120px]">
                   {item.moduleOrChapter}
                 </span>
               </>
             )}
           </div>
 
-          {/* Title + description */}
-          <Link href={`/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-2.5 block">
-            <h3 className="text-[16px] sm:text-[17px] font-extrabold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
+          {/* 3. Title */}
+          <Link href={`/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-1.5 block group/title">
+            <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug tracking-tight text-foreground group-hover/title:text-primary transition-colors line-clamp-2">
               {item.title}
             </h3>
           </Link>
 
+          {/* 4. Description preview (2-3 lines max, subtle color) */}
           {item.description && (
-            <p className="mt-1.5 text-[12px] sm:text-[13px] leading-relaxed text-muted-foreground line-clamp-2 max-w-3xl">
+            <p className="mt-1 text-[11.5px] sm:text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 max-w-3xl">
               {item.description}
             </p>
           )}
 
-          {/* Resource type + verification */}
-          <div className="mt-2.5 flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground border border-border/30">
-              {(item.resourceType || "RESOURCE").replace("_", " ")}
-            </span>
+          {/* 5. Tags / Verification */}
+          <div className="mt-2 flex items-center gap-2 flex-wrap text-[10px]">
             {item.isVerified && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary"
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-bold text-primary"
                 title="Verified academic resource"
               >
                 <CheckCircle2 className="size-3" />
                 Verified
               </span>
             )}
-            <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center gap-1 font-semibold text-muted-foreground/80">
               <Target className="size-3" />
               {reliability}% helpful
             </span>
           </div>
 
-          {/* Actions: compact, thumb-friendly with 44px min touch targets */}
-          <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => setShowComments(!showComments)}
-              className="flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
-              aria-label={`Comments: ${commentsList.length || item.commentsCount || 0}`}
-            >
-              <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={15} />
-              <span className="text-[11px] font-semibold tabular-nums">
-                {commentsList.length || item.commentsCount || 0}
-              </span>
-            </button>
+          {/* 6. Stats + Action: guaranteed contained inside card without overflow at 360px-430px */}
+          <div className="mt-2.5 pt-2 border-t border-border/15 flex items-center justify-between gap-1.5 text-xs text-muted-foreground w-full min-w-0">
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleVote("UP")}
+                className={cn(
+                  "flex min-h-[38px] sm:min-h-[42px] items-center gap-1 rounded-xl px-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
+                  userVote === "UP" && "bg-primary/10 text-primary font-bold"
+                )}
+                title="Upvote"
+              >
+                <ArrowUp className={cn("size-3.5 sm:size-4", userVote === "UP" && "stroke-[2.5]")} />
+                <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleVote("UP")}
-              className={cn(
-                "flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
-                userVote === "UP" && "bg-primary/10 text-primary font-bold"
-              )}
-              title="Upvote"
-            >
-              <ArrowUp className={cn("size-4", userVote === "UP" && "stroke-[2.5]")} />
-              <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleVote("DOWN")}
+                className={cn(
+                  "flex min-h-[38px] min-w-[34px] sm:min-h-[42px] sm:min-w-[42px] items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
+                  userVote === "DOWN" && "bg-rose-500/10 text-rose-400"
+                )}
+                title="Report incorrect material"
+                aria-label="Report incorrect material"
+              >
+                <ArrowDown className="size-3.5 sm:size-4" />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleVote("DOWN")}
-              className={cn(
-                "flex size-11 items-center justify-center rounded-full hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
-                userVote === "DOWN" && "bg-rose-500/10 text-rose-400"
-              )}
-              title="Report incorrect material"
-              aria-label="Report incorrect material"
-            >
-              <ArrowDown className="size-4" />
-            </button>
-
-            <div className="ml-auto flex items-center gap-2.5 text-[10px] text-muted-foreground/70">
-              <span className="inline-flex items-center gap-1" title="Views">
-                <Eye className="size-3" />
-                <span className="tabular-nums">{views}</span>
-              </span>
-              <span className="inline-flex items-center gap-1" title="Downloads">
-                <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={12} />
-                <span className="tabular-nums">{downloads}</span>
-              </span>
+              <button
+                type="button"
+                onClick={() => setShowComments(!showComments)}
+                className="flex min-h-[38px] sm:min-h-[42px] items-center gap-1 rounded-xl px-2 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
+                aria-label={`Comments: ${commentsList.length || item.commentsCount || 0}`}
+              >
+                <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={14} />
+                <span className="text-[11px] font-semibold tabular-nums">
+                  {commentsList.length || item.commentsCount || 0}
+                </span>
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="ml-1 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-[.98] transition-all cursor-pointer"
-            >
-              {(item.fileUrl || item.driveUrl || "").match(
-                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              ) ? (
-                <FolderOpen className="size-4" />
-              ) : (
-                <ExternalLink className="size-3.5" />
-              )}
-              <span>Open</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0 ml-auto min-w-0">
+              <div className="hidden xs:flex items-center gap-2 text-[10px] text-muted-foreground/75">
+                <span className="inline-flex items-center gap-1" title="Views">
+                  <Eye className="size-3" />
+                  <span className="tabular-nums">{views}</span>
+                </span>
+                <span className="inline-flex items-center gap-1" title="Downloads">
+                  <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={11} />
+                  <span className="tabular-nums">{downloads}</span>
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDownload}
+                className={cn(
+                  "inline-flex min-h-[36px] sm:min-h-[38px] items-center gap-1.5 rounded-full px-3.5 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-[.98] shrink-0",
+                  (item.fileUrl || item.driveUrl || "").match(
+                    /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
+                  )
+                    ? "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black"
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                )}
+              >
+                {(item.fileUrl || item.driveUrl || "").match(
+                  /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
+                ) ? (
+                  <FolderOpen className="size-3.5 shrink-0" />
+                ) : (
+                  <ExternalLink className="size-3.5 shrink-0" />
+                )}
+                <span>
+                  {(item.fileUrl || item.driveUrl || "").match(
+                    /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
+                  )
+                    ? "Folder"
+                    : "Open"}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

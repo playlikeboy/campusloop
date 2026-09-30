@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Bookmark,
   Edit3,
+  Flame,
   Heart,
   MessageCircle,
   MoreHorizontal,
@@ -429,17 +430,17 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         <motion.button
           type="button"
           onClick={() => handleVote()}
-          aria-label={userVote === 1 ? "Unlike post" : "Like post"}
+          aria-label={userVote === 1 ? "Unvibe post" : "Vibe post"}
           whileTap={{ scale: 0.85 }}
           className={cn(
             "size-10 sm:size-12 rounded-full border border-border/70 bg-background/95 backdrop-blur-xl flex items-center justify-center shadow-[0_4px_14px_rgba(15,23,42,0.10)] ring-1 ring-black/5 transition-all cursor-pointer group relative",
             userVote === 1
-              ? "border-rose-500/40 text-rose-500 bg-rose-500/15 shadow-[0_0_20px_rgba(244,63,94,0.4)]"
-              : "border-border/60 text-foreground/80 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10"
+              ? "border-orange-500/40 text-orange-500 bg-orange-500/15 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+              : "border-border/60 text-foreground/80 hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/10"
           )}
         >
           <motion.div
-            key={userVote === 1 ? "liked" : "unliked"}
+            key={userVote === 1 ? "vibed" : "unvibed"}
             initial={userVote === 1 ? { scale: 0.7 } : { scale: 1 }}
             animate={
               userVote === 1
@@ -454,12 +455,12 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               ease: [0.175, 0.885, 0.32, 1.275],
             }}
           >
-            <Heart
+            <Flame
               className={cn(
                 "size-5 sm:size-5.5 transition-colors",
                 userVote === 1
-                  ? "fill-rose-500 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
-                  : "text-foreground/80 group-hover:text-rose-400 fill-none"
+                  ? "fill-orange-500 text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.7)]"
+                  : "text-foreground/80 group-hover:text-orange-400 fill-none"
               )}
             />
           </motion.div>
@@ -468,14 +469,14 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               initial={{ scale: 0.8, opacity: 0.8 }}
               animate={{ scale: 1.6, opacity: 0 }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="absolute inset-0 rounded-full border border-rose-500 pointer-events-none"
+              className="absolute inset-0 rounded-full border border-orange-500 pointer-events-none"
             />
           )}
         </motion.button>
         <span
           className={cn(
             "text-[11px] sm:text-xs font-bold tabular-nums transition-colors",
-            userVote === 1 ? "text-rose-400 font-extrabold" : "text-foreground/75"
+            userVote === 1 ? "text-orange-400 font-extrabold" : "text-foreground/75"
           )}
         >
           {votesCount}
@@ -690,7 +691,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             />
           )}
 
-          {/* Double Tap Heart Animation */}
+          {/* Double Tap Flame Animation */}
           <AnimatePresence>
             {showDoubleTapHeart && (
               <motion.div
@@ -701,7 +702,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
               >
                 <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-                  <Heart className="size-20 fill-rose-500 text-rose-500 drop-shadow-lg animate-pulse" />
+                  <Flame className="size-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] animate-pulse" />
                 </div>
               </motion.div>
             )}
@@ -871,7 +872,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       onDoubleClick={handleDoubleTap}
       className="relative w-full h-full flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto overflow-hidden"
     >
-      {/* Double Tap Heart Animation */}
+      {/* Double Tap Flame Animation */}
       <AnimatePresence>
         {showDoubleTapHeart && (
           <motion.div
@@ -882,7 +883,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
           >
             <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-              <Heart className="size-20 fill-rose-500 text-rose-500 drop-shadow-lg animate-pulse" />
+              <Flame className="size-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] animate-pulse" />
             </div>
           </motion.div>
         )}
