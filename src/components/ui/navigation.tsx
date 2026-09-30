@@ -4,6 +4,7 @@ import {
   Bell,
   Building2,
   Calendar,
+  ChevronRight,
   Compass,
   GraduationCap,
   Heart,
@@ -23,7 +24,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CampusUnlockedModal } from "@/components/preview/campus-unlocked-modal";
 import { DreamCampusesModal } from "@/components/preview/dream-campuses-modal";
@@ -61,10 +62,14 @@ function isPathActive(currentPath: string, targetHref: string) {
   return currentPath === targetHref || currentPath.startsWith(`${targetHref}/`);
 }
 
-// Top navbar primary tabs on desktop
-const TOP_NAV_TABS = [
+// Primary always-visible desktop tabs: Feeds & Explore
+const PRIMARY_NAV_TABS = [
   { href: "/feeds", label: "Feeds", icon: Home },
   { href: "/explore", label: "Explore", icon: Compass },
+];
+
+// Expandable secondary tabs revealed on "Expand >"
+const EXPANDABLE_NAV_TABS = [
   {
     href: "/academics",
     label: "Academics",
@@ -74,11 +79,12 @@ const TOP_NAV_TABS = [
   },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/colleges", label: "Colleges", icon: Building2 },
-  { href: "/events", label: "Events", icon: Calendar, xlOnly: true },
-  { href: "/dating", label: "Match", icon: Heart, xlOnly: true },
+  { href: "/events", label: "Events", icon: Calendar },
+  { href: "/dating", label: "Match", icon: Heart },
 ];
 
 export function Navigation({ profile, collegeName, isViewer, isAdmin }: NavigationProps) {
+  const router = useRouter();
   const pathname = usePathname() || "/feeds";
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -87,6 +93,49 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
   const [mobileNavPulse, setMobileNavPulse] = useState<{ href: string; key: number } | null>(null);
   const unreadNotificationsCount = useUnreadNotificationsCount();
+
+  // Check if current route is within the expandable hubs
+  const isCurrentPathInExpandable = useMemo(
+    () => EXPANDABLE_NAV_TABS.some((tab) => isPathActive(pathname, tab.href)),
+    [pathname]
+  );
+
+  // Desktop navigation expansion state (defaults to true if user is on an expandable hub)
+  const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem("campusloop_nav_expanded");
+    if (stored !== null) return stored === "true";
+    return false;
+  });
+
+  // Automatically expand if the user directly lands on an expandable hub
+  useEffect(() => {
+    if (isCurrentPathInExpandable) {
+      setIsNavExpanded(true);
+    }
+  }, [isCurrentPathInExpandable]);
+
+  // Global Cmd + K / Ctrl + K shortcut to trigger search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        sounds.tap();
+        haptics.light();
+        const searchInput = document.querySelector<HTMLInputElement>(
+          "input[type='search'], input[placeholder*='Search']"
+        );
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        } else {
+          router.push("/explore");
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [router]);
 
   // Close menus on route change
   useEffect(() => {
@@ -188,8 +237,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
           </div>
 
           {/* Center: Desktop Hub Navigation Tabs */}
-          <nav className="hidden lg:flex items-center gap-1 py-1 shrink-0">
-            {TOP_NAV_TABS.map((tab) => {
+          <nav className="hidden lg:flex items-center gap-1 py-1 shrink-0" aria-label="Desktop primary navigation">
+            {/* Primary tabs: Feeds & Explore */}
+            {PRIMARY_NAV_TABS.map((tab) => {
               const isActive = isPathActive(pathname, tab.href);
               const Icon = tab.icon;
 
@@ -204,7 +254,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   }}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0",
-                    tab.xlOnly && "hidden xl:inline-flex",
                     isActive
                       ? "bg-primary/10 text-primary font-bold shadow-2xs"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -212,35 +261,118 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 >
                   <Icon className="size-3.5 shrink-0" />
                   <span>{tab.label}</span>
-                  {tab.badge && !isActive && (
-                    <span
-                      className={cn(
-                        "rounded-full px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
-                        tab.badgeColor || "bg-primary/15 text-primary"
-                      )}
-                    >
-                      {tab.badge}
-                    </span>
-                  )}
                 </Link>
               );
             })}
+
+            {/* Expand / Collapse SVG Button */}
+            <button
+              type="button"
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+                setIsNavExpanded((prev) => {
+                  const next = !prev;
+                  try {
+                    localStorage.setItem("campusloop_nav_expanded", String(next));
+                  } catch {}
+                  return next;
+                });
+              }}
+              className={cn(
+                "flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0 border",
+                isNavExpanded
+                  ? "bg-muted/70 text-foreground border-border/50 shadow-2xs"
+                  : isCurrentPathInExpandable
+                    ? "bg-primary/10 text-primary border-primary/25 font-bold"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border-transparent hover:border-border/30"
+              )}
+              title={
+                isNavExpanded
+                  ? "Collapse hubs"
+                  : "Expand all hubs (Academics, Communities, Colleges, Events, Match)"
+              }
+              aria-label={isNavExpanded ? "Collapse navigation hubs" : "Expand all navigation hubs"}
+              aria-expanded={isNavExpanded}
+            >
+              <span>{isNavExpanded ? "Collapse" : "Expand"}</span>
+              <ChevronRight
+                className={cn(
+                  "size-3.5 transition-transform duration-200",
+                  isNavExpanded && "rotate-180"
+                )}
+              />
+            </button>
+
+            {/* Expandable Hubs: Academics, Communities, Colleges, Events, Match */}
+            <AnimatePresence initial={false}>
+              {isNavExpanded && (
+                <motion.div
+                  key="expandable-nav-tabs"
+                  initial={{ opacity: 0, width: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, width: "auto", scale: 1 }}
+                  exit={{ opacity: 0, width: 0, scale: 0.96 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="flex items-center gap-1 overflow-hidden"
+                >
+                  {EXPANDABLE_NAV_TABS.map((tab) => {
+                    const isActive = isPathActive(pathname, tab.href);
+                    const Icon = tab.icon;
+
+                    return (
+                      <Link
+                        key={tab.href}
+                        href={tab.href}
+                        prefetch
+                        onClick={() => {
+                          sounds.tap();
+                          haptics.light();
+                        }}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0",
+                          isActive
+                            ? "bg-primary/10 text-primary font-bold shadow-2xs"
+                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                        )}
+                      >
+                        <Icon className="size-3.5 shrink-0" />
+                        <span>{tab.label}</span>
+                        {tab.badge && !isActive && (
+                          <span
+                            className={cn(
+                              "rounded-full px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
+                              tab.badgeColor || "bg-primary/15 text-primary"
+                            )}
+                          >
+                            {tab.badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </nav>
 
           {/* Right: Search, Post CTA, Chat, Notifications, Theme, Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Search Pill */}
+            {/* Search Pill with Cmd + K */}
             <Link
               href="/explore"
               prefetch
-              className="flex size-9 xl:w-auto xl:px-3 xl:py-1.5 items-center justify-center rounded-full bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
-              title="Explore & Search CampusLoop"
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+              }}
+              className="flex items-center gap-1.5 h-8.5 px-2.5 sm:px-3 rounded-full bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-medium border border-border/30 hover:border-border/60 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
+              title="Explore & Search CampusLoop (⌘K)"
               aria-label="Explore & Search"
             >
-              <Search className="size-4 shrink-0" />
-              <span className="hidden xl:inline text-xs ml-1.5">Search</span>
-              <kbd className="hidden 2xl:inline text-[9px] font-mono px-1 rounded bg-muted text-muted-foreground ml-1.5">
-                ⌘K
+              <Search className="size-3.5 shrink-0 text-muted-foreground" />
+              <span className="hidden sm:inline text-xs font-medium">Search</span>
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-background/80 text-muted-foreground border border-border/50 font-semibold shadow-2xs">
+                <span>⌘</span>K
               </kbd>
             </Link>
 
