@@ -155,7 +155,7 @@ export async function requireAdminApi(): Promise<AdminApiResult> {
         where: eq(userProfiles.role, "ADMIN"),
       });
       if (!profile) {
-        profile = (await db.query.userProfiles.findFirst()) || null;
+        profile = await db.query.userProfiles.findFirst();
       }
       if (profile) {
         return { authorized: true, db, profile, errorResponse: null };
