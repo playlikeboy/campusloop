@@ -10,6 +10,7 @@ import { FastCommentsModal } from "@/components/feed/fast-comments-modal";
 import { FeedCardActions } from "@/components/feed/feed-card-actions";
 import { FeedCardHeader } from "@/components/feed/feed-card-header";
 import { FeedCardRepostModal } from "@/components/feed/feed-card-repost-modal";
+import { FeedSocialContextBar } from "@/components/feed/feed-social-context";
 import { PostLikesModal } from "@/components/post/post-likes-modal";
 import { RedditGallery } from "@/components/reddit/reddit-gallery";
 import { RedditVideo } from "@/components/reddit/reddit-video";
@@ -476,6 +477,11 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
         {/* 3. FOOTER ROW: Action Bar aligned horizontally along the bottom */}
         <div className="w-full min-w-0 pt-0.5">
+          {post.socialContext && (
+            <div className="pb-1">
+              <FeedSocialContextBar socialContext={post.socialContext} />
+            </div>
+          )}
           {(() => {
             const effectiveVotesCount = userVote === 1 && votesCount <= 0 ? 1 : votesCount;
             return (

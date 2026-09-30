@@ -23,6 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FeedSocialContextBar } from "@/components/feed/feed-social-context";
 import { PollCard } from "@/components/ui/poll-card";
 import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
@@ -1247,6 +1248,12 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           </div>
         )}
       </div>
+
+      {post.socialContext && (
+        <div className="shrink-0 px-1 pt-1">
+          <FeedSocialContextBar socialContext={post.socialContext} />
+        </div>
+      )}
 
       {renderPostActionBar()}
       {renderModals()}

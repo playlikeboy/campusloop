@@ -19,6 +19,7 @@ import {
   buildBoostTierSql,
   loadActiveBoosts,
 } from "@/lib/feed-boosts";
+import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { applyAuthorDiversityReranking } from "@/lib/recommendations/diversity-reranker";
 import { getPhoenixValueScoreSql } from "@/lib/recommendations/phoenix-ranker";
 import { getAddictiveReelsScoreSql } from "@/lib/reels/algorithm";
@@ -574,83 +575,97 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
 
   const postIds = rawFeed.map((p) => p.id);
   const externalPostsMap = new Map<string, ExternalPostInfo>();
+  const repostedPostsMap = new Map<string, HydratedFeedPost>();
 
-  if (postIds.length > 0) {
-    try {
-      const extPosts = await db.query.externalPosts.findMany({
-        where: inArray(externalPosts.postId, postIds),
-        with: {
-          media: {
-            orderBy: (media, { asc }) => [asc(media.position)],
-          },
-        },
-      });
-      for (const ep of extPosts) {
-        externalPostsMap.set(ep.postId, {
-          id: ep.id,
-          source: ep.source,
-          externalId: ep.externalId,
-          subreddit: ep.subreddit,
-          externalAuthor: ep.externalAuthor,
-          permalink: ep.permalink,
-          canonicalUrl: ep.canonicalUrl,
-          score: ep.score,
-          commentCount: ep.commentCount,
-          contentType: ep.contentType,
-          media: ep.media.map((m) => ({
-            id: m.id,
-            mediaType: m.mediaType,
-            mediaUrl: m.mediaUrl,
-            previewUrl: m.previewUrl,
-            thumbnailUrl: m.thumbnailUrl,
-            hlsUrl: m.hlsUrl,
-            dashUrl: m.dashUrl,
-            width: m.width,
-            height: m.height,
-            duration: m.duration,
-            isGif: m.isGif,
-            position: m.position,
-          })),
-        });
-      }
-    } catch (e) {
-      console.error("Error fetching external posts:", e);
-    }
+  // Concurrently fetch external posts, reposted posts, and followed social context
+  const [extPosts, repostedPosts, socialContextMap] = await Promise.all([
+    postIds.length > 0
+      ? db.query.externalPosts
+          .findMany({
+            where: inArray(externalPosts.postId, postIds),
+            with: {
+              media: {
+                orderBy: (media, { asc }) => [asc(media.position)],
+              },
+            },
+          })
+          .catch((e) => {
+            console.error("Error fetching external posts:", e);
+            return [];
+          })
+      : Promise.resolve([]),
+
+    repostOfIds.length > 0
+      ? db.query.posts
+          .findMany({
+            where: inArray(posts.id, repostOfIds),
+            with: {
+              author: {
+                columns: {
+                  id: true,
+                  username: true,
+                  displayName: true,
+                  avatarUrl: true,
+                  points: true,
+                  role: true,
+                  lastSeenAt: true,
+                },
+              },
+              institution: {
+                columns: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logoUrl: true,
+                },
+              },
+            },
+          })
+          .catch((e) => {
+            console.error("Error fetching reposted posts:", e);
+            return [];
+          })
+      : Promise.resolve([]),
+
+    viewerProfileId && postIds.length > 0
+      ? loadFollowedPostActivity({ viewerProfileId, postIds }).catch((e) => {
+          console.error("Error loading followed post activity:", e);
+          return new Map();
+        })
+      : Promise.resolve(new Map()),
+  ]);
+
+  for (const ep of extPosts) {
+    externalPostsMap.set(ep.postId, {
+      id: ep.id,
+      source: ep.source,
+      externalId: ep.externalId,
+      subreddit: ep.subreddit,
+      externalAuthor: ep.externalAuthor,
+      permalink: ep.permalink,
+      canonicalUrl: ep.canonicalUrl,
+      score: ep.score,
+      commentCount: ep.commentCount,
+      contentType: ep.contentType,
+      media: ep.media.map((m) => ({
+        id: m.id,
+        mediaType: m.mediaType,
+        mediaUrl: m.mediaUrl,
+        previewUrl: m.previewUrl,
+        thumbnailUrl: m.thumbnailUrl,
+        hlsUrl: m.hlsUrl,
+        dashUrl: m.dashUrl,
+        width: m.width,
+        height: m.height,
+        duration: m.duration,
+        isGif: m.isGif,
+        position: m.position,
+      })),
+    });
   }
 
-  const repostedPostsMap = new Map<string, HydratedFeedPost>();
-  if (repostOfIds.length > 0) {
-    try {
-      const repostedPosts = await db.query.posts.findMany({
-        where: inArray(posts.id, repostOfIds),
-        with: {
-          author: {
-            columns: {
-              id: true,
-              username: true,
-              displayName: true,
-              avatarUrl: true,
-              points: true,
-              role: true,
-              lastSeenAt: true,
-            },
-          },
-          institution: {
-            columns: {
-              id: true,
-              name: true,
-              slug: true,
-              logoUrl: true,
-            },
-          },
-        },
-      });
-      for (const p of repostedPosts) {
-        repostedPostsMap.set(p.id, p as HydratedFeedPost);
-      }
-    } catch (e) {
-      console.error("Error fetching reposted posts:", e);
-    }
+  for (const p of repostedPosts) {
+    repostedPostsMap.set(p.id, p as HydratedFeedPost);
   }
 
   return rawFeed.map((post) => {
@@ -684,6 +699,11 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
     const totalPollVotes = formattedPollOptions?.reduce((acc, opt) => acc + opt.votesCount, 0) || 0;
     const repostOf = post.repostOfId ? repostedPostsMap.get(post.repostOfId) || null : null;
     const safeRepostOf = repostOf ? stripAuthorForAnonymity(repostOf) : null;
+
+    // Social context: Activity by followed users, strictly suppressed for anonymous posts
+    const socialContext = post.isAnonymous
+      ? null
+      : socialContextMap.get(post.id) || null;
 
     const publishedComments = commentsList.filter((c) => c && c.status === "PUBLISHED");
     let topComment: {
@@ -726,6 +746,7 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
       ...stripAuthorForAnonymity(post),
       externalPost: externalPostsMap.get(post.id) || null,
       repostOf: safeRepostOf,
+      socialContext,
       votesCount,
       commentsCount,
       userVote,

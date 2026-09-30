@@ -9,6 +9,7 @@ import type { FeedPost } from "@/hooks/use-feed";
 import { slugifyAcademicResource } from "@/lib/academics/slug";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { formatApiFeedPosts, resolveFeedPage } from "@/lib/feed";
+import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { getRecommendedUsers } from "@/lib/recommendations/recommended-users";
 import { getRelatedPosts } from "@/lib/recommendations/related-posts";
 import { getCachedAuthUser, getCachedPostDetail, getCachedUserProfile } from "@/lib/server-cache";
@@ -118,8 +119,11 @@ export default async function PostDetailPage({ params }: PostPageProps) {
     votes: undefined,
   } as unknown as FeedPost;
 
-  // 2. Concurrently fetch Related Posts, Adjacent Campus Feed, User Suggestions, and Academic Vault Drops
-  const [relatedItems, feedRows, suggestedPeers, academicDrops] = await Promise.all([
+  // 2. Concurrently fetch Followed Activity, Related Posts, Adjacent Campus Feed, User Suggestions, and Academic Vault Drops
+  const [initialSocialMap, relatedItems, feedRows, suggestedPeers, academicDrops] = await Promise.all([
+    profile?.id && !rawPost.isAnonymous
+      ? loadFollowedPostActivity({ viewerProfileId: profile.id, postIds: [id] }).catch(() => new Map())
+      : Promise.resolve(new Map()),
     getRelatedPosts(id, { limit: 6, currentUserId: profile?.id }).catch(() => []),
     resolveFeedPage({
       conditions: [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)],
@@ -138,6 +142,8 @@ export default async function PostDetailPage({ params }: PostPageProps) {
       })
       .catch(() => []),
   ]);
+
+  initialPost.socialContext = !rawPost.isAnonymous ? initialSocialMap.get(id) || null : null;
 
   const formattedFeed = await formatApiFeedPosts(feedRows, profile?.id);
 
