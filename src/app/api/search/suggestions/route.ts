@@ -118,12 +118,13 @@ export async function GET(request: Request) {
 
     // Add matching hashtags
     for (const tag of matchingHashtags) {
+      const clean = tag.tag.replace(/^#/, "").trim();
       suggestions.push({
-        text: tag.tag.startsWith("#") ? tag.tag : `#${tag.tag}`,
+        text: `#${clean}`,
         type: "hashtag",
-        title: tag.tag.startsWith("#") ? tag.tag : `#${tag.tag}`,
+        title: `#${clean}`,
         subtitle: `${tag.count} posts`,
-        href: `/explore?q=${encodeURIComponent(tag.tag)}&type=posts`,
+        href: `/hashtag/${encodeURIComponent(clean.toLowerCase())}`,
       });
     }
 

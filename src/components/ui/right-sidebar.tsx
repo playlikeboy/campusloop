@@ -51,8 +51,18 @@ export function RightSidebar() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    if (query.startsWith("#")) {
+      const cleanTag = query.replace(/^#+/, "").trim();
+      if (cleanTag) {
+        router.push(`/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`);
+        return;
+      }
+    }
+
+    router.push(`/explore?q=${encodeURIComponent(query)}`);
   }
 
   async function handleRefreshPeers() {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ExploreClient } from "@/components/explore/explore-client";
 import type { SearchCategoryFilter, SearchScope } from "@/lib/search/types";
@@ -87,6 +88,14 @@ export async function generateMetadata({ searchParams }: ExplorePageProps): Prom
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const params = await searchParams;
   const q = params.q?.trim() || "";
+
+  if (q.startsWith("#")) {
+    const cleanTag = q.replace(/^#+/, "").trim();
+    if (cleanTag) {
+      redirect(`/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`);
+    }
+  }
+
   const rawScope = params.scope?.toUpperCase();
   const scope: SearchScope = rawScope === "GLOBAL" || rawScope === "INDIA" ? "INDIA" : "CAMPUS";
   const type = (params.type?.toUpperCase() || "ALL") as SearchCategoryFilter;

@@ -55,29 +55,38 @@ export function CampusPulseSection({
             {trends.length === 0 ? (
               <p className="text-xs text-muted-foreground py-3">No active trends yet on campus.</p>
             ) : (
-              trends.slice(0, 6).map((item, idx) => (
-                <div
-                  key={item.topic + idx}
-                  onClick={() => {
-                    sounds.tap();
-                    if (onTopicClick) {
-                      onTopicClick(item.topic);
-                    }
-                  }}
-                  className="group flex items-center justify-between py-2.5 px-1 hover:bg-muted/40 rounded-lg transition-colors cursor-pointer"
-                >
-                  <div className="space-y-0.5 min-w-0">
-                    <p className="text-[11px] text-muted-foreground truncate">{item.category}</p>
-                    <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                      <Hash className="size-3 text-muted-foreground shrink-0" />
-                      <span className="truncate">{item.topic.replace(/^#/, "")}</span>
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium shrink-0">
-                    {item.formattedCount}
-                  </span>
-                </div>
-              ))
+              trends.slice(0, 6).map((item, idx) => {
+                const cleanTag = item.topic.replace(/^#/, "").trim();
+                const targetHref =
+                  item.href && !item.href.includes("explore?q=")
+                    ? item.href
+                    : `/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`;
+
+                return (
+                  <Link
+                    key={item.topic + idx}
+                    href={targetHref}
+                    onClick={() => {
+                      sounds.tap();
+                      if (onTopicClick) {
+                        onTopicClick(cleanTag);
+                      }
+                    }}
+                    className="group flex items-center justify-between py-2.5 px-1 hover:bg-muted/40 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-[11px] text-muted-foreground truncate">{item.category}</p>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
+                        <Hash className="size-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">{cleanTag}</span>
+                      </p>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium shrink-0">
+                      {item.formattedCount}
+                    </span>
+                  </Link>
+                );
+              })
             )}
           </div>
         </div>

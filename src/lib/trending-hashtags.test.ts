@@ -34,4 +34,14 @@ describe("trending-hashtags engine", () => {
       expect(["campus", "social", "global"]).toContain(item.source);
     }
   });
+
+  it("generates /hashtag/[tag] link instead of /explore?q=", async () => {
+    const list = await getTrendingHashtags({ limit: 5 });
+    for (const item of list) {
+      expect(item.href).toBeDefined();
+      expect(item.href).toMatch(/^\/hashtag\/[a-z0-9_]+$/i);
+      expect(item.href).not.toContain("explore?q=");
+      expect(item.href).not.toContain("#");
+    }
+  });
 });

@@ -204,7 +204,6 @@ export function ExploreClient({
             <CampusPulseSection
               trends={homeData.pulse.trends || []}
               topDiscussions={homeData.pulse.topDiscussions || []}
-              onTopicClick={(topic) => handleSearchSubmit(topic)}
             />
           )}
 
