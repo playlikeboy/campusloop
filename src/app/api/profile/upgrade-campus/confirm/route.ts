@@ -4,6 +4,8 @@ import { getDb } from "@/db";
 import { savedPosts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { checkCampusUpgradeEligibility } from "@/lib/campus-upgrade";
+import { sendEmail } from "@/lib/email";
+import { buildWelcomeEmail } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +79,24 @@ export async function POST(req: Request) {
         status: "ACTIVE",
       })
       .where(eq(userProfiles.id, profile.id));
+
+    // Dispatch welcome / verification email asynchronously via mail.campsy.app
+    try {
+      const { subject, html, text } = buildWelcomeEmail({
+        displayName: profile.displayName || profile.username,
+        collegeName: institution.name,
+      });
+      sendEmail({
+        to: email,
+        from: "welcome@mail.campsy.app",
+        fromName: "CampusLoop",
+        subject,
+        html,
+        text,
+      }).catch((err) => console.warn("[Upgrade welcome email failed]:", err));
+    } catch {
+      // Non-blocking email dispatch
+    }
 
     const [savedCountResult] = await db
       .select({ val: count() })

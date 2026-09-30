@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 interface TestEmailBody {
   to?: string;
+  from?: string;
   type?: string;
   displayName?: string;
   collegeName?: string;
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     const result = await sendEmail({
       to,
+      from: body.from || (type === "WELCOME" ? "welcome@mail.campsy.app" : "notifications@mail.campsy.app"),
       subject: body.subject || emailPayload.subject,
       html: emailPayload.html,
       text: emailPayload.text,

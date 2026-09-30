@@ -68,11 +68,9 @@
 	 * databases, object storage, AI inference, real-time communication and more.
 	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
 	 */
-	/**
-	 * Environment Variables
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-	 * Note: Use secrets to store sensitive data.
-	 * https://developers.cloudflare.com/workers/configuration/secrets/
-	 */
-	// "vars": {  "MY_VARIABLE": "production_value" }
+	"vars": {
+		"CLOUDFLARE_EMAIL_FROM": "welcome@mail.campsy.app",
+		"CLOUDFLARE_EMAIL_DOMAIN": "mail.campsy.app",
+		"CLOUDFLARE_REPLY_TO": "support@mail.campsy.app"
+	}
 }

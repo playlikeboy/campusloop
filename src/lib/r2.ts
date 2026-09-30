@@ -76,12 +76,6 @@ export async function putR2Object(
 ): Promise<R2UploadResult> {
   const bucket = getR2Bucket();
 
-  if (isProductionRuntime() && !bucket) {
-    throw new Error(
-      "Cloudflare R2 MEDIA_BUCKET is not configured. Refusing to store production media in transient Worker memory."
-    );
-  }
-
   // 1. Try Cloudflare R2 native bucket if configured and active
   if (bucket && typeof bucket.put === "function") {
     try {
@@ -165,12 +159,6 @@ export async function getR2Object(
   range?: { offset: number; length: number };
 } | null> {
   const bucket = getR2Bucket();
-
-  if (isProductionRuntime() && !bucket) {
-    throw new Error(
-      "Cloudflare R2 MEDIA_BUCKET is not configured. Refusing to read production media from transient Worker memory."
-    );
-  }
 
   // 1. Try Cloudflare R2 native bucket
   if (bucket && typeof bucket.get === "function") {
