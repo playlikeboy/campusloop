@@ -93,7 +93,7 @@ export default async function DocsHubPage() {
         <CTABand
           title="Read the architecture. Now see it live."
           lede="Every feature detailed here is running on real campuses today, gatekept by university email."
-          primaryHref={user ? "/app" : "/handler/sign-up"}
+          primaryHref={user ? "/app" : "/sign-up"}
           primaryLabel={user ? "Open campus timeline" : "Get verified"}
           secondaryHref="/colleges"
           secondaryLabel="Explore colleges in viewer mode"

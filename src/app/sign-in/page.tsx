@@ -9,18 +9,27 @@ export const metadata: Metadata = {
   description: "Sign in to your verified campus community using your official college email.",
 };
 
-export default function SignInPage({
+export default async function SignInPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ returnTo?: string }>;
+  searchParams?: Promise<{ returnTo?: string; redirect?: string }>;
 }) {
+  const params = await searchParams;
+  const returnTo = params?.returnTo || params?.redirect;
+  const handlerHref = returnTo
+    ? `/handler/sign-in?returnTo=${encodeURIComponent(returnTo)}`
+    : "/handler/sign-in";
+  const signUpHref = returnTo
+    ? `/sign-up?returnTo=${encodeURIComponent(returnTo)}`
+    : "/sign-up";
+
   return (
     <div className="min-h-screen bg-background flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
       {/* Top Navbar Header */}
       <header className="w-full max-w-5xl flex items-center justify-between py-4">
         <BrandLogo href="/" size="md" />
         <Link
-          href="/sign-up"
+          href={signUpHref}
           className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
         >
           Need an account? <span className="text-primary font-black">Sign Up</span>
@@ -63,7 +72,7 @@ export default function SignInPage({
           {/* Primary CTA Button to Hexclave Flow */}
           <div className="space-y-3">
             <Link
-              href="/handler/sign-in"
+              href={handlerHref}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 px-4 text-sm font-black text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/95 active:scale-98 transition-all cursor-pointer"
             >
               <span>Continue with College Email</span>

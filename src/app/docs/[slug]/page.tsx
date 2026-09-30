@@ -317,7 +317,7 @@ export default async function DocsArticlePage({ params }: { params: Promise<{ sl
         <CTABand
           title="See this architecture running on your campus."
           lede="The essays explain the engineering. Your college email unlocks the live timeline."
-          primaryHref={user ? "/app" : "/handler/sign-up"}
+          primaryHref={user ? "/app" : "/sign-up"}
           primaryLabel={user ? "Open campus timeline" : "Get verified"}
           secondaryHref="/docs"
           secondaryLabel="All architecture essays"

@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 export default async function NewCommunityPage() {
   const user = await hexclaveServerApp.getUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   return <CreateCommunityClient />;
 }

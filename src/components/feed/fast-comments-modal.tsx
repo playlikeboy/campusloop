@@ -565,7 +565,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                     </p>
                   </div>
                   <Link
-                    href={`/handler/sign-in?returnTo=${typeof window !== "undefined" ? encodeURIComponent(window.location.pathname) : ""}`}
+                    href={`/sign-in?returnTo=${typeof window !== "undefined" ? encodeURIComponent(window.location.pathname) : ""}`}
                     className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
                   >
                     Sign In

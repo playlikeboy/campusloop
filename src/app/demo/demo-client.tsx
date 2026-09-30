@@ -127,7 +127,7 @@ export function DemoClient() {
 
             <div className="pt-3">
               <Link
-                href="/handler/sign-in?returnTo=/app"
+                href="/sign-in?returnTo=/app"
                 className={cn(buttonVariants({ size: "default" }), "gap-2 cursor-pointer shadow-xs")}
               >
                 <span>Sign In to Evaluation Sandbox</span>

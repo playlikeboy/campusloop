@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function RandomLoopPage() {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile?.onboardingCompleted) redirect("/onboarding");

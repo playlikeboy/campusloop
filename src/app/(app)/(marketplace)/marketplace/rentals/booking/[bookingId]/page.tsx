@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function BikeBookingPage({ params }: BikeBookingPageProps) {
   const { bookingId } = await params;
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   return <BikeBookingClient bookingId={bookingId} />;
 }

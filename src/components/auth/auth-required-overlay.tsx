@@ -92,12 +92,8 @@ export function AuthRequiredOverlay() {
 
   const copy = getActionLabel(action);
 
-  async function handleLogin() {
-    try {
-      await hexclaveClientApp.redirectToSignIn();
-    } catch {
-      window.location.href = `/handler/sign-in?returnBackUrl=${encodeURIComponent(window.location.href)}`;
-    }
+  function handleLogin() {
+    window.location.href = `/sign-in?returnTo=${encodeURIComponent(window.location.href)}`;
   }
 
   return (

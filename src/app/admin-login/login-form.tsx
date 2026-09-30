@@ -48,7 +48,7 @@ export function AdminLoginForm() {
         </button>
 
         <Link
-          href="/login?redirect=/admin"
+          href="/sign-in?returnTo=/admin"
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card h-10 px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
         >
           <LogIn className="h-3.5 w-3.5" />

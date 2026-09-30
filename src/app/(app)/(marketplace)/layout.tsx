@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default async function MarketplaceLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const profile = await getCachedUserProfile(user.id);
