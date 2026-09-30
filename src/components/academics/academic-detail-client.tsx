@@ -118,7 +118,7 @@ export function AcademicDetailClient({
       if (userVote === "DOWN") setDownvotes((v: number) => Math.max(0, v - 1));
       setUserVote("UP");
       trackAcademicVote(resource.id, "UP");
-      toast.success("Helpful vote recorded! +5 Loop Points credited 🎉");
+      toast.success("Helpful vote recorded! +5 Loop Points credited");
 
       fetch(`/api/academics/${resource.id}/analytics`, {
         method: "POST",
@@ -367,8 +367,8 @@ export function AcademicDetailClient({
         </div>
       </div>
 
-      {/* ─── Ultra-Premium Resource Hero Header Card ─── */}
-      <div className="relative rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 sm:p-7 shadow-xs overflow-hidden">
+      {/* ─── Resource Hero Header Card ─── */}
+      <div className="relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-5 sm:p-7 overflow-hidden">
         {/* Subtle background ambient mesh */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
@@ -458,20 +458,18 @@ export function AcademicDetailClient({
         {/* ─── Left Stage: Document Viewer & Discussion (8 cols) ─── */}
         <div className="lg:col-span-8 space-y-6 min-w-0">
           {/* Interactive Document Previewer & Reader */}
-          <div className="w-full rounded-2xl border border-border/40 bg-card/40 overflow-hidden shadow-xs">
-            <AcademicPdfViewer
-              fileUrl={resource.fileUrl}
-              driveUrl={resource.driveUrl}
-              attachments={resource.attachments}
-              title={resource.title}
-              subjectCode={resource.subjectCode}
-              resourceType={resource.resourceType}
-              department={resource.branch || undefined}
-              semester={resource.semester || undefined}
-              onDownload={handleDownload}
-              pageUrl={effectivePageUrl}
-            />
-          </div>
+          <AcademicPdfViewer
+            fileUrl={resource.fileUrl}
+            driveUrl={resource.driveUrl}
+            attachments={resource.attachments}
+            title={resource.title}
+            subjectCode={resource.subjectCode}
+            resourceType={resource.resourceType}
+            department={resource.branch || undefined}
+            semester={resource.semester || undefined}
+            onDownload={handleDownload}
+            pageUrl={effectivePageUrl}
+          />
 
           {/* Attached Files & Supplementary Links Tray (Multi-File Notes) */}
           {resource.attachments && Array.isArray(resource.attachments) && resource.attachments.length > 1 && (
@@ -592,7 +590,7 @@ export function AcademicDetailClient({
                     placeholder="Post your review, formula correction, or exam tip..."
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="flex-1 bg-muted/30 px-4 py-2 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/40 outline-none focus:border-primary transition-colors"
+                    className="flex-1 bg-muted/30 px-4 py-2 rounded-full text-xs text-foreground placeholder:text-muted-foreground border border-border/40 outline-none focus:border-primary transition-colors"
                   />
                   <button
                     type="submit"

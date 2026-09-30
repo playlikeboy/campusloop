@@ -1,7 +1,7 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import { Cake, MessageCircle, PartyPopper, School } from "lucide-react";
+import { BadgeCheck, Cake, MessageCircle, PartyPopper, School } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -75,7 +75,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
             </AvatarFallback>
           </Avatar>
           {isToday && (
-            <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-xs text-[10px] animate-bounce">
+            <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-xs text-[10px] animate-pulse">
               <Cake className="size-3" />
             </span>
           )}
@@ -86,8 +86,8 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
             <h4 className="text-xs sm:text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
               {student.displayName}
             </h4>
-            <span className="text-primary text-[10px] font-black" title="Verified Student">
-              ✓
+            <span className="text-primary inline-flex items-center" title="Verified Student">
+              <BadgeCheck className="size-3.5 fill-primary text-white" />
             </span>
           </div>
 

@@ -2,11 +2,11 @@
 
 import {
   GraduationCap,
+  Heart,
   HeartHandshakeIcon,
   RotateCcw,
   School,
   ShieldCheck,
-  UserRound,
   Zap,
 } from "lucide-react";
 import { AnimatePresence, motion, type PanInfo, useMotionValue, useTransform } from "motion/react";
@@ -152,103 +152,103 @@ function TopCard({
       {/* LIKE / NOPE stamps */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="pointer-events-none absolute left-5 top-10 z-30 -rotate-12 rounded-lg border-4 border-emerald-400 px-3 py-1 shadow-lg"
+        className="pointer-events-none absolute left-5 top-12 z-30 -rotate-12 rounded-xl border-2 border-emerald-400 bg-emerald-950/60 px-4 py-1 backdrop-blur-xs shadow-lg"
       >
-        <span className="text-3xl font-black tracking-widest text-emerald-400">MATCH</span>
+        <span className="text-2xl font-black tracking-widest text-emerald-400">MATCH</span>
       </motion.div>
       <motion.div
         style={{ opacity: nopeOpacity }}
-        className="pointer-events-none absolute right-5 top-10 z-30 rotate-12 rounded-lg border-4 border-neutral-300 dark:border-neutral-500 px-3 py-1 shadow-lg"
+        className="pointer-events-none absolute right-5 top-12 z-30 rotate-12 rounded-xl border-2 border-neutral-300 dark:border-neutral-400 bg-neutral-950/60 px-4 py-1 backdrop-blur-xs shadow-lg"
       >
-        <span className="text-3xl font-black tracking-widest text-neutral-300 dark:text-neutral-400">
-          PASS
-        </span>
+        <span className="text-2xl font-black tracking-widest text-neutral-200">PASS</span>
       </motion.div>
 
       {/* Top badges */}
-      <div className="absolute inset-x-3 top-7 z-20 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-black text-white backdrop-blur-md border border-white/10">
-          <Zap className="size-3 text-primary" /> {candidate.compatibilityScore}% vibe match
+      <div className="absolute inset-x-4 top-6 z-20 flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md border border-white/10 shadow-xs">
+          <Zap className="size-3 text-primary fill-primary" />
+          {candidate.compatibilityScore}% Match
         </span>
-        <div className="flex items-center gap-1.5">
-          {candidate.likedYou && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-black text-primary-foreground backdrop-blur-md shadow-sm">
-              <Zap className="size-2.5" /> Likes your vibe
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/25 px-2.5 py-1 text-[10px] font-extrabold text-emerald-300 backdrop-blur-md border border-emerald-500/30">
-            <ShieldCheck className="size-3" /> Verified Student
+        {candidate.likedYou && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/95 px-3 py-1 text-[11px] font-black text-primary-foreground backdrop-blur-md shadow-xs">
+            <Heart className="size-3 fill-current" /> Liked You
           </span>
-        </div>
+        )}
       </div>
 
       {/* Info overlay */}
       <div className="absolute inset-x-0 bottom-0 z-20 space-y-2.5 p-5 pb-6">
         <div>
-          {/* Circular PFP before Candidate Name */}
+          {/* Candidate Name & Avatar */}
           <div className="flex items-center gap-3">
-            <div className="relative size-10 rounded-full border-2 border-white/90 overflow-hidden shrink-0 shadow-lg ring-1 ring-black/40">
+            <Link
+              href={`/@${candidate.username}`}
+              onClick={(e) => e.stopPropagation()}
+              className="relative size-11 rounded-full border-2 border-white/80 overflow-hidden shrink-0 shadow-lg ring-1 ring-black/40 hover:opacity-90 transition-opacity"
+            >
               <img
                 src={avatarUrl || photos[0]}
                 alt={candidate.displayName}
                 className="h-full w-full object-cover"
                 loading="eager"
               />
-            </div>
-            <div className="flex items-baseline gap-2 min-w-0">
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-md truncate">
-                {candidate.displayName}
-              </h2>
-              {candidate.year && (
-                <span className="text-lg sm:text-xl font-bold text-white/85 shrink-0">
-                  Yr {candidate.year}
+            </Link>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Link
+                  href={`/@${candidate.username}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-md truncate hover:underline decoration-white/40"
+                >
+                  {candidate.displayName}
+                </Link>
+                <span title="Verified Student" className="shrink-0 text-emerald-400">
+                  <ShieldCheck className="size-5 fill-emerald-400/20" />
                 </span>
-              )}
-            </div>
-          </div>
+                {candidate.year && (
+                  <span className="text-base sm:text-lg font-bold text-white/80 shrink-0 ml-0.5">
+                    '{String(candidate.year).slice(-2)}
+                  </span>
+                )}
+              </div>
 
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-white/80">
-            {candidate.institution?.name && (
-              <span className="inline-flex items-center gap-1">
-                <School className="size-3.5" /> {candidate.institution.name.split(",")[0]}
-              </span>
-            )}
-            {(candidate.course || candidate.branch) && (
-              <span className="inline-flex items-center gap-1">
-                <GraduationCap className="size-3.5" />
-                {[candidate.course, candidate.branch].filter(Boolean).join(" · ")}
-              </span>
-            )}
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-white/80">
+                {candidate.institution?.name && (
+                  <span className="inline-flex items-center gap-1 truncate">
+                    <School className="size-3.5 text-white/70 shrink-0" />
+                    {candidate.institution.name.split(",")[0]}
+                  </span>
+                )}
+                {(candidate.course || candidate.branch) && (
+                  <span className="inline-flex items-center gap-1 truncate text-white/70">
+                    <GraduationCap className="size-3.5 shrink-0" />
+                    {[candidate.course, candidate.branch].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Shared interests */}
         {candidate.sharedInterests.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
             {candidate.sharedInterests.slice(0, 4).map((interest) => (
               <span
                 key={interest}
-                className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md"
+                className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md"
               >
-                <Zap className="size-2.5 text-primary" /> You both like {interest}
+                {interest}
               </span>
             ))}
           </div>
         )}
 
         {candidate.bio && (
-          <p className="line-clamp-2 text-[13px] font-medium leading-relaxed text-white/90">
+          <p className="line-clamp-2 text-xs sm:text-[13px] font-normal leading-relaxed text-white/90">
             {candidate.bio}
           </p>
         )}
-
-        <Link
-          href={`/@${candidate.username}`}
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-white/70 transition-colors hover:text-white pt-0.5"
-        >
-          <UserRound className="size-3" /> View profile
-        </Link>
       </div>
     </motion.div>
   );
@@ -342,7 +342,7 @@ export function SwipeActions({
         onClick={handleUndo}
         disabled={!canUndo}
         aria-label="Undo last swipe"
-        className="flex size-11 items-center justify-center rounded-full border border-border/60 bg-card text-muted-foreground shadow-xs transition-all hover:scale-105 hover:bg-muted hover:text-foreground active:scale-90 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+        className="flex size-11 items-center justify-center rounded-full border border-border/50 bg-card/80 text-muted-foreground shadow-xs transition-all hover:scale-105 hover:bg-muted hover:text-foreground active:scale-90 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
       >
         <AnimatedIcon icon={RotateCcw} animation="spin" size={18} />
       </button>
@@ -351,7 +351,7 @@ export function SwipeActions({
         type="button"
         onClick={handlePass}
         aria-label="Pass"
-        className="flex size-14 items-center justify-center rounded-full border-2 border-border bg-card text-muted-foreground shadow-md transition-all hover:scale-105 hover:bg-muted hover:text-foreground active:scale-90 cursor-pointer"
+        className="flex size-14 items-center justify-center rounded-full border border-border/70 bg-card text-muted-foreground shadow-sm transition-all hover:scale-105 hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5 active:scale-90 cursor-pointer"
       >
         <AnimateX size={26} />
       </button>

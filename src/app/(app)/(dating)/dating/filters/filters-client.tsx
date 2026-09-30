@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, Check, Eye, EyeOff, Loader2, RotateCcw, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, Loader2, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -94,17 +95,32 @@ export function FiltersClient() {
         </Link>
         <div>
           <h1 className="text-base font-black tracking-tight text-foreground">Matching Preferences</h1>
-          <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1">
-            <ShieldCheck className="size-3 text-primary" /> Safe &amp; Mutual Opt-In
-          </p>
         </div>
         {saving && <Loader2 className="ml-auto size-4 animate-spin text-muted-foreground" />}
       </header>
 
       {isLoading || !prefs ? (
-        <div className="m-auto py-20">
-          <Loader2 className="size-6 animate-spin text-primary" />
-        </div>
+        <main className="space-y-6 pb-10 pt-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-36 rounded-md" />
+            <Skeleton className="h-20 w-full rounded-2xl" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20 rounded-md" />
+            <div className="grid gap-2">
+              <Skeleton className="h-12 w-full rounded-2xl" />
+              <Skeleton className="h-12 w-full rounded-2xl" />
+              <Skeleton className="h-12 w-full rounded-2xl" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-16 rounded-md" />
+            <div className="grid grid-cols-2 gap-2">
+              <Skeleton className="h-12 w-full rounded-2xl" />
+              <Skeleton className="h-12 w-full rounded-2xl" />
+            </div>
+          </div>
+        </main>
       ) : (
         <main className="space-y-6 pb-10 pt-4">
           {/* Privacy & Opt-in Visibility Section */}

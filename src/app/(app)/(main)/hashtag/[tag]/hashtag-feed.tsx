@@ -90,7 +90,7 @@ export default function HashtagFeed() {
 
             {isReachingEnd && (
               <div className="text-center py-10 text-xs font-bold text-muted-foreground/60 select-none">
-                You&apos;ve caught up on all posts for #{tag}! 🎉
+                You&apos;ve caught up on all posts for #{tag}!
               </div>
             )}
           </>

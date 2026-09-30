@@ -532,8 +532,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
               (item.fileUrl || item.driveUrl || "").match(
                 /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
               )
-                ? "bg-amber-500 hover:bg-amber-600 text-neutral-950 font-black shadow-amber-500/20"
-                : "bg-linear-to-r from-primary to-indigo-600 hover:opacity-95 text-primary-foreground shadow-primary/20"
+                ? "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black shadow-amber-500/20"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
             )}
           >
             {(item.fileUrl || item.driveUrl || "").match(

@@ -39,7 +39,7 @@ const BIT_MESRA_CLUBS = [
     name: "Robolution",
     category: "Autonomous Robotics & Drones",
     icon: Rocket,
-    color: "from-purple-500/20 to-indigo-500/20 text-purple-500 border-purple-500/30",
+    color: "from-sky-500/20 to-blue-500/20 text-sky-600 dark:text-sky-400 border-sky-500/30",
     members: 95,
     description: "Competes in Robowars, Line Followers, and autonomous drone racing at IIT Techfests.",
     tag: "Robolution",

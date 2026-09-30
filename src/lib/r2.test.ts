@@ -67,4 +67,26 @@ describe("R2 Cloudflare Storage Engine", () => {
     const after = await getR2Object(key);
     expect(after).toBeNull();
   });
+
+  it("should fail clearly in production mode if required R2 binding is missing", async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    const originalVitest = process.env.VITEST;
+    try {
+      // Emulate production environment without Vitest override
+      delete (process.env as any).VITEST;
+      (process.env as any).NODE_ENV = "production";
+
+      const key = "test/prod-probe.mp4";
+      const data = new Uint8Array([1, 2, 3]);
+
+      await expect(putR2Object(key, data, "video/mp4")).rejects.toThrow(
+        /MEDIA_BUCKET/
+      );
+
+      await expect(getR2Object(key)).rejects.toThrow(/MEDIA_BUCKET/);
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+      if (originalVitest) process.env.VITEST = originalVitest;
+    }
+  });
 });

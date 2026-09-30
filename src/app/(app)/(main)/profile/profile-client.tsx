@@ -257,20 +257,27 @@ export function ProfileClientView({
     }
   }
 
-  // ─── Infinite Scroll for Profile Posts ───
-  const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
+  // ─── Infinite Scroll for Profile Posts (Enforce 5-post cap in viewer mode) ───
+  const isViewerMode =
+    searchParams?.get("viewer") === "true" ||
+    searchParams?.get("mode") === "viewer" ||
+    searchParams?.get("view") === "viewer";
+
+  const effectiveInitialPosts = !isOwnProfile && isViewerMode ? initialPosts.slice(0, 5) : initialPosts;
+  const [posts, setPosts] = useState<FeedPost[]>(effectiveInitialPosts);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
+  const [hasMore, setHasMore] = useState(!(!isOwnProfile && isViewerMode) && initialPosts.length >= 20);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState(false);
   const [sentinelNode, setSentinelNode] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setPosts(initialPosts);
-    setHasMore(initialPosts.length >= 20);
+    const nextPosts = !isOwnProfile && isViewerMode ? initialPosts.slice(0, 5) : initialPosts;
+    setPosts(nextPosts);
+    setHasMore(!(!isOwnProfile && isViewerMode) && initialPosts.length >= 20);
     setPage(1);
     setLoadMoreError(false);
-  }, [initialPosts]);
+  }, [initialPosts, isOwnProfile, isViewerMode]);
 
   const loadMorePosts = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;

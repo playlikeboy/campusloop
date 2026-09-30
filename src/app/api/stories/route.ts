@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       .values({
         userId: profile.id,
         text: text || null,
-        backgroundColor: backgroundColor || "from-violet-600 to-indigo-600",
+        backgroundColor: backgroundColor || "from-stone-900 to-neutral-900",
         mediaUrl: mediaUrl || null,
         expiresAt,
       })

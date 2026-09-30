@@ -124,11 +124,11 @@ export function CrushClient() {
       if (resData.matched) {
         sounds.match();
         haptics.match();
-        toast.success("💘 MUTUAL MATCH! You both secretly liked each other!");
+        toast.success("MUTUAL MATCH! You both secretly liked each other!");
       } else {
         sounds.archive();
         haptics.success();
-        toast.success("Locked into your vault! 🔒 Intent is 100% hidden unless mutual.");
+        toast.success("Locked into your vault! Intent is 100% hidden unless mutual.");
       }
 
       setShowSearchModal(false);
@@ -202,7 +202,7 @@ export function CrushClient() {
       {/* ─── Anonymous Incoming Alert ─── */}
       {receivedCrushesCount > 0 && (
         <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
-          <Flame className="size-5 shrink-0 animate-bounce" />
+          <Flame className="size-5 shrink-0 animate-pulse text-rose-500 fill-rose-500/20" />
           <div className="min-w-0">
             <p className="text-xs font-bold leading-tight">
               {receivedCrushesCount === 1

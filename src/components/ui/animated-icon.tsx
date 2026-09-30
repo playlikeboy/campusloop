@@ -80,11 +80,16 @@ export {
   Smile as AnimateSmile,
 } from "lucide-react";
 
+// Backward-compatible Animated* aliases
 export {
   Lock as AnimatedLock,
   Settings as AnimatedSettings,
   ShieldCheck as AnimatedShieldCheck,
   User as AnimatedUser,
+  Bell as AnimatedBell,
+  Heart as AnimatedHeart,
+  Image as AnimatedImage,
+  Zap as AnimatedZap,
 } from "@animateicons/react/lucide";
 
 /**

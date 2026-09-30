@@ -103,7 +103,7 @@ export function AboutClient() {
 
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] text-foreground">
               Rebuilding the Campus Social Graph for{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1D9BF0] via-sky-400 to-emerald-500">
+              <span className="text-[#1D9BF0]">
                 India’s College Students
               </span>
             </h1>

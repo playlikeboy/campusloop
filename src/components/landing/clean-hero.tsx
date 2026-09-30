@@ -21,7 +21,6 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
     <section className="cl-hero relative overflow-hidden">
       <div className="cl-hero-orb cl-hero-orb-a" />
       <div className="cl-hero-orb cl-hero-orb-b" />
-      <div className="cl-hero-grid" />
 
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:pt-24">
         <div className="max-w-2xl">

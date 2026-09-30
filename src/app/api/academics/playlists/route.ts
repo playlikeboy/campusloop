@@ -171,7 +171,7 @@ export async function POST(req: Request) {
       semester,
       category = "SEMESTER_PACK",
       visibility = "PUBLIC",
-      coverGradient = "from-indigo-600 via-purple-600 to-pink-600",
+      coverGradient = "from-slate-900 to-stone-900",
       tags = [],
       initialResourceIds = [],
     } = body;
@@ -195,7 +195,7 @@ export async function POST(req: Request) {
         semester: !isNaN(sem as number) ? sem : null,
         category: category || "SEMESTER_PACK",
         visibility: visibility || "PUBLIC",
-        coverGradient: coverGradient || "from-indigo-600 via-purple-600 to-pink-600",
+        coverGradient: coverGradient || "from-slate-900 to-stone-900",
         tags: Array.isArray(tags) ? tags : [],
         itemsCount: Array.isArray(initialResourceIds) ? initialResourceIds.length : 0,
       })

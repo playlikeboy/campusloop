@@ -304,8 +304,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 {event.mode}
               </span>
               {countdown?.isLive && (
-                <span className="rounded-lg bg-red-500 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-white backdrop-blur-md animate-pulse">
-                  🔴 Live Now
+                <span className="rounded-lg bg-red-500 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-white backdrop-blur-md inline-flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-white animate-ping inline-block" />
+                  Live Now
                 </span>
               )}
             </div>

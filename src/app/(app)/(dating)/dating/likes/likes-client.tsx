@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowLeft, Loader2, School, X, Zap } from "lucide-react";
+import { ArrowLeft, Heart, School, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { DatingMatchModal } from "@/components/dating/dating-match-modal";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -61,7 +62,7 @@ export function LikesClient() {
           <ArrowLeft className="size-4.5" />
         </Link>
         <h1 className="flex items-center gap-2 text-base font-black tracking-tight text-foreground">
-          <Zap className="size-4 text-primary" />
+          <Heart className="size-4 text-primary fill-primary" />
           <span>Likes you</span>
           {likes.length > 0 && (
             <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
@@ -73,13 +74,17 @@ export function LikesClient() {
 
       <main className="flex-1 pb-10 pt-4">
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="size-6 animate-spin text-primary" />
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="aspect-3/4 rounded-2xl overflow-hidden relative border border-border/30">
+                <Skeleton className="h-full w-full rounded-2xl" />
+              </div>
+            ))}
           </div>
         ) : likes.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-24 text-center">
             <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-              <Zap className="size-7" />
+              <Heart className="size-7 fill-primary" />
             </div>
             <div>
               <p className="text-base font-bold text-foreground">No matches yet</p>
@@ -136,7 +141,7 @@ export function LikesClient() {
                       aria-label={`Match with ${admirer.displayName}`}
                       className="flex h-8 flex-1 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-all hover:opacity-90 active:scale-95 cursor-pointer"
                     >
-                      <Zap className="size-4" />
+                      <Heart className="size-4 fill-current" />
                     </button>
                   </div>
                 </div>

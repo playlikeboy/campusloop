@@ -137,7 +137,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
       toast.loading("Uploading group avatar...", { id: "grp-avatar" });
       const uploaded = await uploadImageToImgBB(file);
       setAvatarUrl(uploaded.displayUrl || uploaded.url);
-      toast.success("Group avatar updated! 🎨", { id: "grp-avatar" });
+      toast.success("Group avatar updated!", { id: "grp-avatar" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to upload avatar", { id: "grp-avatar" });
     } finally {
@@ -188,7 +188,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
           category,
           scope,
           participantIds: selectedMembers.map((m) => m.id),
-          content: `🎉 Welcome to "${title.trim()}"! Study, collaborate, and share campus vibes here.`,
+          content: `Welcome to "${title.trim()}"! Study, collaborate, and share campus vibes here.`,
         }),
       });
 
@@ -198,7 +198,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
       }
 
       const data = (await res.json()) as { id: string };
-      toast.success("Group created successfully! 🚀", { id: toastId });
+      toast.success("Group created successfully!", { id: toastId });
       onClose();
       onGroupCreated(data.id, data);
     } catch (err) {

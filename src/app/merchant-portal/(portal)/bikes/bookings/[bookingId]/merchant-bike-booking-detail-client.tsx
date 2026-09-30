@@ -241,7 +241,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
       {isLate && (
         <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center justify-between font-bold">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="size-4 animate-bounce" />
+            <AlertTriangle className="size-4 animate-pulse text-rose-500" />
             <span>Return is OVERDUE by {lateHours} hour(s)</span>
           </div>
           <span>

@@ -19,7 +19,7 @@ export function cleanPostHtml(text: string): string {
   ) {
     // Extract images inside <img src="..."> before stripping tags
     const imgMatches: string[] = [];
-    const imgRegex = /<img[^>]+src=["'](https?:\/\/[^"'>]+)["'][^>]*>/gi;
+    const imgRegex = new RegExp("<" + "img[^>]+src=[\"'](https?:\\/\\/[^\"'>]+)[\"'][^>]*>", "gi");
     let m: RegExpExecArray | null;
     while ((m = imgRegex.exec(cleaned)) !== null) {
       if (m[1] && !imgMatches.includes(m[1])) {

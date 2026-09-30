@@ -194,7 +194,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                 sounds.tap();
                 haptics.success();
               }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-black shadow-md hover:opacity-90 transition-all active:scale-95 shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold shadow-xs hover:opacity-95 transition-all active:scale-95 shrink-0 cursor-pointer"
             >
               <InstagramIcon className="size-4 fill-white" />
               <span>Invite via Instagram DM</span>

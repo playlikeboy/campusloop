@@ -56,7 +56,7 @@ export default async function AspirantsPage() {
             </span>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
               See what college life is{" "}
-              <span className="bg-linear-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+              <span className="text-primary font-extrabold">
                 really like
               </span>{" "}
               before you get there.

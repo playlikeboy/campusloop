@@ -170,7 +170,8 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
     // 3. HTML / Web Sticker / GIF
     const html = clipboardData.getData("text/html");
     if (html) {
-      const match = html.match(/<img[^>]+src="([^">]+)"/i);
+      const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+      const match = html.match(imgRegex);
       if (match && match[1] && /^https?:\/\//i.test(match[1])) {
         const imgSrc = match[1];
         if (
@@ -180,7 +181,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
         ) {
           e.preventDefault();
           setCommentImage(imgSrc);
-          toast.success("Sticker / GIF attached! 📸");
+          toast.success("Sticker / GIF attached!");
           return;
         }
       }
