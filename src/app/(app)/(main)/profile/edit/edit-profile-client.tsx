@@ -339,7 +339,7 @@ export function EditProfileClient() {
         {/* ─── Cover Banner & Avatar Section ─── */}
         <div className="rounded-3xl border border-border/80 bg-card overflow-hidden shadow-xs">
           {/* Banner Preview */}
-          <div className="relative h-36 w-full bg-linear-to-r from-orange-500/25 via-primary/30 to-amber-500/25">
+          <div className="relative h-36 w-full bg-linear-to-r from-primary/25 via-purple-500/20 to-secondary">
             {bannerUrl ? (
               <img src={bannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
             ) : (

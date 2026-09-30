@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FollowListClient } from "@/components/profile/follow-list-client";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { Navigation } from "@/components/ui/navigation";
 import { getDb } from "@/db";
 import { institutions, userProfiles } from "@/db/schema";
@@ -87,11 +88,7 @@ export async function FollowListPageView({
     return (
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/80 bg-background/80 px-4 backdrop-blur-xl">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="bg-linear-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-base font-black tracking-tight text-transparent">
-              CampusLoop
-            </span>
-          </Link>
+          <BrandLogo href="/" size="sm" />
           <Link
             href="/join?mode=signup"
             className="rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white hover:opacity-95 shadow-md transition-all"
