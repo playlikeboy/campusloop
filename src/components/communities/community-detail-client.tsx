@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   BarChart3,
-  Check,
   Clock,
   Flame,
   Globe,
@@ -14,7 +13,6 @@ import {
   MessageSquarePlus,
   Plus,
   Settings,
-  Share2,
   ShieldCheck,
   Smile,
   Sparkles,
@@ -27,7 +25,6 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { recordCommunityInviteShare } from "@/app/(app)/(main)/communities/actions";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { PostComposer } from "@/app/(app)/(main)/post/new/post-composer";
 import { ShareQrButton } from "@/components/common/share-qr-button";
@@ -108,7 +105,6 @@ export function CommunityDetailClient({
   const [isMember, setIsMember] = useState(initialIsMember);
   const [membersCount, setMembersCount] = useState(initialMembersCount);
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
-  const [copied, setCopied] = useState(false);
   const [isOpeningChat, setIsOpeningChat] = useState(false);
 
   // Quick Composer State
@@ -184,23 +180,6 @@ export function CommunityDetailClient({
         });
     }
   }, [posts, feedFilter, topTimeWindow, referenceTime]);
-
-  async function handleShareInvite() {
-    const shareUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/communities/${identifier}`
-        : `https://campusloop.space/communities/${identifier}`;
-
-    const shareText = `🚀 Join c/${community.name} on CampusLoop!\n${community.description || "Campus sub-hub for students."}\n\n👉 ${shareUrl}`;
-
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      toast.success("Community invite link copied! +10 LP awarded 🚀");
-      setTimeout(() => setCopied(false), 2500);
-      recordCommunityInviteShare(community.id).catch(() => {});
-    }
-  }
 
   async function handleQuickPost(e: React.FormEvent) {
     e.preventDefault();
@@ -282,9 +261,9 @@ export function CommunityDetailClient({
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-20">
+    <div className="w-full min-w-0 max-w-7xl mx-auto space-y-5 overflow-x-clip pb-20 sm:space-y-6">
       {/* ─── Breadcrumb & Quick Controls ─── */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex min-w-0 items-center justify-between gap-2 px-1">
         <button
           type="button"
           onClick={() => router.back()}
@@ -296,7 +275,7 @@ export function CommunityDetailClient({
           <span>Back to Hubs</span>
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {isAdmin && (
             <Link
               href={`/communities/${identifier}/settings`}
@@ -306,15 +285,6 @@ export function CommunityDetailClient({
               <Settings className="size-3.5" />
             </Link>
           )}
-
-          <button
-            type="button"
-            onClick={handleShareInvite}
-            className="flex size-8 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-            title="Copy invite link"
-          >
-            {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
-          </button>
 
           <ShareQrButton
             title={`c/${community.name}`}
@@ -329,9 +299,9 @@ export function CommunityDetailClient({
       </div>
 
       {/* ─── Hero Banner & Header Card (Vibrant Aesthetic, No Stark Black) ─── */}
-      <div className="relative rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md overflow-hidden shadow-xs">
+      <div className="relative min-w-0 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md overflow-hidden shadow-xs">
         {/* Banner Area */}
-        <div className="relative h-40 sm:h-52 w-full overflow-hidden">
+        <div className="relative h-36 w-full overflow-hidden sm:h-52">
           {community.bannerUrl ? (
             <img
               src={community.bannerUrl}
@@ -352,10 +322,10 @@ export function CommunityDetailClient({
         </div>
 
         {/* Content Bar & Avatar */}
-        <div className="px-5 sm:px-8 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
-            <div className="flex items-end gap-4">
-              <Avatar className="size-24 sm:size-28 rounded-2xl border-4 border-background bg-card shadow-2xl ring-2 ring-primary/20 shrink-0">
+        <div className="px-4 pb-5 sm:px-8 sm:pb-6">
+          <div className="flex flex-col gap-4 -mt-10 mb-4 sm:flex-row sm:items-end sm:justify-between sm:-mt-14">
+            <div className="flex min-w-0 items-center gap-3 sm:items-end sm:gap-4">
+              <Avatar className="size-20 shrink-0 rounded-2xl border-4 border-background bg-card shadow-2xl ring-2 ring-primary/20 sm:size-28">
                 <AvatarImage
                   src={community.avatarUrl || ""}
                   alt={community.name}
@@ -366,34 +336,34 @@ export function CommunityDetailClient({
                 </AvatarFallback>
               </Avatar>
 
-              <div className="space-y-1 pb-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+              <div className="min-w-0 flex-1 space-y-1 pb-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <h1 className="break-words text-xl font-black leading-tight tracking-tight text-foreground sm:text-3xl">
                     {community.name}
                   </h1>
                   {community.privacy === "PRIVATE" ? (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[11px] font-bold">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-500">
                       <Lock className="size-3" /> Private
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-500">
                       <Globe className="size-3" /> Public Hub
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-bold text-primary">
+                <p className="break-words text-xs font-bold text-primary">
                   {community.category || "General"} · c/{community.name}
                 </p>
               </div>
             </div>
 
             {/* Header Action Buttons */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex w-full items-center gap-2.5 sm:w-auto sm:justify-end">
               <button
                 type="button"
                 onClick={handleOpenCommunityChat}
                 disabled={isOpeningChat}
-                className="h-10 px-4 text-xs font-black rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-2 shrink-0"
+                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 text-xs font-black text-primary shadow-xs transition-all hover:bg-primary/20 active:scale-95 cursor-pointer sm:flex-none"
                 title={`Join c/${community.name} chat room`}
               >
                 {isOpeningChat ? (
@@ -412,7 +382,7 @@ export function CommunityDetailClient({
                   setMembersCount((c) => Math.max(joined ? c + 1 : c - 1, 0));
                 }}
                 className={cn(
-                  "h-10 px-5 text-xs font-black rounded-full transition-all cursor-pointer shadow-xs active:scale-95",
+                  "h-10 flex-1 px-4 text-xs font-black rounded-full transition-all cursor-pointer shadow-xs active:scale-95 sm:flex-none sm:px-5",
                   isMember
                     ? "border border-border/80 bg-muted/40 text-foreground hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5"
                     : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -436,7 +406,7 @@ export function CommunityDetailClient({
                 className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
               >
                 <Users className="size-3.5 text-primary" />
-                <span className="font-bold text-foreground">{membersCount}</span> Members
+                <span className="font-bold text-foreground">{membersCount}</span> {membersCount === 1 ? "Member" : "Members"}
               </button>
 
               <div className="flex items-center gap-1.5">
@@ -464,12 +434,12 @@ export function CommunityDetailClient({
       </div>
 
       {/* ─── Desktop 12-Column Responsive Workspace Grid (Full PC Utilization) ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-12 lg:gap-6 items-start">
         {/* ─── Main Content Stream (8 cols) ─── */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="min-w-0 lg:col-span-8 space-y-4">
           {/* Unified Primary Navigation Tabs */}
-          <div className="flex items-center justify-between border-b border-border/30 pb-2">
-            <div className="flex items-center gap-1">
+          <div className="flex min-w-0 flex-col gap-2 border-b border-border/30 pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 w-full items-center gap-1 overflow-x-auto pb-1 no-scrollbar sm:w-auto sm:overflow-visible sm:pb-0">
               {[
                 { key: "discussions", label: "Discussions", icon: MessageSquare },
                 { key: "members", label: `Members (${membersCount})`, icon: Users },
@@ -483,7 +453,7 @@ export function CommunityDetailClient({
                     type="button"
                     onClick={() => setActiveTab(tab.key as typeof activeTab)}
                     className={cn(
-                      "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+                      "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
                       isSelected
                         ? "bg-foreground text-background shadow-xs font-black"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -498,7 +468,7 @@ export function CommunityDetailClient({
 
             {/* Filter Pills when on Discussions tab */}
             {activeTab === "discussions" && (
-              <div className="flex items-center gap-1">
+              <div className="flex w-full shrink-0 items-center gap-0.5 overflow-x-auto no-scrollbar sm:w-auto sm:justify-end">
                 {[
                   { key: "hot", label: "Hot", icon: Flame },
                   { key: "new", label: "New", icon: Clock },
@@ -513,7 +483,7 @@ export function CommunityDetailClient({
                       type="button"
                       onClick={() => setFeedFilter(f.key as typeof feedFilter)}
                       className={cn(
-                        "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer",
+                        "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors cursor-pointer",
                         active
                           ? "bg-primary/15 text-primary border border-primary/30"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -530,7 +500,7 @@ export function CommunityDetailClient({
 
           {/* Time range selector for Top filter */}
           {activeTab === "discussions" && feedFilter === "top" && (
-            <div className="flex items-center justify-end gap-1.5 text-[11px] font-bold pt-1">
+            <div className="flex min-w-0 items-center justify-start gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar text-[11px] font-bold sm:justify-end">
               <span className="text-muted-foreground">Top period:</span>
               {(["today", "week", "month", "all"] as const).map((range) => (
                 <button
@@ -538,7 +508,7 @@ export function CommunityDetailClient({
                   type="button"
                   onClick={() => setTopTimeWindow(range)}
                   className={cn(
-                    "px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[10px] transition-all cursor-pointer",
+                    "shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 uppercase tracking-wider text-[10px] transition-all cursor-pointer",
                     topTimeWindow === range
                       ? "bg-foreground text-background font-black"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -628,16 +598,16 @@ export function CommunityDetailClient({
               {isMember ? (
                 <form
                   onSubmit={handleQuickPost}
-                  className="rounded-2xl border border-border/40 bg-card/60 p-4 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 shadow-xs"
+                  className="min-w-0 rounded-2xl border border-border/40 bg-card/60 p-4 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 shadow-xs"
                 >
-                  <div className="flex gap-3">
+                  <div className="flex min-w-0 gap-3">
                     <Avatar className="size-9 rounded-full border border-border/40 shrink-0 mt-0.5">
                       <AvatarImage src={profile?.avatarUrl || ""} />
                       <AvatarFallback className="bg-muted text-xs font-bold">
                         {profile?.displayName?.[0] || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 flex flex-col gap-2">
+                    <div className="min-w-0 flex-1 flex flex-col gap-2">
                       <textarea
                         rows={quickText ? 2 : 1}
                         placeholder={`Post to c/${community.name}...`}
@@ -652,9 +622,9 @@ export function CommunityDetailClient({
                         className="w-full bg-transparent text-[14px] placeholder:text-muted-foreground/60 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1 border-0 shadow-none leading-relaxed"
                       />
 
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/20">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/20">
                         {/* Rich composer tools shortcut */}
-                        <div className="flex items-center gap-1">
+                        <div className="flex min-w-0 flex-wrap items-center gap-0.5">
                           {[
                             {
                               id: "photo",
@@ -709,7 +679,7 @@ export function CommunityDetailClient({
                   </div>
                 </form>
               ) : (
-                <div className="rounded-2xl border border-border/40 p-4 bg-card/40 flex items-center justify-between gap-4">
+                <div className="min-w-0 rounded-2xl border border-border/40 bg-card/40 p-4 flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
                     <p className="text-xs font-bold text-foreground">
                       Join c/{community.name} to participate
