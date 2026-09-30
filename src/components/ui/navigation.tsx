@@ -50,7 +50,7 @@ interface NavigationProps {
 /**
  * Fullscreen creation / viewer flows where bottom navigation should be temporarily hidden.
  */
-const HIDE_GLOBAL_MOBILE_NAV = ["/chat/", "/stories/new", "/story/", "/post/new", "/academics/upload"];
+const HIDE_GLOBAL_MOBILE_NAV = ["/chat/", "/stories/new", "/story/", "/post/", "/academics/upload"];
 
 function isMobileFlow(pathname: string) {
   return HIDE_GLOBAL_MOBILE_NAV.some((prefix) => pathname.startsWith(prefix));
@@ -100,13 +100,14 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
     [pathname]
   );
 
-  // Dedicated routes (/chat and /events) have their own specialized headers; hide main global header
+  // Dedicated routes (/chat, /events, and /post/[id]) have their own specialized headers; hide main global header
   const isDedicatedHeaderRoute = useMemo(
     () =>
       pathname === "/chat" ||
       pathname.startsWith("/chat/") ||
       pathname === "/events" ||
-      pathname.startsWith("/events/"),
+      pathname.startsWith("/events/") ||
+      pathname.startsWith("/post/"),
     [pathname]
   );
 
