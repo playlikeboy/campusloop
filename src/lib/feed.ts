@@ -19,6 +19,8 @@ import {
   buildBoostTierSql,
   loadActiveBoosts,
 } from "@/lib/feed-boosts";
+import { applyAuthorDiversityReranking } from "@/lib/recommendations/diversity-reranker";
+import { getPhoenixValueScoreSql } from "@/lib/recommendations/phoenix-ranker";
 import { getAddictiveReelsScoreSql } from "@/lib/reels/algorithm";
 
 export type FeedPost = {
@@ -302,70 +304,7 @@ function getForYouScoreSql(
   seenIds?: string[],
   viewerProfileId?: string | null
 ) {
-  const ownCollegeBonus = userInstitutionId
-    ? sql<number>`(case when ${posts.institutionId} = ${userInstitutionId} then 42.0 else 0.0 end)`
-    : sql<number>`0.0`;
-
-  // 🤝 Friends & Following Algorithmic Affinity Boost:
-  // When a student follows someone or is mutual friends with them, their posts must strongly surface higher in the feed!
-  const followingBonusSql = viewerProfileId
-    ? sql<number>`(case 
-        when exists(
-          select 1 from ${follows} 
-          where ${follows.followerId} = ${viewerProfileId} 
-            and ${follows.followingId} = ${posts.authorId} 
-            and ${follows.isMutual} = true
-        ) then 105.0
-        when exists(
-          select 1 from ${follows} 
-          where ${follows.followerId} = ${viewerProfileId} 
-            and ${follows.followingId} = ${posts.authorId}
-        ) then 70.0
-        else 0.0 
-      end)`
-    : sql<number>`0.0`;
-
-  const safeSeenIds = (seenIds || [])
-    .slice(0, 100)
-    .filter((id): id is string => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id));
-
-  const seenPenaltySql =
-    safeSeenIds.length > 0
-      ? sql<number>`(case when ${posts.id} in (${sql.join(
-          safeSeenIds.map((id) => sql`${id}`),
-          sql`, `
-        )}) then -160.0 else 0.0 end)`
-      : sql<number>`0.0`;
-
-  const alreadyVotedPenaltySql = viewerProfileId
-    ? sql<number>`(case when exists(select 1 from ${votes} where ${votes.postId} = "posts"."id" and ${votes.userId} = ${viewerProfileId}) then -55.0 else 0.0 end)`
-    : sql<number>`0.0`;
-
-  const alreadyCommentedPenaltySql = viewerProfileId
-    ? sql<number>`(case when exists(select 1 from ${comments} where ${comments.postId} = "posts"."id" and ${comments.authorId} = ${viewerProfileId} and ${comments.status} = 'PUBLISHED') then -40.0 else 0.0 end)`
-    : sql<number>`0.0`;
-
-  const ownPostPenaltySql = viewerProfileId
-    ? sql<number>`(case when ${posts.authorId} = ${viewerProfileId} then -25.0 else 0.0 end)`
-    : sql<number>`0.0`;
-
-  return sql<number>`(
-		${ownCollegeBonus}
-		+ ${followingBonusSql}
-		+ ${seenPenaltySql}
-		+ ${alreadyVotedPenaltySql}
-		+ ${alreadyCommentedPenaltySql}
-		+ ${ownPostPenaltySql}
-		+ (65.0 / power(${hoursSinceSql} + 1.0, 0.82))
-		+ (${recentVoteScoreSql} * 2.2 + ${recentVoteScore24hSql} * 2.5 + ${recentVoteScore6hSql} * 3.5)
-		+ (${recentCommentCountSql} * 1.5 + ${recentCommentCount24hSql} * 2.5 + ${recentCommentCount6hSql} * 4.0)
-		+ (case 
-			when ${posts.type} = 'POLL' then 10.0
-			when ${posts.type} = 'QUESTION' then 8.0
-			when ${posts.type} = 'CONFESSION' then 8.0
-			else 0.0 
-		end)
-	)`;
+  return getPhoenixValueScoreSql(viewerProfileId, userInstitutionId, seenIds);
 }
 
 export function normalizeApiFeedSort(value?: string | null): ApiFeedSort {
@@ -595,9 +534,16 @@ export async function resolveFeedPage(options: {
       ];
     })
   );
-  return ids
+  const rawPosts = ids
     .map((postId) => byId.get(postId))
     .filter((post): post is NonNullable<typeof post> => Boolean(post));
+
+  // 🎨 Apply VMRanker / DPP Author Diversity Reranking on for_you and trending feeds
+  if (options.sort === "for_you" || options.sort === "trending") {
+    return applyAuthorDiversityReranking(rawPosts, { limit: options.limit });
+  }
+
+  return rawPosts;
 }
 
 /**
