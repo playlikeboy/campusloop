@@ -24,8 +24,8 @@ export function ActivityChart({ data }: { data: ActivityDatum[] }) {
               <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="gSignups" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f97316" stopOpacity={0.35} />
-              <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.08} />
@@ -37,7 +37,7 @@ export function ActivityChart({ data }: { data: ActivityDatum[] }) {
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Area type="monotone" dataKey="posts" stroke="#3b82f6" fill="url(#gPosts)" strokeWidth={2} />
           <Area type="monotone" dataKey="comments" stroke="#10b981" fill="url(#gComments)" strokeWidth={2} />
-          <Area type="monotone" dataKey="signups" stroke="#f97316" fill="url(#gSignups)" strokeWidth={2} />
+          <Area type="monotone" dataKey="signups" stroke="#8b5cf6" fill="url(#gSignups)" strokeWidth={2} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

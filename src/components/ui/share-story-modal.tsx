@@ -13,8 +13,8 @@ interface ShareStoryModalProps {
 }
 
 const THEMES = [
-  { id: "dark", name: "Campus Dark", bg: "from-zinc-950 via-black to-zinc-900", accent: "#f97316" },
-  { id: "orange", name: "Campus Fire", bg: "from-orange-600 via-amber-600 to-rose-700", accent: "#ffffff" },
+  { id: "dark", name: "Campus Dark", bg: "from-zinc-950 via-black to-zinc-900", accent: "#a170ff" },
+  { id: "purple", name: "Campus Vibe", bg: "from-violet-600 via-purple-600 to-indigo-800", accent: "#ffffff" },
   { id: "pink", name: "Confession Tea", bg: "from-pink-600 via-rose-600 to-purple-800", accent: "#ffffff" },
   { id: "cyan", name: "Cyber Campus", bg: "from-cyan-600 via-blue-600 to-indigo-900", accent: "#ffffff" },
 ];
@@ -113,10 +113,10 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
       gradient.addColorStop(0, "#09090b");
       gradient.addColorStop(0.5, "#000000");
       gradient.addColorStop(1, "#18181b");
-    } else if (selectedTheme.id === "orange") {
-      gradient.addColorStop(0, "#ea580c");
-      gradient.addColorStop(0.5, "#d97706");
-      gradient.addColorStop(1, "#be123c");
+    } else if (selectedTheme.id === "purple") {
+      gradient.addColorStop(0, "#7c3aed");
+      gradient.addColorStop(0.5, "#a170ff");
+      gradient.addColorStop(1, "#312e81");
     } else if (selectedTheme.id === "pink") {
       gradient.addColorStop(0, "#db2777");
       gradient.addColorStop(0.5, "#e11d48");
@@ -158,7 +158,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     ctx.restore();
 
     // 4. Draw Post Type Tag / Institution
-    ctx.fillStyle = selectedTheme.id === "dark" ? "#f97316" : "#ffffff";
+    ctx.fillStyle = selectedTheme.id === "dark" ? "#a170ff" : "#ffffff";
     ctx.font = "bold 32px sans-serif";
     const postTypeBadge =
       post.type === "CONFESSION"
