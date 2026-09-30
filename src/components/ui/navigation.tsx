@@ -902,12 +902,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                     playKey={playKey}
                     className="size-full"
                   />
-                  {item.href === "/chat" && !isViewer && (
-                    <span
-                      className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary ring-2 ring-card"
-                      aria-label="New messages"
-                    />
-                  )}
                 </span>
                 <span className="mobile-nav-label">{item.label}</span>
               </Link>

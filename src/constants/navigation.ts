@@ -79,7 +79,7 @@ export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
   { icon: AnimateSearch, href: "/explore", label: "Search" },
   { icon: AnimatePlus, href: "/post/new", label: "Create" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Message" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Messages" },
   { icon: AnimateUser, href: "/profile", label: "Profile" },
 ];
 

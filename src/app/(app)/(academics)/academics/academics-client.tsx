@@ -81,7 +81,6 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
   const [selectedBranch, setSelectedBranch] = useState<string>("All");
   const [selectedSemester, setSelectedSemester] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scope, setScope] = useState<"campus" | "global">("campus");
   const [sortBy, setSortBy] = useState<"for_you" | "latest" | "popular" | "downloads" | "views">("for_you");
   const [viewMode, setViewMode] = useState<"row" | "grid">(() => {
@@ -107,7 +106,6 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     const q = searchParams.get("q");
     if (q) {
       setSearchQuery(q);
-      setIsSearchOpen(true);
     }
     const tab = searchParams.get("tab");
     if (tab && PRIMARY_TABS.some((t) => t.id === tab)) {
@@ -259,76 +257,49 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     selectedBranch !== "All" || selectedSemester !== "all" || sortBy !== "for_you" || scope !== "campus";
 
   return (
-    <div className="min-h-screen w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-28 select-none">
-      {/* ─── Unified Mobile-First Sticky Header (Fits <15% Viewport Budget) ─── */}
-      <header className="sticky top-14 z-30 bg-background/92 backdrop-blur-xl border-b border-border/30 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-2 space-y-2">
-        {/* Row 1: Title, Scope Toggle & Action Buttons */}
-        <div className="flex h-9 items-center justify-between gap-2">
-          {/* Left: Title + Scope Toggle */}
-          <div className="flex items-center gap-2 min-w-0">
-            <h1 className="text-base font-black tracking-tight text-foreground truncate">
-              Academics
-            </h1>
-
-            {/* Campus / Global Scope Toggle */}
-            <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 shrink-0 text-xs">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setScope("campus");
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
-                  scope === "campus"
-                    ? "bg-card text-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <School className="size-3 text-amber-500" />
-                <span className="hidden sm:inline">My Campus</span>
-                <span className="sm:hidden">Campus</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setScope("global");
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
-                  scope === "global"
-                    ? "bg-card text-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Globe className="size-3 text-sky-500" />
-                <span>All India</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Search, Saved, Upload */}
-          <div className="flex items-center gap-1 shrink-0">
+    <div className="min-h-screen w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 pb-20 select-none">
+      {/* ─── Unified Mobile-First Sticky Header (Compact 3-Row Layout) ─── */}
+      <header className="sticky top-14 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-2 space-y-2">
+        {/* ROW 1: [Campus] [All India]  ...  [Saved] [Upload] */}
+        <div className="flex h-8 items-center justify-between gap-2">
+          {/* Left: Scope Toggle */}
+          <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 shrink-0 text-xs">
             <button
               type="button"
               onClick={() => {
                 sounds.tap();
-                haptics.light();
-                setIsSearchOpen((prev) => !prev);
+                setScope("campus");
               }}
               className={cn(
-                "flex size-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full transition-colors cursor-pointer",
-                isSearchOpen
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                "px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                scope === "campus"
+                  ? "bg-card text-foreground shadow-xs font-black"
+                  : "text-muted-foreground hover:text-foreground"
               )}
-              title="Toggle search"
-              aria-label="Toggle search"
             >
-              <Search className="size-4" />
+              <School className="size-3 text-amber-500" />
+              <span>Campus</span>
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                sounds.tap();
+                setScope("global");
+              }}
+              className={cn(
+                "px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                scope === "global"
+                  ? "bg-card text-foreground shadow-xs font-black"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Globe className="size-3 text-sky-500" />
+              <span>All India</span>
+            </button>
+          </div>
 
+          {/* Right: Saved & Upload Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -337,15 +308,16 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setActiveTab("SAVED");
               }}
               className={cn(
-                "flex size-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full transition-colors cursor-pointer",
+                "flex h-8 items-center gap-1 rounded-full px-2.5 text-xs font-bold transition-colors cursor-pointer border border-border/30",
                 activeTab === "SAVED"
-                  ? "bg-amber-500/15 text-amber-500 font-bold"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-amber-500/15 text-amber-500 border-amber-500/40"
+                  : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
               title="Saved study materials"
               aria-label="Saved materials"
             >
-              <Bookmark className="size-4" />
+              <Bookmark className="size-3.5" />
+              <span className="hidden xs:inline">Saved</span>
             </button>
 
             <Link
@@ -354,7 +326,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex h-8.5 items-center gap-1 rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-0.5"
+              className="flex h-8 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer"
             >
               <Plus className="size-3.5 stroke-[2.5]" />
               <span>Upload</span>
@@ -362,33 +334,30 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
           </div>
         </div>
 
-        {/* Inline Search Bar (When toggled or active) */}
-        {(isSearchOpen || searchQuery) && (
-          <form onSubmit={handleSearchSubmit} className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search notes, PYQs, subjects, codes..."
-              className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8 pr-16 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
-              autoFocus={isSearchOpen}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="size-3" />
-              </button>
-            )}
-          </form>
-        )}
+        {/* ROW 2: Compact Direct Search Input */}
+        <form onSubmit={handleSearchSubmit} className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search notes, PYQs, subjects, codes..."
+            className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8.5 pr-8 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              title="Clear search"
+            >
+              <X className="size-3" />
+            </button>
+          )}
+        </form>
 
-        {/* Row 2: Unified Horizontal Scroll Filter & Tabs Strip */}
+        {/* ROW 3: For You | PYQs | Notes | Playlists | Saved + Branch & Sem Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
-          {/* Tabs */}
           {PRIMARY_TABS.map((tab) => {
             const isSelected = activeTab === tab.id;
             return (
@@ -401,7 +370,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                   setActiveTab(tab.id);
                 }}
                 className={cn(
-                  "min-h-[30px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+                  "min-h-[28px] px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                   isSelected
                     ? "bg-secondary text-secondary-foreground shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -412,7 +381,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
             );
           })}
 
-          <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
+          <div className="h-3.5 w-px bg-border/40 shrink-0 mx-0.5" />
 
           {/* Branch Select */}
           <select
@@ -421,7 +390,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
               sounds.tap();
               setSelectedBranch(e.target.value);
             }}
-            className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+            className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
           >
             {BRANCHES.map((b) => (
               <option key={b} value={b}>
@@ -439,7 +408,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 sounds.tap();
                 setSelectedSemester(e.target.value);
               }}
-              className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+              className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
             >
               {SEMESTERS.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -456,7 +425,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
               sounds.tap();
               setSortBy(e.target.value as any);
             }}
-            className="h-7.5 rounded-full bg-muted/40 border border-border/40 px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
+            className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
           >
             <option value="for_you">Recommended</option>
             <option value="latest">Latest</option>
@@ -476,7 +445,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
                 setScope("campus");
                 setSearchQuery("");
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted/60 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
               title="Reset filters"
             >
               <RotateCcw className="size-2.5" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Heart, Repeat2, VenetianMask } from "lucide-react";
+import { Bot, Flame, Heart, Repeat2, VenetianMask } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -278,18 +278,18 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className="w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border sm:border-border/30 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 relative cursor-pointer transition-all hover:bg-muted/10 select-none overflow-x-clip shadow-2xs"
     >
-      {/* Double Tap Heart Pop Overlay */}
+      {/* Double Tap Flame Vibe Pop Overlay */}
       <AnimatePresence>
         {showDoubleTapHeart && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-rose-500/5 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-orange-500/5 backdrop-blur-[1px]">
             <motion.div
-              initial={{ scale: 0.2, opacity: 0, rotate: -20 }}
-              animate={{ scale: [0.2, 1.4, 1.1], opacity: [0, 1, 0.9], rotate: [0, 10, 0] }}
+              initial={{ scale: 0.2, opacity: 0, rotate: -15 }}
+              animate={{ scale: [0.2, 1.45, 1.1], opacity: [0, 1, 0.95], rotate: [0, 8, 0] }}
               exit={{ scale: 1.6, opacity: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
               className="relative"
             >
-              <Heart className="h-20 w-20 fill-rose-500 text-rose-500 drop-shadow-[0_0_25px_rgba(244,63,94,0.8)]" />
+              <Flame className="h-20 w-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_28px_rgba(249,115,22,0.85)]" />
             </motion.div>
           </div>
         )}
@@ -488,13 +488,13 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                     }}
                     className="flex items-center gap-1.5 pb-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer group w-fit"
                   >
-                    <div className="size-4 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0 shadow-2xs">
-                      <Heart className="size-2.5 fill-white text-white" />
+                    <div className="size-4 rounded-full bg-orange-500/15 flex items-center justify-center text-orange-500 shrink-0 shadow-2xs">
+                      <Flame className="size-2.5 fill-orange-500 text-orange-500" />
                     </div>
-                    <span className="font-semibold group-hover:underline">
+                    <span className="font-semibold text-[11px] group-hover:underline">
                       {effectiveVotesCount === 1
-                        ? "1 person liked this"
-                        : `${effectiveVotesCount} people liked this`}
+                        ? "1 Vibe"
+                        : `${effectiveVotesCount} Vibes`}
                     </span>
                   </div>
                 )}

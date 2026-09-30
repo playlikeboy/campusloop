@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   AnimateBookmark,
   AnimatedIcon,
-  AnimateHeart,
+  AnimateFlame,
   AnimateMessageCircle,
   AnimateRepeat2,
   AnimateShare,
@@ -119,28 +119,39 @@ export function FeedCardActions({
       <div className="flex min-w-0 items-center gap-0.5">
         <div className="flex items-center gap-1">
           <motion.button
-            whileTap={{ scale: 0.8 }}
+            whileTap={{ scale: 0.82 }}
             type="button"
             onClick={() => requireAuth("like", onVote)}
             {...like.handlers}
             className={cn(
               "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-xl px-2 text-xs cursor-pointer group transition-colors hover:bg-muted/70 active:scale-95",
-              isLiked ? "text-rose-500 font-bold" : "text-muted-foreground hover:text-rose-500"
+              isLiked ? "text-orange-500 font-bold" : "text-muted-foreground hover:text-orange-500"
             )}
-            aria-label={isLiked ? "Unlike post" : "Like post"}
+            aria-label={isLiked ? `${effectiveVotesCount} Vibes, tap to unvibe` : `Vibe post, currently ${effectiveVotesCount} vibes`}
           >
-            <AnimatedIcon
-              ref={like.ref}
-              icon={AnimateHeart}
-              animation="beat"
-              size={16}
-              animateOnHover={false}
-              playKey={isLiked}
-              iconClassName={cn(
-                "transition-colors",
-                isLiked ? "fill-rose-500 text-rose-500" : "text-muted-foreground group-hover:text-rose-500"
-              )}
-            />
+            <motion.div
+              animate={
+                isLiked
+                  ? { scale: [1, 1.45, 0.9, 1.15, 1], rotate: [0, -10, 10, -5, 0] }
+                  : { scale: 1, rotate: 0 }
+              }
+              transition={{ duration: 0.42, ease: [0.175, 0.885, 0.32, 1.275] }}
+            >
+              <AnimatedIcon
+                ref={like.ref}
+                icon={AnimateFlame}
+                animation="pop"
+                size={16}
+                animateOnHover={false}
+                playKey={isLiked}
+                iconClassName={cn(
+                  "transition-colors",
+                  isLiked
+                    ? "fill-orange-500 text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]"
+                    : "text-muted-foreground group-hover:text-orange-500"
+                )}
+              />
+            </motion.div>
             <span
               onClick={(e) => {
                 if (effectiveVotesCount > 0) {
@@ -148,6 +159,7 @@ export function FeedCardActions({
                   onOpenLikes?.();
                 }
               }}
+              title={effectiveVotesCount > 0 ? `${effectiveVotesCount} Vibes` : "Vibe"}
               className="tabular-nums text-xs font-bold"
             >
               {effectiveVotesCount > 0 ? effectiveVotesCount : 0}
