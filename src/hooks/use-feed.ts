@@ -48,6 +48,22 @@ export type ExternalPostInfo = {
   media: ExternalPostMedia[];
 };
 
+export type SocialActivityType = "LIKE" | "COMMENT" | "REPOST";
+
+export type FeedSocialActor = {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  actions: SocialActivityType[];
+  latestAt: string;
+};
+
+export type FeedSocialContext = {
+  actors: FeedSocialActor[];
+  totalActors: number;
+};
+
 export type FeedPost = Post & {
   // Stripped to null by the server for anonymous posts.
   author: UserProfile | null;
@@ -68,6 +84,7 @@ export type FeedPost = Post & {
   totalPollVotes?: number;
   isSaved?: boolean;
   externalPost?: ExternalPostInfo | null;
+  socialContext?: FeedSocialContext | null;
 };
 
 const feedFetcher = async <T>(url: string): Promise<T> => {
