@@ -122,16 +122,16 @@ export function getPhoenixValueScoreSql(
     : sql<number>`0.0`;
 
   // Interaction Momentum
-  const recentVotesSql = sql<number>`coalesce((select sum(${votes.value})::int from ${votes} where ${votes.postId} = "posts"."id" and ${votes.createdAt} > now() - interval '24 hours'), 0)`;
-  const recentCommentsSql = sql<number>`coalesce((select count(*)::int from ${comments} where ${comments.postId} = "posts"."id" and ${comments.status} = 'PUBLISHED' and ${comments.createdAt} > now() - interval '24 hours'), 0)`;
-  const totalReportsSql = sql<number>`coalesce((select count(*)::int from ${reports} where ${reports.targetType} = 'POST' and ${reports.targetId} = "posts"."id"), 0)`;
+  const recentVotesSql = sql<number>`coalesce((select sum(${votes.value})::numeric from ${votes} where ${votes.postId} = "posts"."id" and ${votes.createdAt} > now() - interval '24 hours'), 0.0)`;
+  const recentCommentsSql = sql<number>`coalesce((select count(*)::numeric from ${comments} where ${comments.postId} = "posts"."id" and ${comments.status} = 'PUBLISHED' and ${comments.createdAt} > now() - interval '24 hours'), 0.0)`;
+  const totalReportsSql = sql<number>`coalesce((select count(*)::numeric from ${reports} where ${reports.targetType} = 'POST' and ${reports.targetId} = "posts"."id"), 0.0)`;
 
   // Multi-Action weighted engagement:
   // Comments weighted at 5.0 (conversation), Votes at 1.5, Reports heavily penalized at -40.0
   const actionValueSql = sql<number>`(
-    (${recentVotesSql} * ${DEFAULT_PHOENIX_WEIGHTS.like * 3.0}) +
-    (${recentCommentsSql} * ${DEFAULT_PHOENIX_WEIGHTS.comment}) -
-    (${totalReportsSql} * 40.0)
+    (${recentVotesSql} * 1.5::numeric) +
+    (${recentCommentsSql} * 5.0::numeric) -
+    (${totalReportsSql} * 40.0::numeric)
   )`;
 
   // Time Gravity Decay (Hacker News / Phoenix logarithmic decay curve)
@@ -140,7 +140,7 @@ export function getPhoenixValueScoreSql(
   // New-Author / Cold-Start Exploration Budget (X New-Author Boost):
   // Gives new authors with <= 5 posts a temporary distribution boost to discover their initial campus audience
   const newAuthorExplorationBoostSql = sql<number>`(case 
-    when coalesce((select count(*)::int from ${posts} p2 where p2.author_id = ${posts.authorId}), 0) <= 5 
+    when ${posts.authorId} is not null and (select count(*)::int from "posts" p2 where p2.author_id = ${posts.authorId}) <= 5 
     then 18.0 
     else 0.0 
   end)`;
