@@ -68,25 +68,23 @@ describe("R2 Cloudflare Storage Engine", () => {
     expect(after).toBeNull();
   });
 
-  it("should fail clearly in production mode if required R2 binding is missing", async () => {
+  it("should gracefully fallback to database storage when R2 binding is missing", async () => {
     const originalNodeEnv = process.env.NODE_ENV;
-    const originalVitest = process.env.VITEST;
     try {
-      // Emulate production environment without Vitest override
-      delete (process.env as any).VITEST;
       (process.env as any).NODE_ENV = "production";
 
-      const key = "test/prod-probe.mp4";
-      const data = new Uint8Array([1, 2, 3]);
+      const key = "test/prod-probe-fallback.txt";
+      const data = new TextEncoder().encode("resilient-fallback-test");
 
-      await expect(putR2Object(key, data, "video/mp4")).rejects.toThrow(
-        /MEDIA_BUCKET/
-      );
+      const putRes = await putR2Object(key, data, "text/plain");
+      expect(putRes.key).toBe(key);
+      expect(putRes.url).toBe(`/api/files/r2/${key}`);
 
-      await expect(getR2Object(key)).rejects.toThrow(/MEDIA_BUCKET/);
+      const getRes = await getR2Object(key);
+      expect(getRes).not.toBeNull();
+      expect(getRes?.contentType).toBe("text/plain");
     } finally {
       process.env.NODE_ENV = originalNodeEnv;
-      if (originalVitest) process.env.VITEST = originalVitest;
     }
   });
 });

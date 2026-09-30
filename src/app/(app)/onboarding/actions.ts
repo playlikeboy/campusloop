@@ -4,8 +4,10 @@ import { eq, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { institutionDomains, userProfiles } from "@/db/schema";
+import { institutionDomains, institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { sendEmail } from "@/lib/email";
+import { buildWelcomeEmail } from "@/lib/email-templates";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 import { getViewerInstitutionId } from "@/lib/viewer";
@@ -180,6 +182,34 @@ export async function completeOnboarding(formData: FormData) {
           points: sql`${userProfiles.points} + 20`,
         })
         .where(eq(userProfiles.id, referrerProfile.id));
+    }
+
+    // Dispatch welcome email asynchronously via mail.campsy.app
+    try {
+      let collegeName = "CampusLoop";
+      if (institutionId) {
+        const inst = await db.query.institutions.findFirst({
+          where: eq(institutions.id, institutionId),
+          columns: { name: true },
+        });
+        if (inst?.name) collegeName = inst.name;
+      }
+
+      const { subject, html, text } = buildWelcomeEmail({
+        displayName: displayName.trim(),
+        collegeName,
+      });
+
+      sendEmail({
+        to: email.trim().toLowerCase(),
+        from: "welcome@mail.campsy.app",
+        fromName: "CampusLoop",
+        subject,
+        html,
+        text,
+      }).catch((err) => console.warn("[Onboarding welcome email failed]:", err));
+    } catch {
+      // Non-blocking email dispatch
     }
   } catch (error: unknown) {
     if (
