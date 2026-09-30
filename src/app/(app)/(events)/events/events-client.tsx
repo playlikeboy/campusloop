@@ -5,167 +5,131 @@ import {
   Clock,
   Code2,
   Compass,
+  Filter,
   Flame,
   Globe,
-  GraduationCap,
   Grid3X3,
   LayoutList,
   MapPin,
   Menu,
   PartyPopper,
   Plus,
-  Radio,
   RotateCcw,
   School,
   Search,
   Sparkles,
   Trophy,
-  Users,
   Users2,
   X,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { EventCard, type EventItem } from "@/components/events/event-card";
-import { Button } from "@/components/ui/button";
+import { EventCard, type EventItem, isEventClosed } from "@/components/events/event-card";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const EVENT_TABS = [
-  { id: "trending", label: "Trending", icon: Flame },
-  { id: "upcoming", label: "Upcoming", icon: Calendar },
-  { id: "latest", label: "Latest", icon: Sparkles },
+const CATEGORIES = [
+  { id: "ALL", label: "All Categories", icon: Compass },
+  { id: "HACKATHON", label: "Hackathons", icon: Code2 },
+  { id: "FEST", label: "College Fests", icon: PartyPopper },
+  { id: "WORKSHOP", label: "Workshops", icon: Sparkles },
+  { id: "COMPETITION", label: "Competitions", icon: Trophy },
+  { id: "CULTURAL", label: "Cultural", icon: Users2 },
+] as const;
+
+const MODES = [
+  { id: "ALL", label: "All Modes" },
+  { id: "ONLINE", label: "Online Only" },
+  { id: "OFFLINE", label: "On-Campus" },
 ] as const;
 
 const TIMEFRAMES = [
   { id: "ALL", label: "Anytime" },
-  { id: "TODAY", label: "Today / Tomorrow" },
-  { id: "WEEKEND", label: "This Weekend" },
+  { id: "WEEK", label: "This Week" },
   { id: "MONTH", label: "This Month" },
 ] as const;
 
-const CATEGORIES = [
-  { id: "ALL", label: "All Events", icon: Calendar },
-  { id: "hackathons", label: "Hackathons", icon: Code2 },
-  { id: "fests", label: "Fests", icon: PartyPopper },
-  { id: "competitions", label: "Competitions", icon: Trophy },
-  { id: "workshops", label: "Workshops", icon: GraduationCap },
-  { id: "meetups", label: "Meetups", icon: Users2 },
-];
-
-const MODES = [
-  { id: "ALL", label: "All Modes", icon: null },
-  { id: "IN_PERSON", label: "In-Person", icon: MapPin },
-  { id: "ONLINE", label: "Online", icon: Globe },
-  { id: "HYBRID", label: "Hybrid", icon: Zap },
-];
-
 export function EventsClient() {
-  const [activeTab, setActiveTab] = useState<"trending" | "upcoming" | "latest">("trending");
-  const [activeCategory, setActiveCategory] = useState("ALL");
-  const [timeframeFilter, setTimeframeFilter] = useState<"ALL" | "TODAY" | "WEEKEND" | "MONTH">("ALL");
+  const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [scope, setScope] = useState<"ALL" | "MY_CAMPUS">("ALL");
-  const [modeFilter, setModeFilter] = useState("ALL");
+  const [modeFilter, setModeFilter] = useState<string>("ALL");
+  const [timeframeFilter, setTimeframeFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  // Live countdown state for featured banner
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [now, setNow] = useState(0);
 
+  // Sync client time for live countdowns
   useEffect(() => {
     setNow(Date.now());
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("campusloop_events_view_mode");
-      if (saved === "grid" || saved === "list") {
-        setViewMode(saved);
-      }
+  // Fetch all events from API
+  const { data: rawEvents = [], isLoading, mutate: mutateEvents } = useSWR<EventItem[]>(
+    `/api/events?category=${activeCategory}&scope=${scope}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 10000,
     }
-  }, []);
+  );
 
-  function handleViewModeChange(mode: "grid" | "list") {
-    sounds.tap();
-    haptics.light();
-    setViewMode(mode);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("campusloop_events_view_mode", mode);
-    }
-  }
-
-  function handleResetFilters() {
-    sounds.pop();
-    haptics.light();
-    setActiveCategory("ALL");
-    setTimeframeFilter("ALL");
-    setModeFilter("ALL");
-    setSearchQuery("");
-  }
-
-  const endpoint = `/api/events?category=${activeCategory}&scope=${scope}&sort=${activeTab}&q=${encodeURIComponent(
-    searchQuery
-  )}`;
-  const { data, isLoading } = useSWR<{ events: EventItem[] }>(endpoint, fetcher, {
-    dedupingInterval: 15000,
-    revalidateOnFocus: true,
-  });
-
-  const rawEvents = data?.events || [];
-
-  // Filter by mode and timeframe
-  const events = useMemo(() => {
+  // Filter for LIVE & UPCOMING events (excluding closed/past)
+  const activeEvents = useMemo(() => {
+    const curNow = Date.now();
     return rawEvents.filter((e) => {
+      // Must NOT be closed
+      if (isEventClosed(e, curNow)) return false;
+
+      // Search query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesTitle = e.title.toLowerCase().includes(q);
+        const matchesClub = e.clubName.toLowerCase().includes(q);
+        const matchesDesc = (e.description || "").toLowerCase().includes(q);
+        const matchesVenue = (e.venue || "").toLowerCase().includes(q);
+        if (!matchesTitle && !matchesClub && !matchesDesc && !matchesVenue) return false;
+      }
+
       // Mode filter
       if (modeFilter !== "ALL") {
-        const evMode = (e.mode || "").toUpperCase();
-        if (modeFilter === "IN_PERSON" && evMode !== "IN_PERSON" && evMode !== "OFFLINE") return false;
-        if (modeFilter === "ONLINE" && evMode !== "ONLINE") return false;
-        if (modeFilter === "HYBRID" && evMode !== "HYBRID") return false;
+        if (modeFilter === "ONLINE" && e.mode !== "ONLINE") return false;
+        if (modeFilter === "OFFLINE" && e.mode !== "OFFLINE" && e.mode !== "IN_PERSON") return false;
       }
 
       // Timeframe filter
       if (timeframeFilter !== "ALL") {
         const start = new Date(e.startDate).getTime();
         const curDate = new Date();
-        if (timeframeFilter === "TODAY") {
-          const tomorrowEnd = new Date(curDate);
-          tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
-          tomorrowEnd.setHours(23, 59, 59, 999);
-          if (start < curDate.getTime() || start > tomorrowEnd.getTime()) return false;
-        } else if (timeframeFilter === "WEEKEND") {
-          const day = curDate.getDay();
-          const daysToFriday = (5 - day + 7) % 7;
-          const friday = new Date(curDate);
-          friday.setDate(curDate.getDate() + daysToFriday);
-          friday.setHours(0, 0, 0, 0);
-          const sunday = new Date(friday);
-          sunday.setDate(friday.getDate() + 2);
-          sunday.setHours(23, 59, 59, 999);
-          if (start < friday.getTime() || start > sunday.getTime()) return false;
+        if (timeframeFilter === "WEEK") {
+          const weekEnd = new Date(curDate);
+          weekEnd.setDate(weekEnd.getDate() + 7);
+          if (start > weekEnd.getTime()) return false;
         } else if (timeframeFilter === "MONTH") {
-          const monthEnd = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0, 23, 59, 59, 999);
-          if (start < curDate.getTime() || start > monthEnd.getTime()) return false;
+          const monthEnd = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0, 23, 59, 59);
+          if (start > monthEnd.getTime()) return false;
         }
       }
 
       return true;
     });
-  }, [rawEvents, modeFilter, timeframeFilter]);
+  }, [rawEvents, searchQuery, modeFilter, timeframeFilter]);
 
-  // Featured Spotlight Event
+  // Featured Opportunity
   const featuredEvent = useMemo(() => {
-    if (events.length === 0) return null;
-    return events.find((e) => e.prizesDescription) || events[0];
-  }, [events]);
+    if (activeEvents.length === 0) return null;
+    return (
+      activeEvents.find(
+        (e) => (e.prizesDescription && e.prizesDescription.length > 0) || e.attendeeCount > 10
+      ) || activeEvents[0]
+    );
+  }, [activeEvents]);
 
-  // Live countdown for featured event
+  // Clean Countdown for Featured Event
   const countdown = useMemo(() => {
     if (!featuredEvent || now === 0) return null;
     const startMs = new Date(featuredEvent.startDate).getTime();
@@ -179,19 +143,24 @@ export function EventsClient() {
     return { days, hours, minutes, seconds, isLive: false };
   }, [featuredEvent, now]);
 
-  // Stats calculation
-  const totalRegistered = rawEvents.reduce((acc, curr) => acc + (curr.attendeeCount || 0), 0);
-  const hackathonsCount = rawEvents.filter((e) => e.eventType === "HACKATHON").length;
   const isAnyFilterActive =
     activeCategory !== "ALL" || modeFilter !== "ALL" || timeframeFilter !== "ALL" || Boolean(searchQuery);
 
+  function handleResetFilters() {
+    sounds.tap();
+    haptics.light();
+    setActiveCategory("ALL");
+    setModeFilter("ALL");
+    setTimeframeFilter("ALL");
+    setSearchQuery("");
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col bg-background pb-28 px-3 sm:px-6">
-      {/* ─── Top Sticky Omnibar & Filter Strip: Dedicated events header, sticky top-0 ─── */}
-      <header className="sticky top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 border-b border-border/30 bg-background/95 backdrop-blur-xl transition-all shadow-2xs">
-        {/* Row 1: Title, Scope Switcher, View Switcher & Host Button */}
+      {/* ─── Top Sticky Omnibar (Unstop-Grade Clean Architecture) ─── */}
+      <header className="sticky top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 border-b border-border/50 bg-background/95 backdrop-blur-xl transition-all shadow-2xs">
+        {/* Row 1: Brand/Menu, Title, Scope Switcher, View Switcher & Host CTA */}
         <div className="flex h-12 sm:h-14 items-center justify-between gap-2.5">
-          {/* Title & Count */}
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
@@ -208,26 +177,26 @@ export function EventsClient() {
             >
               <Menu className="size-4.5" />
             </button>
+
             <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 text-primary shrink-0 border border-primary/20">
               <Calendar className="size-4 sm:size-4.5" />
             </div>
+
             <div className="flex items-center gap-1.5 min-w-0">
-              <h1 className="text-sm sm:text-base font-black tracking-tight text-foreground truncate">
-                <span className="sm:hidden">Events</span>
-                <span className="hidden sm:inline">Events &amp; Hackathons</span>
+              <h1 className="text-sm sm:text-base font-bold tracking-tight text-foreground truncate">
+                Campus Events
               </h1>
-              {rawEvents.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-primary/10 text-primary border border-primary/20 shrink-0">
-                  {rawEvents.length}
+              {activeEvents.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground border border-border/60 shrink-0">
+                  {activeEvents.length}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Scope Pill (All India vs My Campus), View Toggle, and Host CTA */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Scope Switcher */}
-            <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 shrink-0">
+          {/* Scope Pill & View Toggle */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center rounded-xl bg-muted/60 p-0.5 border border-border/50 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -236,14 +205,14 @@ export function EventsClient() {
                   setScope("ALL");
                 }}
                 className={cn(
-                  "px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                  "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
                   scope === "ALL"
-                    ? "bg-foreground text-background shadow-xs font-black"
+                    ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 title="View events across all colleges in India"
               >
-                <Globe className="size-2.5 sm:size-3" />
+                <Globe className="size-3" />
                 <span>All India</span>
               </button>
               <button
@@ -254,27 +223,27 @@ export function EventsClient() {
                   setScope("MY_CAMPUS");
                 }}
                 className={cn(
-                  "px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                  "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
                   scope === "MY_CAMPUS"
-                    ? "bg-foreground text-background shadow-xs font-black"
+                    ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="View events exclusive to your college campus"
+                title="View events exclusive to your campus"
               >
-                <School className="size-2.5 sm:size-3" />
+                <School className="size-3" />
                 <span>Campus</span>
               </button>
             </div>
 
-            {/* View Switcher (Desktop/Tablet) */}
-            <div className="hidden sm:flex items-center rounded-full bg-muted/50 p-0.5 border border-border/40">
+            {/* View Switcher (Desktop) */}
+            <div className="hidden sm:flex items-center rounded-xl bg-muted/60 p-0.5 border border-border/50">
               <button
                 type="button"
-                onClick={() => handleViewModeChange("grid")}
+                onClick={() => setViewMode("grid")}
                 className={cn(
-                  "p-1.5 rounded-full transition-all cursor-pointer",
+                  "p-1.5 rounded-lg transition-all cursor-pointer",
                   viewMode === "grid"
-                    ? "bg-foreground text-background shadow-xs"
+                    ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Grid View"
@@ -284,11 +253,11 @@ export function EventsClient() {
               </button>
               <button
                 type="button"
-                onClick={() => handleViewModeChange("list")}
+                onClick={() => setViewMode("list")}
                 className={cn(
-                  "p-1.5 rounded-full transition-all cursor-pointer",
+                  "p-1.5 rounded-lg transition-all cursor-pointer",
                   viewMode === "list"
-                    ? "bg-foreground text-background shadow-xs"
+                    ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 title="List View"
@@ -297,108 +266,66 @@ export function EventsClient() {
                 <LayoutList className="size-3.5" />
               </button>
             </div>
+          </div>
+        </div>
 
-            {/* Host CTA */}
+        {/* Row 2: Unstop-style Navigation Tabs + Search + Secondary Filters */}
+        <div className="py-2.5 space-y-2.5 border-t border-border/40">
+          {/* Main Status Switcher: Live & Upcoming vs Closed Events + Host CTA */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center p-0.5 rounded-xl bg-muted/70 border border-border/50 text-xs font-semibold">
+              <span className="px-3 py-1 rounded-lg bg-background text-foreground shadow-xs font-bold">
+                Live &amp; Upcoming
+              </span>
+              <Link
+                href="/events/closed"
+                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+              >
+                Closed &amp; Past
+              </Link>
+            </div>
+
             <Link
               href="/events/new"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex h-8 sm:h-8.5 shrink-0 cursor-pointer items-center gap-1 sm:gap-1.5 rounded-full bg-primary px-3 sm:px-3.5 text-xs font-black text-primary-foreground transition-all hover:opacity-90 active:scale-95 shadow-sm"
+              className="flex h-7.5 items-center gap-1.5 px-3 rounded-lg bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
             >
-              <Plus className="size-3.5 stroke-3" />
-              <span className="sm:hidden">Host</span>
-              <span className="hidden sm:inline">Host Event</span>
-              <span className="hidden md:inline text-[9px] px-1.5 py-0.2 rounded-full bg-primary-foreground/20 font-mono">
+              <Plus className="size-3.5" />
+              <span>Host Event</span>
+              <span className="hidden md:inline text-[9px] px-1 py-0.2 rounded bg-black/20 font-mono">
                 +25 LP
               </span>
             </Link>
           </div>
-        </div>
 
-        {/* Row 2: Search Input & Fast Horizontal Filter Strip */}
-        <div className="py-2 space-y-2 border-t border-border/20">
           {/* Search Bar */}
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search hackathons, cultural fests, workshops or clubs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8.5 sm:h-9 w-full rounded-full border border-border/40 bg-muted/40 pl-8.5 pr-8 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
+              placeholder="Search hackathons, fests, workshops, or clubs..."
+              className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                title="Clear search"
               >
                 <X className="size-3.5" />
               </button>
             )}
           </div>
 
-          {/* Unified Filter Strip: Sort Tabs | Categories | Timeframe | Modes */}
+          {/* Unified Filter Strip: Categories + Mode + Timeframe */}
           <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto py-0.5">
-            {/* Sort Tabs */}
-            {EVENT_TABS.map((tab) => {
-              const isActive = activeTab === tab.id;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setActiveTab(tab.id);
-                  }}
-                  className={cn(
-                    "px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 border",
-                    isActive
-                      ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground border-border/40"
-                  )}
-                >
-                  <Icon className="size-3" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-
-            <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
-
-            {/* Timeframe Quick Filters */}
-            {TIMEFRAMES.map((tf) => {
-              const isActive = timeframeFilter === tf.id;
-              return (
-                <button
-                  key={tf.id}
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setTimeframeFilter(tf.id);
-                  }}
-                  className={cn(
-                    "px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border flex items-center gap-1",
-                    isActive
-                      ? "bg-purple-600 text-white border-purple-500 font-black shadow-xs"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground border-border/40"
-                  )}
-                >
-                  <Clock className="size-3" />
-                  <span>{tf.label}</span>
-                </button>
-              );
-            })}
-
-            <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
-
-            {/* Categories */}
+            {/* Category Chips */}
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
               const Icon = cat.icon;
@@ -412,10 +339,10 @@ export function EventsClient() {
                     setActiveCategory(cat.id);
                   }}
                   className={cn(
-                    "flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
+                    "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
                     isActive
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
-                      : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground border-border/40"
+                      ? "bg-foreground text-background border-foreground font-bold shadow-xs"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border-border/50"
                   )}
                 >
                   <Icon className="size-3" />
@@ -424,12 +351,11 @@ export function EventsClient() {
               );
             })}
 
-            <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5" />
+            <div className="h-4 w-px bg-border/50 shrink-0 mx-1" />
 
-            {/* Modes */}
+            {/* Mode Chips */}
             {MODES.filter((m) => m.id !== "ALL").map((mode) => {
               const isActive = modeFilter === mode.id;
-              const Icon = mode.icon;
               return (
                 <button
                   key={mode.id}
@@ -440,55 +366,54 @@ export function EventsClient() {
                     setModeFilter(modeFilter === mode.id ? "ALL" : mode.id);
                   }}
                   className={cn(
-                    "rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border flex items-center gap-1",
+                    "rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
                     isActive
-                      ? "bg-primary/20 text-primary border-primary/40 font-black shadow-xs"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground border-border/40"
+                      ? "bg-primary/15 text-primary border-primary/40 font-bold"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border-border/50"
                   )}
                 >
-                  {Icon && <Icon className="size-3" />}
                   <span>{mode.label}</span>
                 </button>
               );
             })}
 
-            <div className="h-4 w-px bg-border/40 shrink-0 mx-0.5 sm:hidden" />
+            <div className="h-4 w-px bg-border/50 shrink-0 mx-1" />
 
-            {/* Mobile Quick View Mode Switcher */}
-            <div className="flex sm:hidden items-center shrink-0">
-              <button
-                type="button"
-                onClick={() => handleViewModeChange(viewMode === "grid" ? "list" : "grid")}
-                className="rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border bg-muted/40 text-muted-foreground hover:text-foreground border-border/40 flex items-center gap-1"
-              >
-                {viewMode === "grid" ? <LayoutList className="size-3" /> : <Grid3X3 className="size-3" />}
-                <span>{viewMode === "grid" ? "List" : "Grid"}</span>
-              </button>
-            </div>
+            {/* Timeframe Chips */}
+            {TIMEFRAMES.filter((tf) => tf.id !== "ALL").map((tf) => {
+              const isActive = timeframeFilter === tf.id;
+              return (
+                <button
+                  key={tf.id}
+                  type="button"
+                  onClick={() => {
+                    sounds.tap();
+                    haptics.light();
+                    setTimeframeFilter(timeframeFilter === tf.id ? "ALL" : tf.id);
+                  }}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
+                    isActive
+                      ? "bg-primary/15 text-primary border-primary/40 font-bold"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border-border/50"
+                  )}
+                >
+                  <span>{tf.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Active Filter Indicator & Reset Bar */}
+          {/* Active Filter Bar & Reset */}
           {isAnyFilterActive && (
-            <div className="flex items-center justify-between text-xs py-1 px-1 text-muted-foreground">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span>
-                  Showing <strong>{events.length}</strong> matching events
-                </span>
-                {timeframeFilter !== "ALL" && (
-                  <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-bold">
-                    {timeframeFilter}
-                  </span>
-                )}
-                {activeCategory !== "ALL" && (
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold">
-                    {activeCategory}
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center justify-between text-xs pt-0.5 text-muted-foreground">
+              <span>
+                Found <strong>{activeEvents.length}</strong> live &amp; upcoming events
+              </span>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer shrink-0"
+                className="flex items-center gap-1 font-semibold text-primary hover:underline cursor-pointer"
               >
                 <RotateCcw className="size-3" />
                 <span>Reset Filters</span>
@@ -498,175 +423,160 @@ export function EventsClient() {
         </div>
       </header>
 
-      {/* ─── Highlights & Stats Ribbon (Desktop) ─── */}
-      {!isLoading && rawEvents.length > 0 && !searchQuery && (
-        <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 py-4">
-          <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-3xl border border-border/30 bg-card/50 backdrop-blur-xs shadow-xs">
-            <div className="flex size-9 sm:size-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400 shrink-0 border border-indigo-500/20">
-              <Compass className="size-4.5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-base sm:text-lg font-black text-foreground">{rawEvents.length}</p>
-              <p className="text-[11px] text-muted-foreground truncate font-medium">Active Events</p>
-            </div>
-          </div>
+      {/* ─── Featured Opportunity Spotlight (Clean Unstop Card) ─── */}
+      {!isLoading && featuredEvent && !isAnyFilterActive && (
+        <div className="py-4">
+          <Link
+            href={`/events/${featuredEvent.slug || featuredEvent.id}`}
+            className="group relative block overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-200 hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-[11px] font-bold border border-primary/20">
+                  <Sparkles className="size-3" />
+                  Featured Opportunity
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {featuredEvent.clubName}
+                </span>
+              </div>
 
-          <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-3xl border border-border/30 bg-card/50 backdrop-blur-xs shadow-xs">
-            <div className="flex size-9 sm:size-10 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 shrink-0 border border-purple-500/20">
-              <Radio className="size-4.5" />
+              {countdown && (
+                <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/40">
+                  <Clock className="size-3.5 text-primary shrink-0" />
+                  {countdown.isLive ? (
+                    <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-rose-600 animate-ping" />
+                      Live Now
+                    </span>
+                  ) : (
+                    <span>
+                      Starts in {countdown.days > 0 ? `${countdown.days}d ` : ""}
+                      {String(countdown.hours).padStart(2, "0")}h:
+                      {String(countdown.minutes).padStart(2, "0")}m
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="min-w-0">
-              <p className="text-base sm:text-lg font-black text-foreground">{hackathonsCount}</p>
-              <p className="text-[11px] text-muted-foreground truncate font-medium">Live Hackathons</p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-3xl border border-border/30 bg-card/50 backdrop-blur-xs shadow-xs">
-            <div className="flex size-9 sm:size-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 shrink-0 border border-amber-500/20">
-              <Users className="size-4.5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-base sm:text-lg font-black text-foreground">{totalRegistered}+</p>
-              <p className="text-[11px] text-muted-foreground truncate font-medium">Students Enrolled</p>
-            </div>
-          </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                  {featuredEvent.title}
+                </h2>
+                {featuredEvent.tagline && (
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                    {featuredEvent.tagline}
+                  </p>
+                )}
 
-          <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-3xl border border-border/30 bg-card/50 backdrop-blur-xs shadow-xs">
-            <div className="flex size-9 sm:size-10 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 shrink-0 border border-emerald-500/20">
-              <Zap className="size-4.5" />
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground">
+                    {featuredEvent.entryFee || "Free Entry"}
+                  </span>
+                  <span>·</span>
+                  <span>{featuredEvent.mode === "ONLINE" ? "Online" : "On-Campus"}</span>
+                  {featuredEvent.prizesDescription && (
+                    <>
+                      <span>·</span>
+                      <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                        {featuredEvent.prizesDescription}
+                      </span>
+                    </>
+                  )}
+                  <span>·</span>
+                  <span>{featuredEvent.attendeeCount} enrolled</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 sm:self-center">
+                <span className="inline-flex h-8.5 items-center px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold transition-all shadow-xs group-hover:bg-primary/95">
+                  View Opportunity →
+                </span>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-base sm:text-lg font-black text-foreground">+25 LP</p>
-              <p className="text-[11px] text-muted-foreground truncate font-medium">Per Registration</p>
-            </div>
-          </div>
+          </Link>
         </div>
       )}
 
-      {/* ─── Featured Spotlight Banner with Live Ticking Countdown ─── */}
-      {!isLoading &&
-        featuredEvent &&
-        !searchQuery &&
-        activeCategory === "ALL" &&
-        timeframeFilter === "ALL" && (
-          <div className="pb-4">
-            <Link
-              href={`/events/${featuredEvent.slug || featuredEvent.id}`}
-              className="group relative block overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-card p-4 sm:p-6 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-primary-foreground shadow-xs">
-                    <Sparkles className="size-3" />
-                    Featured Spotlight
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/60 text-muted-foreground border border-border/40 truncate max-w-[180px]">
-                    {featuredEvent.clubName}
-                  </span>
-                </div>
-
-                {countdown && (
-                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold bg-background/80 backdrop-blur-md px-3 py-1 rounded-full border border-border/40 text-foreground">
-                    <Clock className="size-3.5 text-primary shrink-0" />
-                    {countdown.isLive ? (
-                      <span className="text-red-500 font-black flex items-center gap-1.5">
-                        <span className="size-2 rounded-full bg-red-500 animate-ping inline-block" />
-                        HAPPENING NOW
-                      </span>
-                    ) : (
-                      <span>
-                        {countdown.days > 0 && `${countdown.days}d `}
-                        {String(countdown.hours).padStart(2, "0")}:
-                        {String(countdown.minutes).padStart(2, "0")}:
-                        {String(countdown.seconds).padStart(2, "0")}
-                      </span>
-                    )}
-                  </div>
-                )}
+      {/* ─── Active Event Opportunities ─── */}
+      <div className={cn("pt-2", (!featuredEvent || isAnyFilterActive) && "pt-4")}>
+        {isLoading ? (
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+            {[1, 2, 3, 4].map((n) => (
+              <div
+                key={n}
+                className="h-44 rounded-2xl border border-border/50 bg-card/60 p-4 animate-pulse space-y-3"
+              >
+                <div className="h-4 w-1/3 bg-muted rounded-md" />
+                <div className="h-6 w-3/4 bg-muted rounded-md" />
+                <div className="h-16 bg-muted/60 rounded-xl" />
               </div>
-
-              <div className="mt-3 flex flex-col md:flex-row gap-3 sm:gap-5 items-start md:items-center justify-between">
-                <div className="space-y-1 min-w-0 max-w-3xl">
-                  <h2 className="text-base sm:text-xl font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                    {featuredEvent.title}
-                  </h2>
-                  {featuredEvent.tagline && (
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {featuredEvent.tagline}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between w-full md:w-auto gap-3 shrink-0 pt-1 md:pt-0">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-bold text-foreground">{featuredEvent.attendeeCount} enrolled</span>
-                    <span className="text-muted-foreground/60">·</span>
-                    <span className="font-bold text-primary">{featuredEvent.entryFee || "Free"}</span>
-                  </div>
-                  <span className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black group-hover:opacity-90 transition-opacity shadow-xs shrink-0">
-                    View Pass →
-                  </span>
-                </div>
-              </div>
-            </Link>
+            ))}
+          </div>
+        ) : activeEvents.length === 0 ? (
+          <div className="py-16 text-center rounded-2xl border border-dashed border-border/60 bg-card/30 p-8 space-y-3">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground border border-border/50">
+              <Calendar className="size-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-foreground">No Live Events Matching Criteria</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                {isAnyFilterActive
+                  ? "Try broadening your category or mode filters, or search for other terms."
+                  : "Check out past hackathons and fests in the Closed Events archive."}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              {isAnyFilterActive ? (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold"
+                >
+                  <RotateCcw className="size-3.5" />
+                  <span>Reset Filters</span>
+                </button>
+              ) : (
+                <Link
+                  href="/events/closed"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all"
+                >
+                  <span>Browse Closed Events</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
+            {activeEvents.map((event) => (
+              <EventCard key={event.id} event={event} variant="grid" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {activeEvents.map((event) => (
+              <EventCard key={event.id} event={event} variant="row" />
+            ))}
           </div>
         )}
 
-      {/* ─── Stream of Event Cards (Grid or List Layout) ─── */}
-      <div className="pt-1 sm:pt-2">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-72 sm:h-80 rounded-3xl bg-muted/30 border border-border/30 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : events.length > 0 ? (
-          viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
-              {events.map((ev) => (
-                <EventCard key={ev.id} event={ev} variant="grid" />
-              ))}
+        {/* Closed Events Archive Footer Banner */}
+        {!isLoading && (
+          <div className="mt-8 p-4 rounded-2xl border border-border/60 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <div>
+              <p className="text-xs font-bold text-foreground">Looking for past competitions or fest archives?</p>
+              <p className="text-[11px] text-muted-foreground">
+                Browse concluded university hackathons and winning records in the Closed Events directory.
+              </p>
             </div>
-          ) : (
-            <div className="flex flex-col gap-3 max-w-4xl mx-auto">
-              {events.map((ev) => (
-                <EventCard key={ev.id} event={ev} variant="row" />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="py-24 text-center space-y-3 max-w-md mx-auto">
-            <div className="flex size-14 items-center justify-center rounded-3xl bg-muted/60 text-muted-foreground mx-auto border border-border/40">
-              <Calendar className="size-7" />
-            </div>
-            <h3 className="text-base font-black text-foreground">No events found</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {isAnyFilterActive
-                ? "No events match your current filter combination. Try resetting your search or date selection."
-                : "No events match this filter. Be the first organizer to host a competition or meetup on your campus."}
-            </p>
-            <div className="flex items-center justify-center gap-2 pt-1">
-              {isAnyFilterActive && (
-                <Button
-                  onClick={handleResetFilters}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full text-xs font-bold"
-                >
-                  Clear Filters
-                </Button>
-              )}
-              <Link
-                href="/events/new"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-              >
-                <Plus className="size-3.5" />
-                <span>Host Event (+25 LP)</span>
-              </Link>
-            </div>
+            <Link
+              href="/events/closed"
+              className="px-3.5 py-1.5 rounded-xl border border-border/60 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all shrink-0"
+            >
+              View Closed Events →
+            </Link>
           </div>
         )}
       </div>

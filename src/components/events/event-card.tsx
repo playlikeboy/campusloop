@@ -1,11 +1,23 @@
 "use client";
 
-import { Globe, School, Share2, Trophy } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  ChevronRight,
+  Clock,
+  Globe,
+  MapPin,
+  School,
+  Share2,
+  Sparkles,
+  Trophy,
+  Users,
+  Users2,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { AnimateCalendar, AnimateCheck, AnimateUsers } from "@/components/ui/animated-icon";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl } from "@/lib/utils";
@@ -51,11 +63,26 @@ export interface EventItem {
   }>;
   isRegistered: boolean;
   reminderSet: boolean;
+  status?: string;
 }
 
 interface EventCardProps {
   event: EventItem;
   variant?: "row" | "grid";
+}
+
+export function isEventClosed(event: EventItem, nowMs: number = Date.now()): boolean {
+  if (event.status === "COMPLETED" || event.status === "CLOSED" || event.status === "CANCELLED") {
+    return true;
+  }
+  const endMs = new Date(event.endDate).getTime();
+  if (nowMs > endMs) return true;
+
+  if (event.registrationDeadline) {
+    const deadlineMs = new Date(event.registrationDeadline).getTime();
+    if (nowMs > deadlineMs) return true;
+  }
+  return false;
 }
 
 export function EventCard({ event, variant = "row" }: EventCardProps) {
@@ -67,66 +94,71 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   const endDate = new Date(event.endDate);
   const now = new Date();
 
-  const isOngoing = now >= startDate && now <= endDate;
+  const closed = isEventClosed(event, now.getTime());
+  const isOngoing = !closed && now >= startDate && now <= endDate;
   const timeDiffToStart = startDate.getTime() - now.getTime();
-  const startsToday = !isOngoing && timeDiffToStart > 0 && timeDiffToStart < 24 * 60 * 60 * 1000;
+  const startsSoon = !closed && !isOngoing && timeDiffToStart > 0 && timeDiffToStart < 24 * 60 * 60 * 1000;
   const hoursUntilStart = Math.max(1, Math.round(timeDiffToStart / (1000 * 60 * 60)));
 
   const dateStr = startDate.toLocaleDateString("en-IN", {
-    weekday: "short",
     month: "short",
     day: "numeric",
+    year: startDate.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
   });
 
   const isRestricted =
     Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
 
-  // Registration deadline status
+  // Registration deadline calculations
   const deadlineDate = event.registrationDeadline ? new Date(event.registrationDeadline) : null;
-  let deadlineText = "";
-  let isUrgentDeadline = false;
-  if (deadlineDate) {
+  let deadlineStatus: { label: string; isUrgent: boolean } | null = null;
+
+  if (closed) {
+    deadlineStatus = { label: "Registration Closed", isUrgent: false };
+  } else if (deadlineDate) {
     const diffMs = deadlineDate.getTime() - now.getTime();
     if (diffMs <= 0) {
-      deadlineText = "Registration closed";
+      deadlineStatus = { label: "Registration Closed", isUrgent: false };
     } else {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
       const diffDays = Math.floor(diffHours / 24);
       if (diffDays >= 1) {
-        deadlineText = `${diffDays}d ${diffHours % 24}h left`;
+        deadlineStatus = { label: `${diffDays}d left to register`, isUrgent: diffDays <= 2 };
       } else {
-        deadlineText = `${diffHours}h left`;
-        isUrgentDeadline = true;
+        deadlineStatus = { label: `${diffHours}h left`, isUrgent: true };
       }
     }
   }
 
-  // Deterministic DiceBear fallback
-  const fallbackBanner = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(event.slug || event.id)}&backgroundColor=0f172a,1e1b4b,18181b`;
-  const displayBanner = event.bannerUrl || fallbackBanner;
+  const displayBanner =
+    event.bannerUrl ||
+    `https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&auto=format&fit=crop&q=80`;
 
   async function handleQuickRegister(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (isMutating || isRegistered) return;
+    if (isRegistered || isMutating || closed) return;
 
+    sounds.tap();
+    haptics.medium();
     setIsMutating(true);
+
     try {
       const res = await fetch(`/api/events/${event.id}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ registrationType: "SOLO" }),
+        body: JSON.stringify({}),
       });
 
-      const data = (await res.json()) as { error?: string };
       if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(data.error || "Failed to register");
       }
 
-      sounds.pop();
-      haptics.medium();
       setIsRegistered(true);
       setAttendeeCount((prev) => prev + 1);
+      sounds.pop();
+      haptics.heavy();
       toast.success("Registered for event! +25 Loop Points");
       mutate("/api/events");
     } catch (err) {
@@ -139,321 +171,165 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   function handleShare(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/app/events/${event.slug || event.id}`;
+    const url = `${window.location.origin}/events/${event.slug || event.id}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url);
+      sounds.tap();
+      haptics.light();
       toast.success("Event link copied to clipboard!");
     }
-    sounds.tap();
-    haptics.light();
   }
 
+  // ─── Grid View Variant (Clean Unstop Card) ───
   if (variant === "grid") {
     return (
       <Link
         href={`/events/${event.slug || event.id}`}
-        className="group relative flex flex-col justify-between rounded-3xl border border-border/30 bg-card/60 hover:bg-card/90 p-3 sm:p-4 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden"
+        className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card hover:border-border transition-all duration-200 hover:shadow-md overflow-hidden"
       >
-        <div className="space-y-3">
-          {/* Banner with Mode & Live Status */}
-          <div className="relative aspect-16/9 w-full overflow-hidden rounded-2xl bg-muted/40 border border-border/20">
+        <div>
+          {/* Banner with clean semantic overlays */}
+          <div className="relative aspect-16/9 w-full overflow-hidden bg-muted/40">
             <img
               src={displayBanner}
               alt={event.title}
               loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className={cn(
+                "h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]",
+                closed && "grayscale-[35%] opacity-90"
+              )}
             />
 
-            {/* Gradient Scrim */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent" />
 
-            {/* Top Left Tags: Mode & Live Status */}
+            {/* Top Left: Category & Live Indicator */}
             <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-              <span className="rounded-lg bg-black/75 backdrop-blur-md px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider shadow-xs">
-                {event.mode}
+              <span className="rounded-md bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-white tracking-wide border border-white/10">
+                {event.eventType.toLowerCase().replace(/_/g, " ")}
               </span>
+
               {isOngoing ? (
-                <span className="inline-flex items-center gap-1 rounded-lg bg-red-500/90 text-white backdrop-blur-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider animate-pulse shadow-xs">
+                <span className="inline-flex items-center gap-1 rounded-md bg-rose-600/90 text-white backdrop-blur-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
                   <span className="size-1.5 rounded-full bg-white animate-ping" />
-                  Live Now
+                  Live
                 </span>
-              ) : startsToday ? (
-                <span className="rounded-lg bg-amber-500/90 text-black backdrop-blur-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-xs">
-                  In {hoursUntilStart}h
+              ) : startsSoon ? (
+                <span className="rounded-md bg-amber-500/90 text-zinc-950 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold">
+                  Starts in {hoursUntilStart}h
+                </span>
+              ) : closed ? (
+                <span className="rounded-md bg-zinc-800/90 text-zinc-300 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium border border-white/10">
+                  Ended
                 </span>
               ) : null}
             </div>
 
-            {/* Top Right: Event Type */}
-            <div className="absolute top-2.5 right-2.5 rounded-lg bg-primary/90 text-primary-foreground backdrop-blur-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-xs">
-              {event.eventType}
-            </div>
-
-            {/* Bottom Floating Deadline */}
-            {deadlineText && (
-              <div
+            {/* Top Right: Mode (Online/Offline) */}
+            <div className="absolute top-2.5 right-2.5">
+              <span
                 className={cn(
-                  "absolute bottom-2 left-2.5 right-2.5 rounded-lg px-2 py-0.5 text-[10px] font-black text-center backdrop-blur-md truncate shadow-xs",
-                  isUrgentDeadline
-                    ? "bg-red-500/90 text-white animate-pulse"
-                    : "bg-black/75 text-amber-300 border border-amber-500/30"
+                  "rounded-md px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md border",
+                  event.mode === "ONLINE"
+                    ? "bg-sky-950/80 text-sky-200 border-sky-400/20"
+                    : "bg-emerald-950/80 text-emerald-200 border-emerald-400/20"
                 )}
               >
-                {deadlineText}
+                {event.mode === "ONLINE" ? "Online" : "On-Campus"}
+              </span>
+            </div>
+
+            {/* Bottom floating deadline */}
+            {deadlineStatus && (
+              <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[11px] font-medium text-white/95">
+                <span
+                  className={cn(
+                    "px-2 py-0.5 rounded-md backdrop-blur-md text-[10px] font-semibold truncate max-w-full",
+                    deadlineStatus.isUrgent
+                      ? "bg-rose-600/90 text-white font-bold"
+                      : closed
+                        ? "bg-black/60 text-zinc-300"
+                        : "bg-black/60 text-amber-200 border border-white/10"
+                  )}
+                >
+                  {deadlineStatus.label}
+                </span>
+                {event.entryFee && (
+                  <span className="bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-bold border border-white/10">
+                    {event.entryFee}
+                  </span>
+                )}
               </div>
             )}
           </div>
 
-          {/* Club & Campus Eligibility */}
-          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span className="font-bold text-foreground truncate text-[11px] sm:text-xs">
-              {event.clubName}
-            </span>
-            {isRestricted ? (
-              <span className="inline-flex items-center gap-1 text-[10px] text-amber-500 font-bold shrink-0">
-                <School className="size-3" />
-                Campus Hub
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground shrink-0">
-                <Globe className="size-3" />
-                All India
-              </span>
-            )}
-          </div>
-
-          {/* Title & Tagline */}
-          <div className="space-y-1">
-            <h3 className="text-sm sm:text-base font-black leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-2">
-              {event.title}
-            </h3>
-            {event.tagline && (
-              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{event.tagline}</p>
-            )}
-          </div>
-
-          {/* Badges / Perks */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-            {event.prizesDescription && (
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-500 text-[11px] font-black">
-                <Trophy className="size-3 shrink-0" />
-                <span className="truncate max-w-[140px]">{event.prizesDescription}</span>
+          {/* Card Body */}
+          <div className="p-3.5 sm:p-4 space-y-2.5">
+            {/* Organizer & Scope */}
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="font-semibold text-foreground/90 truncate text-[11px] sm:text-xs">
+                  {event.clubName}
+                </span>
               </div>
-            )}
 
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/50 text-muted-foreground text-[10px] font-medium border border-border/20">
-              <AnimateCalendar size={12} />
-              <span>{dateStr}</span>
+              {isRestricted ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground shrink-0">
+                  <School className="size-3 text-primary shrink-0" />
+                  <span>Campus Only</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground shrink-0">
+                  <Globe className="size-3 text-muted-foreground shrink-0" />
+                  <span>All India</span>
+                </span>
+              )}
             </div>
 
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/50 text-muted-foreground text-[10px] font-medium border border-border/20">
-              <AnimateUsers size={12} />
-              <span>
-                {event.participationType === "TEAM"
-                  ? "Team"
-                  : event.participationType === "BOTH"
-                    ? "Solo/Team"
-                    : "Individual"}
-              </span>
+            {/* Title & Tagline */}
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                {event.title}
+              </h3>
+              {event.tagline && (
+                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground leading-relaxed">
+                  {event.tagline}
+                </p>
+              )}
             </div>
 
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black border border-primary/20">
-              <span>+{event.loopPointsReward || 25} LP</span>
+            {/* Key Metadata Strip (Unstop Style) */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-1 text-xs text-muted-foreground border-t border-border/40">
+              <div className="flex items-center gap-1">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+                <span className="font-medium text-[11px]">{dateStr}</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Users className="size-3.5 text-muted-foreground shrink-0" />
+                <span className="font-medium text-[11px]">
+                  {event.participationType === "TEAM"
+                    ? "Team"
+                    : event.participationType === "BOTH"
+                      ? "Solo / Team"
+                      : "Individual"}
+                </span>
+              </div>
+
+              {event.prizesDescription && (
+                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold text-[11px]">
+                  <Trophy className="size-3.5 shrink-0" />
+                  <span className="truncate max-w-[130px]">{event.prizesDescription}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Price, Attendees Stack & Actions */}
-        <div className="flex items-center justify-between border-t border-border/20 pt-3 mt-4">
+        {/* Footer: Attendees + CTA */}
+        <div className="flex items-center justify-between border-t border-border/40 px-3.5 sm:px-4 py-2.5 bg-muted/20">
           <div className="flex items-center gap-2 min-w-0">
-            {/* Attendee Avatar Stack */}
             {event.recentAttendees && event.recentAttendees.length > 0 ? (
               <div className="flex items-center -space-x-1.5 shrink-0">
-                {event.recentAttendees.slice(0, 3).map((att) => (
-                  <img
-                    key={att.id}
-                    src={getAvatarUrl(att.avatarUrl, att.username)}
-                    alt={att.displayName || att.username}
-                    className="size-5.5 rounded-full border-2 border-background object-cover bg-muted shrink-0"
-                    title={`@${att.username}`}
-                  />
-                ))}
-              </div>
-            ) : null}
-
-            <div className="text-xs truncate">
-              <span className="font-black text-foreground">{event.entryFee || "Free"}</span>
-              <span className="text-[10px] text-muted-foreground ml-1.5">· {attendeeCount} going</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={handleShare}
-              title="Share event link"
-              className="flex size-8 items-center justify-center rounded-full border border-border/40 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              <Share2 className="size-3.5" />
-            </button>
-
-            <AddToCalendarDropdown
-              event={{
-                id: event.id,
-                title: event.title,
-                description: event.description,
-                venue: event.venue,
-                mode: event.mode,
-                startDate: event.startDate,
-                endDate: event.endDate,
-                slug: event.slug,
-                clubName: event.clubName,
-              }}
-              variant="button"
-            />
-
-            <button
-              type="button"
-              onClick={event.participationType === "TEAM" ? undefined : handleQuickRegister}
-              disabled={isMutating || isRegistered}
-              className={cn(
-                "flex h-8 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-xs font-black transition-all active:scale-95 shadow-xs",
-                isRegistered
-                  ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : "bg-primary text-primary-foreground hover:opacity-90"
-              )}
-            >
-              {isRegistered ? (
-                <>
-                  <AnimateCheck size={14} />
-                  <span>Joined</span>
-                </>
-              ) : event.participationType === "TEAM" ? (
-                "Form Team"
-              ) : (
-                "RSVP"
-              )}
-            </button>
-          </div>
-        </div>
-      </Link>
-    );
-  }
-
-  // ─── Row / List View Variant ───
-  return (
-    <Link
-      href={`/events/${event.slug || event.id}`}
-      className="group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-3xl border border-border/30 bg-card/60 hover:bg-card/90 transition-all duration-300 hover:border-primary/40 hover:shadow-md"
-    >
-      {/* Thumbnail with Mode & Live Status */}
-      <div className="relative size-24 sm:size-28 shrink-0 overflow-hidden rounded-2xl bg-muted/40 aspect-square border border-border/20">
-        <img
-          src={displayBanner}
-          alt={event.title}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-
-        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
-
-        {/* Mode Tag */}
-        <div className="absolute top-1.5 left-1.5 rounded-md bg-black/75 backdrop-blur-md px-1.5 py-0.2 text-[9px] font-black text-white uppercase tracking-wider">
-          {event.mode}
-        </div>
-
-        {/* Live Status */}
-        {isOngoing ? (
-          <div className="absolute top-1.5 right-1.5 rounded-md bg-red-500/90 text-white backdrop-blur-md px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider animate-pulse">
-            Live
-          </div>
-        ) : null}
-
-        {deadlineText && (
-          <div
-            className={cn(
-              "absolute bottom-1.5 left-1.5 right-1.5 rounded-md px-1 py-0.2 text-[8px] sm:text-[9px] font-black text-center backdrop-blur-md truncate",
-              isUrgentDeadline ? "bg-red-500/90 text-white animate-pulse" : "bg-black/75 text-amber-300"
-            )}
-          >
-            {deadlineText}
-          </div>
-        )}
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 sm:gap-2 self-stretch">
-        <div>
-          {/* Club & Eligibility */}
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
-            <span className="font-bold text-foreground truncate max-w-[140px] sm:max-w-none">
-              {event.clubName}
-            </span>
-            <span aria-hidden className="opacity-40">
-              ·
-            </span>
-            <span className="capitalize font-semibold text-primary">{event.eventType.toLowerCase()}</span>
-            <span aria-hidden className="opacity-40">
-              ·
-            </span>
-            {isRestricted ? (
-              <span className="inline-flex items-center gap-0.5 text-amber-500 font-medium">
-                <School className="size-2.5" />
-                Campus Hub
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-0.5 font-medium">
-                <Globe className="size-2.5" />
-                All India
-              </span>
-            )}
-          </div>
-
-          <h3 className="mt-0.5 text-sm sm:text-base font-black leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-1 sm:line-clamp-2">
-            {event.title}
-          </h3>
-
-          {event.tagline && (
-            <p className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
-              {event.tagline}
-            </p>
-          )}
-        </div>
-
-        {/* Badges */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          {event.prizesDescription && (
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] sm:text-[11px] font-black">
-              <Trophy className="size-3 shrink-0" />
-              <span className="truncate max-w-[140px] sm:max-w-[200px]">{event.prizesDescription}</span>
-            </div>
-          )}
-
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/50 text-muted-foreground text-[10px] sm:text-[11px] font-medium border border-border/20">
-            <AnimateCalendar size={12} />
-            <span>{dateStr}</span>
-          </div>
-
-          <div className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/50 text-muted-foreground text-xs font-medium border border-border/20">
-            <AnimateUsers size={12} />
-            <span>
-              {event.participationType === "TEAM"
-                ? "Team Event"
-                : event.participationType === "BOTH"
-                  ? "Solo / Team"
-                  : "Individual"}
-            </span>
-          </div>
-
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-[10px] sm:text-xs font-black border border-primary/20">
-            <span>+{event.loopPointsReward || 25} LP</span>
-          </div>
-        </div>
-
-        {/* Footer info & Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/20 pt-2 mt-auto">
-          <div className="flex items-center gap-2 text-[11px] sm:text-xs text-muted-foreground min-w-0">
-            {event.recentAttendees && event.recentAttendees.length > 0 && (
-              <div className="flex items-center -space-x-1 shrink-0">
                 {event.recentAttendees.slice(0, 3).map((att) => (
                   <img
                     key={att.id}
@@ -464,18 +340,19 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
                   />
                 ))}
               </div>
-            )}
-            <span className="font-bold text-foreground">{event.entryFee || "Free"}</span>
-            <span aria-hidden>·</span>
-            <span className="text-[10px] sm:text-[11px]">{attendeeCount} going</span>
+            ) : null}
+
+            <span className="text-[11px] text-muted-foreground font-medium truncate">
+              {attendeeCount} {attendeeCount === 1 ? "student" : "students"}
+            </span>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handleShare}
               title="Share event link"
-              className="flex size-7.5 sm:size-8 items-center justify-center rounded-full border border-border/40 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="flex size-7.5 items-center justify-center rounded-lg border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <Share2 className="size-3.5" />
             </button>
@@ -495,29 +372,199 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
               variant="button"
             />
 
+            {closed ? (
+              <span className="inline-flex h-7.5 items-center px-3 rounded-lg border border-border/60 bg-muted/60 text-muted-foreground text-xs font-semibold">
+                Closed
+              </span>
+            ) : isRegistered ? (
+              <span className="inline-flex h-7.5 items-center gap-1 px-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                <Check className="size-3.5" />
+                Joined
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={event.participationType === "TEAM" ? undefined : handleQuickRegister}
+                disabled={isMutating}
+                className="inline-flex h-7.5 items-center gap-1 px-3 rounded-lg bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
+              >
+                {event.participationType === "TEAM" ? "Team" : "RSVP"}
+              </button>
+            )}
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // ─── Row / List View Variant (Standard Unstop Timeline Card) ───
+  return (
+    <Link
+      href={`/events/${event.slug || event.id}`}
+      className="group relative flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border border-border/60 bg-card hover:border-border transition-all duration-200 hover:shadow-md"
+    >
+      <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+        {/* Thumbnail */}
+        <div className="relative size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl bg-muted/40 aspect-square border border-border/30">
+          <img
+            src={displayBanner}
+            alt={event.title}
+            loading="lazy"
+            className={cn(
+              "h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]",
+              closed && "grayscale-[35%] opacity-90"
+            )}
+          />
+
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
+
+          {/* Mode Pill */}
+          <div className="absolute top-1 left-1 rounded px-1.5 py-0.2 text-[8px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-white">
+            {event.mode === "ONLINE" ? "Online" : "Campus"}
+          </div>
+
+          {isOngoing ? (
+            <div className="absolute top-1 right-1 rounded px-1.5 py-0.2 text-[8px] font-bold uppercase bg-rose-600/90 text-white">
+              Live
+            </div>
+          ) : closed ? (
+            <div className="absolute top-1 right-1 rounded px-1.5 py-0.2 text-[8px] font-bold bg-zinc-800/90 text-zinc-300">
+              Ended
+            </div>
+          ) : null}
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1 space-y-1">
+          {/* Organizer & Meta */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+            <span className="font-semibold text-foreground/90 truncate max-w-[140px] sm:max-w-none">
+              {event.clubName}
+            </span>
+            <span aria-hidden className="opacity-40">
+              ·
+            </span>
+            <span className="capitalize font-medium text-foreground/80">
+              {event.eventType.toLowerCase().replace(/_/g, " ")}
+            </span>
+            <span aria-hidden className="opacity-40">
+              ·
+            </span>
+            {isRestricted ? (
+              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                <School className="size-3 text-primary shrink-0" />
+                <span>Campus Only</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                <Globe className="size-3 shrink-0" />
+                <span>All India</span>
+              </span>
+            )}
+          </div>
+
+          {/* Title */}
+          <h3 className="text-sm sm:text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-1 sm:line-clamp-2">
+            {event.title}
+          </h3>
+
+          {/* Highlights Row */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <span className="font-medium text-[11px]">{dateStr}</span>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1">
+              <Users className="size-3.5 text-muted-foreground shrink-0" />
+              <span className="font-medium text-[11px]">
+                {event.participationType === "TEAM"
+                  ? "Team"
+                  : event.participationType === "BOTH"
+                    ? "Solo / Team"
+                    : "Solo"}
+              </span>
+            </div>
+
+            {event.prizesDescription && (
+              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold text-[11px]">
+                <Trophy className="size-3.5 shrink-0" />
+                <span className="truncate max-w-[140px] sm:max-w-[180px]">{event.prizesDescription}</span>
+              </div>
+            )}
+
+            {deadlineStatus && (
+              <span
+                className={cn(
+                  "text-[11px] font-medium",
+                  deadlineStatus.isUrgent
+                    ? "text-rose-600 dark:text-rose-400 font-semibold"
+                    : closed
+                      ? "text-muted-foreground"
+                      : "text-muted-foreground"
+                )}
+              >
+                · {deadlineStatus.label}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Column / Actions Strip */}
+      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
+        <div className="text-right">
+          <p className="text-xs font-bold text-foreground">{event.entryFee || "Free"}</p>
+          <p className="text-[10px] text-muted-foreground font-medium">
+            {attendeeCount} registered
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleShare}
+            title="Share event link"
+            className="flex size-7.5 items-center justify-center rounded-lg border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <Share2 className="size-3.5" />
+          </button>
+
+          <AddToCalendarDropdown
+            event={{
+              id: event.id,
+              title: event.title,
+              description: event.description,
+              venue: event.venue,
+              mode: event.mode,
+              startDate: event.startDate,
+              endDate: event.endDate,
+              slug: event.slug,
+              clubName: event.clubName,
+            }}
+            variant="button"
+          />
+
+          {closed ? (
+            <span className="inline-flex h-8 items-center px-3 rounded-lg border border-border/60 bg-muted/60 text-muted-foreground text-xs font-semibold">
+              Closed
+            </span>
+          ) : isRegistered ? (
+            <span className="inline-flex h-8 items-center gap-1 px-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+              <Check className="size-3.5" />
+              Joined
+            </span>
+          ) : (
             <button
               type="button"
               onClick={event.participationType === "TEAM" ? undefined : handleQuickRegister}
-              disabled={isMutating || isRegistered}
-              className={cn(
-                "flex h-7.5 sm:h-8 cursor-pointer items-center gap-1.5 rounded-full px-3.5 sm:px-4 text-xs font-black transition-all active:scale-95 shadow-xs",
-                isRegistered
-                  ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : "bg-primary text-primary-foreground hover:opacity-90"
-              )}
+              disabled={isMutating}
+              className="inline-flex h-8 items-center gap-1 px-3.5 rounded-lg bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
             >
-              {isRegistered ? (
-                <>
-                  <AnimateCheck size={14} />
-                  <span>Joined</span>
-                </>
-              ) : event.participationType === "TEAM" ? (
-                "Form Team"
-              ) : (
-                "RSVP"
-              )}
+              <span>{event.participationType === "TEAM" ? "Team" : "RSVP"}</span>
+              <ChevronRight className="size-3.5" />
             </button>
-          </div>
+          )}
         </div>
       </div>
     </Link>
