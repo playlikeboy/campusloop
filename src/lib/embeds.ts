@@ -237,7 +237,7 @@ export function isMediaImageUrl(url: string): boolean {
       host.includes("cdn.discordapp.com") ||
       host.includes("media.tenor.com") ||
       host.includes("giphy.com") ||
-      parsed.pathname.includes("/api/files/r2/images/") ||
+      parsed.pathname.includes("/api/files/r2/images/")
     ) {
       return true;
     }
