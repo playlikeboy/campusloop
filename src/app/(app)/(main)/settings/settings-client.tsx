@@ -1,38 +1,38 @@
 "use client";
 
 import {
+  ArrowLeft,
   Bell,
-  ChevronRight,
   Check,
+  ChevronRight,
+  Eye,
   Globe2,
-  LockKeyhole,
+  Lock,
+  Moon,
   RotateCcw,
+  Save,
   School,
+  Shield,
   ShieldCheck,
-  SlidersHorizontal,
+  Sliders,
+  Sparkles,
+  Sun,
   Terminal,
-  VenetianMask,
+  User,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ComponentType, type FormEvent } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-
 import { NotificationPreferencesPanel } from "@/components/notifications/notification-preferences-panel";
 import { PushNotificationToggle } from "@/components/notifications/push-notification-toggle";
-import {
-  AnimatedIcon,
-  AnimatedLock,
-  AnimatedSettings,
-  AnimatedShieldCheck,
-  AnimatedUser,
-} from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignOutButton } from "@/components/ui/sign-out-button";
+import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl } from "@/lib/utils";
-
-type IconComponent = ComponentType<{ className?: string }>;
 
 interface SettingsClientProps {
   profile: {
@@ -52,150 +52,76 @@ interface SettingsClientProps {
   };
 }
 
-function SectionHeader({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: IconComponent;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="mb-4 flex items-start gap-3">
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary">
-        <Icon className="size-5" />
-      </div>
-      <div className="min-w-0 pt-0.5">
-        <h2 className="text-base font-bold tracking-tight text-foreground">{title}</h2>
-        {description ? (
-          <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function SettingRow({
-  icon: Icon,
-  title,
-  description,
-  href,
-}: {
-  icon: IconComponent;
-  title: string;
-  description: string;
-  href?: string;
-}) {
-  const content = (
-    <div className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/35 px-3.5 py-3 transition-all hover:border-primary/25 hover:bg-background/70">
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted/70 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-        <Icon className="size-4.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{description}</p>
-      </div>
-      {href ? <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" /> : null}
-    </div>
-  );
-
-  return href ? (
-    <Link href={href} className="block">
-      {content}
-    </Link>
-  ) : (
-    content
-  );
-}
-
-function ToggleRow({
-  icon: Icon,
-  title,
-  description,
-  value,
-  disabled = false,
-  onChange,
-}: {
-  icon: IconComponent;
-  title: string;
-  description: string;
-  value: boolean;
-  disabled?: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={value}
-      aria-label={title}
-      disabled={disabled}
-      onClick={() => onChange(!value)}
-      className={cn(
-        "group flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-all",
-        disabled
-          ? "cursor-not-allowed border-border/40 bg-muted/10 opacity-50"
-          : "cursor-pointer border-border/70 bg-background/35 hover:border-primary/20 hover:bg-background/70 active:scale-[0.995]",
-      )}
-    >
-      <div
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
-          value ? "bg-primary/10 text-primary" : "bg-muted/70 text-muted-foreground",
-        )}
-      >
-        <Icon className="size-4.5" />
-      </div>
-
-      <div className="min-w-0 flex-1 pr-2">
-        <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{description}</p>
-      </div>
-
-      <span
-        className={cn(
-          "relative inline-flex h-6 w-11 shrink-0 rounded-full p-0.5 transition-colors",
-          value ? "bg-primary" : "bg-muted-foreground/30",
-        )}
-        aria-hidden="true"
-      >
-        <span
-          className={cn(
-            "size-5 rounded-full bg-white shadow-sm transition-transform",
-            value ? "translate-x-5" : "translate-x-0",
-          )}
-        />
-      </span>
-    </button>
-  );
-}
-
 export function SettingsClient({ profile }: SettingsClientProps) {
   const router = useRouter();
-  const [displayName, setDisplayName] = useState(profile.displayName);
+  const { theme, setTheme } = useTheme();
+
+  // Profile Form State
+  const [displayName, setDisplayName] = useState(profile.displayName || "");
   const [bio, setBio] = useState(profile.bio || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
   const [anonUsername, setAnonUsername] = useState(profile.anonymousUsername || "");
   const [feedVisibility, setFeedVisibility] = useState<"ALL" | "NON_ANONYMOUS">(
-    (profile.feedVisibility as "ALL" | "NON_ANONYMOUS") || "ALL",
+    (profile.feedVisibility as "ALL" | "NON_ANONYMOUS") || "ALL"
   );
+  const [defaultScope, setDefaultScope] = useState<"CAMPUS" | "GLOBAL">("GLOBAL");
   const [isSaving, setIsSaving] = useState(false);
-  const [defaultScope, setDefaultScope] = useState<"GLOBAL" | "CAMPUS">("GLOBAL");
-  const [notifyUpvotes, setNotifyUpvotes] = useState(true);
-  const [notifyComments, setNotifyComments] = useState(true);
 
-  const currentAvatar = getAvatarUrl(avatarUrl, profile.username);
+  // Load feed scope from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedScope = localStorage.getItem("campusloop_default_scope");
+      if (savedScope === "CAMPUS" || savedScope === "GLOBAL") {
+        setDefaultScope(savedScope);
+      }
+    }
+  }, []);
+
+  // Track if changes are dirty
+  const isDirty =
+    displayName !== (profile.displayName || "") ||
+    bio !== (profile.bio || "") ||
+    avatarUrl !== profile.avatarUrl ||
+    anonUsername !== (profile.anonymousUsername || "");
+
+  const currentAvatar = getAvatarUrl(avatarUrl, profile.username, displayName);
   const rewardProgress = Math.min(profile.points / 150, 1);
 
-  function handleResetToDefaultAvatar() {
-    const defaultSvg = getAvatarUrl(null, profile.username, profile.displayName);
+  function handleResetToMonogram() {
+    sounds.tap();
+    haptics.light();
+    const defaultSvg = getAvatarUrl(null, profile.username, displayName);
     setAvatarUrl(defaultSvg);
-    toast.success("Avatar reset to your monogram.");
+    toast.success("Avatar reset to clean monogram.");
+  }
+
+  function handleDiscardChanges() {
+    sounds.tap();
+    haptics.light();
+    setDisplayName(profile.displayName || "");
+    setBio(profile.bio || "");
+    setAvatarUrl(profile.avatarUrl);
+    setAnonUsername(profile.anonymousUsername || "");
+  }
+
+  function handleScopeChange(nextScope: "CAMPUS" | "GLOBAL") {
+    sounds.tap();
+    haptics.light();
+    setDefaultScope(nextScope);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("campusloop_default_scope", nextScope);
+    }
+    toast.success(
+      nextScope === "CAMPUS"
+        ? "Default feed set to your college."
+        : "Default feed set to All India."
+    );
   }
 
   async function handleFeedVisibilityChange(mode: "ALL" | "NON_ANONYMOUS") {
     const previous = feedVisibility;
+    sounds.tap();
+    haptics.medium();
     setFeedVisibility(mode);
 
     if (typeof window !== "undefined") {
@@ -210,30 +136,28 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         body: JSON.stringify({ feedVisibility: mode }),
       });
 
-      if (!res.ok) {
-        throw new Error("Could not save feed mode preference.");
-      }
+      if (!res.ok) throw new Error("Could not update feed mode.");
 
       toast.success(
         mode === "NON_ANONYMOUS"
-          ? "Anonymous posts hidden from your feed."
-          : "All post types are visible again.",
+          ? "Anonymous posts hidden from feed."
+          : "All campus posts visible."
       );
     } catch {
       setFeedVisibility(previous);
-
       if (typeof window !== "undefined") {
         localStorage.setItem("campusloop_feed_visibility", previous);
       }
-
       toast.error("Could not save feed mode preference.");
     }
   }
 
-  async function handleSaveSettings(e: FormEvent) {
-    e.preventDefault();
-    if (isSaving) return;
+  async function handleSaveSettings(e?: FormEvent) {
+    if (e) e.preventDefault();
+    if (isSaving || !displayName.trim()) return;
 
+    sounds.tap();
+    haptics.medium();
     setIsSaving(true);
 
     try {
@@ -245,8 +169,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          displayName,
-          bio,
+          displayName: displayName.trim(),
+          bio: bio.trim(),
           avatarUrl,
           anonymousUsername: cleanAnon,
           feedVisibility,
@@ -254,136 +178,134 @@ export function SettingsClient({ profile }: SettingsClientProps) {
       });
 
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
-        throw new Error(data.error || "Failed to save settings");
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "Failed to save profile changes.");
       }
 
-      toast.success("Profile settings saved.");
+      sounds.pop();
+      haptics.heavy();
+      toast.success("Profile updated successfully!");
       router.refresh();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not save settings.");
+      toast.error(err instanceof Error ? err.message : "Could not save profile.");
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl pb-28 text-foreground">
-      <div className="px-4 pb-10 pt-5 sm:px-6 lg:px-8">
-        <header className="mb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
-              <AnimatedIcon icon={AnimatedSettings} animation="spin" size={21} duration={0.8} />
+    <div className="mx-auto min-h-screen w-full max-w-2xl px-3 sm:px-6 py-4 pb-32 text-foreground">
+      {/* ─── Mobile-First Top Header ─── */}
+      <div className="sticky top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-background/95 backdrop-blur-xl border-b border-border/40 flex items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Link
+            href="/feeds"
+            className="flex size-9 items-center justify-center rounded-xl border border-border/50 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0"
+            title="Back to Feed"
+          >
+            <ArrowLeft className="size-4" />
+          </Link>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground truncate">
+              Settings &amp; Account
+            </h1>
+            <p className="text-[11px] text-muted-foreground truncate font-medium">
+              @{profile.username} · {profile.institutionName}
+            </p>
+          </div>
+        </div>
+
+        {isDirty && (
+          <button
+            type="button"
+            onClick={() => handleSaveSettings()}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 h-8.5 px-3.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
+          >
+            <Check className="size-3.5" />
+            <span>{isSaving ? "Saving..." : "Save"}</span>
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-5">
+        {/* ─── 1. Identity & Student Verification Card ─── */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-3">
+            <div className="flex items-center gap-2">
+              <User className="size-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground">Campus Profile</h2>
             </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Settings &amp; Account</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Keep your profile, privacy, and CampusLoop experience under control.
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-semibold">
+              <ShieldCheck className="size-3 shrink-0" />
+              <span>Verified Student</span>
+            </div>
+          </div>
+
+          {/* Avatar Snapshot + Quick Monogram Reset */}
+          <div className="flex items-center gap-4">
+            <Avatar className="size-16 sm:size-18 rounded-2xl border-2 border-primary/20 shadow-xs shrink-0">
+              <AvatarImage src={currentAvatar} alt={displayName} />
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg rounded-2xl">
+                {displayName.charAt(0)?.toUpperCase() || "C"}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="text-sm font-bold text-foreground truncate">{displayName || "Your Name"}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 truncate font-medium">
+                <School className="size-3 text-primary shrink-0" />
+                <span>{profile.institutionName}</span>
               </p>
+              <button
+                type="button"
+                onClick={handleResetToMonogram}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline pt-0.5 cursor-pointer"
+              >
+                <RotateCcw className="size-3" />
+                <span>Reset to clean monogram</span>
+              </button>
             </div>
           </div>
-        </header>
 
-        <section className="relative overflow-hidden rounded-[28px] border border-primary/15 bg-linear-to-br from-primary/10 via-card to-card p-4 shadow-sm sm:p-6">
-          <div className="pointer-events-none absolute -right-16 -top-16 size-44 rounded-full bg-primary/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 left-12 size-40 rounded-full bg-violet-500/5 blur-3xl" />
-
-          <div className="relative">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <AnimatedIcon icon={AnimatedUser} animation="pop" size={19} className="text-primary" />
-                <h2 className="text-base font-bold">Campus Identity</h2>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400">
-                <AnimatedIcon icon={AnimatedShieldCheck} animation="pop" size={14} />
-                Verified student
-              </div>
+          {/* Editable Fields */}
+          <div className="space-y-3 pt-1">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Display Name</label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                required
+                maxLength={40}
+                placeholder="e.g. Alex Sharma"
+                className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 px-3.5 text-xs font-medium text-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
+              />
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.2fr)] lg:items-center">
-              <div className="flex items-center gap-4 sm:gap-5">
-                <div className="shrink-0 rounded-[24px] bg-linear-to-br from-primary/30 via-primary/8 to-transparent p-1">
-                  <Avatar className="size-24 border-4 border-background/80 shadow-xl sm:size-28">
-                    <AvatarImage src={currentAvatar} alt={displayName} />
-                    <AvatarFallback className="bg-primary/10 text-2xl font-black text-primary">
-                      {displayName?.charAt(0)?.toUpperCase() || "C"}
-                    </AvatarFallback>
-                  </Avatar>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-muted-foreground">Campus Handle</label>
+                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <Lock className="size-2.5" /> Locked
+                  </span>
                 </div>
-
-                <div className="min-w-0">
-                  <p className="text-xl font-black tracking-tight sm:text-2xl">@{profile.username}</p>
-                  <p className="mt-1 flex items-start gap-1.5 text-sm leading-5 text-muted-foreground">
-                    <School className="mt-0.5 size-4 shrink-0 text-primary" />
-                    <span className="min-w-0">{profile.institutionName}</span>
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={handleResetToDefaultAvatar}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background/40 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary/25 hover:bg-background/75 active:scale-[0.98]"
-                  >
-                    <RotateCcw className="size-3.5 text-primary" />
-                    Reset monogram
-                  </button>
+                <div className="h-10 flex items-center px-3.5 rounded-xl border border-border/50 bg-muted/40 text-xs font-medium text-muted-foreground">
+                  @{profile.username}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                <div className="rounded-2xl border border-border/60 bg-background/35 p-3.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Campus</p>
-                  <p className="mt-1 line-clamp-2 text-sm font-bold">{profile.institutionName}</p>
-                </div>
-                <div className="rounded-2xl border border-border/60 bg-background/35 p-3.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Loop points</p>
-                  <p className="mt-1 text-lg font-black text-primary">{profile.points} LP</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <form onSubmit={handleSaveSettings} className="mt-4 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-sm">
-          <div className="border-b border-border/60 px-4 py-5 sm:px-6">
-            <SectionHeader
-              icon={SlidersHorizontal}
-              title="Profile details"
-              description="Update the identity other students see across CampusLoop."
-            />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="space-y-2">
-                <span className="text-xs font-semibold text-muted-foreground">Display name</span>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  required
-                  className="h-12 w-full rounded-2xl border border-border/70 bg-background/50 px-4 text-sm font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/50 focus:bg-background"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-xs font-semibold text-muted-foreground">Campus username</span>
-                <div className="flex h-12 items-center rounded-2xl border border-border/70 bg-background/35 px-4 text-sm font-semibold text-muted-foreground">
-                  <span className="text-primary">@</span>
-                  <span className="ml-1 truncate text-foreground">{profile.username}</span>
-                  <span className="ml-auto rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
-                    Locked
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-muted-foreground">Anonymous Alias</label>
+                  <span className="text-[10px] text-primary font-mono font-medium">
+                    {anonUsername ? `@${anonUsername}` : "auto"}
                   </span>
                 </div>
-              </label>
-
-              <label className="space-y-2 sm:col-span-2">
-                <span className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-                  <span>Anonymous username</span>
-                  <span className="font-mono text-[11px] text-primary">
-                    {anonUsername ? `@${anonUsername}` : "automatic"}
-                  </span>
-                </span>
                 <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm font-bold text-muted-foreground">
-                    🎭@
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    @
                   </span>
                   <input
                     type="text"
@@ -391,251 +313,330 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                     onChange={(e) =>
                       setAnonUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
                     }
-                    placeholder="campus_ninja"
                     maxLength={24}
-                    className="h-12 w-full rounded-2xl border border-border/70 bg-background/50 pl-14 pr-4 text-sm font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/50 focus:bg-background"
+                    placeholder="campus_ninja"
+                    className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 pl-7 pr-3 text-xs font-medium text-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
                   />
                 </div>
-                <p className="text-xs leading-5 text-muted-foreground">
-                  Anonymous confessions, polls, and questions use this alias instead of a random pseudonym.
-                </p>
-              </label>
+              </div>
+            </div>
 
-              <label className="space-y-2 sm:col-span-2">
-                <span className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-                  <span>Bio / campus vibe</span>
-                  <span>{bio.length}/280</span>
-                </span>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value.slice(0, 280))}
-                  placeholder="Interests, branch, goals, or what you're building..."
-                  rows={4}
-                  className="w-full resize-none rounded-2xl border border-border/70 bg-background/50 p-4 text-sm font-medium leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/50 focus:bg-background"
-                />
-              </label>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-muted-foreground">Bio / Campus Vibe</label>
+                <span className="text-[10px] text-muted-foreground">{bio.length}/280</span>
+              </div>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value.slice(0, 280))}
+                rows={3}
+                placeholder="What are you building, studying, or exploring on campus?"
+                className="w-full resize-none rounded-xl border border-border/60 bg-muted/30 p-3 text-xs font-medium text-foreground leading-relaxed outline-none transition-all focus:border-primary/50 focus:bg-background"
+              />
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-3 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <p className="text-xs text-muted-foreground">Changes apply across your CampusLoop profile.</p>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Check className="size-4" />
-              {isSaving ? "Saving..." : "Save profile changes"}
-            </button>
+        {/* ─── 2. Feed & Privacy Preferences ─── */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+            <Sliders className="size-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Timeline &amp; Anonymity Controls</h2>
           </div>
-        </form>
 
-        <section className="mt-4 rounded-[28px] border border-border/70 bg-card p-4 shadow-sm sm:p-6">
-          <SectionHeader
-            icon={Bell}
-            title="Notifications"
-            description="Choose how CampusLoop reaches you and which activity deserves your attention."
-          />
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-semibold text-foreground">Feed Anonymity Filter</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Switching instantly filters confessions &amp; anonymous posts from your timeline.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => handleFeedVisibilityChange("ALL")}
+                className={cn(
+                  "p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5",
+                  feedVisibility === "ALL"
+                    ? "border-primary/50 bg-primary/10 shadow-xs"
+                    : "border-border/60 bg-muted/20 hover:bg-muted/40"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
+                    feedVisibility === "ALL" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  <Globe2 className="size-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground">All Posts &amp; Anon</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                    Includes confessions, polls, and student whispers.
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleFeedVisibilityChange("NON_ANONYMOUS")}
+                className={cn(
+                  "p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5",
+                  feedVisibility === "NON_ANONYMOUS"
+                    ? "border-primary/50 bg-primary/10 shadow-xs"
+                    : "border-border/60 bg-muted/20 hover:bg-muted/40"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
+                    feedVisibility === "NON_ANONYMOUS"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  <ShieldCheck className="size-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground">Public Only</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                    Hides all anonymous confessions from your feed.
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* Default Scope Switcher */}
+            <div className="pt-2 border-t border-border/40 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-foreground">Default Campus Scope</p>
+                <p className="text-[10px] text-muted-foreground">Preferred default timeline view.</p>
+              </div>
+
+              <div className="flex items-center rounded-xl bg-muted/60 p-0.5 border border-border/50">
+                <button
+                  type="button"
+                  onClick={() => handleScopeChange("GLOBAL")}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    defaultScope === "GLOBAL"
+                      ? "bg-background text-foreground shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  All India
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleScopeChange("CAMPUS")}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    defaultScope === "CAMPUS"
+                      ? "bg-background text-foreground shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Campus
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── 3. Notifications & Device Alerts ─── */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+            <Bell className="size-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Notifications &amp; Alerts</h2>
+          </div>
+
           <div className="space-y-3">
             <PushNotificationToggle />
             <NotificationPreferencesPanel />
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ToggleRow
-                icon={Bell}
-                title="Upvote alerts"
-                description="Know when students react to your posts."
-                value={notifyUpvotes}
-                onChange={setNotifyUpvotes}
-              />
-              <ToggleRow
-                icon={Bell}
-                title="Comment & DM alerts"
-                description="Get notified about replies and messages."
-                value={notifyComments}
-                onChange={setNotifyComments}
-              />
-            </div>
           </div>
-        </section>
+        </div>
 
-        <section className="mt-4 rounded-[28px] border border-border/70 bg-card p-4 shadow-sm sm:p-6">
-          <SectionHeader
-            icon={Globe2}
-            title="Feed & privacy"
-            description="Shape what appears in your feed without affecting the rest of your account."
-          />
-
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-border/70 bg-background/35 p-3.5">
-              <div className="mb-3">
-                <p className="text-sm font-semibold">Feed visibility</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Pick whether anonymous content is included in your timeline.
-                </p>
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                {[
-                  {
-                    mode: "ALL" as const,
-                    title: "All post types",
-                    description: "Normal posts, confessions, polls, and anonymous thoughts.",
-                    icon: Globe2,
-                  },
-                  {
-                    mode: "NON_ANONYMOUS" as const,
-                    title: "Only non-anonymous",
-                    description: "Hide anonymous and pseudonymous content from your feed.",
-                    icon: ShieldCheck,
-                  },
-                ].map((option) => {
-                  const selected = feedVisibility === option.mode;
-                  const Icon = option.icon;
-
-                  return (
-                    <button
-                      key={option.mode}
-                      type="button"
-                      onClick={() => handleFeedVisibilityChange(option.mode)}
-                      className={cn(
-                        "rounded-2xl border p-3.5 text-left transition-all active:scale-[0.995]",
-                        selected
-                          ? "border-primary/50 bg-primary/10 shadow-[0_0_0_1px_rgba(244,81,42,0.18)]"
-                          : "border-border/60 bg-background/30 hover:border-border hover:bg-background/60",
-                      )}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div
-                          className={cn(
-                            "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                            selected ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
-                          )}
-                        >
-                          <Icon className="size-4" />
-                        </div>
-                        {selected ? <Check className="size-4 text-primary" /> : null}
-                      </div>
-                      <p className="mt-3 text-sm font-bold">{option.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{option.description}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-background/35 p-3.5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold">Default feed scope</p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Choose the view you want first when you open CampusLoop.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 rounded-2xl border border-border/60 bg-muted/70 p-1">
-                  {[
-                    { value: "GLOBAL" as const, label: "Global" },
-                    { value: "CAMPUS" as const, label: "My college" },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDefaultScope(option.value)}
-                      className={cn(
-                        "min-w-24 rounded-xl px-3 py-2 text-xs font-bold transition-all",
-                        defaultScope === option.value
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-4 rounded-[28px] border border-border/70 bg-card p-4 shadow-sm sm:p-6">
-          <SectionHeader
-            icon={Zap}
-            title="Loop rewards & developer access"
-            description="Your account extras, referral progress, and AI tooling live here."
-          />
-
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold">Loop Points</p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Unlock verified star badges at 150 LP.
-                  </p>
-                </div>
-                <p className="text-lg font-black text-primary">{profile.points} LP</p>
-              </div>
-
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-[width] duration-500"
-                  style={{ width: `${rewardProgress * 100}%` }}
-                />
-              </div>
-
-              <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
-                <span>0 LP</span>
-                <span>150 LP milestone</span>
-              </div>
-            </div>
-
-            <SettingRow
-              icon={Terminal}
-              title="MCP & API keys"
-              description="Connect Cursor, Windsurf, Claude Desktop, and other AI agents."
-              href="/developer"
-            />
-
-            <SettingRow
-              icon={School}
-              title="Verification & invites"
-              description="View badges and referral progress on your profile."
-              href="/profile"
-            />
-          </div>
-        </section>
-
-        <section className="mt-4 overflow-hidden rounded-[28px] border border-destructive/25 bg-destructive/5 shadow-sm">
-          <div className="border-b border-destructive/15 px-4 py-5 sm:px-6">
-            <SectionHeader
-              icon={LockKeyhole}
-              title="Security"
-              description="Sign out of this device when you're finished."
-            />
+        {/* ─── 4. Clout, Loop Points & Developer Tools ─── */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+            <Zap className="size-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Rewards &amp; Developer Tools</h2>
           </div>
 
-          <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div className="flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
-                <AnimatedIcon icon={AnimatedLock} animation="pop" size={18} />
-              </div>
+          {/* Loop Points Bar */}
+          <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 space-y-2.5">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold">Active student session</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  This only signs you out on the current device.
-                </p>
+                <p className="text-xs font-bold text-foreground">Loop Points Balance</p>
+                <p className="text-[10px] text-muted-foreground">Unlock Star Student badge at 150 LP.</p>
               </div>
+              <span className="text-base font-black text-primary">{profile.points} LP</span>
             </div>
 
-            <SignOutButton className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-destructive/25 bg-destructive px-5 text-sm font-bold text-destructive-foreground shadow-sm transition-all hover:bg-destructive/90 active:scale-[0.985]" />
-          </div>
-        </section>
+            <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${rewardProgress * 100}%` }}
+              />
+            </div>
 
-        <p className="pt-2 text-center text-xs text-muted-foreground/70">
-          CampusLoop settings · Built for campus life
-        </p>
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
+              <span>0 LP</span>
+              <span>150 LP (Star Badge)</span>
+            </div>
+          </div>
+
+          {/* Developer & Referral Links */}
+          <div className="divide-y divide-border/40">
+            <Link
+              href="/developer"
+              className="flex items-center justify-between py-2.5 group hover:text-primary transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary transition-colors">
+                  <Terminal className="size-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary">
+                    MCP &amp; Developer API
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Connect Claude Desktop, Cursor, or AI agent sidecars.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary" />
+            </Link>
+
+            <Link
+              href={`/@${profile.username}`}
+              className="flex items-center justify-between py-2.5 group hover:text-primary transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary transition-colors">
+                  <Sparkles className="size-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Invite Students &amp; Earn LP
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Share your campus referral link for +25 LP per signup.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary" />
+            </Link>
+          </div>
+        </div>
+
+        {/* ─── 5. Appearance & Security ─── */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+            <Moon className="size-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Theme &amp; Active Session</h2>
+          </div>
+
+          {/* Theme Switcher Buttons */}
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-foreground">App Appearance</p>
+              <p className="text-[10px] text-muted-foreground">Select light, dark, or system mode.</p>
+            </div>
+
+            <div className="flex items-center rounded-xl bg-muted/60 p-0.5 border border-border/50">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  setTheme("light");
+                }}
+                className={cn(
+                  "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                  theme === "light"
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Light Mode"
+              >
+                <Sun className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  setTheme("dark");
+                }}
+                className={cn(
+                  "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                  theme === "dark"
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Dark Mode"
+              >
+                <Moon className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  setTheme("system");
+                }}
+                className={cn(
+                  "px-2 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer",
+                  theme === "system"
+                    ? "bg-background text-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="System Auto"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+
+          {/* Sign Out Action */}
+          <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold text-foreground">Active Campus Session</p>
+              <p className="text-[10px] text-muted-foreground">Sign out of your account on this device.</p>
+            </div>
+            <SignOutButton className="inline-flex h-9 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs font-bold px-4 transition-all cursor-pointer active:scale-95 shrink-0" />
+          </div>
+        </div>
       </div>
-    </main>
+
+      {/* ─── Floating Sticky Action Bar for Unsaved Changes ─── */}
+      {isDirty && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-24px)] max-w-md rounded-2xl border border-border/70 bg-card/95 p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="min-w-0 pl-1">
+            <p className="text-xs font-bold text-foreground">Unsaved Changes</p>
+            <p className="text-[10px] text-muted-foreground truncate">Save your updated campus profile.</p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleDiscardChanges}
+              className="h-8 px-3 rounded-xl border border-border/60 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            >
+              Discard
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSaveSettings()}
+              disabled={isSaving}
+              className="h-8 px-4 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60 flex items-center gap-1.5"
+            >
+              <Save className="size-3.5" />
+              <span>{isSaving ? "Saving..." : "Save"}</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
