@@ -80,6 +80,13 @@ export {
   Smile as AnimateSmile,
 } from "lucide-react";
 
+export {
+  Lock as AnimatedLock,
+  Settings as AnimatedSettings,
+  ShieldCheck as AnimatedShieldCheck,
+  User as AnimatedUser,
+} from "@animateicons/react/lucide";
+
 /**
  * Matches `IconHandle` from @animateicons/react, so call sites are portable.
  */
