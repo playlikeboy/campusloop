@@ -145,11 +145,18 @@ export async function requireAdminApi(): Promise<AdminApiResult> {
     const authHeader = headersList.get("authorization") || headersList.get("x-api-key");
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader?.trim();
 
-    const adminPasskey = process.env.ADMIN_PASSKEY || "29092005";
+    const adminPasskey = process.env.ADMIN_PASSKEY;
     const sessionSecret = process.env.ADMIN_SESSION_SECRET;
     const serverKey = process.env.HEXCLAVE_SECRET_SERVER_KEY;
 
-    if (token && (token === adminPasskey || (sessionSecret && token === sessionSecret) || (serverKey && token === serverKey))) {
+    const isTokenAuthorized = Boolean(
+      token &&
+        ((adminPasskey && token === adminPasskey) ||
+          (sessionSecret && token === sessionSecret) ||
+          (serverKey && token === serverKey))
+    );
+
+    if (isTokenAuthorized) {
       const db = getDb();
       let profile = await db.query.userProfiles.findFirst({
         where: eq(userProfiles.role, "ADMIN"),

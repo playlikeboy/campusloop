@@ -63,13 +63,11 @@ export async function POST(req: NextRequest) {
       process.env.ADMIN_PASSKEY,
       process.env.ADMIN_SESSION_SECRET,
       process.env.HEXCLAVE_SECRET_SERVER_KEY,
-    ].filter(Boolean);
+    ].filter((t): t is string => Boolean(t && t.length > 0));
 
     if (
       (token && validTokens.includes(token)) ||
-      (apiKeyHeader && validTokens.includes(apiKeyHeader)) ||
-      token === "29092005" ||
-      apiKeyHeader === "29092005"
+      (apiKeyHeader && validTokens.includes(apiKeyHeader))
     ) {
       user = { id: "admin_api_user" };
     }
