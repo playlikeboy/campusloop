@@ -123,7 +123,7 @@ export function AllIndiaCollegePodium({
             href={`/college/${first.slug || first.id}`}
             className="group flex flex-col items-center min-w-0 cursor-pointer transition-transform hover:-translate-y-1.5"
           >
-            <Crown className="size-5 sm:size-6 text-amber-500 animate-bounce mb-1" />
+            <Crown className="size-5 sm:size-6 text-amber-500 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)] group-hover:scale-110 transition-transform mb-1" />
             <div className="relative mb-2 shrink-0">
               <div className="size-16 sm:size-20 rounded-full border-3 border-amber-400 shadow-xl overflow-hidden bg-muted/20 flex items-center justify-center p-1.5 ring-4 ring-amber-400/20 group-hover:ring-amber-400/40 transition-all">
                 {first.logoUrl ? (

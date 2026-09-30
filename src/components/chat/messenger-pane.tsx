@@ -696,7 +696,8 @@ export function MessengerPane({
     // 3. Check HTML content for embedded <img> (e.g. copied web sticker / emoji GIF)
     const html = clipboardData.getData("text/html");
     if (html) {
-      const match = html.match(/<img[^>]+src="([^">]+)"/i);
+      const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+      const match = html.match(imgRegex);
       if (match && match[1] && /^https?:\/\//i.test(match[1])) {
         const imgSrc = match[1];
         if (
@@ -705,7 +706,7 @@ export function MessengerPane({
           imgSrc.includes("tenor.com")
         ) {
           e.preventDefault();
-          toast.info("Sending sticker / GIF... 🎨");
+          toast.info("Sending sticker / GIF...");
           sendMessage(imgSrc);
           return;
         }
@@ -1460,10 +1461,10 @@ export function MessengerPane({
                         {isQuoted && (
                           <div
                             className={cn(
-                              "mb-2 p-1.5 px-2.5 rounded-lg border-l-3 text-[11px] font-medium leading-tight truncate text-left",
+                              "mb-2 p-1.5 px-2.5 rounded-lg border text-[11px] font-medium leading-tight truncate text-left",
                               isMe
-                                ? "bg-black/20 border-white/90 text-white/90"
-                                : "bg-muted/80 border-primary text-muted-foreground"
+                                ? "bg-black/20 border-white/30 text-white/90"
+                                : "bg-muted/80 border-border/60 text-muted-foreground"
                             )}
                           >
                             <p className="font-bold text-[10px] opacity-80">Quoted</p>

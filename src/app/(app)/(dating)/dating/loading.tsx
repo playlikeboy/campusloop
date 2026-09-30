@@ -1,5 +1,5 @@
-import { DatingSkeleton } from "@/components/ui/skeleton-card";
+import { DatingPageSkeleton } from "@/components/dating/dating-card-skeleton";
 
 export default function DatingLoading() {
-  return <DatingSkeleton />;
+  return <DatingPageSkeleton />;
 }

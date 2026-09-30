@@ -294,9 +294,18 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Upload API route error:", error);
+    const isStorageUnavailable =
+      error instanceof Error &&
+      (error.message.includes("MEDIA_BUCKET") || error.message.includes("R2"));
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to upload file" },
-      { status: 500 }
+      {
+        error: isStorageUnavailable
+          ? "Media storage is temporarily unavailable. Cloudflare R2 bucket binding is required."
+          : error instanceof Error
+            ? error.message
+            : "Failed to upload file",
+      },
+      { status: isStorageUnavailable ? 503 : 500 }
     );
   }
 }

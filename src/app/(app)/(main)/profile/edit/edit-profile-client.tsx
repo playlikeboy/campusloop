@@ -343,7 +343,7 @@ export function EditProfileClient() {
             {bannerUrl ? (
               <img src={bannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
             ) : (
-              <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+              <div className="absolute inset-0 bg-muted/30 backdrop-blur-xs" />
             )}
 
             <div className="absolute top-3 right-3 flex items-center gap-1.5 sm:gap-2">

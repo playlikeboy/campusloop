@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -199,30 +200,26 @@ export function DatingAppClient() {
 
         <div className="flex items-center gap-2">
           <div className="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-2xs">
-            <Heart className="size-3.5" />
+            <Heart className="size-3.5 fill-primary" />
           </div>
-          <div>
-            <h1 className="text-sm font-black tracking-tight text-foreground leading-tight">Campus Match</h1>
-            <p className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">
-              <ShieldCheck className="size-3 text-primary" /> Safe Space
-            </p>
-          </div>
+          <h1 className="text-sm font-black tracking-tight text-foreground leading-tight">Campus Match</h1>
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Secret Crush Vault Link */}
+          {/* Secret Crush Vault */}
           <Link
             href="/crush"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs border border-primary/25"
-            title="Manage Secret Crush Vault"
+            aria-label="Secret Crush Vault"
+            title="Secret Crush Vault"
+            className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-primary hover:bg-muted transition-colors border border-border/40 cursor-pointer"
           >
-            <Lock className="size-3" />
-            <span className="hidden sm:inline">Crush Vault</span>
+            <Lock className="size-4" />
           </Link>
 
           <Link
             href="/matching/likes"
             aria-label="Likes you"
+            title="Profiles that liked you"
             className="relative flex size-9 items-center justify-center rounded-full bg-muted/60 text-primary hover:bg-muted transition-colors border border-border/40 cursor-pointer"
           >
             <Heart className="size-4.5 fill-primary/20" />
@@ -232,9 +229,11 @@ export function DatingAppClient() {
               </span>
             )}
           </Link>
+
           <Link
             href="/matching/filters"
             aria-label="Preferences"
+            title="Match Preferences"
             className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/40 cursor-pointer"
           >
             <SlidersHorizontal className="size-4" />
@@ -244,15 +243,15 @@ export function DatingAppClient() {
 
       {/* Matching Paused Notice */}
       {!isMatchingEnabled && (
-        <div className="mt-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold min-w-0">
+        <div className="mt-2.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold min-w-0">
             <EyeOff className="size-4 shrink-0" />
-            <span className="truncate">Your match profile is paused &amp; hidden.</span>
+            <span className="truncate">Profile paused &amp; hidden</span>
           </div>
           <button
             type="button"
             onClick={() => widenSearch({ isEnabled: true })}
-            className="px-3 py-1 rounded-full bg-primary text-primary-foreground font-black text-xs shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+            className="px-3 py-1 rounded-full bg-primary text-primary-foreground font-bold text-xs shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
           >
             Resume
           </button>
@@ -267,12 +266,12 @@ export function DatingAppClient() {
         {genderGateRequired ? (
           <div className="m-auto w-full max-w-sm space-y-5 rounded-3xl border border-border/70 bg-card p-6 text-center shadow-lg">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-              <Zap className="size-7" />
+              <Heart className="size-7 fill-primary" />
             </div>
-            <div>
-              <h2 className="text-lg font-black text-foreground">Select your gender</h2>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Campus Match connects you with verified classmates in a safe, mutual opt-in space.
+            <div className="space-y-1">
+              <h2 className="text-lg font-black text-foreground">Welcome to Campus Match</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Choose how you identify to personalize your campus recommendations.
               </p>
             </div>
             <form onSubmit={handleSaveGenderGate} className="space-y-4">
@@ -320,34 +319,34 @@ export function DatingAppClient() {
         ) : (
           <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-dashed border-border/80 bg-card/60 p-8 text-center shadow-xs">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-              <Zap className="size-7" />
+              <Sparkles className="size-7" />
             </div>
-            <div>
-              <h3 className="text-base font-black text-foreground">That&apos;s everyone for now</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                You&apos;ve viewed all available profiles matching your filters.
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-foreground">All Caught Up</h3>
+              <p className="text-xs text-muted-foreground">
+                You&apos;ve seen all profiles matching your current filters.
               </p>
             </div>
             <div className="flex flex-col gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => widenSearch({ scope: "GLOBAL", gender: "ALL" })}
-                className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-2xl bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95"
               >
-                <Globe className="size-3.5" /> Widen my search (All Campuses)
+                <Globe className="size-4" /> Explore All Campuses
               </button>
               <button
                 type="button"
                 onClick={handleResetSwipes}
-                className="flex w-full cursor-pointer items-center justify-center gap-1.5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
               >
-                <RotateCcw className="size-3.5" /> Reset swipes &amp; review again
+                <RotateCcw className="size-3.5" /> Reset Swipes
               </button>
               <Link
                 href="/profile/edit"
-                className="flex w-full items-center justify-center gap-1.5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
+                className="flex w-full items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
               >
-                <Camera className="size-3.5" /> Upload more photos to get 3x matches
+                <Camera className="size-3.5" /> Edit Dating Profile
               </Link>
             </div>
           </div>

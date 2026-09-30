@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Globe, MessageSquare, School, Search, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Flame, Globe, MessageSquare, School, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -132,7 +132,10 @@ export function BranchDirectoryClient() {
                 : "bg-muted/40 text-muted-foreground hover:text-foreground"
             }`}
           >
-            🔥 Top Clout
+            <span className="inline-flex items-center gap-1">
+              <Flame className="size-3.5 fill-orange-500 text-orange-500" />
+              <span>Top Clout</span>
+            </span>
           </button>
           <button
             type="button"
@@ -229,7 +232,8 @@ export function BranchDirectoryClient() {
                 {/* Clout LP Badge */}
                 <div className="pt-0.5">
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-500">
-                    🔥 {student.points || 0} LP Clout
+                    <Flame className="size-3 fill-amber-500 text-amber-500" />
+                    <span>{student.points || 0} LP Clout</span>
                   </span>
                 </div>
               </div>

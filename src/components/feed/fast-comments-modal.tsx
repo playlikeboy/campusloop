@@ -177,7 +177,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
     const html = clipboardData.getData("text/html");
     if (html) {
-      const match = html.match(/<img[^>]+src="([^">]+)"/i);
+      const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+      const match = html.match(imgRegex);
       if (match && match[1] && /^https?:\/\//i.test(match[1])) {
         const imgSrc = match[1];
         if (

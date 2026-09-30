@@ -584,10 +584,10 @@ export function MessengerView({
                       handleSelectConversation(conv.id);
                     }}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-2xl transition-all cursor-pointer group border-l-3 relative",
+                      "flex items-center gap-3 p-3 rounded-2xl transition-all cursor-pointer group relative",
                       isSelected
-                        ? "bg-muted/90 dark:bg-muted/50 border-primary shadow-2xs"
-                        : "border-transparent hover:bg-muted/40"
+                        ? "bg-primary/10 dark:bg-primary/15 shadow-2xs"
+                        : "hover:bg-muted/40"
                     )}
                   >
                     {/* Avatar with Online presence indicator */}

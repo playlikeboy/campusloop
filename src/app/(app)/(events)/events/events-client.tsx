@@ -553,7 +553,10 @@ export function EventsClient() {
                   <div className="flex items-center gap-1.5 text-xs font-mono font-bold bg-background/80 backdrop-blur-md px-3 py-1 rounded-full border border-border/40 text-foreground">
                     <Clock className="size-3.5 text-primary shrink-0" />
                     {countdown.isLive ? (
-                      <span className="text-red-500 font-black animate-pulse">🔴 HAPPENING NOW</span>
+                      <span className="text-red-500 font-black flex items-center gap-1.5">
+                        <span className="size-2 rounded-full bg-red-500 animate-ping inline-block" />
+                        HAPPENING NOW
+                      </span>
                     ) : (
                       <span>
                         {countdown.days > 0 && `${countdown.days}d `}

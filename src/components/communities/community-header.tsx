@@ -64,14 +64,14 @@ export function CommunityHeader({
   function getInitialsGradient(name: string) {
     const charCodeSum = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const gradients = [
-      "from-indigo-500 to-violet-500",
-      "from-purple-500 to-pink-500",
-      "from-blue-500 to-indigo-500",
-      "from-violet-500 to-fuchsia-500",
-      "from-fuchsia-500 to-rose-500",
-      "from-emerald-500 to-teal-500",
-      "from-orange-500 to-amber-500",
-      "from-cyan-500 to-blue-500",
+      "from-emerald-600 to-teal-700",
+      "from-rose-600 to-pink-600",
+      "from-blue-600 to-cyan-600",
+      "from-amber-600 to-orange-600",
+      "from-teal-600 to-emerald-700",
+      "from-red-600 to-rose-700",
+      "from-orange-600 to-amber-600",
+      "from-cyan-600 to-sky-700",
     ];
     return gradients[charCodeSum % gradients.length];
   }
@@ -82,14 +82,14 @@ export function CommunityHeader({
         ? `${window.location.origin}/communities/${identifier}`
         : `https://campusloop.space/communities/${identifier}`;
 
-    const shareText = `🚀 Join c/${community.name} on CampusLoop!\n${
+    const shareText = `Join c/${community.name} on CampusLoop!\n${
       community.description || "Verified student sub-hub"
-    }\n\n👉 ${shareUrl}`;
+    }\n\n${shareUrl}`;
 
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
-      toast.success("Community invite link copied! +10 LP awarded 🚀");
+      toast.success("Community invite link copied! +10 LP awarded");
       setTimeout(() => setCopied(false), 2500);
       recordCommunityInviteShare(community.id).catch(() => {});
     }

@@ -118,8 +118,14 @@ export function PostComposer({
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [charCount, setCharCount] = useState(0);
 
+  interface UploadedVideoItem {
+    localUrl: string;
+    remoteUrl?: string;
+    name: string;
+  }
+
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<UploadedVideoItem[]>([]);
   const [uploadedAudios, setUploadedAudios] = useState<{ url: string; title: string }[]>([]);
   const [uploadedDocs, setUploadedDocs] = useState<{ url: string; name: string; size: number }[]>([]);
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
@@ -142,6 +148,20 @@ export function PostComposer({
 
   const firstName = profile?.displayName?.split(" ")[0];
   const [mentionTrigger, setMentionTrigger] = useState<TriggerContext | null>(null);
+
+  const uploadedVideosRef = useRef(uploadedVideos);
+  uploadedVideosRef.current = uploadedVideos;
+  useEffect(() => {
+    return () => {
+      for (const item of uploadedVideosRef.current) {
+        if (item.localUrl?.startsWith("blob:")) {
+          try {
+            URL.revokeObjectURL(item.localUrl);
+          } catch {}
+        }
+      }
+    };
+  }, []);
 
   async function handleUploadFiles(files: File[]) {
     const validImageFiles = files.filter((f) => f.type.startsWith("image/"));
@@ -185,7 +205,7 @@ export function PostComposer({
 
       sounds.pop();
       haptics.success();
-      toast.success(validImageFiles.length > 1 ? "Photos attached 📸" : "Photo attached 📸", {
+      toast.success(validImageFiles.length > 1 ? "Photos attached" : "Photo attached", {
         id: "img-upload",
       });
     } catch (err) {
@@ -209,8 +229,13 @@ export function PostComposer({
       toast.loading("Uploading video...", { id: "video-upload" });
       for (const file of validVideos) {
         const localPreview = URL.createObjectURL(file);
-        // Optimistically show video
-        setUploadedVideos((prev) => [...prev, localPreview]);
+        const newItem: UploadedVideoItem = {
+          localUrl: localPreview,
+          remoteUrl: undefined,
+          name: file.name,
+        };
+        // Optimistically show video using local object URL for zero-buffering preview
+        setUploadedVideos((prev) => [...prev, newItem]);
 
         try {
           const res = await uploadMediaFile(file, "video", file.name, (progress) => {
@@ -218,18 +243,19 @@ export function PostComposer({
               toast.loading(`Uploading video... ${progress.percent}%`, { id: "video-upload" });
             }
           });
-          // Swap local preview with the permanent remote URL.
-          setUploadedVideos((prev) => prev.map((u) => (u === localPreview ? res.url : u)));
-          URL.revokeObjectURL(localPreview);
+          // Attach remote URL for publishing while keeping local preview active
+          setUploadedVideos((prev) =>
+            prev.map((u) => (u.localUrl === localPreview ? { ...u, remoteUrl: res.url } : u))
+          );
         } catch (vidErr) {
-          setUploadedVideos((prev) => prev.filter((u) => u !== localPreview));
           URL.revokeObjectURL(localPreview);
+          setUploadedVideos((prev) => prev.filter((u) => u.localUrl !== localPreview));
           throw vidErr;
         }
       }
       sounds.pop();
       haptics.success();
-      toast.success("Video attached! 🎥", { id: "video-upload" });
+      toast.success("Video attached", { id: "video-upload" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to upload video", {
         id: "video-upload",
@@ -256,7 +282,7 @@ export function PostComposer({
       }
       sounds.pop();
       haptics.success();
-      toast.success("Document attached! 📄", { id: "doc-upload" });
+      toast.success("Document attached", { id: "doc-upload" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to upload document", {
         id: "doc-upload",
@@ -311,7 +337,8 @@ export function PostComposer({
         // 3. HTML Content / Web Sticker / GIF
         const html = clipboardData.getData("text/html");
         if (html) {
-          const match = html.match(/<img[^>]+src="([^">]+)"/i);
+          const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+          const match = html.match(imgRegex);
           if (match && match[1] && /^https?:\/\//i.test(match[1])) {
             const imgSrc = match[1];
             if (
@@ -321,7 +348,7 @@ export function PostComposer({
             ) {
               event.preventDefault();
               setUploadedImages((prev) => [...prev, imgSrc]);
-              toast.success("Sticker / GIF attached! 📸");
+              toast.success("Sticker / GIF attached!");
               return true;
             }
           }
@@ -360,7 +387,7 @@ export function PostComposer({
     if (textToRestore && !editor.getText().trim()) {
       editor.commands.setContent(textToRestore);
       setCharCount(textToRestore.length);
-      toast.success("Draft restored from quick post ✍️", { id: "draft-restored" });
+      toast.success("Draft restored from quick post", { id: "draft-restored" });
       try {
         sessionStorage.removeItem("campusloop_draft_post");
       } catch {}
@@ -437,14 +464,15 @@ export function PostComposer({
       body = `${body.trim()}${imageMarkdown}`;
     }
 
-    if (uploadedVideos.some((url) => url.startsWith("blob:"))) {
+    if (uploadedVideos.some((item) => !item.remoteUrl && item.localUrl.startsWith("blob:"))) {
       setError("Please wait for the video upload to finish before publishing.");
       setIsLoading(false);
       return;
     }
 
     if (uploadedVideos.length > 0) {
-      const videoMarkdown = uploadedVideos.map((vid) => `\n\n![video:Campus Video Clip](${vid})`).join("");
+      const readyVideos = uploadedVideos.map((vid) => vid.remoteUrl || vid.localUrl);
+      const videoMarkdown = readyVideos.map((vid) => `\n\n![video:Campus Video Clip](${vid})`).join("");
       body = `${body.trim()}${videoMarkdown}`;
     }
 
@@ -833,8 +861,8 @@ export function PostComposer({
             )}
           >
             <AvatarImage src={anonActive ? "" : profile?.avatarUrl || ""} />
-            <AvatarFallback className="text-xs font-bold">
-              {anonActive ? "🎭" : profile?.displayName?.[0] || "U"}
+            <AvatarFallback className="text-xs font-bold flex items-center justify-center">
+              {anonActive ? <VenetianMask className="size-4 text-violet-400" /> : profile?.displayName?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
 
@@ -1029,12 +1057,19 @@ export function PostComposer({
         )}
 
         {/* ─── Video Previews ─── */}
-        {uploadedVideos.map((vidUrl, idx) => (
+        {uploadedVideos.map((vid, idx) => (
           <div key={`vid-prev-${idx}`} className="relative px-4 pb-3">
-            <VideoPlayer src={vidUrl} />
+            <VideoPlayer src={vid.localUrl || vid.remoteUrl || ""} />
             <button
               type="button"
-              onClick={() => setUploadedVideos((prev) => prev.filter((_, i) => i !== idx))}
+              onClick={() => {
+                if (vid.localUrl && vid.localUrl.startsWith("blob:")) {
+                  try {
+                    URL.revokeObjectURL(vid.localUrl);
+                  } catch {}
+                }
+                setUploadedVideos((prev) => prev.filter((_, i) => i !== idx));
+              }}
               className="absolute top-2 right-6 size-7 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
               title="Remove video"
               aria-label="Remove video"

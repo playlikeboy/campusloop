@@ -109,8 +109,8 @@ export function AcademicAuthModal({
           {/* Perks list */}
           <div className="space-y-2.5 p-3.5 rounded-xl bg-muted/20 border border-border/40 text-xs">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <span className="flex size-5 items-center justify-center rounded-md bg-muted text-foreground border border-border/40 shrink-0 font-bold text-[10px]">
-                ⚡
+              <span className="flex size-5 items-center justify-center rounded-md bg-muted text-foreground border border-border/40 shrink-0">
+                <Zap className="size-3 text-amber-400" />
               </span>
               <span>Instant +50 Loop Points (LP) Welcome Bonus</span>
             </div>

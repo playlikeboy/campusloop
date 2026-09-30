@@ -169,7 +169,7 @@ export function ConversationActionModal({
               type="button"
               disabled={isSubmitting}
               onClick={() =>
-                handleAction(isPinned ? "unpin" : "pin", isPinned ? "Chat unpinned" : "Chat pinned to top 📌")
+                handleAction(isPinned ? "unpin" : "pin", isPinned ? "Chat unpinned" : "Chat pinned to top")
               }
               className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
@@ -186,7 +186,7 @@ export function ConversationActionModal({
               type="button"
               disabled={isSubmitting}
               onClick={() =>
-                handleAction(isMuted ? "unmute" : "mute", isMuted ? "Notifications unmuted" : "Chat muted 🔕")
+                handleAction(isMuted ? "unmute" : "mute", isMuted ? "Notifications unmuted" : "Chat muted")
               }
               className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
@@ -205,7 +205,7 @@ export function ConversationActionModal({
               onClick={() =>
                 handleAction(
                   isArchived ? "unarchive" : "archive",
-                  isArchived ? "Chat unarchived" : "Chat archived 📦"
+                  isArchived ? "Chat unarchived" : "Chat archived"
                 )
               }
               className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"

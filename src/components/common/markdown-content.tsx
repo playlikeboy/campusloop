@@ -223,7 +223,7 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
       blocks.push(
         <blockquote
           key={key++}
-          className="rounded-r-xl border-l-4 border-primary bg-muted/20 py-2 pl-4 italic text-foreground/80"
+          className="rounded-xl border border-border/50 bg-muted/20 py-2.5 px-4 italic text-foreground/80"
         >
           {parseInline(body.join(" "), `q${key}`)}
         </blockquote>

@@ -122,7 +122,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
     // Deduplicate any repeated identical media URLs in markdown
     const seenUrls = new Set<string>();
-    cleaned = cleaned.replace(/!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/gi, (match, alt, url) => {
+    cleaned = cleaned.replace(/!\[(.*?)\]\(([^)\s]+)\)/gi, (match, alt, url) => {
       if (seenUrls.has(url)) return "";
       seenUrls.add(url);
       return match;

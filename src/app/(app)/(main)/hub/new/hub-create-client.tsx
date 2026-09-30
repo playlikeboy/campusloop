@@ -4,12 +4,15 @@ import {
   ArrowLeft,
   BookOpen,
   Car,
+  FileText,
+  FlaskConical,
   Gamepad2,
   Home,
   Loader2,
   PackageSearch,
   Send,
   ShoppingBag,
+  Zap,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -205,7 +208,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
 
       sounds.ting();
       haptics.repost();
-      toast.success("Published to Campus Hub! 🚀");
+      toast.success("Published to Campus Hub");
       router.push(activeCategory.href);
       router.refresh();
     } catch (err: unknown) {
@@ -522,10 +525,10 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { id: "NOTES", label: "📝 Lecture Notes" },
-                  { id: "PYQ", label: "📑 PYQ Papers" },
-                  { id: "CHEAT_SHEET", label: "⚡ Cheat Sheet" },
-                  { id: "LAB_MANUAL", label: "🧪 Lab Manual" },
+                  { id: "NOTES", label: "Lecture Notes", icon: FileText },
+                  { id: "PYQ", label: "PYQ Papers", icon: BookOpen },
+                  { id: "CHEAT_SHEET", label: "Cheat Sheet", icon: Zap },
+                  { id: "LAB_MANUAL", label: "Lab Manual", icon: FlaskConical },
                 ].map((type) => (
                   <button
                     key={type.id}
@@ -536,13 +539,14 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                       setResourceType(type.id as any);
                     }}
                     className={cn(
-                      "p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+                      "p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
                       resourceType === type.id
                         ? "bg-indigo-600 text-white border-indigo-600 font-black shadow-xs"
                         : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
                     )}
                   >
-                    {type.label}
+                    <type.icon className="size-3.5 shrink-0" />
+                    <span>{type.label}</span>
                   </button>
                 ))}
               </div>

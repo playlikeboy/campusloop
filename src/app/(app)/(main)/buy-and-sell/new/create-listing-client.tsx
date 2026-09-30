@@ -94,7 +94,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
       });
       const url = res.displayUrl || res.url;
       setImages((prev) => prev.map((u) => (u === localUrl ? url : u)));
-      toast.success("Photo attached! 📸", { id: "upload-img" });
+      toast.success("Photo attached", { id: "upload-img" });
     } catch (err) {
       setImages((prev) => prev.filter((u) => u !== localUrl));
       toast.error(err instanceof Error ? err.message : "Failed to upload photo", { id: "upload-img" });
@@ -156,7 +156,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
         throw new Error(errorData?.error || "Failed to create listing");
       }
 
-      toast.success("Item listed on Buy & Sell Hub! 🎉");
+      toast.success("Item listed on Buy & Sell Hub");
       mutate((key) => typeof key === "string" && key.includes("/api/communities/feed"));
       router.push("/buy-and-sell");
     } catch (err) {

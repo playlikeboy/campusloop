@@ -324,7 +324,7 @@ export function StoryViewerClient({
       });
 
       if (!res.ok) throw new Error();
-      toast.success(`Created highlight "${newHighlightTitle}"! ⭐`);
+      toast.success(`Created highlight "${newHighlightTitle}"!`);
       setShowHighlightModal(false);
       setNewHighlightTitle("");
       setIsPaused(false);
@@ -335,7 +335,7 @@ export function StoryViewerClient({
     }
   }
 
-  const bgClass = story.backgroundColor || "bg-linear-to-tr from-violet-600 to-indigo-600";
+  const bgClass = story.backgroundColor || "bg-linear-to-tr from-stone-900 to-neutral-900";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 md:bg-opacity-85 backdrop-blur-md select-none p-0 md:p-4 touch-manipulation">
@@ -375,8 +375,8 @@ export function StoryViewerClient({
 
         {/* Double-Click Animated Floating Heart Burst */}
         {showHeartBurst && (
-          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none animate-in zoom-in-50 fade-in duration-200">
-            <Heart className="size-28 text-rose-500 fill-rose-500 drop-shadow-[0_0_24px_rgba(244,63,94,0.8)] animate-bounce" />
+          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none animate-in zoom-in-75 fade-in duration-200">
+            <Heart className="size-28 text-rose-500 fill-rose-500 drop-shadow-[0_0_24px_rgba(244,63,94,0.8)] scale-110 transition-transform" />
           </div>
         )}
 

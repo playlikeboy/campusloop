@@ -332,7 +332,7 @@ export function CampusAiClient() {
                 className={cn(
                   "size-14 rounded-full flex items-center justify-center text-white transition-all",
                   isListening
-                    ? "bg-rose-500 animate-bounce"
+                    ? "bg-rose-500 animate-pulse"
                     : isSpeaking
                       ? "bg-primary animate-pulse"
                       : "bg-muted-foreground/30 text-foreground"

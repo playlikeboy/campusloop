@@ -127,7 +127,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         return {
           icon: <Zap className="size-3.5 text-amber-500 fill-amber-500" />,
           badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
-          actionText: "matched with you on Campus Dating! 💫",
+          actionText: "matched with you on Campus Dating!",
           href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
           actionLabel: "Send message",
         };
@@ -135,7 +135,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         return {
           icon: <Lock className="size-3.5 text-purple-500" />,
           badgeBg: "bg-purple-500/15 border-purple-500/30 text-purple-500",
-          actionText: "secretly added you to their Campus Crush vault 🔒",
+          actionText: "secretly added you to their Campus Crush vault",
           href: "/crush",
           actionLabel: "View vault",
         };
@@ -151,7 +151,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         return {
           icon: <AnimateUsers size={14} className="text-emerald-500" />,
           badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
-          actionText: "followed you back — you're campus friends now 🤝",
+          actionText: "followed you back — you're campus friends now",
           href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
           actionLabel: "View profile",
         };
@@ -159,7 +159,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         return {
           icon: <Trophy className="size-3.5 text-amber-500" />,
           badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
-          actionText: "unlocked a new Loop Points Clout Milestone! 🏆",
+          actionText: "unlocked a new Loop Points Clout Milestone!",
           href: "/profile",
           actionLabel: "View clout",
         };
@@ -183,7 +183,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         return {
           icon: <Ticket className="size-3.5 text-cyan-500 stroke-2" />,
           badgeBg: "bg-cyan-500/15 border-cyan-500/30 text-cyan-500",
-          actionText: "— your spot is confirmed 🎟️",
+          actionText: "— your spot is confirmed",
           href: n.referenceId ? `/events/${n.referenceId}` : "/events",
           actionLabel: "View event",
         };

@@ -376,7 +376,7 @@ export function AcademicPdfViewer({
     <div
       ref={containerRef}
       className={cn(
-        "w-full min-w-0 max-w-full rounded-3xl border border-border/60 bg-card overflow-hidden shadow-xs relative transition-all flex flex-col select-none",
+        "w-full min-w-0 max-w-full rounded-2xl border border-border/40 bg-card overflow-hidden relative transition-all flex flex-col select-none",
         isFullscreen
           ? "fixed inset-0 z-50 rounded-none h-screen bg-background"
           : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
@@ -652,7 +652,7 @@ export function AcademicPdfViewer({
                 : isGoogleSites || isGenericWebSite
                   ? "bg-sky-600 hover:bg-sky-500 text-white"
                   : isDriveFolder
-                    ? "bg-amber-500 hover:bg-amber-600 text-neutral-950"
+                    ? "bg-amber-500 hover:bg-amber-600 text-amber-950"
                     : "bg-indigo-600 hover:bg-indigo-500 text-white"
             )}
             title={
@@ -786,7 +786,7 @@ export function AcademicPdfViewer({
               href={cleanDriveFolderUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-600 text-neutral-950 font-black text-[11px] transition-all shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-[11px] transition-all shadow-xs"
             >
               <span>Open Full Folder</span>
               <ExternalLink className="size-2.5" />
@@ -860,7 +860,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-neutral-950 shadow-md transition-all active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-amber-950 shadow-md transition-all active:scale-95"
               >
                 <FolderOpen className="size-4" />
                 <span>Open in Google Drive</span>
@@ -917,7 +917,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-neutral-950 cursor-pointer shadow-md"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-amber-950 cursor-pointer shadow-md"
               >
                 <FolderOpen className="size-4" />
                 <span>Open Full Folder in Google Drive</span>

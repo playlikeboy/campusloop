@@ -78,7 +78,7 @@ export function FeedSkeleton() {
 
 export function ConfessionsFeedSkeleton() {
   return (
-    <div className="divide-y divide-border/25 select-none animate-pulse">
+    <div className="divide-y divide-border/25 select-none">
       {[1, 2, 3, 4].map((i) => (
         <div key={i} className="px-4 py-4 space-y-3">
           <div className="flex items-center justify-between">

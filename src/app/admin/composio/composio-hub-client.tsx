@@ -628,7 +628,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               onClick={handleExportData}
               className="px-4 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-700 transition-all cursor-pointer shadow-xs disabled:opacity-50"
             >
-              <Download className={cn("h-3.5 w-3.5", isExporting && "animate-bounce")} />
+              <Download className={cn("h-3.5 w-3.5", isExporting && "animate-pulse")} />
               <span>{isExporting ? "Exporting..." : "Download JSON"}</span>
             </button>
           </div>

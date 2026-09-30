@@ -91,7 +91,7 @@ export function OverviewClient() {
 
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] text-foreground">
               The Architecture of a{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1D9BF0] via-sky-400 to-indigo-500">
+              <span className="text-[#1D9BF0]">
                 Verified Campus Graph
               </span>
             </h1>
@@ -119,7 +119,7 @@ export function OverviewClient() {
               <div className="text-xs text-muted-foreground">Institutional Email Gating</div>
             </div>
             <div className="space-y-1">
-              <div className="text-3xl sm:text-4xl font-black text-purple-500 font-mono">&lt;50ms</div>
+              <div className="text-3xl sm:text-4xl font-black text-primary font-mono">&lt;50ms</div>
               <div className="text-xs text-muted-foreground">Edge Response Time</div>
             </div>
           </div>

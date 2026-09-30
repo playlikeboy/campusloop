@@ -129,8 +129,8 @@ export default async function DocsArticlePage({ params }: { params: Promise<{ sl
           <DocsShareToolbar title={feature.title} viralQuote={feature.viralQuote} url={articleUrl} />
 
           {/* Viral Hook Blockquote */}
-          <div className="relative rounded-2xl border-l-4 border-[#1D9BF0] bg-muted/20 p-6 sm:p-7 space-y-3">
-            <Quote className="size-6 text-[#1D9BF0]/40" />
+          <div className="relative rounded-2xl border border-border/60 bg-muted/25 p-6 sm:p-7 space-y-3">
+            <Quote className="size-6 text-[#1D9BF0]/60" />
             <div className="space-y-2 text-base sm:text-lg leading-relaxed text-foreground font-medium whitespace-pre-line">
               {feature.hook}
             </div>
