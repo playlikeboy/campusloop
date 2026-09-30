@@ -5,6 +5,7 @@ import {
   Compass,
   Flame,
   Globe,
+  Hash,
   Loader2,
   MapPin,
   Search,
@@ -12,6 +13,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
@@ -118,12 +120,21 @@ export function ExploreHeader({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    const query = inputValue.trim();
+    if (!query) return;
     sounds.tap();
     haptics.light();
-    saveRecentSearch(inputValue);
+    saveRecentSearch(query);
     setIsFocused(false);
-    onSearchSubmit(inputValue.trim());
+
+    if (query.startsWith("#")) {
+      const cleanTag = query.replace(/^#+/, "").trim();
+      if (cleanTag) {
+        router.push(`/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`);
+        return;
+      }
+    }
+    onSearchSubmit(query);
   }
 
   function handleSelectTerm(term: string) {
@@ -132,6 +143,14 @@ export function ExploreHeader({
     setInputValue(term);
     saveRecentSearch(term);
     setIsFocused(false);
+
+    if (term.startsWith("#")) {
+      const cleanTag = term.replace(/^#+/, "").trim();
+      if (cleanTag) {
+        router.push(`/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`);
+        return;
+      }
+    }
     onSearchSubmit(term);
   }
 
@@ -234,24 +253,43 @@ export function ExploreHeader({
                   Suggestions
                 </span>
                 <div className="divide-y divide-border/20">
-                  {suggestions.map((item, i) => (
-                    <button
-                      key={item.text + i}
-                      type="button"
-                      onClick={() => handleSelectTerm(item.text)}
-                      className="w-full flex items-center justify-between gap-2 px-2 py-2 text-left hover:bg-muted/50 rounded-lg transition-colors cursor-pointer text-xs"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Search className="size-3 text-muted-foreground shrink-0" />
-                        <span className="font-medium text-foreground truncate">{item.title || item.text}</span>
-                      </div>
-                      {item.subtitle && (
-                        <span className="text-[10px] text-muted-foreground truncate shrink-0">
-                          {item.subtitle}
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                  {suggestions.map((item, i) => {
+                    const isHashtag = item.type === "hashtag" || item.text.startsWith("#");
+                    const cleanTag = item.text.replace(/^#+/, "").trim();
+                    const href =
+                      item.href ||
+                      (isHashtag
+                        ? `/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`
+                        : `/explore?q=${encodeURIComponent(item.text)}`);
+
+                    return (
+                      <Link
+                        key={item.text + i}
+                        href={href}
+                        onClick={() => {
+                          sounds.tap();
+                          haptics.light();
+                          saveRecentSearch(item.text);
+                          setIsFocused(false);
+                        }}
+                        className="w-full flex items-center justify-between gap-2 px-2 py-2 text-left hover:bg-muted/50 rounded-lg transition-colors cursor-pointer text-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {isHashtag ? (
+                            <Hash className="size-3 text-primary shrink-0" />
+                          ) : (
+                            <Search className="size-3 text-muted-foreground shrink-0" />
+                          )}
+                          <span className="font-medium text-foreground truncate">{item.title || item.text}</span>
+                        </div>
+                        {item.subtitle && (
+                          <span className="text-[10px] text-muted-foreground truncate shrink-0">
+                            {item.subtitle}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}

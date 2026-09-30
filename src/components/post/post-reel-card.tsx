@@ -1074,7 +1074,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             {tags.map((tag, idx) => (
               <Link
                 key={tag}
-                href={`/explore?q=${encodeURIComponent(tag.replace(/^#/, ""))}`}
+                href={`/hashtag/${encodeURIComponent(tag.replace(/^#/, "").toLowerCase())}`}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",

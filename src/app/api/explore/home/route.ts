@@ -228,7 +228,7 @@ export async function GET(req: Request) {
         topic: formattedTopic,
         postCount: Number(r.count),
         formattedCount: Number(r.count) === 1 ? "1 post" : `${r.count} posts`,
-        href: `/explore?q=${encodeURIComponent(r.tag)}&type=posts`,
+        href: `/hashtag/${encodeURIComponent(clean.toLowerCase())}`,
       };
     });
 

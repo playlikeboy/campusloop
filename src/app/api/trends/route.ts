@@ -132,7 +132,7 @@ export async function GET(req: Request) {
       topic: formatDisplayTag(r.tag),
       postCount: Number(r.count),
       formattedCount: Number(r.count) === 1 ? "1 post" : `${r.count} posts`,
-      href: `/hashtag/${encodeURIComponent(r.tag.replace(/^#/, ""))}`,
+      href: `/hashtag/${encodeURIComponent(r.tag.replace(/^#/, "").toLowerCase())}`,
     }));
 
     // 2. Extract Top News / Discussions (highest engagement)

@@ -9,6 +9,7 @@ export interface TrendingHashtag {
   category: string;
   isHot?: boolean;
   source: "campus" | "social" | "global";
+  href?: string;
 }
 
 /**
@@ -136,6 +137,7 @@ export async function getTrendingHashtags({
       category: isCampusMatch ? "Trending on Your Campus" : "Trending on CampusLoop",
       isHot: item.count >= 10,
       source: isCampusMatch ? "campus" : "global",
+      href: `/hashtag/${encodeURIComponent(key.replace(/^#/, ""))}`,
     });
   }
 
@@ -150,6 +152,9 @@ export async function getTrendingHashtags({
       // Boost existing DB tag with social media category if needed
       const existing = resultsMap.get(key)!;
       existing.isHot = true;
+      if (!existing.href) {
+        existing.href = `/hashtag/${encodeURIComponent(key.replace(/^#/, ""))}`;
+      }
     } else {
       resultsMap.set(key, {
         tag: social.tag,
@@ -158,6 +163,7 @@ export async function getTrendingHashtags({
         category: social.category,
         isHot: true,
         source: "social",
+        href: `/hashtag/${encodeURIComponent(key.replace(/^#/, ""))}`,
       });
     }
   }
