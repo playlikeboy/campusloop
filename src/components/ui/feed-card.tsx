@@ -276,7 +276,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onClick={(e) => handleCardClick(e)}
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
-      className="w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border sm:border-border/30 p-3.5 sm:p-4 mb-0 sm:mb-2.5 mx-0 relative cursor-pointer transition-all hover:bg-muted/10 select-none overflow-x-clip shadow-2xs"
+      className="w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border sm:border-border/30 p-3 sm:p-3.5 mb-0 sm:mb-2 mx-0 relative cursor-pointer transition-all hover:bg-muted/10 select-none overflow-x-clip shadow-2xs"
     >
       {/* Double Tap Flame Vibe Pop Overlay */}
       <AnimatePresence>
@@ -375,7 +375,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         />
 
         {/* 2. CONTENT BODY: Placed directly below the author header taking 100% full width */}
-        <div className="w-full min-w-0 space-y-2 pt-1 pb-1">
+        <div className="w-full min-w-0 space-y-1.5 pt-0.5 pb-0.5">
           {post.title && (
             <h3 className="w-full text-[16px] font-bold text-foreground tracking-tight leading-snug break-words">
               {post.title}
@@ -408,7 +408,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
         {/* External Reddit Media Renderers (HTML5 Video / Gallery) */}
         {post.externalPost && post.externalPost.contentType === "VIDEO" && post.externalPost.media[0] && (
-          <div className="w-full min-w-0 pt-1 pb-2" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full min-w-0 pt-0.5 pb-1" onClick={(e) => e.stopPropagation()}>
             <RedditVideo media={post.externalPost.media[0]} externalPost={post.externalPost} />
           </div>
         )}
@@ -416,14 +416,14 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         {post.externalPost &&
           post.externalPost.contentType === "GALLERY" &&
           post.externalPost.media.length > 0 && (
-            <div className="w-full min-w-0 pt-1 pb-2" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full min-w-0 pt-0.5 pb-1" onClick={(e) => e.stopPropagation()}>
               <RedditGallery mediaList={post.externalPost.media} externalPost={post.externalPost} />
             </div>
           )}
 
         {/* Compact topic metadata / hashtags */}
         {extractedHashtags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1" onClick={(e) => e.stopPropagation()}>
             {extractedHashtags.slice(0, 4).map((tag) => (
               <Link
                 key={tag}
@@ -445,7 +445,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         {post.repostOf &&
           Boolean(post.repostComment) &&
           post.body?.trim() !== post.repostOf.body?.trim() && (
-            <div className="w-full min-w-0 pb-2" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full min-w-0 pb-1" onClick={(e) => e.stopPropagation()}>
               <Link href={`/post/${post.repostOf.id}`}>
                 <div className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors p-3 text-xs space-y-1">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
@@ -469,13 +469,13 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
         {/* Poll Component */}
         {post.type === "POLL" && post.pollOptions && (
-          <div className="w-full min-w-0 pb-2" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full min-w-0 pb-1" onClick={(e) => e.stopPropagation()}>
             <PollCard post={post} />
           </div>
         )}
 
         {/* 3. FOOTER ROW: Action Bar aligned horizontally along the bottom */}
-        <div className="w-full min-w-0 pt-1">
+        <div className="w-full min-w-0 pt-0.5">
           {(() => {
             const effectiveVotesCount = userVote === 1 && votesCount <= 0 ? 1 : votesCount;
             return (

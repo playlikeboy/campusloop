@@ -33,6 +33,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   function formatTime(seconds: number) {
@@ -98,6 +99,9 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       setTotalDuration(video.duration || 0);
       setIsLoading(false);
       setHasError(false);
+      if (video.videoHeight && video.videoWidth && video.videoHeight > video.videoWidth) {
+        setIsPortrait(true);
+      }
     };
 
     const onError = () => {
@@ -155,7 +159,8 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       onTouchStart={handleUserActivity}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative aspect-video rounded-[16px] overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
+        "relative rounded-[16px] overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
+        isPortrait ? "aspect-[9/16] max-h-[520px]" : "aspect-video max-h-[440px]",
         className
       )}
     >
@@ -217,7 +222,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       {/* Bottom Floating Control Bar */}
       <div
         className={cn(
-          "absolute bottom-0 inset-x-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-200",
+          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-200",
           !hasError && (showControls || !isPlaying)
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

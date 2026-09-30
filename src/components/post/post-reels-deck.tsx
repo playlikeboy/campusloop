@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FastCommentsModal } from "@/components/feed/fast-comments-modal";
@@ -470,14 +470,6 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
               ))}
             </div>
           </div>
-
-          <Link
-            href="/explore"
-            className="size-8.5 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0 border border-border/40 bg-background/70"
-            aria-label="Explore campus discussions"
-          >
-            <Search className="size-4" strokeWidth={2.25} />
-          </Link>
         </div>
       </header>
 
@@ -485,7 +477,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 w-full min-h-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar pb-[72px] md:pb-0"
+        className="flex-1 w-full min-h-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar pb-0"
       >
         {items.map((item, index) => (
           <div
