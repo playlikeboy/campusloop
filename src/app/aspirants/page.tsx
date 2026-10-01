@@ -75,7 +75,7 @@ export default async function AspirantsPage() {
                 Browse Dream Campuses &rarr;
               </Link>
               <Link
-                href="/handler/sign-up"
+                href="/sign-up"
                 className="rounded-full border border-border/80 bg-card hover:bg-muted/60 font-semibold px-6 py-3 text-xs text-foreground"
               >
                 Create Free Viewer Account

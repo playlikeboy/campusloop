@@ -32,7 +32,7 @@ export default async function CommunitySettingsPage({ params }: PageProps) {
   const { id } = await params;
 
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   // Parallelize user profile and community lookup with request cache
   const [profile, comm] = await Promise.all([getCachedUserProfile(user.id), getCachedCommunity(id)]);

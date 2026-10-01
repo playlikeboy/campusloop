@@ -17,7 +17,7 @@ interface DirectChatPageProps {
 
 export default async function DirectChatPage({ params }: DirectChatPageProps) {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");

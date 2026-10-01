@@ -80,7 +80,7 @@ export type AdminSessionContext = {
 export async function resolveAdminSession(): Promise<AdminSessionContext> {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/login?redirect=/admin");
+    redirect("/sign-in?returnTo=/admin");
   }
 
   const email = user.primaryEmail?.toLowerCase();

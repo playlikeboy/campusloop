@@ -574,7 +574,7 @@ export function PitchClient() {
         </ol>
 
         {/* Notion resource card */}
-        <div className="mt-12 flex flex-col justify-between gap-4 rounded-3xl border border-primary/30 bg-linear-to-r from-primary/10 via-orange-500/10 to-amber-500/10 p-6 sm:flex-row sm:items-center sm:p-8">
+        <div className="mt-12 flex flex-col justify-between gap-4 rounded-3xl border border-primary/30 bg-linear-to-r from-primary/15 via-purple-500/10 to-secondary p-6 sm:flex-row sm:items-center sm:p-8">
           <div className="space-y-1">
             <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
               <BookOpen className="size-4" /> Live resource database

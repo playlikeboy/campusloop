@@ -76,7 +76,7 @@ export function AcademicAuthModal({
   }[actionReason];
 
   const CurrentIcon = reasonText.icon;
-  const signInUrl = `/handler/sign-in${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`;
+  const signInUrl = `/sign-in${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`;
 
   useEffect(() => {
     if (isOpen) {

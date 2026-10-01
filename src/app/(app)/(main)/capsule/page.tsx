@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function CapsulePage() {
   const user = await hexclaveServerApp.getUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   const db = getDb();
   const profile = await db.query.userProfiles.findFirst({

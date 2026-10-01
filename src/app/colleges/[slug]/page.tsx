@@ -288,7 +288,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                 <div className="flex flex-col sm:items-end gap-2 shrink-0">
                   {isActive ? (
                     <Link
-                      href={`/handler/sign-up?college=${college.slug}`}
+                      href={`/sign-up?college=${college.slug}`}
                       className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 text-xs shadow-xs text-center"
                     >
                       Verify & Join Campus Loop &rarr;
@@ -381,7 +381,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
               </p>
               <div className="flex justify-center gap-3 pt-1">
                 <Link
-                  href={`/handler/sign-up?college=${college.slug}`}
+                  href={`/sign-up?college=${college.slug}`}
                   className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 text-xs shadow-xs"
                 >
                   Verify With College Email &rarr;
