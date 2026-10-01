@@ -83,6 +83,25 @@ export function createComment(postId: string, text: string) {
   );
 }
 
+export function voteComment(postId: string, commentId: string) {
+  return apiRequest<{ success: boolean; hasLiked: boolean; likesCount: number }>(
+    `/api/posts/${postId}/comments/${commentId}/vote`,
+    "POST"
+  );
+}
+
+export function pinComment(postId: string, commentId: string) {
+  return apiRequest<{ success: boolean; isPinned: boolean }>(
+    `/api/posts/${postId}/comments/${commentId}/pin`,
+    "POST"
+  );
+}
+
+export function fetchCommentReplies(postId: string, commentId: string, cursor?: string) {
+  const url = `/api/posts/${postId}/comments/${commentId}/replies${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`;
+  return fetcher<{ replies: any[]; nextCursor: string | null }>(url);
+}
+
 // ─── Profile API Actions ───
 
 export function updateProfile(profileData: Record<string, unknown>) {

@@ -108,6 +108,10 @@ export async function GET(req: Request) {
 
     if (sort === "memes" || (type && (type === "MEME" || type === "memes"))) {
       conditions.push(eq(posts.type, "MEME"));
+    } else if (type === "MEDIA" || type === "media") {
+      conditions.push(
+        sql`(${posts.body} ILIKE '%![%http%' OR ${posts.body} ILIKE '%.jpg%' OR ${posts.body} ILIKE '%.png%' OR ${posts.body} ILIKE '%.webp%')`
+      );
     } else if (type && type !== "ALL" && type !== "all") {
       conditions.push(eq(posts.type, type as (typeof posts.type.enumValues)[number]));
     }

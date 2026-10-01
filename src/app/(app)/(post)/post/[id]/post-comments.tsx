@@ -52,6 +52,14 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [replyIsAnon, setReplyIsAnon] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
+
+  function toggleExpandReplies(commentId: string) {
+    setExpandedReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  }
 
   function handleCommentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const val = e.target.value;
@@ -210,6 +218,12 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
       body,
       isAnonymous,
       status: "PUBLISHED",
+      isPinned: false,
+      imageUrl: commentImage || null,
+      replyToUserId: null,
+      likesCount: 0,
+      repliesCount: 0,
+      hasLiked: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -251,10 +265,15 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
       author: replyIsAnon ? null : profile || null,
       pseudonym: replyIsAnon ? profile?.anonymousUsername || "Anonymous Student" : null,
       parentId,
-
       body: replyBody.trim(),
       isAnonymous: replyIsAnon,
       status: "PUBLISHED",
+      isPinned: false,
+      imageUrl: null,
+      replyToUserId: null,
+      likesCount: 0,
+      repliesCount: 0,
+      hasLiked: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -268,11 +287,14 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
     setReplyingToId(null);
     setIsSubmitting(true);
 
+    const targetParent = comments?.find((c) => c.id === parentId);
+    const replyToUserId = targetParent?.authorId || undefined;
+
     try {
       const res = await fetch(`/api/posts/${postId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: bodyToSend, isAnonymous: anonToSend, parentId }),
+        body: JSON.stringify({ body: bodyToSend, isAnonymous: anonToSend, parentId, replyToUserId }),
       });
 
       if (!res.ok) throw new Error("Failed to post reply");
@@ -285,6 +307,10 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
       setIsSubmitting(false);
     }
   }
+
+  const canPin = Boolean(
+    profile && (profile.id === postAuthorId || profile.role === "ADMIN" || profile.role === "MODERATOR")
+  );
 
   // Instagram & Twitter/X Comments Ranking Algorithm
   const { topLevelComments, repliesMap } = useMemo(() => {
@@ -511,6 +537,9 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
           topLevelComments.map((comment) => {
             const replies = repliesMap.get(comment.id) || [];
             const isAuthor = Boolean(postAuthorId && comment.authorId === postAuthorId);
+            const isExpanded = Boolean(expandedReplies[comment.id]);
+            const visibleReplies = isExpanded || replies.length <= 2 ? replies : replies.slice(0, 1);
+            const remainingCount = replies.length - visibleReplies.length;
 
             return (
               <div key={comment.id} className="pt-2 pb-1">
@@ -518,6 +547,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
                   comment={comment}
                   postId={postId}
                   isPostAuthor={isAuthor}
+                  canPin={canPin}
                   hasReplies={replies.length > 0}
                   onReply={(id) => setReplyingToId(id)}
                   replyingToId={replyingToId}
@@ -531,7 +561,7 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
                 />
 
                 {/* Nested Replies Stream */}
-                {replies.map((reply) => {
+                {visibleReplies.map((reply) => {
                   const isReplyAuthor = Boolean(postAuthorId && reply.authorId === postAuthorId);
                   return (
                     <CommentItem
@@ -552,6 +582,31 @@ export function PostComments({ postId, postAuthorId, postAuthorHandle }: PostCom
                     />
                   );
                 })}
+
+                {/* 2-Level Threading Accordion */}
+                {remainingCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpandReplies(comment.id)}
+                    className="flex items-center gap-2 pl-11 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+                  >
+                    <div className="w-5 h-[1.5px] bg-border/80 group-hover:bg-foreground/50 transition-colors" />
+                    <span>
+                      View {remainingCount} more {remainingCount === 1 ? "reply" : "replies"}
+                    </span>
+                  </button>
+                )}
+
+                {isExpanded && replies.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpandReplies(comment.id)}
+                    className="flex items-center gap-2 pl-11 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+                  >
+                    <div className="w-5 h-[1.5px] bg-border/80 group-hover:bg-foreground/50 transition-colors" />
+                    <span>Hide replies</span>
+                  </button>
+                )}
               </div>
             );
           })

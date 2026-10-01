@@ -590,3 +590,194 @@ export function SearchSkeleton() {
     </div>
   );
 }
+
+// ──────── 13. App Shell Skeleton (Global Page-Transition Fallback) ────────
+
+export function AppShellSkeleton() {
+  return (
+    <div className="w-full max-w-2xl mx-auto min-h-screen select-none border-x border-border/20">
+      {/* Top Header Placeholder */}
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border/30 bg-background/80 px-4 py-3 backdrop-blur-md">
+        <div className="flex items-center gap-2.5">
+          <Skeleton className="size-8 rounded-full" />
+          <Skeleton className="h-5 w-24 rounded-lg" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-8 rounded-full" />
+          <Skeleton className="size-8 rounded-full" />
+        </div>
+      </div>
+
+      {/* Story Rings */}
+      <StoryRingSkeleton />
+
+      {/* Feed Stream */}
+      <FeedSkeleton />
+    </div>
+  );
+}
+
+// ──────── 14. Academics Hub Skeleton ────────
+
+export function AcademicsSkeleton() {
+  return (
+    <div className="w-full max-w-5xl mx-auto px-4 py-4 space-y-5 select-none pb-24">
+      {/* Search & Top Action Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <Skeleton className="h-10 flex-1 rounded-2xl" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 w-24 rounded-xl" />
+          <Skeleton className="h-9 w-28 rounded-xl" />
+        </div>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <Skeleton className="h-8 w-20 rounded-full shrink-0" />
+        <Skeleton className="h-8 w-18 rounded-full shrink-0" />
+        <Skeleton className="h-8 w-20 rounded-full shrink-0" />
+        <Skeleton className="h-8 w-24 rounded-full shrink-0" />
+        <Skeleton className="h-8 w-18 rounded-full shrink-0" />
+      </div>
+
+      {/* Branch & Semester Pills */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <Skeleton key={i} className="h-7 w-20 rounded-lg shrink-0" />
+        ))}
+      </div>
+
+      {/* Resource Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className="rounded-2xl border border-border/40 bg-card p-4 space-y-3 shadow-xs"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <Skeleton className="size-9 rounded-xl shrink-0" />
+              <div className="flex items-center gap-1">
+                <Skeleton className="h-5 w-14 rounded-full" />
+                <Skeleton className="h-5 w-12 rounded-full" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Skeleton className="h-4.5 w-4/5 rounded-md" />
+              <Skeleton className="h-3.5 w-full rounded-md" />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-border/20">
+              <Skeleton className="h-3 w-20 rounded-md" />
+              <Skeleton className="h-7 w-16 rounded-xl" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ──────── 15. Hashtag Topic Hub Skeleton ────────
+
+export function HashtagFeedSkeleton() {
+  return (
+    <div className="w-full max-w-2xl mx-auto min-h-screen select-none border-x border-border/20 pb-24">
+      {/* Hero Topic Card Skeleton */}
+      <div className="p-4 sm:p-5 border-b border-border/30 bg-muted/15 space-y-3.5">
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-8 w-44 rounded-xl" />
+          <Skeleton className="h-7 w-24 rounded-full" />
+        </div>
+        <Skeleton className="h-4 w-3/4 rounded-md" />
+        <div className="flex items-center gap-2 pt-1">
+          <Skeleton className="h-6 w-28 rounded-full" />
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center justify-around border-b border-border/30 py-2.5">
+        <Skeleton className="h-4 w-12 rounded-full" />
+        <Skeleton className="h-4 w-14 rounded-full" />
+        <Skeleton className="h-4 w-28 rounded-full" />
+        <Skeleton className="h-4 w-20 rounded-full" />
+      </div>
+
+      {/* Feed Posts */}
+      <FeedSkeleton />
+    </div>
+  );
+}
+
+// ──────── 16. Secret Crush Vault Skeleton ────────
+
+export function SecretCrushSkeleton() {
+  return (
+    <div className="w-full max-w-lg mx-auto px-4 py-5 space-y-5 select-none pb-24">
+      {/* Hero Vault Box */}
+      <div className="rounded-3xl border border-border/50 bg-card p-6 text-center space-y-3 shadow-sm">
+        <Skeleton className="size-14 mx-auto rounded-2xl" />
+        <Skeleton className="h-5 w-40 mx-auto rounded-lg" />
+        <Skeleton className="h-3.5 w-60 mx-auto rounded-md" />
+      </div>
+
+      {/* Search Input */}
+      <Skeleton className="h-11 w-full rounded-2xl" />
+
+      {/* Crush Slots */}
+      <div className="space-y-3 pt-2">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between p-3.5 rounded-2xl border border-border/40 bg-card"
+          >
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-11 rounded-full shrink-0" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-32 rounded-md" />
+                <Skeleton className="h-3 w-20 rounded-md" />
+              </div>
+            </div>
+            <Skeleton className="size-9 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ──────── 17. Marketplace Skeleton ────────
+
+export function MarketplaceSkeleton() {
+  return (
+    <div className="w-full max-w-5xl mx-auto px-4 py-4 space-y-5 select-none pb-24">
+      {/* Category Banners */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-24 rounded-2xl" />
+        ))}
+      </div>
+
+      {/* Search & Filters */}
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-10 flex-1 rounded-xl" />
+        <Skeleton className="h-10 w-24 rounded-xl" />
+      </div>
+
+      {/* Product Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="rounded-2xl border border-border/40 bg-card p-3 space-y-2.5">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-4 w-3/4 rounded-md" />
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-4 w-12 rounded-md" />
+              <Skeleton className="h-6 w-16 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

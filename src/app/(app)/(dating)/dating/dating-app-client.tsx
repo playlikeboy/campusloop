@@ -264,24 +264,24 @@ export function DatingAppClient() {
       {/* ─── Deck ─── */}
       <main className="flex min-h-0 flex-1 flex-col py-3 pb-[max(env(safe-area-inset-bottom),1rem)]">
         {genderGateRequired ? (
-          <div className="m-auto w-full max-w-sm space-y-5 rounded-3xl border border-border/70 bg-card p-6 text-center shadow-lg">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-              <Heart className="size-7 fill-primary" />
+          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/90 backdrop-blur-xl p-6 text-center shadow-lg">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
+              <Heart className="size-6 fill-primary" />
             </div>
             <div className="space-y-1">
-              <h2 className="text-lg font-black text-foreground">Welcome to Campus Match</h2>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Choose how you identify to personalize your campus recommendations.
+              <h2 className="text-base font-black text-foreground">Select Your Identity</h2>
+              <p className="text-xs text-muted-foreground">
+                Personalize recommendations with verified peers
               </p>
             </div>
-            <form onSubmit={handleSaveGenderGate} className="space-y-4">
+            <form onSubmit={handleSaveGenderGate} className="space-y-3.5 pt-1">
               <div className="grid grid-cols-3 gap-2">
                 {(["MALE", "FEMALE", "OTHER"] as const).map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() => setSelectedGenderGate(g)}
-                    className={`cursor-pointer rounded-2xl border py-2.5 text-xs font-bold transition-all ${
+                    className={`cursor-pointer rounded-2xl border py-2 text-xs font-bold transition-all ${
                       selectedGenderGate === g
                         ? "border-primary bg-primary/15 text-primary font-black shadow-xs ring-1 ring-primary"
                         : "border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground"
@@ -294,7 +294,7 @@ export function DatingAppClient() {
               <button
                 type="submit"
                 disabled={isSavingGender}
-                className="w-full cursor-pointer rounded-2xl bg-primary py-3 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95 disabled:opacity-50"
+                className="w-full cursor-pointer rounded-full bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95 disabled:opacity-50"
               >
                 {isSavingGender ? "Saving..." : "Start Matching"}
               </button>
@@ -307,7 +307,7 @@ export function DatingAppClient() {
             <div className="relative min-h-0 flex-1 py-1">
               <SwipeDeck candidates={remaining} onSwipe={handleSwipe} />
             </div>
-            <div className="pt-3">
+            <div className="pt-2">
               <SwipeActions
                 onPass={() => handleSwipe("pass")}
                 onLike={() => handleSwipe("like")}
@@ -315,36 +315,51 @@ export function DatingAppClient() {
                 canUndo={!!lastSwipedId}
               />
             </div>
+            {/* Desktop Keyboard Shortcuts Hint */}
+            <div className="hidden sm:flex items-center justify-center gap-3 pt-2 text-[11px] text-muted-foreground/70 select-none">
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 font-mono text-[10px]">←</kbd> Pass
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 font-mono text-[10px]">→</kbd> Match
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 font-mono text-[10px]">U</kbd> Rewind
+              </span>
+            </div>
           </>
         ) : (
-          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-dashed border-border/80 bg-card/60 p-8 text-center shadow-xs">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-              <Sparkles className="size-7" />
+          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/60 backdrop-blur-xl p-7 text-center shadow-xs">
+            <div className="relative mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
+              <div className="absolute inset-0 rounded-2xl bg-primary/20 animate-ping opacity-40" />
+              <Sparkles className="size-6 text-primary relative z-10" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-black text-foreground">All Caught Up</h3>
+              <h3 className="text-base font-black text-foreground">All Caught Up Nearby</h3>
               <p className="text-xs text-muted-foreground">
-                You&apos;ve seen all profiles matching your current filters.
+                Expand your scope to meet students across other campuses
               </p>
             </div>
             <div className="flex flex-col gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => widenSearch({ scope: "GLOBAL", gender: "ALL" })}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95"
               >
                 <Globe className="size-4" /> Explore All Campuses
               </button>
               <button
                 type="button"
                 onClick={handleResetSwipes}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
               >
                 <RotateCcw className="size-3.5" /> Reset Swipes
               </button>
               <Link
                 href="/profile/edit"
-                className="flex w-full items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/50"
+                className="flex w-full items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
               >
                 <Camera className="size-3.5" /> Edit Dating Profile
               </Link>

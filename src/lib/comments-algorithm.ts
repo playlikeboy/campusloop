@@ -10,18 +10,25 @@ export interface CommentRankingOptions {
 
 /**
  * Instagram & Twitter/X Comment Relevance Algorithm:
- * 1. OP (Original Poster) boost: Comments or replies by the thread creator are ranked at the top.
- * 2. Verified Student boost: Gold Star / verified students (LP >= 150).
- * 3. Same Campus boost: Classmates from the same college campus.
- * 4. Discussion depth: Comments that sparked replies (active conversation trees).
- * 5. Substance bonus: Thoughtful, detailed responses over low-effort comments.
- * 6. Time decay: Freshness weighting so active new discussions surface.
+ * 1. Pinned comment: Author/Admin pinned comment receives absolute priority (+50,000).
+ * 2. OP (Original Poster) boost: Comments by the thread creator (+1500).
+ * 3. Verified Student boost: Gold Star / verified students (LP >= 150: +250, LP >= 50: +80).
+ * 4. Same Campus boost: Classmates from the same college campus (+150).
+ * 5. Community Likes: Real DB likesCount (+90 per like) + viewer like (+60).
+ * 6. Discussion depth: Comments that sparked replies (+120 per reply).
+ * 7. Substance bonus: Thoughtful, detailed responses over low-effort comments.
+ * 8. Time decay: Half-life decay over 72 hours.
  */
 export function calculateCommentScore(
   comment: CommentWithAuthor,
   repliesCount: number,
   options: CommentRankingOptions
 ): number {
+  // Pinned comments always top the feed
+  if (comment.isPinned) {
+    return 50000;
+  }
+
   let score = 0;
 
   // 1. OP (Author) Boost — Highest priority in Instagram & Twitter
@@ -30,25 +37,36 @@ export function calculateCommentScore(
     score += 1500;
   }
 
-  // 2. Verified / High-Clout Student Boost
+  // 2. Same Campus Boost — Classmates from the same university
+  if (
+    options.viewerInstitutionId &&
+    comment.author?.institutionId &&
+    options.viewerInstitutionId === comment.author.institutionId
+  ) {
+    score += 150;
+  }
+
+  // 3. Verified / High-Clout Student Boost
   const authorPoints = comment.author?.points || 0;
-  const isVerified = authorPoints >= 150;
-  if (isVerified) {
+  if (authorPoints >= 150) {
     score += 250;
   } else if (authorPoints >= 50) {
     score += 80;
   }
 
-  // 3. Discussion Depth (Replies spawned)
-  score += repliesCount * 120;
-
-  // 4. User Likes / Community Engagement
-  const isLikedByViewer = Boolean(options.likedCommentIds?.[comment.id]);
+  // 4. Community Likes (Durable database likes + viewer state)
+  const isLikedByViewer = Boolean(options.likedCommentIds?.[comment.id] || comment.hasLiked);
+  const totalLikes = Math.max(comment.likesCount || 0, isLikedByViewer ? 1 : 0);
+  score += totalLikes * 90;
   if (isLikedByViewer) {
     score += 60;
   }
 
-  // 5. Substance Bonus (meaningful content vs single emoji)
+  // 5. Discussion Depth (Replies spawned)
+  const totalReplies = Math.max(repliesCount, comment.repliesCount || 0);
+  score += totalReplies * 120;
+
+  // 6. Substance Bonus (meaningful content vs single emoji)
   const bodyLen = (comment.body || "").trim().length;
   if (bodyLen > 80) {
     score += 40;
@@ -56,7 +74,7 @@ export function calculateCommentScore(
     score += 20;
   }
 
-  // 6. Time Decay (Half-life decay over 48 hours)
+  // 7. Time Decay (Decay over 72 hours)
   const createdAtTime = new Date(comment.createdAt).getTime();
   const hoursAgo = Math.max(0, (Date.now() - createdAtTime) / (1000 * 60 * 60));
   const freshnessMultiplier = Math.max(0.2, 1 - hoursAgo / 72);
@@ -65,8 +83,8 @@ export function calculateCommentScore(
 }
 
 /**
- * Organizes comments into threaded hierarchy and sorts top-level comments
- * using either the Instagram/Twitter "TOP" algorithm or chronological "LATEST".
+ * Organizes comments into a strict 2-level flat hierarchy (Instagram/Threads by Meta model)
+ * and sorts top-level comments using either the algorithmic "TOP" score or chronological "LATEST".
  */
 export function rankAndThreadComments(
   comments: CommentWithAuthor[],
@@ -75,21 +93,43 @@ export function rankAndThreadComments(
   topLevelComments: CommentWithAuthor[];
   repliesMap: Map<string, CommentWithAuthor[]>;
 } {
+  const commentMap = new Map<string, CommentWithAuthor>();
+  for (const comment of comments) {
+    commentMap.set(comment.id, comment);
+  }
+
+  // Resolve root ancestor for any nested reply to enforce strict 2-level flat tree
+  function findRootParentId(startParentId: string): string {
+    let currentId = startParentId;
+    const visited = new Set<string>();
+
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+      const parent = commentMap.get(currentId);
+      if (!parent || !parent.parentId) {
+        return currentId;
+      }
+      currentId = parent.parentId;
+    }
+    return startParentId;
+  }
+
   const repliesMap = new Map<string, CommentWithAuthor[]>();
   const topLevel: CommentWithAuthor[] = [];
 
-  // Group into top-level vs child replies
+  // Group into root comments vs child replies (flattened to root)
   for (const comment of comments) {
     if (comment.parentId) {
-      const existing = repliesMap.get(comment.parentId) || [];
+      const rootId = findRootParentId(comment.parentId);
+      const existing = repliesMap.get(rootId) || [];
       existing.push(comment);
-      repliesMap.set(comment.parentId, existing);
+      repliesMap.set(rootId, existing);
     } else {
       topLevel.push(comment);
     }
   }
 
-  // Sort child replies chronologically (natural conversational flow like Twitter threads)
+  // Sort child replies chronologically (natural conversational flow like Threads/Instagram)
   for (const replyList of repliesMap.values()) {
     replyList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }
@@ -97,13 +137,19 @@ export function rankAndThreadComments(
   const sortMode = options.sortMode || "TOP";
 
   if (sortMode === "LATEST") {
-    // Newest first
-    topLevel.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  } else {
-    // Twitter & Instagram algorithmic relevance
+    // Pinned comments first, then newest first
     topLevel.sort((a, b) => {
-      const repliesA = repliesMap.get(a.id)?.length || 0;
-      const repliesB = repliesMap.get(b.id)?.length || 0;
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  } else {
+    // Algorithmic relevance (Pinned comments receive +50,000)
+    topLevel.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      const repliesA = repliesMap.get(a.id)?.length || a.repliesCount || 0;
+      const repliesB = repliesMap.get(b.id)?.length || b.repliesCount || 0;
       const scoreA = calculateCommentScore(a, repliesA, options);
       const scoreB = calculateCommentScore(b, repliesB, options);
       return scoreB - scoreA;
