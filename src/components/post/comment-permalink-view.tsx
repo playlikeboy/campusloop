@@ -7,13 +7,14 @@ import {
   Link2,
   MessageCircle,
   MoreHorizontal,
+  Pin,
   Send,
   Sparkles,
   User,
   VenetianMask,
 } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   AnimatedIcon,
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/mention-autocomplete";
 import { RichText } from "@/components/ui/rich-text";
 import { useProfile } from "@/hooks/use-profile";
+import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
@@ -54,6 +56,12 @@ export interface CommentData {
   body: string;
   isAnonymous: boolean;
   pseudonym?: string | null;
+  isPinned?: boolean;
+  likesCount?: number;
+  repliesCount?: number;
+  hasLiked?: boolean;
+  imageUrl?: string | null;
+  replyToUserId?: string | null;
   createdAt: Date | string;
   authorId?: string | null;
   author?: CommentAuthor | null;
@@ -74,8 +82,13 @@ export function CommentPermalinkView({
 }: CommentPermalinkViewProps) {
   const { profile } = useProfile();
   const [replies, setReplies] = useState<CommentData[]>(initialReplies);
-  const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
+  const [liked, setLiked] = useState(Boolean(comment.hasLiked));
+  const [likesCount, setLikesCount] = useState(comment.likesCount || 0);
+
+  useEffect(() => {
+    setLiked(Boolean(comment.hasLiked));
+    setLikesCount(comment.likesCount || 0);
+  }, [comment.hasLiked, comment.likesCount]);
 
   // Reply Composer State
   const [replyBody, setReplyBody] = useState("");
@@ -122,17 +135,30 @@ export function CommentPermalinkView({
     }
   }
 
-  function handleToggleLike() {
-    if (liked) {
-      sounds.tap();
-      haptics.light();
-      setLiked(false);
-      setLikesCount((c) => Math.max(0, c - 1));
-    } else {
+  async function handleToggleLike() {
+    const nextLiked = !liked;
+    const nextCount = nextLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
+    setLiked(nextLiked);
+    setLikesCount(nextCount);
+
+    if (nextLiked) {
       sounds.pop();
       haptics.medium();
-      setLiked(true);
-      setLikesCount((c) => c + 1);
+    } else {
+      sounds.tap();
+      haptics.light();
+    }
+
+    try {
+      const res = await voteComment(comment.postId, comment.id);
+      if (res && typeof res.likesCount === "number") {
+        setLikesCount(res.likesCount);
+        setLiked(res.hasLiked);
+      }
+    } catch {
+      setLiked(liked);
+      setLikesCount(likesCount);
+      toast.error("Failed to update reaction");
     }
   }
 

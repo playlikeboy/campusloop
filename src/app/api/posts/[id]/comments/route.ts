@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { anonIdentityVault, comments, posts, reelComments, reels, userProfiles } from "@/db/schema";
+import { anonIdentityVault, comments, commentVotes, posts, reelComments, reels, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, openSealedIdentity, sealIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
@@ -17,11 +17,43 @@ export async function GET(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     const db = getDb();
+
+    // Optional user authentication for personalized like hydration
+    let currentProfileId: string | null = null;
+    try {
+      const user = await hexclaveServerApp.getUser();
+      if (user) {
+        const profile = await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, user.id),
+          columns: { id: true },
+        });
+        currentProfileId = profile?.id ?? null;
+      }
+    } catch {
+      // Unauthenticated viewers are supported
+    }
+
     const postComments = await db.query.comments.findMany({
       where: and(eq(comments.postId, id), eq(comments.status, "PUBLISHED")),
       orderBy: [asc(comments.createdAt)],
       with: {
-        author: true,
+        author: {
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+            points: true,
+            institutionId: true,
+          },
+        },
+        replyToUser: {
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
       },
     });
 
@@ -56,6 +88,10 @@ export async function GET(req: Request, { params }: RouteParams) {
             body: c.body,
             isAnonymous: false,
             status: "PUBLISHED",
+            likesCount: 0,
+            repliesCount: 0,
+            isPinned: false,
+            hasLiked: false,
             createdAt: c.createdAt.toISOString(),
             author: c.author
               ? {
@@ -71,10 +107,37 @@ export async function GET(req: Request, { params }: RouteParams) {
       }
     }
 
+    // Batch hydrate viewer votes
+    const likedCommentIds = new Set<string>();
+    if (currentProfileId && postComments.length > 0) {
+      const itemIds = postComments.map((c) => c.id);
+      const userVotes = await db
+        .select({ commentId: commentVotes.commentId })
+        .from(commentVotes)
+        .where(
+          and(
+            eq(commentVotes.userId, currentProfileId),
+            inArray(commentVotes.commentId, itemIds)
+          )
+        );
+      for (const v of userVotes) {
+        likedCommentIds.add(v.commentId);
+      }
+    }
+
     // Strip author identity for anonymous comments before it leaves the server.
     const sanitized = postComments.map((comment) => {
-      if (!comment.isAnonymous) return comment;
-      const rest = { ...comment } as Partial<Record<"author", unknown>>;
+      const hasLiked = likedCommentIds.has(comment.id);
+      const enriched = {
+        ...comment,
+        hasLiked,
+        likesCount: comment.likesCount || 0,
+        repliesCount: comment.repliesCount || 0,
+        isPinned: Boolean(comment.isPinned),
+      };
+
+      if (!enriched.isAnonymous) return enriched;
+      const rest = { ...enriched } as Partial<Record<"author", unknown>>;
       delete rest.author;
       return { ...rest, author: null };
     });
@@ -106,10 +169,12 @@ export async function POST(req: Request, { params }: RouteParams) {
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
-    const { body, isAnonymous, parentId } = (await req.json()) as {
+    const { body, isAnonymous, parentId, replyToUserId, imageUrl } = (await req.json()) as {
       body: string;
       isAnonymous?: boolean;
       parentId?: string;
+      replyToUserId?: string;
+      imageUrl?: string;
     };
 
     if (!body || body.trim().length === 0) {
@@ -187,6 +252,10 @@ export async function POST(req: Request, { params }: RouteParams) {
           body: newReelComment.body,
           isAnonymous: false,
           status: "PUBLISHED",
+          likesCount: 0,
+          repliesCount: 0,
+          isPinned: false,
+          hasLiked: false,
           createdAt: newReelComment.createdAt.toISOString(),
           author: {
             id: profile.id,
@@ -210,11 +279,28 @@ export async function POST(req: Request, { params }: RouteParams) {
         authorId: anonymous ? null : profile.id,
         pseudonym: anonHandle,
         parentId: parentId || null,
+        replyToUserId: replyToUserId || null,
+        imageUrl: imageUrl || null,
         body: body.trim(),
         isAnonymous: anonymous,
         status: safety.status,
+        likesCount: 0,
+        repliesCount: 0,
+        isPinned: false,
       })
       .returning();
+
+    // Increment repliesCount on parent comment
+    if (parentId) {
+      try {
+        await db
+          .update(comments)
+          .set({ repliesCount: sql`${comments.repliesCount} + 1` })
+          .where(eq(comments.id, parentId));
+      } catch (countErr) {
+        console.warn("Could not increment repliesCount on parent comment:", countErr);
+      }
+    }
 
     if (anonymous && anonHandle) {
       try {
@@ -304,7 +390,25 @@ export async function POST(req: Request, { params }: RouteParams) {
       console.warn("Notification insert warning:", notifErr);
     }
 
-    return NextResponse.json(newComment, { status: 201 });
+    const hydratedResponse = {
+      ...newComment,
+      hasLiked: false,
+      likesCount: 0,
+      repliesCount: 0,
+      isPinned: false,
+      author: anonymous
+        ? null
+        : {
+            id: profile.id,
+            username: profile.username,
+            displayName: profile.displayName,
+            avatarUrl: profile.avatarUrl,
+            points: (profile.points || 0) + 2,
+            institutionId: profile.institutionId,
+          },
+    };
+
+    return NextResponse.json(hydratedResponse, { status: 201 });
   } catch (error) {
     console.error("Error creating comment:", error);
     return NextResponse.json(

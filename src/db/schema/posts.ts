@@ -68,10 +68,15 @@ export const comments = pgTable(
       .notNull()
       .references(() => posts.id, { onDelete: "cascade" }),
     authorId: text("author_id").references(() => userProfiles.id, { onDelete: "cascade" }),
-    pseudonym: text("pseudonym"),
     parentId: text("parent_id").references((): AnyPgColumn => comments.id, { onDelete: "cascade" }),
+    replyToUserId: text("reply_to_user_id").references((): AnyPgColumn => userProfiles.id, { onDelete: "set null" }),
+    pseudonym: text("pseudonym"),
     body: text("body").notNull(),
+    imageUrl: text("image_url"),
     isAnonymous: boolean("is_anonymous").default(false).notNull(),
+    isPinned: boolean("is_pinned").default(false).notNull(),
+    likesCount: integer("likes_count").default(0).notNull(),
+    repliesCount: integer("replies_count").default(0).notNull(),
     status: contentStatusEnum("status").default("PUBLISHED").notNull(),
     createdAt,
     updatedAt,
@@ -80,6 +85,7 @@ export const comments = pgTable(
     index("comments_post_created_idx").on(table.postId, table.createdAt),
     index("comments_parent_created_idx").on(table.parentId, table.createdAt),
     index("comments_author_idx").on(table.authorId),
+    index("comments_post_pinned_idx").on(table.postId, table.isPinned),
   ]
 );
 
@@ -136,7 +142,29 @@ export const votes = pgTable(
   ]
 );
 
+export const commentVotes = pgTable(
+  "comment_votes",
+  {
+    id: id(),
+    commentId: text("comment_id")
+      .notNull()
+      .references(() => comments.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    value: integer("value").default(1).notNull(),
+    createdAt,
+  },
+  (table) => [
+    uniqueIndex("comment_votes_user_comment_idx").on(table.userId, table.commentId),
+    index("comment_votes_comment_idx").on(table.commentId),
+    index("comment_votes_user_idx").on(table.userId),
+  ]
+);
+
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;
+export type CommentVote = typeof commentVotes.$inferSelect;
+export type NewCommentVote = typeof commentVotes.$inferInsert;

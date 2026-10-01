@@ -1,8 +1,8 @@
 "use client";
 
-import { Copy, Link2, MoreHorizontal, User, VenetianMask } from "lucide-react";
+import { Copy, Link2, MoreHorizontal, Pin, Sparkles, User, VenetianMask } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   AnimatedIcon,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/mention-autocomplete";
 import { RichText } from "@/components/ui/rich-text";
 import type { Comment } from "@/db/schema";
+import { pinComment, voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
@@ -26,6 +27,17 @@ import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
 export type CommentWithAuthor = Omit<Comment, "createdAt" | "updatedAt"> & {
   createdAt: Date | string;
   updatedAt?: Date | string;
+  likesCount?: number;
+  repliesCount?: number;
+  isPinned?: boolean;
+  hasLiked?: boolean;
+  imageUrl?: string | null;
+  replyToUserId?: string | null;
+  replyToUser?: {
+    id?: string;
+    username?: string | null;
+    displayName?: string | null;
+  } | null;
   author: {
     id?: string;
     username?: string | null;
@@ -41,6 +53,7 @@ interface CommentItemProps {
   postId?: string;
   depth?: number;
   isPostAuthor?: boolean;
+  canPin?: boolean;
   hasReplies?: boolean;
   onReply: (id: string) => void;
   replyingToId: string | null;
@@ -58,6 +71,7 @@ export function CommentItem({
   postId,
   depth = 0,
   isPostAuthor = false,
+  canPin = false,
   hasReplies = false,
   onReply,
   replyingToId,
@@ -69,13 +83,23 @@ export function CommentItem({
   isSubmitting,
   submitReply,
 }: CommentItemProps) {
-  const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
+  const [liked, setLiked] = useState(Boolean(comment.hasLiked));
+  const [likesCount, setLikesCount] = useState(comment.likesCount || 0);
+  const [isPinned, setIsPinned] = useState(Boolean(comment.isPinned));
   const [showMenu, setShowMenu] = useState(false);
   const [replyMentionTrigger, setReplyMentionTrigger] = useState<TriggerContext | null>(null);
+  const [lastTap, setLastTap] = useState(0);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+
   const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
   const reply = useIconHandle();
   const like = useIconHandle();
+
+  useEffect(() => {
+    setLiked(Boolean(comment.hasLiked));
+    setLikesCount(comment.likesCount || 0);
+    setIsPinned(Boolean(comment.isPinned));
+  }, [comment.hasLiked, comment.likesCount, comment.isPinned]);
 
   const isAnon = comment.isAnonymous;
   const displayName = isAnon ? "Anonymous Student" : comment.author?.displayName || "Student";
@@ -92,17 +116,62 @@ export function CommentItem({
 
   const isReplying = replyingToId === comment.id;
 
-  function handleToggleLike() {
-    if (liked) {
-      sounds.tap();
-      haptics.light();
-      setLiked(false);
-      setLikesCount((c) => Math.max(0, c - 1));
-    } else {
+  async function handleToggleLike() {
+    const nextLiked = !liked;
+    const nextCount = nextLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
+    setLiked(nextLiked);
+    setLikesCount(nextCount);
+
+    if (nextLiked) {
       sounds.pop();
       haptics.medium();
-      setLiked(true);
-      setLikesCount((c) => c + 1);
+    } else {
+      sounds.tap();
+      haptics.light();
+    }
+
+    const targetPostId = postId || comment.postId;
+    if (!targetPostId) return;
+
+    try {
+      const res = await voteComment(targetPostId, comment.id);
+      if (res && typeof res.likesCount === "number") {
+        setLikesCount(res.likesCount);
+        setLiked(res.hasLiked);
+      }
+    } catch {
+      // Revert on failure
+      setLiked(liked);
+      setLikesCount(likesCount);
+      toast.error("Failed to update reaction");
+    }
+  }
+
+  // Instagram-style double tap to like
+  function handleDoubleTap() {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      if (!liked) {
+        handleToggleLike();
+      }
+      setShowHeartBurst(true);
+      setTimeout(() => setShowHeartBurst(false), 800);
+    }
+    setLastTap(now);
+  }
+
+  async function handleTogglePin() {
+    setShowMenu(false);
+    const targetPostId = postId || comment.postId;
+    if (!targetPostId) return;
+
+    try {
+      const res = await pinComment(targetPostId, comment.id);
+      setIsPinned(res.isPinned);
+      toast.success(res.isPinned ? "Comment pinned to top 📌" : "Comment unpinned");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to toggle pin state");
     }
   }
 
@@ -148,19 +217,41 @@ export function CommentItem({
   }
 
   return (
-    <div className="relative group">
-      {/* Twitter Vertical Thread Connector Line */}
+    <div className="relative group select-text" onClick={handleDoubleTap}>
+      {/* Pinned indicator banner */}
+      {isPinned && depth === 0 && (
+        <div className="flex items-center gap-1.5 px-3 py-1 mb-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-lg w-fit border border-amber-500/20">
+          <Pin className="size-3 fill-amber-500/30 rotate-45 shrink-0" />
+          <span>Pinned by author</span>
+        </div>
+      )}
+
+      {/* Threads Vertical Thread Connector Line */}
       {hasReplies && depth === 0 && (
-        <div className="absolute left-5 top-11 bottom-0 w-0.5 bg-border/40 -z-0" />
+        <div className="absolute left-4.5 top-11 bottom-0 w-0.5 bg-border/50 -z-0" />
       )}
 
       <div
         className={cn(
-          "flex gap-3 py-3 text-foreground transition-colors",
+          "flex gap-3 py-3 text-foreground transition-colors relative",
           depth > 0 &&
-            "pl-8 sm:pl-10 relative before:absolute before:left-3.5 before:top-0 before:bottom-6 before:w-0.5 before:bg-border/40"
+            "pl-8 sm:pl-10 before:absolute before:left-3.5 before:top-0 before:bottom-6 before:w-0.5 before:bg-border/40"
         )}
       >
+        {/* Double-tap heart burst effect */}
+        {showHeartBurst && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-50 duration-200">
+            <div className="p-3 bg-black/40 backdrop-blur-md rounded-full shadow-2xl">
+              <AnimatedIcon
+                icon={AnimateHeart}
+                animation="beat"
+                size={36}
+                className="fill-rose-500 text-rose-500"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Avatar */}
         <div className="shrink-0 relative z-10">
           {!isAnon ? (
@@ -204,7 +295,7 @@ export function CommentItem({
               {/* OP / Author Badge */}
               {isPostAuthor && (
                 <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-black text-primary border border-primary/20">
-                  Author
+                  OP
                 </span>
               )}
 
@@ -244,6 +335,18 @@ export function CommentItem({
                     className="absolute right-0 mt-1 w-48 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-xl z-30 py-1 animate-in fade-in zoom-in-95"
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {/* Pin/Unpin option for author/admin */}
+                    {canPin && depth === 0 && (
+                      <button
+                        type="button"
+                        onClick={handleTogglePin}
+                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
+                      >
+                        <Pin className="size-3.5 text-amber-500 rotate-45" />
+                        <span>{isPinned ? "Unpin comment" : "Pin comment to top"}</span>
+                      </button>
+                    )}
+
                     <button
                       type="button"
                       onClick={() => {
@@ -255,6 +358,7 @@ export function CommentItem({
                       <Link2 className="size-3.5 text-brand" />
                       <span>Copy link to comment</span>
                     </button>
+
                     <button
                       type="button"
                       onClick={async () => {
@@ -279,17 +383,42 @@ export function CommentItem({
             </div>
           </div>
 
+          {/* Replying to indicator */}
+          {comment.replyToUser && (
+            <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+              <span>Replying to</span>
+              <span className="text-primary font-semibold">@{comment.replyToUser.username}</span>
+            </div>
+          )}
+
           {/* Comment Content */}
           <div className="text-[14px] leading-relaxed text-foreground break-words font-normal">
             <RichText content={comment.body} />
           </div>
+
+          {/* Attached Image Preview */}
+          {comment.imageUrl && (
+            <div className="mt-2 max-w-sm rounded-xl overflow-hidden border border-border/50 bg-black/5">
+              <img
+                src={comment.imageUrl}
+                alt="Comment attachment"
+                className="max-h-72 w-full object-cover rounded-xl hover:opacity-95 transition-opacity cursor-pointer"
+                loading="lazy"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(comment.imageUrl || "", "_blank");
+                }}
+              />
+            </div>
+          )}
 
           {/* Action Row */}
           <div className="flex items-center gap-6 pt-1 text-xs text-muted-foreground select-none">
             {/* Reply Button */}
             <button
               type="button"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 sounds.tap();
                 haptics.light();
                 if (isReplying) {
@@ -317,7 +446,10 @@ export function CommentItem({
             {/* Like / Heart Button */}
             <button
               type="button"
-              onClick={handleToggleLike}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleLike();
+              }}
               {...like.handlers}
               className={cn(
                 "flex items-center gap-1.5 transition-colors cursor-pointer group/like",
@@ -346,7 +478,10 @@ export function CommentItem({
             {/* Copy link to comment / Share Button */}
             <button
               type="button"
-              onClick={handleCopyCommentLink}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyCommentLink();
+              }}
               className="flex items-center gap-1.5 text-muted-foreground hover:text-brand transition-colors cursor-pointer group/share"
               title="Copy link to comment"
               aria-label="Copy link to comment"
@@ -360,7 +495,7 @@ export function CommentItem({
 
           {/* Inline Reply Composer */}
           {isReplying && (
-            <div className="relative pt-2 space-y-2">
+            <div className="relative pt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
               <MentionSuggestions
                 trigger={replyMentionTrigger}
                 onSelect={handleSelectReplySuggestion}

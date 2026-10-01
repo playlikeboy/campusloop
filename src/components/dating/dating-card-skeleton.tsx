@@ -35,15 +35,15 @@ export function DatingCardSkeleton() {
 
         {/* Bottom card details */}
         <div className="space-y-3 pt-6">
-          {/* Avatar + Name + Yr */}
-          <div className="flex items-center gap-3">
-            <Skeleton className="size-11 rounded-full shrink-0" />
-            <div className="flex-1 space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-6 w-32 rounded-lg" />
-                <Skeleton className="h-5 w-10 rounded-md" />
-              </div>
-              <Skeleton className="h-3.5 w-44 rounded-md" />
+          {/* Name + Yr + College tag */}
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-7 w-36 rounded-lg" />
+              <Skeleton className="h-5 w-10 rounded-md" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-32 rounded-md" />
+              <Skeleton className="h-4 w-24 rounded-md" />
             </div>
           </div>
 

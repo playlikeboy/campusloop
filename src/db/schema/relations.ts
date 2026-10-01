@@ -45,7 +45,7 @@ import { lostAndFoundItems } from "./lost-and-found";
 import { marketplaceItems } from "./marketplace";
 import { mcpAuditLogs, userMcpKeys } from "./mcp";
 import { notificationMutes, notificationPreferences, notifications } from "./notifications";
-import { comments, pollOptions, pollVotes, posts, votes } from "./posts";
+import { comments, commentVotes, pollOptions, pollVotes, posts, votes } from "./posts";
 import { randomMessages, randomQueue, randomReports, randomSessions } from "./random-loop";
 import { reelBookmarks, reelComments, reelLikes, reels } from "./reels";
 import { ridesharePools } from "./rideshare";
@@ -178,6 +178,23 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
   }),
   replies: many(comments, {
     relationName: "comment_replies",
+  }),
+  replyToUser: one(userProfiles, {
+    fields: [comments.replyToUserId],
+    references: [userProfiles.id],
+    relationName: "comment_reply_to_user",
+  }),
+  votes: many(commentVotes),
+}));
+
+export const commentVotesRelations = relations(commentVotes, ({ one }) => ({
+  comment: one(comments, {
+    fields: [commentVotes.commentId],
+    references: [comments.id],
+  }),
+  user: one(userProfiles, {
+    fields: [commentVotes.userId],
+    references: [userProfiles.id],
   }),
 }));
 

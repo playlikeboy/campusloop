@@ -152,25 +152,25 @@ function TopCard({
       {/* LIKE / NOPE stamps */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="pointer-events-none absolute left-5 top-12 z-30 -rotate-12 rounded-xl border-2 border-emerald-400 bg-emerald-950/60 px-4 py-1 backdrop-blur-xs shadow-lg"
+        className="pointer-events-none absolute left-5 top-12 z-30 -rotate-12 rounded-2xl border-2 border-emerald-400/80 bg-emerald-950/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_24px_rgba(16,185,129,0.35)]"
       >
-        <span className="text-2xl font-black tracking-widest text-emerald-400">MATCH</span>
+        <span className="text-xl sm:text-2xl font-black tracking-widest text-emerald-300">MATCH</span>
       </motion.div>
       <motion.div
         style={{ opacity: nopeOpacity }}
-        className="pointer-events-none absolute right-5 top-12 z-30 rotate-12 rounded-xl border-2 border-neutral-300 dark:border-neutral-400 bg-neutral-950/60 px-4 py-1 backdrop-blur-xs shadow-lg"
+        className="pointer-events-none absolute right-5 top-12 z-30 rotate-12 rounded-2xl border-2 border-rose-400/80 bg-rose-950/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_24px_rgba(244,63,94,0.35)]"
       >
-        <span className="text-2xl font-black tracking-widest text-neutral-200">PASS</span>
+        <span className="text-xl sm:text-2xl font-black tracking-widest text-rose-300">PASS</span>
       </motion.div>
 
       {/* Top badges */}
       <div className="absolute inset-x-4 top-6 z-20 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md border border-white/10 shadow-xs">
-          <Zap className="size-3 text-primary fill-primary" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md border border-white/15 shadow-xs">
+          <Zap className="size-3 text-amber-400 fill-amber-400" />
           {candidate.compatibilityScore}% Match
         </span>
         {candidate.likedYou && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/95 px-3 py-1 text-[11px] font-black text-primary-foreground backdrop-blur-md shadow-xs">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-3 py-1 text-[11px] font-black text-primary-foreground backdrop-blur-md shadow-xs border border-white/20">
             <Heart className="size-3 fill-current" /> Liked You
           </span>
         )}
@@ -179,53 +179,39 @@ function TopCard({
       {/* Info overlay */}
       <div className="absolute inset-x-0 bottom-0 z-20 space-y-2.5 p-5 pb-6">
         <div>
-          {/* Candidate Name & Avatar */}
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/@${candidate.username}`}
-              onClick={(e) => e.stopPropagation()}
-              className="relative size-11 rounded-full border-2 border-white/80 overflow-hidden shrink-0 shadow-lg ring-1 ring-black/40 hover:opacity-90 transition-opacity"
-            >
-              <img
-                src={avatarUrl || photos[0]}
-                alt={candidate.displayName}
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-            </Link>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <Link
-                  href={`/@${candidate.username}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-md truncate hover:underline decoration-white/40"
-                >
-                  {candidate.displayName}
-                </Link>
-                <span title="Verified Student" className="shrink-0 text-emerald-400">
-                  <ShieldCheck className="size-5 fill-emerald-400/20" />
+          {/* Candidate Name & Info */}
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Link
+                href={`/@${candidate.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-md truncate hover:underline decoration-white/40"
+              >
+                {candidate.displayName}
+              </Link>
+              <span title="Verified Student" className="shrink-0 text-emerald-400">
+                <ShieldCheck className="size-5 fill-emerald-400/20" />
+              </span>
+              {candidate.year && (
+                <span className="text-base sm:text-lg font-bold text-white/80 shrink-0 ml-0.5">
+                  '{String(candidate.year).slice(-2)}
                 </span>
-                {candidate.year && (
-                  <span className="text-base sm:text-lg font-bold text-white/80 shrink-0 ml-0.5">
-                    '{String(candidate.year).slice(-2)}
-                  </span>
-                )}
-              </div>
+              )}
+            </div>
 
-              <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-white/80">
-                {candidate.institution?.name && (
-                  <span className="inline-flex items-center gap-1 truncate">
-                    <School className="size-3.5 text-white/70 shrink-0" />
-                    {candidate.institution.name.split(",")[0]}
-                  </span>
-                )}
-                {(candidate.course || candidate.branch) && (
-                  <span className="inline-flex items-center gap-1 truncate text-white/70">
-                    <GraduationCap className="size-3.5 shrink-0" />
-                    {[candidate.course, candidate.branch].filter(Boolean).join(" · ")}
-                  </span>
-                )}
-              </div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-white/80">
+              {candidate.institution?.name && (
+                <span className="inline-flex items-center gap-1 truncate rounded-md bg-black/30 px-2 py-0.5 backdrop-blur-xs border border-white/10">
+                  <School className="size-3.5 text-white/70 shrink-0" />
+                  {candidate.institution.name.split(",")[0]}
+                </span>
+              )}
+              {(candidate.course || candidate.branch) && (
+                <span className="inline-flex items-center gap-1 truncate rounded-md bg-black/30 px-2 py-0.5 backdrop-blur-xs border border-white/10 text-white/80">
+                  <GraduationCap className="size-3.5 shrink-0" />
+                  {[candidate.course, candidate.branch].filter(Boolean).join(" · ")}
+                </span>
+              )}
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import {
   Image as ImageIcon,
   Loader2,
   MessageCircle,
+  Pin,
   Reply,
   VenetianMask,
   X,
@@ -27,6 +28,7 @@ import {
 import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadImageToImgBB } from "@/lib/upload";
@@ -38,10 +40,21 @@ export interface FastComment {
   authorId?: string | null;
   pseudonym?: string | null;
   parentId?: string | null;
+  replyToUserId?: string | null;
+  imageUrl?: string | null;
   body: string;
   isAnonymous: boolean;
   status: string;
+  isPinned?: boolean;
+  likesCount?: number;
+  repliesCount?: number;
+  hasLiked?: boolean;
   createdAt: string | Date;
+  replyToUser?: {
+    id: string;
+    username: string;
+    displayName: string;
+  } | null;
   author?: {
     id: string;
     username: string;
@@ -108,7 +121,16 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     };
   }, [isOpen]);
 
-  // Initialize liked comments from localStorage
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
+
+  function toggleExpandReplies(commentId: string) {
+    setExpandedReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  }
+
+  // Initialize liked comments from localStorage & sync from server data
   useEffect(() => {
     try {
       const stored = localStorage.getItem("campusloop_liked_comments");
@@ -117,6 +139,30 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
       }
     } catch {}
   }, []);
+
+  const {
+    data: comments,
+    mutate,
+    isLoading,
+  } = useSWR<FastComment[]>(isOpen ? `/api/posts/${post.id}/comments` : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 6000,
+    keepPreviousData: true,
+  });
+
+  useEffect(() => {
+    if (comments && comments.length > 0) {
+      setLikedComments((prev) => {
+        const next = { ...prev };
+        for (const c of comments) {
+          if (typeof c.hasLiked === "boolean") {
+            next[c.id] = c.hasLiked;
+          }
+        }
+        return next;
+      });
+    }
+  }, [comments]);
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
@@ -218,16 +264,6 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     }, 0);
   }
 
-  const {
-    data: comments,
-    mutate,
-    isLoading,
-  } = useSWR<FastComment[]>(isOpen ? `/api/posts/${post.id}/comments` : null, fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 6000,
-    keepPreviousData: true,
-  });
-
   // Keyboard navigation & escape listener without forced layout scroll jump
   useEffect(() => {
     if (!isOpen) {
@@ -252,16 +288,30 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     };
   }, [isOpen, onClose]);
 
-  const handleToggleLike = (commentId: string) => {
+  const handleToggleLike = async (commentId: string) => {
     sounds.tap();
     haptics.light();
+    const currentlyLiked = Boolean(likedComments[commentId]);
+    const nextLiked = !currentlyLiked;
+
     setLikedComments((prev) => {
-      const next = { ...prev, [commentId]: !prev[commentId] };
+      const next = { ...prev, [commentId]: nextLiked };
       try {
         localStorage.setItem("campusloop_liked_comments", JSON.stringify(next));
       } catch {}
       return next;
     });
+
+    try {
+      const res = await voteComment(post.id, commentId);
+      if (res) {
+        setLikedComments((prev) => ({ ...prev, [commentId]: res.hasLiked }));
+        mutate();
+      }
+    } catch {
+      // Revert on error
+      setLikedComments((prev) => ({ ...prev, [commentId]: currentlyLiked }));
+    }
   };
 
   function handleStartReply(c: FastComment, handle: string, displayName: string) {
@@ -276,16 +326,24 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     if (!text || isSubmitting) return;
 
     const currentReplyingTo = replyingTo;
+    const parentComment = (comments || []).find((c) => c.id === currentReplyingTo?.id);
+    const replyToUserId = parentComment?.authorId || undefined;
+
     const tempId = `temp-${Date.now()}`;
     const optimisticComment: FastComment = {
       id: tempId,
       postId: post.id,
       parentId: currentReplyingTo?.id || null,
+      replyToUserId: replyToUserId || null,
       authorId: isAnonymous ? null : profile?.id || null,
       pseudonym: isAnonymous ? "anon_student" : null,
       body: text,
       isAnonymous,
       status: "PUBLISHED",
+      isPinned: false,
+      likesCount: 0,
+      repliesCount: 0,
+      hasLiked: false,
       createdAt: new Date().toISOString(),
       author: isAnonymous
         ? null
@@ -318,6 +376,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
           body: text,
           isAnonymous,
           parentId: currentReplyingTo?.id || undefined,
+          replyToUserId,
         }),
       });
 
@@ -356,36 +415,62 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     return clean.length > 0 ? clean : null;
   }, [post.body]);
 
-  // Group comments into root comments and nested replies
+  // Group comments into root comments and nested replies (2-level flat tree)
   const { rootComments, repliesMap, totalCount } = useMemo(() => {
     const list = comments || [];
+    const commentMap = new Map<string, FastComment>();
+    for (const c of list) commentMap.set(c.id, c);
+
+    function findRootId(startId: string): string {
+      let curr = startId;
+      const visited = new Set<string>();
+      while (curr && !visited.has(curr)) {
+        visited.add(curr);
+        const p = commentMap.get(curr);
+        if (!p || !p.parentId) return curr;
+        curr = p.parentId;
+      }
+      return startId;
+    }
+
     const roots: FastComment[] = [];
     const replies = new Map<string, FastComment[]>();
 
     for (const c of list) {
       if (c.parentId) {
-        const existing = replies.get(c.parentId) || [];
+        const rootId = findRootId(c.parentId);
+        const existing = replies.get(rootId) || [];
         existing.push(c);
-        replies.set(c.parentId, existing);
+        replies.set(rootId, existing);
       } else {
         roots.push(c);
       }
     }
 
     if (sortMode === "latest") {
-      roots.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } else {
-      // "best": liked comments first, then latest
       roots.sort((a, b) => {
-        const likedA = likedComments[a.id] ? 1 : 0;
-        const likedB = likedComments[b.id] ? 1 : 0;
-        if (likedB !== likedA) return likedB - likedA;
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    } else {
+      // "best": pinned first, OP boost, durable likes, points
+      roots.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+
+        const isOpA = Boolean(post.authorId && a.authorId === post.authorId);
+        const isOpB = Boolean(post.authorId && b.authorId === post.authorId);
+        const scoreA = (isOpA ? 1000 : 0) + (a.likesCount || 0) * 10 + ((a.author?.points || 0) >= 150 ? 50 : 0);
+        const scoreB = (isOpB ? 1000 : 0) + (b.likesCount || 0) * 10 + ((b.author?.points || 0) >= 150 ? 50 : 0);
+
+        if (scoreB !== scoreA) return scoreB - scoreA;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     }
 
     return { rootComments: roots, repliesMap: replies, totalCount: list.length };
-  }, [comments, sortMode, likedComments]);
+  }, [comments, sortMode, post.authorId]);
 
   const displayCount = comments !== undefined ? totalCount : (post.commentsCount ?? 0);
 
@@ -499,6 +584,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               ) : (
                 rootComments.map((rootComment) => {
                   const childReplies = repliesMap.get(rootComment.id) || [];
+                  const isExpanded = Boolean(expandedReplies[rootComment.id]);
+                  const visibleReplies = isExpanded || childReplies.length <= 1 ? childReplies : childReplies.slice(0, 1);
+                  const remainingCount = childReplies.length - visibleReplies.length;
+
                   return (
                     <div key={rootComment.id} className="space-y-2.5">
                       <CommentRowItem
@@ -512,9 +601,9 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       />
 
                       {/* Nested Replies with Subtle Connector Line */}
-                      {childReplies.length > 0 && (
-                        <div className="mt-2 pl-4 ml-3 border-l-2 border-white/10 space-y-2.5">
-                          {childReplies.map((reply) => (
+                      {visibleReplies.length > 0 && (
+                        <div className="mt-2 pl-3 ml-3 border-l-2 border-white/10 space-y-2.5">
+                          {visibleReplies.map((reply) => (
                             <CommentRowItem
                               key={reply.id}
                               comment={reply}
@@ -527,6 +616,31 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                               onClose={onClose}
                             />
                           ))}
+
+                          {/* Accordion expand button */}
+                          {remainingCount > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandReplies(rootComment.id)}
+                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                            >
+                              <div className="w-4 h-[1.5px] bg-white/20" />
+                              <span>
+                                View {remainingCount} more {remainingCount === 1 ? "reply" : "replies"}
+                              </span>
+                            </button>
+                          )}
+
+                          {isExpanded && childReplies.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandReplies(rootComment.id)}
+                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                            >
+                              <div className="w-4 h-[1.5px] bg-white/20" />
+                              <span>Hide replies</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -778,12 +892,39 @@ function CommentRowItem({
 
             <span className="text-[11px] text-zinc-500">{formatTimeAgo(comment.createdAt)}</span>
           </div>
+
+          {/* Pinned by Author Badge */}
+          {comment.isPinned && !isReply && (
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-400 bg-amber-500/10 rounded px-1.5 py-0.5 border border-amber-500/20 w-fit shrink-0">
+              <Pin className="size-2.5 fill-amber-500/30 rotate-45" />
+              <span>Pinned</span>
+            </div>
+          )}
         </div>
+
+        {/* Replying to indicator */}
+        {comment.replyToUser && (
+          <div className="text-[11px] text-zinc-400 font-medium">
+            Replying to <span className="text-zinc-200 font-semibold">@{comment.replyToUser.username}</span>
+          </div>
+        )}
 
         {/* Comment text with embeds disabled so user profiles / post embeds don't inflate inside comments */}
         <div className="text-[13px] text-zinc-200 leading-relaxed break-words font-normal select-text">
           <RichText content={comment.body} disableEmbeds={true} />
         </div>
+
+        {/* Attached image preview */}
+        {comment.imageUrl && (
+          <div className="mt-1.5 max-w-xs rounded-xl overflow-hidden border border-white/10">
+            <img
+              src={comment.imageUrl}
+              alt="Attachment"
+              className="max-h-48 w-full object-cover rounded-xl"
+              loading="lazy"
+            />
+          </div>
+        )}
 
         {/* Action Row */}
         <div className="flex items-center gap-4 pt-0.5">
@@ -798,7 +939,13 @@ function CommentRowItem({
                 isLiked ? "fill-rose-500 text-rose-500" : "text-zinc-500"
               )}
             />
-            {isLiked && <span className="tabular-nums text-[11px] text-rose-500 font-bold">1</span>}
+            {(() => {
+              const base = comment.likesCount || 0;
+              const count = base + (isLiked && !comment.hasLiked ? 1 : !isLiked && comment.hasLiked ? -1 : 0);
+              return count > 0 ? (
+                <span className="tabular-nums text-[11px] text-rose-500 font-bold">{count}</span>
+              ) : null;
+            })()}
           </button>
 
           {!isReply && (
