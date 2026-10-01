@@ -4,8 +4,28 @@
  */
 
 class HapticsEngine {
+  private enabled: boolean = true;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("campusloop_haptics");
+      this.enabled = stored !== "false";
+    }
+  }
+
+  public isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  public setEnabled(value: boolean) {
+    this.enabled = value;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("campusloop_haptics", value ? "true" : "false");
+    }
+  }
+
   private canVibrate(): boolean {
-    return typeof window !== "undefined" && typeof navigator.vibrate === "function";
+    return this.enabled && typeof window !== "undefined" && typeof navigator.vibrate === "function";
   }
 
   /**
