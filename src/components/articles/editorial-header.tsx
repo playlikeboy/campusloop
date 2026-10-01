@@ -87,7 +87,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
             </Link>
           ) : (
             <Link
-              href="/handler/sign-in"
+              href="/sign-in"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-muted/50 hover:bg-muted text-xs font-bold text-foreground transition-colors cursor-pointer"
             >
               <LogIn className="size-3.5 text-muted-foreground" />

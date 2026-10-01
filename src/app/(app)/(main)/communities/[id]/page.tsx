@@ -76,7 +76,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   // If community is private or unlisted, require authentication
   if (comm.privacy !== "PUBLIC" && !user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const profile = user ? await getCachedUserProfile(user.id) : null;

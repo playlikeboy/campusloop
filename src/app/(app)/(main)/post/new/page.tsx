@@ -22,7 +22,7 @@ interface NewPostPageProps {
 export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const { type, text } = await searchParams;

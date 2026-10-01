@@ -9,18 +9,30 @@ export const metadata: Metadata = {
   description: "Join your verified college campus community on CampusLoop using your official college email.",
 };
 
-export default function SignUpPage({
+export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ returnTo?: string }>;
+  searchParams?: Promise<{ returnTo?: string; redirect?: string; college?: string }>;
 }) {
+  const params = await searchParams;
+  const returnTo = params?.returnTo || params?.redirect;
+  const college = params?.college;
+  const queryParts = [];
+  if (returnTo) queryParts.push(`returnTo=${encodeURIComponent(returnTo)}`);
+  if (college) queryParts.push(`college=${encodeURIComponent(college)}`);
+  const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+  const handlerHref = `/handler/sign-up${queryString}`;
+  const signInHref = returnTo
+    ? `/sign-in?returnTo=${encodeURIComponent(returnTo)}`
+    : "/sign-in";
+
   return (
     <div className="min-h-screen bg-background flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
       {/* Top Navbar Header */}
       <header className="w-full max-w-5xl flex items-center justify-between py-4">
         <BrandLogo href="/" size="md" />
         <Link
-          href="/sign-in"
+          href={signInHref}
           className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
         >
           Already have an account? <span className="text-primary font-black">Sign In</span>
@@ -63,7 +75,7 @@ export default function SignUpPage({
           {/* Primary CTA Button to Hexclave Flow */}
           <div className="space-y-3">
             <Link
-              href="/handler/sign-up"
+              href={handlerHref}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 px-4 text-sm font-black text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/95 active:scale-98 transition-all cursor-pointer"
             >
               <span>Get Started with College Email</span>

@@ -17,7 +17,7 @@ interface ChatPageProps {
 
 export default async function ChatPage({ searchParams }: ChatPageProps) {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/handler/sign-in");
+  if (!user) redirect("/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");

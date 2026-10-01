@@ -62,12 +62,12 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
           ) : (
             <>
               <Link
-                href="/handler/sign-in"
+                href="/sign-in"
                 className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "hidden sm:inline-flex")}
               >
                 Sign in
               </Link>
-              <Link href="/handler/sign-up" className={buttonVariants({ size: "sm" })}>
+              <Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
                 Get verified
               </Link>
             </>
@@ -86,7 +86,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
       { href: "/overview", label: "Platform Overview" },
       { href: "/demo", label: "Testing & Demo Access" },
       { href: "/colleges", label: "College Directory" },
-      { href: "/handler/sign-up", label: "Join CampusLoop" },
+      { href: "/sign-up", label: "Join CampusLoop" },
     ],
   },
 

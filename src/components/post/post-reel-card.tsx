@@ -813,7 +813,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           isOpen={showLockedModal}
           onClose={() => setShowLockedModal(false)}
           onOpenUpgrade={() => {
-            window.location.href = `/handler/sign-in?returnTo=${encodeURIComponent(window.location.pathname)}`;
+            window.location.href = `/sign-in?returnTo=${encodeURIComponent(window.location.pathname)}`;
           }}
           capability={lockedCapability}
         />

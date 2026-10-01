@@ -24,8 +24,8 @@ export default async function JoinPage({ searchParams }: JoinPageProps) {
   }
 
   if (mode === "signin") {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
-  redirect("/handler/sign-up");
+  redirect("/sign-up");
 }

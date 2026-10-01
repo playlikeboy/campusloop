@@ -39,7 +39,7 @@ interface StoryCreatorProps {
 }
 
 const GRADIENTS = [
-  { id: "brand-warm", class: "bg-linear-to-tr from-orange-600 to-amber-600", label: "Campus Warm" },
+  { id: "brand-warm", class: "bg-linear-to-tr from-violet-600 via-purple-600 to-indigo-700", label: "Campus Loop Vibe" },
   { id: "orange-rose", class: "bg-linear-to-tr from-orange-500 to-rose-500", label: "Sunset Glow" },
   { id: "emerald-teal", class: "bg-linear-to-tr from-emerald-500 to-teal-700", label: "Neon Emerald" },
   { id: "pink-purple", class: "bg-linear-to-tr from-pink-500 to-purple-600", label: "Barbie Magic" },

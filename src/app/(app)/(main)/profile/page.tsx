@@ -19,7 +19,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const db = getDb();

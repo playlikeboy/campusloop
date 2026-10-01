@@ -20,7 +20,7 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
         action: {
           label: "Sign In",
           onClick: () => {
-            window.location.href = `/handler/sign-in?returnTo=${encodeURIComponent(previewUrl)}`;
+            window.location.href = `/sign-in?returnTo=${encodeURIComponent(previewUrl)}`;
           },
         },
       });

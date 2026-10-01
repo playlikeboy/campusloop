@@ -45,6 +45,7 @@ interface NavigationProps {
   collegeName?: string;
   isAdmin?: boolean;
   isViewer?: boolean;
+  hideHeader?: boolean;
 }
 
 /**
@@ -83,7 +84,7 @@ const EXPANDABLE_NAV_TABS = [
   { href: "/dating", label: "Match", icon: Heart },
 ];
 
-export function Navigation({ profile, collegeName, isViewer, isAdmin }: NavigationProps) {
+export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader }: NavigationProps) {
   const router = useRouter();
   const pathname = usePathname() || "/feeds";
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -110,6 +111,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
       pathname.startsWith("/post/"),
     [pathname]
   );
+
+  const shouldHideHeader = hideHeader || isDedicatedHeaderRoute;
 
   // Desktop navigation expansion state (defaults to true if user is on an expandable hub)
   const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
@@ -215,7 +218,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
   return (
     <>
       {/* ─── Modern Minimal Top Navigation Bar (Open, Airy, Restrained) ─── */}
-      {!isDedicatedHeaderRoute && (
+      {!shouldHideHeader && (
         <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
           {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
@@ -546,7 +549,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                 </div>
               ) : (
                 <Link
-                  href="/handler/sign-in"
+                  href="/sign-in"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-primary text-primary-foreground hover:opacity-90 shadow-xs"
                 >
                   Sign In
@@ -641,7 +644,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
                   <div className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2">
                     <p className="text-xs text-muted-foreground font-medium">Exploring CampusLoop</p>
                     <Link
-                      href="/handler/sign-in"
+                      href="/sign-in"
                       onClick={() => setShowDrawer(false)}
                       className="block w-full rounded-xl bg-primary text-center py-2.5 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-98 transition-all"
                     >
@@ -802,7 +805,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
               item.href === "/profile"
                 ? profile
                   ? pathname.startsWith("/@" + profile.username) || pathname === "/profile"
-                  : pathname === "/handler/sign-in"
+                  : pathname === "/sign-in"
                 : isPathActive(pathname, item.href);
             const animation = mobileIconAnimations[item.href] ?? "pop";
             const playKey =
@@ -835,7 +838,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin }: Navigati
             }
 
             if (item.href === "/profile") {
-              const profileHref = profile ? "/@" + profile.username : "/handler/sign-in";
+              const profileHref = profile ? "/@" + profile.username : "/sign-in";
 
               return (
                 <Link

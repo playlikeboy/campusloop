@@ -47,7 +47,7 @@ export function AcademicAuthBenefitsCard({
     return null;
   }
 
-  const signInUrl = `/handler/sign-in${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`;
+  const signInUrl = `/sign-in${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`;
 
   return (
     <div

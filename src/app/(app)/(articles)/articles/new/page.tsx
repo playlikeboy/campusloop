@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function NewArticlePage() {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/handler/sign-in");
+    redirect("/sign-in");
   }
 
   const db = getDb();

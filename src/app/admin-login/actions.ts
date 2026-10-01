@@ -7,7 +7,7 @@ import { isAllowedAdminEmail } from "../admin/_lib/session";
 export async function checkAdminAccess() {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    redirect("/login?redirect=/admin");
+    redirect("/sign-in?returnTo=/admin");
   }
 
   if (isAllowedAdminEmail(user.primaryEmail)) {

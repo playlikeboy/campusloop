@@ -1,4 +1,4 @@
-import { HexclaveProvider, HexclaveTheme } from "@hexclave/next";
+import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
@@ -343,6 +343,16 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              if (typeof window !== 'undefined' && !window.__name) {
+                window.__name = function(fn, name) {
+                  try {
+                    return Object.defineProperty(fn, 'name', { value: name, configurable: true });
+                  } catch (_) {
+                    return fn;
+                  }
+                };
+              }
+
               try {
                 if (localStorage.getItem('cl_theme') === 'dark' || (!localStorage.getItem('cl_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                   document.documentElement.classList.add('dark');
@@ -363,19 +373,17 @@ export default function RootLayout({
       <body className="antialiased font-sans" suppressHydrationWarning>
         <GoogleAnalyticsScripts />
         <HexclaveProvider app={hexclaveServerApp}>
-          <HexclaveTheme>
-            <SWRProvider>
-              <Suspense fallback={null}>
-                <ReferralTracker />
-                <GoogleAnalyticsTracker />
-              </Suspense>
-              <RouteProgress />
-              <OfflineIndicator />
-              {children}
-              <PWAInstallBanner />
-              <Toaster position="top-center" richColors />
-            </SWRProvider>
-          </HexclaveTheme>
+          <SWRProvider>
+            <Suspense fallback={null}>
+              <ReferralTracker />
+              <GoogleAnalyticsTracker />
+            </Suspense>
+            <RouteProgress />
+            <OfflineIndicator />
+            {children}
+            <PWAInstallBanner />
+            <Toaster position="top-center" richColors />
+          </SWRProvider>
         </HexclaveProvider>
       </body>
     </html>
