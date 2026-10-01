@@ -113,6 +113,18 @@ export function MessengerPane({
   } | null>(null);
   const [incomingCall, setIncomingCall] = useState<any | null>(null);
 
+  // Close chat header overflow menu on Escape key
+  useEffect(() => {
+    if (!showChatHeaderMenu) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setShowChatHeaderMenu(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showChatHeaderMenu]);
+
   // Auto-fetch conversation metadata if otherParticipant not passed or on fresh load
   const { data: convData, isLoading: isLoadingConvData } = useSWR<{
     id: string;
@@ -966,36 +978,13 @@ export function MessengerPane({
             </div>
           </div>
 
-          {/* Header Action Buttons (Mockup: Video & Audio call buttons prominent) */}
+          {/* Header Action Buttons: Search → Info → Three Dots */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            {!effectiveParticipant.isGroup && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleStartCall("video")}
-                  className="size-8 sm:size-9 rounded-full bg-secondary/15 text-secondary flex items-center justify-center hover:bg-secondary/25 transition-all cursor-pointer shadow-2xs"
-                  title="Start Video Call"
-                  aria-label="Start Video Call"
-                >
-                  <AnimateVideo size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleStartCall("audio")}
-                  className="size-8 sm:size-9 rounded-full bg-secondary/15 text-secondary flex items-center justify-center hover:bg-secondary/25 transition-all cursor-pointer shadow-2xs"
-                  title="Start Audio Call"
-                  aria-label="Start Audio Call"
-                >
-                  <AnimatePhone size={15} />
-                </button>
-              </>
-            )}
-
             <button
               type="button"
               onClick={() => setSearchInChat(!searchInChat)}
               className={cn(
-                "size-8 sm:size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                "size-8.5 sm:size-9 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95",
                 searchInChat
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -1010,13 +999,13 @@ export function MessengerPane({
               type="button"
               onClick={() => setShowInfoDrawer(true)}
               className={cn(
-                "size-8 sm:size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                "size-8.5 sm:size-9 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95",
                 showInfoDrawer
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
-              title="Contact Info & Media"
-              aria-label="Contact Info & Media"
+              title={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
+              aria-label={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
             >
               <Info className="size-4.5" />
             </button>
@@ -1027,7 +1016,7 @@ export function MessengerPane({
                 type="button"
                 onClick={() => setShowChatHeaderMenu((prev) => !prev)}
                 className={cn(
-                  "size-8 sm:size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                  "size-8.5 sm:size-9 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95",
                   showChatHeaderMenu
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -1040,30 +1029,43 @@ export function MessengerPane({
 
               {showChatHeaderMenu && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowChatHeaderMenu(false)} />
-                  <div className="absolute right-0 top-10 z-50 w-52 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl p-1.5 shadow-xl space-y-0.5 animate-in fade-in zoom-in-95">
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowChatHeaderMenu(false)}
+                    aria-hidden="true"
+                  />
+                  <div
+                    role="menu"
+                    aria-label="Chat options"
+                    className="absolute right-0 top-10.5 z-50 w-52 sm:w-56 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl p-1.5 shadow-2xl space-y-0.5 animate-in fade-in zoom-in-95"
+                  >
                     {!effectiveParticipant.isGroup && (
                       <>
+                        <div className="px-3 pt-2 pb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 select-none">
+                          Communication
+                        </div>
                         <button
                           type="button"
+                          role="menuitem"
                           onClick={() => {
                             setShowChatHeaderMenu(false);
                             handleStartCall("audio");
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer group"
                         >
-                          <AnimatePhone size={14} className="text-primary" />
+                          <AnimatePhone size={15} className="text-primary shrink-0 transition-transform group-hover:scale-110" />
                           <span>Voice Call</span>
                         </button>
                         <button
                           type="button"
+                          role="menuitem"
                           onClick={() => {
                             setShowChatHeaderMenu(false);
                             handleStartCall("video");
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer group"
                         >
-                          <AnimateVideo size={14} className="text-primary" />
+                          <AnimateVideo size={15} className="text-primary shrink-0 transition-transform group-hover:scale-110" />
                           <span>Video Call</span>
                         </button>
                         <div className="my-1 border-t border-border/30" />
@@ -1072,25 +1074,27 @@ export function MessengerPane({
 
                     <button
                       type="button"
+                      role="menuitem"
                       onClick={() => {
                         setShowChatHeaderMenu(false);
                         setSearchInChat(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer"
                     >
-                      <Search className="size-3.5 text-muted-foreground" />
+                      <Search className="size-3.5 text-muted-foreground shrink-0" />
                       <span>Search in Chat</span>
                     </button>
 
                     <button
                       type="button"
+                      role="menuitem"
                       onClick={() => {
                         setShowChatHeaderMenu(false);
                         setShowInfoDrawer(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer"
                     >
-                      <Info className="size-3.5 text-muted-foreground" />
+                      <Info className="size-3.5 text-muted-foreground shrink-0" />
                       <span>
                         {effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
                       </span>
@@ -1099,10 +1103,11 @@ export function MessengerPane({
                     {!effectiveParticipant.isGroup && effectiveParticipant.username && (
                       <Link
                         href={`/@${effectiveParticipant.username}`}
+                        role="menuitem"
                         onClick={() => setShowChatHeaderMenu(false)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-xl text-foreground hover:bg-muted transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
                       >
-                        <User className="size-3.5 text-muted-foreground" />
+                        <User className="size-3.5 text-muted-foreground shrink-0" />
                         <span>View Profile</span>
                       </Link>
                     )}

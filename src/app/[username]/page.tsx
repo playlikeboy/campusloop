@@ -418,20 +418,26 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground font-normal">
                   <span>@{profile.username}</span>
                   <span>•</span>
                   <span>{campusShort}</span>
+                  {(profile.course || profile.branch) && (
+                    <>
+                      <span>•</span>
+                      <span className="text-[#1D9BF0] font-medium">
+                        {profile.course ? `${profile.course} ` : ""}{profile.branch || ""}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Bio / Headline */}
-                <p className="text-sm text-foreground leading-relaxed pt-1 whitespace-pre-wrap">
-                  {profile.bio ||
-                    profile.headline ||
-                    (profile.branch && profile.course
-                      ? `${profile.course} in ${profile.branch} @ ${campusShort}`
-                      : `Student @ ${campusShort}`)}
-                </p>
+                {profile.bio || profile.headline ? (
+                  <p className="text-sm text-foreground leading-relaxed pt-1 whitespace-pre-wrap">
+                    {profile.bio || profile.headline}
+                  </p>
+                ) : null}
 
                 {/* Stats Row (Following / Followers / LP) */}
                 <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground pt-2">
@@ -446,27 +452,6 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   <span title="Loop Points earned through useful campus participation and contributions">
                     <strong className="text-[#1D9BF0] font-bold">{profile.points || 0}</strong> Loop Points
                   </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Education & Discipline Card */}
-          <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <School className="size-4 text-[#1D9BF0]" /> Campus &amp; Academic Discipline
-            </h3>
-
-            <div className="flex items-start gap-3.5 pt-1">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-muted/40 text-xl shrink-0">
-                {branchIcon}
-              </div>
-              <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-xs sm:text-sm font-bold text-foreground truncate">{institutionName}</p>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-medium">
-                  {profile.course && <span>{profile.course}</span>}
-                  {profile.course && profile.branch && <span>·</span>}
-                  {profile.branch && <span className="text-[#1D9BF0] font-semibold">{profile.branch}</span>}
                 </div>
               </div>
             </div>

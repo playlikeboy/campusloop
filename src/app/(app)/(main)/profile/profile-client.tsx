@@ -719,33 +719,46 @@ export function ProfileClientView({
                 <span title="Verified Campus Student">
                   <BadgeCheck className="size-5 text-primary shrink-0" />
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold ml-1">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("clout")}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold ml-1 transition-colors cursor-pointer"
+                  title="View Clout & Loop Points"
+                >
                   <Zap className="size-3 fill-primary/20" />
                   <span>{points} LP</span>
-                </span>
+                </button>
               </div>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
             </div>
 
             {/* Bio */}
-            <p className="text-sm sm:text-[15px] text-foreground leading-relaxed whitespace-pre-wrap wrap-break-word">
-              {profile.bio ||
-                profile.headline ||
-                "Building, learning, and exploring.\nBigger dreams, better code."}
-            </p>
+            {profile.bio || profile.headline ? (
+              <p className="text-sm sm:text-[15px] text-foreground leading-relaxed whitespace-pre-wrap wrap-break-word">
+                {profile.bio || profile.headline}
+              </p>
+            ) : isOwnProfile ? (
+              <Link
+                href="/profile/edit"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground/70 hover:text-primary transition-colors italic"
+              >
+                <Plus className="size-3" />
+                <span>Add bio to your campus profile...</span>
+              </Link>
+            ) : null}
 
-            {/* Twitter Metadata Row */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-muted-foreground">
+            {/* Academic & Campus Metadata Row */}
+            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-xs text-muted-foreground pt-0.5">
               {institutionName && (
                 <div className="flex items-center gap-1.5">
-                  <Landmark className="size-4 text-muted-foreground shrink-0" />
+                  <Landmark className="size-3.5 text-muted-foreground/80 shrink-0" />
                   <span className="font-medium text-foreground/90">{institutionName}</span>
                 </div>
               )}
 
               {(profile.course || profile.branch) && (
                 <div className="flex items-center gap-1.5">
-                  <GraduationCap className="size-4 text-muted-foreground shrink-0" />
+                  <GraduationCap className="size-3.5 text-muted-foreground/80 shrink-0" />
                   <span>
                     {profile.course || "B.Tech"}
                     {profile.branch ? ` · ${profile.branch}` : ""}
@@ -756,7 +769,7 @@ export function ProfileClientView({
 
               {(profile.institution?.district || profile.institution?.state) && (
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="size-4 text-muted-foreground shrink-0" />
+                  <MapPin className="size-3.5 text-muted-foreground/80 shrink-0" />
                   <span>
                     {[profile.institution?.district, profile.institution?.state].filter(Boolean).join(", ")}
                   </span>
@@ -765,11 +778,11 @@ export function ProfileClientView({
 
               {profile.createdAt && (
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="size-4 text-muted-foreground shrink-0" />
+                  <Calendar className="size-3.5 text-muted-foreground/80 shrink-0" />
                   <span>
                     Joined{" "}
                     {new Date(profile.createdAt).toLocaleDateString("en-US", {
-                      month: "long",
+                      month: "short",
                       year: "numeric",
                     })}
                   </span>
@@ -780,52 +793,39 @@ export function ProfileClientView({
             {/* Social / Portfolio Links */}
             <ProfileSocialLinks links={profile.socialLinks} />
 
-            {/* 3-Column Stats Row (Mockup Architecture: Posts | Followers | Following) */}
-            <div className="grid grid-cols-3 py-3 border-y border-border/30 my-3 text-center divide-x divide-border/20 select-none">
+            {/* 3-Column Stats Row */}
+            <div className="grid grid-cols-3 py-2.5 border-y border-border/30 my-2 text-center divide-x divide-border/20 select-none">
               <button
                 type="button"
                 onClick={() => handleTabChange("posts")}
                 className="hover:opacity-80 transition-opacity cursor-pointer"
               >
-                <p className="text-lg font-black text-foreground">{posts.length}</p>
+                <p className="text-base sm:text-lg font-black text-foreground">{posts.length}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Posts</p>
               </button>
 
               <Link href={`/@${profile.username}/followers`} className="hover:opacity-80 transition-opacity">
-                <p className="text-lg font-black text-foreground">{followers}</p>
+                <p className="text-base sm:text-lg font-black text-foreground">{followers}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Followers</p>
               </Link>
 
               <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
-                <p className="text-lg font-black text-foreground">{followingCount}</p>
+                <p className="text-base sm:text-lg font-black text-foreground">{followingCount}</p>
                 <p className="text-[11px] font-medium text-muted-foreground">Following</p>
               </Link>
             </div>
 
-            {/* Clean Monochromatic Topic Pills (No Joker colors!) */}
-            {profile.interests && profile.interests.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 pt-1">
+            {/* Clean Monochromatic Topic Pills (real interests only) */}
+            {profile.interests && profile.interests.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {profile.interests.map((interest) => (
                   <span
                     key={interest}
-                    className="inline-flex items-center px-3 py-1 rounded-full border border-border/50 bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full border border-border/50 bg-muted/30 text-muted-foreground text-[11px] font-medium"
                   >
                     #{interest.replace(/^#/, "")}
                   </span>
                 ))}
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {["Tech & Coding", "Startups & AI", "Late Night Tea", "Hostel Life", "Gaming & Esports"].map(
-                  (tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-3 py-1 rounded-full border border-border/50 bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
-                    >
-                      {tag}
-                    </span>
-                  )
-                )}
               </div>
             )}
           </div>
@@ -834,221 +834,16 @@ export function ProfileClientView({
         {/* ─── Highlights (Clean Story Viewer if exists) ─── */}
         <ProfileHighlights userId={profile.id} username={profile.username} isOwnProfile={isOwnProfile} />
 
-        {/* ─── Campus & Academic Discipline Card ─── */}
-        <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <GraduationCap className="size-4 text-primary" /> Academic profile
-            </h3>
-            <ChevronRight className="size-4 text-muted-foreground/50" />
-          </div>
-
-          <div className="flex items-start gap-3.5 pt-0.5">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-muted/50 border border-border/40 text-foreground text-lg shrink-0">
-              <Landmark className="size-5 text-muted-foreground" />
-            </div>
-
-            <div className="min-w-0 flex-1 space-y-1">
-              <p className="text-sm font-bold text-foreground truncate">
-                {institutionName || "Academic profile"}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                {profile.course && <span>{profile.course}</span>}
-                <span>·</span>
-                <Link
-                  href={branchSlug ? `/branch/${branchSlug}` : "#"}
-                  className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5"
-                >
-                  {profile.branch && <span>{profile.branch}</span>}
-                  <ArrowUpRight className="size-3" />
-                </Link>
-              </div>
-
-              {(profile.year || profile.institution?.district || profile.institution?.state) && (
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
-                  {profile.year && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="size-3 text-muted-foreground/70" /> Year {profile.year} Student
-                    </span>
-                  )}
-                  {(profile.institution?.district || profile.institution?.state) && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="size-3 text-muted-foreground/70" />{" "}
-                      {[profile.institution?.district, profile.institution?.state].filter(Boolean).join(", ")}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Clean Subtle Discipline Tags */}
-          <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <span className="px-2.5 py-1 rounded-md bg-muted/40 border border-border/40 text-xs font-medium text-muted-foreground">
-              #{profile.course ? profile.course.replace(/[^a-zA-Z0-9]/g, "") : "BTech"}
-            </span>
-            <span className="px-2.5 py-1 rounded-md bg-muted/40 border border-border/40 text-xs font-medium text-muted-foreground">
-              #
-              {profile.branch
-                ? slugifyBranch(profile.branch).toUpperCase().replace(/-/g, "").slice(0, 6)
-                : "CSE"}
-            </span>
-            <span className="px-2.5 py-1 rounded-md bg-muted/40 border border-border/40 text-xs font-medium text-muted-foreground">
-              #
-              {profile.institution?.slug
-                ? profile.institution.slug.toUpperCase().replace(/-/g, "").slice(0, 10)
-                : "BITSMESRA"}
-            </span>
-            {isOwnProfile && (
-              <Link
-                href="/profile/edit"
-                className="size-7 rounded-md bg-muted/40 border border-border/40 text-xs font-bold text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-                title="Add discipline tags"
-              >
-                <Plus className="size-3.5" />
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* ─── Campus Clout & Analytics Card ─── */}
-        <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <TrendingUp className="size-3.5 text-primary" /> Campus Clout
-            </h3>
-            <span className="text-xs font-bold text-muted-foreground">Level {tier.level || 1}</span>
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            {/* Left Gold Star Medal Icon */}
-            <div className="size-11 rounded-full bg-amber-500/10 border border-amber-400/20 flex items-center justify-center text-amber-400 shrink-0">
-              <Star className="size-5 fill-amber-400 text-amber-400" />
-            </div>
-
-            {/* Center Titles */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-foreground">{tier.tierName || "Rookie"}</h4>
-                <span className="text-sm font-bold text-primary">
-                  {points} / {tier.maxPoints + 1} LP
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">Keep contributing to unlock verified perks</p>
-            </div>
-          </div>
-
-          {/* Progress Bar with single-tone Twitter blue track */}
-          <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-500"
-              style={{
-                width: `${Math.min(100, Math.max(8, Math.round((points / (tier.maxPoints + 1)) * 100)))}%`,
-              }}
-            />
-          </div>
-
-          {/* Bottom Row */}
-          <div className="flex items-center justify-between pt-0.5">
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              {points >= 1000 ? (
-                <>
-                  <Crown className="size-3 text-amber-400 inline" />
-                  <span>Maximum Legend rank reached!</span>
-                </>
-              ) : (
-                <span>{Math.max(0, tier.maxPoints + 1 - points)} LP needed for next rank</span>
-              )}
-            </p>
-
-            <button
-              type="button"
-              onClick={() => handleTabChange("clout")}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground text-xs font-semibold transition-all cursor-pointer active:scale-95"
-            >
-              <Crown className="size-3 text-primary" />
-              <span>View Perks</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ─── Shared Notes & Study Materials Overview Card ─── */}
-        {(userResources.length > 0 || userPlaylists.length > 0) && (
-          <div className="mx-3.5 my-2 rounded-xl border border-border/40 bg-card/55 p-3.5 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <FolderPlus className="size-4 text-primary" /> Study materials ({userAcademicsCount})
-              </h3>
-              <button
-                type="button"
-                onClick={() => handleTabChange("academics")}
-                className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>View All</span>
-                <ArrowUpRight className="size-3" />
-              </button>
-            </div>
-
-            {/* Quick Playlists preview if any */}
-            {userPlaylists.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {userPlaylists.slice(0, 2).map((pl: any) => (
-                  <Link
-                    key={pl.id}
-                    href={`/academics/playlists/${pl.slug}`}
-                    className="p-2.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted/50 transition-colors block"
-                  >
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#1D9BF0]/10 text-primary">
-                      {pl.category?.replace("_", " ") || "Stack"}
-                    </span>
-                    <h4 className="text-xs font-bold text-foreground truncate mt-1">{pl.title}</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {pl.itemsCount || 0} materials · ★ {pl.starsCount || 0}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {/* Quick Notes preview */}
-            {userResources.length > 0 && (
-              <div className="divide-y divide-border/20 rounded-xl border border-border/30 bg-muted/20 overflow-hidden">
-                {userResources.slice(0, 3).map((res: any) => (
-                  <Link
-                    key={res.id}
-                    href={`/academics/${res.id}`}
-                    className="flex items-center justify-between p-2.5 hover:bg-muted/40 transition-colors gap-2"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-semibold">
-                        <span className="font-mono text-foreground/80">{res.subjectCode}</span>
-                        <span>·</span>
-                        <span className="text-primary uppercase">{res.resourceType}</span>
-                        <span>·</span>
-                        <span>Sem {res.semester}</span>
-                      </div>
-                      <h4 className="text-xs font-bold text-foreground truncate">{res.title}</h4>
-                    </div>
-                    <ArrowUpRight className="size-3.5 text-muted-foreground/60 shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ─── Profile Navigation Underline Tabs (Twitter Style) ─── */}
-        {/* ─── Sticky content tabs: lighter than a segmented control so content stays primary. ─── */}
         <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-xl">
           <div className="flex items-center overflow-x-auto px-3 no-scrollbar">
             {[
-              { id: "photos", label: "Photos" },
               { id: "posts", label: "Posts" },
-              { id: "articles", label: "Articles" },
-              { id: "academics", label: "Notes" },
+              { id: "photos", label: "Photos", count: candidatePhotos.length },
+              { id: "articles", label: "Articles", count: userArticles.length },
+              { id: "academics", label: "Notes", count: userAcademicsCount },
               { id: "clout", label: "Clout" },
-              ...(isOwnProfile ? [{ id: "archived", label: "Archive" }] : []),
+              ...(isOwnProfile ? [{ id: "archived", label: "Archive", count: archivedPosts.length }] : []),
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -1057,13 +852,25 @@ export function ProfileClientView({
                   type="button"
                   onClick={() => handleTabChange(tab.id as any)}
                   className={cn(
-                    "cl-interactive relative shrink-0 border-b-2 px-4 py-3 text-xs font-bold transition-colors",
+                    "cl-interactive relative shrink-0 border-b-2 px-3.5 py-3 text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer",
                     isActive
                       ? "border-primary text-foreground font-black"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
                   )}
                 >
-                  {tab.label}
+                  <span>{tab.label}</span>
+                  {tab.count !== undefined && tab.count > 0 && (
+                    <span
+                      className={cn(
+                        "px-1.5 py-0.2 rounded-full text-[10px] font-semibold tabular-nums",
+                        isActive
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -1316,31 +1123,92 @@ export function ProfileClientView({
         )}
 
         {activeTab === "clout" && (
-          <div className="rounded-3xl border border-border bg-card p-6 space-y-4 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-              <Trophy className="size-4 text-amber-500" /> Loop Points (LP) Rules & Privileges
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Earn Loop Points to unlock Verified Campus Star status, top your college leaderboard, and unlock
-              unlimited matching.
-            </p>
+          <div className="p-4 space-y-4">
+            {/* Campus Clout Standing & Tier Card */}
+            <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5 space-y-3.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <TrendingUp className="size-3.5 text-primary" /> Campus Clout Standing
+                </h3>
+                <span className="text-xs font-bold text-muted-foreground">Level {tier.level || 1}</span>
+              </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 text-xs font-semibold text-muted-foreground pt-1">
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-3.5 flex justify-between items-center">
-                <span>Invite Classmate</span>
-                <span className="text-primary font-black">+20 LP</span>
+              <div className="flex items-center gap-3.5">
+                <div className="size-11 rounded-full bg-amber-500/10 border border-amber-400/20 flex items-center justify-center text-amber-400 shrink-0">
+                  <Star className="size-5 fill-amber-400 text-amber-400" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-foreground">{tier.tierName || "Rookie"}</h4>
+                    <span className="text-sm font-bold text-primary">
+                      {points} / {tier.maxPoints + 1} LP
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Keep contributing to unlock verified perks</p>
+                </div>
               </div>
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-3.5 flex justify-between items-center">
-                <span>Create Campus Thread</span>
-                <span className="text-primary font-black">+5 LP</span>
+
+              {/* Progress Bar */}
+              <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{
+                    width: `${Math.min(100, Math.max(8, Math.round((points / (tier.maxPoints + 1)) * 100)))}%`,
+                  }}
+                />
               </div>
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-3.5 flex justify-between items-center">
-                <span>Post Canteen Reply</span>
-                <span className="text-primary font-black">+2 LP</span>
+
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-0.5">
+                <p className="flex items-center gap-1">
+                  {points >= 1000 ? (
+                    <>
+                      <Crown className="size-3 text-amber-400 inline" />
+                      <span>Maximum Legend rank reached!</span>
+                    </>
+                  ) : (
+                    <span>{Math.max(0, tier.maxPoints + 1 - points)} LP needed for next rank</span>
+                  )}
+                </p>
+
+                {isOwnProfile && (
+                  <Link
+                    href={`/@${profile.username}`}
+                    className="text-xs font-bold text-primary hover:underline"
+                  >
+                    Referral Link
+                  </Link>
+                )}
               </div>
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-3.5 flex justify-between items-center">
-                <span>Upvote / Poll Vote</span>
-                <span className="text-primary font-black">+1 LP</span>
+            </div>
+
+            {/* Loop Points Rules & Privileges */}
+            <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Trophy className="size-4 text-amber-500" /> Loop Points (LP) Rules &amp; Privileges
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Earn Loop Points to unlock Verified Campus Star status, top your college leaderboard, and unlock
+                unlimited matching.
+              </p>
+
+              <div className="grid gap-2 sm:grid-cols-2 text-xs font-semibold text-muted-foreground pt-1">
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 flex justify-between items-center">
+                  <span>Invite Classmate</span>
+                  <span className="text-primary font-black">+20 LP</span>
+                </div>
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 flex justify-between items-center">
+                  <span>Create Campus Thread</span>
+                  <span className="text-primary font-black">+5 LP</span>
+                </div>
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 flex justify-between items-center">
+                  <span>Post Canteen Reply</span>
+                  <span className="text-primary font-black">+2 LP</span>
+                </div>
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 flex justify-between items-center">
+                  <span>Upvote / Poll Vote</span>
+                  <span className="text-primary font-black">+1 LP</span>
+                </div>
               </div>
             </div>
           </div>
