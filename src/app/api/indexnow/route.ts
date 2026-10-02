@@ -153,22 +153,23 @@ export async function GET(req: NextRequest) {
 
     // IndexNow allows max 10,000 URLs per batch payload
     const batchUrls = urls.slice(0, 10000);
-    const payload = {
-      host: HOST,
-      key: INDEXNOW_KEY,
-      keyLocation: KEY_LOCATION,
-      urlList: batchUrls,
-    };
-
-    const res = await fetch("https://api.indexnow.org/indexnow", {
-      method: "POST",
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-      body: JSON.stringify(payload),
-    });
+    const [indexNowRes, sitemapRes] = await Promise.all([
+      fetch("https://api.indexnow.org/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          host: HOST,
+          key: INDEXNOW_KEY,
+          keyLocation: KEY_LOCATION,
+          urlList: batchUrls,
+        }),
+      }).catch((e) => ({ status: 500, ok: false, error: String(e) })),
+      fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(`https://${HOST}/sitemap.xml`)}`).catch(() => null),
+    ]);
 
     return NextResponse.json({
       success: true,
-      status: res.status,
+      indexNowStatus: "status" in indexNowRes ? indexNowRes.status : 200,
       totalUrlsSubmitted: batchUrls.length,
     });
   } catch (error) {
@@ -177,5 +178,70 @@ export async function GET(req: NextRequest) {
       { error: "IndexNow submission failed", details: String(error) },
       { status: 500 }
     );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const user = await hexclaveServerApp.getUser();
+    let isAuthorized = false;
+
+    if (user) {
+      const db = getDb();
+      const profile = await db.query.userProfiles.findFirst({
+        where: eq(userProfiles.userId, user.id),
+        columns: { role: true },
+      });
+      isAuthorized = profile?.role === "ADMIN";
+    }
+
+    if (!isAuthorized) {
+      const authHeader = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+      const keyHeader = req.headers.get("x-indexnow-key");
+      if (authHeader === INDEXNOW_KEY || keyHeader === INDEXNOW_KEY) {
+        isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = (await req.json().catch(() => ({}))) as { urls?: string[] };
+    const customUrls = body?.urls || [];
+
+    if (customUrls.length === 0) {
+      return NextResponse.json({ error: "No URLs provided" }, { status: 400 });
+    }
+
+    const payload = {
+      host: HOST,
+      key: INDEXNOW_KEY,
+      keyLocation: KEY_LOCATION,
+      urlList: customUrls.slice(0, 10000),
+    };
+
+    const [indexCentral, bingRes] = await Promise.all([
+      fetch("https://api.indexnow.org/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload),
+      }).catch((e) => ({ status: 500, error: String(e) })),
+      fetch("https://www.bing.com/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload),
+      }).catch((e) => ({ status: 500, error: String(e) })),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      submittedUrls: customUrls.length,
+      indexNowCentralStatus: "status" in indexCentral ? indexCentral.status : 200,
+      bingStatus: "status" in bingRes ? bingRes.status : 200,
+    });
+  } catch (error) {
+    console.error("POST indexnow error:", error);
+    return NextResponse.json({ error: "Failed to submit URLs" }, { status: 500 });
   }
 }

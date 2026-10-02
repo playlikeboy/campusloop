@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfile } from "@/hooks/use-profile";
-import { fetcher } from "@/lib/api";
+import { fetcher, voteArticleComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -51,7 +51,7 @@ export function ArticleCommentsSection({
     totalCount: number;
   }>(`/api/articles/${encodedSlug}/comments`, fetcher, {
     revalidateOnFocus: true,
-    dedupingInterval: 5000,
+    dedupingInterval: 1000,
   });
 
   const comments = data?.comments || [];
@@ -92,7 +92,7 @@ export function ArticleCommentsSection({
       } else {
         setCommentText("");
       }
-      mutate();
+      mutate(undefined, { revalidate: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to post comment";
       toast.error(msg);
@@ -111,12 +111,77 @@ export function ArticleCommentsSection({
     sounds.pop();
     haptics.light();
 
+    const previousData = data;
+
+    // Helper to update vote and count optimistically in the nested tree
+    const updateInTree = (list: any[]): any[] => {
+      return list.map((item) => {
+        if (item.id === commentId) {
+          const isCurrentlyVoted = (item.userVote || 0) > 0;
+          return {
+            ...item,
+            userVote: isCurrentlyVoted ? 0 : 1,
+            upvotesCount: Math.max(0, (item.upvotesCount || 0) + (isCurrentlyVoted ? -1 : 1)),
+          };
+        }
+        if (item.replies && item.replies.length > 0) {
+          return {
+            ...item,
+            replies: updateInTree(item.replies),
+          };
+        }
+        return item;
+      });
+    };
+
+    // 1. Instant Optimistic State Update
+    await mutate(
+      (current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          comments: updateInTree(current.comments),
+        };
+      },
+      { revalidate: false }
+    );
+
     try {
-      const res = await fetch(`/api/articles/${encodedSlug}/comments/${commentId}/vote`, { method: "POST" });
-      if (!res.ok) throw new Error("Vote failed");
-      mutate();
+      const res = await voteArticleComment(articleSlug, commentId);
+
+      // 2. Authoritative Sync from Server Response
+      await mutate(
+        (current) => {
+          if (!current) return current;
+          const syncInTree = (list: any[]): any[] => {
+            return list.map((item) => {
+              if (item.id === commentId) {
+                return {
+                  ...item,
+                  userVote: res.userVote,
+                  upvotesCount: res.upvotesCount,
+                };
+              }
+              if (item.replies && item.replies.length > 0) {
+                return {
+                  ...item,
+                  replies: syncInTree(item.replies),
+                };
+              }
+              return item;
+            });
+          };
+          return {
+            ...current,
+            comments: syncInTree(current.comments),
+          };
+        },
+        { revalidate: false }
+      );
     } catch {
-      toast.error("Failed to update vote");
+      // Rollback to previous state on network failure
+      await mutate(previousData, { revalidate: false });
+      toast.error("Failed to update reaction");
     }
   }
 
@@ -256,12 +321,16 @@ export function ArticleCommentsSection({
                   <button
                     type="button"
                     onClick={() => handleVoteComment(root.id)}
+                    aria-label={root.userVote > 0 ? "Remove upvote" : "Upvote comment"}
+                    title={root.userVote > 0 ? "Upvoted" : "Upvote"}
                     className={cn(
-                      "flex items-center gap-1 font-bold transition-colors cursor-pointer",
-                      root.userVote > 0 ? "text-primary font-black" : "hover:text-foreground"
+                      "flex items-center gap-1.5 py-1 px-2.5 -ml-1 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-90",
+                      root.userVote > 0
+                        ? "text-primary bg-primary/10 font-black shadow-2xs"
+                        : "hover:text-foreground hover:bg-muted/50"
                     )}
                   >
-                    <ThumbsUp className="size-3.5" />
+                    <ThumbsUp className={cn("size-3.5 transition-transform", root.userVote > 0 && "fill-current scale-110")} />
                     <span>{root.upvotesCount || 0}</span>
                   </button>
 
@@ -371,14 +440,16 @@ export function ArticleCommentsSection({
                             <button
                               type="button"
                               onClick={() => handleVoteComment(reply.id)}
+                              aria-label={reply.userVote > 0 ? "Remove upvote" : "Upvote reply"}
+                              title={reply.userVote > 0 ? "Upvoted" : "Upvote"}
                               className={cn(
-                                "flex items-center gap-1 text-[10px] font-bold transition-colors cursor-pointer",
+                                "flex items-center gap-1.5 py-1 px-2 -ml-1 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer active:scale-90",
                                 reply.userVote > 0
-                                  ? "text-primary font-black"
-                                  : "text-muted-foreground hover:text-foreground"
+                                  ? "text-primary bg-primary/10 font-black shadow-2xs"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                               )}
                             >
-                              <ThumbsUp className="size-3" />
+                              <ThumbsUp className={cn("size-3 transition-transform", reply.userVote > 0 && "fill-current scale-110")} />
                               <span>{reply.upvotesCount || 0}</span>
                             </button>
 
