@@ -2,8 +2,10 @@
 
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
 import { PostEmbedRenderer } from "@/components/embeds/post-embed-renderer";
+import { extractEmbedsFromText } from "@/lib/embeds";
+import { parseMarketplaceInquiry, ProductMessageCard } from "./product-message-card";
 
 interface ChatMessageContentProps {
   content: string;
@@ -13,19 +15,16 @@ interface ChatMessageContentProps {
 /**
  * Splits text into tokens: @mentions, URLs, and regular text,
  * using industry-standard boundary detection (preventing credentials like mart@password123 from matching).
+ * Mentions render as inline semantic links rather than bulky button pills to maintain sentence flow.
  */
 function renderFormattedMessage(text: string, isMe: boolean) {
-  // Industry-standard tokenizer regex:
-  // 1. Matches URLs: https?://...
-  // 2. Matches username mentions strictly when preceded by start-of-line, whitespace, or open punctuation
-  // 3. Negative lookbehind ensures credentials like 'mart@password123' or emails stay untouched
   const tokenRegex = /(https?:\/\/[^\s<>"']+|(?<=^|[\s([{<,;:/])@[a-zA-Z0-9_]{2,32}\b)/gi;
   const parts = text.split(tokenRegex);
 
   return parts.map((part, index) => {
     if (!part) return null;
 
-    // Handle @username mention
+    // Handle @username mention - inline semantic styling
     if (part.startsWith("@") && part.length > 1) {
       const username = part.slice(1);
       return (
@@ -35,8 +34,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
           onClick={(e) => e.stopPropagation()}
           className={
             isMe
-              ? "inline-flex items-center font-bold px-1.5 py-0.5 mx-0.5 rounded-md bg-white/20 hover:bg-white/30 text-white transition-colors underline-offset-2 hover:underline select-text"
-              : "inline-flex items-center font-bold px-1.5 py-0.5 mx-0.5 rounded-md bg-primary/15 hover:bg-primary/25 text-primary transition-colors underline-offset-2 hover:underline select-text"
+              ? "font-medium text-emerald-200 hover:text-white underline decoration-emerald-300/40 hover:decoration-white transition-colors select-text inline"
+              : "font-medium text-emerald-400 dark:text-emerald-300 hover:text-emerald-200 underline decoration-emerald-400/40 hover:decoration-emerald-400 transition-colors select-text inline"
           }
         >
           {part}
@@ -46,7 +45,6 @@ function renderFormattedMessage(text: string, isMe: boolean) {
 
     // Handle URLs
     if (/^https?:\/\//i.test(part)) {
-      // Clean trailing punctuation that might have been part of sentence
       const cleanUrl = part.replace(/[.,;!?)]+$/, "");
       const trailing = part.slice(cleanUrl.length);
 
@@ -75,12 +73,12 @@ function renderFormattedMessage(text: string, isMe: boolean) {
               onClick={(e) => e.stopPropagation()}
               className={
                 isMe
-                  ? "inline-flex items-center gap-1 font-bold underline decoration-white/80 hover:decoration-white text-white break-all transition-colors bg-white/10 hover:bg-white/20 px-1.5 py-0.5 rounded-md"
-                  : "inline-flex items-center gap-1 font-bold underline decoration-primary/70 hover:decoration-primary text-primary break-all transition-colors bg-primary/10 hover:bg-primary/20 px-1.5 py-0.5 rounded-md"
+                  ? "inline-flex items-center gap-1 font-medium underline decoration-emerald-200/60 hover:decoration-emerald-200 text-emerald-100 hover:text-white break-all transition-colors"
+                  : "inline-flex items-center gap-1 font-medium underline decoration-emerald-400/60 hover:decoration-emerald-400 text-emerald-400 dark:text-emerald-300 hover:text-emerald-200 break-all transition-colors"
               }
             >
               <span>{cleanUrl}</span>
-              <ExternalLink className="size-3 shrink-0 opacity-85" />
+              <ExternalLink className="size-3 shrink-0 opacity-80" />
             </Link>
             {trailing}
           </React.Fragment>
@@ -96,12 +94,12 @@ function renderFormattedMessage(text: string, isMe: boolean) {
             onClick={(e) => e.stopPropagation()}
             className={
               isMe
-                ? "inline-flex items-center gap-1 font-bold underline decoration-white/80 hover:decoration-white text-white break-all transition-colors bg-white/10 hover:bg-white/20 px-1.5 py-0.5 rounded-md"
-                : "inline-flex items-center gap-1 font-bold underline decoration-sky-500/70 hover:decoration-sky-500 text-sky-600 dark:text-sky-400 break-all transition-colors bg-sky-500/10 hover:bg-sky-500/20 px-1.5 py-0.5 rounded-md"
+                ? "inline-flex items-center gap-1 font-medium underline decoration-emerald-200/60 hover:decoration-emerald-200 text-emerald-100 hover:text-white break-all transition-colors"
+                : "inline-flex items-center gap-1 font-medium underline decoration-sky-400/60 hover:decoration-sky-400 text-sky-400 hover:text-sky-300 break-all transition-colors"
             }
           >
             <span>{cleanUrl}</span>
-            <ExternalLink className="size-3 shrink-0 opacity-85" />
+            <ExternalLink className="size-3 shrink-0 opacity-80" />
           </a>
           {trailing}
         </React.Fragment>
@@ -114,17 +112,33 @@ function renderFormattedMessage(text: string, isMe: boolean) {
 }
 
 export function ChatMessageContent({ content, isMe }: ChatMessageContentProps) {
+  // 1. Detect if this message is a structured marketplace listing inquiry
+  const marketplaceProduct = useMemo(() => parseMarketplaceInquiry(content), [content]);
+
+  // 2. Filter out bare @username mentions from triggering giant UserProfileEmbed cards in direct chat
+  const mediaEmbeds = useMemo(() => {
+    const list = extractEmbedsFromText(content);
+    return list.filter((e) => e.type !== "internal_profile");
+  }, [content]);
+
   return (
     <div className="space-y-1.5 text-left">
       {/* Formatted body text with left alignment */}
-      <p className="whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-left">
+      <p className="whitespace-pre-wrap break-words text-[13.5px] sm:text-[14px] leading-relaxed text-left">
         {renderFormattedMessage(content, isMe)}
       </p>
 
-      {/* Embedded interactive artifacts (Profiles, Events, Communities, Articles, 9GAG, Music, etc.) */}
-      <div className="mt-2 pt-1 border-t border-white/10 dark:border-border/30 text-left">
-        <PostEmbedRenderer content={content} limit={2} />
-      </div>
+      {/* Dedicated Marketplace Product Preview Card */}
+      {marketplaceProduct && (
+        <ProductMessageCard product={marketplaceProduct} isMe={isMe} />
+      )}
+
+      {/* Embedded interactive artifacts (Events, Communities, Articles, 9GAG, Music, etc.) - rendered only when present */}
+      {mediaEmbeds.length > 0 && (
+        <div className="mt-2 pt-1 border-t border-white/10 dark:border-border/30 text-left">
+          <PostEmbedRenderer embeds={mediaEmbeds} limit={2} />
+        </div>
+      )}
     </div>
   );
 }
