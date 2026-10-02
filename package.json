@@ -22,7 +22,7 @@
 		"db:seed-500": "bun run scripts/campusloop-seeding/seed-pipeline.ts",
 		"db:validate-500": "bun run scripts/campusloop-seeding/validate.ts",
 		"db:rollback-500": "bun run scripts/campusloop-seeding/rollback.ts",
-		"deploy": "opennextjs-cloudflare build && OPEN_NEXT_DEPLOY=true node --env-file=.env node_modules/wrangler/wrangler-dist/cli.js deploy",
+		"deploy": "opennextjs-cloudflare build && OPEN_NEXT_DEPLOY=true node --env-file-if-exists=.env node_modules/wrangler/wrangler-dist/cli.js deploy",
 		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
