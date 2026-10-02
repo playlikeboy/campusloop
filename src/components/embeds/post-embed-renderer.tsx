@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { useMemo } from "react";
 import { AudioPlayer } from "@/components/media/audio-player";
 import { VideoPlayer } from "@/components/media/video-player";
-import { extractEmbedsFromText, type ParsedEmbed } from "@/lib/embeds";
+import { extractEmbedsFromText, hasAttachedVideoContent, type ParsedEmbed } from "@/lib/embeds";
 import { AppleMusicEmbed } from "./apple-music-embed";
 import { ArticleEmbed } from "./article-embed";
 import { CodePenEmbed } from "./codepen-embed";
@@ -26,6 +26,8 @@ interface PostEmbedRendererProps {
   limit?: number;
   dismissable?: boolean;
   onDismiss?: (rawUrl: string) => void;
+  hasAttachedVideo?: boolean;
+  disableLinkPreview?: boolean;
 }
 
 export function PostEmbedRenderer({
@@ -34,12 +36,26 @@ export function PostEmbedRenderer({
   limit = 2,
   dismissable = false,
   onDismiss,
+  hasAttachedVideo = false,
+  disableLinkPreview = false,
 }: PostEmbedRendererProps) {
   const embeds = useMemo(() => {
-    if (directEmbeds) return directEmbeds;
-    if (!content) return [];
-    return extractEmbedsFromText(content);
-  }, [directEmbeds, content]);
+    let list = directEmbeds ? directEmbeds : (content ? extractEmbedsFromText(content) : []);
+
+    const contentHasVideo = Boolean(content && hasAttachedVideoContent(content));
+    const hasVideoEmbed = list.some(
+      (e) => e.type === "video" || e.type === "youtube" || e.type === "vimeo" || e.type === "loom"
+    );
+
+    const shouldSuppressLinkPreview =
+      hasAttachedVideo || disableLinkPreview || contentHasVideo || hasVideoEmbed;
+
+    if (shouldSuppressLinkPreview) {
+      list = list.filter((e) => e.type !== "opengraph");
+    }
+
+    return list;
+  }, [directEmbeds, content, hasAttachedVideo, disableLinkPreview]);
 
   if (!embeds || embeds.length === 0) return null;
 

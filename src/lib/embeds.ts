@@ -248,13 +248,51 @@ export function isMediaImageUrl(url: string): boolean {
 }
 
 /**
+ * Detect whether a URL points directly to a video media asset or video stream
+ */
+export function isMediaVideoUrl(url: string): boolean {
+  if (!url) return false;
+  if (/\.(mp4|webm|mov|mkv|ogg|m3u8)(?:\?.*)?$/i.test(url)) return true;
+  try {
+    const parsed = new URL(url, "https://campusloop.space");
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host.includes("v.redd.it") ||
+      parsed.pathname.includes("/api/files/r2/videos/")
+    ) {
+      return true;
+    }
+  } catch {
+    // Ignore URL parse error
+  }
+  return false;
+}
+
+/**
+ * Detect whether a post or text contains an attached video, external video, or video embed
+ */
+export function hasAttachedVideoContent(content?: string | null): boolean {
+  if (!content) return false;
+  return (
+    /!\[video:[^\]]*\]/i.test(content) ||
+    /!\[[^\]]*\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/(?:videos)\/[^\s)]+))\)/i.test(content) ||
+    /\.(mp4|webm|mov|m3u8)(?:\?.*)?$/im.test(content) ||
+    content.includes("/api/files/r2/videos/") ||
+    content.includes("v.redd.it")
+  );
+}
+
+/**
  * Parse a given text and extract all embeddable links and internal entity references
  */
 export function extractEmbedsFromText(text: string): ParsedEmbed[] {
   if (!text) return [];
 
   // Strip all markdown media tags ![...](url) so attached media is never treated as link embeds
-  const textWithoutMarkdownMedia = text.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, "");
+  const textWithoutMarkdownMedia = text.replace(
+    /!\[([^\]]*)\]\(((?:https?:\/\/[^\s)]+|\/api\/files\/r2\/(?:images|videos|audio|documents|files)\/[^\s)]+))\)/gi,
+    ""
+  );
 
   const embeds: ParsedEmbed[] = [];
   const seenUrls = new Set<string>();
@@ -283,8 +321,8 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
       continue;
     }
 
-    // B. Direct Video
-    if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(cleanUrl)) {
+    // B. Direct Video & Video Streams
+    if (isMediaVideoUrl(cleanUrl)) {
       embeds.push({
         type: "video",
         rawUrl: cleanUrl,
@@ -293,7 +331,10 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
     }
 
     // C. Direct Audio
-    if (/\.(mp3|wav|m4a|aac)(\?.*)?$/i.test(cleanUrl)) {
+    if (
+      /\.(mp3|wav|m4a|aac|oga)(\?.*)?$/i.test(cleanUrl) ||
+      cleanUrl.includes("/api/files/r2/audio/")
+    ) {
       embeds.push({
         type: "audio",
         rawUrl: cleanUrl,
@@ -500,8 +541,8 @@ export function extractEmbedsFromText(text: string): ParsedEmbed[] {
     }
 
     // F. General OpenGraph external link
-    // Only add if not an image or media link (which is already rendered inline or in carousels)
-    if (!isMediaImageUrl(cleanUrl)) {
+    // Only add if not an image or video/media link (which is already rendered inline or in carousels/players)
+    if (!isMediaImageUrl(cleanUrl) && !isMediaVideoUrl(cleanUrl)) {
       embeds.push({
         type: "opengraph",
         rawUrl: cleanUrl,

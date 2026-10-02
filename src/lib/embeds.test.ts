@@ -8,6 +8,7 @@ import {
   extractSpotifyEmbedUrl,
   extractVimeoEmbedUrl,
   extractYouTubeId,
+  hasAttachedVideoContent,
   isNineGagHomeUrl,
 } from "./embeds";
 
@@ -156,5 +157,21 @@ describe("Link and Embed Parsing Engine", () => {
     const vimeoUrl = "https://vimeo.com/76979871";
     const vimeoParsed = extractVimeoEmbedUrl(vimeoUrl);
     expect(vimeoParsed?.id).toBe("76979871");
+  });
+
+  it("identifies direct video media URLs and does not treat them as opengraph cards", () => {
+    const textWithVideo = "Watch this clip: https://campusloop.space/api/files/r2/videos/sample.mp4 and https://v.redd.it/xyz123";
+    const embeds = extractEmbedsFromText(textWithVideo);
+
+    expect(embeds.every((e) => e.type === "video")).toBe(true);
+    expect(embeds.some((e) => e.type === "opengraph")).toBe(false);
+  });
+
+  it("detects attached video content via hasAttachedVideoContent", () => {
+    expect(hasAttachedVideoContent("Here is a video: ![video:Demo](/api/files/r2/videos/demo.mp4)")).toBe(true);
+    expect(hasAttachedVideoContent("Video link https://v.redd.it/abc12345")).toBe(true);
+    expect(hasAttachedVideoContent("Check out https://cdn.example.com/clip.webm")).toBe(true);
+    expect(hasAttachedVideoContent("Just text with no video https://github.com")).toBe(false);
+    expect(hasAttachedVideoContent(null)).toBe(false);
   });
 });
