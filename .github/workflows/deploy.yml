@@ -49,6 +49,10 @@ jobs:
           IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
           NEXT_PUBLIC_IMGBB_API_KEY: ${{ secrets.NEXT_PUBLIC_IMGBB_API_KEY }}
           ADMIN_PASSKEY: ${{ secrets.ADMIN_PASSKEY }}
+          ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY }}
+          UPLOAD_API_KEY: ${{ secrets.UPLOAD_API_KEY }}
           ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
           GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
           NEXT_PUBLIC_GIPHY_API_KEY: ${{ secrets.NEXT_PUBLIC_GIPHY_API_KEY }}
