@@ -6,6 +6,8 @@ import { putR2Object } from "@/lib/r2";
 export const dynamic = "force-dynamic";
 
 const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY || "";
+const UPLOAD_API_KEY = process.env.UPLOAD_API_KEY || process.env.ADMIN_PASSKEY || "";
+
 
 // Blacklist of dangerous, executable, or scriptable file extensions
 const DISALLOWED_EXTENSIONS = new Set([
@@ -59,11 +61,7 @@ export async function POST(req: NextRequest) {
       "";
     const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
 
-    const validTokens = [
-      process.env.ADMIN_PASSKEY,
-      process.env.ADMIN_SESSION_SECRET,
-      process.env.HEXCLAVE_SECRET_SERVER_KEY,
-    ].filter((t): t is string => Boolean(t && t.length > 0));
+    const validTokens = UPLOAD_API_KEY ? [UPLOAD_API_KEY] : [];
 
     if (
       (token && validTokens.includes(token)) ||
