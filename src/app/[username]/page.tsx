@@ -24,6 +24,7 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ProfileClientView } from "@/app/(app)/(main)/profile/profile-client";
 import { ShareQrButton } from "@/components/common/share-qr-button";
+import { ProfileSocialLinks } from "@/components/profile/profile-social-links";
 import { PublicFollowButton } from "@/components/profile/public-follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
@@ -447,6 +448,9 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   </p>
                 ) : null}
 
+                {/* Social & Portfolio Links */}
+                <ProfileSocialLinks links={profile.socialLinks as any} />
+
                 {/* Stats Row (Following / Followers / LP) */}
                 <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground pt-2">
                   <Link href={`/@${profile.username}/following`} className="hover:underline">
@@ -814,6 +818,9 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                     {profile.bio || profile.headline}
                   </p>
                 ) : null}
+
+                {/* Social & Portfolio Links */}
+                <ProfileSocialLinks links={profile.socialLinks as any} />
 
                 {/* Followers / Following Stats */}
                 <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground border-t border-border/30 pt-3">
