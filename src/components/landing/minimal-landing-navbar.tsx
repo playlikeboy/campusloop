@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, Compass, Flame, Heart, Menu, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, CalendarDays, Compass, Flame, Menu, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,9 +17,10 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
 
   const links = [
     { label: "Campus Feed", href: "/feeds", icon: Flame },
-    { label: "Colleges", href: "/colleges", icon: Compass },
     { label: "Academics", href: "/academics", icon: BookOpen },
-    { label: "Campus Match", href: "/dating", icon: Heart },
+    { label: "Communities", href: "/communities", icon: Users },
+    { label: "Events", href: "/events", icon: CalendarDays },
+    { label: "Colleges", href: "/colleges", icon: Compass },
   ];
 
   return (

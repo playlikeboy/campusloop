@@ -415,6 +415,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     return clean.length > 0 ? clean : null;
   }, [post.body]);
 
+  const postAuthorId = post.authorId;
+
   // Group comments into root comments and nested replies (2-level flat tree)
   const { rootComments, repliesMap, totalCount } = useMemo(() => {
     const list = comments || [];
@@ -459,8 +461,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
 
-        const isOpA = Boolean(post.authorId && a.authorId === post.authorId);
-        const isOpB = Boolean(post.authorId && b.authorId === post.authorId);
+        const isOpA = Boolean(postAuthorId && a.authorId === postAuthorId);
+        const isOpB = Boolean(postAuthorId && b.authorId === postAuthorId);
         const scoreA = (isOpA ? 1000 : 0) + (a.likesCount || 0) * 10 + ((a.author?.points || 0) >= 150 ? 50 : 0);
         const scoreB = (isOpB ? 1000 : 0) + (b.likesCount || 0) * 10 + ((b.author?.points || 0) >= 150 ? 50 : 0);
 
@@ -470,7 +472,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
     }
 
     return { rootComments: roots, repliesMap: replies, totalCount: list.length };
-  }, [comments, sortMode, post.authorId]);
+  }, [comments, sortMode, postAuthorId]);
 
   const displayCount = comments !== undefined ? totalCount : (post.commentsCount ?? 0);
 

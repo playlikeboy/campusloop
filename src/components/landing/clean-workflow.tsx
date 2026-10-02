@@ -7,7 +7,7 @@ const steps = [
     label: "Campus feed",
     title: "What changed since yesterday?",
     text: "Announcements, questions, polls and the small conversations you would otherwise miss.",
-    href: "/app",
+    href: "/feeds",
     icon: MessageCircle,
   },
   {
@@ -90,11 +90,11 @@ export function CleanWorkflow() {
           })}
           <div className="grid grid-cols-2 border-t border-zinc-800">
             <Link
-              href="/marketplace"
+              href="/buy-and-sell"
               className="group flex items-center gap-3 border-r border-zinc-800 p-5"
             >
               <Store className="size-4 text-zinc-500 group-hover:text-white" />
-              <span className="text-xs font-bold text-zinc-300 group-hover:text-white">Marketplace</span>
+              <span className="text-xs font-bold text-zinc-300 group-hover:text-white">Buy &amp; Sell</span>
             </Link>
             <Link href="/colleges" className="group flex items-center gap-3 p-5">
               <span className="grid size-4 place-items-center rounded-full border border-zinc-700 text-[8px] font-black text-zinc-400">

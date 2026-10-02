@@ -147,6 +147,16 @@ const nextConfig: NextConfig = {
         destination: "/explore",
         permanent: true,
       },
+      {
+        source: "/app",
+        destination: "/feeds",
+        permanent: true,
+      },
+      {
+        source: "/academics/playlists",
+        destination: "/academics",
+        permanent: false,
+      },
     ];
   },
 };

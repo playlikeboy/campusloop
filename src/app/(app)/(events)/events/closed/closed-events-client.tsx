@@ -57,9 +57,10 @@ export function ClosedEventsClient() {
     }
   );
 
+  const [now] = useState(() => Date.now());
+
   // Filter only closed/past events
   const closedEvents = useMemo(() => {
-    const now = Date.now();
     return rawEvents.filter((e) => {
       // Must be closed/past
       if (!isEventClosed(e, now)) return false;
@@ -76,7 +77,7 @@ export function ClosedEventsClient() {
 
       return true;
     });
-  }, [rawEvents, searchQuery]);
+  }, [rawEvents, searchQuery, now]);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col bg-background pb-28 px-3 sm:px-6">

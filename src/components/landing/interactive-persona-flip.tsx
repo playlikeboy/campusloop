@@ -1,6 +1,16 @@
 "use client";
 
-import { BadgeCheck, Flame, Heart, MessageSquare, Repeat, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import {
+  BadgeCheck,
+  Flame,
+  Heart,
+  MessageSquare,
+  Repeat,
+  ShieldCheck,
+  Sparkles,
+  VenetianMask,
+  Zap,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { haptics } from "@/lib/haptics";
@@ -30,7 +40,7 @@ export function InteractivePersonaFlip() {
           Speak your mind. Or rep your clout.
         </h2>
         <p className="w-full max-w-lg mx-auto text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
-          Toggle seamlessly between zero-log anonymous confessions and verified student status in one tap.
+          Toggle seamlessly between zero-log anonymous campus queries and verified student status in one tap.
         </p>
 
         {/* Tactile Toggle Switcher */}
@@ -46,7 +56,7 @@ export function InteractivePersonaFlip() {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <span>🎭</span>
+              <VenetianMask className="size-4" />
               <span>Anonymous Mode</span>
             </button>
 
@@ -81,8 +91,8 @@ export function InteractivePersonaFlip() {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-lg">
-                    🎭
+                  <div className="size-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                    <VenetianMask className="size-5 text-purple-300" />
                   </div>
                   <div>
                     <p className="text-xs font-black text-purple-300">Hostel Phantom</p>
@@ -90,7 +100,7 @@ export function InteractivePersonaFlip() {
                   </div>
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
-                  Zero Logs
+                  Zero Author Log
                 </span>
               </div>
 

@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AcademicsQuickVault } from "@/components/landing/academics-quick-vault";
+import { CampusLoopGraph } from "@/components/landing/campus-loop-graph";
 import { CampusTicker } from "@/components/landing/campus-ticker";
-import { CampusVibeGrid } from "@/components/landing/campus-vibe-grid";
+import { CampusUtilityMatrix } from "@/components/landing/campus-utility-matrix";
 import { CleanCTA } from "@/components/landing/clean-cta";
 import { CleanFAQ } from "@/components/landing/clean-faq";
 import { CleanFooter } from "@/components/landing/clean-footer";
-import { CreativeHero } from "@/components/landing/creative-hero";
+import { CleanHero } from "@/components/landing/clean-hero";
+import { CleanWorkflow } from "@/components/landing/clean-workflow";
 import { InteractivePersonaFlip } from "@/components/landing/interactive-persona-flip";
+import { InteractiveShowcase } from "@/components/landing/interactive-showcase";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
 import { MobileStickyBar } from "@/components/landing/mobile-sticky-bar";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
@@ -17,9 +20,9 @@ const SITE_URL = "https://campusloop.space";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "CampusLoop | Verified Student Social Network & Campus Hubs",
+  title: "CampusLoop — The Verified Digital Layer of College Life",
   description:
-    "Join verified college students across India for real-time campus confessions, 24h stories, semester notes, PYQs, and student dating.",
+    "A verified student network for conversations, academics, events, communities, and everyday campus utilities across Indian colleges.",
   applicationName: "CampusLoop",
   authors: [{ name: "CampusLoop Team", url: `${SITE_URL}/about` }],
   keywords: [
@@ -27,11 +30,15 @@ export const metadata: Metadata = {
     "campus social network India",
     "verified student network",
     "college community India",
-    "college confessions",
     "campus communities",
     "college notes",
     "college PYQs",
-    "college dating India",
+    "campus events",
+    "hackathons India",
+    "campus marketplace",
+    "student housing flatmates",
+    "lost and found campus",
+    "rideshare college",
     "Indian college directory",
   ],
   robots: {
@@ -52,8 +59,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "CampusLoop | Verified Student Social Network",
-    description: "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
+    title: "CampusLoop — The Verified Digital Layer of College Life",
+    description:
+      "A verified student network for conversations, academics, events, communities, and everyday campus utilities across Indian colleges.",
     url: SITE_URL,
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -63,14 +71,15 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "CampusLoop — Verified student social network for Indian colleges",
+        alt: "CampusLoop — The verified digital layer of college life",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CampusLoop | Verified Student Social Network",
-    description: "Conversations, 24h vibes, semester notes, and student dating for verified Indian colleges.",
+    title: "CampusLoop — The Verified Digital Layer of College Life",
+    description:
+      "A verified student network for conversations, academics, events, communities, and everyday campus utilities across Indian colleges.",
     creator: "@mycampusloop",
     images: [`${SITE_URL}/og-image.png`],
   },
@@ -114,7 +123,7 @@ export default async function LandingPage() {
         operatingSystem: "Web",
         inLanguage: "en-IN",
         description:
-          "Campus community platform for verified college students in India with confessions, stories, student dating, and academic resources.",
+          "Verified digital campus platform for Indian college students with conversations, notes, PYQs, communities, events, and everyday campus utilities.",
         offers: {
           "@type": "Offer",
           price: "0",
@@ -130,7 +139,7 @@ export default async function LandingPage() {
             name: "How do I get verified on my campus?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Sign up with your college email (.edu, .ac.in, or university domain). You instantly unlock full voting, confession, DM, and notes download access.",
+              text: "Sign up with your college email domain (.ac.in, .edu, or recognized institution). You instantly unlock full access to your campus feed, notes, events, and communities.",
             },
           },
           {
@@ -138,7 +147,7 @@ export default async function LandingPage() {
             name: "Is anonymous posting really anonymous?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes. Anonymous posts and confessions have zero author identity attached to the public payload.",
+              text: "Yes. When posting in anonymous mode, zero author identity is attached to the public payload. Even campus moderators cannot trace the author.",
             },
           },
           {
@@ -154,7 +163,7 @@ export default async function LandingPage() {
             name: "Are academic notes and PYQs free?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes, completely free. Everything in the Academic Vault is uploaded and peer-reviewed by students for students.",
+              text: "Yes, completely free. Everything in the Academic Vault is uploaded, organized, and peer-reviewed by students for students.",
             },
           },
           {
@@ -162,7 +171,7 @@ export default async function LandingPage() {
             name: "Can I explore without an account first?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes! You can explore in Viewer Mode to see campus trends, college hubs, and notes before creating an account.",
+              text: "Yes! You can explore in Viewer Mode to see campus trends, college hubs, events, and notes before creating an account.",
             },
           },
         ],
@@ -178,18 +187,21 @@ export default async function LandingPage() {
       {/* Floating Pill Navigation */}
       <MinimalLandingNavbar isAuthenticated={isAuthenticated} />
 
-      {/* Main Creative Mobile-First Flow */}
+      {/* Main Coherent Mobile-First Product Flow */}
       <main className="flex-1">
-        <CreativeHero isAuthenticated={isAuthenticated} />
+        <CleanHero isAuthenticated={isAuthenticated} />
         <CampusTicker />
+        <CampusUtilityMatrix />
+        <InteractiveShowcase />
+        <CleanWorkflow />
         <InteractivePersonaFlip />
         <AcademicsQuickVault />
-        <CampusVibeGrid />
+        <CampusLoopGraph />
         <CleanFAQ />
         <CleanCTA isAuthenticated={isAuthenticated} />
       </main>
 
-      {/* Sleek Footer */}
+      {/* Categorized Clean Footer */}
       <CleanFooter />
 
       {/* Mobile-Only Floating Action Dock */}

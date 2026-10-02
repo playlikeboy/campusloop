@@ -18,28 +18,28 @@ import { Badge } from "@/components/ui/badge";
 import type { SearchEntityType, SearchResult } from "@/lib/search/types";
 import { cn } from "@/lib/utils";
 
-function getEntityIcon(type: SearchEntityType) {
+function EntityTypeIcon({ type, className = "size-4" }: { type: SearchEntityType; className?: string }) {
   switch (type) {
     case "person":
-      return User;
+      return <User className={className} />;
     case "post":
-      return MessageSquare;
+      return <MessageSquare className={className} />;
     case "community":
-      return Users;
+      return <Users className={className} />;
     case "college":
-      return Building2;
+      return <Building2 className={className} />;
     case "event":
-      return Calendar;
+      return <Calendar className={className} />;
     case "article":
-      return BookOpen;
+      return <BookOpen className={className} />;
     case "academic":
-      return GraduationCap;
+      return <GraduationCap className={className} />;
     case "store":
-      return ShoppingBag;
+      return <ShoppingBag className={className} />;
     case "hashtag":
-      return Hash;
+      return <Hash className={className} />;
     default:
-      return FileText;
+      return <FileText className={className} />;
   }
 }
 
@@ -69,7 +69,6 @@ function getEntityTypeLabel(type: SearchEntityType): string {
 }
 
 export function EntityResult({ result }: { result: SearchResult }) {
-  const Icon = getEntityIcon(result.type);
   const typeLabel = getEntityTypeLabel(result.type);
 
   return (
@@ -84,7 +83,7 @@ export function EntityResult({ result }: { result: SearchResult }) {
       <Avatar className="size-10 rounded-xl shrink-0 border border-border/40 bg-muted/40">
         {result.imageUrl && <AvatarImage src={result.imageUrl} alt={result.title} />}
         <AvatarFallback className="rounded-xl text-xs font-semibold bg-primary/10 text-primary">
-          <Icon className="size-4" />
+          <EntityTypeIcon type={result.type} className="size-4" />
         </AvatarFallback>
       </Avatar>
 

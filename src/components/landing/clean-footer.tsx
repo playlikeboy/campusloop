@@ -6,34 +6,39 @@ const columns = [
     title: "Campus",
     links: [
       ["Campus Feed", "/feeds"],
+      ["Academics Vault", "/academics"],
+      ["Communities & Clubs", "/communities"],
+      ["Events & Hackathons", "/events"],
       ["Confessions", "/confessions"],
-      ["Events", "/events"],
-      ["Communities", "/communities"],
     ],
   },
   {
     title: "Academics",
     links: [
       ["Notes & PYQs", "/academics"],
-      ["Study Playlists", "/academics/playlists"],
       ["Upload Material", "/academics/upload"],
+      ["Academic Search", "/academics/search"],
+      ["Saved Resources", "/academics/saved"],
     ],
   },
   {
-    title: "Discover",
+    title: "Utilities",
+    links: [
+      ["Buy & Sell", "/buy-and-sell"],
+      ["Housing & Flats", "/housing"],
+      ["Lost & Found Hub", "/lost-and-found"],
+      ["Ride Share & Pool", "/rideshare"],
+      ["Campus Atlas", "/atlas"],
+    ],
+  },
+  {
+    title: "Directory & Trust",
     links: [
       ["College Directory", "/colleges"],
-      ["Aspirants", "/aspirants"],
-      ["Overview", "/overview"],
-    ],
-  },
-  {
-    title: "Trust",
-    links: [
-      ["About", "/about"],
-      ["Privacy", "/privacy"],
-      ["Safety", "/safety"],
-      ["Terms", "/terms"],
+      ["About CampusLoop", "/about"],
+      ["Safety & Moderation", "/safety"],
+      ["Privacy Policy", "/privacy"],
+      ["Terms of Service", "/terms"],
     ],
   },
 ] as const;
