@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { CollegeCombobox } from "@/components/common/college-combobox";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -178,21 +179,12 @@ export function AdminNewMerchantClient() {
 
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-muted-foreground">Target College Campus *</span>
-              <select
+              <CollegeCombobox
                 value={institutionId}
-                onChange={(e) => setInstitutionId(e.target.value)}
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
-              >
-                {institutions.length > 0 ? (
-                  institutions.map((inst) => (
-                    <option key={inst.id} value={inst.id}>
-                      {inst.name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="inst_35df75700bb23dd30311ef5f">Birla Institute of Technology, Mesra</option>
-                )}
-              </select>
+                initialInstitutions={institutions}
+                onChange={(id) => setInstitutionId(id)}
+                placeholder="Search college campus..."
+              />
             </div>
           </div>
 

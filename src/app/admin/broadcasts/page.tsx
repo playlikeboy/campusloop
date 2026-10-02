@@ -15,7 +15,7 @@ export default async function AdminBroadcastsPage() {
 
   const [institutionsList, rawBroadcasts] = await Promise.all([
     db.query.institutions.findMany({
-      columns: { id: true, name: true },
+      columns: { id: true, name: true, state: true, district: true, nirfRank: true },
       limit: 60,
     }),
     db
@@ -24,6 +24,7 @@ export default async function AdminBroadcastsPage() {
         title: posts.title,
         body: posts.body,
         scope: posts.scope,
+        status: posts.status,
         createdAt: posts.createdAt,
         institutionName: institutions.name,
       })
@@ -31,12 +32,13 @@ export default async function AdminBroadcastsPage() {
       .leftJoin(institutions, eq(posts.institutionId, institutions.id))
       .where(isNotNull(posts.title))
       .orderBy(desc(posts.createdAt))
-      .limit(6)
+      .limit(30)
       .catch(() => []),
   ]);
 
   const recentBroadcasts = rawBroadcasts.map((b) => ({
     ...b,
+    status: b.status || "PUBLISHED",
     createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : null,
   }));
 

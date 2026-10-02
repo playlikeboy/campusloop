@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, MoreHorizontal, Plus, RotateCw, Search, ShieldCheck, Trophy, Zap } from "lucide-react";
+import { Clock, Globe, MoreHorizontal, Plus, RotateCw, School, Search, ShieldCheck, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import type { Institution, UserProfile } from "@/db/schema";
 import { fetcher } from "@/lib/api";
+import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 type SuggestedPeer = UserProfile & { institution?: Institution | null };
@@ -33,14 +35,19 @@ export function RightSidebar() {
   const isEventsPage = pathname.startsWith("/events");
   const isCommunitiesPage = pathname.startsWith("/communities");
   const [followedIds, setFollowedIds] = useState<Record<string, boolean>>({});
+  const [trendsScope, setTrendsScope] = useState<"CAMPUS" | "GLOBAL">("CAMPUS");
 
   const [isRefreshingPeers, setIsRefreshingPeers] = useState(false);
 
-  // Dynamic live trends from real database
-  const { data: trendsData } = useSWR<TrendsResponse>("/api/trends?scope=CAMPUS", fetcher, {
-    revalidateIfStale: true,
-    dedupingInterval: 15000,
-  });
+  // Dynamic live trends from real database (supports Campus / Global toggle)
+  const { data: trendsData } = useSWR<TrendsResponse>(
+    `/api/trends?scope=${trendsScope}`,
+    fetcher,
+    {
+      revalidateIfStale: true,
+      dedupingInterval: 15000,
+    }
+  );
 
   // Suggested peers from real database (excludes already followed users)
   const { data: suggestedPeers, mutate: mutateSuggested } = useSWR<SuggestedPeer[]>(
@@ -206,15 +213,54 @@ export function RightSidebar() {
         </>
       ) : (
         <>
-          {/* ─── COMPONENT 1: What's happening (Trending on Campus) ─── */}
-          {trends.length > 0 && (
-            <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-1">
-              <div className="px-1 pb-1">
-                <h3 className="text-[17px] font-bold tracking-tight text-foreground">
-                  What&apos;s happening
-                </h3>
+          {/* ─── COMPONENT 1: What's happening (Trending on Campus & Global) ─── */}
+          <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-1">
+            <div className="px-1 pb-1 flex items-center justify-between">
+              <h3 className="text-[17px] font-bold tracking-tight text-foreground">
+                What&apos;s happening
+              </h3>
+              {/* College / Global Toggle Button (Icons only, no text as requested) */}
+              <div className="flex items-center rounded-xl bg-muted/40 p-0.5 border border-border/30">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.tap();
+                    haptics.light();
+                    setTrendsScope("CAMPUS");
+                  }}
+                  title="Campus Trends"
+                  aria-label="Campus Trends"
+                  className={cn(
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    trendsScope === "CAMPUS"
+                      ? "bg-card text-primary shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <School className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.tap();
+                    haptics.light();
+                    setTrendsScope("GLOBAL");
+                  }}
+                  title="Global Trends"
+                  aria-label="Global Trends"
+                  className={cn(
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    trendsScope === "GLOBAL"
+                      ? "bg-card text-primary shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Globe className="size-3.5" />
+                </button>
               </div>
+            </div>
 
+            {trends.length > 0 ? (
               <div className="divide-y divide-border/20">
                 {trends.map((trend) => (
                   <Link
@@ -235,15 +281,19 @@ export function RightSidebar() {
                   </Link>
                 ))}
               </div>
+            ) : (
+              <div className="py-4 text-center text-xs text-muted-foreground">
+                No active trends for this scope yet.
+              </div>
+            )}
 
-              <Link
-                href="/explore"
-                className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
-              >
-                Show more
-              </Link>
-            </section>
-          )}
+            <Link
+              href="/explore"
+              className="block px-2 pt-2 text-xs font-bold text-primary hover:underline transition-colors cursor-pointer"
+            >
+              Show more
+            </Link>
+          </section>
 
           {/* ─── COMPONENT 2: Who to follow (Classmates & Peers) ─── */}
           {peers.length > 0 && (

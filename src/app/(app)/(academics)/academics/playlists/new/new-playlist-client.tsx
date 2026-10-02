@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -36,6 +37,24 @@ const BRANCHES = [
   "Civil",
   "Chemical",
   "Biotechnology",
+];
+
+const CATEGORY_OPTIONS: ComboboxOption[] = CATEGORIES.map((cat) => ({
+  value: cat.value,
+  label: cat.label,
+}));
+
+const BRANCH_OPTIONS: ComboboxOption[] = BRANCHES.map((b) => ({
+  value: b,
+  label: b,
+}));
+
+const SEMESTER_OPTIONS: ComboboxOption[] = [
+  { value: "all", label: "All Semesters" },
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map((s) => ({
+    value: String(s),
+    label: `Semester ${s}`,
+  })),
 ];
 
 interface ResourceSearchResult {
@@ -272,48 +291,38 @@ export function NewPlaylistClient() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-foreground">Category</label>
-              <select
+              <SearchableCombobox
+                options={CATEGORY_OPTIONS}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-medium cursor-pointer"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setCategory(val)}
+                placeholder="Select category..."
+                searchPlaceholder="Search category..."
+                clearable={false}
+              />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-foreground">Branch</label>
-              <select
+              <SearchableCombobox
+                options={BRANCH_OPTIONS}
                 value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-medium cursor-pointer"
-              >
-                {BRANCHES.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setBranch(val)}
+                placeholder="Select branch..."
+                searchPlaceholder="Search branch (e.g. CSE, IT)..."
+                clearable={false}
+              />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-foreground">Semester</label>
-              <select
+              <SearchableCombobox
+                options={SEMESTER_OPTIONS}
                 value={semester}
-                onChange={(e) => setSemester(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-medium cursor-pointer"
-              >
-                <option value="all">All Semesters</option>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                  <option key={s} value={String(s)}>
-                    Semester {s}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setSemester(val)}
+                placeholder="Select semester..."
+                searchPlaceholder="Search semester (1–8)..."
+                clearable={false}
+              />
             </div>
           </div>
         </div>
