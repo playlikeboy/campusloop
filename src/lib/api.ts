@@ -90,6 +90,13 @@ export function voteComment(postId: string, commentId: string) {
   );
 }
 
+export function voteArticleComment(articleSlug: string, commentId: string) {
+  return apiRequest<{ success: boolean; userVote: number; upvotesCount: number }>(
+    `/api/articles/${encodeURIComponent(articleSlug)}/comments/${commentId}/vote`,
+    "POST"
+  );
+}
+
 export function pinComment(postId: string, commentId: string) {
   return apiRequest<{ success: boolean; isPinned: boolean }>(
     `/api/posts/${postId}/comments/${commentId}/pin`,
