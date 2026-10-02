@@ -55,6 +55,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (!INDEXNOW_KEY) {
+      return NextResponse.json({ error: "IndexNow is not configured" }, { status: 503 });
+    }
+
     const db = getDb();
 
     // 1. Static Canonical URLs
@@ -205,6 +209,10 @@ export async function POST(req: NextRequest) {
 
     if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!INDEXNOW_KEY) {
+      return NextResponse.json({ error: "IndexNow is not configured" }, { status: 503 });
     }
 
     const body = (await req.json().catch(() => ({}))) as { urls?: string[] };
