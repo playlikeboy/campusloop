@@ -624,8 +624,8 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                 <label className="text-xs font-bold text-muted-foreground">Semester</label>
                 <SearchableCombobox
                   options={HUB_SEMESTER_OPTIONS}
-                  value={String(semester)}
-                  onChange={(val) => setSemester(Number(val) || 1)}
+                  value={semester}
+                  onChange={(val) => setSemester(val)}
                   placeholder="Select semester..."
                   searchPlaceholder="Search semester (1–8)..."
                   clearable={false}

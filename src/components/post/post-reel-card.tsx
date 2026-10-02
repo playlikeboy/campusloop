@@ -33,6 +33,7 @@ import type { UserCapability } from "@/lib/capabilities";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { hasAttachedVideoContent } from "@/lib/embeds";
 import { extractMediaAttachments, stripMediaAttachmentMarkers } from "@/lib/media-attachments";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
 
@@ -1188,6 +1189,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               content={descriptionText}
               createdAt={post.createdAt}
               collegeName={getCollegeShortName(post.institution)}
+              hasAttachedVideo={Boolean(videoUrl) || hasAttachedVideoContent(post.body)}
             />
           </div>
         )}

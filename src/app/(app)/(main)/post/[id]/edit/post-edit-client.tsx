@@ -31,6 +31,7 @@ import { RichText } from "@/components/ui/rich-text";
 import { MAX_POST_CHARS } from "@/constants/feed";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { updatePost } from "@/lib/api";
+import { hasAttachedVideoContent } from "@/lib/embeds";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
@@ -452,7 +453,11 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               <h2 className="text-base sm:text-lg font-black text-foreground mb-3 leading-snug">{title}</h2>
             )}
             {body.trim() ? (
-              <RichText content={body} collegeName={collegeName} />
+              <RichText
+                content={body}
+                collegeName={collegeName}
+                hasAttachedVideo={hasAttachedVideoContent(body)}
+              />
             ) : (
               <div className="text-center py-10 text-muted-foreground text-xs">
                 No content to preview yet. Start typing in the Write tab!

@@ -19,7 +19,7 @@ import { PostEmbedRenderer } from "@/components/embeds/post-embed-renderer";
 import { AudioPlayer } from "@/components/media/audio-player";
 import { DocumentCard } from "@/components/media/document-card";
 import { VideoPlayer } from "@/components/media/video-player";
-import { isMediaImageUrl } from "@/lib/embeds";
+import { hasAttachedVideoContent, isMediaImageUrl, isMediaVideoUrl } from "@/lib/embeds";
 import { extractMediaAttachments } from "@/lib/media-attachments";
 import { cleanPostHtml } from "@/lib/html-sanitize";
 import { cn, formatImagePostDate } from "@/lib/utils";
@@ -28,6 +28,8 @@ interface RichTextProps {
   content: string;
   className?: string;
   disableEmbeds?: boolean;
+  disableLinkPreview?: boolean;
+  hasAttachedVideo?: boolean;
   onImageClick?: (url: string) => void;
   maxHeight?: number;
   createdAt?: string | Date | null;
@@ -38,6 +40,8 @@ export function RichText({
   content,
   className = "",
   disableEmbeds = false,
+  disableLinkPreview = false,
+  hasAttachedVideo = false,
   onImageClick,
   maxHeight,
   createdAt,
@@ -114,6 +118,12 @@ export function RichText({
   // Never expose internal media markers as user-authored text.
   const textWithoutMedia = parsedMedia.text;
 
+  const hasVideoAttached =
+    hasAttachedVideo ||
+    videos.length > 0 ||
+    hasAttachedVideoContent(sanitizedContent) ||
+    hasAttachedVideoContent(content);
+
   function handleOpenImage(e: React.MouseEvent, url: string) {
     e.preventDefault();
     e.stopPropagation();
@@ -173,7 +183,7 @@ export function RichText({
 
         // Standalone Media URL detection
         const isImageUrl = isMediaImageUrl(raw);
-        const isVideoUrl = /\.(mp4|webm|mov)($|\?)/i.test(raw) || raw.includes("/api/files/r2/videos/");
+        const isVideoUrl = isMediaVideoUrl(raw);
         const isAudioUrl = /\.(mp3|wav|m4a|ogg)($|\?)/i.test(raw) || raw.includes("/api/files/r2/audio/");
         const isPdfUrl = /\.(pdf)($|\?)/i.test(raw) || raw.includes("/api/files/r2/documents/");
 
@@ -358,7 +368,13 @@ export function RichText({
       )}
 
       {/* Rich Embeds */}
-      {!disableEmbeds && <PostEmbedRenderer content={textWithoutMedia} />}
+      {!disableEmbeds && (
+        <PostEmbedRenderer
+          content={textWithoutMedia}
+          hasAttachedVideo={hasVideoAttached}
+          disableLinkPreview={disableLinkPreview}
+        />
+      )}
 
       {/* Fullscreen Lightbox Modal for Images */}
       {mounted &&

@@ -19,6 +19,7 @@ import { RichText } from "@/components/ui/rich-text";
 import { startRouteProgress } from "@/components/ui/route-progress";
 import type { FeedPost } from "@/hooks/use-feed";
 import { repostPost, voteOnPost } from "@/lib/api";
+import { hasAttachedVideoContent } from "@/lib/embeds";
 import { haptics } from "@/lib/haptics";
 import { cleanPostHtml, removeDuplicateTitleFromBody } from "@/lib/html-sanitize";
 import { sounds } from "@/lib/sounds";
@@ -124,6 +125,21 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     return { label: match[1].trim(), url: match[2].trim() };
   }, [post.body]);
 
+  const hasExternalVideo = useMemo(() => {
+    return (
+      Boolean(post.externalPost && post.externalPost.contentType === "VIDEO") ||
+      Boolean(post.externalPost?.media?.some((m) => m.mediaType === "VIDEO"))
+    );
+  }, [post.externalPost]);
+
+  const hasAttachedVideo = useMemo(() => {
+    return (
+      hasExternalVideo ||
+      hasAttachedVideoContent(post.body) ||
+      hasAttachedVideoContent(post.title)
+    );
+  }, [hasExternalVideo, post.body, post.title]);
+
   const displayContent = useMemo(() => {
     const rawBody = post.body || "";
     let cleaned = cleanPostHtml(rawBody);
@@ -131,10 +147,6 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     if (post.title) {
       cleaned = removeDuplicateTitleFromBody(cleaned, post.title);
     }
-
-    const hasExternalVideo =
-      Boolean(post.externalPost && post.externalPost.contentType === "VIDEO") ||
-      Boolean(post.externalPost?.media?.some((m) => m.mediaType === "VIDEO"));
 
     const hasExternalGallery =
       Boolean(post.externalPost && post.externalPost.contentType === "GALLERY") ||
@@ -487,6 +499,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 content={displayContent}
                 createdAt={post.createdAt}
                 collegeName={collegeDisplayName}
+                hasAttachedVideo={hasAttachedVideo}
               />
             </div>
           )}

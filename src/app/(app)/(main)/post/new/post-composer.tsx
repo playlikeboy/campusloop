@@ -429,9 +429,15 @@ export function PostComposer({
     return extractEmbedsFromText(text);
   }, [editor, charCount]);
 
+  const hasAttachedVideo = uploadedVideos.length > 0;
+
   const visibleEmbeds = useMemo(() => {
-    return detectedEmbeds.filter((e) => !dismissedUrls.includes(e.rawUrl));
-  }, [detectedEmbeds, dismissedUrls]);
+    return detectedEmbeds.filter((e) => {
+      if (dismissedUrls.includes(e.rawUrl)) return false;
+      if (hasAttachedVideo && e.type === "opengraph") return false;
+      return true;
+    });
+  }, [detectedEmbeds, dismissedUrls, hasAttachedVideo]);
 
   const hasContent =
     charCount > 0 ||
@@ -1134,6 +1140,7 @@ export function PostComposer({
               embeds={visibleEmbeds}
               limit={4}
               dismissable
+              hasAttachedVideo={hasAttachedVideo}
               onDismiss={(rawUrl) => setDismissedUrls((prev) => [...prev, rawUrl])}
             />
           </div>
