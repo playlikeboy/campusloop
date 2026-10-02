@@ -1,7 +1,7 @@
 import { logMcpAudit } from "./auth";
 import { MCP_TOOL_EXECUTORS } from "./tool-executors";
 import { CAMPUSLOOP_MCP_TOOLS } from "./tools-catalog";
-import type { JsonRpcRequest, JsonRpcResponse, McpContext } from "./types";
+import type { JsonRpcRequest, JsonRpcResponse, McpContext, McpPermission } from "./types";
 
 export const MCP_SERVER_INFO = {
   name: "campusloop-mcp",
@@ -63,6 +63,26 @@ export const MCP_PROMPTS = [
   },
 ];
 
+function getRequiredMcpPermission(toolName: string, category: string): McpPermission {
+  if (category === "Exclusive AI & Intelligence" || toolName === "campusloop_trigger_community_webhook") {
+    return "exclusive";
+  }
+  if (toolName === "campusloop_send_direct_message") {
+    return "chat";
+  }
+  if (
+    toolName.startsWith("campusloop_create_") ||
+    toolName.includes("_post_to_") ||
+    toolName.includes("_vote_") ||
+    toolName.includes("_join_leave_") ||
+    toolName === "campusloop_upload_academic_note" ||
+    toolName === "campusloop_post_story"
+  ) {
+    return "write";
+  }
+  return "read";
+}
+
 export async function handleMcpJsonRpc(
   request: JsonRpcRequest,
   context: McpContext
@@ -118,7 +138,29 @@ export async function handleMcpJsonRpc(
           };
         }
 
+        const tool = CAMPUSLOOP_MCP_TOOLS.find((candidate) => candidate.name === toolName);
         const executor = MCP_TOOL_EXECUTORS[toolName];
+
+        if (!tool) {
+          return {
+            jsonrpc: "2.0",
+            id,
+            error: { code: -32601, message: `Unknown tool '${toolName}'.` },
+          };
+        }
+
+        const requiredPermission = getRequiredMcpPermission(toolName, tool.category);
+        if (!context.permissions.includes(requiredPermission)) {
+          await logMcpAudit(context, toolName, "BLOCKED", 0, `Missing MCP permission: ${requiredPermission}`);
+          return {
+            jsonrpc: "2.0",
+            id,
+            error: {
+              code: -32003,
+              message: `MCP key lacks required permission '${requiredPermission}' for '${toolName}'.`,
+            },
+          };
+        }
         if (!executor) {
           return {
             jsonrpc: "2.0",
