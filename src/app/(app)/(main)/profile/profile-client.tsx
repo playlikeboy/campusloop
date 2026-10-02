@@ -19,6 +19,7 @@ import {
   Layers,
   Loader2,
   MapPin,
+  MessageCircle,
   MessageSquare,
   MoreVertical,
   Move,
@@ -488,9 +489,9 @@ export function ProfileClientView({
         onChange={handlePfpFileSelected}
       />
 
-      <main className="mx-auto min-h-screen w-full max-w-4xl border-x border-border/30">
+      <main className="mx-auto min-h-screen w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl border-x border-border/30">
         {/* ─── Profile Cover Banner (Clean Neutral Canvas with Floating Actions) ─── */}
-        <div className="relative h-36 sm:h-52 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
+        <div className="relative h-36 sm:h-52 lg:h-64 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
           {currentBannerUrl ? (
             <img src={currentBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
           ) : (
@@ -636,14 +637,14 @@ export function ProfileClientView({
         {/* ─── Profile Header Main Info (Twitter Architecture) ─── */}
         <div className="px-4 pb-4">
           {/* Avatar & Action Buttons Bar */}
-          <div className="flex items-end justify-between -mt-14 sm:-mt-16 mb-3 relative z-10">
+          <div className="flex items-end justify-between -mt-14 sm:-mt-16 lg:-mt-20 mb-3 relative z-10">
             {/* Clickable Circular Profile Picture with Online Status */}
             <div className="relative group">
               <div
                 onClick={() => {
                   if (isOwnProfile) setShowAvatarMenu(true);
                 }}
-                className="relative size-24 sm:size-28 rounded-full border-4 border-background ring-2 ring-primary ring-offset-2 ring-offset-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
+                className="relative size-24 sm:size-28 lg:size-32 rounded-full border-4 border-background ring-2 ring-primary ring-offset-2 ring-offset-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
               >
                 <Avatar className="size-full">
                   <AvatarImage src={currentAvatarUrl || ""} className="object-cover size-full" />
@@ -697,13 +698,13 @@ export function ProfileClientView({
                   />
                   <Link
                     href={`/chat?userId=${profile.id}`}
-                    className="h-9 px-4 rounded-full border border-border/60 bg-secondary hover:bg-muted/70 text-secondary-foreground text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
-                    title="Direct Message"
+                    className="group relative inline-flex h-9 w-9 sm:w-10 items-center justify-center rounded-full border border-border/70 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-2xs hover:border-primary/40 hover:shadow-primary/10 transition-all cursor-pointer shrink-0 active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
+                    title="Message"
+                    aria-label="Message"
                   >
-                    <MessageSquare className="size-3.5" />
-                    <span>Message</span>
+                    <MessageCircle className="size-5 text-secondary-foreground transition-transform group-hover:scale-105 shrink-0" />
                   </Link>
-                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} />
+                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} iconOnly />
                 </div>
               )}
             </div>
@@ -713,7 +714,7 @@ export function ProfileClientView({
           <div className="space-y-3">
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground">
                   {profile.displayName}
                 </h1>
                 <span title="Verified Campus Student">

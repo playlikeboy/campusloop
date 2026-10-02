@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { SearchAutocomplete } from "@/components/search/search-autocomplete";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import type { Institution, UserProfile } from "@/db/schema";
@@ -31,7 +32,6 @@ export function RightSidebar() {
   const pathname = usePathname() || "";
   const isEventsPage = pathname.startsWith("/events");
   const isCommunitiesPage = pathname.startsWith("/communities");
-  const [searchQuery, setSearchQuery] = useState("");
   const [followedIds, setFollowedIds] = useState<Record<string, boolean>>({});
 
   const [isRefreshingPeers, setIsRefreshingPeers] = useState(false);
@@ -49,20 +49,19 @@ export function RightSidebar() {
     { revalidateIfStale: true, dedupingInterval: 10000 }
   );
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) return;
+  function handleSearchSubmit(query: string) {
+    const q = query.trim();
+    if (!q) return;
 
-    if (query.startsWith("#")) {
-      const cleanTag = query.replace(/^#+/, "").trim();
+    if (q.startsWith("#")) {
+      const cleanTag = q.replace(/^#+/, "").trim();
       if (cleanTag) {
         router.push(`/hashtag/${encodeURIComponent(cleanTag.toLowerCase())}`);
         return;
       }
     }
 
-    router.push(`/explore?q=${encodeURIComponent(query)}`);
+    router.push(`/explore?q=${encodeURIComponent(q)}`);
   }
 
   async function handleRefreshPeers() {
@@ -112,17 +111,11 @@ export function RightSidebar() {
 
   return (
     <aside className="sticky top-3 space-y-4 text-foreground w-full">
-      {/* ─── Search Bar ─── */}
-      <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder={isEventsPage ? "Search hackathons & fests..." : "Search CampusLoop..."}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border/50 focus:border-primary/80 focus:bg-background text-xs font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-all"
-        />
-      </form>
+      {/* ─── Search Bar with Live Autocomplete ─── */}
+      <SearchAutocomplete
+        placeholder={isEventsPage ? "Search hackathons & fests..." : "Search CampusLoop..."}
+        onSubmit={handleSearchSubmit}
+      />
 
       {/* ─── CONTEXT 1: EVENTS RIGHTBAR (When user is on /events) ─── */}
       {isEventsPage ? (

@@ -11,9 +11,10 @@ interface SecretCrushButtonProps {
   targetId: string;
   targetName: string;
   className?: string;
+  iconOnly?: boolean;
 }
 
-export function SecretCrushButton({ targetId, targetName, className }: SecretCrushButtonProps) {
+export function SecretCrushButton({ targetId, targetName, className, iconOnly }: SecretCrushButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -51,13 +52,16 @@ export function SecretCrushButton({ targetId, targetName, className }: SecretCru
         type="button"
         onClick={() => setShowConfirm(true)}
         className={cn(
-          "inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0",
+          iconOnly
+            ? "inline-flex items-center justify-center h-9 w-9 sm:w-10 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0 relative before:absolute before:-inset-1.5 before:content-['']"
+            : "inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0",
           className
         )}
         title={`Secret Crush on ${targetName}`}
+        aria-label={`Secret Crush on ${targetName}`}
       >
-        <AnimateHeart size={14} className="text-rose-500 fill-rose-500/20 shrink-0" />
-        <span className="hidden sm:inline">Secret Crush</span>
+        <AnimateHeart size={iconOnly ? 17 : 14} className="text-rose-500 fill-rose-500/20 shrink-0" />
+        {!iconOnly && <span className="hidden sm:inline">Secret Crush</span>}
       </button>
 
       {/* Confirmation Modal */}
