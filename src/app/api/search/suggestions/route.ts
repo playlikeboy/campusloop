@@ -1,7 +1,7 @@
 import { ilike, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { communities, institutions, userProfiles } from "@/db/schema";
+import { academicResources, communities, institutions, userProfiles } from "@/db/schema";
 import { getTrendingHashtags } from "@/lib/trending-hashtags";
 import type { SearchSuggestionItem } from "@/lib/search/types";
 
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const db = getDb();
 
     // Parallel fetch quick matches
-    const [matchingUsers, matchingCommunities, matchingColleges, matchingHashtags] = await Promise.all([
+    const [matchingUsers, matchingCommunities, matchingColleges, matchingHashtags, matchingAcademics] = await Promise.all([
       db.query.userProfiles.findMany({
         where: or(
           ilike(userProfiles.username, searchPattern),
@@ -68,6 +68,21 @@ export async function GET(request: Request) {
       }),
 
       getTrendingHashtags({ query: cleanQ, limit: 3 }),
+
+      db.query.academicResources.findMany({
+        where: or(
+          ilike(academicResources.subjectCode, searchPattern),
+          ilike(academicResources.subjectName, searchPattern),
+          ilike(academicResources.title, searchPattern)
+        ),
+        limit: 2,
+        columns: {
+          id: true,
+          title: true,
+          subjectCode: true,
+          subjectName: true,
+        },
+      }).catch(() => []),
     ]);
 
     const suggestions: SearchSuggestionItem[] = [];
@@ -88,7 +103,7 @@ export async function GET(request: Request) {
         title: u.displayName || u.username,
         subtitle: `@${u.username}${u.institution?.name ? ` · ${u.institution.name.split(",")[0]}` : ""}`,
         imageUrl: u.avatarUrl,
-        href: `/${u.username}`,
+        href: `/@${u.username}`,
       });
     }
 
@@ -125,6 +140,17 @@ export async function GET(request: Request) {
         title: `#${clean}`,
         subtitle: `${tag.count} posts`,
         href: `/hashtag/${encodeURIComponent(clean.toLowerCase())}`,
+      });
+    }
+
+    // Add matching academic materials
+    for (const a of matchingAcademics || []) {
+      suggestions.push({
+        text: a.subjectCode || a.title,
+        type: "academic",
+        title: `${a.subjectCode ? `${a.subjectCode}: ` : ""}${a.title}`,
+        subtitle: a.subjectName || "Academics",
+        href: `/academics/search?q=${encodeURIComponent(a.subjectCode || a.title)}`,
       });
     }
 

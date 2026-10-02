@@ -3,15 +3,20 @@ import {
   ArrowUpRight,
   BadgeCheck,
   BarChart2,
+  Calendar,
   Download,
   ExternalLink,
   FileText,
   FolderPlus,
+  GraduationCap,
   Lock,
+  MapPin,
   MessageSquare,
   Play,
   School,
+  ShieldCheck,
   ThumbsUp,
+  Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -341,30 +346,33 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     <div className="flex min-h-screen flex-col bg-background text-foreground relative overflow-x-hidden pb-16 select-none">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Top Floating Glass Header */}
-      <header className="fixed top-0 right-0 left-0 z-50 flex h-14 items-center justify-between border-b border-border/40 bg-background/80 px-6 backdrop-blur-xl">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-black shadow-md">
-            <img src="/logo.png" alt="CampusLoop Logo" className="h-full w-full object-cover scale-110" />
+      <header className="fixed top-0 right-0 left-0 z-50 flex h-14 items-center justify-between border-b border-border/40 bg-background/80 px-4 sm:px-6 lg:px-8 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-black shadow-md">
+              <img src="/logo.png" alt="CampusLoop Logo" className="h-full w-full object-cover scale-110" />
+            </div>
+            <span className="text-base font-black tracking-tight text-foreground">CampusLoop</span>
+          </Link>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Link href="/join?mode=signin">
+              <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer">
+                Sign In
+              </button>
+            </Link>
+            <Link href="/join?mode=signup">
+              <button className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold hover:bg-foreground/90 transition-all cursor-pointer">
+                Join Campus
+              </button>
+            </Link>
           </div>
-          <span className="text-base font-black tracking-tight text-foreground">CampusLoop</span>
-        </Link>
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link href="/join?mode=signin">
-            <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer">
-              Sign In
-            </button>
-          </Link>
-          <Link href="/join?mode=signup">
-            <button className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold hover:bg-foreground/90 transition-all cursor-pointer">
-              Join Campus
-            </button>
-          </Link>
         </div>
       </header>
 
       {/* Main Container Layout */}
-      <div className="max-w-4xl mx-auto w-full pt-20 px-4 pb-16">
-        <main className="w-full space-y-4">
+      <div className="max-w-4xl lg:max-w-7xl mx-auto w-full pt-18 sm:pt-20 px-3 sm:px-6 lg:px-8 pb-16">
+        {/* ─── Mobile View (< lg): Preserved 100% Intact ─── */}
+        <div className="lg:hidden space-y-4">
           {/* Profile Card (Clean Twitter/X Architecture) */}
           <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 shadow-xs">
             <div className="relative h-28 sm:h-40 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
@@ -708,7 +716,415 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
               </Link>
             </div>
           </div>
-        </main>
+        </div>
+
+        {/* ─── Desktop View (lg+): Impeccable Dual-Column PC Experience ─── */}
+        <div className="hidden lg:block space-y-6">
+          {/* Panoramic Cover Banner */}
+          <div className="relative h-60 xl:h-64 w-full rounded-3xl overflow-hidden border border-border/40 bg-[#16181C] shadow-xs">
+            {profile.bannerUrl ? (
+              <img
+                src={profile.bannerUrl}
+                alt={`${profile.displayName}'s banner`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-linear-to-br from-neutral-900 via-[#16181C] to-[#0D0E11] relative">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
+              </div>
+            )}
+
+            {/* Floating Banner Action (Top Right) */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+              <ShareQrButton
+                title={profile.displayName}
+                subtitle={`@${profile.username} • ${profile.institution?.name || "Verified Student"}`}
+                badgeText="Verified Student Network"
+                shortUrl={`https://campusloop.space/@${profile.username}`}
+                avatarUrl={profile.avatarUrl}
+                category="profile"
+              />
+            </div>
+          </div>
+
+          {/* 12-Column Desktop Grid Layout */}
+          <div className="grid grid-cols-12 gap-8 items-start -mt-20 relative z-10">
+            {/* Left Column (Sticky Identity, Credibility & Connect CTA) */}
+            <aside className="col-span-4 space-y-5 sticky top-20">
+              {/* Profile Identity Card */}
+              <div className="rounded-2xl border border-border/40 bg-card/75 backdrop-blur-xl p-5 shadow-xs space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="relative -mt-16">
+                    <Avatar className="size-28 xl:size-32 rounded-full border-4 border-background shadow-xl bg-background">
+                      <AvatarImage src={profile.avatarUrl || ""} className="rounded-full object-cover" />
+                      <AvatarFallback className="text-3xl font-black bg-muted text-foreground rounded-full">
+                        {profile.displayName[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {(profile.points || 0) >= 150 && (
+                      <span className="absolute bottom-1 right-1 size-6 rounded-full bg-background flex items-center justify-center shadow-xs">
+                        <BadgeCheck className="size-5 text-[#1D9BF0] shrink-0" />
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1D9BF0]/10 border border-[#1D9BF0]/20 text-[#1D9BF0] text-xs font-bold">
+                    <Zap className="size-3.5 fill-[#1D9BF0]/30" />
+                    <span>{profile.points || 0} LP</span>
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-2xl font-black tracking-tight text-foreground">
+                      {profile.displayName}
+                    </h1>
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">@{profile.username}</p>
+                </div>
+
+                {/* College & Academic Badges */}
+                <div className="space-y-2 pt-1 border-t border-border/30 text-xs">
+                  <div className="flex items-center gap-2 text-foreground/90">
+                    <School className="size-3.5 text-muted-foreground shrink-0" />
+                    <span className="font-semibold truncate">{institutionName}</span>
+                  </div>
+                  {(profile.course || profile.branch) && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <GraduationCap className="size-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-[#1D9BF0] font-medium truncate">
+                        {profile.course ? `${profile.course} ` : ""}{profile.branch || ""}
+                      </span>
+                    </div>
+                  )}
+                  {profile.createdAt && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+                      <span>
+                        Joined {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bio / Headline */}
+                {profile.bio || profile.headline ? (
+                  <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-wrap border-t border-border/30 pt-3">
+                    {profile.bio || profile.headline}
+                  </p>
+                ) : null}
+
+                {/* Followers / Following Stats */}
+                <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground border-t border-border/30 pt-3">
+                  <Link href={`/@${profile.username}/following`} className="hover:underline">
+                    <strong className="text-foreground font-bold">{publicFollowCounts.followingCount}</strong> Following
+                  </Link>
+                  <Link href={`/@${profile.username}/followers`} className="hover:underline">
+                    <strong className="text-foreground font-bold">{publicFollowCounts.followersCount}</strong> Followers
+                  </Link>
+                </div>
+
+                {/* Primary Action Button */}
+                <div className="pt-1">
+                  <PublicFollowButton
+                    username={profile.username}
+                    displayName={profile.displayName}
+                    profileId={profile.id}
+                    isSignedIn={false}
+                  />
+                </div>
+              </div>
+
+              {/* Campus Clout & Credibility Card */}
+              <div className="rounded-2xl border border-border/40 bg-card/40 p-4 shadow-xs space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <ShieldCheck className="size-4 text-[#1D9BF0]" />
+                  <span>Campus Standing</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center select-none">
+                  <div className="p-2.5 rounded-xl border border-border/30 bg-muted/20">
+                    <p className="text-lg font-black text-foreground">{userAcademicResources.length + userPlaylists.length}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">Study Materials</p>
+                  </div>
+                  <div className="p-2.5 rounded-xl border border-border/30 bg-muted/20">
+                    <p className="text-lg font-black text-foreground">{userPosts.length}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">Campus Posts</p>
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                  <BadgeCheck className="size-3.5 text-[#1D9BF0] shrink-0" />
+                  <span>Verified Student Network Member</span>
+                </div>
+              </div>
+
+              {/* Connect CTA Card (Pinned in Left Column on PC) */}
+              <div className="rounded-2xl border border-border/40 bg-card/40 p-5 text-center space-y-3 shadow-xs">
+                <div className="size-9 bg-[#1D9BF0]/10 text-[#1D9BF0] rounded-full flex items-center justify-center mx-auto">
+                  <Lock className="size-4" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-bold text-foreground">Connect with @{profile.username}</h3>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Verify your college email to message, swipe matches, and join discussions.
+                  </p>
+                </div>
+                <div className="flex gap-2 justify-center pt-1">
+                  <Link href="/join?mode=signin" className="flex-1">
+                    <button className="w-full rounded-full border border-border/80 h-8 px-3 text-[11px] font-bold hover:bg-muted text-foreground transition-all cursor-pointer">
+                      Sign In
+                    </button>
+                  </Link>
+                  <Link href="/join?mode=signup" className="flex-1">
+                    <button className="w-full rounded-full bg-foreground text-background h-8 px-3 text-[11px] font-bold hover:bg-foreground/90 transition-all cursor-pointer">
+                      Verify &amp; Join
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </aside>
+
+            {/* Right Column (Study Library & Recent Campus Activity) */}
+            <main className="col-span-8 space-y-6 min-w-0 pt-4">
+              {/* Shared Notes & Study Materials Card */}
+              {(userAcademicResources.length > 0 || userPlaylists.length > 0) && (
+                <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <FolderPlus className="size-4 text-[#1D9BF0]" /> Study Library (
+                      {userAcademicResources.length + userPlaylists.length})
+                    </h3>
+                    <Link
+                      href={`/@${profile.username}?tab=academics`}
+                      className="text-xs font-bold text-[#1D9BF0] hover:underline flex items-center gap-1"
+                    >
+                      <span>View All</span>
+                      <ArrowUpRight className="size-3" />
+                    </Link>
+                  </div>
+
+                  {/* Study Playlists if any */}
+                  {userPlaylists.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Curated Stacks &amp; Playlists
+                      </span>
+                      <div className="grid grid-cols-2 gap-3">
+                        {userPlaylists.map((pl) => (
+                          <Link
+                            key={pl.id}
+                            href={`/academics/playlists/${pl.slug}`}
+                            className="p-3.5 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group"
+                          >
+                            <div className="space-y-1.5 min-w-0">
+                              <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1D9BF0]/10 text-[#1D9BF0]">
+                                {pl.category.replace("_", " ")}
+                              </span>
+                              <h4 className="text-xs font-bold text-foreground line-clamp-1 mt-1 group-hover:text-[#1D9BF0] transition-colors">
+                                {pl.title}
+                              </h4>
+                              {pl.description && (
+                                <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                                  {pl.description}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/30">
+                              <span className="font-semibold">{pl.itemsCount} materials</span>
+                              <span>★ {pl.starsCount}</span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Uploaded Resources */}
+                  {userAcademicResources.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Uploaded Resources &amp; Notes
+                      </span>
+                      <div className="divide-y divide-border/20 rounded-xl border border-border/30 overflow-hidden">
+                        {userAcademicResources.map((res) => (
+                          <Link
+                            key={res.id}
+                            href={`/academics/${res.id}`}
+                            className="flex items-center justify-between p-3.5 hover:bg-muted/30 transition-colors gap-3"
+                          >
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                <span className="font-mono font-bold text-foreground/90 bg-muted/40 px-1.5 py-0.5 rounded">
+                                  {res.subjectCode}
+                                </span>
+                                <span>·</span>
+                                <span className="uppercase font-bold text-[#1D9BF0]">{res.resourceType}</span>
+                                <span>·</span>
+                                <span>Sem {res.semester}</span>
+                              </div>
+                              <h4 className="text-xs font-bold text-foreground line-clamp-1 hover:text-[#1D9BF0] transition-colors">
+                                {res.title}
+                              </h4>
+                            </div>
+                            <div className="flex items-center gap-3 text-[11px] text-muted-foreground shrink-0 font-medium">
+                              <span className="flex items-center gap-1">
+                                <Download className="size-3.5" />
+                                <span>{res.downloadsCount}</span>
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <ThumbsUp className="size-3.5" />
+                                <span>{res.upvotesCount}</span>
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Recent Campus Posts & Discussions */}
+              <div className="rounded-2xl border border-border/40 bg-card/40 p-5 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <MessageSquare className="size-4 text-[#1D9BF0]" /> Recent Activity
+                    </h3>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      Discussions and posts published by @{profile.username}
+                    </p>
+                  </div>
+                  {userPosts.length > 0 && (
+                    <span className="text-[11px] font-semibold text-muted-foreground">
+                      {userPosts.length} {userPosts.length === 1 ? "post" : "posts"}
+                    </span>
+                  )}
+                </div>
+
+                {userPosts.length === 0 ? (
+                  <div className="py-10 text-center rounded-xl border border-dashed border-border/40 bg-muted/10 space-y-1.5">
+                    <p className="text-xs font-semibold text-foreground">No public posts yet</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Posts published by @{profile.username} will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border/20 rounded-xl border border-border/30 overflow-hidden">
+                    {userPosts.slice(0, 10).map((p) => {
+                      const votesTotal = p.votes.reduce((acc, v) => acc + v.value, 0);
+                      const ep = externalPostsMap.get(p.id);
+                      const parsedMedia = extractMediaAttachments(p.body || "");
+                      const cleanText = parsedMedia.text;
+                      const imageMedia = parsedMedia.attachments.find((a) => a.type === "image");
+                      const videoMedia = parsedMedia.attachments.find((a) => a.type === "video");
+                      const docMedia = parsedMedia.attachments.find((a) => a.type === "document");
+
+                      return (
+                        <Link
+                          key={p.id}
+                          href={`/post/${p.id}`}
+                          className="block p-4 hover:bg-muted/30 transition-colors space-y-2 group"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            {ep?.source && (
+                              <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
+                                {ep.source}
+                              </span>
+                            )}
+                            {ep?.subreddit && (
+                              <span className="text-[10px] font-semibold text-orange-400">r/{ep.subreddit}</span>
+                            )}
+                            {p.title && (
+                              <h4 className="text-sm font-bold text-foreground line-clamp-1 min-w-0 group-hover:text-[#1D9BF0] transition-colors">
+                                {cleanPostText(p.title)}
+                              </h4>
+                            )}
+                          </div>
+
+                          {ep?.media?.[0]?.thumbnailUrl || ep?.media?.[0]?.previewUrl ? (
+                            <div className="mt-2 overflow-hidden rounded-xl border border-border/30 bg-muted/20">
+                              <img
+                                src={ep.media[0].thumbnailUrl || ep.media[0].previewUrl || ""}
+                                alt=""
+                                loading="lazy"
+                                className="h-48 w-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                              />
+                            </div>
+                          ) : imageMedia ? (
+                            <div className="mt-2 overflow-hidden rounded-xl border border-border/30 bg-muted/20">
+                              <img
+                                src={imageMedia.url}
+                                alt={imageMedia.label || "Campus post image"}
+                                loading="lazy"
+                                className="h-56 w-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                              />
+                            </div>
+                          ) : videoMedia ? (
+                            <div className="mt-2 relative overflow-hidden rounded-xl border border-border/30 bg-black/70 h-40 flex items-center justify-center">
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 text-foreground text-xs font-semibold backdrop-blur-sm border border-border/40">
+                                <Play className="size-3 fill-current text-[#1D9BF0]" />
+                                <span>{videoMedia.label || "Campus Video"}</span>
+                              </div>
+                            </div>
+                          ) : docMedia ? (
+                            <div className="mt-2 flex items-center gap-2 rounded-xl border border-border/30 bg-muted/20 px-3.5 py-2 text-xs">
+                              <FileText className="size-4 text-[#1D9BF0] shrink-0" />
+                              <span className="truncate font-semibold text-foreground">
+                                {docMedia.label || "Attached Document"}
+                              </span>
+                            </div>
+                          ) : null}
+
+                          {ep?.canonicalUrl ? (
+                            <div className="mt-2 flex items-center gap-2 rounded-lg border border-border/30 bg-muted/20 px-2.5 py-1.5">
+                              <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
+                              <span className="truncate text-[11px] font-medium text-muted-foreground">
+                                {(() => {
+                                  try {
+                                    return new URL(ep.canonicalUrl).hostname.replace(/^www\./, "");
+                                  } catch {
+                                    return "External source";
+                                  }
+                                })()}
+                              </span>
+                            </div>
+                          ) : cleanText ? (
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                              {cleanText}
+                            </p>
+                          ) : null}
+
+                          {p.pollOptions && p.pollOptions.length > 0 && (
+                            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#1D9BF0] font-semibold">
+                              <BarChart2 className="size-3" />
+                              <span>Poll · {p.pollOptions.length} choices</span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1 font-medium">
+                            <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                              <ThumbsUp className="size-3.5" />
+                              <span>
+                                {votesTotal} {votesTotal === 1 ? "upvote" : "upvotes"}
+                              </span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageSquare className="size-3.5" />
+                              <span>
+                                {p.comments.length} {p.comments.length === 1 ? "comment" : "comments"}
+                              </span>
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </main>
+          </div>
+        </div>
       </div>
     </div>
   );
