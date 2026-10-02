@@ -2,6 +2,8 @@ import type { userProfiles } from "@/db/schema";
 
 export type UserProfileRecord = typeof userProfiles.$inferSelect;
 
+export type McpPermission = "read" | "write" | "chat" | "exclusive";
+
 export interface McpContext {
   userId: string;
   keyId: string;
