@@ -14,7 +14,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const INDEXNOW_KEY = "ff35ddf54af340798feb9034fcd9d317";
+const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "";
 const HOST = "campusloop.space";
 const KEY_LOCATION = `https://${HOST}/${INDEXNOW_KEY}.txt`;
 
