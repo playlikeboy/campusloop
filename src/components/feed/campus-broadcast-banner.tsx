@@ -41,7 +41,7 @@ interface ActiveBroadcastResponse {
 
 interface CampusBroadcastBannerProps {
   scope: "CAMPUS" | "GLOBAL";
-  institutionId?: string;
+  institutionId?: string | null;
   className?: string;
 }
 
