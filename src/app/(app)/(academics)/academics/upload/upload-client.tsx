@@ -32,6 +32,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadMediaFile } from "@/lib/upload";
@@ -107,6 +108,16 @@ const BRANCHES = [
   "Basic Sciences",
   "All Branches",
 ];
+
+const BRANCH_OPTIONS: ComboboxOption[] = BRANCHES.map((b) => ({
+  value: b,
+  label: b,
+}));
+
+const SEMESTER_OPTIONS: ComboboxOption[] = [1, 2, 3, 4, 5, 6, 7, 8].map((s) => ({
+  value: String(s),
+  label: `Semester ${s}`,
+}));
 
 const COMMON_TAG_SUGGESTIONS = [
   "Endsem2024",
@@ -658,33 +669,27 @@ export function UploadAcademicClient() {
                 {/* Branch */}
                 <div className="space-y-1.5 sm:col-span-1">
                   <label className="text-xs font-bold text-foreground">Target Branch</label>
-                  <select
+                  <SearchableCombobox
+                    options={BRANCH_OPTIONS}
                     value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3 text-xs sm:text-sm font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors cursor-pointer"
-                  >
-                    {BRANCHES.map((b) => (
-                      <option key={b} value={b} className="bg-card text-foreground">
-                        {b}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setBranch(val)}
+                    placeholder="Select branch..."
+                    searchPlaceholder="Search branch (e.g. CSE, IT, Mech)..."
+                    clearable={false}
+                  />
                 </div>
 
                 {/* Semester */}
                 <div className="space-y-1.5 sm:col-span-1">
                   <label className="text-xs font-bold text-foreground">Semester</label>
-                  <select
-                    value={semester}
-                    onChange={(e) => setSemester(parseInt(e.target.value, 10))}
-                    className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3 text-xs sm:text-sm font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors cursor-pointer"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                      <option key={s} value={s} className="bg-card text-foreground">
-                        Semester {s}
-                      </option>
-                    ))}
-                  </select>
+                  <SearchableCombobox
+                    options={SEMESTER_OPTIONS}
+                    value={String(semester)}
+                    onChange={(val) => setSemester(parseInt(val, 10) || 1)}
+                    placeholder="Select semester..."
+                    searchPlaceholder="Search semester (1–8)..."
+                    clearable={false}
+                  />
                 </div>
 
                 {/* Module / Chapter */}

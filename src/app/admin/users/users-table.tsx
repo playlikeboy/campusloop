@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CollegeCombobox } from "@/components/common/college-combobox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { isOnline, presenceLabel } from "@/lib/presence";
 import { formatTimeAgo } from "@/lib/utils";
@@ -464,21 +465,12 @@ export function UsersTable({
               <label className="text-[10px] font-bold text-muted-foreground uppercase">
                 College / Institution
               </label>
-              <select
-                required
+              <CollegeCombobox
                 value={newInstitutionId}
-                onChange={(e) => setNewInstitutionId(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-background rounded-xl border border-border focus:ring-1 focus:ring-primary outline-none text-foreground cursor-pointer"
-              >
-                <option value="" disabled>
-                  Select College
-                </option>
-                {institutions.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                initialInstitutions={institutions}
+                onChange={(id) => setNewInstitutionId(id)}
+                placeholder="Search and select college institution..."
+              />
             </div>
 
             <div className="space-y-1.5">

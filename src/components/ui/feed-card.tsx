@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Flame, Heart, Repeat2, VenetianMask } from "lucide-react";
+import { ArrowRight, Bot, Flame, Globe, Heart, Megaphone, Repeat2, School, ShieldAlert, VenetianMask } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -91,6 +91,39 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     return tags;
   }, [post.body]);
 
+  const isBroadcast = useMemo(() => {
+    return Boolean(
+      post.title &&
+        (post.title.includes("[OFFICIAL") ||
+          post.title.includes("[URGENT") ||
+          post.title.includes("[CAMPUS ALERT]") ||
+          post.title.includes("[WARNING]") ||
+          post.title.includes("[GENERAL INFO]") ||
+          post.title.includes("[INFO]"))
+    );
+  }, [post.title]);
+
+  const broadcastPriority = useMemo<"INFO" | "ANNOUNCEMENT" | "WARNING" | "URGENT">(() => {
+    if (post.title?.includes("[URGENT")) return "URGENT";
+    if (post.title?.includes("[CAMPUS ALERT]") || post.title?.includes("[WARNING]")) return "WARNING";
+    if (post.title?.includes("[GENERAL INFO]") || post.title?.includes("[INFO]")) return "INFO";
+    return "ANNOUNCEMENT";
+  }, [post.title]);
+
+  const cleanBroadcastTitle = useMemo(() => {
+    if (!post.title) return "";
+    return post.title
+      .replace(/^\[(OFFICIAL ANNOUNCEMENT|URGENT NOTICE|CAMPUS ALERT|GENERAL INFO|WARNING|INFO)\]\s*/i, "")
+      .trim();
+  }, [post.title]);
+
+  const ctaButton = useMemo(() => {
+    if (!post.body) return null;
+    const match = post.body.match(/👉\s*\[(.*?)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/i);
+    if (!match) return null;
+    return { label: match[1].trim(), url: match[2].trim() };
+  }, [post.body]);
+
   const displayContent = useMemo(() => {
     const rawBody = post.body || "";
     let cleaned = cleanPostHtml(rawBody);
@@ -133,8 +166,13 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     // Remove a trailing hashtag-only block from the body so posts do not show
     // the same tags twice.
     cleaned = cleaned.replace(/(?:\n|\s)+(#[\w-]+(?:\s+#[\w-]+)*)\s*$/g, "").trim();
+
+    if (isBroadcast) {
+      cleaned = cleaned.replace(/👉\s*\[(.*?)\]\((?:https?:\/\/[^\s)]+|\/[^\s)]+)\)/gi, "").trim();
+    }
+
     return cleaned.trim();
-  }, [post.body, post.title, post.externalPost]);
+  }, [post.body, post.title, post.externalPost, isBroadcast]);
 
   async function handleVote() {
     if (isLoading) return;
@@ -277,8 +315,64 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onClick={(e) => handleCardClick(e)}
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
-      className="w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border sm:border-border/30 p-3 sm:p-3.5 mb-0 sm:mb-2 mx-0 relative cursor-pointer transition-all hover:bg-muted/10 select-none overflow-x-clip shadow-2xs"
+      className={cn(
+        "w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border p-3 sm:p-4 mb-0 sm:mb-2.5 mx-0 relative cursor-pointer transition-all select-none overflow-x-clip shadow-2xs",
+        isBroadcast && broadcastPriority === "URGENT" && "border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-card to-card ring-1 ring-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.12)]",
+        isBroadcast && broadcastPriority === "WARNING" && "border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-card to-card ring-1 ring-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.12)]",
+        isBroadcast && broadcastPriority === "INFO" && "border-blue-500/40 bg-gradient-to-br from-blue-500/10 via-card to-card ring-1 ring-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.12)]",
+        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card ring-1 ring-primary/20 shadow-[0_0_20px_rgba(147,51,234,0.12)]",
+        !isBroadcast && "sm:border-border/30 hover:bg-muted/10"
+      )}
     >
+      {/* High-Priority Official Campus & Global Broadcast Banner Header */}
+      {isBroadcast && (
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/30">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+                broadcastPriority === "URGENT" && "bg-rose-500/20 text-rose-500 border-rose-500/30",
+                broadcastPriority === "WARNING" && "bg-amber-500/20 text-amber-500 border-amber-500/30",
+                broadcastPriority === "INFO" && "bg-blue-500/20 text-blue-500 border-blue-500/30",
+                broadcastPriority === "ANNOUNCEMENT" && "bg-primary/20 text-primary border-primary/30"
+              )}
+            >
+              {broadcastPriority === "URGENT" ? (
+                <ShieldAlert className="size-3 shrink-0 animate-pulse" />
+              ) : (
+                <Megaphone className="size-3 shrink-0" />
+              )}
+              <span>
+                {broadcastPriority === "URGENT"
+                  ? "URGENT NOTICE"
+                  : broadcastPriority === "WARNING"
+                    ? "CAMPUS ADVISORY"
+                    : broadcastPriority === "INFO"
+                      ? "CAMPUS INFO"
+                      : "OFFICIAL ANNOUNCEMENT"}
+              </span>
+            </span>
+
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/30">
+              {post.scope === "INDIA" ? (
+                <>
+                  <Globe className="size-3 text-primary" />
+                  <span>Pan-India Broadcast</span>
+                </>
+              ) : (
+                <>
+                  <School className="size-3 text-primary" />
+                  <span className="truncate max-w-[180px]">{collegeDisplayName || "Campus Wide"}</span>
+                </>
+              )}
+            </span>
+          </div>
+
+          <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+            Priority Banner
+          </span>
+        </div>
+      )}
       {/* Double Tap Flame Vibe Pop Overlay */}
       <AnimatePresence>
         {showDoubleTapHeart && (
@@ -378,8 +472,13 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
         {/* 2. CONTENT BODY: Placed directly below the author header taking 100% full width */}
         <div className="w-full min-w-0 space-y-1.5 pt-0.5 pb-0.5">
           {post.title && (
-            <h3 className="w-full text-[16px] font-bold text-foreground tracking-tight leading-snug break-words">
-              {post.title}
+            <h3
+              className={cn(
+                "w-full text-[16px] font-bold tracking-tight leading-snug break-words",
+                isBroadcast ? "text-base sm:text-lg font-black text-foreground" : "text-foreground"
+              )}
+            >
+              {isBroadcast ? cleanBroadcastTitle : post.title}
             </h3>
           )}
           {displayContent && (
@@ -389,6 +488,21 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 createdAt={post.createdAt}
                 collegeName={collegeDisplayName}
               />
+            </div>
+          )}
+
+          {/* Action CTA Button if attached to broadcast */}
+          {ctaButton && (
+            <div className="pt-2 pb-1" onClick={(e) => e.stopPropagation()}>
+              <a
+                href={ctaButton.url}
+                target={ctaButton.url.startsWith("http") ? "_blank" : undefined}
+                rel={ctaButton.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+              >
+                <span>{ctaButton.label}</span>
+                <ArrowRight className="size-3" />
+              </a>
             </div>
           )}
 

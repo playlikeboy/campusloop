@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CollegeCombobox } from "@/components/common/college-combobox";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -381,22 +382,19 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         </div>
 
         {/* Target College Hub Picker for Ingestion */}
-        {institutions.length > 0 && (
-          <div className="flex items-center gap-2 pt-1 text-xs">
-            <span className="font-bold text-muted-foreground">Target Campus Hub:</span>
-            <select
+        <div className="space-y-1.5 pt-2">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+            Target Campus Hub for Ingestion (Search 1,350+ Colleges)
+          </label>
+          <div className="max-w-md">
+            <CollegeCombobox
               value={targetCollegeId}
-              onChange={(e) => setTargetCollegeId(e.target.value)}
-              className="rounded-lg bg-muted/50 border border-border/40 px-2.5 py-1 text-xs font-semibold text-foreground outline-none max-w-xs truncate"
-            >
-              {institutions.map((inst) => (
-                <option key={inst.id} value={inst.id}>
-                  {inst.name}
-                </option>
-              ))}
-            </select>
+              initialInstitutions={institutions}
+              onChange={(id) => setTargetCollegeId(id)}
+              placeholder="Search target college hub..."
+            />
           </div>
-        )}
+        </div>
 
         {/* Fetched Reddit Posts Result Stream */}
         {redditPosts.length > 0 && (

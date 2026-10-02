@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
 import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
@@ -424,6 +425,12 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
               </div>
             </div>
           </form>
+
+          {/* ─── High-Priority Official Campus & Global Broadcast Banner ─── */}
+          <CampusBroadcastBanner
+            scope={scope}
+            institutionId={profile?.institutionId}
+          />
 
           {/* ─── Main Feed Stream (Twitter-Style Flat Timeline) ─── */}
           <div className="flex flex-col">

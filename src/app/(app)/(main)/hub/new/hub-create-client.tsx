@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { DedicatedHubType } from "@/components/communities/dedicated-hub-client";
+import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -84,6 +85,38 @@ const HUB_CATEGORIES: Array<{
     href: "/academics",
   },
 ];
+
+const CONDITION_OPTIONS: ComboboxOption[] = [
+  { value: "NEW", label: "Like New / Brand New" },
+  { value: "GOOD", label: "Good / Gently Used" },
+  { value: "FAIR", label: "Fair / Working" },
+];
+
+const GAME_OPTIONS: ComboboxOption[] = [
+  { value: "Valorant", label: "Valorant" },
+  { value: "BGMI", label: "BGMI / PUBG Mobile" },
+  { value: "CS2", label: "Counter-Strike 2" },
+  { value: "Dota 2", label: "Dota 2" },
+  { value: "FIFA", label: "EA Sports FC / FIFA" },
+  { value: "Chess", label: "Chess.com" },
+];
+
+const HUB_BRANCH_OPTIONS: ComboboxOption[] = [
+  { value: "All", label: "All Branches" },
+  { value: "Computer Science", label: "Computer Science (CSE)" },
+  { value: "ECE", label: "Electronics & Comm (ECE)" },
+  { value: "Information Technology", label: "Information Tech (IT)" },
+  { value: "Mechanical", label: "Mechanical (MECH)" },
+  { value: "Civil", label: "Civil Engineering" },
+  { value: "Electrical", label: "Electrical (EEE/EE)" },
+  { value: "Chemical", label: "Chemical" },
+  { value: "BioTech", label: "Biotechnology" },
+];
+
+const HUB_SEMESTER_OPTIONS: ComboboxOption[] = [1, 2, 3, 4, 5, 6, 7, 8].map((s) => ({
+  value: String(s),
+  label: `Semester ${s}`,
+}));
 
 export function HubCreateClient({ initialType = "lost_found", profileId }: HubCreateClientProps) {
   const router = useRouter();
@@ -376,15 +409,13 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground">Condition</label>
-              <select
+              <SearchableCombobox
+                options={CONDITION_OPTIONS}
                 value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-card text-xs font-semibold text-foreground outline-none focus:border-primary"
-              >
-                <option value="NEW">Like New / Brand New</option>
-                <option value="GOOD">Good / Gently Used</option>
-                <option value="FAIR">Fair / Working</option>
-              </select>
+                onChange={(val) => setCondition(val)}
+                placeholder="Select condition..."
+                clearable={false}
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -404,18 +435,14 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground">Game Name</label>
-              <select
+              <SearchableCombobox
+                options={GAME_OPTIONS}
                 value={gameName}
-                onChange={(e) => setGameName(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-card text-xs font-semibold text-foreground outline-none focus:border-primary"
-              >
-                <option value="Valorant">Valorant</option>
-                <option value="BGMI">BGMI / PUBG Mobile</option>
-                <option value="CS2">Counter-Strike 2</option>
-                <option value="Dota 2">Dota 2</option>
-                <option value="FIFA">EA Sports FC / FIFA</option>
-                <option value="Chess">Chess.com</option>
-              </select>
+                onChange={(val) => setGameName(val)}
+                placeholder="Select game title..."
+                searchPlaceholder="Search games (Valorant, CS2, BGMI)..."
+                clearable={false}
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -583,36 +610,26 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground">Branch</label>
-                <select
+                <SearchableCombobox
+                  options={HUB_BRANCH_OPTIONS}
                   value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-bold text-foreground outline-none focus:border-primary"
-                >
-                  <option value="All">All Branches</option>
-                  <option value="Computer Science">Computer Science (CSE)</option>
-                  <option value="ECE">Electronics &amp; Comm (ECE)</option>
-                  <option value="Information Technology">Information Tech (IT)</option>
-                  <option value="Mechanical">Mechanical (MECH)</option>
-                  <option value="Civil">Civil Engineering</option>
-                  <option value="Electrical">Electrical (EEE/EE)</option>
-                  <option value="Chemical">Chemical</option>
-                  <option value="BioTech">Biotechnology</option>
-                </select>
+                  onChange={(val) => setBranch(val)}
+                  placeholder="Select branch..."
+                  searchPlaceholder="Search branch..."
+                  clearable={false}
+                />
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground">Semester</label>
-                <select
-                  value={semester}
-                  onChange={(e) => setSemester(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-bold text-foreground outline-none focus:border-primary"
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                    <option key={s} value={s}>
-                      Semester {s}
-                    </option>
-                  ))}
-                </select>
+                <SearchableCombobox
+                  options={HUB_SEMESTER_OPTIONS}
+                  value={String(semester)}
+                  onChange={(val) => setSemester(Number(val) || 1)}
+                  placeholder="Select semester..."
+                  searchPlaceholder="Search semester (1–8)..."
+                  clearable={false}
+                />
               </div>
             </div>
 
