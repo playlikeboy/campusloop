@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { anonIdentityVault, comments, commentVotes, posts, reelComments, reels, userProfiles } from "@/db/schema";
@@ -39,9 +39,18 @@ export async function GET(req: Request, { params }: RouteParams) {
       // Unauthenticated viewers are supported
     }
 
+    const commentConditions = [eq(comments.postId, id), eq(comments.status, "PUBLISHED")];
+    if (before) {
+      const beforeDate = new Date(before);
+      if (Number.isFinite(beforeDate.getTime())) {
+        commentConditions.push(sql`${comments.createdAt} < ${beforeDate}`);
+      }
+    }
+
     const postComments = await db.query.comments.findMany({
-      where: and(eq(comments.postId, id), eq(comments.status, "PUBLISHED")),
-      orderBy: [asc(comments.createdAt)],
+      where: and(...commentConditions),
+      orderBy: [desc(comments.createdAt)],
+      limit,
       with: {
         author: {
           columns: {
@@ -112,6 +121,8 @@ export async function GET(req: Request, { params }: RouteParams) {
         );
       }
     }
+
+    const postCommentsAscending = [...postComments].reverse();
 
     // Batch hydrate viewer votes
     const likedCommentIds = new Set<string>();
