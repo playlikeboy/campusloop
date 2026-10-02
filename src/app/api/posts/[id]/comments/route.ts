@@ -16,6 +16,12 @@ interface RouteParams {
 export async function GET(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(req.url);
+    const requestedLimit = Number(searchParams.get("limit"));
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(Math.floor(requestedLimit), 1), 100)
+      : 50;
+    const before = searchParams.get("before");
     const db = getDb();
 
     // Optional user authentication for personalized like hydration
@@ -110,7 +116,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Batch hydrate viewer votes
     const likedCommentIds = new Set<string>();
     if (currentProfileId && postComments.length > 0) {
-      const itemIds = postComments.map((c) => c.id);
+      const itemIds = postCommentsAscending.map((c) => c.id);
       const userVotes = await db
         .select({ commentId: commentVotes.commentId })
         .from(commentVotes)
@@ -126,7 +132,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     }
 
     // Strip author identity for anonymous comments before it leaves the server.
-    const sanitized = postComments.map((comment) => {
+    const sanitized = postCommentsAscending.map((comment) => {
       const hasLiked = likedCommentIds.has(comment.id);
       const enriched = {
         ...comment,
