@@ -47,7 +47,7 @@ export function RideshareCard({ item }: RideshareCardProps) {
       haptics.match();
       setReserved(true);
       setAvailableSeats((prev) => Math.max(0, prev - 1));
-      toast.success("Seat reserved! Coordinate pickup with the ride creator 🚗");
+      toast.success("Seat reserved! Coordinate pickup with the ride creator");
     }
   }
 
@@ -56,7 +56,7 @@ export function RideshareCard({ item }: RideshareCardProps) {
     haptics.light();
     if (item.contactInfo) {
       navigator.clipboard.writeText(item.contactInfo);
-      toast.success(`Contact copied: ${item.contactInfo} 📋`);
+      toast.success(`Contact copied: ${item.contactInfo}`);
     } else {
       toast.info(`Reach out to @${item.creator.username} on CampusLoop`);
     }
@@ -80,7 +80,7 @@ export function RideshareCard({ item }: RideshareCardProps) {
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Rideshare link copied! 🚗");
+      toast.success("Rideshare link copied!");
     }
   }
 

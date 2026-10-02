@@ -70,7 +70,7 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
     sounds.tap();
     haptics.light();
     navigator.clipboard.writeText(item.gamerTag);
-    toast.success(`Copied Riot/Gamer ID: ${item.gamerTag} 📋`);
+    toast.success(`Copied Riot/Gamer ID: ${item.gamerTag}`);
   }
 
   function handleJoinLobby() {
@@ -89,7 +89,7 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
       haptics.match();
       setJoined(true);
       setSlotsFilled((prev) => prev + 1);
-      toast.success("Joined lobby! Reach out to the host on Discord/voice 🎮");
+      toast.success("Joined lobby! Reach out to the host on Discord/voice");
     }
   }
 
@@ -111,7 +111,7 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Gaming lobby link copied! 🎮");
+      toast.success("Gaming lobby link copied!");
     }
   }
 

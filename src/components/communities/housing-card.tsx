@@ -33,7 +33,7 @@ export function HousingCard({ item }: HousingCardProps) {
     haptics.light();
     if (item.contactInfo) {
       navigator.clipboard.writeText(item.contactInfo);
-      toast.success(`Owner contact copied: ${item.contactInfo} 📋`);
+      toast.success(`Owner contact copied: ${item.contactInfo}`);
     } else {
       toast.info(`Message @${item.author.username} on CampusLoop`);
     }
@@ -57,7 +57,7 @@ export function HousingCard({ item }: HousingCardProps) {
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Housing listing link copied! 📋");
+      toast.success("Housing listing link copied!");
     }
   }
 

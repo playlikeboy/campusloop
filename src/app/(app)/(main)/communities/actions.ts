@@ -559,7 +559,7 @@ export async function sendTestCommunityWebhookPost(webhookId: string) {
     .values({
       id: postId,
       authorId: profile.id,
-      pseudonym: `🤖 ${webhook.botName}`,
+      pseudonym: `[Bot] ${webhook.botName}`,
       institutionId: profile.institutionId,
       type: "NORMAL",
       scope: "CAMPUS",

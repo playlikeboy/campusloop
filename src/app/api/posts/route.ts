@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { anonIdentityVault, pollOptions, posts, userProfiles } from "@/db/schema";
+import { anonIdentityVault, communities, pollOptions, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, sealIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
@@ -54,6 +54,19 @@ export async function POST(req: Request) {
       );
     }
 
+    let targetCommunity = null;
+    if (communityId) {
+      targetCommunity = await db.query.communities.findFirst({
+        where: eq(communities.id, communityId),
+      });
+      if (targetCommunity && !targetCommunity.allowAnonymousPosts && (isAnonymous || type === "CONFESSION")) {
+        return NextResponse.json(
+          { error: "Anonymous posts and confessions are disabled in this community." },
+          { status: 400 }
+        );
+      }
+    }
+
     const anonymous = Boolean(isAnonymous);
     const postId = randomUUID();
 
@@ -99,11 +112,19 @@ export async function POST(req: Request) {
       })
       .returning();
 
-    // Award +5 points
+    // Award +5 points to author
     await db
       .update(userProfiles)
       .set({ points: sql`${userProfiles.points} + 5` })
       .where(eq(userProfiles.id, profile.id));
+
+    // Award +5 points to community if posted inside a community
+    if (targetCommunity) {
+      await db
+        .update(communities)
+        .set({ points: sql`${communities.points} + 5` })
+        .where(eq(communities.id, targetCommunity.id));
+    }
 
     if (pollTexts.length > 0) {
       await db.insert(pollOptions).values(pollTexts.map((text) => ({ postId: newPost.id, text })));

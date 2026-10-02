@@ -28,6 +28,8 @@ interface CommunitySettingsClientProps {
     privacy?: "PUBLIC" | "PRIVATE" | "UNLISTED" | string;
     allowAnonymousPosts?: boolean;
     rules?: string | null;
+    avatarUrl?: string | null;
+    bannerUrl?: string | null;
   };
 }
 
@@ -43,6 +45,8 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
     (community.privacy as "PUBLIC" | "PRIVATE" | "UNLISTED") || "PUBLIC"
   );
   const [allowAnonymousPosts, setAllowAnonymousPosts] = useState(community.allowAnonymousPosts ?? true);
+  const [avatarUrl, setAvatarUrl] = useState(community.avatarUrl || "");
+  const [bannerUrl, setBannerUrl] = useState(community.bannerUrl || "");
 
   const initialRules = (() => {
     if (!community.rules) return [];
@@ -67,6 +71,8 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       privacy: (community.privacy as "PUBLIC" | "PRIVATE" | "UNLISTED") || "PUBLIC",
       allowAnonymousPosts: community.allowAnonymousPosts ?? true,
       rules,
+      avatarUrl: community.avatarUrl || "",
+      bannerUrl: community.bannerUrl || "",
     })
   );
 
@@ -78,6 +84,8 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       privacy,
       allowAnonymousPosts,
       rules,
+      avatarUrl,
+      bannerUrl,
     }) !== initialSnapshot.current;
 
   function handleAddRule() {
@@ -116,6 +124,8 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
         privacy,
         allowAnonymousPosts,
         rules: validRules.length > 0 ? JSON.stringify(validRules) : undefined,
+        avatarUrl: avatarUrl.trim() || undefined,
+        bannerUrl: bannerUrl.trim() || undefined,
       });
 
       toast.success("Community settings updated successfully!");
@@ -212,6 +222,30 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded-xl border border-border/60 p-3 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground">Avatar Image URL</label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/avatar.png"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground">Banner Header URL</label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/banner.jpg"
+                  value={bannerUrl}
+                  onChange={(e) => setBannerUrl(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+                />
+              </div>
             </div>
           </div>
 

@@ -101,7 +101,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
       }
 
       const data = (await res.json()) as { id: string };
-      toast.success("Direct chat opened! 💬", { id: "chat-seller" });
+      toast.success("Direct chat opened!", { id: "chat-seller" });
       router.push(`/chat/${data.id}`);
     } catch {
       toast.error("Could not open chat with seller. Please try again.", { id: "chat-seller" });
@@ -127,7 +127,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
 
       if (!res.ok) throw new Error();
       setSold(nextSold);
-      toast.success(nextSold ? "Listing marked as SOLD! 🎉" : "Listing marked as Available");
+      toast.success(nextSold ? "Listing marked as SOLD!" : "Listing marked as Available");
     } catch {
       toast.error("Could not update listing status");
     } finally {
@@ -171,7 +171,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted }: MarketplaceC
       return;
     }
     navigator.clipboard.writeText(url);
-    toast.success("Listing link copied to clipboard! 🚀");
+    toast.success("Listing link copied to clipboard!");
   }
 
   return (
