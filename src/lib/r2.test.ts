@@ -68,7 +68,7 @@ describe("R2 Cloudflare Storage Engine", () => {
     expect(after).toBeNull();
   });
 
-  it("should gracefully fallback to database storage when R2 binding is missing", async () => {
+  it("should refuse database blob fallback and throw when R2 binding is missing in production", async () => {
     const originalNodeEnv = process.env.NODE_ENV;
     try {
       (process.env as any).NODE_ENV = "production";
@@ -76,13 +76,12 @@ describe("R2 Cloudflare Storage Engine", () => {
       const key = "test/prod-probe-fallback.txt";
       const data = new TextEncoder().encode("resilient-fallback-test");
 
-      const putRes = await putR2Object(key, data, "text/plain");
-      expect(putRes.key).toBe(key);
-      expect(putRes.url).toBe(`/api/files/r2/${key}`);
+      await expect(putR2Object(key, data, "text/plain")).rejects.toThrow(
+        "MEDIA_BUCKET is unavailable in production; refusing database blob fallback"
+      );
 
       const getRes = await getR2Object(key);
-      expect(getRes).not.toBeNull();
-      expect(getRes?.contentType).toBe("text/plain");
+      expect(getRes).toBeNull();
     } finally {
       process.env.NODE_ENV = originalNodeEnv;
     }
