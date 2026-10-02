@@ -98,10 +98,14 @@ export async function putR2Object(
     }
   }
 
-  // 2. Prepare in-memory buffer
-  const buffer = await toUint8Array(data);
+  // Never persist production media binaries into Postgres. Large videos/documents
+  // can amplify a storage incident into Worker memory and database pressure.
+  if (isProductionRuntime()) {
+    throw new Error("MEDIA_BUCKET is unavailable in production; refusing database blob fallback");
+  }
 
-  // Store in memory for instant local access
+  // Local development/tests retain a small in-memory fallback only.
+  const buffer = await toUint8Array(data);
   localDevMemoryStorage.set(key, {
     data: buffer,
     contentType,
@@ -109,37 +113,6 @@ export async function putR2Object(
     uploadedAt: new Date(),
     metadata: customMetadata,
   });
-
-  // 3. Persist to PostgreSQL Neon database for durable distributed access
-  try {
-    const base64Data = Buffer.from(buffer).toString("base64");
-    const metadataJson = JSON.stringify(customMetadata);
-
-    await getDb()
-      .insert(r2StorageObjects)
-      .values({
-        key,
-        contentType,
-        data: base64Data,
-        size: buffer.byteLength,
-        metadata: metadataJson,
-        updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: r2StorageObjects.key,
-        set: {
-          contentType,
-          data: base64Data,
-          size: buffer.byteLength,
-          metadata: metadataJson,
-          updatedAt: new Date(),
-        },
-      });
-  } catch (dbError) {
-    if (isProductionRuntime()) {
-      console.error("[R2 Storage] Failed to persist object to database fallback:", dbError);
-    }
-  }
 
   return {
     key,
@@ -226,7 +199,12 @@ export async function getR2Object(
     };
   }
 
-  // 3. Retrieve from durable PostgreSQL Neon database
+  // Production media is served only from Cloudflare R2.
+  if (isProductionRuntime()) {
+    return null;
+  }
+
+  // Local development/tests can retrieve the legacy durable fallback.
   try {
     const [record] = await getDb()
       .select()
