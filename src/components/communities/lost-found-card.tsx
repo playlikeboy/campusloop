@@ -36,7 +36,7 @@ export function LostFoundCard({ item, currentUserId }: LostFoundCardProps) {
     haptics.light();
     if (item.contactInfo) {
       navigator.clipboard.writeText(item.contactInfo);
-      toast.success(`Contact copied: ${item.contactInfo} 📋`);
+      toast.success(`Contact copied: ${item.contactInfo}`);
     } else {
       toast.info(`Message @${item.author.username} on CampusLoop`);
     }
@@ -46,7 +46,7 @@ export function LostFoundCard({ item, currentUserId }: LostFoundCardProps) {
     sounds.ting();
     haptics.success();
     setResolved(!resolved);
-    toast.success(resolved ? "Marked as active" : "Marked as resolved & returned! 🎉");
+    toast.success(resolved ? "Marked as active" : "Marked as resolved & returned!");
   }
 
   function handleShare(e: React.MouseEvent) {
@@ -67,7 +67,7 @@ export function LostFoundCard({ item, currentUserId }: LostFoundCardProps) {
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Lost & Found link copied to clipboard! 📋");
+      toast.success("Lost & Found link copied to clipboard!");
     }
   }
 

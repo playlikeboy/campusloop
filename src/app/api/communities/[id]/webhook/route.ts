@@ -156,7 +156,7 @@ export async function POST(req: Request, { params }: RouteProps) {
       .values({
         id: postId,
         authorId: webhook.createdById,
-        pseudonym: `🤖 ${botName}`,
+        pseudonym: `[Bot] ${botName}`,
         institutionId,
         type: "NORMAL",
         scope: "CAMPUS",

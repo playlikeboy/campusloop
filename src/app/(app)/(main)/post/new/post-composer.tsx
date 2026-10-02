@@ -71,6 +71,7 @@ const POST_TYPES: { id: PostType; label: string; icon: React.ElementType; accent
 
 interface PostComposerProps {
   communityId?: string;
+  allowAnonymous?: boolean;
   /** "page" is the full /post/new screen; "modal" embeds it in a dialog. */
   variant?: "page" | "modal";
   /**
@@ -93,6 +94,7 @@ interface PostComposerProps {
 
 export function PostComposer({
   communityId: initialCommunityId,
+  allowAnonymous = true,
   variant = "page",
   initialType,
   initialContent,
@@ -418,8 +420,8 @@ export function PostComposer({
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   }
 
-  const isConfession = postType === "CONFESSION";
-  const anonActive = isAnonymous || isConfession;
+  const isConfession = allowAnonymous && postType === "CONFESSION";
+  const anonActive = allowAnonymous && (isAnonymous || isConfession);
   const overLimit = charCount > MAX_CHARS;
 
   // Real-time link and media embed extraction
@@ -455,7 +457,7 @@ export function PostComposer({
     setError(null);
 
     let body = editor?.getText() || "";
-    const anon = isAnonymous || postType === "CONFESSION";
+    const anon = allowAnonymous ? (isAnonymous || postType === "CONFESSION") : false;
 
     // Legacy attachment markers are retained only for database backwards compatibility;
     // renderers must strip them and display real media components.
@@ -717,22 +719,26 @@ export function PostComposer({
       color: cn("hover:bg-muted", showFormatting ? "text-foreground" : "text-muted-foreground"),
       onClick: () => setShowFormatting((s) => !s),
     },
-    {
-      id: "anon",
-      label: anonActive ? "Anonymous on" : "Go anonymous",
-      icon: VenetianMask,
-      color: cn(
-        "hover:bg-violet-500/10",
-        anonActive ? "text-violet-500" : "text-muted-foreground hover:text-violet-500"
-      ),
-      onClick: () => {
-        if (!isConfession) {
-          haptics.light();
-          setIsAnonymous((a) => !a);
-        }
-      },
-      disabled: isConfession,
-    },
+    ...(allowAnonymous
+      ? [
+          {
+            id: "anon",
+            label: anonActive ? "Anonymous on" : "Go anonymous",
+            icon: VenetianMask,
+            color: cn(
+              "hover:bg-violet-500/10",
+              anonActive ? "text-violet-500" : "text-muted-foreground hover:text-violet-500"
+            ),
+            onClick: () => {
+              if (!isConfession) {
+                haptics.light();
+                setIsAnonymous((a) => !a);
+              }
+            },
+            disabled: isConfession,
+          },
+        ]
+      : []),
   ];
 
   function handleContainerPaste(e: React.ClipboardEvent) {
@@ -837,7 +843,7 @@ export function PostComposer({
 
         {/* ─── Post type segmented chips ─── */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 px-4 py-2.5">
-          {POST_TYPES.map((t) => {
+          {POST_TYPES.filter((t) => allowAnonymous || t.id !== "CONFESSION").map((t) => {
             const active = postType === t.id;
             return (
               <button

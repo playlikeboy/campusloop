@@ -222,7 +222,9 @@ export function CommunityDetailClient({
 
     setPosts((prev) => [optimisticPost, ...prev]);
     optimisticAddPost(optimisticPost);
-    toast.success("Discussion posted! 🎉");
+    sounds.pop();
+    haptics.success();
+    toast.success("Discussion posted!");
 
     try {
       const res = await fetch("/api/posts", {
@@ -849,6 +851,7 @@ export function CommunityDetailClient({
             <PostComposer
               variant="modal"
               communityId={community.id}
+              allowAnonymous={community.allowAnonymousPosts ?? true}
               lockedCommunityName={community.name}
               onCancel={() => setShowFullComposer(false)}
               onPublished={(post) => {

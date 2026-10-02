@@ -8,8 +8,10 @@ import {
   MessageSquare,
   Plus,
   Search,
+  Sparkles,
   Users,
   Users2,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -367,9 +369,17 @@ function CommunityCard({
   const avatar = getAvatarUrl(community.avatarUrl, community.name);
 
   return (
-    <article className="group relative flex min-h-[280px] flex-col rounded-3xl border border-border/40 bg-card/60 p-4.5 sm:p-5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 hover:border-border/80 hover:bg-card hover:shadow-md">
+    <article className="group relative flex min-h-[290px] flex-col rounded-3xl border border-border/40 bg-card/60 p-4.5 sm:p-5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 hover:border-border/80 hover:bg-card hover:shadow-md overflow-hidden">
+      {/* Subtle top banner accent if present */}
+      {community.bannerUrl && (
+        <div
+          className="absolute top-0 inset-x-0 h-16 opacity-20 pointer-events-none bg-cover bg-center transition-opacity group-hover:opacity-30"
+          style={{ backgroundImage: `url(${community.bannerUrl})` }}
+        />
+      )}
+
       {/* Top Header: Avatar + Category & Privacy on left, Join button on right */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="relative z-10 flex items-center justify-between gap-3">
         <Link
           href={"/communities/" + (community.slug || community.id)}
           className="flex items-center gap-3 min-w-0 flex-1"
@@ -410,7 +420,7 @@ function CommunityCard({
       {/* Community Title: 100% full width across card so title wraps nicely across 2 lines */}
       <Link
         href={"/communities/" + (community.slug || community.id)}
-        className="mt-3.5 block group-hover:text-primary transition-colors"
+        className="relative z-10 mt-3.5 block group-hover:text-primary transition-colors"
       >
         <h2 className="line-clamp-2 text-[15px] sm:text-base font-bold leading-snug tracking-tight text-foreground">
           c/{community.name}
@@ -418,19 +428,30 @@ function CommunityCard({
       </Link>
 
       {/* Description */}
-      <p className="mt-2 line-clamp-3 text-xs sm:text-sm leading-relaxed text-muted-foreground min-h-[54px]">
+      <p className="relative z-10 mt-2 line-clamp-3 text-xs sm:text-sm leading-relaxed text-muted-foreground min-h-[54px]">
         {community.description || "A student-led community for sharing ideas, questions, updates, and campus life."}
       </p>
 
       {/* Footer */}
-      <div className="mt-auto pt-4 space-y-2.5">
+      <div className="relative z-10 mt-auto pt-4 space-y-2.5">
         <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground/80">
-          <div className="flex items-center gap-1.5">
-            <Users className="size-3 text-primary shrink-0" />
-            <span>{members} active</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Users className="size-3 text-primary shrink-0" />
+              <span>{members} active</span>
+            </div>
+            {(community.points || 0) > 0 && (
+              <>
+                <span>·</span>
+                <div className="flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
+                  <Sparkles className="size-3 text-amber-500 shrink-0" />
+                  <span>{community.points} LP</span>
+                </div>
+              </>
+            )}
           </div>
           {community.creator && (
-            <span className="truncate max-w-[120px]">@{community.creator.username}</span>
+            <span className="truncate max-w-[110px]">@{community.creator.username}</span>
           )}
         </div>
 
