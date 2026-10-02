@@ -8,17 +8,17 @@ export function CleanFAQ() {
     {
       question: "How do I get verified on my campus?",
       answer:
-        "Sign up with your college email (.edu, .ac.in, or university domain). You instantly unlock full voting, confession, DM, and notes download access.",
+        "Sign up with your college email (.edu, .ac.in, or recognized university domain). You instantly unlock full access to your campus feed, notes, events, communities, and marketplace.",
     },
     {
       question: "Is anonymous posting really anonymous?",
       answer:
-        "Yes. Anonymous posts and confessions have zero author identity attached to the public payload. Even campus moderators cannot trace the author.",
+        "Yes. Anonymous posts and questions have zero author identity attached to the public payload. Even campus moderators cannot trace the author.",
     },
     {
       question: "What if my college isn't listed yet?",
       answer:
-        "Browse the Colleges Directory to request your campus hub. Over 1,350+ Indian colleges are already indexed, and new hubs are activated within 24 hours.",
+        "Browse the Colleges Directory to request your campus hub. Over 1,350+ Indian colleges are already indexed, and unlisted campuses can be requested directly.",
     },
     {
       question: "Are academic notes and PYQs free?",

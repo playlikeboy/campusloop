@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, CalendarDays, Heart, MessageCircle, Users } from "lucide-react";
+import { ArrowUpRight, BookOpen, CalendarDays, Check, Heart, MessageCircle, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 
 interface CleanHeroProps {
@@ -26,7 +26,7 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
         <div className="max-w-2xl">
           <div className="cl-kicker">
             <span className="cl-status-dot" />
-            THE CAMPUS SOCIAL LAYER
+            THE VERIFIED DIGITAL CAMPUS
           </div>
 
           <h1 className="cl-hero-title">
@@ -38,12 +38,12 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           </h1>
 
           <p className="cl-hero-copy">
-            One place for the people, conversations, clubs, events, notes and everyday moments that make your
-            college feel like home.
+            A verified student network for conversations, academics, events, communities, and everyday campus
+            life.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/app" className="cl-button cl-button-primary">
+            <Link href="/feeds" className="cl-button cl-button-primary">
               {isAuthenticated ? "Open your campus" : "Join your campus"}
               <ArrowUpRight className="size-4" />
             </Link>
@@ -53,8 +53,8 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           </div>
 
           <div className="cl-proof-row">
-            <span>
-              <span className="cl-mini-check">✓</span> Verified students
+            <span className="flex items-center gap-1">
+              <Check className="size-3 text-emerald-500" /> Verified students
             </span>
             <span>•</span>
             <span>Free to join</span>
@@ -65,7 +65,9 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
 
         <div className="relative mx-auto w-full max-w-[640px] lg:ml-auto">
           <div className="cl-float-card cl-float-event">
-            <span className="cl-float-icon">✦</span>
+            <span className="cl-float-icon">
+              <Sparkles className="size-3.5 text-amber-400" />
+            </span>
             <div>
               <span className="cl-float-label">TONIGHT</span>
               <strong>Tech club demo night</strong>
@@ -163,8 +165,8 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           <div className="cl-float-card cl-float-online">
             <span className="cl-online-pulse" />
             <div>
-              <span className="cl-float-label">YOUR CAMPUS</span>
-              <strong>184 people online</strong>
+              <span className="cl-float-label">CAMPUS DIRECTORY</span>
+              <strong>1,350+ Colleges Indexed</strong>
             </div>
           </div>
         </div>

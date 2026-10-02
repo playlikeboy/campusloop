@@ -4,6 +4,7 @@ import {
   Bell,
   Building2,
   Calendar,
+  Car,
   ChevronRight,
   Compass,
   GraduationCap,
@@ -16,6 +17,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   User,
   Users,
   VenetianMask,
@@ -202,7 +204,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
   const handleMobileNavPress = (href: string) => {
     sounds.tap();
     haptics.light();
-    setMobileNavPulse({ href, key: Date.now() });
+    setMobileNavPulse((prev) => ({ href, key: (prev?.key ?? 0) + 1 }));
   };
 
   const mobileBottomItems = useMemo(
@@ -709,6 +711,48 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                           badge: "Anon",
                         },
                         { href: "/dating", label: "Campus Dating", icon: Heart },
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        const active = isPathActive(pathname, item.href);
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setShowDrawer(false)}
+                            className={cn(
+                              "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all",
+                              active
+                                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                                : "text-foreground hover:bg-muted/60"
+                            )}
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <Icon className="size-4 shrink-0" />
+                              <span>{item.label}</span>
+                            </span>
+                            {item.badge && (
+                              <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Campus Living & Utilities */}
+                  <div>
+                    <span className="px-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                      Living &amp; Utilities
+                    </span>
+                    <div className="mt-1 space-y-0.5">
+                      {[
+                        { href: "/buy-and-sell", label: "Buy & Sell", icon: ShoppingBag, badge: "Market" },
+                        { href: "/housing", label: "Housing & Flatmates", icon: Building2, badge: "PG & Flats" },
+                        { href: "/lost-and-found", label: "Lost & Found Hub", icon: Search, badge: "Recovery" },
+                        { href: "/rideshare", label: "Ride Share & Pool", icon: Car, badge: "Pool" },
+                        { href: "/atlas", label: "Campus Atlas", icon: Compass, badge: "Map" },
                       ].map((item) => {
                         const Icon = item.icon;
                         const active = isPathActive(pathname, item.href);

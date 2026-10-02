@@ -188,7 +188,7 @@ export function AcademicsQuickVault() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-card hover:bg-muted text-xs font-black text-foreground border border-border/80 shadow-2xs hover:border-border transition-all cursor-pointer"
           >
             <BookOpen className="size-4 text-amber-500" />
-            <span>Explore 45,000+ Notes in the Full Vault</span>
+            <span>Explore Branch Notes &amp; PYQs in the Full Vault</span>
             <ArrowUpRight className="size-4" />
           </Link>
         </div>

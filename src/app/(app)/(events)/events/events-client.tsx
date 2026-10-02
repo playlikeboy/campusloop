@@ -59,7 +59,7 @@ export function EventsClient() {
   const [timeframeFilter, setTimeframeFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const [now, setNow] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
   // Sync client time for live countdowns
   useEffect(() => {
@@ -80,7 +80,7 @@ export function EventsClient() {
 
   // Filter for LIVE & UPCOMING events (excluding closed/past)
   const activeEvents = useMemo(() => {
-    const curNow = Date.now();
+    const curNow = now;
     return rawEvents.filter((e) => {
       // Must NOT be closed
       if (isEventClosed(e, curNow)) return false;
@@ -117,7 +117,7 @@ export function EventsClient() {
 
       return true;
     });
-  }, [rawEvents, searchQuery, modeFilter, timeframeFilter]);
+  }, [rawEvents, searchQuery, modeFilter, timeframeFilter, now]);
 
   // Featured Opportunity
   const featuredEvent = useMemo(() => {
