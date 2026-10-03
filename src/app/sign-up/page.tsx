@@ -15,7 +15,14 @@ export default async function SignUpPage({
   searchParams?: Promise<{ returnTo?: string; redirect?: string; college?: string }>;
 }) {
   const params = await searchParams;
-  const returnTo = params?.returnTo || params?.redirect;
+  let returnTo = params?.returnTo || params?.redirect;
+  // If after_auth_return_to was passed but contains /handler/ or /sign-up, discard loopback
+  if (!returnTo && params && "after_auth_return_to" in params) {
+    const after = (params as Record<string, string>).after_auth_return_to;
+    if (after && !after.includes("/handler/") && !after.includes("/sign-up") && !after.includes("/sign-in")) {
+      returnTo = after;
+    }
+  }
   const college = params?.college;
   const queryParts = [];
   if (returnTo) queryParts.push(`returnTo=${encodeURIComponent(returnTo)}`);

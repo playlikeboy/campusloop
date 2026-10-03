@@ -15,7 +15,14 @@ export default async function SignInPage({
   searchParams?: Promise<{ returnTo?: string; redirect?: string }>;
 }) {
   const params = await searchParams;
-  const returnTo = params?.returnTo || params?.redirect;
+  let returnTo = params?.returnTo || params?.redirect;
+  // If after_auth_return_to was passed but contains /handler/ or /sign-in, discard loopback
+  if (!returnTo && params && "after_auth_return_to" in params) {
+    const after = (params as Record<string, string>).after_auth_return_to;
+    if (after && !after.includes("/handler/") && !after.includes("/sign-in")) {
+      returnTo = after;
+    }
+  }
   const handlerHref = returnTo
     ? `/handler/sign-in?returnTo=${encodeURIComponent(returnTo)}`
     : "/handler/sign-in";
