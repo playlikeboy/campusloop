@@ -55,3 +55,4 @@ next-env.d.ts
 *.log
 .agents/skills/npm-tools/SKILL.md
 __pycache__/
+.kilo/
