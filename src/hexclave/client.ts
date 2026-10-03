@@ -6,13 +6,13 @@ export const hexclaveClientApp = new HexclaveClientApp({
     handler: "/handler",
     signIn: "/handler/sign-in",
     signUp: "/handler/sign-up",
-    afterSignIn: "/app",
+    afterSignIn: "/feeds",
     afterSignUp: "/onboarding",
     afterSignOut: "/sign-in",
     oauthCallback: "/handler/oauth-callback",
 
     default: {
-      type: "hosted",
+      type: "handler-component",
     },
   },
 });
