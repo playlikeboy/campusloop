@@ -47,6 +47,15 @@ const LANGUAGE_MAP: Record<string, string> = {
   pgsql: "sql",
 };
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export function CodeBlock({
   code,
   language = "typescript",
@@ -61,10 +70,10 @@ export function CodeBlock({
   const highlightedHtml = useMemo(() => {
     try {
       const grammar = Prism.languages[prismLang] || Prism.languages.typescript || Prism.languages.clike;
-      if (!grammar) return code;
+      if (!grammar) return escapeHtml(code);
       return Prism.highlight(code, grammar, prismLang);
     } catch {
-      return code;
+      return escapeHtml(code);
     }
   }, [code, prismLang]);
 
@@ -76,7 +85,7 @@ export function CodeBlock({
       sounds.pop();
       haptics.light();
       setCopied(true);
-      toast.success("Code copied to clipboard! 📋");
+      toast.success("Code copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Failed to copy code");

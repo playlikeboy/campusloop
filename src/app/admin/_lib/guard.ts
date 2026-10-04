@@ -8,6 +8,7 @@ import { getDb } from "@/db";
 import { type UserProfile, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { isAllowedAdminEmail } from "./session";
+import { timingSafeCompare } from "@/lib/security/timing";
 
 type Db = ReturnType<typeof getDb>;
 
@@ -147,7 +148,7 @@ export async function requireAdminApi(): Promise<AdminApiResult> {
 
     const adminApiKey = process.env.ADMIN_API_KEY || process.env.ADMIN_PASSKEY;
 
-    const isTokenAuthorized = Boolean(token && adminApiKey && token === adminApiKey);
+    const isTokenAuthorized = timingSafeCompare(token, adminApiKey);
 
     if (isTokenAuthorized) {
       const db = getDb();

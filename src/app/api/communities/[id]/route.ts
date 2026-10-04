@@ -203,9 +203,9 @@ export async function DELETE(request: Request, { params }: RouteProps) {
       return NextResponse.json({ error: "Not Found", message: "Community not found" }, { status: 404 });
     }
 
-    if (comm.creatorId !== profile.id) {
+    if (comm.creatorId !== profile.id && profile.role !== "ADMIN") {
       return NextResponse.json(
-        { error: "Forbidden", message: "Only the founding creator can delete this community" },
+        { error: "Forbidden", message: "Only the founding creator or admin can delete this community" },
         { status: 403 }
       );
     }

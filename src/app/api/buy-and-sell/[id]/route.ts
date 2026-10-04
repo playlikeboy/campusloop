@@ -88,7 +88,7 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
-    if (item.sellerId !== profile.id) {
+    if (item.sellerId !== profile.id && profile.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden: Not item owner" }, { status: 403 });
     }
 

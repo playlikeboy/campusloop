@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
           });
         } else {
           // Default: posts
-          exportData = await db
+          const rawPosts = await db
             .select({
               id: posts.id,
               authorId: posts.authorId,
@@ -193,6 +193,11 @@ export async function POST(req: NextRequest) {
             .from(posts)
             .orderBy(desc(posts.createdAt))
             .limit(100);
+
+          exportData = rawPosts.map((p) => ({
+            ...p,
+            authorId: p.isAnonymous ? null : p.authorId,
+          }));
         }
 
         return NextResponse.json({

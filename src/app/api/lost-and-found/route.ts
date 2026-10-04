@@ -174,6 +174,14 @@ export async function POST(req: NextRequest) {
     const shortId = crypto.randomUUID().slice(0, 8);
     const slug = `${itemType}-${baseSlug}-${shortId}`;
 
+    let safeImageUrl: string | null = null;
+    if (typeof imageUrl === "string" && imageUrl.trim()) {
+      const trimmedUrl = imageUrl.trim();
+      if (/^https?:\/\/[^\s]+$/i.test(trimmedUrl) || trimmedUrl.startsWith("/api/files/r2/")) {
+        safeImageUrl = trimmedUrl;
+      }
+    }
+
     const [item] = await db
       .insert(lostAndFoundItems)
       .values({
@@ -185,7 +193,7 @@ export async function POST(req: NextRequest) {
         category: category || "Other",
         location: location.trim(),
         itemDate: itemDate || new Date().toISOString().split("T")[0],
-        imageUrl: imageUrl || null,
+        imageUrl: safeImageUrl,
         contactInfo: contactInfo?.trim() || `@${profile.username}`,
         reward: reward?.trim() || null,
         slug,
