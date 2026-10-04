@@ -6,6 +6,7 @@ import { communities, communityWebhooks, posts, userProfiles } from "@/db/schema
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { notifyMentions } from "@/lib/notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
+import { timingSafeCompare } from "@/lib/security/timing";
 
 interface RouteProps {
   params: Promise<{ id: string }>;
@@ -73,9 +74,11 @@ export async function POST(req: Request, { params }: RouteProps) {
     }
 
     // Lookup webhook belonging to this community with the given token
-    const webhook = await db.query.communityWebhooks.findFirst({
-      where: and(eq(communityWebhooks.communityId, comm.id), eq(communityWebhooks.token, token)),
+    const webhooks = await db.query.communityWebhooks.findMany({
+      where: eq(communityWebhooks.communityId, comm.id),
     });
+
+    const webhook = webhooks.find((w) => timingSafeCompare(w.token, token));
 
     if (!webhook) {
       return NextResponse.json(
@@ -147,7 +150,17 @@ export async function POST(req: Request, { params }: RouteProps) {
       where: eq(userProfiles.id, webhook.createdById),
     });
 
-    const institutionId = creator?.institutionId || comm.creatorId;
+    let targetInstitutionId = creator?.institutionId;
+    if (!targetInstitutionId) {
+      const commCreator = await db.query.userProfiles.findFirst({
+        where: eq(userProfiles.id, comm.creatorId),
+      });
+      targetInstitutionId = commCreator?.institutionId;
+    }
+    if (!targetInstitutionId) {
+      const fallbackInst = await db.query.institutions.findFirst();
+      targetInstitutionId = fallbackInst?.id || "";
+    }
 
     const postId = randomUUID();
 
@@ -157,7 +170,7 @@ export async function POST(req: Request, { params }: RouteProps) {
         id: postId,
         authorId: webhook.createdById,
         pseudonym: `[Bot] ${botName}`,
-        institutionId,
+        institutionId: targetInstitutionId,
         type: "NORMAL",
         scope: "CAMPUS",
         isAnonymous: false,

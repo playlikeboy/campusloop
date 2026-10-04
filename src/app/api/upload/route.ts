@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { putR2Object } from "@/lib/r2";
+import { timingSafeCompare } from "@/lib/security/timing";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +62,9 @@ export async function POST(req: NextRequest) {
       "";
     const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
 
-    const validTokens = UPLOAD_API_KEY ? [UPLOAD_API_KEY] : [];
-
     if (
-      (token && validTokens.includes(token)) ||
-      (apiKeyHeader && validTokens.includes(apiKeyHeader))
+      (UPLOAD_API_KEY && timingSafeCompare(token, UPLOAD_API_KEY)) ||
+      (UPLOAD_API_KEY && timingSafeCompare(apiKeyHeader, UPLOAD_API_KEY))
     ) {
       user = { id: "admin_api_user" };
     }
@@ -97,7 +96,9 @@ export async function POST(req: NextRequest) {
 
     const originalName = file.name || "upload";
     const mimeType = (file.type || "application/octet-stream").toLowerCase();
-    const fileExt = originalName.includes(".") ? (originalName.split(".").pop() || "").toLowerCase() : "";
+    const fileExt = originalName.includes(".")
+      ? (originalName.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "")
+      : "";
 
     // Reject dangerous executable scripts, SVGs, and active HTML content
     const isDangerousMime =

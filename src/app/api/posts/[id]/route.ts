@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { MAX_POST_CHARS } from "@/constants/feed";
 import { getDb } from "@/db";
-import { posts, userProfiles } from "@/db/schema";
+import { anonIdentityVault, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { deriveAnonHandle } from "@/lib/anonymity";
+import { deriveAnonHandle, openSealedIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { indexPostVector } from "@/lib/qdrant/indexer";
 import { rejectViewerWrite } from "@/lib/viewer";
@@ -13,6 +13,44 @@ export const dynamic = "force-dynamic";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+async function verifyPostOwnership(
+  targetPost: typeof posts.$inferSelect,
+  profile: typeof userProfiles.$inferSelect
+): Promise<boolean> {
+  if (profile.role === "ADMIN" || profile.role === "MODERATOR") {
+    return true;
+  }
+
+  if (targetPost.authorId && targetPost.authorId === profile.id) {
+    return true;
+  }
+
+  if (targetPost.isAnonymous && targetPost.pseudonym) {
+    const userAnonHandle = profile.anonymousUsername || deriveAnonHandle(profile.id);
+    if (targetPost.pseudonym !== userAnonHandle) {
+      return false;
+    }
+
+    try {
+      const db = getDb();
+      const vaultEntry = await db.query.anonIdentityVault.findFirst({
+        where: eq(anonIdentityVault.handle, targetPost.pseudonym),
+      });
+
+      if (vaultEntry?.sealedIdentity) {
+        const unsealedId = openSealedIdentity(vaultEntry.sealedIdentity);
+        return unsealedId === profile.id;
+      }
+    } catch {
+      // Fall through to deterministic handle equality
+    }
+
+    return targetPost.pseudonym === userAnonHandle;
+  }
+
+  return false;
 }
 
 export async function GET(req: Request, { params }: RouteParams) {
@@ -79,12 +117,8 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Cannot edit a deleted post" }, { status: 400 });
     }
 
-    const userAnonHandle = profile.anonymousUsername || deriveAnonHandle(profile.id);
-    const isAuthor = Boolean(targetPost.authorId && targetPost.authorId === profile.id);
-    const isAnonAuthor = Boolean(targetPost.isAnonymous && targetPost.pseudonym === userAnonHandle);
-    const isAdmin = profile.role === "ADMIN" || profile.role === "MODERATOR";
-
-    if (!isAuthor && !isAnonAuthor && !isAdmin) {
+    const hasPermission = await verifyPostOwnership(targetPost, profile);
+    if (!hasPermission) {
       return NextResponse.json({ error: "Forbidden. You can only edit your own posts." }, { status: 403 });
     }
 
@@ -183,12 +217,8 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const userAnonHandle = profile.anonymousUsername || deriveAnonHandle(profile.id);
-    const isAuthor = Boolean(targetPost.authorId && targetPost.authorId === profile.id);
-    const isAnonAuthor = Boolean(targetPost.isAnonymous && targetPost.pseudonym === userAnonHandle);
-    const isAdmin = profile.role === "ADMIN" || profile.role === "MODERATOR";
-
-    if (!isAuthor && !isAnonAuthor && !isAdmin) {
+    const hasPermission = await verifyPostOwnership(targetPost, profile);
+    if (!hasPermission) {
       return NextResponse.json({ error: "Forbidden. You can only delete your own posts." }, { status: 403 });
     }
 

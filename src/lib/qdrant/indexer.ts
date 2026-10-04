@@ -28,7 +28,7 @@ export async function indexPostVector(post: {
     const payload: PostVectorPayload = {
       postId: post.id,
       institutionId: post.institutionId ?? null,
-      authorId: post.authorId ?? undefined,
+      authorId: post.isAnonymous ? undefined : (post.authorId ?? undefined),
       type: post.type,
       scope: (post.scope as "CAMPUS" | "GLOBAL") ?? "GLOBAL",
       isAnonymous: Boolean(post.isAnonymous),

@@ -29,5 +29,8 @@ export async function POST() {
 }
 
 export async function GET() {
-  return POST();
+  return NextResponse.json(
+    { error: "Method Not Allowed. Logout must be initiated via POST." },
+    { status: 405, headers: { Allow: "POST" } }
+  );
 }
