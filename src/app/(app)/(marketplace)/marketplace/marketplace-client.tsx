@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { CommunityHubStrip } from "@/components/marketplace/community-hub-strip";
+import { MarketplaceComingSoonOverlay } from "@/components/marketplace/marketplace-coming-soon-overlay";
 import {
   FilterPills,
   ListRow,
@@ -36,7 +37,7 @@ import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
 interface MarketplaceClientProps {
-  profileId: string;
+  profileId?: string;
   collegeName?: string;
 }
 
@@ -108,7 +109,9 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
   const categoryLabel = CATEGORIES.find((c) => c.id === selectedCategory)?.label ?? "Stores";
 
   return (
-    <PageShell maxWidth="6xl">
+    <>
+      <MarketplaceComingSoonOverlay collegeName={collegeName} />
+      <PageShell maxWidth="6xl">
       <PageHeader
         title="Marketplace"
         subtitle={collegeName}
@@ -563,5 +566,6 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         </div>
       )}
     </PageShell>
+    </>
   );
 }

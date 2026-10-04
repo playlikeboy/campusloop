@@ -34,10 +34,7 @@ export const metadata: Metadata = {
 
 export default async function MarketplacePage() {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/sign-in");
+  const profile = user ? await getCachedUserProfile(user.id) : null;
 
-  const profile = await getCachedUserProfile(user.id);
-  if (!profile) redirect("/onboarding");
-
-  return <MarketplaceClient profileId={profile.id} collegeName={profile.institution?.name} />;
+  return <MarketplaceClient profileId={profile?.id || ""} collegeName={profile?.institution?.name} />;
 }

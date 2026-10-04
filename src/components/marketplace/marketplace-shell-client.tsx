@@ -141,21 +141,30 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
 
             <ThemeToggle className="size-8.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted" />
 
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 pl-1 group cursor-pointer"
-              title={`Logged in as @${profile.username}`}
-            >
-              <Avatar className="size-8 border border-border/60 transition-transform group-hover:scale-105">
-                <AvatarImage
-                  src={getAvatarUrl(profile.avatarUrl)}
-                  alt={profile.displayName || profile.username}
-                />
-                <AvatarFallback className="text-[11px] font-black uppercase">
-                  {profile.displayName?.slice(0, 2) || profile.username?.slice(0, 2) || "CL"}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
+            {profile ? (
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 pl-1 group cursor-pointer"
+                title={`Logged in as @${profile.username}`}
+              >
+                <Avatar className="size-8 border border-border/60 transition-transform group-hover:scale-105">
+                  <AvatarImage
+                    src={getAvatarUrl(profile.avatarUrl)}
+                    alt={profile.displayName || profile.username}
+                  />
+                  <AvatarFallback className="text-[11px] font-black uppercase">
+                    {profile.displayName?.slice(0, 2) || profile.username?.slice(0, 2) || "CL"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </header>
