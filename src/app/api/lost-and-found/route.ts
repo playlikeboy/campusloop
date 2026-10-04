@@ -16,12 +16,16 @@ export async function GET(req: NextRequest) {
     const db = getDb();
     const { searchParams } = new URL(req.url);
 
-    const user = await hexclaveServerApp.getUser();
     let currentProfile = null;
-    if (user?.id) {
-      currentProfile = await db.query.userProfiles.findFirst({
-        where: eq(userProfiles.userId, user.id),
-      });
+    try {
+      const user = await hexclaveServerApp.getUser();
+      if (user?.id) {
+        currentProfile = await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, user.id),
+        });
+      }
+    } catch {
+      // Guest viewer
     }
 
     const type = searchParams.get("type"); // "LOST" | "FOUND" | "all"
