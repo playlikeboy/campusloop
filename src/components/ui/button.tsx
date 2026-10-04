@@ -1,27 +1,22 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Buttons follow the same language as the rest of the app: fully rounded, bold
- * label, and a press that scales rather than nudging down. The primitive used
- * to ship shadcn defaults (rounded-lg, medium weight, translate-y on press),
- * which is why nearly every button in the product was hand-rolled instead of
- * using it.
- */
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent bg-clip-padding text-sm font-bold whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-xs hover:opacity-90",
-        emerald: "bg-[#00D285] text-white shadow-xs shadow-emerald-500/25 hover:bg-[#00be77] active:scale-95",
-        violet: "bg-[#7C3AED] text-white shadow-xs shadow-purple-500/25 hover:bg-[#6D28D9] active:scale-95",
+        default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        emerald: "bg-[#00D285] text-white shadow-xs shadow-emerald-500/20 hover:bg-[#00be77] active:scale-[0.98]",
+        violet: "bg-[#7C3AED] text-white shadow-xs shadow-purple-500/20 hover:bg-[#6D28D9] active:scale-[0.98]",
         pillTab:
-          "bg-muted/80 text-muted-foreground hover:text-foreground hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:text-secondary-foreground font-bold rounded-full transition-all",
+          "bg-muted/80 text-muted-foreground hover:text-foreground hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:text-secondary-foreground font-semibold rounded-full transition-all",
         circleIcon:
           "rounded-full bg-card border border-border/40 shadow-xs hover:shadow-sm text-muted-foreground hover:text-foreground transition-all",
+        pill: "rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-semibold",
         outline:
           "border-border/60 bg-transparent hover:bg-muted/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:hover:bg-input/40",
         secondary:
@@ -50,19 +45,32 @@ const buttonVariants = cva(
   }
 );
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
-  return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
 }
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children as React.ReactElement<any>, {
+        className: cn(buttonVariants({ variant, size, className }), (children.props as any)?.className),
+        ...props,
+      });
+    }
+
+    return (
+      <ButtonPrimitive
+        ref={ref}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </ButtonPrimitive>
+    );
+  }
+);
+Button.displayName = "Button";
 
 export { Button, buttonVariants };

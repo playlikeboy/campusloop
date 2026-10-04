@@ -23,7 +23,7 @@ export function parseMarketplaceInquiry(text: string): ProductInquiryInfo | null
   // 1. Matches automated seller inquiry:
   // "Hi @user, is "Item Title" (₹2,800) still available?"
   const inquiryRegex =
-    /is\s+["“](.+?)["”]\s*(?:\((?:₹|Rs\.?|INR)?\s*([\d,]+)\))?\s*still\s*available\??/i;
+    /is\s+["“](.+?)["”]\s*(?:\((?:₹|Rs\.?|INR)?\s*([\d,]+)\))?\s*still\s*available(?:\s+on\s+campusloop)?\??/i;
   const inquiryMatch = text.match(inquiryRegex);
   if (inquiryMatch) {
     return {

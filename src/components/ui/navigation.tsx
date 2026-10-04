@@ -35,6 +35,8 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { AnimatedIcon, type IconMotionName } from "@/components/ui/animated-icon";
+import { DesktopSidebar } from "@/components/navigation/desktop-sidebar";
+import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
@@ -95,6 +97,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
   const [showDreamModal, setShowDreamModal] = useState(false);
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
   const [mobileNavPulse, setMobileNavPulse] = useState<{ href: string; key: number } | null>(null);
+  const [searchPaletteOpen, setSearchPaletteOpen] = useState(false);
   const unreadNotificationsCount = useUnreadNotificationsCount();
 
   // Check if current route is within the expandable hubs
@@ -131,27 +134,24 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
     }
   }, [isCurrentPathInExpandable]);
 
-  // Global Cmd + K / Ctrl + K shortcut to trigger search
+  // Global Cmd + K / Ctrl + K shortcut to trigger search modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
         sounds.tap();
         haptics.light();
-        const searchInput = document.querySelector<HTMLInputElement>(
-          "input[type='search'], input[placeholder*='Search']"
-        );
-        if (searchInput) {
-          searchInput.focus();
-          searchInput.select();
-        } else {
-          router.push("/explore");
-        }
+        setSearchPaletteOpen(true);
       }
     };
+    const handleOpenPalette = () => setSearchPaletteOpen(true);
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [router]);
+    window.addEventListener("campusloop_open_search_palette", handleOpenPalette);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("campusloop_open_search_palette", handleOpenPalette);
+    };
+  }, []);
 
   // Close menus on route change
   useEffect(() => {
@@ -219,9 +219,23 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
 
   return (
     <>
-      {/* ─── Modern Minimal Top Navigation Bar (Open, Airy, Restrained) ─── */}
+      {/* ─── Desktop Persistent Sidebar (Campus-native Navigation) ─── */}
+      <DesktopSidebar
+        profile={profile}
+        collegeName={collegeName}
+        isAdmin={isAdmin}
+        isViewer={isViewer}
+      />
+
+      {/* ─── Global ⌘K Command Palette / Search Modal ─── */}
+      <GlobalSearchModal
+        isOpen={searchPaletteOpen}
+        onClose={() => setSearchPaletteOpen(false)}
+      />
+
+      {/* ─── Modern Minimal Top Navigation Bar for Mobile / Tablet ─── */}
       {!shouldHideHeader && (
-        <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
           {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -374,15 +388,14 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
 
           {/* Right: Search, Post CTA, Chat, Notifications, Theme, Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Search Pill with Cmd + K */}
-            <Link
-              href="/explore"
-              prefetch
+            <button
+              type="button"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
+                setSearchPaletteOpen(true);
               }}
-              className="flex items-center gap-1.5 h-8.5 px-2.5 sm:px-3 rounded-full bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-medium border border-border/30 hover:border-border/60 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
+              className="flex items-center gap-1.5 h-8.5 px-2.5 sm:px-3 rounded-xl bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-medium border border-border/30 hover:border-border/60 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
               title="Explore & Search CampusLoop (⌘K)"
               aria-label="Explore & Search"
             >
@@ -391,7 +404,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
               <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-background/80 text-muted-foreground border border-border/50 font-semibold shadow-2xs">
                 <span>⌘</span>K
               </kbd>
-            </Link>
+            </button>
 
             {/* + Post Button (Desktop only) */}
             {!isViewer && (

@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DedicatedHubClient } from "@/components/communities/dedicated-hub-client";
+import { HousingClient } from "./housing-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
   title: "Housing & Flats | Student PGs & Roommates | CampusLoop",
   description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
-  alternates: { canonical: "https://campusloop.space/app/housing" },
+  alternates: { canonical: "https://campusloop.space/housing" },
   openGraph: {
     title: "Housing & Flats | Student PGs & Roommates | CampusLoop",
     description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
-    url: "https://campusloop.space/app/housing",
+    url: "https://campusloop.space/housing",
     siteName: "CampusLoop Housing",
     images: [
       {
@@ -36,5 +36,5 @@ export default async function HousingPage() {
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");
 
-  return <DedicatedHubClient hubType="housing" profileId={profile.id} />;
+  return <HousingClient profileId={profile.id} />;
 }

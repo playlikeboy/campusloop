@@ -39,7 +39,7 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
   if (!profile) redirect("/onboarding");
 
   return (
-    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex flex-col">
+    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex flex-col lg:flex-row">
       {/* Navigation Header */}
       <Navigation
         profile={profile}

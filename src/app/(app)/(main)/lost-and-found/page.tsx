@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DedicatedHubClient } from "@/components/communities/dedicated-hub-client";
+import { LostFoundClient } from "./lost-found-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Lost & Found",
+  title: "Lost & Found | Campus Recovery System | CampusLoop",
   description:
     "Report lost student IDs, keys, earphones, and reclaim found items safely on your college campus.",
-  alternates: { canonical: "https://campusloop.space/app/lost-and-found" },
+  alternates: { canonical: "https://campusloop.space/lost-and-found" },
+  openGraph: {
+    title: "Lost & Found | Campus Recovery System | CampusLoop",
+    description: "Report lost student IDs, keys, and reclaim found items safely on your college campus.",
+    url: "https://campusloop.space/lost-and-found",
+    siteName: "CampusLoop Lost & Found",
+  },
 };
 
 export default async function LostAndFoundPage() {
@@ -17,5 +23,5 @@ export default async function LostAndFoundPage() {
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");
 
-  return <DedicatedHubClient hubType="lost_found" profileId={profile.id} />;
+  return <LostFoundClient profileId={profile.id} />;
 }
