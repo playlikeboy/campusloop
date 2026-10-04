@@ -57,6 +57,10 @@ const BrandedQrModal = dynamic(
   () => import("@/components/common/branded-qr-modal").then((m) => m.BrandedQrModal),
   { ssr: false }
 );
+const ShareProfileModal = dynamic(
+  () => import("@/components/profile/share-profile-modal").then((m) => m.ShareProfileModal),
+  { ssr: false }
+);
 const UnsplashImagePicker = dynamic(
   () => import("@/components/common/unsplash-image-picker").then((m) => m.UnsplashImagePicker),
   { ssr: false }
@@ -151,6 +155,7 @@ export function ProfileClientView({
   const [showAvatarMenu, setShowAvatarMenu] = useState(false);
   const [showPhotoLightbox, setShowPhotoLightbox] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // Sync tab with URL query parameter on navigation
@@ -341,32 +346,8 @@ export function ProfileClientView({
   const institutionName = profile.institution?.name || "";
   const campusShort = institutionName.split(",")[0];
 
-  async function handleShareVibe() {
-    const branchText = profile.branch ? `• Discipline: ${profile.branch}\n` : "";
-    const campusText = campusShort ? `• Campus: ${campusShort}\n` : "";
-    const shareText = `⚡️ Connect with @${profile.username} on CampusLoop:\n${campusText}${branchText}• Clout Rank: ${tier.tierName} (Level ${tier.level})\n• Loop Points: ${points} LP 🔥`;
-    const profileUrl = `https://campusloop.space/@${profile.username}`;
-
-    if (typeof window !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: `${profile.displayName} on CampusLoop`,
-          text: shareText,
-          url: profileUrl,
-        });
-        return;
-      } catch (err) {
-        if ((err as Error).name === "AbortError") return;
-      }
-    }
-
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
-      await navigator.clipboard.writeText(`${shareText}\n\nView student profile: ${profileUrl}`);
-      toast.success("Profile link & Vibe Card copied! Share on WhatsApp 🚀");
-    } catch {
-      toast.error("Could not copy the profile link. Please use your browser's share menu.");
-    }
+  function handleShareVibe() {
+    setShowShareModal(true);
   }
 
   function handleBannerFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -489,14 +470,26 @@ export function ProfileClientView({
         onChange={handlePfpFileSelected}
       />
 
-      <main className="mx-auto min-h-screen w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl border-x border-border/30">
-        {/* ─── Profile Cover Banner (Clean Neutral Canvas with Floating Actions) ─── */}
-        <div className="relative h-36 sm:h-52 lg:h-64 w-full bg-[#16181C] overflow-hidden border-b border-border/20">
+      <main className="mx-auto min-h-screen w-full max-w-5xl lg:max-w-6xl">
+        {/* ─── Profile Cover Banner (Cinematic Full-Bleed Canvas with Ambient Glow) ─── */}
+        <div className="relative h-44 sm:h-60 lg:h-72 w-full bg-[#16181C] overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-sm">
           {currentBannerUrl ? (
             <img src={currentBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-linear-to-b from-neutral-800/40 via-[#16181C] to-[#121417] relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-700/10 via-transparent to-transparent" />
+            <div className="w-full h-full bg-linear-to-b from-neutral-800/60 via-[#16181C] to-[#121417] relative">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
+            </div>
+          )}
+
+          {/* Ambient protection gradient overlays */}
+          <div className="absolute inset-0 bg-linear-to-t from-background/90 via-transparent to-black/35 pointer-events-none" />
+
+          {/* Floating Campus Badge in Banner (Bottom Right) */}
+          {campusShort && (
+            <div className="absolute bottom-3 right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-white/90 text-xs font-semibold shadow-md pointer-events-none">
+              <Landmark className="size-3.5 text-primary" />
+              <span>{campusShort}</span>
             </div>
           )}
 
@@ -504,7 +497,7 @@ export function ProfileClientView({
           <button
             type="button"
             onClick={() => router.back()}
-            className="absolute top-3 left-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+            className="absolute top-3 left-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
             title="Back"
             aria-label="Back"
           >
@@ -516,17 +509,19 @@ export function ProfileClientView({
             <button
               type="button"
               onClick={() => setShowQrModal(true)}
-              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
               title="Profile QR Card"
+              aria-label="Profile QR Card"
             >
               <QrCode className="size-4" />
             </button>
 
             <button
               type="button"
-              onClick={handleShareVibe}
-              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+              onClick={() => setShowShareModal(true)}
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
               title="Share Profile"
+              aria-label="Share Profile"
             >
               <Share2 className="size-4" />
             </button>
@@ -535,7 +530,7 @@ export function ProfileClientView({
               <button
                 type="button"
                 onClick={() => setShowProfileMenu((v) => !v)}
-                className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md"
+                className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
                 title="More Options"
                 aria-label="More profile actions"
               >
@@ -550,12 +545,12 @@ export function ProfileClientView({
                     className="fixed inset-0 z-30 cursor-default bg-transparent"
                     onClick={() => setShowProfileMenu(false)}
                   />
-                  <div className="absolute right-0 top-11 z-40 w-48 rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-xl">
+                  <div className="absolute right-0 top-11 z-40 w-48 rounded-2xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-2xl">
                     {isOwnProfile ? (
                       <Link
                         href="/profile/edit"
                         onClick={() => setShowProfileMenu(false)}
-                        className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold hover:bg-muted"
+                        className="cl-interactive flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-muted"
                       >
                         <Edit3 className="size-4 text-primary" />
                         Edit profile
@@ -564,7 +559,7 @@ export function ProfileClientView({
                       <Link
                         href={`/chat?userId=${profile.id}`}
                         onClick={() => setShowProfileMenu(false)}
-                        className="cl-interactive flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold hover:bg-muted"
+                        className="cl-interactive flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-muted"
                       >
                         <MessageSquare className="size-4" />
                         Message
@@ -572,11 +567,11 @@ export function ProfileClientView({
                     )}
                     <button
                       type="button"
-                      onClick={async () => {
+                      onClick={() => {
                         setShowProfileMenu(false);
-                        await handleShareVibe();
+                        setShowShareModal(true);
                       }}
-                      className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold hover:bg-muted"
+                      className="cl-interactive flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold hover:bg-muted cursor-pointer"
                     >
                       <Share2 className="size-4" />
                       Share profile
@@ -587,7 +582,7 @@ export function ProfileClientView({
                         setShowProfileMenu(false);
                         setShowQrModal(true);
                       }}
-                      className="cl-interactive flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold hover:bg-muted"
+                      className="cl-interactive flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold hover:bg-muted cursor-pointer"
                     >
                       <QrCode className="size-4" />
                       QR card
@@ -602,7 +597,7 @@ export function ProfileClientView({
                 <button
                   type="button"
                   onClick={() => setShowUnsplashBannerPicker(true)}
-                  className="hidden sm:flex size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 items-center justify-center transition-all cursor-pointer shadow-md"
+                  className="hidden sm:flex size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
                   title="Choose Cover from Unsplash"
                 >
                   <Sparkles className="size-4 text-primary" />
@@ -615,7 +610,7 @@ export function ProfileClientView({
                       setCropMode("banner");
                       setCropModalOpen(true);
                     }}
-                    className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                    className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
                     title="Reposition Banner"
                   >
                     <Move className="size-4" />
@@ -624,7 +619,7 @@ export function ProfileClientView({
                 <button
                   type="button"
                   onClick={() => bannerInputRef.current?.click()}
-                  className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                  className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
                   title="Change Cover Banner"
                 >
                   <Camera className="size-4" />
@@ -634,57 +629,74 @@ export function ProfileClientView({
           </div>
         </div>
 
-        {/* ─── Profile Header Main Info (Twitter Architecture) ─── */}
-        <div className="px-4 pb-4">
+        {/* ─── Profile Header Main Info (Clean Social Identity Architecture) ─── */}
+        <div className="px-4 sm:px-6 pb-4">
           {/* Avatar & Action Buttons Bar */}
-          <div className="flex items-end justify-between -mt-14 sm:-mt-16 lg:-mt-20 mb-3 relative z-10">
-            {/* Clickable Circular Profile Picture with Online Status */}
+          <div className="flex items-end justify-between -mt-14 sm:-mt-20 lg:-mt-24 mb-3 relative z-10">
+            {/* Clickable Circular Profile Picture with Online Status & Verified Badge */}
             <div className="relative group">
               <div
                 onClick={() => {
                   if (isOwnProfile) setShowAvatarMenu(true);
                 }}
-                className="relative size-24 sm:size-28 lg:size-32 rounded-full border-4 border-background ring-2 ring-primary ring-offset-2 ring-offset-background overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity shadow-lg"
+                className="relative size-28 sm:size-36 lg:size-40 rounded-full ring-4 ring-background shadow-2xl border-2 border-primary/25 overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity"
               >
                 <Avatar className="size-full">
                   <AvatarImage src={currentAvatarUrl || ""} className="object-cover size-full" />
-                  <AvatarFallback className="text-2xl sm:text-3xl font-black bg-muted text-foreground">
+                  <AvatarFallback className="text-3xl sm:text-4xl font-black bg-muted text-foreground">
                     {profile.displayName[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 {isOwnProfile && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera className="size-5 text-white" />
+                    <Camera className="size-6 text-white" />
                   </div>
                 )}
               </div>
 
-              {/* Presence is rendered only where a real heartbeat-backed signal is available. */}
+              {points >= 150 && (
+                <span
+                  className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-7 sm:size-8 rounded-full bg-background flex items-center justify-center shadow-lg border border-border/40"
+                  title="Verified Campus Student"
+                >
+                  <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
+                </span>
+              )}
             </div>
 
             {/* Action Buttons: Edit Profile (Own) or Message/Follow (Viewer) */}
             <div className="flex items-center gap-2 pb-1 sm:pb-2">
+              <button
+                type="button"
+                onClick={() => setShowShareModal(true)}
+                className="h-9 px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                title="Share Profile"
+              >
+                <Share2 className="size-3.5 text-muted-foreground" />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+
               {isOwnProfile ? (
                 <>
                   <button
                     type="button"
                     onClick={() => setShowQrModal(true)}
-                    className="h-9 px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted/60 text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5"
+                    className="h-9 px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
                   >
                     <QrCode className="size-3.5 text-muted-foreground" />
-                    <span>QR Card</span>
+                    <span className="hidden sm:inline">QR Card</span>
                   </button>
                   <Link
                     href="/profile/edit"
-                    className="h-9 px-5 rounded-full bg-primary hover:bg-primary/95 text-xs font-bold text-primary-foreground shadow-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
+                    className="h-9 px-5 rounded-full bg-primary hover:bg-primary/95 text-xs font-bold text-primary-foreground shadow-xs transition-all cursor-pointer inline-flex items-center gap-1.5 active:scale-95"
                   >
                     <Edit3 className="size-3.5" />
                     <span>Edit profile</span>
                   </Link>
                 </>
               ) : (
-                <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <FollowButton
                     username={profile.username}
                     displayName={profile.displayName}
@@ -710,119 +722,124 @@ export function ProfileClientView({
             </div>
           </div>
 
-          {/* Full-Width Identity Section */}
-          <div className="space-y-3">
+          {/* Full-Width Identity Section with Intentional Hierarchy */}
+          <div className="space-y-2.5">
             <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-foreground">
                   {profile.displayName}
                 </h1>
-                <span title="Verified Campus Student">
-                  <BadgeCheck className="size-5 text-primary shrink-0" />
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("clout")}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold ml-1 transition-colors cursor-pointer"
-                  title="View Clout & Loop Points"
-                >
-                  <Zap className="size-3 fill-primary/20" />
-                  <span>{points} LP</span>
-                </button>
+                {points >= 150 && (
+                  <span title="Verified Campus Student">
+                    <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
+                  </span>
+                )}
               </div>
-              <p className="text-sm text-muted-foreground">@{profile.username}</p>
+              <p className="text-sm sm:text-base font-medium text-muted-foreground mt-0.5">
+                @{profile.username}
+              </p>
             </div>
 
-            {/* Bio */}
+            {/* Academic Credentials & Campus Row */}
+            <div className="space-y-1 text-xs sm:text-sm">
+              {(profile.course || profile.branch) && (
+                <div className="flex items-center gap-2 font-semibold text-foreground/90">
+                  <GraduationCap className="size-4 text-primary shrink-0" />
+                  <span>
+                    {profile.course || "B.Tech"}
+                    {profile.branch ? ` ${profile.branch}` : ""}
+                    {profile.year ? ` · Year ${profile.year}` : ""}
+                  </span>
+                </div>
+              )}
+
+              {institutionName && (
+                <div className="flex items-center gap-2 text-muted-foreground font-medium">
+                  <Landmark className="size-4 text-muted-foreground/80 shrink-0" />
+                  <span>{institutionName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Bio as Personality Layer */}
             {profile.bio || profile.headline ? (
-              <p className="text-sm sm:text-[15px] text-foreground leading-relaxed whitespace-pre-wrap wrap-break-word">
-                {profile.bio || profile.headline}
-              </p>
+              <div className="max-w-3xl pt-1">
+                <p className="text-sm sm:text-[15px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                  {profile.bio || profile.headline}
+                </p>
+              </div>
             ) : isOwnProfile ? (
               <Link
                 href="/profile/edit"
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground/70 hover:text-primary transition-colors italic"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors italic pt-1"
               >
                 <Plus className="size-3" />
-                <span>Add bio to your campus profile...</span>
+                <span>Add a personal bio or motto...</span>
               </Link>
             ) : null}
 
-            {/* Academic & Campus Metadata Row */}
-            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-xs text-muted-foreground pt-0.5">
-              {institutionName && (
-                <div className="flex items-center gap-1.5">
-                  <Landmark className="size-3.5 text-muted-foreground/80 shrink-0" />
-                  <span className="font-medium text-foreground/90">{institutionName}</span>
-                </div>
-              )}
+            {/* Compact Social Identity Bar */}
+            <ProfileSocialLinks links={profile.socialLinks} isOwnProfile={isOwnProfile} />
 
-              {(profile.course || profile.branch) && (
-                <div className="flex items-center gap-1.5">
-                  <GraduationCap className="size-3.5 text-muted-foreground/80 shrink-0" />
-                  <span>
-                    {profile.course || "B.Tech"}
-                    {profile.branch ? ` · ${profile.branch}` : ""}
-                    {profile.year ? ` (Year ${profile.year})` : ""}
-                  </span>
-                </div>
-              )}
-
-              {(profile.institution?.district || profile.institution?.state) && (
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="size-3.5 text-muted-foreground/80 shrink-0" />
-                  <span>
-                    {[profile.institution?.district, profile.institution?.state].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-              )}
-
-              {profile.createdAt && (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="size-3.5 text-muted-foreground/80 shrink-0" />
-                  <span>
-                    Joined{" "}
-                    {new Date(profile.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Social / Portfolio Links */}
-            <ProfileSocialLinks links={profile.socialLinks} />
-
-            {/* 3-Column Stats Row */}
-            <div className="grid grid-cols-3 py-2.5 border-y border-border/30 my-2 text-center divide-x divide-border/20 select-none">
+            {/* Borderless Reputation Strip */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-2.5 border-y border-border/25 my-2 text-xs">
+              {/* Loop Points & Clout Rank */}
               <button
                 type="button"
-                onClick={() => handleTabChange("posts")}
-                className="hover:opacity-80 transition-opacity cursor-pointer"
+                onClick={() => handleTabChange("clout")}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
               >
-                <p className="text-base sm:text-lg font-black text-foreground">{posts.length}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Posts</p>
+                <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:scale-105 transition-transform">
+                  <Zap className="size-3.5 fill-amber-500/30" />
+                </span>
+                <div className="text-left leading-tight">
+                  <div className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
+                    <span>{points} LP</span>
+                    <span className="text-[10px] font-semibold text-muted-foreground">· {tier.tierName || "Rookie"}</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">Campus Standing</span>
+                </div>
               </button>
 
-              <Link href={`/@${profile.username}/followers`} className="hover:opacity-80 transition-opacity">
-                <p className="text-base sm:text-lg font-black text-foreground">{followers}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Followers</p>
+              {/* Followers */}
+              <Link
+                href={`/@${profile.username}/followers`}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <div className="text-left leading-tight">
+                  <span className="font-black text-foreground text-xs sm:text-sm block">{followers}</span>
+                  <span className="text-[10px] text-muted-foreground">Followers</span>
+                </div>
               </Link>
 
-              <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
-                <p className="text-base sm:text-lg font-black text-foreground">{followingCount}</p>
-                <p className="text-[11px] font-medium text-muted-foreground">Following</p>
+              {/* Following */}
+              <Link
+                href={`/@${profile.username}/following`}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <div className="text-left leading-tight">
+                  <span className="font-black text-foreground text-xs sm:text-sm block">{followingCount}</span>
+                  <span className="text-[10px] text-muted-foreground">Following</span>
+                </div>
               </Link>
+
+              {/* Contributions */}
+              <div className="flex items-center gap-2 ml-auto text-muted-foreground text-[11px] font-medium hidden sm:flex">
+                <span>{posts.length} Posts</span>
+                <span>·</span>
+                <span>{userAcademicsCount} Notes</span>
+                <span>·</span>
+                <span>{userArticles.length} Articles</span>
+              </div>
             </div>
 
-            {/* Clean Monochromatic Topic Pills (real interests only) */}
+            {/* Clean Interests Chips */}
             {profile.interests && profile.interests.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {profile.interests.map((interest) => (
                   <span
                     key={interest}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full border border-border/50 bg-muted/30 text-muted-foreground text-[11px] font-medium"
+                    className="inline-flex items-center px-2.5 py-1 rounded-full bg-secondary/60 hover:bg-secondary text-secondary-foreground text-[11px] font-semibold transition-colors"
                   >
                     #{interest.replace(/^#/, "")}
                   </span>
@@ -1401,6 +1418,21 @@ export function ProfileClientView({
         shortUrl={`https://campusloop.space/@${profile.username}`}
         avatarUrl={profile.avatarUrl}
         category="profile"
+      />
+
+      {/* ─── Share Profile Modal ─── */}
+      <ShareProfileModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        profile={{
+          username: profile.username,
+          displayName: profile.displayName,
+          avatarUrl: currentAvatarUrl,
+          institutionName: institutionName,
+          branch: profile.branch,
+          course: profile.course,
+          points: points,
+        }}
       />
 
       {/* Unsplash Profile Cover Picker */}

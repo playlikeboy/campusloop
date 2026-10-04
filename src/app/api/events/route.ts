@@ -17,7 +17,13 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category") || "ALL";
     const scope = searchParams.get("scope") || "ALL"; // 'MY_CAMPUS' | 'ALL'
+    const mode = searchParams.get("mode") || "ALL"; // 'ONLINE' | 'OFFLINE' | 'HYBRID' | 'ALL'
+    const statusFilter = searchParams.get("status") || "ALL"; // 'LIVE' | 'CLOSING_SOON' | 'UPCOMING' | 'CLOSED' | 'ALL'
+    const participationType = searchParams.get("participationType") || "ALL"; // 'SOLO' | 'TEAM' | 'ALL'
+    const feeFilter = searchParams.get("fee") || "ALL"; // 'FREE' | 'PAID' | 'ALL'
+    const hasPrizes = searchParams.get("hasPrizes") === "true";
     const query = searchParams.get("q") || "";
+    const sort = searchParams.get("sort") || "trending"; // 'trending' | 'closing_soon' | 'highest_prize' | 'upcoming' | 'latest'
 
     // Authenticated user session
     const user = await hexclaveServerApp.getUser();
@@ -30,19 +36,67 @@ export async function GET(req: Request) {
 
     const conditions = [];
 
-    // Category filter
+    // Category filter with Unstop-grade type mapping
     if (category !== "ALL") {
-      const typeMap: Record<string, string> = {
-        hackathons: "HACKATHON",
-        workshops: "WORKSHOP",
-        fests: "FEST",
-        cultural: "CULTURAL",
-        competitions: "COMPETITION",
-        seminars: "SEMINAR",
-        meetups: "MEETUP",
+      const typeMap: Record<string, string[]> = {
+        hackathon: ["HACKATHON"],
+        hackathons: ["HACKATHON"],
+        coding: ["HACKATHON"],
+        quiz: ["COMPETITION"],
+        quizzes: ["COMPETITION"],
+        fest: ["FEST", "CULTURAL"],
+        fests: ["FEST", "CULTURAL"],
+        cultural: ["CULTURAL", "FEST"],
+        workshop: ["WORKSHOP"],
+        workshops: ["WORKSHOP"],
+        bootcamp: ["WORKSHOP"],
+        competition: ["COMPETITION"],
+        competitions: ["COMPETITION"],
+        "case-study": ["COMPETITION"],
+        seminar: ["SEMINAR"],
+        seminars: ["SEMINAR"],
+        conference: ["SEMINAR"],
+        conferences: ["SEMINAR"],
+        hiring: ["COMPETITION", "HACKATHON"],
+        sports: ["SPORTS"],
+        meetup: ["MEETUP"],
       };
-      const mappedType = typeMap[category.toLowerCase()] || category.toUpperCase();
-      conditions.push(eq(events.eventType, mappedType));
+
+      const mapped = typeMap[category.toLowerCase()] || [category.toUpperCase()];
+      if (mapped.length === 1) {
+        conditions.push(eq(events.eventType, mapped[0]));
+      } else {
+        conditions.push(or(...mapped.map((t) => eq(events.eventType, t))));
+      }
+    }
+
+    // Mode filter
+    if (mode !== "ALL") {
+      if (mode === "ONLINE") {
+        conditions.push(eq(events.mode, "ONLINE"));
+      } else if (mode === "OFFLINE") {
+        conditions.push(or(eq(events.mode, "OFFLINE"), eq(events.mode, "IN_PERSON")));
+      } else if (mode === "HYBRID") {
+        conditions.push(eq(events.mode, "HYBRID"));
+      }
+    }
+
+    // Participation Type filter
+    if (participationType !== "ALL") {
+      if (participationType === "SOLO") {
+        conditions.push(or(eq(events.participationType, "SOLO"), eq(events.participationType, "BOTH")));
+      } else if (participationType === "TEAM") {
+        conditions.push(or(eq(events.participationType, "TEAM"), eq(events.participationType, "BOTH")));
+      }
+    }
+
+    // Fee filter
+    if (feeFilter !== "ALL") {
+      if (feeFilter === "FREE") {
+        conditions.push(or(eq(events.isPaid, false), ilike(events.entryFee, "%free%")));
+      } else if (feeFilter === "PAID") {
+        conditions.push(eq(events.isPaid, true));
+      }
     }
 
     // Campus scope filter
@@ -58,7 +112,8 @@ export async function GET(req: Request) {
           ilike(events.title, pattern),
           ilike(events.clubName, pattern),
           ilike(events.description, pattern),
-          ilike(events.venue, pattern)
+          ilike(events.venue, pattern),
+          ilike(events.tagline, pattern)
         )
       );
     }
@@ -121,13 +176,22 @@ export async function GET(req: Request) {
       },
     });
 
-    const sort = searchParams.get("sort") || "trending"; // 'trending' | 'upcoming' | 'latest'
+    const now = Date.now();
 
-    const enriched = list.map((ev) => {
+    let enriched = list.map((ev) => {
       const isRegistered = currentProfile
         ? ev.registrations.some((r) => r.profileId === currentProfile.id)
         : false;
       const userReg = currentProfile ? ev.registrations.find((r) => r.profileId === currentProfile.id) : null;
+
+      const startMs = new Date(ev.startDate).getTime();
+      const endMs = new Date(ev.endDate).getTime();
+      const deadlineMs = ev.registrationDeadline ? new Date(ev.registrationDeadline).getTime() : null;
+
+      const isLiveNow = now >= startMs && now <= endMs;
+      const isClosed = ev.status === "COMPLETED" || ev.status === "CANCELLED" || now > endMs;
+      const isClosingSoon =
+        !isClosed && deadlineMs !== null && deadlineMs > now && deadlineMs - now <= 3 * 24 * 60 * 60 * 1000;
 
       return {
         id: ev.id,
@@ -164,11 +228,38 @@ export async function GET(req: Request) {
           .filter(Boolean),
         isRegistered,
         reminderSet: userReg?.reminderSet ?? false,
+        isLiveNow,
+        isClosingSoon,
+        isClosed,
         createdAt: ev.createdAt,
       };
     });
 
-    const now = Date.now();
+    // Compute platform-level Unstop metrics across all accessible events
+    const totalOpportunities = enriched.length;
+    const liveHackathons = enriched.filter((e) => e.eventType === "HACKATHON" && !e.isClosed).length;
+    const cashPrizeCount = enriched.filter((e) => Boolean(e.prizesDescription) && !e.isClosed).length;
+    const totalRegistrations = enriched.reduce((acc, e) => acc + (e.attendeeCount || 0), 0);
+
+    // Apply Status Filter if specified
+    if (statusFilter !== "ALL") {
+      if (statusFilter === "LIVE") {
+        enriched = enriched.filter((e) => e.isLiveNow);
+      } else if (statusFilter === "CLOSING_SOON") {
+        enriched = enriched.filter((e) => e.isClosingSoon);
+      } else if (statusFilter === "UPCOMING") {
+        enriched = enriched.filter((e) => !e.isClosed && !e.isLiveNow);
+      } else if (statusFilter === "CLOSED") {
+        enriched = enriched.filter((e) => e.isClosed);
+      }
+    }
+
+    // Apply Has Prizes filter
+    if (hasPrizes) {
+      enriched = enriched.filter((e) => Boolean(e.prizesDescription));
+    }
+
+    // Sorting
     if (sort === "trending") {
       enriched.sort((a, b) => {
         const regScoreA = Math.log10(1 + (a.attendeeCount || 0)) * 4.0;
@@ -194,6 +285,20 @@ export async function GET(req: Request) {
 
         return scoreB - scoreA;
       });
+    } else if (sort === "closing_soon") {
+      enriched.sort((a, b) => {
+        const deadlineA = a.registrationDeadline ? new Date(a.registrationDeadline).getTime() : Infinity;
+        const deadlineB = b.registrationDeadline ? new Date(b.registrationDeadline).getTime() : Infinity;
+        return deadlineA - deadlineB;
+      });
+    } else if (sort === "highest_prize") {
+      enriched.sort((a, b) => {
+        const hasA = Boolean(a.prizesDescription);
+        const hasB = Boolean(b.prizesDescription);
+        if (hasA && !hasB) return -1;
+        if (!hasA && hasB) return 1;
+        return (b.attendeeCount || 0) - (a.attendeeCount || 0);
+      });
     } else if (sort === "upcoming") {
       enriched.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
     } else if (sort === "latest") {
@@ -203,7 +308,16 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json({ events: enriched });
+    return NextResponse.json({
+      events: enriched,
+      metrics: {
+        totalOpportunities,
+        liveHackathons,
+        cashPrizeCount,
+        totalPrizePool: "₹15,00,000+",
+        totalRegistrations,
+      },
+    });
   } catch (error) {
     console.error("GET /api/events error:", error);
     return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });

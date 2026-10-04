@@ -153,6 +153,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/u/:username",
+        destination: "/@:username",
+        permanent: true,
+      },
+      {
         source: "/academics/playlists",
         destination: "/academics",
         permanent: false,

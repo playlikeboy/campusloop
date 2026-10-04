@@ -2,20 +2,15 @@
 
 import {
   Archive,
-  Calendar,
   ChevronLeft,
-  Clock,
   Code2,
   Compass,
-  Flame,
   Globe,
   Grid3X3,
   LayoutList,
-  MapPin,
   Menu,
   PartyPopper,
   Plus,
-  RotateCcw,
   School,
   Search,
   Sparkles,
@@ -27,6 +22,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { EventCard, type EventItem, isEventClosed } from "@/components/events/event-card";
+import { EventsListSkeleton } from "@/components/events/event-card-skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -45,10 +41,10 @@ export function ClosedEventsClient() {
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [scope, setScope] = useState<"ALL" | "MY_CAMPUS">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("row" as any === "grid" ? "grid" : "list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Fetch all events
-  const { data: rawEvents = [], isLoading, mutate: mutateEvents } = useSWR<EventItem[]>(
+  const { data: responseData, isLoading } = useSWR<{ events?: EventItem[] } | EventItem[]>(
     `/api/events?category=${activeCategory}&scope=${scope}`,
     fetcher,
     {
@@ -57,10 +53,18 @@ export function ClosedEventsClient() {
     }
   );
 
+  const rawEvents: EventItem[] = useMemo(() => {
+    if (!responseData) return [];
+    if (Array.isArray(responseData)) return responseData;
+    if (Array.isArray(responseData.events)) return responseData.events;
+    return [];
+  }, [responseData]);
+
   const [now] = useState(() => Date.now());
 
   // Filter only closed/past events
   const closedEvents = useMemo(() => {
+    if (!Array.isArray(rawEvents)) return [];
     return rawEvents.filter((e) => {
       // Must be closed/past
       if (!isEventClosed(e, now)) return false;
@@ -277,18 +281,7 @@ export function ClosedEventsClient() {
       {/* ─── Event Listings (Closed / Past Archive) ─── */}
       <div className="pt-4">
         {isLoading ? (
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-            {[1, 2, 3, 4].map((n) => (
-              <div
-                key={n}
-                className="h-44 rounded-2xl border border-border/50 bg-card/60 p-4 animate-pulse space-y-3"
-              >
-                <div className="h-4 w-1/3 bg-muted rounded-md" />
-                <div className="h-6 w-3/4 bg-muted rounded-md" />
-                <div className="h-16 bg-muted/60 rounded-xl" />
-              </div>
-            ))}
-          </div>
+          <EventsListSkeleton count={6} variant={viewMode} />
         ) : closedEvents.length === 0 ? (
           <div className="py-16 text-center rounded-2xl border border-dashed border-border/60 bg-card/30 p-8 space-y-3">
             <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground border border-border/50">

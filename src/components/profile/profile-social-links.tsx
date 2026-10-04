@@ -1,121 +1,165 @@
-import { Link2 } from "lucide-react";
+"use client";
+
+import { ArrowUpRight, ChevronDown, ChevronUp, Link2, Plus } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { SocialPlatformIcon } from "@/components/ui/social-icons";
 import { type CustomLink, displayValueFor, PLATFORM_MAP, resolvePlatformUrl } from "@/lib/social-links";
+import { cn } from "@/lib/utils";
+
+interface SocialLinkItem {
+  id: string;
+  key: string;
+  label: string;
+  sub: string;
+  href: string | null;
+  color: string;
+  monogram: string;
+}
 
 interface ProfileSocialLinksProps {
   links?: {
     platforms?: Record<string, string>;
     custom?: CustomLink[];
   } | null;
+  isOwnProfile?: boolean;
+  className?: string;
+  maxVisible?: number;
 }
 
-function Tile({
-  platformKey,
-  monogram,
-  color,
-  label,
-  sub,
-  href,
-}: {
-  platformKey: string;
-  monogram: string;
-  color: string;
-  label: string;
-  sub: string;
-  href: string | null;
-}) {
-  const tile = (
-    <span
-      className="flex size-9 items-center justify-center rounded-xl shrink-0 border border-white/10 group-hover:scale-105 transition-transform"
-      style={{ backgroundColor: `${color}18`, color, borderColor: `${color}35` }}
-    >
-      <SocialPlatformIcon platformKey={platformKey} className="size-4 shrink-0" fallbackMonogram={monogram} />
-    </span>
-  );
-  const text = (
-    <span className="min-w-0 text-left">
-      <span className="block text-xs font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
-        {label}
-      </span>
-      <span className="block text-[10px] text-muted-foreground truncate max-w-[120px] leading-tight">
-        {sub}
-      </span>
-    </span>
-  );
-  const cls =
-    "group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 px-2.5 py-1.5 transition-all";
-  if (!href) {
-    return (
-      <span className={cls} title={`${label}: ${sub}`}>
-        {tile}
-        {text}
-      </span>
-    );
-  }
-  return (
-    <a href={href} target="_blank" rel="me noopener noreferrer" className={cls} title={`${label}: ${sub}`}>
-      {tile}
-      {text}
-    </a>
-  );
-}
+export function ProfileSocialLinks({
+  links,
+  isOwnProfile = false,
+  className,
+  maxVisible = 6,
+}: ProfileSocialLinksProps) {
+  const [expanded, setExpanded] = useState(false);
 
-export function ProfileSocialLinks({ links }: ProfileSocialLinksProps) {
-  if (!links) return null;
+  const items = useMemo<SocialLinkItem[]>(() => {
+    if (!links) return [];
 
-  const platformTiles = Object.entries(links.platforms ?? {})
-    .map(([key, raw]) => {
-      const platform = PLATFORM_MAP[key];
-      if (!platform || !raw?.trim()) return null;
+    const platforms: SocialLinkItem[] = Object.entries(links.platforms ?? {})
+      .map(([key, raw]) => {
+        const platform = PLATFORM_MAP[key];
+        if (!platform || !raw?.trim()) return null;
+        return {
+          id: `platform-${key}`,
+          key,
+          label: platform.label,
+          sub: displayValueFor(platform, raw),
+          href: resolvePlatformUrl(platform, raw),
+          color: platform.color,
+          monogram: platform.monogram,
+        };
+      })
+      .filter((v): v is SocialLinkItem => v !== null);
+
+    const custom: SocialLinkItem[] = (links.custom ?? [])
+      .filter((c) => c.label?.trim() && c.url?.trim())
+      .map((c, i) => {
+        const trimmedLabel = c.label.trim();
+        const safeUrl = c.url.startsWith("http") ? c.url : `https://${c.url}`;
+        return {
+          id: `custom-${i}`,
+          key: trimmedLabel.toLowerCase(),
+          label: trimmedLabel,
+          sub: trimmedLabel,
+          href: safeUrl,
+          color: "#818cf8",
+          monogram: (trimmedLabel[0] ?? "L").toUpperCase(),
+        };
+      });
+
+    return [...platforms, ...custom];
+  }, [links]);
+
+  if (items.length === 0) {
+    if (isOwnProfile) {
       return (
-        <Tile
-          key={key}
-          platformKey={key}
-          monogram={platform.monogram}
-          color={platform.color}
-          label={platform.label}
-          sub={displayValueFor(platform, raw)}
-          href={resolvePlatformUrl(platform, raw)}
-        />
+        <div className={cn("pt-1", className)}>
+          <Link
+            href="/profile/edit"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors py-1 px-2.5 rounded-full border border-dashed border-border/70 hover:border-primary/50 bg-muted/20"
+          >
+            <Plus className="size-3" />
+            <span>Connect GitHub, X, LinkedIn...</span>
+          </Link>
+        </div>
       );
-    })
-    .filter(Boolean);
+    }
+    return null;
+  }
 
-  const customTiles = (links.custom ?? [])
-    .filter((c) => c.label?.trim() && c.url?.trim())
-    .map((c, i) => (
-      <Tile
-        key={`custom-${i}`}
-        platformKey={c.label.trim().toLowerCase()}
-        monogram={(c.label.trim()[0] ?? "L").toUpperCase()}
-        color="#a170ff"
-        label={c.label.trim()}
-        sub={displayValueFor(
-          {
-            key: "custom",
-            label: c.label,
-            category: "Professional",
-            monogram: "L",
-            color: "#a170ff",
-            kind: "url",
-            placeholder: "",
-            hint: "",
-          },
-          c.url
-        )}
-        href={c.url.startsWith("http") ? c.url : `https://${c.url}`}
-      />
-    ));
-
-  const all = [...platformTiles, ...customTiles];
-  if (all.length === 0) return null;
+  const visibleItems = expanded ? items : items.slice(0, maxVisible);
+  const hiddenCount = items.length - maxVisible;
 
   return (
-    <div className="space-y-2 pt-1">
-      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-        <Link2 className="size-3" /> Links
-      </p>
-      <div className="flex flex-wrap gap-2">{all}</div>
+    <div className={cn("flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 select-none", className)}>
+      {visibleItems.map((item) => {
+        const titleText = `${item.label} (${item.sub})`;
+
+        const content = (
+          <span className="relative flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground border border-border/60 hover:border-border transition-all duration-200 group shadow-2xs hover:scale-105 active:scale-95">
+            <SocialPlatformIcon
+              platformKey={item.key}
+              fallbackMonogram={item.monogram}
+              className="size-3.5 sm:size-4 transition-transform group-hover:scale-110"
+            />
+            {item.href && (
+              <span
+                className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ backgroundColor: item.color }}
+              />
+            )}
+            <span className="sr-only">{titleText}</span>
+          </span>
+        );
+
+        if (!item.href) {
+          return (
+            <span key={item.id} title={titleText} className="cursor-default">
+              {content}
+            </span>
+          );
+        }
+
+        return (
+          <a
+            key={item.id}
+            href={item.href}
+            target="_blank"
+            rel="me noopener noreferrer"
+            title={titleText}
+            aria-label={titleText}
+            className="group relative cursor-pointer"
+          >
+            {content}
+          </a>
+        );
+      })}
+
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold border border-border/60 transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+          title={expanded ? "Show less" : `Show ${hiddenCount} more links`}
+          aria-label={expanded ? "Show less links" : `Show ${hiddenCount} more links`}
+        >
+          {expanded ? <ChevronUp className="size-3.5" /> : `+${hiddenCount}`}
+        </button>
+      )}
+
+      {isOwnProfile && (
+        <Link
+          href="/profile/edit"
+          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full border border-dashed border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Edit or add links"
+          aria-label="Edit or add social links"
+        >
+          <Plus className="size-3.5" />
+        </Link>
+      )}
     </div>
   );
 }

@@ -1,26 +1,28 @@
-"use client";
-
 import {
   ArrowLeft,
   BookOpen,
+  Camera,
   Car,
   FileText,
   FlaskConical,
   Gamepad2,
   Home,
+  Image as ImageIcon,
   Loader2,
   PackageSearch,
   Send,
   ShoppingBag,
+  X,
   Zap,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { DedicatedHubType } from "@/components/communities/dedicated-hub-client";
 import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { uploadImageToImgBB } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 
 interface HubCreateClientProps {
@@ -170,6 +172,35 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
   const [semester, setSemester] = useState("3");
   const [driveUrl, setDriveUrl] = useState("");
 
+  // Media / Photo Upload
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    sounds.tap();
+    haptics.light();
+    try {
+      toast.info("Uploading photo...");
+      const result = await uploadImageToImgBB(file);
+      if (result?.url) {
+        setImageUrl(result.url);
+        sounds.pop();
+        haptics.medium();
+        toast.success("Photo uploaded!");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to upload photo");
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
   const activeCategory = HUB_CATEGORIES.find((c) => c.id === hubType) || HUB_CATEGORIES[0];
 
   async function handleSubmit(e: React.FormEvent) {
@@ -194,11 +225,13 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
         payload.type = lfType;
         payload.location = location || "Campus";
         payload.reward = reward || null;
+        payload.imageUrl = imageUrl || null;
       } else if (hubType === "marketplace") {
         payload.price = parseInt(price, 10) || 100;
         payload.condition = condition;
         payload.category = category;
         payload.hostelLocation = hostelLocation || "Campus Hostel";
+        payload.images = imageUrl ? [imageUrl] : [];
       } else if (hubType === "gaming") {
         payload.gameName = gameName;
         payload.mode = mode;
@@ -219,6 +252,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
         payload.occupancyType = occupancyType;
         payload.genderPreference = genderPreference;
         payload.location = location || "Near Campus Gate";
+        payload.imageUrl = imageUrl || null;
       } else if (hubType === "academics") {
         payload.resourceType = resourceType;
         payload.subjectCode = subjectCode;
@@ -347,6 +381,65 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
             className="w-full h-11 px-4 rounded-2xl border border-border/60 bg-muted/20 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
           />
         </div>
+
+        {/* Photo Upload Area */}
+        {["lost_found", "marketplace", "housing", "academics"].includes(hubType) && (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Item / Listing Photo (Recommended)
+              </label>
+              <span className="text-[10px] text-muted-foreground">Photos boost engagement by 80%</span>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+
+            {imageUrl ? (
+              <div className="relative aspect-16/9 w-full rounded-2xl overflow-hidden border border-border bg-card group">
+                <img src={imageUrl} alt="Listing preview" className="size-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl(null)}
+                  className="absolute top-3 right-3 size-8 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors shadow-lg cursor-pointer"
+                  title="Remove photo"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => !isUploadingImage && fileInputRef.current?.click()}
+                className={cn(
+                  "flex items-center justify-center gap-3 p-4 border-2 border-dashed border-border/70 rounded-2xl bg-muted/10 hover:bg-muted/30 transition-all cursor-pointer group text-center",
+                  isUploadingImage && "opacity-60 cursor-not-allowed"
+                )}
+              >
+                {isUploadingImage ? (
+                  <>
+                    <Loader2 className="size-5 text-primary animate-spin" />
+                    <span className="text-xs font-bold text-foreground">Uploading image...</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Camera className="size-4" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-foreground">Attach photo or gear preview</p>
+                      <p className="text-[10px] text-muted-foreground">JPG, PNG, WebP (auto-compressed)</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Dynamic Category-Specific Fields */}
         {hubType === "lost_found" && (
