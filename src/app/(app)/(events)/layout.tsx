@@ -45,7 +45,7 @@ export default async function EventsLayout({ children }: { children: React.React
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background flex flex-col lg:flex-row">
       <Navigation
         profile={profile || undefined}
         collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "CampusLoop")}

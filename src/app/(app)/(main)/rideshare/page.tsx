@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DedicatedHubClient } from "@/components/communities/dedicated-hub-client";
+import { RideshareClient } from "./rideshare-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Ride Share | Station & Airport Cab Pool",
+  title: "Ride Share | Station & Airport Cab Pool | CampusLoop",
   description: "Split station and airport cab fares with verified college batchmates.",
-  alternates: { canonical: "https://campusloop.space/app/rideshare" },
+  alternates: { canonical: "https://campusloop.space/rideshare" },
+  openGraph: {
+    title: "Ride Share | Station & Airport Cab Pool | CampusLoop",
+    description: "Split station and airport cab fares with verified college batchmates.",
+    url: "https://campusloop.space/rideshare",
+    siteName: "CampusLoop Ride Share",
+  },
 };
 
 export default async function RidesharePage() {
@@ -16,5 +22,5 @@ export default async function RidesharePage() {
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");
 
-  return <DedicatedHubClient hubType="rideshare" profileId={profile.id} />;
+  return <RideshareClient profileId={profile.id} />;
 }

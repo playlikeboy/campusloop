@@ -35,7 +35,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
     const viewerMode = await isViewerProfile(profile);
 
     return (
-      <div className="relative min-h-screen overflow-x-clip bg-background">
+      <div className="relative min-h-screen overflow-x-clip bg-background flex flex-col lg:flex-row">
         <Navigation
           profile={profile}
           collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Your College")}
