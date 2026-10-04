@@ -23,6 +23,7 @@ export const lostAndFoundItems = pgTable(
     contactInfo: text("contact_info"),
     reward: text("reward"),
     isResolved: boolean("is_resolved").default(false).notNull(),
+    slug: text("slug"),
     createdAt,
     updatedAt,
   },

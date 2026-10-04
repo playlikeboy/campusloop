@@ -86,6 +86,8 @@ function NavLink({ href, label, icon: Icon }: { href: string; label: string; ico
   );
 }
 
+import { AdminMobileHeader } from "./_components/admin-mobile-header";
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await resolveAdminSession();
 
@@ -163,40 +165,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       {/* Main Content Area */}
       <div className="flex-1 md:pl-64 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur-xl md:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-              CampusLoop Admin
-            </h1>
-            <Link
-              href="/app"
-              className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-full bg-muted/50 border border-border/40 transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Exit</span>
-            </Link>
-          </div>
-          <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-2 border-t border-border/30 bg-muted/10">
-            {[...primaryNav, ...contentNav, ...integrationsNav, ...commercialNav, ...systemNav].map(
-              (item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap bg-card border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 shadow-2xs"
-                  >
-                    <Icon className="h-3 w-3" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              }
-            )}
-          </nav>
-        </header>
-
-        <main className="flex-1 p-3.5 sm:p-6 md:p-8">{children}</main>
+        <AdminMobileHeader />
+        <main className="flex-1 p-3 sm:p-6 md:p-8">{children}</main>
       </div>
     </div>
   );

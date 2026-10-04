@@ -413,15 +413,35 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
+                {event.meetingUrl && event.meetingUrl.startsWith("http") && (
+                  <a
+                    href={event.meetingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-10 px-5 rounded-full font-black text-xs bg-primary text-primary-foreground hover:opacity-90 shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Apply on Official Portal</span>
+                    <ExternalLink className="size-3.5" />
+                  </a>
+                )}
+
                 <Button
                   onClick={() => {
                     haptics.medium();
                     setShowRegModal(true);
                   }}
-                  className="h-10 px-6 rounded-full font-black text-xs bg-primary text-primary-foreground hover:opacity-90 shadow-md cursor-pointer flex-1 sm:flex-initial justify-center"
+                  variant={event.meetingUrl && event.meetingUrl.startsWith("http") ? "outline" : "default"}
+                  className={cn(
+                    "h-10 px-5 rounded-full font-black text-xs cursor-pointer flex-1 sm:flex-initial justify-center",
+                    !(event.meetingUrl && event.meetingUrl.startsWith("http"))
+                      ? "bg-primary text-primary-foreground hover:opacity-90 shadow-md"
+                      : ""
+                  )}
                 >
-                  Register Now
+                  {event.meetingUrl && event.meetingUrl.startsWith("http")
+                    ? "Get CampusLoop Pass"
+                    : "Register Now"}
                 </Button>
 
                 <Button

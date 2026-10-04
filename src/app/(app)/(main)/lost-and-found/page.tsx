@@ -1,6 +1,9 @@
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LostFoundClient } from "./lost-found-client";
+import { getDb } from "@/db";
+import { lostAndFoundItems } from "@/db/schema";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
@@ -16,12 +19,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function LostAndFoundPage() {
+export default async function LostAndFoundPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string; q?: string; type?: string }>;
+}) {
+  const params = await searchParams;
+
+  // Seamless redirect from old ?id=... URLs to clean slug route
+  if (params.id) {
+    const db = getDb();
+    const item = await db.query.lostAndFoundItems.findFirst({
+      where: eq(lostAndFoundItems.id, params.id),
+      columns: { id: true, slug: true },
+    });
+    if (item?.slug) {
+      redirect(`/lost-and-found/${item.slug}`);
+    } else if (item?.id) {
+      redirect(`/lost-and-found/${item.id}`);
+    }
+  }
+
   const user = await getCachedAuthUser();
   if (!user) redirect("/sign-in");
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");
 
-  return <LostFoundClient profileId={profile.id} />;
+  return <LostFoundClient profileId={profile.id} campusId={profile.institutionId} />;
 }

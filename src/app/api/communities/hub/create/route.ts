@@ -47,13 +47,23 @@ export async function POST(req: NextRequest) {
 
     switch (hubType) {
       case "lost_found": {
+        const rawTitle = (data.title || "item").trim();
+        const baseSlug = rawTitle
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")
+          .slice(0, 50);
+        const itemType = (data.type || "LOST").toLowerCase();
+        const shortId = crypto.randomUUID().slice(0, 8);
+        const slug = `${itemType}-${baseSlug}-${shortId}`;
+
         const [item] = await db
           .insert(lostAndFoundItems)
           .values({
             institutionId,
             authorId: profile.id,
             type: data.type || "LOST",
-            title: data.title,
+            title: rawTitle,
             description: data.description || "",
             category: data.category || "Other",
             location: data.location || "Campus",
@@ -61,9 +71,10 @@ export async function POST(req: NextRequest) {
             imageUrl: data.imageUrl || null,
             contactInfo: data.contactInfo || `@${profile.username}`,
             reward: data.reward || null,
+            slug,
           })
           .returning();
-        return NextResponse.json({ success: true, item });
+        return NextResponse.json({ success: true, item, slug });
       }
 
       case "marketplace": {

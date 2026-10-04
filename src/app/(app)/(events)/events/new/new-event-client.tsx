@@ -39,7 +39,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
@@ -241,6 +241,10 @@ const DRAFT_KEY = "campusloop:event-draft";
 
 export function NewEventClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isExternalOpportunity, setIsExternalOpportunity] = useState(() => {
+    return searchParams?.get("type") === "external";
+  });
 
   // Form State
   const [title, setTitle] = useState("");
@@ -700,6 +704,47 @@ export function NewEventClient() {
             }}
             className={cn("space-y-8 lg:col-span-7", mobileTab === "preview" ? "hidden lg:block" : "block")}
           >
+            {/* ── Opportunity Mode Selector ───────────────────────────────── */}
+            <div className="rounded-3xl border border-border/50 bg-card p-2 shadow-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExternalOpportunity(false);
+                    sounds.tap();
+                    haptics.light();
+                  }}
+                  className={cn(
+                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                    !isExternalOpportunity
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "bg-muted/40 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Building2 className="size-4" />
+                  <span>Campus Club Event</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExternalOpportunity(true);
+                    setIsAllColleges(true);
+                    sounds.tap();
+                    haptics.light();
+                  }}
+                  className={cn(
+                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                    isExternalOpportunity
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "bg-muted/40 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Globe className="size-4" />
+                  <span>External Hackathon / Opportunity</span>
+                </button>
+              </div>
+            </div>
+
             {/* ── 1. Event Identity ────────────────────────────────────────── */}
             <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-xs sm:p-6 space-y-5">
               <div className="flex items-center justify-between border-b border-border/40 pb-3">
@@ -707,21 +752,27 @@ export function NewEventClient() {
                   <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary">
                     1
                   </span>
-                  <h2 className="text-sm font-black tracking-tight text-foreground">Event Essentials</h2>
+                  <h2 className="text-sm font-black tracking-tight text-foreground">
+                    {isExternalOpportunity ? "Opportunity Details" : "Event Essentials"}
+                  </h2>
                 </div>
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  Core metadata &amp; branding
+                  {isExternalOpportunity ? "Open to all students" : "Core metadata & branding"}
                 </span>
               </div>
 
               {/* Title */}
               <div>
                 <label className="text-xs font-bold text-foreground">
-                  Event Title <span className="text-destructive">*</span>
+                  {isExternalOpportunity ? "Opportunity Title" : "Event Title"} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   required
-                  placeholder="e.g. HackBIT 2026: 36-Hour National Hackathon"
+                  placeholder={
+                    isExternalOpportunity
+                      ? "e.g. Smart India Hackathon (SIH 2026) or Google Solution Challenge"
+                      : "e.g. HackBIT 2026: 36-Hour National Hackathon"
+                  }
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="mt-1.5 h-11 rounded-2xl text-sm font-semibold bg-background"
@@ -732,7 +783,7 @@ export function NewEventClient() {
               <div>
                 <label className="text-xs font-bold text-foreground">Tagline / Catchy Pitch</label>
                 <Input
-                  placeholder="e.g. Build with AI & Web3. ₹2,00,000 Prize Pool + Mentorship from founders."
+                  placeholder="e.g. Build with AI & Web3. ₹2,00,000 Prize Pool + Pre-placement offers."
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   className="mt-1.5 h-10 rounded-2xl text-xs bg-background"
@@ -742,14 +793,19 @@ export function NewEventClient() {
                 </p>
               </div>
 
-              {/* Organizing Club */}
+              {/* Organizing Club / Entity */}
               <div>
                 <label className="text-xs font-bold text-foreground">
-                  Organizing Club or Chapter <span className="text-destructive">*</span>
+                  {isExternalOpportunity ? "Organizing Entity / Platform" : "Organizing Club or Chapter"}{" "}
+                  <span className="text-destructive">*</span>
                 </label>
                 <Input
                   required
-                  placeholder="e.g. ACM Student Chapter, IEEE, Google Developer Group, EDC"
+                  placeholder={
+                    isExternalOpportunity
+                      ? "e.g. Ministry of Education, Google, Flipkart, Devfolio, MLH, Unstop"
+                      : "e.g. ACM Student Chapter, IEEE, Google Developer Group, EDC"
+                  }
                   value={clubName}
                   onChange={(e) => setClubName(e.target.value)}
                   className="mt-1.5 h-10 rounded-2xl text-xs font-semibold bg-background"
@@ -1037,20 +1093,30 @@ export function NewEventClient() {
                   </div>
                 )}
 
-                {needsLink && (
+                {(needsLink || isExternalOpportunity) && (
                   <div>
                     <label className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                       <Globe className="size-3.5 text-primary" />
-                      Virtual Stream / Room URL
+                      {isExternalOpportunity
+                        ? "Official Application / Registration Link"
+                        : "Virtual Stream / Room URL"}{" "}
+                      {isExternalOpportunity && <span className="text-destructive">*</span>}
                     </label>
                     <Input
-                      placeholder="https://meet.google.com/... or Discord Server link"
+                      required={isExternalOpportunity}
+                      placeholder={
+                        isExternalOpportunity
+                          ? "https://devfolio.co/... or https://unstop.com/... or https://devpost.com/..."
+                          : "https://meet.google.com/... or Discord Server link"
+                      }
                       value={meetingUrl}
                       onChange={(e) => setMeetingUrl(e.target.value)}
                       className="mt-1.5 h-10 rounded-2xl text-xs bg-background"
                     />
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      Shared with registered attendees before the event begins.
+                      {isExternalOpportunity
+                        ? "Direct portal link where students can submit applications or teams."
+                        : "Shared with registered attendees before the event begins."}
                     </p>
                   </div>
                 )}

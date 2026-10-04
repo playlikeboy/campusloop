@@ -1,15 +1,24 @@
 "use client";
 
 import {
+  ArrowLeft,
+  Building2,
+  Calendar,
   Car,
+  Clock,
   Filter,
   Loader2,
   MapPin,
   Navigation,
+  Plane,
   Plus,
   Search,
+  ShieldCheck,
+  Sparkles,
+  Train,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -39,11 +48,11 @@ interface FeedResponse {
 }
 
 const COMMON_DESTINATIONS = [
-  "All Routes",
-  "Railway Station",
-  "Airport",
-  "City Center",
-  "Bus Terminal",
+  { id: "all", label: "All Routes", icon: Navigation },
+  { id: "Airport", label: "Airport", icon: Plane },
+  { id: "Station", label: "Railway Station", icon: Train },
+  { id: "City", label: "City Center & Mall", icon: Building2 },
+  { id: "Metro", label: "Metro Station", icon: Train },
 ] as const;
 
 export function RideshareClient({ profileId }: Props) {
@@ -88,7 +97,7 @@ export function RideshareClient({ profileId }: Props) {
     const params = new URLSearchParams({
       tab: "rideshare",
       page: String(page),
-      limit: "16",
+      limit: "18",
     });
     if (urlSearch) params.set("q", urlSearch);
     return "/api/communities/feed?" + params.toString();
@@ -99,7 +108,7 @@ export function RideshareClient({ profileId }: Props) {
     revalidateOnFocus: false,
   });
 
-  const listings = useMemo(
+  const rawListings = useMemo(
     () =>
       (data?.items || [])
         .filter((item) => item.itemType === "RIDESHARE" && item.data)
@@ -107,83 +116,126 @@ export function RideshareClient({ profileId }: Props) {
     [data?.items]
   );
 
+  function filterByDestination(keyword: string) {
+    sounds.tap();
+    haptics.light();
+    updateUrl((params) => {
+      if (keyword === "all") params.delete("q");
+      else params.set("q", keyword);
+      params.set("page", "1");
+    });
+  }
+
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-background pb-28 text-foreground select-none">
       <ContextualLivingNav />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-600 dark:text-sky-400">
+      <main className="mx-auto max-w-6xl px-3 sm:px-6 pt-5 space-y-6">
+        {/* Clean Hero Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-5">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-600 dark:text-sky-400">
               <Car className="size-3.5" />
-              Verified Student Cab &amp; Auto Pool
+              <span>Campus Cab &amp; Auto Pool</span>
             </div>
-            <h1 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
               Ride Share
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Split station, airport, and city cab fares with verified batchmates
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Coordinate cabs to railway stations, airport &amp; city center. Split fares safely with verified students.
             </p>
           </div>
 
-          <Button asChild size="default" className="gap-2 font-bold shadow-sm bg-sky-600 hover:bg-sky-500 text-white">
+          <Button asChild className="font-bold text-xs h-9 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white shadow-xs shrink-0">
             <Link href="/rideshare/new">
-              <Plus className="size-4" />
-              Offer a Ride
+              <Plus className="size-4 mr-1" />
+              <span>Offer a Ride</span>
             </Link>
           </Button>
         </div>
 
-        {/* Search & Common Destination Chips */}
-        <div className="space-y-3">
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by pickup or destination..."
-              className="h-10 w-full rounded-xl bg-card pl-10 pr-9 text-sm font-medium border border-border/50 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-              aria-label="Search rides"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-                aria-label="Clear search"
-              >
-                <X className="size-3.5" />
-              </button>
-            ) : null}
+        {/* Value Proposition Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-center gap-3">
+            <div className="size-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
+              <ShieldCheck className="size-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Verified Students Only</p>
+              <p className="text-[11px] text-muted-foreground">Safe travel with peers from your college</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {COMMON_DESTINATIONS.map((dest) => {
-              const isSelected = (dest === "All Routes" && !urlSearch) || urlSearch.toLowerCase() === dest.toLowerCase();
-              return (
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-center gap-3">
+            <div className="size-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+              <Zap className="size-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Split Up to 75% Fare</p>
+              <p className="text-[11px] text-muted-foreground">Share Ola, Uber &amp; local taxi expenses</p>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-center gap-3">
+            <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Clock className="size-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Real-Time Coordination</p>
+              <p className="text-[11px] text-muted-foreground">Direct chat &amp; seat reservation</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Quick Destination Filters */}
+        <div className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search Airport, Hatia Station, Ranchi Mall..."
+                className="h-10 w-full rounded-xl bg-card pl-10 pr-9 text-xs sm:text-sm font-medium border border-border/50 outline-none transition focus:border-primary"
+                aria-label="Search rideshare"
+              />
+              {searchQuery ? (
                 <button
-                  key={dest}
                   type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    if (dest === "All Routes") setSearchQuery("");
-                    else setSearchQuery(dest);
-                  }}
-                  className={cn(
-                    "flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition active:scale-95",
-                    isSelected
-                      ? "bg-foreground text-background shadow-xs"
-                      : "bg-card border border-border/50 text-muted-foreground hover:text-foreground"
-                  )}
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                  aria-label="Clear search"
                 >
-                  <MapPin className="size-3 text-sky-500" />
-                  <span>{dest}</span>
+                  <X className="size-3.5" />
                 </button>
-              );
-            })}
+              ) : null}
+            </div>
+
+            {/* Quick Destination Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              {COMMON_DESTINATIONS.map((dest) => {
+                const Icon = dest.icon;
+                const isSelected =
+                  dest.id === "all" ? !urlSearch : urlSearch.toLowerCase().includes(dest.id.toLowerCase());
+                return (
+                  <button
+                    key={dest.id}
+                    type="button"
+                    onClick={() => filterByDestination(dest.id)}
+                    className={cn(
+                      "flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer shadow-2xs",
+                      isSelected
+                        ? "bg-foreground text-background shadow-xs"
+                        : "bg-card border border-border/40 text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Icon className="size-3" />
+                    <span>{dest.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -196,7 +248,7 @@ export function RideshareClient({ profileId }: Props) {
               ))}
             </div>
           ) : error ? (
-            <Card className="p-12 text-center">
+            <Card className="p-12 text-center border border-border/40">
               <Car className="mx-auto size-8 text-destructive" />
               <h3 className="mt-3 text-base font-bold text-foreground">Could not load rides</h3>
               <p className="mt-1 text-xs text-muted-foreground">Please check your connection and retry.</p>
@@ -204,10 +256,10 @@ export function RideshareClient({ profileId }: Props) {
                 Retry
               </Button>
             </Card>
-          ) : listings.length > 0 ? (
+          ) : rawListings.length > 0 ? (
             <>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {listings.map((item) => (
+                {rawListings.map((item) => (
                   <RideshareCard
                     key={item.id}
                     item={item}
@@ -219,22 +271,22 @@ export function RideshareClient({ profileId }: Props) {
               <div className="flex flex-col items-center gap-2 pt-4">
                 <Pagination page={data?.page || page} totalPages={data?.totalPages || 1} />
                 <p className="text-xs text-muted-foreground">
-                  Showing {listings.length} active student rides
+                  Showing {rawListings.length} of {data?.total || rawListings.length} rides available
                 </p>
               </div>
             </>
           ) : (
-            <Card className="flex flex-col items-center justify-center p-12 text-center">
+            <Card className="flex flex-col items-center justify-center p-12 text-center border border-border/40">
               <div className="flex size-14 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground">
                 <Car className="size-7" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-foreground">No rides found for this route</h3>
+              <h3 className="mt-4 text-base font-bold text-foreground">No active ride pools found</h3>
               <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
                 {urlSearch
-                  ? `No batchmates currently offering rides for "${urlSearch}". Try another destination or offer your own!`
-                  : "No rides listed right now. Booking an auto or cab? Offer empty seats and save fare!"}
+                  ? `No rides match "${urlSearch}". Try another destination or start a new cab pool.`
+                  : "Heading to the station or airport soon? Start a cab pool and split the fare with batchmates!"}
               </p>
-              <Button asChild size="sm" className="mt-5 font-bold bg-sky-600 hover:bg-sky-500 text-white">
+              <Button asChild size="sm" className="mt-5 font-bold text-xs bg-sky-600 hover:bg-sky-500 text-white">
                 <Link href="/rideshare/new">
                   <Plus className="size-4 mr-1.5" />
                   Offer a Ride
@@ -246,7 +298,7 @@ export function RideshareClient({ profileId }: Props) {
           {isValidating && data ? (
             <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin text-sky-500" />
-              Updating available rides...
+              Syncing campus rides...
             </div>
           ) : null}
         </section>

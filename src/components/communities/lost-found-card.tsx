@@ -77,7 +77,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
     haptics.light();
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = `${baseUrl}/lost-and-found?id=${item.id}`;
+    const shareUrl = `${baseUrl}/lost-and-found/${item.slug || item.id}`;
 
     if (navigator.share) {
       navigator
@@ -93,6 +93,8 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
     }
   }
 
+  const detailHref = `/lost-and-found/${item.slug || item.id}`;
+
   return (
     <>
       <article
@@ -104,12 +106,14 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
         {/* Card Media or Status Header */}
         {item.imageUrl ? (
           <div className="relative aspect-16/9 w-full bg-muted/30 overflow-hidden">
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
+            <Link href={detailHref} className="block size-full">
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="size-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                loading="lazy"
+              />
+            </Link>
             <div className="absolute top-2.5 left-2.5">
               <span
                 className={cn(
@@ -166,9 +170,11 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
         {/* Content Body */}
         <div className="flex flex-1 flex-col justify-between p-4 space-y-3">
           <div className="space-y-1.5">
-            <h3 className="text-sm font-black text-foreground leading-snug line-clamp-2">
-              {item.title}
-            </h3>
+            <Link href={detailHref} className="block group-hover:text-primary transition-colors">
+              <h3 className="text-sm font-black text-foreground leading-snug line-clamp-2">
+                {item.title}
+              </h3>
+            </Link>
 
             {item.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
