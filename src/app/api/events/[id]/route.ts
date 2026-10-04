@@ -12,12 +12,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const db = getDb();
 
     // Authenticated user session
-    const user = await hexclaveServerApp.getUser();
     let currentProfile = null;
-    if (user?.id) {
-      currentProfile = await db.query.userProfiles.findFirst({
-        where: eq(userProfiles.userId, user.id),
-      });
+    try {
+      const user = await hexclaveServerApp.getUser();
+      if (user?.id) {
+        currentProfile = await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, user.id),
+        });
+      }
+    } catch {
+      // Guest viewer
     }
 
     const event = await db.query.events.findFirst({

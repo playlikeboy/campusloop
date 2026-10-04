@@ -45,11 +45,15 @@ function expandKeywords(words: string[]): string[] {
 }
 
 export async function GET(
-  req: NextRequest,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const resolvedParams = await Promise.resolve(params);
+    const slug = resolvedParams?.slug;
+    if (!slug) {
+      return NextResponse.json({ error: "Slug parameter is required" }, { status: 400 });
+    }
     const db = getDb();
 
     // 1. Try finding by slug first, then by exact id
@@ -220,12 +224,15 @@ export async function GET(
     });
   } catch (error) {
     console.error("GET /api/lost-and-found/[slug] error:", error);
-    return NextResponse.json({ error: "Failed to load item" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Failed to load item",
+      details: error instanceof Error ? error.message : String(error),
+    }, { status: 500 });
   }
 }
 
 export async function PATCH(
-  req: NextRequest,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
@@ -234,7 +241,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { slug } = await params;
+    const resolvedParams = await Promise.resolve(params);
+    const slug = resolvedParams?.slug;
     const db = getDb();
     const profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
