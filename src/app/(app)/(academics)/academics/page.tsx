@@ -198,7 +198,12 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <AcademicsClient profileId={profile?.id ?? null} />
+      <AcademicsClient
+        profileId={profile?.id ?? null}
+        collegeName={profile?.institution?.name || "Campus Hub"}
+        userBranch={profile?.branch || "Computer Science"}
+        userSemester={profile?.year ? Math.min(8, Math.max(1, profile.year * 2 - 1)) : 5}
+      />
     </>
   );
 }

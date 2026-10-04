@@ -3,176 +3,131 @@
 import {
   AlertTriangle,
   ArrowDown,
+  ArrowRight,
   ArrowUp,
-  BookMarked,
-  BookOpen,
+  Bookmark,
   CheckCircle2,
   ExternalLink,
-  Eye,
-  FileText,
-  FlaskConical,
   FolderOpen,
-  GraduationCap,
-  Presentation,
-  Target,
-  Zap,
+  MessageSquare,
+  Share2,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import {
-  AnimateDownload,
-  AnimatedIcon,
-  AnimateMessageSquare,
-  AnimateShare,
-  AnimateShieldCheck,
-} from "@/components/ui/animated-icon";
+import { AnimateShieldCheck, AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
 import {
   trackAcademicDownload,
   trackAcademicLimitReached,
   trackAcademicShare,
-  trackAcademicVote,
 } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 
-interface AcademicCardProps {
-  item: {
+export interface AcademicItemData {
+  id: string;
+  title: string;
+  description?: string | null;
+  subjectCode: string;
+  subjectName: string;
+  branch: string;
+  semester: number;
+  resourceType: string;
+  moduleOrChapter?: string | null;
+  fileUrl?: string | null;
+  driveUrl?: string | null;
+  tags?: any;
+  upvotesCount: number;
+  downvotesCount?: number;
+  downloadsCount: number;
+  viewsCount: number;
+  isVerified: boolean;
+  isSaved?: boolean;
+  commentsCount?: number;
+  recommendationReason?: string;
+  personalizedScore?: number;
+  createdAt: string | Date;
+  uploader: {
     id: string;
-    title: string;
-    description?: string | null;
-    subjectCode: string;
-    subjectName: string;
-    branch: string;
-    semester: number;
-    resourceType: string;
-    moduleOrChapter?: string | null;
-    fileUrl?: string | null;
-    driveUrl?: string | null;
-    tags?: any;
-    upvotesCount: number;
-    downvotesCount?: number;
-    downloadsCount: number;
-    viewsCount: number;
-    isVerified: boolean;
-    commentsCount?: number;
-    recommendationReason?: string;
-    personalizedScore?: number;
-    createdAt: string | Date;
-    uploader: {
-      id: string;
-      username: string;
-      displayName: string;
-      avatarUrl?: string | null;
-      points?: number | null;
-    };
-    institution?: { id: string; name: string; slug: string } | null;
+    username: string;
+    displayName: string;
+    avatarUrl?: string | null;
+    points?: number | null;
   };
+  institution?: { id: string; name: string; slug: string } | null;
+}
+
+interface AcademicCardProps {
+  item: AcademicItemData;
   currentUserId?: string;
   isHighlighted?: boolean;
   variant?: "row" | "grid";
 }
 
-const RESOURCE_ACCENTS: Record<
-  string,
-  {
-    label: string;
-    gradient: string;
-    pillBg: string;
-    pillText: string;
-    borderGlow: string;
-    Icon: any;
-  }
-> = {
-  PYQ: {
-    label: "PYQ Exam Paper",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: GraduationCap,
-  },
-  NOTES: {
-    label: "Lecture Notes",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: FileText,
-  },
-  CHEAT_SHEET: {
-    label: "Cheat Sheet",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: Zap,
-  },
-  BOOK: {
-    label: "Textbook",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: BookMarked,
-  },
-  MODULE: {
-    label: "Unit Module",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: BookOpen,
-  },
-  LAB_MANUAL: {
-    label: "Lab Manual",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: FlaskConical,
-  },
-  PPT: {
-    label: "Slides",
-    gradient: "from-muted/40 via-muted/20 to-transparent",
-    pillBg: "bg-muted/80 border-border/40",
-    pillText: "text-foreground font-bold",
-    borderGlow: "group-hover:border-border",
-    Icon: Presentation,
-  },
-};
+export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCardProps) {
+  const router = useRouter();
 
-export function AcademicCard({ item, currentUserId, isHighlighted, variant = "row" }: AcademicCardProps) {
+  // Voting State
   const [upvotes, setUpvotes] = useState(item.upvotesCount || 0);
   const [downvotes, setDownvotes] = useState(item.downvotesCount || 0);
-  const [downloads, setDownloads] = useState(item.downloadsCount || 0);
-  const [views] = useState(item.viewsCount || 1);
   const [userVote, setUserVote] = useState<"UP" | "DOWN" | null>(null);
 
+  // Save State
+  const [isSaved, setIsSaved] = useState(Boolean(item.isSaved));
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Comments State
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isHelpful, setIsHelpful] = useState(true);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  // Fetch comments when comments section is opened
+  // Avatar URL
+  const avatar = getAvatarUrl(item.uploader?.avatarUrl, item.uploader?.username);
+
+  // Helpfulness reliability calculation
+  const totalVotes = upvotes + downvotes;
+  const reliability =
+    totalVotes > 0
+      ? Math.round((upvotes / totalVotes) * 100)
+      : item.isVerified
+        ? 98
+        : 95;
+
+  // Comments query
   const { data: commentsData, mutate: mutateComments } = useSWR<{ comments: any[] }>(
     showComments ? `/api/academics/${item.id}/comments` : null,
     fetcher
   );
   const commentsList = commentsData?.comments || [];
 
-  const avatar = getAvatarUrl(item.uploader.avatarUrl, item.uploader.username);
-  const totalVotes = upvotes + downvotes;
-  const reliability = totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : 100;
+  // Card click navigation
+  function handleCardClick() {
+    sounds.tap();
+    router.push(`/academics/${item.id}`);
+  }
 
-  async function handleVote(type: "UP" | "DOWN") {
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardClick();
+    }
+  }
+
+  // Voting Handler
+  async function handleVote(e: React.MouseEvent, type: "UP" | "DOWN") {
+    e.stopPropagation();
+    sounds.tap();
+    haptics.light();
+
     if (!currentUserId) {
-      toast.info("Sign in with college email to upvote and earn 50 LP!", {
+      toast.info("Sign in with college email to upvote helpful notes!", {
         action: {
           label: "Sign In",
           onClick: () => {
@@ -182,10 +137,6 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
       });
       return;
     }
-
-    sounds.pop();
-    haptics.medium();
-    trackAcademicVote(item.id, type, item.subjectCode);
 
     if (type === "UP") {
       if (userVote === "UP") {
@@ -200,7 +151,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
         if (userVote === "DOWN") setDownvotes((c) => Math.max(0, c - 1));
         setUpvotes((c) => c + 1);
         setUserVote("UP");
-        toast.success("Upvoted! Notes marked as reliable & helpful");
+        toast.success("Marked as helpful!");
         fetch(`/api/academics/${item.id}/analytics`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -230,13 +181,57 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     }
   }
 
-  async function handleDownload() {
+  // Save / Bookmark Handler
+  async function handleToggleSave(e: React.MouseEvent) {
+    e.stopPropagation();
+    sounds.tap();
+    haptics.medium();
+
+    if (!currentUserId) {
+      toast.info("Sign in with college email to save to your cloud locker!", {
+        action: {
+          label: "Sign In",
+          onClick: () => {
+            window.location.href = `/sign-in?returnTo=/academics/${item.id}`;
+          },
+        },
+      });
+      return;
+    }
+
+    const nextState = !isSaved;
+    setIsSaved(nextState);
+    setIsSaving(true);
+
+    try {
+      const res = await fetch(`/api/academics/${item.id}/analytics`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: nextState ? "SAVE" : "UNSAVE" }),
+      });
+      if (res.ok) {
+        toast.success(nextState ? "Saved to your study locker!" : "Removed from locker");
+      } else {
+        setIsSaved(!nextState);
+        toast.error("Failed to update saved status");
+      }
+    } catch {
+      setIsSaved(!nextState);
+      toast.error("Network error saving resource");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  // Download / Direct View Handler
+  async function handleOpenResource(e: React.MouseEvent) {
+    e.stopPropagation();
     const downloadCheck = checkAndRecordDownload(Boolean(currentUserId));
     if (!downloadCheck.allowed) {
       sounds.pop();
       haptics.error();
       trackAcademicLimitReached();
-      toast.info("You've used all 5 free guest downloads! Sign in to get unlimited notes & PYQ access", {
+      toast.info("You've used all 5 free guest downloads! Sign in for unlimited access", {
         action: {
           label: "Sign In",
           onClick: () => {
@@ -249,7 +244,6 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
 
     sounds.tap();
     haptics.light();
-    setDownloads((prev) => prev + 1);
     trackAcademicDownload(item, !currentUserId, downloadCheck.count);
 
     const rawUrl = (item.fileUrl || item.driveUrl || "").trim();
@@ -264,19 +258,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     const targetUrl = isDriveFolder ? cleanDriveFolderUrl : item.fileUrl || item.driveUrl;
     if (targetUrl) {
       window.open(targetUrl, "_blank", "noopener,noreferrer");
-      if (isDriveFolder) {
-        toast.success("Opening Google Drive study collection! Zero login required");
-        return;
-      }
-      if (!currentUserId) {
-        if (downloadCheck.remaining > 0) {
-          toast.success(`Downloaded! (${downloadCheck.remaining} free guest downloads remaining)`);
-        } else {
-          toast.info("Downloaded! That was your 5th free download. Sign in for unlimited access!");
-        }
-      }
     } else {
-      toast.info("Notes are compiling for preview...");
+      router.push(`/academics/${item.id}`);
     }
 
     try {
@@ -288,6 +271,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     } catch {}
   }
 
+  // Share Handler
   function handleShare(e: React.MouseEvent) {
     e.stopPropagation();
     sounds.tap();
@@ -311,19 +295,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     }
   }
 
+  // Comments submit
   async function handleSubmitComment(e: React.FormEvent) {
     e.preventDefault();
     if (!commentText.trim()) return;
 
     if (!currentUserId) {
-      toast.info("Sign in with college email to post comments & doubts!", {
-        action: {
-          label: "Sign In",
-          onClick: () => {
-            window.location.href = `/sign-in?returnTo=/academics/${item.id}`;
-          },
-        },
-      });
+      toast.info("Sign in to post comments!");
       return;
     }
 
@@ -339,7 +317,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
       });
       const data = (await res.json()) as { comment?: any; error?: string };
       if (res.ok && data.comment) {
-        toast.success("Review & comment posted!");
+        toast.success("Review posted!");
         setCommentText("");
         mutateComments();
       } else {
@@ -352,413 +330,248 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
     }
   }
 
-  if (variant === "grid") {
-    const accent = RESOURCE_ACCENTS[item.resourceType] || {
-      label: item.resourceType.replace("_", " "),
-      gradient: "from-primary/20 via-primary/5 to-transparent",
-      pillBg: "bg-primary/15 border-primary/30",
-      pillText: "text-primary",
-      borderGlow: "group-hover:border-primary/40 group-hover:shadow-primary/5",
-      Icon: FileText,
-    };
-    const TypeIcon = accent.Icon;
+  const isDriveFolder = Boolean(
+    (item.fileUrl || item.driveUrl || "").match(
+      /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
+    )
+  );
 
-    return (
-      <article
-        id={`academic-${item.id}`}
-        className={cn(
-          "rounded-3xl border border-border/40 bg-card/75 hover:bg-card flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 select-none group relative overflow-hidden backdrop-blur-md",
-          accent.borderGlow,
-          isHighlighted && "border-primary/50 ring-2 ring-primary/20 bg-primary/5"
-        )}
-      >
-        {/* Top Visual Document Banner */}
-        <div
-          className={cn(
-            "relative px-4 pt-3.5 pb-3 border-b border-border/20 bg-linear-to-r flex items-center justify-between gap-2",
-            accent.gradient
-          )}
-        >
-          {/* Subject Code Badge */}
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono font-black text-xs px-2.5 py-1 rounded-xl bg-background/90 border border-border/40 text-foreground shadow-xs group-hover:border-primary/50 transition-colors shrink-0">
-              {item.subjectCode}
-            </span>
-            <span className="text-[11px] font-medium text-muted-foreground truncate hidden sm:inline">
-              {item.subjectName}
-            </span>
-          </div>
-
-          {/* Type Pill & Share Action */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border shadow-xs",
-                accent.pillBg,
-                accent.pillText
-              )}
-            >
-              <TypeIcon className="size-3" />
-              <span>{accent.label}</span>
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="size-6.5 rounded-full hover:bg-background/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              title="Share link"
-            >
-              <AnimatedIcon icon={AnimateShare} animation="pop" size={12} />
-            </button>
-          </div>
-        </div>
-
-        {/* Card Content Body */}
-        <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
-          <div className="space-y-2.5">
-            {/* Author / Uploader Info */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0">
-                  <Avatar className="size-7 rounded-full border border-border/50 hover:opacity-90 transition-opacity">
-                    <AvatarImage src={avatar} />
-                    <AvatarFallback className="text-[9px] font-bold">
-                      {item.uploader.displayName[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <div className="min-w-0 leading-tight">
-                  <Link
-                    href={`/@${item.uploader.username}?tab=academics`}
-                    className="text-xs font-bold text-foreground hover:underline truncate block"
-                  >
-                    {item.uploader.displayName}
-                  </Link>
-                  <span className="text-[10px] text-muted-foreground truncate block">
-                    @{item.uploader.username}
-                  </span>
-                </div>
-              </div>
-
-              {/* Verified Badge */}
-              <span
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 shrink-0"
-                title="Based on community upvotes and downvotes"
-              >
-                <Target className="size-3 shrink-0" />
-                <span>{reliability}% helpful</span>
-              </span>
-            </div>
-
-            {/* Title */}
-            <Link
-              href={`/academics/${item.id}`}
-              onClick={() => sounds.tap()}
-              className="block group/title pt-0.5"
-            >
-              <h3 className="text-sm sm:text-[15px] font-extrabold text-foreground group-hover/title:text-primary transition-colors leading-snug line-clamp-2">
-                {item.title}
-              </h3>
-            </Link>
-
-            {/* Description Snippet */}
-            {item.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
-            )}
-          </div>
-
-          {/* Metadata Badges (Sem, Branch, Module) */}
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap pt-1">
-            <span className="px-2 py-0.5 rounded-lg bg-muted/60 font-semibold border border-border/30">
-              Sem {item.semester}
-            </span>
-            <span className="px-2 py-0.5 rounded-lg bg-muted/60 font-semibold border border-border/30 truncate max-w-[140px]">
-              {item.branch}
-            </span>
-            {item.moduleOrChapter && (
-              <span className="px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20 truncate max-w-[130px]">
-                {item.moduleOrChapter}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Footer Actions Row */}
-        <div className="px-3.5 py-2.5 sm:px-4 sm:py-3 border-t border-border/20 bg-muted/15 flex items-center justify-between text-xs text-muted-foreground w-full min-w-0">
-          {/* Voting */}
-          <div className="flex items-center gap-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => handleVote("UP")}
-              className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-muted/50 hover:text-primary transition-colors cursor-pointer group/vote",
-                userVote === "UP" && "text-primary font-bold bg-primary/10"
-              )}
-              title="Upvote"
-            >
-              <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-3")} />
-              <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleVote("DOWN")}
-              className={cn(
-                "p-1 rounded-lg hover:bg-muted/50 hover:text-rose-400 transition-colors cursor-pointer",
-                userVote === "DOWN" && "text-rose-400 bg-rose-500/10"
-              )}
-              title="Downvote errata"
-            >
-              <ArrowDown className="size-3" />
-            </button>
-          </div>
-
-          {/* Views & Downloads */}
-          <div className="hidden xs:flex items-center gap-2 text-[10px] opacity-75">
-            <span className="flex items-center gap-1" title="Views">
-              <Eye className="size-3" />
-              <span>{views}</span>
-            </span>
-            <span className="flex items-center gap-1" title="Downloads">
-              <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={11} />
-              <span>{downloads}</span>
-            </span>
-          </div>
-
-          {/* Primary Action Button */}
-          <button
-            type="button"
-            onClick={handleDownload}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0",
-              (item.fileUrl || item.driveUrl || "").match(
-                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              )
-                ? "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black shadow-amber-500/20"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
-            )}
-          >
-            {(item.fileUrl || item.driveUrl || "").match(
-              /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-            ) ? (
-              <FolderOpen className="size-3.5 shrink-0" />
-            ) : (
-              <ExternalLink className="size-3 shrink-0" />
-            )}
-            <span>
-              {(item.fileUrl || item.driveUrl || "").match(
-                /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)?folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-              )
-                ? "Folder"
-                : "Open"}
-            </span>
-          </button>
-        </div>
-      </article>
-    );
-  }
+  const formattedType =
+    item.resourceType === "PYQ"
+      ? "PYQ"
+      : item.resourceType === "NOTES"
+        ? "Notes"
+        : item.resourceType === "CHEAT_SHEET"
+          ? "Formula Sheet"
+          : (item.resourceType || "Notes").replace("_", " ");
 
   return (
     <article
       id={`academic-${item.id}`}
+      role="article"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       className={cn(
-        "group border-b border-border/25 bg-background px-3 py-2.5 sm:px-4 sm:py-3.5 transition-colors hover:bg-muted/10 select-none w-full max-w-full overflow-hidden",
+        "group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer select-none",
+        "border-b border-border/25 hover:bg-muted/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
     >
-      <div className="flex items-start gap-2.5 sm:gap-3">
-        <Link href={`/@${item.uploader.username}?tab=academics`} className="shrink-0 pt-0.5">
-          <Avatar className="size-8 sm:size-9 rounded-full border border-border/50 shadow-2xs">
-            <AvatarImage src={avatar} />
-            <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-              {item.uploader.displayName?.[0] || "U"}
-            </AvatarFallback>
-          </Avatar>
-        </Link>
-
-        <div className="min-w-0 flex-1">
-          {/* 1. Author line */}
-          <div className="flex items-center gap-1.5 min-w-0 text-[11px] sm:text-xs">
+      <div className="space-y-2.5">
+        {/* ── 1. Contributor Row: [Avatar] Contributor · time ... [Share] ── */}
+        <div className="flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 min-w-0">
             <Link
               href={`/@${item.uploader.username}?tab=academics`}
-              className="font-bold text-foreground hover:text-primary transition-colors truncate max-w-[130px] sm:max-w-[200px]"
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0"
+              title={`View @${item.uploader.username}'s profile`}
             >
-              {item.uploader.displayName}
+              <Avatar className="size-6.5 sm:size-7 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+                <AvatarImage src={avatar} alt={item.uploader.displayName} />
+                <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
+                  {item.uploader.displayName?.[0] || "U"}
+                </AvatarFallback>
+              </Avatar>
             </Link>
-            {(item.uploader.points || 0) >= 150 && (
-              <AnimatedIcon
-                icon={AnimateShieldCheck}
-                animation="pop"
-                size={13}
-                className="text-primary shrink-0"
-              />
-            )}
-            <span className="text-muted-foreground/40 shrink-0">·</span>
-            <span className="text-muted-foreground truncate max-w-[140px] sm:max-w-[240px]">
-              {getCollegeShortName(item.institution) || "Campus"}
-            </span>
-            <span className="text-muted-foreground/40 shrink-0">·</span>
-            <span className="text-muted-foreground/75 shrink-0 text-[10px]">{formatTimeAgo(item.createdAt)}</span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="ml-auto size-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
-              title="Share resource"
-              aria-label="Share resource"
-            >
-              <AnimatedIcon icon={AnimateShare} animation="pop" size={13} />
-            </button>
+
+            <div className="flex items-center gap-1.5 min-w-0 truncate text-[11px] sm:text-xs">
+              <Link
+                href={`/@${item.uploader.username}?tab=academics`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold text-foreground hover:text-primary transition-colors truncate max-w-[130px] sm:max-w-[200px]"
+              >
+                {item.uploader.displayName}
+              </Link>
+              {(item.uploader.points || 0) >= 150 && (
+                <AnimatedIcon
+                  icon={AnimateShieldCheck}
+                  animation="pop"
+                  size={12}
+                  className="text-primary shrink-0"
+                />
+              )}
+              <span className="text-muted-foreground/40 shrink-0">·</span>
+              <span className="text-muted-foreground truncate max-w-[130px] sm:max-w-[220px]">
+                {getCollegeShortName(item.institution) || "Campus"}
+              </span>
+              <span className="text-muted-foreground/40 shrink-0">·</span>
+              <span className="text-muted-foreground/70 shrink-0 text-[10px] tabular-nums">
+                {formatTimeAgo(item.createdAt)}
+              </span>
+            </div>
           </div>
 
-          {/* 2. Course / Subject & Semester / Dept / Resource Type */}
-          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-black font-mono text-primary">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex size-7.5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shrink-0"
+            title="Share resource"
+            aria-label="Share resource"
+          >
+            <Share2 className="size-3.5" />
+          </button>
+        </div>
+
+        {/* ── 2. Academic Context Lines: Course Code · Subject / Sem · Branch · Type ── */}
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2 flex-wrap text-xs sm:text-[13px]">
+            <span className="font-mono font-bold text-primary tracking-tight">
               {item.subjectCode}
             </span>
-            <span className="text-[11px] font-semibold text-foreground/85 truncate max-w-[170px] sm:max-w-[260px]">
+            <span className="text-muted-foreground/40">·</span>
+            <span className="font-semibold text-foreground/90 truncate max-w-[280px] sm:max-w-[420px]">
               {item.subjectName}
             </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap text-[11px] sm:text-xs text-muted-foreground">
+            <span>Sem {item.semester}</span>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-[10px] font-semibold text-muted-foreground">Sem {item.semester}</span>
+            <span>{item.branch}</span>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[110px]">
-              {item.branch}
-            </span>
-            <span className="inline-flex items-center rounded-full bg-muted/80 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-muted-foreground border border-border/30">
-              {(item.resourceType || "RESOURCE").replace("_", " ")}
-            </span>
+            <span className="font-medium text-foreground/80">{formattedType}</span>
             {item.moduleOrChapter && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <span className="text-[10px] font-bold text-amber-500 truncate max-w-[120px]">
+                <span className="text-amber-500 font-medium truncate max-w-[140px]">
                   {item.moduleOrChapter}
                 </span>
               </>
             )}
           </div>
+        </div>
 
-          {/* 3. Title */}
-          <Link href={`/academics/${item.id}`} onClick={() => sounds.tap()} className="mt-1.5 block group/title">
-            <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug tracking-tight text-foreground group-hover/title:text-primary transition-colors line-clamp-2">
-              {item.title}
-            </h3>
-          </Link>
+        {/* ── 3. Document Title ── */}
+        <div className="pt-0.5">
+          <h2 className="text-[15px] sm:text-[16.5px] font-bold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {item.title}
+          </h2>
+        </div>
 
-          {/* 4. Description preview (2-3 lines max, subtle color) */}
-          {item.description && (
-            <p className="mt-1 text-[11.5px] sm:text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 max-w-3xl">
-              {item.description}
-            </p>
-          )}
+        {/* ── 4. Short Description ── */}
+        {item.description && (
+          <p className="text-xs sm:text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2">
+            {item.description}
+          </p>
+        )}
 
-          {/* 5. Tags / Verification */}
-          <div className="mt-2 flex items-center gap-2 flex-wrap text-[10px]">
-            {item.isVerified && (
-              <span
-                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-bold text-primary"
-                title="Verified academic resource"
-              >
-                <CheckCircle2 className="size-3" />
-                Verified
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1 font-semibold text-muted-foreground/80">
-              <Target className="size-3" />
-              {reliability}% helpful
+        {/* ── 5. Quality & Verification: ✓ Verified · 98% helpful ── */}
+        <div className="flex items-center gap-2 flex-wrap pt-0.5 text-[11px]">
+          {item.isVerified && (
+            <span className="inline-flex items-center gap-1 font-semibold text-emerald-500 dark:text-emerald-400">
+              <CheckCircle2 className="size-3.5" />
+              <span>Verified</span>
             </span>
-          </div>
+          )}
+          {item.isVerified && <span className="text-muted-foreground/40">·</span>}
+          <span className="inline-flex items-center gap-1 font-medium text-muted-foreground">
+            <span>{reliability}% helpful</span>
+          </span>
+        </div>
 
-          {/* 6. Stats + Action: guaranteed contained inside card without overflow at 360px-430px */}
-          <div className="mt-2.5 pt-2 border-t border-border/15 flex items-center justify-between gap-1.5 text-xs text-muted-foreground w-full min-w-0">
-            <div className="flex items-center gap-0.5 shrink-0">
+        {/* ── 6. Footer Actions: [↑ 76 ↓] [💬 4] ... [Save] [View →] ── */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/15 text-xs text-muted-foreground w-full">
+          {/* Left: Voting & Comments */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Vote Group */}
+            <div className="inline-flex items-center rounded-xl bg-muted/30 border border-border/30 p-0.5 text-xs">
               <button
                 type="button"
-                onClick={() => handleVote("UP")}
+                onClick={(e) => handleVote(e, "UP")}
                 className={cn(
-                  "flex min-h-[38px] sm:min-h-[42px] items-center gap-1 rounded-xl px-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
-                  userVote === "UP" && "bg-primary/10 text-primary font-bold"
+                  "flex items-center gap-1 px-2 py-1 rounded-lg hover:text-primary transition-colors cursor-pointer",
+                  userVote === "UP" && "text-primary font-bold bg-primary/10"
                 )}
                 title="Upvote"
+                aria-label="Upvote this resource"
               >
-                <ArrowUp className={cn("size-3.5 sm:size-4", userVote === "UP" && "stroke-[2.5]")} />
-                <span className="text-[11px] font-semibold tabular-nums">{upvotes}</span>
+                <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-[2.5]")} />
+                <span className="tabular-nums font-semibold text-[11px]">{upvotes}</span>
               </button>
-
+              <div className="h-3 w-px bg-border/40 mx-0.5" />
               <button
                 type="button"
-                onClick={() => handleVote("DOWN")}
+                onClick={(e) => handleVote(e, "DOWN")}
                 className={cn(
-                  "flex min-h-[38px] min-w-[34px] sm:min-h-[42px] sm:min-w-[42px] items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-colors cursor-pointer",
-                  userVote === "DOWN" && "bg-rose-500/10 text-rose-400"
+                  "p-1 rounded-lg hover:text-rose-400 transition-colors cursor-pointer",
+                  userVote === "DOWN" && "text-rose-400 bg-rose-500/10"
                 )}
-                title="Report incorrect material"
-                aria-label="Report incorrect material"
+                title="Report issue"
+                aria-label="Report issue with resource"
               >
-                <ArrowDown className="size-3.5 sm:size-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowComments(!showComments)}
-                className="flex min-h-[38px] sm:min-h-[42px] items-center gap-1 rounded-xl px-2 hover:bg-muted/70 hover:text-foreground transition-colors cursor-pointer"
-                aria-label={`Comments: ${commentsList.length || item.commentsCount || 0}`}
-              >
-                <AnimatedIcon icon={AnimateMessageSquare} animation="pop" size={14} />
-                <span className="text-[11px] font-semibold tabular-nums">
-                  {commentsList.length || item.commentsCount || 0}
-                </span>
+                <ArrowDown className="size-3.5" />
               </button>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 ml-auto min-w-0">
-              <div className="hidden xs:flex items-center gap-2 text-[10px] text-muted-foreground/75">
-                <span className="inline-flex items-center gap-1" title="Views">
-                  <Eye className="size-3" />
-                  <span className="tabular-nums">{views}</span>
-                </span>
-                <span className="inline-flex items-center gap-1" title="Downloads">
-                  <AnimatedIcon icon={AnimateDownload} animation="nudge-up" size={11} />
-                  <span className="tabular-nums">{downloads}</span>
-                </span>
-              </div>
+            {/* Comments Toggle */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowComments(!showComments);
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors cursor-pointer border border-border/30 text-xs"
+              title="Discussion & comments"
+              aria-label="Comments"
+            >
+              <MessageSquare className="size-3.5" />
+              <span className="tabular-nums font-semibold text-[11px]">
+                {commentsList.length || item.commentsCount || 0}
+              </span>
+            </button>
+          </div>
 
-              <button
-                type="button"
-                onClick={handleDownload}
-                className={cn(
-                  "inline-flex min-h-[36px] sm:min-h-[38px] items-center gap-1.5 rounded-full px-3.5 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-[.98] shrink-0",
-                  (item.fileUrl || item.driveUrl || "").match(
-                    /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                  )
-                    ? "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black"
-                    : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                )}
-              >
-                {(item.fileUrl || item.driveUrl || "").match(
-                  /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                ) ? (
-                  <FolderOpen className="size-3.5 shrink-0" />
-                ) : (
-                  <ExternalLink className="size-3.5 shrink-0" />
-                )}
-                <span>
-                  {(item.fileUrl || item.driveUrl || "").match(
-                    /(?:drive\.google\.com\/(?:drive\/(?:u\/\d+\/)?)*folders\/|embeddedfolderview\?id=)([a-zA-Z0-9_-]+)/i
-                  )
-                    ? "Folder"
-                    : "Open"}
-                </span>
-              </button>
-            </div>
+          {/* Right: Save & View Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Save Button */}
+            <button
+              type="button"
+              onClick={handleToggleSave}
+              disabled={isSaving}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                isSaved
+                  ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                  : "border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
+              )}
+              title={isSaved ? "Saved to locker" : "Save to semester locker"}
+              aria-label="Save to semester locker"
+            >
+              <Bookmark className={cn("size-3.5", isSaved && "fill-current")} />
+              <span>{isSaved ? "Saved" : "Save"}</span>
+            </button>
+
+            {/* View / Open Resource */}
+            <button
+              type="button"
+              onClick={handleOpenResource}
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 hover:border-primary/40"
+              title="Open document"
+              aria-label="Open document"
+            >
+              <span>{isDriveFolder ? "Folder" : "View"}</span>
+              {isDriveFolder ? (
+                <ExternalLink className="size-3" />
+              ) : (
+                <ArrowRight className="size-3" />
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ─── Expandable Peer Reviews & Reliability Comments (Twitter Thread Style) ─── */}
+      {/* ─── Expandable Peer Reviews & Reliability Comments ─── */}
       {showComments && (
-        <div className="mt-2.5 ml-0 sm:ml-11 border-l-2 border-border/25 pl-3 sm:pl-4 space-y-3">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-3 border-t border-border/20 pt-3 space-y-3 animate-in fade-in duration-150"
+        >
           {/* Comment Composer */}
-          <form onSubmit={handleSubmitComment} className="flex flex-col gap-2 py-2 border-b border-border/20">
+          <form onSubmit={handleSubmitComment} className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-muted-foreground font-medium">Is this material accurate?</span>
+              <span className="text-muted-foreground font-medium">Material verification review:</span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -767,7 +580,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                     "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1",
                     isHelpful
                       ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                      : "text-muted-foreground hover:text-foreground border border-transparent"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <CheckCircle2 className="size-2.5 shrink-0" />
@@ -780,11 +593,11 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
                     "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1",
                     !isHelpful
                       ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                      : "text-muted-foreground hover:text-foreground border border-transparent"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <AlertTriangle className="size-2.5 shrink-0" />
-                  <span>Errata</span>
+                  <span>Errata Notice</span>
                 </button>
               </div>
             </div>
@@ -792,17 +605,17 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Post your reply or verification..."
+                placeholder="Post your verification or exam feedback..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="flex-1 bg-muted/30 px-3 py-1.5 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/30 outline-none focus:border-primary transition-colors"
+                className="flex-1 bg-muted/30 px-3.5 py-1.5 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/30 outline-none focus:border-primary transition-colors"
               />
               <button
                 type="submit"
                 disabled={isSubmittingComment || !commentText.trim()}
-                className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shrink-0 shadow-2xs"
+                className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shrink-0 shadow-2xs"
               >
-                Reply
+                Post
               </button>
             </div>
           </form>
@@ -810,51 +623,32 @@ export function AcademicCard({ item, currentUserId, isHighlighted, variant = "ro
           {/* Comments List */}
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1 no-scrollbar divide-y divide-border/15">
             {commentsList.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground italic py-2 text-center">
-                No peer comments yet. Be the first to verify!
+              <p className="text-[11px] text-muted-foreground italic py-1 text-center">
+                No peer reviews yet. Be the first to verify!
               </p>
             ) : (
-              commentsList.map((c) => (
+              commentsList.map((c: any) => (
                 <div key={c.id} className="pt-2 first:pt-0 space-y-1">
                   <div className="flex items-center justify-between text-[11px]">
                     <div className="flex items-center gap-1.5 font-bold text-foreground">
-                      {c.author?.username ? (
-                        <Link href={`/@${c.author.username}?tab=academics`} className="hover:underline">
-                          {c.author?.displayName || "Student"}
-                        </Link>
-                      ) : (
-                        <span>{c.author?.displayName || "Student"}</span>
-                      )}
+                      <span>{c.author?.displayName || "Student"}</span>
                       {c.author?.username && (
-                        <Link
-                          href={`/@${c.author.username}?tab=academics`}
-                          className="text-[10px] text-muted-foreground font-normal hover:underline"
-                        >
+                        <span className="text-[10px] text-muted-foreground font-normal">
                           @{c.author.username}
-                        </Link>
+                        </span>
                       )}
-                      <span className="text-[10px] text-muted-foreground/60">·</span>
-                      <span className="text-[10px] text-muted-foreground/80">
+                      <span className="text-muted-foreground/50">·</span>
+                      <span className="text-[10px] text-muted-foreground/75 font-normal">
                         {formatTimeAgo(c.createdAt)}
                       </span>
                     </div>
                     <span
                       className={cn(
-                        "text-[9px] font-black px-1.5 py-0.2 rounded-full inline-flex items-center gap-1",
+                        "text-[9px] font-black px-1.5 py-0.2 rounded-full",
                         c.isHelpful ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"
                       )}
                     >
-                      {c.isHelpful ? (
-                        <>
-                          <CheckCircle2 className="size-2.5 shrink-0" />
-                          <span>Helpful</span>
-                        </>
-                      ) : (
-                        <>
-                          <AlertTriangle className="size-2.5 shrink-0" />
-                          <span>Notice</span>
-                        </>
-                      )}
+                      {c.isHelpful ? "Accurate" : "Errata"}
                     </span>
                   </div>
                   <p className="text-xs text-foreground/90 font-normal leading-relaxed">{c.body}</p>

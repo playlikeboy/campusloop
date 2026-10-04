@@ -2,30 +2,29 @@
 
 import {
   Bookmark,
-  BookOpen,
+  FolderOpen,
   FolderPlus,
-  Globe,
-  GraduationCap,
-  LayoutGrid,
-  List,
   Loader2,
   Plus,
-  RotateCcw,
-  School,
-  Search,
   Sparkles,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
+import { AcademicActiveFilters } from "@/components/academics/academic-active-filters";
 import { AcademicAuthBenefitsCard } from "@/components/academics/academic-auth-benefits-card";
 import { AcademicAuthModal } from "@/components/academics/academic-auth-modal";
+import { AcademicCardSkeleton } from "@/components/academics/academic-card-skeleton";
+import { AcademicContextRail } from "@/components/academics/academic-context-rail";
+import { AcademicEmptyState } from "@/components/academics/academic-empty-state";
+import { AcademicFilterBar } from "@/components/academics/academic-filter-bar";
+import { AcademicHeader } from "@/components/academics/academic-header";
+import { AcademicNavTabs } from "@/components/academics/academic-nav-tabs";
 import { AcademicPlaylistCard } from "@/components/academics/academic-playlist-card";
+import { AcademicSearchBar } from "@/components/academics/academic-search-bar";
 import { AcademicCard } from "@/components/communities/academic-card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { GUEST_DOWNLOAD_LIMIT, getGuestDownloadCount } from "@/lib/academic-download-limiter";
 import { trackAcademicSearch } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
@@ -35,93 +34,55 @@ import { cn } from "@/lib/utils";
 
 interface AcademicsClientProps {
   profileId: string | null;
+  collegeName?: string;
+  userSemester?: number;
+  userBranch?: string;
 }
 
-// Twitter-Style Core Navigation Tabs
-const PRIMARY_TABS = [
-  { id: "for_you", label: "For You" },
-  { id: "PYQ", label: "PYQs" },
-  { id: "NOTES", label: "Notes" },
-  { id: "PLAYLISTS", label: "Playlists" },
-  { id: "SAVED", label: "Saved" },
-] as const;
-
-const BRANCHES = [
-  "All",
-  "Computer Science",
-  "Information Technology",
-  "ECE",
-  "Electrical",
-  "Mechanical",
-  "Civil",
-  "Chemical",
-  "BioTech",
-  "Basic Sciences",
-] as const;
-
-const SEMESTERS = [
-  { id: "all", label: "All Semesters" },
-  { id: "1", label: "Sem 1" },
-  { id: "2", label: "Sem 2" },
-  { id: "3", label: "Sem 3" },
-  { id: "4", label: "Sem 4" },
-  { id: "5", label: "Sem 5" },
-  { id: "6", label: "Sem 6" },
-  { id: "7", label: "Sem 7" },
-  { id: "8", label: "Sem 8" },
-] as const;
-
-export function AcademicsClient({ profileId }: AcademicsClientProps) {
+export function AcademicsClient({
+  profileId,
+  collegeName = "Campus Hub",
+  userSemester = 5,
+  userBranch = "Computer Science",
+}: AcademicsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("id");
 
-  // Navigation State
+  // Navigation & Filter State
   const [activeTab, setActiveTab] = useState<string>("for_you");
   const [selectedBranch, setSelectedBranch] = useState<string>("All");
   const [selectedSemester, setSelectedSemester] = useState<string>("all");
+  const [selectedResourceType, setSelectedResourceType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [scope, setScope] = useState<"campus" | "global">("campus");
-  const [sortBy, setSortBy] = useState<"for_you" | "latest" | "popular" | "downloads" | "views">("for_you");
-  const [viewMode, setViewMode] = useState<"row" | "grid">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("campusloop_academics_view_mode");
-      if (saved === "grid" || saved === "row") return saved;
-    }
-    return "row";
-  });
+  const [sortBy, setSortBy] = useState<"for_you" | "latest" | "popular" | "downloads">("for_you");
 
-  // Saved Sub-tab: "notes" | "playlists"
+  // Saved Materials State
   const [savedSubTab, setSavedSubTab] = useState<"notes" | "playlists">("notes");
   const [savedSemesterFilter, setSavedSemesterFilter] = useState<number | "all">("all");
 
+  // Modals & Infinite Scroll
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalReason, setAuthModalReason] = useState<"SAVE" | "VOTE" | "COMMENT" | "UPLOAD" | "AI">(
-    "UPLOAD"
-  );
   const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
   const [guestRemaining, setGuestRemaining] = useState<number>(GUEST_DOWNLOAD_LIMIT);
 
+  // Sync with URL Query Params
   useEffect(() => {
     const q = searchParams.get("q");
-    if (q) {
-      setSearchQuery(q);
-    }
+    if (q) setSearchQuery(q);
+
     const tab = searchParams.get("tab");
-    if (tab && PRIMARY_TABS.some((t) => t.id === tab)) {
-      setActiveTab(tab);
-    }
+    if (tab) setActiveTab(tab);
+
+    const branchParam = searchParams.get("branch");
+    if (branchParam) setSelectedBranch(branchParam);
+
+    const semParam = searchParams.get("semester");
+    if (semParam) setSelectedSemester(semParam);
   }, [searchParams]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("campusloop_academics_view_mode") as "grid" | "row" | null;
-      if (saved === "grid" || saved === "row") {
-        setViewMode(saved);
-      }
-    }
-  }, []);
-
+  // Guest download limit
   useEffect(() => {
     if (!profileId) {
       const used = getGuestDownloadCount();
@@ -129,6 +90,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     }
   }, [profileId]);
 
+  // Analytics Search Tracking
   useEffect(() => {
     if (!searchQuery.trim()) return;
     const timer = setTimeout(() => {
@@ -142,8 +104,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     return () => clearTimeout(timer);
   }, [searchQuery, selectedBranch, selectedSemester, activeTab]);
 
-  // ─── Data Queries ─────────────────────────────────────────────────────────
-
+  // ─── Data Queries ──────────────────────────────────────────────────────────
   const isFeedTab = activeTab !== "PLAYLISTS" && activeTab !== "SAVED";
 
   const getKey = (pageIndex: number, previousPageData: any) => {
@@ -152,7 +113,13 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
       return null;
     }
     const params = new URLSearchParams();
-    if (activeTab !== "for_you") params.set("resourceType", activeTab);
+    if (activeTab === "NOTES") {
+      params.set("resourceType", "NOTES");
+    } else if (activeTab === "PYQ") {
+      params.set("resourceType", "PYQ");
+    } else if (selectedResourceType !== "all") {
+      params.set("resourceType", selectedResourceType);
+    }
     if (selectedBranch !== "All") params.set("branch", selectedBranch);
     if (selectedSemester !== "all") params.set("semester", selectedSemester);
     if (searchQuery.trim()) params.set("q", searchQuery.trim());
@@ -163,7 +130,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     return `/api/academics?${params.toString()}`;
   };
 
-  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<{
+  const { data, size, setSize, isLoading, isValidating, error, mutate } = useSWRInfinite<{
     items: any[];
     total: number;
     page: number;
@@ -175,7 +142,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     dedupingInterval: 4000,
   });
 
-  // Playlists query
+  // Playlists Query
   const { data: playlistsData, isLoading: isPlaylistsLoading } = useSWR<{
     playlists: any[];
     pagination: { total: number };
@@ -186,12 +153,8 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     fetcher
   );
 
-  // Saved resources query
-  const {
-    data: savedData,
-    isLoading: isSavedLoading,
-    mutate: mutateSaved,
-  } = useSWR<{
+  // Saved Resources Query
+  const { data: savedData, isLoading: isSavedLoading } = useSWR<{
     items: any[];
     total: number;
     bySemester: Record<number, any[]>;
@@ -204,7 +167,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
 
   const totalCount = data?.[0]?.total ?? 0;
   const isInitialLoading = isLoading && items.length === 0;
-  const isEmpty = !isLoading && items.length === 0;
+  const isEmpty = !isLoading && items.length === 0 && !error;
   const isReachingEnd = isEmpty || Boolean(data && !data[data.length - 1]?.hasMore);
   const isLoadingMore = Boolean(
     isLoading || (isValidating && size > 1) || (size > 0 && data && typeof data[size - 1] === "undefined")
@@ -217,7 +180,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     return raw.filter((item) => (item.savedSemester || item.semester) === savedSemesterFilter);
   }, [savedData, savedSemesterFilter]);
 
-  // Infinite scroll observer
+  // Infinite Scroll Observer
   useEffect(() => {
     if (!loadMoreNode || isReachingEnd || isLoadingMore || !isFeedTab) return;
 
@@ -234,7 +197,7 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     return () => observer.disconnect();
   }, [loadMoreNode, isReachingEnd, isLoadingMore, setSize, isFeedTab]);
 
-  // Scroll to highlight element if present in query param
+  // Scroll to highlight element
   useEffect(() => {
     if (highlightId && items.length > 0) {
       const el = document.getElementById(`academic-${highlightId}`);
@@ -244,678 +207,312 @@ export function AcademicsClient({ profileId }: AcademicsClientProps) {
     }
   }, [highlightId, items]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  function handleSearchSubmit(query: string) {
     sounds.tap();
     haptics.light();
-    if (searchQuery.trim()) {
-      router.push(`/academics/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
+    setSearchQuery(query);
+  }
+
+  function handleResetFilters() {
+    sounds.tap();
+    haptics.light();
+    setSelectedBranch("All");
+    setSelectedSemester("all");
+    setSelectedResourceType("all");
+    setSortBy("for_you");
+    setSearchQuery("");
+  }
 
   const hasActiveFilters =
-    selectedBranch !== "All" || selectedSemester !== "all" || sortBy !== "for_you" || scope !== "campus";
+    selectedBranch !== "All" ||
+    selectedSemester !== "all" ||
+    selectedResourceType !== "all" ||
+    sortBy !== "for_you" ||
+    Boolean(searchQuery.trim());
 
   return (
-    <div className="min-h-screen w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 pb-20 select-none">
-      {/* ─── Unified Mobile-First Sticky Header (Compact 3-Row Layout) ─── */}
-      <header className="sticky top-14 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-2 space-y-2">
-        {/* ROW 1: [Campus] [All India]  ...  [Saved] [Upload] */}
-        <div className="flex h-8 items-center justify-between gap-2">
-          {/* Left: Scope Toggle */}
-          <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 shrink-0 text-xs">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setScope("campus");
-              }}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
-                scope === "campus"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <School className="size-3 text-amber-500" />
-              <span>Campus</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setScope("global");
-              }}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
-                scope === "global"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Globe className="size-3 text-sky-500" />
-              <span>All India</span>
-            </button>
-          </div>
+    <div className="min-h-screen w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 pb-20 select-none">
+      {/* ─── 1. Primary Page Header (Academics Title + Subtitle + Upload CTA) ─── */}
+      <AcademicHeader
+        scope={scope}
+        onScopeChange={setScope}
+        campusName={collegeName}
+        totalCount={totalCount}
+      />
 
-          {/* Right: Saved & Upload Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setActiveTab("SAVED");
-              }}
-              className={cn(
-                "flex h-8 items-center gap-1 rounded-full px-2.5 text-xs font-bold transition-colors cursor-pointer border border-border/30",
-                activeTab === "SAVED"
-                  ? "bg-amber-500/15 text-amber-500 border-amber-500/40"
-                  : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-              title="Saved study materials"
-              aria-label="Saved materials"
-            >
-              <Bookmark className="size-3.5" />
-              <span className="hidden xs:inline">Saved</span>
-            </button>
+      {/* ─── 2. Search Experience with ⌘ K and Suggestions ─── */}
+      <div className="py-2">
+        <AcademicSearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSubmit={handleSearchSubmit}
+        />
+      </div>
 
-            <Link
-              href="/academics/upload"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-              }}
-              className="flex h-8 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-            >
-              <Plus className="size-3.5 stroke-[2.5]" />
-              <span>Upload</span>
-            </Link>
-          </div>
-        </div>
+      {/* ─── 3. Content Navigation Tabs: [For You] [Notes] [PYQs] [Playlists] [Saved] ─── */}
+      <div className="pt-2">
+        <AcademicNavTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          savedCount={savedData?.items?.length}
+        />
+      </div>
 
-        {/* ROW 2: Compact Direct Search Input */}
-        <form onSubmit={handleSearchSubmit} className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notes, PYQs, subjects, codes..."
-            className="w-full h-8.5 rounded-full bg-muted/40 border border-border/40 pl-8.5 pr-8 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 transition-all"
+      {/* ─── 4. Resource Filter Bar: [Branch ▾] [Semester ▾] [Resource Type ▾] [Sort ▾] ─── */}
+      {isFeedTab && (
+        <div className="pt-2 pb-1">
+          <AcademicFilterBar
+            branch={selectedBranch}
+            semester={selectedSemester}
+            resourceType={selectedResourceType}
+            sortBy={sortBy}
+            onBranchChange={setSelectedBranch}
+            onSemesterChange={setSelectedSemester}
+            onResourceTypeChange={setSelectedResourceType}
+            onSortChange={setSortBy}
+            onReset={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+            activeTab={activeTab}
           />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-              title="Clear search"
-            >
-              <X className="size-3" />
-            </button>
-          )}
-        </form>
 
-        {/* ROW 3: For You | PYQs | Notes | Playlists | Saved + Branch & Sem Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
-          {PRIMARY_TABS.map((tab) => {
-            const isSelected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setActiveTab(tab.id);
-                }}
-                className={cn(
-                  "min-h-[28px] px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
-                  isSelected
-                    ? "bg-secondary text-secondary-foreground shadow-xs font-black"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                )}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-
-          <div className="h-3.5 w-px bg-border/40 shrink-0 mx-0.5" />
-
-          {/* Branch Select */}
-          <select
-            value={selectedBranch}
-            onChange={(e) => {
-              sounds.tap();
-              setSelectedBranch(e.target.value);
-            }}
-            className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-          >
-            {BRANCHES.map((b) => (
-              <option key={b} value={b}>
-                {b === "All" ? "All Branches" : b}
-              </option>
-            ))}
-          </select>
-
-          {/* Semester Select */}
-          {activeTab !== "SAVED" && (
-            <select
-              aria-label="Filter by semester"
-              value={selectedSemester}
-              onChange={(e) => {
-                sounds.tap();
-                setSelectedSemester(e.target.value);
-              }}
-              className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-            >
-              {SEMESTERS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Sort Select */}
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              sounds.tap();
-              setSortBy(e.target.value as any);
-            }}
-            className="h-7 rounded-full bg-muted/40 border border-border/40 px-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground outline-none cursor-pointer shrink-0"
-          >
-            <option value="for_you">Recommended</option>
-            <option value="latest">Latest</option>
-            <option value="popular">Most Upvoted</option>
-            <option value="downloads">Most Downloaded</option>
-          </select>
-
-          {/* Reset Active Filters */}
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setSelectedBranch("All");
-                setSelectedSemester("all");
-                setSortBy("for_you");
-                setScope("campus");
-                setSearchQuery("");
-              }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              title="Reset filters"
-            >
-              <RotateCcw className="size-2.5" />
-              <span>Reset</span>
-            </button>
-          )}
+          {/* Active Filter Chips: CSE ×, Sem 5 ×, Clear all */}
+          <AcademicActiveFilters
+            branch={selectedBranch}
+            semester={selectedSemester}
+            resourceType={selectedResourceType}
+            sortBy={sortBy}
+            onClearBranch={() => setSelectedBranch("All")}
+            onClearSemester={() => setSelectedSemester("all")}
+            onClearResourceType={() => setSelectedResourceType("all")}
+            onClearSort={() => setSortBy("for_you")}
+            onClearAll={handleResetFilters}
+          />
         </div>
-      </header>
+      )}
 
-      {/* ─── Tab Content Views ──────────────────────────────────────────────── */}
-      <div className="divide-y divide-border/20">
-        {/* Guest conversion banner if not signed in */}
-        {!profileId && <AcademicAuthBenefitsCard returnTo="/academics" dismissible={true} />}
+      {/* Guest conversion banner if not signed in */}
+      {!profileId && (
+        <div className="pt-3">
+          <AcademicAuthBenefitsCard returnTo="/academics" dismissible={true} />
+        </div>
+      )}
 
-        {/* ── 1. SAVED MATERIALS & PLAYLISTS TAB ───────────────────────────── */}
-        {activeTab === "SAVED" ? (
-          <div className="space-y-4 p-3 sm:p-4">
-            {/* Saved Mode Switcher: Notes vs Playlists */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-border/30 pb-2">
-              <div className="flex rounded-full bg-muted/40 p-0.5 border border-border/40">
-                <button
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    setSavedSubTab("notes");
-                  }}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                    savedSubTab === "notes"
-                      ? "bg-background text-foreground shadow-xs font-black"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Saved Notes ({savedData?.items?.length || 0})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    setSavedSubTab("playlists");
-                  }}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
-                    savedSubTab === "playlists"
-                      ? "bg-background text-foreground shadow-xs font-black"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Playlists ({playlistsData?.playlists?.length || 0})
-                </button>
-              </div>
-
-              {/* Semester Filter for Saved Notes */}
-              {savedSubTab === "notes" && (
-                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                  {[
-                    { id: "all" as const, label: "All Sems" },
-                    { id: 1, label: "Sem 1" },
-                    { id: 2, label: "Sem 2" },
-                    { id: 3, label: "Sem 3" },
-                    { id: 4, label: "Sem 4" },
-                    { id: 5, label: "Sem 5" },
-                    { id: 6, label: "Sem 6" },
-                  ].map((s) => (
-                    <button
-                      key={String(s.id)}
-                      type="button"
-                      onClick={() => setSavedSemesterFilter(s.id)}
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer shrink-0",
-                        savedSemesterFilter === s.id
-                          ? "bg-primary text-primary-foreground font-black"
-                          : "text-muted-foreground hover:text-foreground bg-muted/30"
-                      )}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+      {/* ─── Main Content Layout: Main Stream + Optional Companion Rail ─── */}
+      <div className="pt-4 grid grid-cols-1 xl:grid-cols-[1fr_288px] gap-8 items-start">
+        {/* ── Main Stream Feed ── */}
+        <main className="min-w-0 w-full space-y-4">
+          {/* Subtle Personalization Explanation on For You Tab */}
+          {activeTab === "for_you" && !hasActiveFilters && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 text-xs text-muted-foreground">
+              <Sparkles className="size-3.5 text-primary shrink-0" />
+              <span>
+                Recommended for you · Based on verified syllabus for{" "}
+                <strong className="text-foreground">Sem {userSemester} · {userBranch}</strong>
+              </span>
             </div>
+          )}
 
-            {/* Saved Content Body */}
-            {savedSubTab === "notes" ? (
-              isSavedLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-20 w-full rounded-2xl" />
-                  <Skeleton className="h-20 w-full rounded-2xl" />
-                  <Skeleton className="h-20 w-full rounded-2xl" />
-                </div>
-              ) : filteredSavedItems.length > 0 ? (
-                viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-                    {filteredSavedItems.map((item) => (
-                      <AcademicCard
-                        key={item.id}
-                        item={item}
-                        currentUserId={profileId || undefined}
-                        variant="grid"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="divide-y divide-border/20 rounded-2xl border border-border/30 bg-card/25 overflow-hidden">
-                    {filteredSavedItems.map((item) => (
-                      <AcademicCard
-                        key={item.id}
-                        item={item}
-                        currentUserId={profileId || undefined}
-                        variant="row"
-                      />
-                    ))}
-                  </div>
-                )
-              ) : (
-                <div className="py-12 sm:py-14 text-center space-y-2.5 px-4 rounded-2xl border border-dashed border-border/60 bg-muted/5">
-                  <Bookmark className="size-8 text-muted-foreground/25 mx-auto" />
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-foreground">
-                      {savedSemesterFilter !== "all"
-                        ? `No saved materials for Semester ${savedSemesterFilter}`
-                        : "No saved materials yet"}
-                    </h3>
-                    <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                      Bookmark a note or PYQ to find it here.
-                    </p>
-                  </div>
+          {/* ── Tab: SAVED MATERIALS ── */}
+          {activeTab === "SAVED" ? (
+            <div className="space-y-4">
+              {/* Saved Sub-Tab Switcher: Notes vs Playlists */}
+              <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                <div className="flex rounded-full bg-muted/40 p-0.5 border border-border/40 text-xs">
                   <button
                     type="button"
-                    onClick={() => setActiveTab("for_you")}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                    onClick={() => {
+                      sounds.tap();
+                      setSavedSubTab("notes");
+                    }}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full font-bold transition-all cursor-pointer",
+                      savedSubTab === "notes"
+                        ? "bg-card text-foreground shadow-xs font-black"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
                   >
-                    <span>Browse Academic Vault →</span>
+                    Saved Notes ({savedData?.items?.length || 0})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.tap();
+                      setSavedSubTab("playlists");
+                    }}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full font-bold transition-all cursor-pointer",
+                      savedSubTab === "playlists"
+                        ? "bg-card text-foreground shadow-xs font-black"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Playlists ({playlistsData?.playlists?.length || 0})
                   </button>
                 </div>
-              )
-            ) : isPlaylistsLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Skeleton className="h-36 w-full rounded-2xl" />
-                <Skeleton className="h-36 w-full rounded-2xl" />
-                <Skeleton className="h-36 w-full rounded-2xl" />
-              </div>
-            ) : playlistsData?.playlists && playlistsData.playlists.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-                {playlistsData.playlists.map((playlist: any) => (
-                  <AcademicPlaylistCard key={playlist.id} playlist={playlist} />
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center space-y-3 px-4 rounded-2xl border border-dashed border-border/60">
-                <FolderPlus className="size-10 text-muted-foreground/30 mx-auto" />
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-foreground">No study playlists created yet</h3>
-                  <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                    Assemble notes, 5-year PYQs, and cheat sheets into a shareable bundle for your batch.
-                  </p>
-                </div>
-                <Link
-                  href="/academics/playlists/new"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  <Plus className="size-3.5" />
-                  <span>Create Study Stack</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        ) : activeTab === "PLAYLISTS" ? (
-          /* ── 2. PLAYLISTS TAB ─────────────────────────────────────────── */
-          <div className="space-y-4 p-4">
-            {/* Header Action */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-black tracking-tight text-foreground">Study playlists</h2>
-                <p className="text-xs text-muted-foreground">Curated notes, PYQs and revision material</p>
-              </div>
-              <Link
-                href="/academics/playlists/new"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer shrink-0"
-              >
-                <Plus className="size-3" />
-                <span>New playlist</span>
-              </Link>
-            </div>
 
-            {isPlaylistsLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Skeleton className="h-36 w-full rounded-2xl" />
-                <Skeleton className="h-36 w-full rounded-2xl" />
-                <Skeleton className="h-36 w-full rounded-2xl" />
+                {savedSubTab === "notes" && (
+                  <div className="flex items-center gap-1 text-xs">
+                    <span className="text-[11px] text-muted-foreground">Semester:</span>
+                    <select
+                      value={String(savedSemesterFilter)}
+                      onChange={(e) =>
+                        setSavedSemesterFilter(e.target.value === "all" ? "all" : Number(e.target.value))
+                      }
+                      className="h-7 rounded-lg bg-card border border-border/60 px-2 text-xs text-foreground outline-none cursor-pointer"
+                    >
+                      <option value="all">All Sems</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                        <option key={s} value={String(s)}>
+                          Sem {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-            ) : playlistsData?.playlists && playlistsData.playlists.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-                {playlistsData.playlists.map((playlist: any) => (
-                  <AcademicPlaylistCard key={playlist.id} playlist={playlist} />
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center space-y-3 px-4 rounded-2xl border border-dashed border-border/60">
-                <FolderPlus className="size-10 text-muted-foreground/30 mx-auto" />
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-foreground">No playlists found for this filter</h3>
-                  <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                    Be the first in your branch or semester to assemble an exam stack and earn +50 LP!
-                  </p>
+
+              {/* Saved Notes Feed */}
+              {savedSubTab === "notes" ? (
+                isSavedLoading ? (
+                  <AcademicCardSkeleton count={3} />
+                ) : filteredSavedItems.length > 0 ? (
+                  <div className="rounded-2xl border border-border/30 bg-card/40 overflow-hidden divide-y divide-border/20">
+                    {filteredSavedItems.map((item) => (
+                      <AcademicCard
+                        key={item.id}
+                        item={item}
+                        currentUserId={profileId || undefined}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <AcademicEmptyState
+                    type="saved_empty"
+                    onResetFilters={() => setActiveTab("for_you")}
+                  />
+                )
+              ) : isPlaylistsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-36 rounded-2xl bg-card/40 border border-border/30 animate-pulse" />
+                  ))}
                 </div>
-                <Link
-                  href="/academics/playlists/new"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  <Plus className="size-3.5" />
-                  <span>Create First Playlist</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        ) : (
-          /* ── 3. CORE FEED: FOR YOU, PYQs, NOTES ────────────────────────── */
-          <div>
-            {isInitialLoading ? (
-              viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 py-4">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <Skeleton key={i} className="h-64 w-full rounded-3xl" />
+              ) : playlistsData?.playlists && playlistsData.playlists.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {playlistsData.playlists.map((playlist: any) => (
+                    <AcademicPlaylistCard key={playlist.id} playlist={playlist} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start py-4">
-                  <div className="divide-y divide-border/20 rounded-2xl border border-border/30 bg-card/25 overflow-hidden">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="p-4 space-y-2">
-                        <Skeleton className="h-4 w-1/3 rounded-md" />
-                        <Skeleton className="h-5 w-4/5 rounded-md" />
-                        <Skeleton className="h-4 w-1/2 rounded-md" />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="hidden lg:flex flex-col gap-4">
-                    <Skeleton className="h-48 w-full rounded-2xl" />
-                    <Skeleton className="h-36 w-full rounded-2xl" />
-                  </div>
+                <AcademicEmptyState
+                  type="empty"
+                  filterContext="Playlists"
+                  onResetFilters={() => setActiveTab("for_you")}
+                />
+              )}
+            </div>
+          ) : activeTab === "PLAYLISTS" ? (
+            /* ── Tab: PLAYLISTS ── */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-border/30">
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Study Playlists</h2>
+                  <p className="text-xs text-muted-foreground">Curated notes, PYQs, and exam bundles</p>
                 </div>
-              )
-            ) : items.length > 0 ? (
-              <>
-                {viewMode === "grid" ? (
-                  <div className="py-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
-                      {items.map((item) => (
-                        <AcademicCard
-                          key={item.id}
-                          item={item}
-                          currentUserId={profileId || undefined}
-                          isHighlighted={highlightId === item.id}
-                          variant="grid"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
-                      {/* Left Main Stream: High-density row cards */}
-                      <div className="min-w-0 divide-y divide-border/20 rounded-2xl border border-border/30 bg-card/25 overflow-hidden">
-                        {items.map((item) => (
-                          <AcademicCard
-                            key={item.id}
-                            item={item}
-                            currentUserId={profileId || undefined}
-                            isHighlighted={highlightId === item.id}
-                            variant="row"
-                          />
-                        ))}
-                      </div>
+                <Link
+                  href="/academics/playlists/new"
+                  onClick={() => sounds.tap()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
+                >
+                  <Plus className="size-3.5" />
+                  <span>Create Playlist</span>
+                </Link>
+              </div>
 
-                      {/* Right Desktop Companion Sidebar */}
-                      <aside className="hidden lg:flex flex-col gap-4 sticky top-28">
-                        {/* Hub Overview Card */}
-                        <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-4 space-y-3">
-                          <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-                              <School className="size-4" />
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="text-xs font-black text-foreground truncate">
-                                Campus Study Vault
-                              </h3>
-                              <p className="text-[10px] text-muted-foreground">Syllabus-aligned repository</p>
-                            </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            Exam-tested PYQs, verified topper notes, formula sheets, and lab manuals shared by
-                            college students.
-                          </p>
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                              Verified Notes
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">
-                              Zero-Login PDF
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[10px] font-semibold border border-border/40">
-                              1,350+ Hubs
-                            </span>
-                          </div>
-                          <Link
-                            href="/academics/upload"
-                            onClick={() => sounds.tap()}
-                            className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black shadow-xs hover:opacity-95 transition-opacity cursor-pointer"
-                          >
-                            <Plus className="size-3.5" />
-                            <span>Upload Notes (+20 LP)</span>
-                          </Link>
-                        </div>
+              {isPlaylistsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-36 rounded-2xl bg-card/40 border border-border/30 animate-pulse" />
+                  ))}
+                </div>
+              ) : playlistsData?.playlists && playlistsData.playlists.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {playlistsData.playlists.map((playlist: any) => (
+                    <AcademicPlaylistCard key={playlist.id} playlist={playlist} />
+                  ))}
+                </div>
+              ) : (
+                <AcademicEmptyState
+                  type="empty"
+                  filterContext="Playlists"
+                  onResetFilters={() => handleResetFilters()}
+                />
+              )}
+            </div>
+          ) : (
+            /* ── Tab: CORE FEED (FOR YOU, NOTES, PYQs) ── */
+            <div>
+              {error ? (
+                <AcademicEmptyState type="error" onRetry={() => mutate()} />
+              ) : isInitialLoading ? (
+                <AcademicCardSkeleton count={5} />
+              ) : items.length > 0 ? (
+                <div className="rounded-2xl border border-border/30 bg-card/40 overflow-hidden divide-y divide-border/20">
+                  {items.map((item) => (
+                    <AcademicCard
+                      key={item.id}
+                      item={item}
+                      currentUserId={profileId || undefined}
+                      isHighlighted={highlightId === item.id}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <AcademicEmptyState
+                  type="empty"
+                  filterContext={searchQuery || (selectedBranch !== "All" ? selectedBranch : undefined)}
+                  onResetFilters={handleResetFilters}
+                />
+              )}
 
-                        {/* Quick Branch Shortcuts */}
-                        <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-4 space-y-2.5">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-foreground">Top Branches</h3>
-                            {selectedBranch !== "All" && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  sounds.tap();
-                                  setSelectedBranch("All");
-                                }}
-                                className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
-                              >
-                                Clear
-                              </button>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {BRANCHES.map((b) => {
-                              const isSelected = selectedBranch === b;
-                              return (
-                                <button
-                                  key={b}
-                                  type="button"
-                                  onClick={() => {
-                                    sounds.tap();
-                                    setSelectedBranch(b);
-                                  }}
-                                  className={cn(
-                                    "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer border",
-                                    isSelected
-                                      ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/30"
-                                  )}
-                                >
-                                  {b === "All" ? "All Branches" : b}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Semester Shortcuts */}
-                        <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-4 space-y-2.5">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-foreground">Semester Fast Filter</h3>
-                            {selectedSemester !== "all" && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  sounds.tap();
-                                  setSelectedSemester("all");
-                                }}
-                                className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
-                              >
-                                Clear
-                              </button>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-3 gap-1">
-                            {SEMESTERS.map((s) => {
-                              const isSelected = selectedSemester === s.id;
-                              return (
-                                <button
-                                  key={s.id}
-                                  type="button"
-                                  onClick={() => {
-                                    sounds.tap();
-                                    setSelectedSemester(s.id);
-                                  }}
-                                  className={cn(
-                                    "py-1 rounded-lg text-[11px] font-semibold text-center transition-all cursor-pointer border",
-                                    isSelected
-                                      ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/30"
-                                  )}
-                                >
-                                  {s.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Exam Stacks Callout */}
-                        <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent p-4 space-y-2">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                            <FolderPlus className="size-3.5 text-indigo-400" />
-                            <span>Curate Exam Stacks</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed">
-                            Bundle past 5 years of exam papers, formulas, and lecture notes into a 1-click
-                            stack for your classmates.
-                          </p>
-                          <Link
-                            href="/academics/playlists/new"
-                            onClick={() => sounds.tap()}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-400 hover:underline pt-1"
-                          >
-                            <span>Build a study playlist</span>
-                            <span>&rarr;</span>
-                          </Link>
-                        </div>
-                      </aside>
-                    </div>
-                  </div>
-                )}
-
-                {/* Infinite Scroll Sentinel */}
-                <div ref={setLoadMoreNode} className="flex flex-col items-center justify-center p-4 min-h-16">
+              {/* Infinite Scroll Sentinel */}
+              {items.length > 0 && (
+                <div ref={setLoadMoreNode} className="flex flex-col items-center justify-center py-6 min-h-16">
                   {isLoadingMore && (
-                    <div className="flex items-center gap-2 py-3 text-xs font-semibold text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                       <Loader2 className="size-4 animate-spin text-primary" />
-                      <span>Loading more materials...</span>
+                      <span>Loading more resources...</span>
                     </div>
                   )}
                   {isReachingEnd && (
-                    <div className="py-6 text-center">
-                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted/40 border border-border/40 text-[11px] font-semibold text-muted-foreground">
-                        <Sparkles className="size-3 text-primary" />
-                        <span>Reached end of vault ({totalCount.toLocaleString()} resources)</span>
-                      </div>
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/40 border border-border/40 text-xs font-semibold text-muted-foreground">
+                      <Sparkles className="size-3.5 text-primary" />
+                      <span>All {totalCount.toLocaleString()} study resources loaded</span>
                     </div>
                   )}
                 </div>
-              </>
-            ) : (
-              <div className="py-24 text-center px-4 space-y-3">
-                <BookOpen className="size-10 text-muted-foreground/30 mx-auto" />
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-foreground">No study resources found</h3>
-                  <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                    Try changing your branch or semester filter, or be the first to upload lecture notes or
-                    PYQs!
-                  </p>
-                </div>
-                <Link
-                  href="/academics/upload"
-                  onClick={() => sounds.tap()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
-                >
-                  <Plus className="size-3.5" />
-                  <span>Upload First Notes (+20 LP)</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* ── Contextual Companion Rail (Desktop xl+) ── */}
+        <AcademicContextRail
+          onSelectTopic={(topic) => {
+            setSearchQuery(topic);
+            sounds.tap();
+          }}
+          collegeName={collegeName}
+          userSemester={userSemester}
+          userBranch={userBranch}
+        />
       </div>
 
       {/* Guest Authentication Modal */}
       <AcademicAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        actionReason={authModalReason}
+        actionReason="UPLOAD"
         returnTo="/academics"
       />
     </div>

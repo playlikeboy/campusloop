@@ -35,16 +35,8 @@ export const metadata: Metadata = {
 
 export default async function MarketplaceLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  const profile = await getCachedUserProfile(user.id);
-  if (!profile?.onboardingCompleted) {
-    redirect("/onboarding");
-  }
-
-  const viewerMode = await isViewerProfile(profile);
+  const profile = user ? await getCachedUserProfile(user.id) : null;
+  const viewerMode = profile ? await isViewerProfile(profile) : false;
 
   return (
     <MarketplaceShellClient profile={profile} viewerMode={viewerMode}>
