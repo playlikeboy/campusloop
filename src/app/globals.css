@@ -1285,7 +1285,7 @@ a,
   isolation: isolate;
   background:
     linear-gradient(180deg, rgba(8, 14, 30, 0.02), rgba(8, 14, 30, 0.10)),
-    url("/campusloop/voxel/campusloop-master-campus.png") center / cover no-repeat;
+    url("/campusloop/voxel/campus.svg") center / cover no-repeat;
   margin-bottom: -3rem;
 }
 .campusloop-voxel-sky {
