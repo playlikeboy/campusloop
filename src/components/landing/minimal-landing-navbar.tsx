@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, CalendarDays, Compass, Flame, Menu, Users, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, CalendarDays, Compass, Menu, Sparkles, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,11 +16,11 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Campus Feed", href: "/feeds", icon: Flame },
+    { label: "Explore", href: "/explore", icon: Compass },
     { label: "Academics", href: "/academics", icon: BookOpen },
     { label: "Communities", href: "/communities", icon: Users },
     { label: "Events", href: "/events", icon: CalendarDays },
-    { label: "Colleges", href: "/colleges", icon: Compass },
+    { label: "Colleges", href: "/colleges", icon: Sparkles },
   ];
 
   return (
@@ -34,9 +34,9 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             haptics.light();
           }}
           className="flex items-center gap-2.5 group cursor-pointer"
-          aria-label="CampusLoop home — Verified Digital Layer of Indian College Life"
+          aria-label="CampusLoop home — The Campus Network"
         >
-          <div className="size-8.5 rounded-2xl bg-gradient-to-tr from-emerald-500 via-primary to-teal-400 flex items-center justify-center shadow-xs shadow-emerald-500/30 group-hover:scale-105 transition-transform">
+          <div className="size-8.5 rounded-2xl bg-gradient-to-tr from-primary via-purple-600 to-indigo-500 flex items-center justify-center shadow-xs shadow-primary/30 group-hover:scale-105 transition-transform">
             <span className="text-white text-xs font-black tracking-tight">CL</span>
           </div>
           <div className="flex items-center">
@@ -45,7 +45,6 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             </span>
             <span className="ml-1.5 size-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          <span className="sr-only"> — Home: Verified Student Campus Social Network</span>
         </Link>
 
         {/* Desktop Pill Navigation */}
@@ -77,15 +76,14 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           <ThemeToggle className="size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted" />
 
           <Link
-            href="/feeds"
+            href={isAuthenticated ? "/feeds" : "/sign-up"}
             onClick={() => {
               sounds.tap();
               haptics.medium();
             }}
-            className="inline-flex h-9 sm:h-9.5 items-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 text-xs font-black text-white hover:opacity-90 active:scale-95 transition-all shadow-xs shadow-emerald-500/30 cursor-pointer"
+            className="inline-flex h-9 sm:h-9.5 items-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 text-xs font-black text-white hover:opacity-90 active:scale-95 transition-all shadow-xs shadow-primary/30 cursor-pointer"
           >
-            <span>{isAuthenticated ? "Launch Campus" : "Join Free"}</span>
-            <span className="sr-only"> to explore verified feeds, notes, and events</span>
+            <span>{isAuthenticated ? "Enter Campus" : "Join CampusLoop"}</span>
             <ArrowUpRight className="size-3.5" />
           </Link>
 
@@ -138,15 +136,15 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             </div>
 
             <Link
-              href="/feeds"
+              href={isAuthenticated ? "/feeds" : "/sign-up"}
               onClick={() => {
                 sounds.tap();
                 haptics.medium();
                 setMobileMenuOpen(false);
               }}
-              className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-white text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
+              className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-white text-xs font-black shadow-md shadow-primary/25 active:scale-95 transition-all"
             >
-              <span>{isAuthenticated ? "Launch Campus" : "Join Your College"}</span>
+              <span>{isAuthenticated ? "Enter Campus" : "Join CampusLoop"}</span>
               <ArrowUpRight className="size-4" />
             </Link>
           </motion.div>

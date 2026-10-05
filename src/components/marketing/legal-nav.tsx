@@ -9,6 +9,7 @@ const LEGAL_TABS = [
   { href: "/terms", label: "Terms" },
   { href: "/safety", label: "Safety" },
   { href: "/contact", label: "Contact" },
+  { href: "/help", label: "Help" },
 ];
 
 /**

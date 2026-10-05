@@ -31,11 +31,11 @@ export {
 } from "@/components/landing/landing-design-system";
 
 const NAV_LINKS = [
-  { href: "/about", label: "About" },
-  { href: "/overview", label: "Overview" },
-  { href: "/products", label: "Products" },
+  { href: "/explore", label: "Explore" },
+  { href: "/academics", label: "Academics" },
+  { href: "/communities", label: "Communities" },
+  { href: "/events", label: "Events" },
   { href: "/colleges", label: "Colleges" },
-  { href: "/safety", label: "Safety" },
 ];
 
 export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
@@ -68,7 +68,7 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
                 Sign in
               </Link>
               <Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
-                Get verified
+                Join CampusLoop
               </Link>
             </>
           )}
@@ -82,28 +82,27 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
   {
     title: "Product",
     links: [
-      { href: "/products", label: "All Products" },
-      { href: "/overview", label: "Platform Overview" },
-      { href: "/demo", label: "Testing & Demo Access" },
-      { href: "/colleges", label: "College Directory" },
-      { href: "/sign-up", label: "Join CampusLoop" },
+      { href: "/academics", label: "Academics" },
+      { href: "/communities", label: "Communities" },
+      { href: "/events", label: "Events" },
+      { href: "/colleges", label: "Colleges" },
     ],
   },
-
   {
     title: "Company",
     links: [
-      { href: "/about", label: "About Us" },
-      { href: "/colleges", label: "Campus Hubs" },
+      { href: "/about", label: "About" },
+      { href: "/safety", label: "Safety" },
       { href: "/contact", label: "Contact" },
     ],
   },
   {
-    title: "Trust",
+    title: "Resources",
     links: [
-      { href: "/safety", label: "Safety Guidelines" },
+      { href: "/help", label: "Help & FAQs" },
       { href: "/privacy", label: "Privacy Policy" },
       { href: "/terms", label: "Terms of Service" },
+      { href: "/sitemap", label: "Visual Sitemap" },
     ],
   },
 ];

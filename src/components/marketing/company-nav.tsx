@@ -6,10 +6,9 @@ import { cn } from "@/lib/utils";
 
 const COMPANY_TABS = [
   { href: "/about", label: "About" },
-  { href: "/overview", label: "Overview" },
-  { href: "/products", label: "Products" },
-  { href: "/demo", label: "Demo" },
   { href: "/safety", label: "Safety" },
+  { href: "/contact", label: "Contact" },
+  { href: "/help", label: "Help" },
   { href: "/pitch", label: "Pitch" },
 ];
 
