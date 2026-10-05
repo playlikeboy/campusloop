@@ -50,17 +50,15 @@ export function VoxelStreakSection() {
         </div>
 
         {/* 3 Cute Voxel Characters Illustration */}
-        <div className="relative mt-10 sm:mt-14 mx-auto max-w-2xl">
-          <div className="relative aspect-16/10 w-full overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-b from-background via-emerald-50/20 to-emerald-100/30 p-2 shadow-xl">
+        <div className="relative mt-8 sm:mt-12 mx-auto max-w-2xl">
+          <div className="relative aspect-16/10 w-full overflow-hidden">
             <Image
               src="/campusloop/marketing/voxel/cute-students-trio.webp"
               alt="Three cute voxel college student characters standing together on grass blocks"
               fill
               sizes="(max-width: 768px) 100vw, 700px"
-              className="object-contain object-bottom transition-transform duration-500 hover:scale-102"
+              className="object-contain object-bottom transition-transform duration-500 hover:scale-105"
             />
-            {/* Subtle bottom grass tint blend */}
-            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-600/10 to-transparent pointer-events-none" />
           </div>
         </div>
       </div>

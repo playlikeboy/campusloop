@@ -1,5 +1,6 @@
-import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 const FOOTER_GROUPS = [
   {
@@ -38,8 +39,14 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="size-8 rounded-xl bg-[#22c55e] flex items-center justify-center text-white text-xs font-black shadow-xs shadow-emerald-500/30">
-                CL
+              <div className="relative size-8 overflow-hidden rounded-xl border border-border/40 shadow-xs group-hover:scale-105 transition-transform">
+                <Image
+                  src="/campusloop/marketing/voxel/logo.webp"
+                  alt="CampusLoop"
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                />
               </div>
               <span className="text-base font-black tracking-tight text-foreground">
                 Campus<span className="text-[#16a34a]">Loop</span>
