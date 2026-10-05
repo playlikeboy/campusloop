@@ -1,20 +1,28 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, BookOpen, Flame, Sparkles } from "lucide-react";
+import { motion } from "motion/react";
 
 export function VoxelCascadeShowcase() {
   return (
-    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-background via-emerald-50/15 to-background overflow-hidden">
+    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-background via-emerald-50/15 to-background overflow-hidden select-none">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          {/* Left Column: Cascading Perspective Mockup Cards */}
-          <div className="lg:col-span-7 relative order-2 lg:order-1">
+          {/* Left Column: Cascading 3D Perspective Mockup Cards */}
+          <div className="lg:col-span-7 relative order-2 lg:order-1 perspective-1000">
             {/* Background Voxel Glow */}
             <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-emerald-500/10 via-emerald-400/5 to-transparent blur-2xl" />
 
-            {/* Cascading Mobile Stack Mockup */}
+            {/* Cascading Mobile Stack Mockup with subtle 3D float */}
             <div className="relative grid grid-cols-2 gap-4 sm:gap-6">
               {/* Phone 1: Campus Feed Stream */}
-              <div className="rounded-3xl border-2 border-border/80 bg-card p-4 shadow-xl -rotate-2 hover:rotate-0 transition-transform duration-300">
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ rotate: 0, scale: 1.03, y: -8 }}
+                className="rounded-3xl border border-border/80 bg-card p-4 shadow-xl -rotate-2 transition-all duration-300 cursor-default"
+              >
                 <div className="flex items-center gap-2 pb-3 border-b border-border/40">
                   <div className="size-6 rounded-full bg-[#22c55e] flex items-center justify-center text-white text-[9px] font-black">
                     IIT
@@ -52,10 +60,15 @@ export function VoxelCascadeShowcase() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Phone 2: Academic Vault & Notes */}
-              <div className="rounded-3xl border-2 border-border/80 bg-card p-4 shadow-xl rotate-3 hover:rotate-0 transition-transform duration-300 translate-y-4 sm:translate-y-6">
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                whileHover={{ rotate: 0, scale: 1.03, y: -4 }}
+                className="rounded-3xl border border-border/80 bg-card p-4 shadow-xl rotate-3 translate-y-4 sm:translate-y-6 transition-all duration-300 cursor-default"
+              >
                 <div className="flex items-center justify-between pb-3 border-b border-border/40">
                   <div className="flex items-center gap-2">
                     <div className="size-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[9px] font-black">
@@ -95,7 +108,7 @@ export function VoxelCascadeShowcase() {
                     <span>PDF (8.4 MB)</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
 
@@ -109,7 +122,7 @@ export function VoxelCascadeShowcase() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.1]">
               LEARN BY DOING.
               <br />
-              <span className="text-[#16a34a]">CONNECT BY LIVING.</span>
+              <span className="text-[#16a34a] dark:text-emerald-400">CONNECT BY LIVING.</span>
             </h2>
 
             <p className="mt-4 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
