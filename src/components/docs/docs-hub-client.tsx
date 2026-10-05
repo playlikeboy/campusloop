@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { DocsFeatureIcon } from "@/components/docs/docs-feature-icon";
 import { DOCS_CATEGORIES, type DocsCategory, type DocsFeature } from "@/lib/docs-features";
 import { cn } from "@/lib/utils";
+import { VoxelBackdrop } from "@/components/marketing/voxel-backdrop";
 
 const FILTERS: ("All" | DocsCategory)[] = ["All", ...DOCS_CATEGORIES];
 
@@ -31,7 +32,8 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
   const featured = features[1]; // Anonymous Confessions or Campus Feed
 
   return (
-    <div className="space-y-10">
+    <div className="relative space-y-10">
+      <VoxelBackdrop scene="academics" className="top-[-7rem] opacity-35 h-[420px]" overlay="soft" />
       {/* Search & Filter Bar (Twitter/Grok Minimalist Layout) */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <label className="relative flex-1">
