@@ -1,4 +1,5 @@
 import { ArrowUpRight, BookOpen, CalendarDays, Check, Heart, MessageCircle, Sparkles, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface CleanHeroProps {
@@ -21,8 +22,19 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
     <section className="cl-hero relative overflow-hidden">
       <div className="cl-hero-orb cl-hero-orb-a" />
       <div className="cl-hero-orb cl-hero-orb-b" />
+      <div className="cl-hero-scene" aria-hidden="true">
+        <Image
+          src="/campusloop/voxel/campus.svg"
+          alt=""
+          width={1600}
+          height={800}
+          priority
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="cl-hero-scene-wash" />
+      </div>
 
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:pt-24">
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:pt-24">
         <div className="max-w-2xl">
           <div className="cl-kicker">
             <span className="cl-status-dot" />
