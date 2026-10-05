@@ -6,6 +6,7 @@ import { MarketingFooter, MarketingHeader } from "@/components/marketing/system"
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
 import { SOCIAL_LINKS } from "@/constants/socials";
+import { VoxelBackdrop } from "@/components/marketing/voxel-backdrop";
 
 export function AboutClient() {
   const trustBentoItems: BentoItem[] = [
@@ -68,6 +69,10 @@ export function AboutClient() {
       <CompanyNav />
 
       <main className="flex-1">
+        <section className="relative overflow-hidden py-6 sm:py-10">
+          <VoxelBackdrop scene="campus" className="top-0 opacity-95" overlay="dark" priority />
+          <div className="relative mx-auto max-w-5xl px-4 sm:px-6 h-[220px] sm:h-[300px]" />
+        </section>
         {/* Geometric Hero */}
         <section className="relative w-full overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 border-b border-border/40">
           <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-full max-w-5xl -translate-x-1/2 bg-gradient-to-br from-[#1D9BF0]/15 via-purple-600/10 to-transparent blur-3xl" />
