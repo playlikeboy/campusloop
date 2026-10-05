@@ -189,6 +189,11 @@ export default async function LandingPage() {
 
       {/* Main Coherent Mobile-First Product Flow */}
       <main className="flex-1">
+        <div className="campusloop-voxel-stage" aria-hidden="true">
+          <div className="campusloop-voxel-sky" />
+          <div className="campusloop-voxel-ground" />
+          <div className="campusloop-voxel-label">THE CAMPUS IS A WORLD</div>
+        </div>
         <CleanHero isAuthenticated={isAuthenticated} />
         <CampusTicker />
         <CampusUtilityMatrix />
