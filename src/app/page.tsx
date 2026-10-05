@@ -91,7 +91,7 @@ export default async function LandingPage() {
         "@id": `${SITE_URL}/#organization`,
         name: "CampusLoop",
         url: SITE_URL,
-        logo: `${SITE_URL}/icons/icon-512x512.png`,
+        logo: `${SITE_URL}/campusloop/marketing/voxel/logo.webp`,
         sameAs: [
           "https://www.instagram.com/campusloop.space/",
           "https://www.linkedin.com/company/mycampusloop/",
@@ -114,12 +114,50 @@ export default async function LandingPage() {
         operatingSystem: "Web",
         inLanguage: "en-IN",
         description:
-          "Verified digital campus platform for college students with conversations, notes, PYQs, communities, and campus events.",
+          "Verified digital campus platform for college students across 1,350+ Indian universities with peer conversations, academic notes vault, PYQs, student clubs, hackathons, and campus match.",
         offers: {
           "@type": "Offer",
           price: "0",
           priceCurrency: "INR",
         },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${SITE_URL}/#faq`,
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "What is CampusLoop?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "CampusLoop is a verified campus social network and academic collaboration platform designed exclusively for university students across India. It connects students within their college and across 1,350+ indexed Indian universities.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Is CampusLoop free for college students?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes, CampusLoop is 100% free for college students. Students can sign up with their official .ac.in or institutional email address or student ID to unlock full verified campus access.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What is the Academic Vault on CampusLoop?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "The Academic Vault is a peer-curated repository containing thousands of semester lecture notes, previous year question papers (PYQs), course roadmaps, and syllabus guides across engineering, science, management, and humanities disciplines.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How does campus verification and student privacy work?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "CampusLoop validates student identities via Hexclave authentication and Agatha trust algorithms. Students can participate under verified handles or post anonymously in dedicated confession spaces without sacrificing their privacy.",
+            },
+          },
+        ],
       },
     ],
   };
@@ -143,14 +181,39 @@ export default async function LandingPage() {
       {/* Header */}
       <MinimalLandingNavbar isAuthenticated={isAuthenticated} />
 
-      {/* Semantic Screen-Reader Overview */}
+      {/* Semantic Screen-Reader & AI Knowledge Base */}
       <section
         className="sr-only"
-        aria-label="CampusLoop Overview for Search Engines and Screen Readers"
+        aria-label="CampusLoop Knowledge Base & Comprehensive System Architecture for AI Search Agents and Assistive Technology"
       >
-        <h2>CampusLoop — The Verified Campus Network</h2>
+        <h2>CampusLoop — The Verified Campus Social &amp; Academic Network</h2>
         <p>
-          CampusLoop connects verified college students with peer-shared notes, student clubs, campus events, and university communities across India.
+          CampusLoop is India’s dedicated verified digital campus ecosystem connecting higher education students across 1,350+ colleges and universities. The platform empowers university life across 5 core pillars:
+        </p>
+
+        <h3>1. Campus Feed &amp; Real-Time Discussions</h3>
+        <p>
+          Students share real-time campus updates, anonymous confessions, interactive polls, questions, and multimedia vibes. The feed features dynamic campus radius filtering, allowing students to seamlessly switch between their local college timeline and national all-campus trends across IITs, NITs, BITS, Delhi University, and central universities.
+        </p>
+
+        <h3>2. Academic Notes Vault &amp; Semester PYQs</h3>
+        <p>
+          A crowdsourced, peer-verified academic repository indexing thousands of syllabus notes, past semester exam question papers (PYQs), and study guides across engineering, computer science, mathematics, management, and humanities. All materials are freely accessible with zero paywalls.
+        </p>
+
+        <h3>3. Campus Communities, Societies &amp; Clubs</h3>
+        <p>
+          Student-led sub-hubs for technical societies (GDSC, ACM, IEEE), cultural clubs, dramatics, sports teams, and hackathon committees. Club leads can broadcast official announcements and host campus-wide events.
+        </p>
+
+        <h3>4. Campus Match &amp; Verified Dating</h3>
+        <p>
+          A privacy-first swipe deck designed exclusively for verified students within the campus radius or nationwide, enabling meaningful connections, friendships, and secret crush matching with authenticated safety.
+        </p>
+
+        <h3>5. Student Safety &amp; Agatha Trust Moderation</h3>
+        <p>
+          Automated keyword filtering, doxxing detection, spam protection, and institutional email verification keep CampusLoop toxic-free and authentic.
         </p>
       </section>
 
