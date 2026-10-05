@@ -6,7 +6,6 @@ import { MarketingFooter, MarketingHeader } from "@/components/marketing/system"
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
 import { SOCIAL_LINKS } from "@/constants/socials";
-import { VoxelBackdrop } from "@/components/marketing/voxel-backdrop";
 
 export function AboutClient() {
   const trustBentoItems: BentoItem[] = [
@@ -69,10 +68,6 @@ export function AboutClient() {
       <CompanyNav />
 
       <main className="flex-1">
-        <section className="relative overflow-hidden py-6 sm:py-10">
-          <VoxelBackdrop scene="campus" className="top-0 opacity-95" overlay="dark" priority />
-          <div className="relative mx-auto max-w-5xl px-4 sm:px-6 h-[220px] sm:h-[300px]" />
-        </section>
         {/* Geometric Hero */}
         <section className="relative w-full overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 border-b border-border/40">
           <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-full max-w-5xl -translate-x-1/2 bg-gradient-to-br from-[#1D9BF0]/15 via-purple-600/10 to-transparent blur-3xl" />
@@ -111,31 +106,12 @@ export function AboutClient() {
               <span className="text-[#1D9BF0]">
                 India’s College Students
               </span>
-              <span className="sr-only">
-                {" "}— CampusLoop: Verified Student Social Network Founded at BIT Mesra, Connecting 1,350+ Indian Colleges
-              </span>
             </h1>
 
             <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
               Traditional social media is noisy, flooded with non-student lurkers, and built for advertisers.
               CampusLoop creates a trusted, verified sanctuary designed exclusively for university life.
             </p>
-
-            {/* Semantic screen reader and crawler summary of mission */}
-            <div className="sr-only" aria-label="CampusLoop Mission and Trust Framework">
-              <h2>About CampusLoop — The Verified Digital Operating Layer for Indian Universities</h2>
-              <p>
-                Founded at BIT Mesra and expanding across 1,350+ higher education institutions in India,
-                CampusLoop replaces fragmented WhatsApp group chats and untrusted social media with a verified,
-                high-trust student operating system.
-              </p>
-              <ul>
-                <li>Institutional gating via .ac.in / .edu email verification</li>
-                <li>Accountable anonymity with cryptographic identity escrow to prevent harassment</li>
-                <li>Statutory alignment with UGC anti-ragging guidelines and proactive safety filters</li>
-                <li>Academic resources vault, student commerce, and campus living utilities</li>
-              </ul>
-            </div>
           </div>
         </section>
 
