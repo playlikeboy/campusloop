@@ -39,6 +39,7 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           <div className="cl-kicker">
             <span className="cl-status-dot" />
             THE VERIFIED DIGITAL CAMPUS
+            <span className="sr-only"> — Official Student Network for Indian Universities</span>
           </div>
 
           <h1 className="cl-hero-title">
@@ -47,6 +48,9 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
             <span className="cl-hero-title-accent">finally feels</span>
             <br />
             connected<span className="cl-period">.</span>
+            <span className="sr-only">
+              {" "}— CampusLoop: Verified College Student Social Network, Free Academic Notes &amp; PYQs, Campus Communities, Events, Housing &amp; Marketplace Across India
+            </span>
           </h1>
 
           <p className="cl-hero-copy">
@@ -57,10 +61,12 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link href="/feeds" className="cl-button cl-button-primary">
               {isAuthenticated ? "Open your campus" : "Join your campus"}
+              <span className="sr-only"> feed and student community</span>
               <ArrowUpRight className="size-4" />
             </Link>
             <Link href="/colleges" className="cl-button cl-button-secondary">
               Explore campuses
+              <span className="sr-only"> directory across India</span>
             </Link>
           </div>
 
@@ -76,6 +82,16 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
         </div>
 
         <div className="relative mx-auto w-full max-w-[640px] lg:ml-auto">
+          {/* Accessible summary of the live preview window for search engines and screen readers */}
+          <div className="sr-only">
+            <h3>Interactive Preview of CampusLoop Student Features</h3>
+            <p>
+              Simulated preview of the student dashboard showing real-time campus discussions,
+              academic study resources with Computer Networks handwritten notes and PYQs, upcoming tech club demo nights,
+              and active student clubs including ACM, Robotics, and Photography across 1,350+ indexed Indian colleges.
+            </p>
+          </div>
+
           <div className="cl-float-card cl-float-event">
             <span className="cl-float-icon">
               <Sparkles className="size-3.5 text-amber-400" />
@@ -97,12 +113,14 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
               </div>
               <span className="cl-verified-pill">
                 <span /> Verified
+                <span className="sr-only"> Student Account via Institutional Email</span>
               </span>
             </div>
 
             <div className="cl-window-body">
               <div className="space-y-4">
                 <article className="cl-post-card">
+                  <span className="sr-only">Student Discussion Card: </span>
                   <div className="flex items-center gap-2.5">
                     <Avatar>A</Avatar>
                     <div>
@@ -116,14 +134,17 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
                   <div className="cl-card-actions">
                     <span>
                       <MessageCircle className="size-3.5" /> 12
+                      <span className="sr-only"> comments</span>
                     </span>
                     <span>
                       <Heart className="size-3.5" /> 31
+                      <span className="sr-only"> likes</span>
                     </span>
                   </div>
                 </article>
 
                 <article className="cl-academic-card">
+                  <span className="sr-only">Academic Vault Resource Card: </span>
                   <div className="flex items-center gap-2">
                     <span className="cl-academic-icon">
                       <BookOpen className="size-4" />
@@ -137,6 +158,7 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
 
               <div className="space-y-4">
                 <article className="cl-event-card">
+                  <span className="sr-only">Campus Event Card: </span>
                   <div className="flex items-center justify-between">
                     <span className="cl-dark-label">TONIGHT · 7 PM</span>
                     <CalendarDays className="size-4 text-white/60" />
@@ -160,6 +182,7 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
                 </article>
 
                 <article className="cl-groups-card">
+                  <span className="sr-only">Campus Student Societies Card: </span>
                   <div className="flex items-center gap-2">
                     <Users className="size-4" />
                     <span className="cl-card-name">Campus groups</span>
@@ -179,6 +202,7 @@ export function CleanHero({ isAuthenticated = false }: CleanHeroProps) {
             <div>
               <span className="cl-float-label">CAMPUS DIRECTORY</span>
               <strong>1,350+ Colleges Indexed</strong>
+              <span className="sr-only"> across Indian universities and colleges</span>
             </div>
           </div>
         </div>

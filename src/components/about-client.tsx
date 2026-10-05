@@ -111,12 +111,31 @@ export function AboutClient() {
               <span className="text-[#1D9BF0]">
                 India’s College Students
               </span>
+              <span className="sr-only">
+                {" "}— CampusLoop: Verified Student Social Network Founded at BIT Mesra, Connecting 1,350+ Indian Colleges
+              </span>
             </h1>
 
             <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
               Traditional social media is noisy, flooded with non-student lurkers, and built for advertisers.
               CampusLoop creates a trusted, verified sanctuary designed exclusively for university life.
             </p>
+
+            {/* Semantic screen reader and crawler summary of mission */}
+            <div className="sr-only" aria-label="CampusLoop Mission and Trust Framework">
+              <h2>About CampusLoop — The Verified Digital Operating Layer for Indian Universities</h2>
+              <p>
+                Founded at BIT Mesra and expanding across 1,350+ higher education institutions in India,
+                CampusLoop replaces fragmented WhatsApp group chats and untrusted social media with a verified,
+                high-trust student operating system.
+              </p>
+              <ul>
+                <li>Institutional gating via .ac.in / .edu email verification</li>
+                <li>Accountable anonymity with cryptographic identity escrow to prevent harassment</li>
+                <li>Statutory alignment with UGC anti-ragging guidelines and proactive safety filters</li>
+                <li>Academic resources vault, student commerce, and campus living utilities</li>
+              </ul>
+            </div>
           </div>
         </section>
 

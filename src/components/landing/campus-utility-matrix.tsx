@@ -131,6 +131,9 @@ export function CampusUtilityMatrix() {
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
             Everything you keep asking your campus groups for.
+            <span className="sr-only">
+              {" "}— College Student Utilities: Academic Vault, Communities, Campus Events, Lost &amp; Found, Marketplace, Housing, Rideshare, and Atlas
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground font-medium max-w-xl mx-auto leading-relaxed">
@@ -180,6 +183,7 @@ export function CampusUtilityMatrix() {
 
                 <div className="pt-4 mt-2 border-t border-border/30 flex items-center justify-between text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                   <span>{item.actionText}</span>
+                  <span className="sr-only"> for {item.need}: {item.solution}</span>
                   <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>
               </Link>

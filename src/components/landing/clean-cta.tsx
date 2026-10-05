@@ -27,6 +27,9 @@ export function CleanCTA({ isAuthenticated = false }: CleanCTAProps) {
           {/* Headline */}
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground max-w-2xl mx-auto leading-[1.08]">
             Your college loop is already happening.
+            <span className="sr-only">
+              {" "}— Connect with Verified Classmates and Join Your Campus Community on CampusLoop
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto font-medium">
@@ -44,6 +47,7 @@ export function CleanCTA({ isAuthenticated = false }: CleanCTAProps) {
               className="w-full sm:w-auto h-12 sm:h-13 px-8 rounded-full bg-primary text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 hover:opacity-95 active:scale-95 transition-all cursor-pointer"
             >
               <span>{isAuthenticated ? "Launch Your Campus" : "Join Your Campus Now"}</span>
+              <span className="sr-only"> and access verified feeds, free study materials, and campus utilities</span>
               <ArrowRight className="size-4" />
             </Link>
 
@@ -57,6 +61,7 @@ export function CleanCTA({ isAuthenticated = false }: CleanCTAProps) {
             >
               <GraduationCap className="size-4 text-primary" />
               <span>Browse All Campuses</span>
+              <span className="sr-only"> across 1,350+ Indian colleges and universities</span>
             </Link>
           </div>
         </div>

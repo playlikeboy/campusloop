@@ -41,6 +41,7 @@ export function MobileStickyBar({ isAuthenticated = false }: MobileStickyBarProp
         >
           <Compass className="size-3.5 text-primary shrink-0" />
           <span className="truncate">Explore Hubs</span>
+          <span className="sr-only"> across 1,350+ Indian college hubs</span>
         </Link>
 
         <Link
@@ -52,6 +53,7 @@ export function MobileStickyBar({ isAuthenticated = false }: MobileStickyBarProp
           className="flex-1 flex items-center justify-center gap-1.5 h-10 px-4 rounded-full bg-primary text-white text-xs font-black shadow-md shadow-emerald-500/30 active:scale-95 transition-all cursor-pointer truncate"
         >
           <span className="truncate">{isAuthenticated ? "Open App" : "Join Free"}</span>
+          <span className="sr-only"> to access verified campus feed and utilities</span>
           <ArrowRight className="size-3.5 shrink-0" />
         </Link>
       </div>

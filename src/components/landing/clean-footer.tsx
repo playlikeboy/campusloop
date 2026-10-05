@@ -54,6 +54,7 @@ export function CleanFooter() {
                 C
               </span>
               <span className="text-sm font-black text-foreground">CampusLoop</span>
+              <span className="sr-only"> — Home: Verified Campus Social Network for Indian Colleges</span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">
               A campus community for conversations, academics, people and events — built around verified
@@ -65,24 +66,30 @@ export function CleanFooter() {
                 target="_blank"
                 rel="noreferrer"
                 className="transition hover:text-foreground"
+                aria-label="CampusLoop official Instagram page"
               >
                 Instagram
+                <span className="sr-only"> (@campusloop.space)</span>
               </a>
               <a
                 href="https://www.linkedin.com/company/mycampusloop/"
                 target="_blank"
                 rel="noreferrer"
                 className="transition hover:text-foreground"
+                aria-label="CampusLoop official LinkedIn company page"
               >
                 LinkedIn
+                <span className="sr-only"> (CampusLoop on LinkedIn)</span>
               </a>
               <a
                 href="https://x.com/mycampusloop"
                 target="_blank"
                 rel="noreferrer"
                 className="transition hover:text-foreground"
+                aria-label="CampusLoop official X Twitter account"
               >
                 X
+                <span className="sr-only"> (@mycampusloop on X/Twitter)</span>
               </a>
             </div>
           </div>
@@ -92,6 +99,7 @@ export function CleanFooter() {
               <div key={column.title}>
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-foreground">
                   {column.title}
+                  <span className="sr-only"> Resources and Pages</span>
                 </p>
                 <div className="mt-4 space-y-3">
                   {column.links.map(([label, href]) => (
