@@ -50,19 +50,32 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
         </div>
 
         {/* Hero Showcase: Smartphone Mockup with 4 Floating Feature Pills */}
-        <div className="relative mt-12 sm:mt-16 mx-auto max-w-4xl">
-          {/* Voxel Campus Landscape Backdrop */}
-          <div className="relative aspect-16/9 w-full overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-t from-emerald-100/40 via-card to-card p-2 shadow-2xl">
-            <Image
-              src="/campusloop/marketing/voxel/cute-campus-landscape.webp"
-              alt="Cute 3D voxel campus landscape with library, clock tower, and students"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 1100px"
-              className="object-cover object-bottom"
-            />
-            {/* Top gradient fade into white */}
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-background via-background/80 to-transparent" />
+        <div className="relative mt-10 sm:mt-14 mx-auto max-w-4xl">
+          {/* Voxel Campus Video & Landscape Backdrop matching hero.mp4 */}
+          <div className="relative aspect-16/9 w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-t from-emerald-100/40 via-card to-card p-1 shadow-2xl">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster="/campusloop/marketing/voxel/videos/hero_poster.webp"
+              className="size-full object-cover object-center"
+              aria-label="Cute 3D voxel campus animated world with university students, campus paths, and trees"
+            >
+              <source src="/campusloop/marketing/voxel/videos/hero.mp4" type="video/mp4" />
+              {/* Fallback image if video cannot be played */}
+              <Image
+                src="/campusloop/marketing/voxel/cute-campus-landscape.webp"
+                alt="Cute 3D voxel campus landscape with library, clock tower, and students"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 1100px"
+                className="object-cover object-bottom"
+              />
+            </video>
+            {/* Soft gradient fade into page canvas */}
+            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/90 to-transparent pointer-events-none" />
           </div>
 
           {/* Centered Phone Container */}
