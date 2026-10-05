@@ -114,12 +114,12 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             {!isMuted ? (
               <>
                 <Volume2 className="size-3.5 text-[#22c55e] animate-pulse" />
-                <span>Sound On</span>
+                <span></span>
               </>
             ) : (
               <>
                 <VolumeX className="size-3.5 text-muted-foreground" />
-                <span>Sound Off</span>
+                <span></span>
               </>
             )}
           </button>
