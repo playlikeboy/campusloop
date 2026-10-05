@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { ArrowUpRight, BookOpen, CalendarDays, Compass, Menu, Sparkles, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Link from "next/link";
-import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -16,16 +16,13 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Explore", href: "/explore", icon: Compass },
+    { label: "Features", href: "#features", icon: Compass },
     { label: "Academics", href: "/academics", icon: BookOpen },
-    { label: "Communities", href: "/communities", icon: Users },
-    { label: "Events", href: "/events", icon: CalendarDays },
-    { label: "Colleges", href: "/colleges", icon: Sparkles },
   ];
 
   return (
-    <div className="sticky top-2 sm:top-3 z-50 px-3 sm:px-6 max-w-6xl mx-auto w-full select-none">
-      <header className="flex h-14 sm:h-16 items-center justify-between px-3.5 sm:px-5 rounded-full border border-border/60 bg-background/85 backdrop-blur-xl shadow-xs transition-all">
+    <div className="sticky top-2 sm:top-4 z-50 px-3 sm:px-6 max-w-6xl mx-auto w-full select-none">
+      <header className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 rounded-full border border-border/60 bg-background/90 backdrop-blur-xl shadow-xs transition-all">
         {/* Brand Logo */}
         <Link
           href="/"
@@ -34,16 +31,16 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             haptics.light();
           }}
           className="flex items-center gap-2.5 group cursor-pointer"
-          aria-label="CampusLoop home — The Campus Network"
+          aria-label="CampusLoop home — Cute Voxel Campus Network"
         >
-          <div className="size-8.5 rounded-2xl bg-gradient-to-tr from-primary via-purple-600 to-indigo-500 flex items-center justify-center shadow-xs shadow-primary/30 group-hover:scale-105 transition-transform">
+          <div className="size-8.5 rounded-2xl bg-[#22c55e] flex items-center justify-center shadow-xs shadow-emerald-500/30 group-hover:scale-105 transition-transform">
             <span className="text-white text-xs font-black tracking-tight">CL</span>
           </div>
           <div className="flex items-center">
-            <span className="text-sm sm:text-base font-black tracking-tight text-foreground">
-              Campus<span className="text-primary font-black">Loop</span>
+            <span className="text-base sm:text-lg font-black tracking-tight text-foreground">
+              Campus<span className="text-[#16a34a] font-black">Loop</span>
             </span>
-            <span className="ml-1.5 size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="ml-1.5 size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
           </div>
         </Link>
 
@@ -62,7 +59,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                   sounds.tap();
                   haptics.light();
                 }}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all cursor-pointer"
               >
                 <Icon className="size-3.5 text-muted-foreground" />
                 <span>{link.label}</span>
@@ -81,9 +78,9 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
               sounds.tap();
               haptics.medium();
             }}
-            className="inline-flex h-9 sm:h-9.5 items-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 text-xs font-black text-white hover:opacity-90 active:scale-95 transition-all shadow-xs shadow-primary/30 cursor-pointer"
+            className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 sm:px-5 text-xs font-black text-white hover:opacity-95 active:scale-95 transition-all shadow-xs shadow-emerald-500/25 cursor-pointer"
           >
-            <span>{isAuthenticated ? "Enter Campus" : "Join CampusLoop"}</span>
+            <span>{isAuthenticated ? "Open App" : "Join Campus"}</span>
             <ArrowUpRight className="size-3.5" />
           </Link>
 
@@ -128,7 +125,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                     }}
                     className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/40 hover:bg-muted/70 text-xs font-bold text-foreground transition-all cursor-pointer"
                   >
-                    <Icon className="size-4 text-primary" />
+                    <Icon className="size-4 text-[#16a34a]" />
                     <span>{link.label}</span>
                   </Link>
                 );
@@ -142,9 +139,9 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                 haptics.medium();
                 setMobileMenuOpen(false);
               }}
-              className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-white text-xs font-black shadow-md shadow-primary/25 active:scale-95 transition-all"
+              className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-[#22c55e] text-white text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
             >
-              <span>{isAuthenticated ? "Enter Campus" : "Join CampusLoop"}</span>
+              <span>{isAuthenticated ? "Enter Campus" : "Join Your College"}</span>
               <ArrowUpRight className="size-4" />
             </Link>
           </motion.div>
