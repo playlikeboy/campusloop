@@ -1,6 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
-import { BookOpen, Flame, Sparkles, Trophy } from "lucide-react";
+import { Flame, Trophy } from "lucide-react";
 
 export function VoxelStreakSection() {
   return (

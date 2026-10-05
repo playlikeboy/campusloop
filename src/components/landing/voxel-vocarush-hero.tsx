@@ -6,8 +6,6 @@ import {
   Calendar,
   ChevronRight,
   Flame,
-  MessageSquare,
-  Sparkles,
   Users,
   Zap,
 } from "lucide-react";

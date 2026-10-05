@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, CalendarDays, Compass, Menu, Sparkles, Users, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, Compass, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { haptics } from "@/lib/haptics";

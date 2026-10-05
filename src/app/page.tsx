@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CleanFooter } from "@/components/landing/clean-footer";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
+import { VoxelCascadeShowcase } from "@/components/landing/voxel-cascade-showcase";
 import { VoxelCTA } from "@/components/landing/voxel-cta";
-import { VoxelHero } from "@/components/landing/voxel-hero";
-import { VoxelPillars } from "@/components/landing/voxel-pillars";
-import { VoxelTrust } from "@/components/landing/voxel-trust";
-import { VoxelValueProp } from "@/components/landing/voxel-value-prop";
+import { VoxelDailyRush } from "@/components/landing/voxel-daily-rush";
+import { VoxelMembershipTiers } from "@/components/landing/voxel-membership-tiers";
+import { VoxelRealityBanner } from "@/components/landing/voxel-reality-banner";
+import { VoxelStreakSection } from "@/components/landing/voxel-streak-section";
+import { VoxelVocarushHero } from "@/components/landing/voxel-vocarush-hero";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { hexclaveServerApp } from "@/hexclave/server";
 
@@ -154,10 +156,12 @@ export default async function LandingPage() {
 
       {/* Main Storytelling Flow */}
       <main id="main-landing-content" className="flex-1">
-        <VoxelHero isAuthenticated={isAuthenticated} />
-        <VoxelPillars />
-        <VoxelValueProp />
-        <VoxelTrust />
+        <VoxelVocarushHero isAuthenticated={isAuthenticated} />
+        <VoxelStreakSection />
+        <VoxelCascadeShowcase />
+        <VoxelDailyRush />
+        <VoxelRealityBanner isAuthenticated={isAuthenticated} />
+        <VoxelMembershipTiers isAuthenticated={isAuthenticated} />
         <VoxelCTA isAuthenticated={isAuthenticated} />
       </main>
 
