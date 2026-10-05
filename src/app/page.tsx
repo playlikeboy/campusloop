@@ -5,9 +5,12 @@ import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navba
 import { VoxelCascadeShowcase } from "@/components/landing/voxel-cascade-showcase";
 import { VoxelCTA } from "@/components/landing/voxel-cta";
 import { VoxelDailyRush } from "@/components/landing/voxel-daily-rush";
+import { VoxelFAQ } from "@/components/landing/voxel-faq";
+import { VoxelFeaturesBento } from "@/components/landing/voxel-features-bento";
 import { VoxelMembershipTiers } from "@/components/landing/voxel-membership-tiers";
 import { VoxelRealityBanner } from "@/components/landing/voxel-reality-banner";
 import { VoxelStreakSection } from "@/components/landing/voxel-streak-section";
+import { VoxelStudentReviews } from "@/components/landing/voxel-student-reviews";
 import { VoxelVocarushHero } from "@/components/landing/voxel-vocarush-hero";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -221,10 +224,13 @@ export default async function LandingPage() {
       <main id="main-landing-content" className="flex-1">
         <VoxelVocarushHero isAuthenticated={isAuthenticated} />
         <VoxelStreakSection />
+        <VoxelFeaturesBento />
         <VoxelCascadeShowcase />
         <VoxelDailyRush />
         <VoxelRealityBanner isAuthenticated={isAuthenticated} />
+        <VoxelStudentReviews />
         <VoxelMembershipTiers isAuthenticated={isAuthenticated} />
+        <VoxelFAQ />
         <VoxelCTA isAuthenticated={isAuthenticated} />
       </main>
 
