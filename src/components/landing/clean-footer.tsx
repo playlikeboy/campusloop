@@ -1,126 +1,128 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
-const columns = [
+const FOOTER_GROUPS = [
   {
-    title: "Campus",
+    title: "Product",
     links: [
-      ["Campus Feed", "/feeds"],
-      ["Academics Vault", "/academics"],
-      ["Communities & Clubs", "/communities"],
-      ["Events & Hackathons", "/events"],
-      ["Confessions", "/confessions"],
+      { label: "Academics", href: "/academics" },
+      { label: "Communities", href: "/communities" },
+      { label: "Events", href: "/events" },
+      { label: "Colleges", href: "/colleges" },
     ],
   },
   {
-    title: "Academics",
+    title: "Company",
     links: [
-      ["Notes & PYQs", "/academics"],
-      ["Upload Material", "/academics/upload"],
-      ["Academic Search", "/academics/search"],
-      ["Saved Resources", "/academics/saved"],
+      { label: "About", href: "/about" },
+      { label: "Safety", href: "/safety" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   {
-    title: "Utilities",
+    title: "Resources",
     links: [
-      ["Buy & Sell", "/buy-and-sell"],
-      ["Housing & Flats", "/housing"],
-      ["Lost & Found Hub", "/lost-and-found"],
-      ["Ride Share & Pool", "/rideshare"],
-      ["Campus Atlas", "/atlas"],
-    ],
-  },
-  {
-    title: "Directory & Trust",
-    links: [
-      ["College Directory", "/colleges"],
-      ["About CampusLoop", "/about"],
-      ["Safety & Moderation", "/safety"],
-      ["Privacy Policy", "/privacy"],
-      ["Terms of Service", "/terms"],
+      { label: "Help & FAQs", href: "/help" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
+      { label: "Visual Sitemap", href: "/sitemap" },
     ],
   },
 ] as const;
 
 export function CleanFooter() {
   return (
-    <footer className="bg-background">
-      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr]">
+    <footer className="border-t border-border/40 bg-background text-foreground">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
+          {/* Brand info */}
           <div>
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <span className="grid size-8 place-items-center rounded-xl bg-foreground text-xs font-black text-background">
-                C
+            <Link href="/" className="inline-flex items-center gap-2.5 group">
+              <div className="size-8 rounded-xl bg-gradient-to-tr from-primary via-purple-600 to-indigo-500 flex items-center justify-center text-white text-xs font-black">
+                CL
+              </div>
+              <span className="text-base font-extrabold tracking-tight text-foreground">
+                Campus<span className="text-primary">Loop</span>
               </span>
-              <span className="text-sm font-black text-foreground">CampusLoop</span>
-              <span className="sr-only"> — Home: Verified Campus Social Network for Indian Colleges</span>
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">
-              A campus community for conversations, academics, people and events — built around verified
-              college access.
+
+            <p className="mt-3.5 max-w-sm text-xs leading-relaxed text-muted-foreground">
+              The verified digital campus network connecting students, lecture notes, clubs, and events across universities.
             </p>
-            <div className="mt-7 flex items-center gap-4 text-xs font-semibold text-muted-foreground">
+
+            {/* Social channels */}
+            <div className="mt-6 flex items-center gap-4 text-xs font-medium text-muted-foreground">
               <a
                 href="https://www.instagram.com/campusloop.space/"
                 target="_blank"
                 rel="noreferrer"
-                className="transition hover:text-foreground"
-                aria-label="CampusLoop official Instagram page"
+                className="hover:text-foreground transition-colors"
+                aria-label="Instagram @campusloop.space"
               >
                 Instagram
-                <span className="sr-only"> (@campusloop.space)</span>
               </a>
+              <span>•</span>
               <a
                 href="https://www.linkedin.com/company/mycampusloop/"
                 target="_blank"
                 rel="noreferrer"
-                className="transition hover:text-foreground"
-                aria-label="CampusLoop official LinkedIn company page"
+                className="hover:text-foreground transition-colors"
+                aria-label="LinkedIn CampusLoop"
               >
                 LinkedIn
-                <span className="sr-only"> (CampusLoop on LinkedIn)</span>
               </a>
+              <span>•</span>
               <a
                 href="https://x.com/mycampusloop"
                 target="_blank"
                 rel="noreferrer"
-                className="transition hover:text-foreground"
-                aria-label="CampusLoop official X Twitter account"
+                className="hover:text-foreground transition-colors"
+                aria-label="X @mycampusloop"
               >
                 X
-                <span className="sr-only"> (@mycampusloop on X/Twitter)</span>
               </a>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            {columns.map((column) => (
-              <div key={column.title}>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-foreground">
-                  {column.title}
-                  <span className="sr-only"> Resources and Pages</span>
+          {/* Grouped Link Columns */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {FOOTER_GROUPS.map((group) => (
+              <div key={group.title}>
+                <p className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  {group.title}
                 </p>
-                <div className="mt-4 space-y-3">
-                  {column.links.map(([label, href]) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="group flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground"
-                    >
-                      {label}
-                      <ArrowUpRight className="size-3 opacity-0 transition group-hover:opacity-100" />
-                    </Link>
+                <ul className="mt-3.5 space-y-2.5">
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <span>{link.label}</span>
+                        <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
+                      </Link>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>CampusLoop · India</span>
-          <span>Conversations · Academics · Communities · Events</span>
+        {/* Bottom bar */}
+        <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
+          <p>© {new Date().getFullYear()} CampusLoop Inc. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
+            <Link href="/sitemap" className="hover:text-foreground transition-colors">
+              Sitemap
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
