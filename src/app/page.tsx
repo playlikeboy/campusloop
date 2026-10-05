@@ -184,11 +184,64 @@ export default async function LandingPage() {
       <PwaLaunchRedirect />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
+      {/* Accessibility Skip Link for Keyboard Users and Screen Readers */}
+      <a
+        href="#main-landing-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-primary focus:text-white focus:shadow-xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      >
+        Skip to main campus content
+      </a>
+
       {/* Floating Pill Navigation */}
       <MinimalLandingNavbar isAuthenticated={isAuthenticated} />
 
+      {/* Semantic Screen-Reader & Search Engine Indexing Overview */}
+      <section
+        className="sr-only"
+        aria-label="CampusLoop Platform Overview for Search Engines and Screen Readers"
+      >
+        <h2>
+          CampusLoop — Verified Digital Campus Social Network and Student Utility Operating System in India
+        </h2>
+        <p>
+          CampusLoop is India&apos;s verified college student social network and campus utility operating system,
+          uniting students across 1,350+ universities and institutes including IIT Bombay, IIT Delhi, BITS Pilani,
+          NIT Trichy, BIT Mesra, Delhi University, VIT Vellore, and SRM University.
+        </p>
+        <p>
+          Key Platform Modules &amp; Student Capabilities:
+        </p>
+        <ul>
+          <li>
+            <strong>100% Institutional Verification:</strong> Student accounts are authenticated through official
+            university email domains (.ac.in and .edu) with zero non-student commercial bots or recruiters.
+          </li>
+          <li>
+            <strong>Dual Campus Persona &amp; Anonymity:</strong> Toggle between zero-log anonymous campus confessions
+            with cryptographic identity escrow and verified student profiles with Loop Points (LP).
+          </li>
+          <li>
+            <strong>Academic Vault:</strong> Free peer-reviewed lecture notes, module guides, handwritten exam cheatsheets,
+            and 5-year solved previous year question papers (PYQs) for engineering, medicine, management, and arts courses.
+          </li>
+          <li>
+            <strong>Student Utilities &amp; Peer Trade:</strong> Verified student-to-student marketplace for buying and selling
+            bicycles, dorm coolers, textbooks, and hostel mattresses; student housing and roommate finder near campus gates;
+            lost and found item recovery registry; and shared auto and cab rideshare pooling.
+          </li>
+          <li>
+            <strong>Campus Communities &amp; Events:</strong> Discover campus clubs, student chapters (ACM, IEEE, GDSC, Robotics),
+            hackathon squads, college fests, workshops, and RSVP for live events.
+          </li>
+          <li>
+            <strong>Aspirant Viewer Mode:</strong> Read-only access for JEE Main, JEE Advanced, NEET, and CUET college
+            aspirants to explore authentic student culture and verified reviews before admission.
+          </li>
+        </ul>
+      </section>
+
       {/* Main Coherent Mobile-First Product Flow */}
-      <main className="flex-1">
+      <main id="main-landing-content" className="flex-1">
         <CleanHero isAuthenticated={isAuthenticated} />
         <CampusTicker />
         <CampusUtilityMatrix />

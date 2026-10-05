@@ -79,12 +79,28 @@ export function CampusLoopGraph() {
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
             How your college life connects.
+            <span className="sr-only">
+              {" "}— CampusLoop End-to-End Unified Student Social Graph Architecture
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
             Every question, note, club, and event feeds back into the student network. One verified loop for
             your entire campus journey.
           </p>
+        </div>
+
+        {/* Semantic screen reader and crawler index of the 6 connected graph nodes */}
+        <div className="sr-only" aria-label="CampusLoop Connected Architecture Flow">
+          <h3>The 6 Core Stages of the CampusLoop Student Ecosystem</h3>
+          <ol>
+            <li>Stage 01: Verified Student — Authenticated college email domain (.ac.in and .edu) with zero bot spam</li>
+            <li>Stage 02: Campus Pulse — Real-time feeds, peer questions, and anonymous confessions</li>
+            <li>Stage 03: Communities &amp; Clubs — ACM, Robotics, Dramatics, and student societies</li>
+            <li>Stage 04: Academic Vault — Curated branch notes, lab manuals, and solved end-sem PYQs</li>
+            <li>Stage 05: Live Events — College fests, 24h hackathons, workshops, and RSVP attendee lists</li>
+            <li>Stage 06: Campus Utilities — Student marketplace, roommate housing, lost &amp; found, and auto/cab ride pooling</li>
+          </ol>
         </div>
 
         {/* Visual Connected Stepper Flow */}

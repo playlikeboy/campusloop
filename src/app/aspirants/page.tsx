@@ -44,9 +44,17 @@ export default async function AspirantsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
+      {/* Accessibility Skip Link */}
+      <a
+        href="#aspirants-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-primary focus:text-white focus:shadow-xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      >
+        Skip to aspirants guide content
+      </a>
+
       <MinimalLandingNavbar isAuthenticated={!!user} />
 
-      <main className="flex-1 pt-12 pb-24">
+      <main id="aspirants-main-content" className="flex-1 pt-12 pb-24">
         <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 space-y-16">
           {/* ─── Hero Block ─── */}
           <div className="text-center max-w-3xl mx-auto space-y-5">
@@ -60,12 +68,30 @@ export default async function AspirantsPage() {
                 really like
               </span>{" "}
               before you get there.
+              <span className="sr-only">
+                {" "}— CampusLoop Aspirants Viewer Mode: Authentic College Reviews, JEE Main &amp; Advanced, NEET, CUET Admissions &amp; Campus Culture in India
+              </span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
               Coaching brochures and marketing websites sell you glossy campus photos. CampusLoop gives JEE,
               NEET, and CUET aspirants read-only window into candid student discussions, hostel food reality,
               and placement truths.
             </p>
+
+            {/* Semantic screen reader and crawler index of aspirant viewer features */}
+            <div className="sr-only" aria-label="Aspirants College Selection Guide">
+              <h2>CampusLoop Aspirant Viewer Mode — Authentic College Insights for JEE, NEET &amp; CUET Students</h2>
+              <p>
+                CampusLoop provides read-only viewer access for prospective engineering, medical, and degree college
+                aspirants preparing for JEE Main, JEE Advanced, NEET-UG, CUET, BITSAT, WBJEE, and COMEDK counseling.
+              </p>
+              <ul>
+                <li>Unfiltered hostel, mess food, and campus culture reviews straight from current students</li>
+                <li>Honest placement statistics, average packages, and active coding societies beyond glossy brochures</li>
+                <li>Attendance reality, professor teaching quality, and semester exam difficulty across 1,350+ Indian colleges</li>
+                <li>Zero spam: Instant account upgrade to full verified posting when you receive your college .ac.in email</li>
+              </ul>
+            </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link

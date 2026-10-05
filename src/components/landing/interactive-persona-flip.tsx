@@ -38,17 +38,43 @@ export function InteractivePersonaFlip() {
         {/* Punchy Heading */}
         <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground">
           Speak your mind. Or rep your clout.
+          <span className="sr-only">
+            {" "}— Dual Campus Persona: Anonymous College Confessions &amp; Verified Student Profiles with Loop Points (LP)
+          </span>
         </h2>
         <p className="w-full max-w-lg mx-auto text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
           Toggle seamlessly between zero-log anonymous campus queries and verified student status in one tap.
         </p>
 
+        {/* Semantic screen reader and search bot index of both posting modes */}
+        <div className="sr-only" aria-label="CampusLoop Dual Persona System">
+          <h3>Dual Posting Modes: Anonymous Mode and Verified Student Profile</h3>
+          <div>
+            <h4>1. Zero-Log Anonymous Mode</h4>
+            <p>
+              Students can share candid campus confessions, ask sensitive academic questions,
+              evaluate hostel amenities, and discuss campus life with complete cryptographic identity escrow.
+              Zero author identity is attached to the public payload, mechanically deterring harassment while preserving authentic expression.
+            </p>
+          </div>
+          <div>
+            <h4>2. Verified Student Profile &amp; Loop Points (LP)</h4>
+            <p>
+              Rep your branch, year, and institution (e.g., IIT Bombay, Electrical Engineering, 3rd Year) with an official verification badge.
+              Earn Loop Points (LP) for answering classmate questions, sharing verified lecture notes, organizing hackathons,
+              and building verified campus reputation.
+            </p>
+          </div>
+        </div>
+
         {/* Tactile Toggle Switcher */}
         <div className="pt-2 flex justify-center">
-          <div className="inline-flex p-1.5 rounded-full bg-muted/60 border border-border/50 shadow-inner gap-1">
+          <div className="inline-flex p-1.5 rounded-full bg-muted/60 border border-border/50 shadow-inner gap-1" role="group" aria-label="Select persona posting mode">
             <button
               type="button"
               onClick={() => switchMode("anon")}
+              aria-pressed={mode === "anon"}
+              aria-label="Switch to Anonymous Mode"
               className={cn(
                 "px-5 py-2 rounded-full text-xs font-black transition-all cursor-pointer flex items-center gap-2",
                 mode === "anon"
@@ -63,6 +89,8 @@ export function InteractivePersonaFlip() {
             <button
               type="button"
               onClick={() => switchMode("verified")}
+              aria-pressed={mode === "verified"}
+              aria-label="Switch to Verified Student Mode"
               className={cn(
                 "px-5 py-2 rounded-full text-xs font-black transition-all cursor-pointer flex items-center gap-2",
                 mode === "verified"

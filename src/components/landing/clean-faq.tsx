@@ -43,7 +43,20 @@ export function CleanFAQ() {
 
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground">
             Fast answers before you drop in.
+            <span className="sr-only">
+              {" "}— Frequently Asked Questions About CampusLoop Verification, Privacy, Academics &amp; Indian Campuses
+            </span>
           </h2>
+        </div>
+
+        {/* Semantic screen reader and crawler index of FAQ answers */}
+        <div className="sr-only" aria-label="Frequently Asked Questions Overview">
+          {faqItems.map((item) => (
+            <div key={item.question}>
+              <h3>{item.question}</h3>
+              <p>{item.answer}</p>
+            </div>
+          ))}
         </div>
 
         <div className="space-y-3">

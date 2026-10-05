@@ -83,12 +83,31 @@ export function AcademicsQuickVault() {
 
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground">
             Passed down from seniors who survived.
+            <span className="sr-only">
+              {" "}— Free Engineering Notes, Solved Previous Year Questions (PYQs), Lab Manuals &amp; Exam Cheatsheets for Indian Colleges
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto font-medium">
             Verified lecture notes, handwritten cheatsheets, and solved PYQ papers curated by your fellow
             classmates.
           </p>
+        </div>
+
+        {/* Semantic screen reader and crawler index of academic vault resources */}
+        <div className="sr-only" aria-label="Academic Study Materials Directory">
+          <h3>Curated Semester Study Materials across Top Indian Colleges</h3>
+          <p>
+            Access verified lecture notes, handwritten exam cheatsheets, and 5-year solved previous year question papers (PYQs)
+            for engineering, technology, sciences, and management branches. Supported universities include IIT Bombay,
+            BITS Pilani, NIT Trichy, BIT Mesra, Delhi University, DTU, and VIT.
+          </p>
+          <ul>
+            <li>Operating Systems (OS): End-Sem 5-Year PYQs Solved with process scheduling and memory management</li>
+            <li>Data Structures &amp; Algorithms (DSA): Complete handwritten notes covering trees, graphs, and dynamic programming</li>
+            <li>Computer Networks (CN): Socket programming lab manual, OSI reference model, TCP/IP protocol suite</li>
+            <li>Engineering Mathematics III: High-yield 1-night exam cheatsheet with calculus and differential equations</li>
+          </ul>
         </div>
 
         {/* Interactive Search & Filter Controls */}
@@ -170,6 +189,7 @@ export function AcademicsQuickVault() {
 
                 <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:underline">
                   <span>Open Vault</span>
+                  <span className="sr-only"> to download {item.title}</span>
                   <ArrowUpRight className="size-3.5" />
                 </span>
               </div>

@@ -74,11 +74,49 @@ export function InteractiveShowcase() {
             </div>
             <h2 className="mt-5 max-w-lg text-4xl font-black tracking-[-0.045em] text-foreground sm:text-5xl">
               Don’t imagine CampusLoop. Play with it.
+              <span className="sr-only">
+                {" "}— Interactive Features: Campus Feed, Academic Vault, Student Communities, and Events RSVP
+              </span>
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
               Switch between the four things students actually come here to do. Vote, search, join and RSVP —
               the same ideas you get inside the app.
             </p>
+
+            {/* Semantic screen reader and search bot index of all 4 showcase tabs */}
+            <div className="sr-only" aria-label="CampusLoop Core Interactive Feature Demos">
+              <h3>CampusLoop Core Features: Feed, Academics, Communities, and Events</h3>
+              <div>
+                <h4>1. Campus Feed &amp; Student Polls</h4>
+                <p>
+                  Real-time campus timeline with anonymous or verified posting, hostel questions,
+                  comment replies, upvoting, and verified student-only campus polls (e.g., late-night chai,
+                  mess food ratings, professor reviews) with one-student-one-vote cryptographic verification.
+                </p>
+              </div>
+              <div>
+                <h4>2. Academic Vault</h4>
+                <p>
+                  Semester study material curated by senior students: Handwritten lecture notes, lab manuals,
+                  and 5-year solved previous year question papers (PYQs) for Computer Networks (CN),
+                  Compiler Design (CD), Artificial Intelligence (AI), Operating Systems (OS), and Engineering Math.
+                </p>
+              </div>
+              <div>
+                <h4>3. Campus Communities &amp; Student Pods</h4>
+                <p>
+                  Explore student clubs, technical societies, and interest groups: ACM Student Chapter, Robotics Club,
+                  Photography Society, and peer matching for hackathon teams, project collaborators, and study partners.
+                </p>
+              </div>
+              <div>
+                <h4>4. Campus Events &amp; Hackathons</h4>
+                <p>
+                  Discover campus hackathons (HackQuest 24h), club demo nights, technical workshops, cultural open mics,
+                  and RSVP with real-time attendee tracking filtered to your college campus.
+                </p>
+              </div>
+            </div>
 
             <div className="mt-8 space-y-2">
               {tabs.map((tab, index) => (
@@ -87,6 +125,7 @@ export function InteractiveShowcase() {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   aria-pressed={activeTab === tab.id}
+                  aria-label={`Switch demo to ${tab.label}`}
                   className={[
                     "flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition",
                     activeTab === tab.id

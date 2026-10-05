@@ -272,6 +272,9 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
 
                   <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
                     {college.name}
+                    <span className="sr-only">
+                      {" "}— Verified Campus Community, Anonymous Feed, Notes &amp; Student Hub on CampusLoop
+                    </span>
                   </h1>
 
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -282,6 +285,17 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                         NIRF #{college.nirf}
                       </span>
                     )}
+                  </p>
+                </div>
+
+                {/* Semantic screen reader and crawler index of campus community */}
+                <div className="sr-only" aria-label={`${college.name} Hub Details`}>
+                  <h2>About the {college.name} Student Community on CampusLoop</h2>
+                  <p>
+                    {college.name} ({college.category}) located in {college.location}, {college.state}.
+                    Official verified domain: @{college.domain}.
+                    Join {college.students} students for anonymous confessions, hostel discussions,
+                    branch-specific lecture notes and solved PYQs, campus hackathons, and buy/sell marketplace.
                   </p>
                 </div>
 

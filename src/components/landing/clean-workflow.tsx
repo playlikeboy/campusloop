@@ -44,6 +44,9 @@ export function CleanWorkflow() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-400">A day on CampusLoop</p>
           <h2 className="mt-4 max-w-lg text-4xl font-black tracking-[-0.045em] sm:text-5xl">
             Built around the rhythm of college.
+            <span className="sr-only">
+              {" "}— Daily Student Workflow: Morning Feed, Midday Academic Notes, Evening Clubs, Night Campus Events, Marketplace &amp; Directory
+            </span>
           </h2>
           <p className="mt-5 max-w-md text-sm leading-7 text-zinc-400 sm:text-base">
             The product changes with the day because student life does. Start with a class question, end up at
@@ -69,6 +72,7 @@ export function CleanWorkflow() {
               >
                 <span className="text-xs font-bold tabular-nums text-zinc-600 group-hover:text-blue-400">
                   {step.time}
+                  <span className="sr-only"> time slot</span>
                 </span>
                 <div>
                   <div className="flex items-center gap-2">

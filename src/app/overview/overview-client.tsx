@@ -99,12 +99,30 @@ export function OverviewClient() {
               <span className="text-[#1D9BF0]">
                 Verified Campus Graph
               </span>
+              <span className="sr-only">
+                {" "}— CampusLoop Systemic Platform Architecture, 1,350+ Colleges, Edge Infrastructure &amp; Student Identity Moats in India
+              </span>
             </h1>
 
             <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
               How CampusLoop solves identity, retention, and community trust for higher education institutions
               throughout India.
             </p>
+
+            {/* Semantic screen reader and crawler summary of platform architecture */}
+            <div className="sr-only" aria-label="CampusLoop Technical Whitepaper and Overview">
+              <h2>CampusLoop Platform Architecture &amp; Network Density Thesis</h2>
+              <p>
+                CampusLoop is engineered as a unified campus operating system designed for India&apos;s 43.3 million higher education students.
+                Built on Next.js 16, Cloudflare Workers edge runtime, Neon serverless Postgres, and Qdrant vector database.
+              </p>
+              <ul>
+                <li>Campus Flywheel: Verified confessions for daily retention, academic vault for exam utility, and marketplace for offboarding</li>
+                <li>Total Addressable Market (TAM): 43.3M students across 55,000 institutions with 1,350+ hubs currently indexed</li>
+                <li>Zero-Latency Edge Architecture: Sub-50ms query latency throughout tier 1, 2, and 3 college cities in India</li>
+                <li>Student Data Privacy: Zero behavioral ad reselling, strict UGC anti-ragging compliance, and encrypted identity escrow</li>
+              </ul>
+            </div>
           </div>
         </section>
 

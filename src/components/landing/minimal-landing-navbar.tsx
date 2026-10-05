@@ -34,7 +34,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             haptics.light();
           }}
           className="flex items-center gap-2.5 group cursor-pointer"
-          aria-label="CampusLoop home"
+          aria-label="CampusLoop home — Verified Digital Layer of Indian College Life"
         >
           <div className="size-8.5 rounded-2xl bg-gradient-to-tr from-emerald-500 via-primary to-teal-400 flex items-center justify-center shadow-xs shadow-emerald-500/30 group-hover:scale-105 transition-transform">
             <span className="text-white text-xs font-black tracking-tight">CL</span>
@@ -45,6 +45,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             </span>
             <span className="ml-1.5 size-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
+          <span className="sr-only"> — Home: Verified Student Campus Social Network</span>
         </Link>
 
         {/* Desktop Pill Navigation */}
@@ -84,6 +85,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
             className="inline-flex h-9 sm:h-9.5 items-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 text-xs font-black text-white hover:opacity-90 active:scale-95 transition-all shadow-xs shadow-emerald-500/30 cursor-pointer"
           >
             <span>{isAuthenticated ? "Launch Campus" : "Join Free"}</span>
+            <span className="sr-only"> to explore verified feeds, notes, and events</span>
             <ArrowUpRight className="size-3.5" />
           </Link>
 
