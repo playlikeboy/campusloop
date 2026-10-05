@@ -38,11 +38,11 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="size-8 rounded-xl bg-gradient-to-tr from-primary via-purple-600 to-indigo-500 flex items-center justify-center text-white text-xs font-black">
+              <div className="size-8 rounded-xl bg-[#22c55e] flex items-center justify-center text-white text-xs font-black shadow-xs shadow-emerald-500/30">
                 CL
               </div>
-              <span className="text-base font-extrabold tracking-tight text-foreground">
-                Campus<span className="text-primary">Loop</span>
+              <span className="text-base font-black tracking-tight text-foreground">
+                Campus<span className="text-[#16a34a]">Loop</span>
               </span>
             </Link>
 
