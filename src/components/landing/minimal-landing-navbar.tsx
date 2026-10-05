@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, Compass, Menu, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, Compass, GraduationCap, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { haptics } from "@/lib/haptics";
@@ -18,12 +19,13 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
   const links = [
     { label: "Features", href: "#features", icon: Compass },
     { label: "Academics", href: "/academics", icon: BookOpen },
+    { label: "Colleges", href: "/colleges", icon: GraduationCap },
   ];
 
   return (
     <div className="sticky top-2 sm:top-4 z-50 px-3 sm:px-6 max-w-6xl mx-auto w-full select-none">
-      <header className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 rounded-full border border-border/60 bg-background/90 backdrop-blur-xl shadow-xs transition-all">
-        {/* Brand Logo */}
+      <header className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6 rounded-full border border-border/60 bg-background/90 backdrop-blur-xl shadow-xs transition-all">
+        {/* Cute Voxel Brand Logo */}
         <Link
           href="/"
           onClick={() => {
@@ -33,8 +35,15 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           className="flex items-center gap-2.5 group cursor-pointer"
           aria-label="CampusLoop home — Cute Voxel Campus Network"
         >
-          <div className="size-8.5 rounded-2xl bg-[#22c55e] flex items-center justify-center shadow-xs shadow-emerald-500/30 group-hover:scale-105 transition-transform">
-            <span className="text-white text-xs font-black tracking-tight">CL</span>
+          <div className="relative size-9 sm:size-10 overflow-hidden rounded-2xl border border-border/40 shadow-xs group-hover:scale-105 transition-transform bg-amber-50/20">
+            <Image
+              src="/campusloop/marketing/voxel/logo.webp"
+              alt="Cute voxel CampusLoop isometric university logo"
+              fill
+              sizes="40px"
+              priority
+              className="object-cover"
+            />
           </div>
           <div className="flex items-center">
             <span className="text-base sm:text-lg font-black tracking-tight text-foreground">
