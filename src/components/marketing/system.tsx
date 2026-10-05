@@ -30,6 +30,8 @@ export {
   type LandingSectionProps,
 } from "@/components/landing/landing-design-system";
 
+import Image from "next/image";
+
 const NAV_LINKS = [
   { href: "/explore", label: "Explore" },
   { href: "/academics", label: "Academics" },
@@ -40,22 +42,43 @@ const NAV_LINKS = [
 
 export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-        <BrandMark />
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="inline-flex items-center gap-2.5 group">
+          <div className="relative size-8 sm:size-9 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3 drop-shadow-sm">
+            <Image
+              src="/campusloop/marketing/voxel/logo.webp"
+              alt="CampusLoop Voxel Logo"
+              width={36}
+              height={36}
+              className="object-contain"
+            />
+          </div>
+          <span className="font-heading font-black tracking-tight text-foreground text-base sm:text-lg">
+            Campus<span className="text-[#16a34a]">Loop</span>
+          </span>
+          <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+        </Link>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
+        <nav className="hidden items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/40 md:flex">
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all"
+            >
               {link.label}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <ThemeToggle className="size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted" />
           {isAuthenticated ? (
-            <Link href="/feeds" className={cn(buttonVariants({ size: "sm" }), "gap-1")}>
+            <Link
+              href="/feeds"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 text-xs font-bold text-white shadow-xs transition-all"
+            >
               Open app
               <ArrowRight className="size-3.5" />
             </Link>
@@ -63,11 +86,14 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
             <>
               <Link
                 href="/sign-in"
-                className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "hidden sm:inline-flex")}
+                className="hidden sm:inline-flex h-9 items-center px-3.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
               >
                 Sign in
               </Link>
-              <Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
+              <Link
+                href="/sign-up"
+                className="inline-flex h-9 items-center gap-1 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 text-xs font-black text-white shadow-xs transition-all"
+              >
                 Join CampusLoop
               </Link>
             </>
@@ -109,13 +135,25 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-border/60">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <div className="space-y-3">
-          <BrandMark size="sm" />
+    <footer className="border-t border-border/40 bg-background">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-6 sm:py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="space-y-3.5">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <div className="relative size-8 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
+              <Image
+                src="/campusloop/marketing/voxel/logo.webp"
+                alt="CampusLoop Voxel Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+            </div>
+            <span className="font-heading font-black tracking-tight text-foreground text-base">
+              Campus<span className="text-[#16a34a]">Loop</span>
+            </span>
+          </Link>
           <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
-            The verified student-only social network for Indian colleges. Built for students, gated by a
-            college email.
+            The verified student-only social network for Indian colleges. Built for students, gated by a college email.
           </p>
 
           {/* ─── Prioritized Social Links (Instagram -> LinkedIn -> X) ─── */}
