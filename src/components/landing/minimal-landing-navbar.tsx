@@ -35,14 +35,14 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           className="flex items-center gap-2.5 group cursor-pointer"
           aria-label="CampusLoop home — Cute Voxel Campus Network"
         >
-          <div className="relative size-9 sm:size-10 overflow-hidden rounded-2xl border border-border/40 shadow-xs group-hover:scale-105 transition-transform bg-amber-50/20">
+          <div className="relative size-9 sm:size-10 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3 drop-shadow-md">
             <Image
               src="/campusloop/marketing/voxel/logo.webp"
               alt="Cute voxel CampusLoop isometric university logo"
               fill
               sizes="40px"
               priority
-              className="object-cover"
+              className="object-contain"
             />
           </div>
           <div className="flex items-center">

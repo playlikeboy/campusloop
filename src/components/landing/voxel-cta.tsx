@@ -119,12 +119,12 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             {!isMuted ? (
               <>
                 <Volume2 className="size-3.5 text-emerald-400 animate-pulse" />
-                <span>Sound On</span>
+                <span></span>
               </>
             ) : (
               <>
                 <VolumeX className="size-3.5" />
-                <span>Sound Off</span>
+                <span></span>
               </>
             )}
           </button>
@@ -139,12 +139,12 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             {isPlaying ? (
               <>
                 <Pause className="size-3" />
-                <span className="hidden sm:inline">Pause</span>
+                <span className="hidden sm:inline"></span>
               </>
             ) : (
               <>
                 <Play className="size-3" />
-                <span className="hidden sm:inline">Play</span>
+                <span className="hidden sm:inline"></span>
               </>
             )}
           </button>

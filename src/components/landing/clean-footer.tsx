@@ -39,13 +39,13 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="relative size-8 overflow-hidden rounded-xl border border-border/40 shadow-xs group-hover:scale-105 transition-transform">
+              <div className="relative size-8 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
                 <Image
                   src="/campusloop/marketing/voxel/logo.webp"
                   alt="CampusLoop"
                   fill
                   sizes="32px"
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
               <span className="text-base font-black tracking-tight text-foreground">
