@@ -6,3 +6,4 @@ export * from "./use-mobile";
 export * from "./use-post-actions";
 export * from "./use-profile";
 export * from "./use-stories";
+export * from "./use-scroll-isolation";

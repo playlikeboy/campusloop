@@ -9,6 +9,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
@@ -67,8 +68,13 @@ export function AcademicContextRail({
   userSemester = 5,
   userBranch = "Computer Science",
 }: AcademicContextRailProps) {
+  const scrollRef = useScrollIsolation<HTMLElement>();
+
   return (
-    <aside className="hidden xl:flex flex-col gap-4.5 w-72 shrink-0 select-none sticky top-20">
+    <aside
+      ref={scrollRef}
+      className="hidden xl:flex flex-col gap-4.5 w-72 shrink-0 select-none sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
+    >
       {/* ─── 1. Personalized Context Pill ─── */}
       <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">

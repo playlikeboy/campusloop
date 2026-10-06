@@ -34,6 +34,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { type NotificationItem, type NotificationTab, useNotifications } from "@/hooks/use-notifications";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
@@ -48,6 +49,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
   const [activeTab, setActiveTab] = useState<NotificationTab>("all");
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [pendingClear, setPendingClear] = useState<"all" | "read" | null>(null);
+  const scrollRef = useScrollIsolation<HTMLElement>();
   const [isClearing, setIsClearing] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -533,7 +535,10 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         </main>
 
         {/* ─── Desktop Context & Settings Rail (4 cols on lg, sticky) ─── */}
-        <aside className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-20 select-none">
+        <aside
+          ref={scrollRef}
+          className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
+        >
           {/* Push Notifications Card */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
             <div className="flex items-center gap-2 text-primary">
