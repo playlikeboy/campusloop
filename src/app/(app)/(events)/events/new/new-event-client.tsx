@@ -39,6 +39,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -564,7 +565,8 @@ export function NewEventClient() {
         status === "DRAFT" ? "Draft saved. Publish whenever you're ready." : "Campus Event published live!"
       );
       mutate("/api/events");
-      router.push(`/events/${data.event?.slug || data.event?.id}`);
+      const targetSlug = data.event?.slug || data.event?.id;
+      router.push(`/events/manage/${targetSlug}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create event");
       haptics.error();
@@ -638,6 +640,14 @@ export function NewEventClient() {
                 Preview
               </button>
             </div>
+
+            <Link
+              href="/events/dashboard"
+              className="hidden md:inline-flex items-center gap-1.5 h-8.5 rounded-full border border-border/60 bg-muted/20 px-3.5 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <Calendar className="size-3.5 text-primary" />
+              <span>Dashboard</span>
+            </Link>
 
             <Button
               type="button"

@@ -21,6 +21,7 @@ import {
   School,
   Search,
   Sparkles,
+  Ticket,
   Trophy,
   Users2,
   X,
@@ -375,6 +376,20 @@ export function EventsClient() {
               <span className="sm:hidden">List</span>
             </Link>
 
+            {/* Organizer Dashboard */}
+            <Link
+              href="/events/dashboard"
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+              }}
+              className="hidden md:flex h-8 items-center gap-1.5 px-3 rounded-xl bg-card hover:bg-muted/70 text-foreground border border-border/50 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+              title="Manage your hosted events and track registrations"
+            >
+              <Calendar className="size-3.5 text-primary" />
+              <span>Organizer</span>
+            </Link>
+
             {/* Host Event Button */}
             <Link
               href="/events/new"
@@ -454,6 +469,22 @@ export function EventsClient() {
                 className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
               >
                 <span>Archive</span>
+              </Link>
+
+              <Link
+                href="/events/my-tickets"
+                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
+              >
+                <Ticket className="size-3 text-primary" />
+                <span>My Passes</span>
+              </Link>
+
+              <Link
+                href="/events/dashboard"
+                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 md:hidden"
+              >
+                <Calendar className="size-3 text-primary" />
+                <span>Dashboard</span>
               </Link>
             </div>
 

@@ -13,6 +13,7 @@ import {
   MapPin,
   QrCode,
   School,
+  Settings,
   Share2,
   Trophy,
   Users,
@@ -23,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
+import { useProfile } from "@/hooks/use-profile";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -60,9 +62,13 @@ const FAQ_ITEMS = [
 
 export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const router = useRouter();
+  const { profile } = useProfile();
   const { data, isLoading } = useSWR<{ event: any }>(`/api/events/${eventId}`, fetcher);
 
   const event = data?.event;
+  const isOrganizer = Boolean(
+    profile && event && (profile.id === event.organizerProfileId || profile.id === event.organizer?.id || profile.role === "ADMIN")
+  );
 
   const [showRegModal, setShowRegModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -266,6 +272,16 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         </button>
 
         <div className="flex items-center gap-2">
+          {isOrganizer && (
+            <Link
+              href={`/events/manage/${event.slug || event.id}`}
+              className="h-8 px-3 rounded-full text-xs font-bold gap-1.5 flex items-center bg-primary text-primary-foreground hover:bg-primary/95 transition-all shadow-xs"
+            >
+              <Settings className="size-3.5" />
+              <span>Manage Hub</span>
+            </Link>
+          )}
+
           <Button
             size="sm"
             variant="outline"
