@@ -104,7 +104,12 @@ export async function GET(req: Request) {
     }
 
     // Campus scope filter
-    if (scope === "MY_CAMPUS" && currentProfile?.institutionId) {
+    if (scope === "HOSTED" || scope === "ORGANIZED" || scope === "MY_EVENTS") {
+      if (!currentProfile) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      conditions.push(eq(events.organizerProfileId, currentProfile.id));
+    } else if (scope === "MY_CAMPUS" && currentProfile?.institutionId) {
       conditions.push(eq(events.institutionId, currentProfile.institutionId));
     }
 
@@ -123,19 +128,22 @@ export async function GET(req: Request) {
     }
 
     // Visibility filter:
-    // 1. Never show UNLISTED events in the general listing/search unless specifically invited
-    // 2. PRIVATE events only shown if user is from the same institution or is organizer
-    if (currentProfile?.institutionId) {
-      conditions.push(
-        or(
-          eq(events.visibility, "PUBLIC"),
-          and(eq(events.visibility, "PRIVATE"), eq(events.institutionId, currentProfile.institutionId)),
-          eq(events.organizerProfileId, currentProfile.id)
-        )
-      );
-    } else {
-      // Unauthenticated / guest only sees PUBLIC
-      conditions.push(eq(events.visibility, "PUBLIC"));
+    // 1. If viewing own hosted events, don't restrict visibility
+    // 2. Never show UNLISTED events in the general listing/search unless specifically invited
+    // 3. PRIVATE events only shown if user is from the same institution or is organizer
+    if (scope !== "HOSTED" && scope !== "ORGANIZED" && scope !== "MY_EVENTS") {
+      if (currentProfile?.institutionId) {
+        conditions.push(
+          or(
+            eq(events.visibility, "PUBLIC"),
+            and(eq(events.visibility, "PRIVATE"), eq(events.institutionId, currentProfile.institutionId)),
+            eq(events.organizerProfileId, currentProfile.id)
+          )
+        );
+      } else {
+        // Unauthenticated / guest only sees PUBLIC
+        conditions.push(eq(events.visibility, "PUBLIC"));
+      }
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -165,6 +173,12 @@ export async function GET(req: Request) {
             id: true,
             profileId: true,
             reminderSet: true,
+            status: true,
+            registrationType: true,
+            teamName: true,
+            teamMembers: true,
+            contactPhone: true,
+            createdAt: true,
           },
           with: {
             profile: {
@@ -226,11 +240,14 @@ export async function GET(req: Request) {
         loopPointsReward: ev.loopPointsReward,
         status: ev.status,
         attendeeCount: ev.registrations.length,
+        attendedCount: ev.registrations.filter((r: any) => r.status === "ATTENDED").length,
+        confirmedCount: ev.registrations.filter((r: any) => r.status === "CONFIRMED" || r.status === "ATTENDED").length,
         recentAttendees: ev.registrations
           .slice(0, 4)
           .map((r: any) => r.profile)
           .filter(Boolean),
         isRegistered,
+        userRegistration: userReg,
         reminderSet: userReg?.reminderSet ?? false,
         isLiveNow,
         isClosingSoon,
@@ -238,6 +255,11 @@ export async function GET(req: Request) {
         createdAt: ev.createdAt,
       };
     });
+
+    // If scope is REGISTERED, filter to user registered events only
+    if (scope === "REGISTERED") {
+      enriched = enriched.filter((e) => e.isRegistered);
+    }
 
     // Compute platform-level Unstop metrics across all accessible events
     const totalOpportunities = enriched.length;

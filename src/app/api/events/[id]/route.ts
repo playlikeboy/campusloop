@@ -52,6 +52,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
                 username: true,
                 displayName: true,
                 avatarUrl: true,
+                course: true,
+                branch: true,
+                year: true,
+                email: true,
+              },
+              with: {
+                institution: {
+                  columns: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -134,5 +146,71 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   } catch (error) {
     console.error("DELETE /api/events/[id] error:", error);
     return NextResponse.json({ error: "Failed to delete event" }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const user = await hexclaveServerApp.getUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const db = getDb();
+    const profile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+    });
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    }
+
+    const event = await db.query.events.findFirst({
+      where: or(eq(events.id, id), eq(events.slug, id)),
+    });
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    // Only organizer or Admin can update
+    if (event.organizerProfileId !== profile.id && profile.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = ((await req.json().catch(() => ({}))) || {}) as Record<string, any>;
+
+    const [updatedEvent] = await db
+      .update(events)
+      .set({
+        title: body.title !== undefined ? body.title : event.title,
+        tagline: body.tagline !== undefined ? body.tagline : event.tagline,
+        description: body.description !== undefined ? body.description : event.description,
+        bannerUrl: body.bannerUrl !== undefined ? body.bannerUrl : event.bannerUrl,
+        clubName: body.clubName !== undefined ? body.clubName : event.clubName,
+        venue: body.venue !== undefined ? body.venue : event.venue,
+        meetingUrl: body.meetingUrl !== undefined ? body.meetingUrl : event.meetingUrl,
+        mode: body.mode !== undefined ? body.mode : event.mode,
+        eventType: body.eventType !== undefined ? body.eventType : event.eventType,
+        startDate: body.startDate ? new Date(body.startDate) : event.startDate,
+        endDate: body.endDate ? new Date(body.endDate) : event.endDate,
+        registrationDeadline: body.registrationDeadline
+          ? new Date(body.registrationDeadline)
+          : event.registrationDeadline,
+        maxParticipants: body.maxParticipants !== undefined ? body.maxParticipants : event.maxParticipants,
+        prizesDescription:
+          body.prizesDescription !== undefined ? body.prizesDescription : event.prizesDescription,
+        status: body.status !== undefined ? body.status : event.status,
+        visibility: body.visibility !== undefined ? body.visibility : event.visibility,
+        updatedAt: new Date(),
+      })
+      .where(eq(events.id, event.id))
+      .returning();
+
+    return NextResponse.json({ success: true, event: updatedEvent });
+  } catch (error) {
+    console.error("PATCH /api/events/[id] error:", error);
+    return NextResponse.json({ error: "Failed to update event" }, { status: 500 });
   }
 }
