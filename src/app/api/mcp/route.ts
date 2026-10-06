@@ -28,16 +28,19 @@ export async function GET(req: Request) {
       authenticated: Boolean(key),
       documentation: "Connect this endpoint to Cursor, Windsurf, Claude Desktop, Cline, or any AI agent.",
       endpoints: {
-        streamableHttp: "/api/mcp?key=YOUR_KEY",
-        sse: "/api/mcp/sse?key=YOUR_KEY",
-        message: "/api/mcp/message?sessionId=SESSION_ID&key=YOUR_KEY",
+        streamableHttp: "/api/mcp",
+        sse: "/api/mcp/sse",
+        message: "/api/mcp/message?sessionId=SESSION_ID",
       },
       availableToolsCount: CAMPUSLOOP_MCP_TOOLS.length,
       sampleIdeConfig: {
         cursor: {
           mcpServers: {
             campusloop: {
-              url: `https://campusloop.space/api/mcp?key=${key || "YOUR_MCP_KEY"}`,
+              url: "https://campusloop.space/api/mcp",
+              headers: {
+                Authorization: "Bearer YOUR_MCP_KEY",
+              },
             },
           },
         },
@@ -57,7 +60,7 @@ export async function POST(req: Request) {
         error: {
           code: -32001,
           message:
-            "Unauthorized: Missing MCP API key. Provide via ?key=cl_mcp_..., Authorization: Bearer cl_mcp_..., or x-campusloop-mcp-key header.",
+            "Unauthorized: Missing MCP API key. Provide via Authorization: Bearer cl_mcp_... or x-campusloop-mcp-key header.",
         },
       },
       { status: 401, headers: CORS_HEADERS }

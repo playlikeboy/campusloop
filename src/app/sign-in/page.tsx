@@ -5,6 +5,7 @@ import { AuthStateCleaner } from "@/components/auth/auth-state-cleaner";
 import { AuthVisualPanel } from "@/components/auth/auth-visual-panel";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { sanitizeReturnTo } from "@/lib/auth-redirect";
+import { getInstitutionAllowedDomains } from "@/lib/institutions";
 
 export const metadata: Metadata = {
   title: "Sign In | CampusLoop — Verified Student Network",
@@ -18,6 +19,8 @@ export default async function SignInPage({
     returnTo?: string;
     redirect?: string;
     after_auth_return_to?: string;
+    college?: string;
+    domain?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -30,6 +33,22 @@ export default async function SignInPage({
     redirect(cleanReturnTo || "/feeds");
   }
 
+  const collegeParam = params?.college;
+  const domainParam = params?.domain;
+
+  let collegeHint: string | undefined = undefined;
+  let allowedDomains: string[] = [];
+
+  if (collegeParam) {
+    const { institution, domains } = await getInstitutionAllowedDomains(collegeParam);
+    if (institution) {
+      collegeHint = institution.name;
+      allowedDomains = domains;
+    } else {
+      collegeHint = collegeParam;
+    }
+  }
+
   // Construct safe handler href
   const queryParts: string[] = [];
   if (cleanReturnTo) {
@@ -38,11 +57,16 @@ export default async function SignInPage({
   } else {
     queryParts.push(`after_auth_return_to=${encodeURIComponent("/feeds")}`);
   }
+  if (collegeParam) {
+    queryParts.push(`college=${encodeURIComponent(collegeParam)}`);
+  }
   const handlerHref = `/handler/sign-in?${queryParts.join("&")}`;
 
-  const signUpHref = cleanReturnTo
-    ? `/sign-up?returnTo=${encodeURIComponent(cleanReturnTo)}`
-    : "/sign-up";
+  const signUpQuery = new URLSearchParams();
+  if (cleanReturnTo) signUpQuery.set("returnTo", cleanReturnTo);
+  if (collegeParam) signUpQuery.set("college", collegeParam);
+  if (domainParam) signUpQuery.set("domain", domainParam);
+  const signUpHref = `/sign-up${signUpQuery.toString() ? `?${signUpQuery.toString()}` : ""}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-center">
@@ -54,6 +78,9 @@ export default async function SignInPage({
             mode="sign-in"
             handlerHref={handlerHref}
             oppositeHref={signUpHref}
+            collegeHint={collegeHint}
+            allowedDomains={allowedDomains}
+            initialDomain={domainParam}
           />
         </div>
       </div>

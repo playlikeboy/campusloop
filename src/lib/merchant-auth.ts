@@ -15,21 +15,49 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
  * session with a constant committed to a public repository. Anyone who read
  * the source could mint a session for any store.
  */
+/**
+ * Dedicated HMAC secret for merchant portal sessions.
+ *
+ * MUST fail closed: requires MERCHANT_AUTH_SECRET with at least 32 characters
+ * and sufficient entropy. All fallbacks (AUTH_SECRET, HEXCLAVE_PROJECT_SECRET,
+ * DATABASE_URL derivation, hardcoded constants) are strictly removed.
+ */
 function getSessionSecret(): string {
   const secret = process.env.MERCHANT_AUTH_SECRET;
-  if (!secret || secret.length < 16) {
-    if (process.env.NODE_ENV === "test") {
-      throw new Error("MERCHANT_AUTH_SECRET is missing or too short");
-    }
-    return (
-      secret ||
-      process.env.HEXCLAVE_PROJECT_SECRET ||
-      process.env.AUTH_SECRET ||
-      (process.env.DATABASE_URL ? `cl_${process.env.DATABASE_URL.slice(-32)}` : null) ||
-      "campusloop_merchant_portal_secure_hmac_secret_2026_salt"
+
+  if (!secret || typeof secret !== "string" || secret.trim().length === 0) {
+    throw new Error(
+      "MERCHANT_AUTH_SECRET is missing. A dedicated production secret of at least 32 characters is required."
     );
   }
-  return secret;
+
+  const trimmed = secret.trim();
+  if (trimmed.length < 32) {
+    throw new Error(
+      `MERCHANT_AUTH_SECRET is too short (${trimmed.length} characters). It must be at least 32 characters.`
+    );
+  }
+
+  // Reject malformed or low-entropy secrets (e.g. repeating characters or placeholder strings)
+  const uniqueChars = new Set(trimmed);
+  if (uniqueChars.size < 6) {
+    throw new Error(
+      "MERCHANT_AUTH_SECRET is malformed: insufficient entropy (too few unique characters)."
+    );
+  }
+
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.includes("change-this") ||
+    lower.includes("placeholder") ||
+    lower === "campusloop_merchant_portal_secure_hmac_secret_2026_salt"
+  ) {
+    throw new Error(
+      "MERCHANT_AUTH_SECRET is malformed: placeholder or known default secret detected."
+    );
+  }
+
+  return trimmed;
 }
 
 async function importHmacKey(usages: KeyUsage[]): Promise<CryptoKey> {
@@ -73,8 +101,12 @@ interface SessionClaims {
  * could swap in another store's id and be authenticated as them.
  */
 export async function createMerchantSessionToken(merchantId: string): Promise<string> {
+  if (!merchantId || typeof merchantId !== "string" || merchantId.trim().length === 0) {
+    throw new Error("Cannot create merchant session token: merchantId is required");
+  }
+
   const now = Math.floor(Date.now() / 1000);
-  const claims: SessionClaims = { mid: merchantId, iat: now, exp: now + SESSION_TTL_SECONDS };
+  const claims: SessionClaims = { mid: merchantId.trim(), iat: now, exp: now + SESSION_TTL_SECONDS };
 
   const payload = toBase64Url(new TextEncoder().encode(JSON.stringify(claims)));
   const key = await importHmacKey(["sign"]);
@@ -91,11 +123,12 @@ export async function createMerchantSessionToken(merchantId: string): Promise<st
  */
 export async function verifyMerchantSessionToken(token: string): Promise<string | null> {
   try {
-    const separator = token.indexOf(".");
-    if (separator === -1) return null;
+    if (!token || typeof token !== "string") return null;
 
-    const payload = token.slice(0, separator);
-    const signature = token.slice(separator + 1);
+    const parts = token.split(".");
+    if (parts.length !== 2) return null;
+
+    const [payload, signature] = parts;
     if (!payload || !signature) return null;
 
     const key = await importHmacKey(["verify"]);
@@ -108,7 +141,7 @@ export async function verifyMerchantSessionToken(token: string): Promise<string 
     if (!isValid) return null;
 
     const claims = JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as SessionClaims;
-    if (!claims?.mid || typeof claims.mid !== "string") return null;
+    if (!claims?.mid || typeof claims.mid !== "string" || claims.mid.trim().length === 0) return null;
 
     // An unchecked expiry made every token eternal; a leaked cookie never
     // stopped working.
@@ -121,15 +154,26 @@ export async function verifyMerchantSessionToken(token: string): Promise<string 
 }
 
 /**
- * Resolves the authenticated merchant from cookies or server requests.
+ * Verifies the merchant session and confirms the merchant's account status.
+ *
+ * Guarantees:
+ * 1. Session claims contain merchant ID inside the authenticated signed payload.
+ * 2. Does not trust any merchant ID supplied independently of the signed token.
+ * 3. Verifies merchant status: ACTIVE => allowed, SUSPENDED/CLOSED => rejected.
+ *
+ * If a token is explicitly passed, it verifies that token. Otherwise, it extracts
+ * the session cookie from incoming request headers.
  */
-export async function getAuthenticatedMerchant(): Promise<typeof merchants.$inferSelect | null> {
+export async function verifyMerchantSession(token?: string): Promise<typeof merchants.$inferSelect | null> {
   try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get(MERCHANT_COOKIE_NAME)?.value;
-    if (!sessionCookie) return null;
+    let sessionToken = token;
+    if (!sessionToken) {
+      const cookieStore = await cookies();
+      sessionToken = cookieStore.get(MERCHANT_COOKIE_NAME)?.value;
+    }
+    if (!sessionToken) return null;
 
-    const merchantId = await verifyMerchantSessionToken(sessionCookie);
+    const merchantId = await verifyMerchantSessionToken(sessionToken);
     if (!merchantId) return null;
 
     const db = getDb();
@@ -139,16 +183,25 @@ export async function getAuthenticatedMerchant(): Promise<typeof merchants.$infe
 
     if (!merchant) return null;
 
-    // Status is re-checked on every request, not just at login: suspending a
-    // store must take effect immediately, not in 30 days when its cookie
-    // happens to expire.
-    if (merchant.status === "SUSPENDED" || merchant.status === "CLOSED") return null;
+    // Status is re-checked on every request, not just at login: suspending or closing
+    // a store must take effect immediately. ACTIVE => allowed, SUSPENDED/CLOSED => rejected.
+    if (merchant.status === "SUSPENDED" || merchant.status === "CLOSED" || merchant.status !== "ACTIVE") {
+      return null;
+    }
 
     return merchant;
   } catch (err) {
     console.error("Error resolving merchant session:", err);
     return null;
   }
+}
+
+/**
+ * Resolves the authenticated merchant from cookies or server requests.
+ * Alias / wrapper around verifyMerchantSession().
+ */
+export async function getAuthenticatedMerchant(): Promise<typeof merchants.$inferSelect | null> {
+  return verifyMerchantSession();
 }
 
 /**

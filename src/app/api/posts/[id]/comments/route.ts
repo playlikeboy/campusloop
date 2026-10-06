@@ -287,6 +287,38 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Post or Reel not found" }, { status: 404 });
     }
 
+    if (targetPost.status === "DELETED") {
+      return NextResponse.json({ error: "Cannot comment on a deleted post" }, { status: 400 });
+    }
+
+    if (targetPost.status !== "PUBLISHED") {
+      return NextResponse.json({ error: "Post is not available for commenting" }, { status: 400 });
+    }
+
+    if (parentId) {
+      const parentComment = await db.query.comments.findFirst({
+        where: eq(comments.id, parentId),
+      });
+
+      if (!parentComment) {
+        return NextResponse.json({ error: "Parent comment not found" }, { status: 404 });
+      }
+
+      if (parentComment.postId !== id) {
+        return NextResponse.json(
+          { error: "Parent comment does not belong to this post" },
+          { status: 400 }
+        );
+      }
+
+      if (parentComment.status === "DELETED") {
+        return NextResponse.json(
+          { error: "Cannot reply to a deleted comment" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Direct sequential insert (no nested db.transaction which breaks in Neon HTTP driver)
     const [newComment] = await db
       .insert(comments)

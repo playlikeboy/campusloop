@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   academicResources,
@@ -45,10 +45,20 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
     conditions.push(eq(posts.status, "PUBLISHED"));
 
+    // Check user's active memberships to respect private community boundaries
+    const myMemberships = await db.query.communityMembers.findMany({
+      where: and(
+        eq(communityMembers.userId, context.userId),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+      columns: { communityId: true },
+    });
+    const allowedCommunityIds = new Set(myMemberships.map((m) => m.communityId));
+
     const feedPosts = await db.query.posts.findMany({
       where: and(...conditions),
       orderBy: [desc(posts.createdAt)],
-      limit,
+      limit: limit * 2,
       with: {
         author: {
           columns: {
@@ -72,6 +82,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
             id: true,
             name: true,
             slug: true,
+            privacy: true,
           },
         },
         votes: {
@@ -83,11 +94,22 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       },
     });
 
+    // Exclude posts from private communities unless user is an active member
+    const visiblePosts = feedPosts
+      .filter((p) => {
+        if (!p.community) return true;
+        if (p.community.privacy === "PRIVATE") {
+          return allowedCommunityIds.has(p.community.id);
+        }
+        return true;
+      })
+      .slice(0, limit);
+
     return {
       scope,
       filter,
-      count: feedPosts.length,
-      posts: feedPosts.map((p) => {
+      count: visiblePosts.length,
+      posts: visiblePosts.map((p) => {
         const score = (p.votes || []).reduce((acc, v) => acc + (v.value || 0), 0);
         return {
           id: p.id,
@@ -96,7 +118,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
           type: p.type,
           scope: p.scope,
           isAnonymous: p.isAnonymous,
-          pseudonym: p.pseudonym,
+          pseudonym: p.isAnonymous ? p.pseudonym || "Anonymous" : null,
           author: p.isAnonymous ? null : p.author,
           college: p.institution?.name || "Campus",
           community: p.community ? { id: p.community.id, name: p.community.name } : null,
@@ -124,10 +146,19 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       conditions.push(eq(posts.institutionId, context.institutionId));
     }
 
+    const myMemberships = await db.query.communityMembers.findMany({
+      where: and(
+        eq(communityMembers.userId, context.userId),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+      columns: { communityId: true },
+    });
+    const allowedCommunityIds = new Set(myMemberships.map((m) => m.communityId));
+
     const matchedPosts = await db.query.posts.findMany({
       where: and(...conditions),
       orderBy: [desc(posts.createdAt)],
-      limit,
+      limit: limit * 2,
       with: {
         author: {
           columns: {
@@ -140,6 +171,9 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         institution: {
           columns: { id: true, name: true },
         },
+        community: {
+          columns: { id: true, name: true, slug: true, privacy: true },
+        },
         votes: {
           columns: { value: true },
         },
@@ -149,10 +183,20 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       },
     });
 
+    const visiblePosts = matchedPosts
+      .filter((p) => {
+        if (!p.community) return true;
+        if (p.community.privacy === "PRIVATE") {
+          return allowedCommunityIds.has(p.community.id);
+        }
+        return true;
+      })
+      .slice(0, limit);
+
     return {
       query,
-      resultsCount: matchedPosts.length,
-      results: matchedPosts.map((p) => {
+      resultsCount: visiblePosts.length,
+      results: visiblePosts.map((p) => {
         const score = (p.votes || []).reduce((acc, v) => acc + (v.value || 0), 0);
         return {
           id: p.id,
@@ -160,6 +204,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
           excerpt: p.body?.slice(0, 200),
           author: p.isAnonymous ? p.pseudonym || "Anonymous" : p.author?.displayName,
           college: p.institution?.name,
+          community: p.community ? { id: p.community.id, name: p.community.name } : null,
           votesCount: score,
           commentsCount: (p.comments || []).length,
           createdAt: p.createdAt,
@@ -168,7 +213,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     };
   },
 
-  campusloop_get_post_details: async (_context, args) => {
+  campusloop_get_post_details: async (context, args) => {
     const db = getDb();
     const postId = String(args.postId || "").trim();
     if (!postId) throw new Error("postId is required");
@@ -190,7 +235,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
           columns: { id: true, name: true, slug: true },
         },
         community: {
-          columns: { id: true, name: true, slug: true },
+          columns: { id: true, name: true, slug: true, privacy: true, creatorId: true },
         },
         pollOptions: true,
         votes: {
@@ -200,6 +245,20 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     });
 
     if (!post) throw new Error(`Post '${postId}' not found`);
+
+    // Verify object-level privacy boundaries: private community posts require membership
+    if (post.community && post.community.privacy === "PRIVATE") {
+      const isMember = await db.query.communityMembers.findFirst({
+        where: and(
+          eq(communityMembers.communityId, post.community.id),
+          eq(communityMembers.userId, context.userId),
+          eq(communityMembers.status, "ACTIVE")
+        ),
+      });
+      if (!isMember && post.community.creatorId !== context.userId) {
+        throw new Error("Unauthorized: Post belongs to a private community.");
+      }
+    }
 
     const topComments = await db.query.comments.findMany({
       where: eq(comments.postId, postId),
@@ -226,10 +285,10 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       type: post.type,
       scope: post.scope,
       isAnonymous: post.isAnonymous,
-      pseudonym: post.pseudonym,
+      pseudonym: post.isAnonymous ? post.pseudonym || "Anonymous" : null,
       author: post.isAnonymous ? null : post.author,
       college: post.institution?.name,
-      community: post.community,
+      community: post.community ? { id: post.community.id, name: post.community.name, slug: post.community.slug } : null,
       votesCount: score,
       commentsCount: topComments.length,
       pollOptions: post.pollOptions || [],
@@ -237,7 +296,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       comments: topComments.map((c) => ({
         id: c.id,
         body: c.body,
-        author: c.isAnonymous ? c.pseudonym || "Anonymous" : c.author?.displayName,
+        author: c.isAnonymous ? c.pseudonym || "Anonymous" : c.author?.displayName || "Student",
         createdAt: c.createdAt,
       })),
     };
@@ -390,6 +449,24 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     });
     if (!targetPost) throw new Error(`Post '${postId}' not found`);
 
+    if (targetPost.communityId) {
+      const comm = await db.query.communities.findFirst({
+        where: eq(communities.id, targetPost.communityId),
+      });
+      if (comm && comm.privacy === "PRIVATE") {
+        const isMember = await db.query.communityMembers.findFirst({
+          where: and(
+            eq(communityMembers.communityId, comm.id),
+            eq(communityMembers.userId, context.userId),
+            eq(communityMembers.status, "ACTIVE")
+          ),
+        });
+        if (!isMember && comm.creatorId !== context.userId) {
+          throw new Error("Unauthorized: Cannot vote on a post in a private community you have not joined.");
+        }
+      }
+    }
+
     let voteValue = 1;
     if (direction === "DOWN") voteValue = -1;
     else if (direction === "REMOVE") voteValue = 0;
@@ -436,6 +513,24 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       where: eq(posts.id, postId),
     });
     if (!targetPost) throw new Error(`Post '${postId}' not found`);
+
+    if (targetPost.communityId) {
+      const comm = await db.query.communities.findFirst({
+        where: eq(communities.id, targetPost.communityId),
+      });
+      if (comm && comm.privacy === "PRIVATE") {
+        const isMember = await db.query.communityMembers.findFirst({
+          where: and(
+            eq(communityMembers.communityId, comm.id),
+            eq(communityMembers.userId, context.userId),
+            eq(communityMembers.status, "ACTIVE")
+          ),
+        });
+        if (!isMember && comm.creatorId !== context.userId) {
+          throw new Error("Unauthorized: Cannot comment on a post in a private community you have not joined.");
+        }
+      }
+    }
 
     const isAnonymous = Boolean(args.isAnonymous);
     const pseudonym = isAnonymous ? `anon_${randomUUID().slice(0, 8)}` : null;
@@ -614,16 +709,34 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     let commList;
     if (filter === "JOINED") {
       const myMemberships = await db.query.communityMembers.findMany({
-        where: eq(communityMembers.userId, context.userId),
+        where: and(
+          eq(communityMembers.userId, context.userId),
+          eq(communityMembers.status, "ACTIVE")
+        ),
         limit,
         with: { community: true },
       });
-      commList = myMemberships.map((m) => m.community);
+      commList = myMemberships.map((m) => m.community).filter(Boolean);
     } else {
-      commList = await db.query.communities.findMany({
-        orderBy: [desc(communities.points), desc(communities.createdAt)],
-        limit,
+      // Respect privacy boundaries: do not leak UNLISTED or PRIVATE communities
+      const myMemberships = await db.query.communityMembers.findMany({
+        where: and(
+          eq(communityMembers.userId, context.userId),
+          eq(communityMembers.status, "ACTIVE")
+        ),
+        columns: { communityId: true },
       });
+      const myCommIds = new Set(myMemberships.map((m) => m.communityId));
+
+      const all = await db.query.communities.findMany({
+        where: ne(communities.privacy, "UNLISTED"),
+        orderBy: [desc(communities.points), desc(communities.createdAt)],
+        limit: limit * 2,
+      });
+
+      commList = all
+        .filter((c) => c.privacy === "PUBLIC" || myCommIds.has(c.id) || c.creatorId === context.userId)
+        .slice(0, limit);
     }
 
     return {
@@ -635,12 +748,13 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         slug: c.slug,
         description: c.description,
         category: c.category,
+        privacy: c.privacy,
         points: c.points,
       })),
     };
   },
 
-  campusloop_get_community: async (_context, args) => {
+  campusloop_get_community: async (context, args) => {
     const db = getDb();
     const idOrSlug = String(args.communityIdOrSlug || "").trim();
     if (!idOrSlug) throw new Error("communityIdOrSlug is required");
@@ -649,6 +763,23 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       where: or(eq(communities.id, idOrSlug), eq(communities.slug, idOrSlug)),
     });
     if (!comm) throw new Error(`Community '${idOrSlug}' not found`);
+
+    const isMember = await db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, comm.id),
+        eq(communityMembers.userId, context.userId),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+    });
+    const isCreator = comm.creatorId === context.userId;
+
+    if (comm.privacy === "UNLISTED" && !isMember && !isCreator) {
+      throw new Error(`Community '${idOrSlug}' not found`);
+    }
+
+    if (comm.privacy === "PRIVATE" && !isMember && !isCreator) {
+      throw new Error("Unauthorized: Private community. Active membership required to view community contents.");
+    }
 
     const recentPosts = await db.query.posts.findMany({
       where: and(eq(posts.communityId, comm.id), eq(posts.status, "PUBLISHED")),
@@ -659,7 +790,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     const membersTotal = await db
       .select({ count: count() })
       .from(communityMembers)
-      .where(eq(communityMembers.communityId, comm.id));
+      .where(and(eq(communityMembers.communityId, comm.id), eq(communityMembers.status, "ACTIVE")));
 
     return {
       community: {
@@ -668,6 +799,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         slug: comm.slug,
         description: comm.description,
         category: comm.category,
+        privacy: comm.privacy,
         membersCount: membersTotal[0]?.count || 0,
         points: comm.points,
         rules: comm.rules,
@@ -691,6 +823,18 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       where: eq(communities.id, communityId),
     });
     if (!comm) throw new Error(`Community '${communityId}' not found`);
+
+    // Verify object-level permission: must be active member or creator
+    const isMember = await db.query.communityMembers.findFirst({
+      where: and(
+        eq(communityMembers.communityId, comm.id),
+        eq(communityMembers.userId, context.userId),
+        eq(communityMembers.status, "ACTIVE")
+      ),
+    });
+    if (!isMember && comm.creatorId !== context.userId) {
+      throw new Error("Unauthorized: You must be an active member to post in this community.");
+    }
 
     const title = args.title ? String(args.title).trim().slice(0, 200) : null;
     const safety = runSafetyCheck({ title, body });
@@ -743,13 +887,25 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
 
     if (action === "JOIN") {
       if (!existing) {
+        const initialStatus = comm.privacy === "PRIVATE" ? "PENDING" : "ACTIVE";
         await db.insert(communityMembers).values({
           communityId,
           userId: context.userId,
           role: "MEMBER",
+          status: initialStatus,
         });
+
+        if (initialStatus === "PENDING") {
+          return {
+            success: true,
+            action: "REQUESTED",
+            status: "PENDING",
+            communityName: comm.name,
+            message: "Membership request submitted for admin approval.",
+          };
+        }
       }
-      return { success: true, action: "JOINED", communityName: comm.name };
+      return { success: true, action: "JOINED", status: "ACTIVE", communityName: comm.name };
     } else {
       if (existing) {
         await db.delete(communityMembers).where(eq(communityMembers.id, existing.id));

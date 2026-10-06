@@ -130,6 +130,7 @@ export async function getR2Object(
   contentType: string;
   size: number;
   range?: { offset: number; length: number };
+  customMetadata?: Record<string, string>;
 } | null> {
   const bucket = getR2Bucket();
 
@@ -162,6 +163,7 @@ export async function getR2Object(
           contentType: obj.httpMetadata?.contentType || "application/octet-stream",
           size: obj.size,
           range: obj.range,
+          customMetadata: obj.customMetadata,
         };
       }
     } catch (r2Error) {
@@ -187,6 +189,7 @@ export async function getR2Object(
             contentType: local.contentType,
             size: local.size,
             range: { offset: start, length: sliced.byteLength },
+            customMetadata: local.metadata,
           };
         }
       }
@@ -196,6 +199,7 @@ export async function getR2Object(
       body: local.data,
       contentType: local.contentType,
       size: local.size,
+      customMetadata: local.metadata,
     };
   }
 
@@ -240,6 +244,7 @@ export async function getR2Object(
               contentType: record.contentType,
               size: uint8.byteLength,
               range: { offset: start, length: sliced.byteLength },
+              customMetadata: (record.metadata as unknown as Record<string, string>) || {},
             };
           }
         }
@@ -249,6 +254,7 @@ export async function getR2Object(
         body: uint8,
         contentType: record.contentType,
         size: uint8.byteLength,
+        customMetadata: (record.metadata as unknown as Record<string, string>) || {},
       };
     }
   } catch (dbError) {

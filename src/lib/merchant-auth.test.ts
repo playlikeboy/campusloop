@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createMerchantSessionToken, verifyMerchantSessionToken } from "./merchant-auth";
 
-const SECRET = "test-secret-that-is-long-enough";
+const SECRET = "test-secret-that-is-long-enough-32-chars";
 const ORIGINAL = process.env.MERCHANT_AUTH_SECRET;
 
 // The secret is read inside each call rather than at module load, so these
@@ -115,7 +115,13 @@ describe("secret configuration", () => {
     // There used to be a hardcoded fallback here, so production — where the
     // variable was never set — signed every session with a constant committed
     // to a public repository.
-    for (const bad of ["", "short"]) {
+    for (const bad of [
+      "",
+      "short",
+      "test-secret-that-is-long-enough", // 31 chars
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", // low entropy
+      "campusloop_merchant_portal_secure_hmac_secret_2026_salt", // placeholder
+    ]) {
       process.env.MERCHANT_AUTH_SECRET = bad;
       await expect(createMerchantSessionToken("merchant-a")).rejects.toThrow(/MERCHANT_AUTH_SECRET/);
     }

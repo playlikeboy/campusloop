@@ -10,44 +10,50 @@ const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB
 const UPLOAD_API_KEY = process.env.UPLOAD_API_KEY || process.env.ADMIN_PASSKEY || "";
 
 
-// Blacklist of dangerous, executable, or scriptable file extensions
-const DISALLOWED_EXTENSIONS = new Set([
-  "exe",
-  "bat",
-  "cmd",
-  "sh",
-  "bin",
-  "php",
-  "phtml",
-  "pht",
-  "cgi",
-  "pl",
-  "html",
-  "htm",
-  "shtml",
-  "xhtml",
-  "xml",
-  "svg",
-  "svgz",
-  "js",
-  "mjs",
-  "ts",
-  "py",
-  "rb",
-  "dll",
-  "so",
-  "app",
-  "jar",
-  "jsp",
-  "asp",
-  "aspx",
-  "wasm",
-  "vbs",
-  "scr",
-  "hta",
-  "msi",
-  "com",
+// Strict allowlist of permitted safe file extensions
+const ALLOWED_EXTENSIONS = new Set([
+  // Images
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "gif",
+  "avif",
+  "heic",
+  // Videos
+  "mp4",
+  "webm",
+  "mov",
+  "m4v",
+  // Audio
+  "mp3",
+  "wav",
+  "ogg",
+  "m4a",
+  "aac",
+  // Documents & Academics
+  "pdf",
+  "docx",
+  "doc",
+  "pptx",
+  "ppt",
+  "xlsx",
+  "xls",
+  "txt",
+  "csv",
+  "zip",
+  "epub",
 ]);
+
+function sanitizeFilename(rawName: string): string {
+  const base = rawName.split(/[/\\]/).pop() || "upload";
+  const cleaned = base
+    .replace(/[^\w.-]/g, "_")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^\.+/, "")
+    .slice(0, 80);
+  return cleaned || "upload";
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -89,12 +95,25 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     const category = (formData.get("category") as string) || "auto";
     const forceR2 = formData.get("storage") === "r2" || formData.get("provider") === "r2";
+    const isPrivate =
+      formData.get("isPrivate") === "true" ||
+      formData.get("privacy") === "private" ||
+      category === "private" ||
+      category === "student_doc" ||
+      category === "id_card" ||
+      category === "verification";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const originalName = file.name || "upload";
+    const size = file.size;
+    if (size <= 0) {
+      return NextResponse.json({ error: "Cannot upload empty file" }, { status: 400 });
+    }
+
+    const rawName = file.name || "upload";
+    const originalName = sanitizeFilename(rawName);
     const mimeType = (file.type || "application/octet-stream").toLowerCase();
     const fileExt = originalName.includes(".")
       ? (originalName.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "")
@@ -106,16 +125,17 @@ export async function POST(req: NextRequest) {
       mimeType.includes("text/html") ||
       mimeType.includes("application/xhtml+xml") ||
       mimeType.includes("javascript") ||
-      mimeType.includes("application/x-msdownload");
+      mimeType.includes("application/x-msdownload") ||
+      mimeType.includes("x-sh") ||
+      mimeType.includes("x-php") ||
+      mimeType.includes("x-bat");
 
-    if (DISALLOWED_EXTENSIONS.has(fileExt) || isDangerousMime) {
+    if (!fileExt || !ALLOWED_EXTENSIONS.has(fileExt) || isDangerousMime) {
       return NextResponse.json(
         { error: "This file type cannot be uploaded for security reasons." },
         { status: 400 }
       );
     }
-
-    const size = file.size;
 
     // Detect media category
     const isImage = mimeType.startsWith("image/");
@@ -244,20 +264,22 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── 4. Documents & Study Notes ───
-    if (isDoc || category === "document") {
+    if (isDoc || category === "document" || isPrivate) {
       if (size > 50 * 1024 * 1024) {
         return NextResponse.json({ error: "Document exceeds 50MB limit." }, { status: 400 });
       }
 
-      const cleanFilename = originalName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
-      const key = `documents/${safeUserId}/${today}/${randomId}_${cleanFilename}`;
+      const cleanFilename = originalName;
+      const folderPrefix = isPrivate ? "private" : "documents";
+      const key = `${folderPrefix}/${safeUserId}/${today}/${randomId}_${cleanFilename}`;
       const r2Result = await putR2Object(
         key,
         file.stream(),
         mimeType || (originalName.endsWith(".pdf") ? "application/pdf" : "application/octet-stream"),
         {
           uploadedBy: user.id,
-          originalName: originalName.slice(0, 100),
+          originalName: cleanFilename.slice(0, 100),
+          isPrivate: isPrivate ? "true" : "false",
         },
         size
       );
@@ -268,6 +290,7 @@ export async function POST(req: NextRequest) {
         name: originalName,
         size,
         provider: "r2",
+        isPrivate,
       });
     }
 

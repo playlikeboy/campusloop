@@ -8,20 +8,19 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    let merchant = await resolveMerchantSession();
-    const db = getDb();
-
-    if (merchant?.categorySlug !== "rentals") {
-      // Fallback to first rental merchant
-      const rentalMerchant = await db.query.merchants.findFirst({
-        where: eq(merchants.categorySlug, "rentals"),
-      });
-      if (rentalMerchant) merchant = rentalMerchant;
-    }
-
+    const merchant = await resolveMerchantSession();
     if (!merchant) {
-      return NextResponse.json({ error: "No rental merchant found" }, { status: 404 });
+      return NextResponse.json({ error: "Unauthorized or merchant not found" }, { status: 401 });
     }
+
+    if (merchant.categorySlug !== "rentals") {
+      return NextResponse.json(
+        { error: "Forbidden: Merchant is not in the rentals category" },
+        { status: 403 }
+      );
+    }
+
+    const db = getDb();
 
     // Fetch all active fleet bikes
     const fleetBikes = await db.query.bikes.findMany({

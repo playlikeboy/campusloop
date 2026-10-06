@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
@@ -44,12 +44,26 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    // Check registration deadline
+    // 1. Check event status
+    if (event.status === "CANCELLED") {
+      return NextResponse.json({ error: "This event has been cancelled." }, { status: 400 });
+    }
+    if (event.status === "COMPLETED") {
+      return NextResponse.json({ error: "This event has already ended." }, { status: 400 });
+    }
+    if (event.status !== "PUBLISHED") {
+      return NextResponse.json({ error: "Registration is not open for this event." }, { status: 400 });
+    }
+
+    // 2. Check registration deadline and start date
     if (event.registrationDeadline && new Date() > new Date(event.registrationDeadline)) {
       return NextResponse.json({ error: "Registration deadline for this event has passed" }, { status: 400 });
     }
+    if (event.startDate && new Date() > new Date(event.startDate)) {
+      return NextResponse.json({ error: "This event has already started" }, { status: 400 });
+    }
 
-    // Check eligibility restrictions
+    // 3. Check campus eligibility
     const eligibleIds = (event.eligibleInstitutionIds as string[]) || ["ALL"];
     const isOpenToAll = eligibleIds.includes("ALL");
     if (!isOpenToAll && !eligibleIds.includes(profile.institutionId)) {
@@ -62,9 +76,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       );
     }
 
-    // Check if already registered
+    // 4. Check if already registered (uniqueness check)
     const existing = await db.query.eventRegistrations.findFirst({
-      where: and(eq(eventRegistrations.eventId, event.id), eq(eventRegistrations.profileId, profile.id)),
+      where: and(
+        eq(eventRegistrations.eventId, event.id),
+        eq(eventRegistrations.profileId, profile.id),
+        ne(eventRegistrations.status, "CANCELLED")
+      ),
     });
 
     if (existing) {
@@ -76,12 +94,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const body = ((await req.json().catch(() => ({}))) || {}) as Record<string, any>;
     const { registrationType = "SOLO", teamName, teamMembers, contactPhone, notes } = body;
+    const isTeam = registrationType === "TEAM";
 
     // Validate participation type
-    if (event.participationType === "SOLO" && registrationType === "TEAM") {
+    if (event.participationType === "SOLO" && isTeam) {
       return NextResponse.json({ error: "This event only permits Solo registrations." }, { status: 400 });
     }
-    if (event.participationType === "TEAM" && registrationType === "SOLO") {
+    if (event.participationType === "TEAM" && !isTeam) {
       return NextResponse.json(
         {
           error: `This event requires a team registration (${event.minTeamSize || 2} to ${event.maxTeamSize || 4} members).`,
@@ -90,43 +109,176 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       );
     }
 
-    if (registrationType === "TEAM") {
+    const teamMembersList = Array.isArray(teamMembers) ? teamMembers : [];
+    // Requested participants: 1 for SOLO, 1 (leader) + teamMembers.length for TEAM
+    const requestedParticipants = isTeam ? 1 + teamMembersList.length : 1;
+
+    if (isTeam) {
       if (!teamName || !teamName.trim()) {
         return NextResponse.json({ error: "Please provide a team name." }, { status: 400 });
       }
-      const totalMembers = 1 + (Array.isArray(teamMembers) ? teamMembers.length : 0);
       const min = event.minTeamSize || 1;
       const max = event.maxTeamSize || 4;
-      if (totalMembers < min) {
+      if (requestedParticipants < min) {
         return NextResponse.json(
-          { error: `Team must have at least ${min} members (including leader). Current: ${totalMembers}` },
+          { error: `Team must have at least ${min} members (including leader). Current: ${requestedParticipants}` },
           { status: 400 }
         );
       }
-      if (totalMembers > max) {
+      if (requestedParticipants > max) {
         return NextResponse.json(
-          { error: `Team cannot exceed ${max} members. Current: ${totalMembers}` },
+          { error: `Team cannot exceed ${max} members. Current: ${requestedParticipants}` },
           { status: 400 }
         );
       }
     }
 
-    const regId = `ereg_${nanoid(12)}`;
+    // 5. Server-side Capacity Enforcement
+    // Count actual participants (1 for SOLO, 1 + teamMembers.length for TEAM) across active registrations
+    const [countResult] = await db
+      .select({
+        currentParticipants: sql<number>`COALESCE(SUM(
+          CASE 
+            WHEN ${eventRegistrations.registrationType} = 'TEAM' 
+            THEN 1 + COALESCE(jsonb_array_length(
+              CASE WHEN jsonb_typeof(${eventRegistrations.teamMembers}) = 'array' 
+                   THEN ${eventRegistrations.teamMembers} 
+                   ELSE '[]'::jsonb 
+              END
+            ), 0)
+            ELSE 1
+          END
+        ), 0)::int`,
+      })
+      .from(eventRegistrations)
+      .where(
+        and(
+          eq(eventRegistrations.eventId, event.id),
+          ne(eventRegistrations.status, "CANCELLED")
+        )
+      );
 
+    const currentParticipants = Number(countResult?.currentParticipants ?? 0);
+
+    if (event.maxParticipants && event.maxParticipants > 0) {
+      if (currentParticipants + requestedParticipants > event.maxParticipants) {
+        const spotsRemaining = Math.max(0, event.maxParticipants - currentParticipants);
+        return NextResponse.json(
+          {
+            error:
+              spotsRemaining === 0
+                ? "This event has reached full capacity."
+                : `Not enough spots remaining. Only ${spotsRemaining} spot(s) left, but your registration requested ${requestedParticipants}.`,
+            code: "CAPACITY_EXCEEDED",
+            currentParticipants,
+            maxParticipants: event.maxParticipants,
+            spotsRemaining,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    const regId = `ereg_${nanoid(12)}`;
     const newReg = {
       id: regId,
       eventId: event.id,
       profileId: profile.id,
-      registrationType: registrationType === "TEAM" ? "TEAM" : "SOLO",
-      teamName: registrationType === "TEAM" ? teamName?.trim() || "Team" : null,
-      teamMembers: Array.isArray(teamMembers) ? teamMembers : [],
+      registrationType: isTeam ? "TEAM" : "SOLO",
+      teamName: isTeam ? teamName?.trim() || "Team" : null,
+      teamMembers: teamMembersList,
       contactPhone: contactPhone?.trim() || null,
       notes: notes?.trim() || null,
       status: "CONFIRMED",
       reminderSet: true,
     };
 
-    await db.insert(eventRegistrations).values(newReg);
+    // 6. Concurrency-safe insertion
+    if (event.maxParticipants && event.maxParticipants > 0) {
+      const teamMembersJson = JSON.stringify(teamMembersList);
+      const insertResult = (await db.execute(sql`
+        INSERT INTO event_registrations (
+          id, event_id, profile_id, registration_type, team_name, team_members, contact_phone, notes, status, reminder_set, created_at
+        )
+        SELECT
+          ${regId},
+          ${event.id},
+          ${profile.id},
+          ${isTeam ? "TEAM" : "SOLO"},
+          ${isTeam ? teamName?.trim() || "Team" : null},
+          ${teamMembersJson}::jsonb,
+          ${contactPhone?.trim() || null},
+          ${notes?.trim() || null},
+          'CONFIRMED',
+          true,
+          NOW()
+        WHERE (
+          SELECT COALESCE(SUM(
+            CASE 
+              WHEN registration_type = 'TEAM' 
+              THEN 1 + COALESCE(jsonb_array_length(
+                CASE WHEN jsonb_typeof(team_members) = 'array' 
+                     THEN team_members 
+                     ELSE '[]'::jsonb 
+                END
+              ), 0)
+              ELSE 1
+            END
+          ), 0)
+          FROM event_registrations
+          WHERE event_id = ${event.id} AND status != 'CANCELLED'
+        ) + ${requestedParticipants} <= ${event.maxParticipants}
+        ON CONFLICT (event_id, profile_id) DO NOTHING
+        RETURNING id;
+      `)) as any;
+
+      const rows = insertResult?.rows || [];
+      if (rows.length === 0) {
+        // Double-check if conflict was duplicate or capacity reached
+        const checkDuplicate = await db.query.eventRegistrations.findFirst({
+          where: and(
+            eq(eventRegistrations.eventId, event.id),
+            eq(eventRegistrations.profileId, profile.id),
+            ne(eventRegistrations.status, "CANCELLED")
+          ),
+        });
+        if (checkDuplicate) {
+          return NextResponse.json({
+            message: "Already registered",
+            registration: checkDuplicate,
+          });
+        }
+
+        return NextResponse.json(
+          {
+            error: "This event has reached full capacity.",
+            code: "CAPACITY_EXCEEDED",
+          },
+          { status: 409 }
+        );
+      }
+    } else {
+      // Unlimited capacity
+      const [inserted] = await db
+        .insert(eventRegistrations)
+        .values(newReg)
+        .onConflictDoNothing()
+        .returning();
+
+      if (!inserted) {
+        const checkDuplicate = await db.query.eventRegistrations.findFirst({
+          where: and(
+            eq(eventRegistrations.eventId, event.id),
+            eq(eventRegistrations.profileId, profile.id),
+            ne(eventRegistrations.status, "CANCELLED")
+          ),
+        });
+        return NextResponse.json({
+          message: "Already registered",
+          registration: checkDuplicate,
+        });
+      }
+    }
 
     // Award Loop Points for registering
     try {
@@ -139,9 +291,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // Non-blocking
     }
 
-    // Create confirmation notification. Silent: the student just tapped
-    // Register and is reading the success state — the row is a receipt for
-    // later, not something worth buzzing their phone about.
+    // Create confirmation notification
     await createNotification({
       userId: profile.id,
       actorId: event.organizerProfileId,
@@ -149,9 +299,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       referenceId: event.id,
       previewText: `You are officially registered for ${event.title} organized by ${event.clubName}!`,
       silent: true,
-    }).catch(() => {
-      // Non-blocking: a missing receipt must not fail a real registration.
-    });
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

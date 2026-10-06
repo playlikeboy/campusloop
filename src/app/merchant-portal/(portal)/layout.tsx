@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { getDb } from "@/db";
+import { merchantUsers } from "@/db/schema";
 import { getAuthenticatedMerchant } from "@/lib/merchant-auth";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { MerchantLayoutClient } from "../merchant-layout-client";
@@ -28,15 +31,28 @@ export default async function MerchantPortalLayout({ children }: { children: Rea
     );
   }
 
-  // 2. Fallback to Hexclave user session
+  // 2. Fallback to Hexclave user session - ONLY allow if explicitly linked in merchantUsers
   const user = await getCachedAuthUser();
   if (user) {
     const profile = await getCachedUserProfile(user.id);
     if (profile) {
-      return <MerchantLayoutClient profile={profile}>{children}</MerchantLayoutClient>;
+      const db = getDb();
+      const merchantUser = await db.query.merchantUsers.findFirst({
+        where: eq(merchantUsers.userId, profile.id),
+        with: { merchant: true },
+      });
+
+      const linkedMerchant = merchantUser?.merchant;
+      if (linkedMerchant && linkedMerchant.status === "ACTIVE") {
+        return (
+          <MerchantLayoutClient profile={profile} merchant={linkedMerchant}>
+            {children}
+          </MerchantLayoutClient>
+        );
+      }
     }
   }
 
-  // 3. Not logged in -> Redirect to dedicated merchant login page
+  // 3. Not logged in or no authorized merchant link -> Redirect to dedicated merchant login page
   redirect("/merchant-portal/login");
 }

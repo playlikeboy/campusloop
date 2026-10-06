@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { pollVotes, userProfiles } from "@/db/schema";
+import { pollOptions, pollVotes, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -16,7 +16,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id: postId } = await params;
     const db = getDb();
     const profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
@@ -29,32 +29,75 @@ export async function POST(req: Request, { params }: RouteParams) {
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
-    const { optionId } = (await req.json()) as { optionId: string };
+    const payload = (await req.json().catch(() => ({}))) as { optionId?: unknown };
+    const { optionId } = payload;
 
-    if (!optionId) {
-      return NextResponse.json({ error: "Missing optionId" }, { status: 400 });
+    if (typeof optionId !== "string" || optionId.trim().length === 0) {
+      return NextResponse.json({ error: "Missing or invalid optionId" }, { status: 400 });
     }
 
-    // Check if user has already voted on this poll/post
+    const trimmedOptionId = optionId.trim();
+
+    // Verify post exists and is an active, published poll
+    const post = await db.query.posts.findFirst({
+      where: eq(posts.id, postId),
+    });
+
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    if (post.status !== "PUBLISHED") {
+      return NextResponse.json({ error: "This poll is not currently active" }, { status: 400 });
+    }
+
+    if (post.type !== "POLL") {
+      return NextResponse.json({ error: "Post is not a poll" }, { status: 400 });
+    }
+
+    // Verify requested optionId belongs to requested post
+    const pollOption = await db.query.pollOptions.findFirst({
+      where: eq(pollOptions.id, trimmedOptionId),
+    });
+
+    if (!pollOption) {
+      return NextResponse.json({ error: "Poll option not found" }, { status: 404 });
+    }
+
+    if (pollOption.postId !== postId) {
+      return NextResponse.json(
+        { error: "Poll option does not belong to this poll" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user has already voted
     const existingVote = await db.query.pollVotes.findFirst({
-      where: and(eq(pollVotes.postId, id), eq(pollVotes.userId, profile.id)),
+      where: and(eq(pollVotes.postId, postId), eq(pollVotes.userId, profile.id)),
     });
 
     if (existingVote) {
       return NextResponse.json({ error: "You have already voted on this poll" }, { status: 400 });
     }
 
-    // Insert vote
-    const [newVote] = await db
+    // Insert vote with onConflictDoNothing to handle concurrent racing requests
+    const insertedVotes = await db
       .insert(pollVotes)
       .values({
-        postId: id,
-        optionId,
+        postId,
+        optionId: trimmedOptionId,
         userId: profile.id,
+      })
+      .onConflictDoNothing({
+        target: [pollVotes.userId, pollVotes.postId],
       })
       .returning();
 
-    return NextResponse.json(newVote, { status: 201 });
+    if (insertedVotes.length === 0) {
+      return NextResponse.json({ error: "You have already voted on this poll" }, { status: 400 });
+    }
+
+    return NextResponse.json(insertedVotes[0], { status: 201 });
   } catch (error) {
     console.error("Error casting poll vote:", error);
     return NextResponse.json({ error: "Failed to cast vote" }, { status: 500 });

@@ -67,7 +67,11 @@ function getRequiredMcpPermission(toolName: string, category: string): McpPermis
   if (category === "Exclusive AI & Intelligence" || toolName === "campusloop_trigger_community_webhook") {
     return "exclusive";
   }
-  if (toolName === "campusloop_send_direct_message") {
+  if (
+    toolName === "campusloop_send_direct_message" ||
+    toolName === "campusloop_list_chats" ||
+    toolName === "campusloop_get_chat_history"
+  ) {
     return "chat";
   }
   if (
@@ -75,6 +79,7 @@ function getRequiredMcpPermission(toolName: string, category: string): McpPermis
     toolName.includes("_post_to_") ||
     toolName.includes("_vote_") ||
     toolName.includes("_join_leave_") ||
+    toolName === "campusloop_add_comment" ||
     toolName === "campusloop_upload_academic_note" ||
     toolName === "campusloop_post_story"
   ) {

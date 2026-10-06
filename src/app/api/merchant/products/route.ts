@@ -168,7 +168,14 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
     }
 
-    await db.delete(products).where(and(eq(products.id, productId), eq(products.merchantId, merchant.id)));
+    const [deleted] = await db
+      .delete(products)
+      .where(and(eq(products.id, productId), eq(products.merchantId, merchant.id)))
+      .returning();
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Product not found or unauthorized" }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -41,42 +41,62 @@ export async function GET(request: Request, { params }: RouteProps) {
       filters.push(eq(communityMembers.role, role));
     }
 
-    const members = await db.query.communityMembers.findMany({
-      where: and(...filters),
-      orderBy: [desc(communityMembers.createdAt)],
-      limit,
-      offset,
-      with: {
-        user: {
-          columns: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-            points: true,
-            branch: true,
-            year: true,
-          },
-        },
-      },
-    });
+    // Push search directly into SQL query across displayName, username, and branch
+    if (q && q.trim()) {
+      const pattern = `%${q.trim()}%`;
+      filters.push(
+        or(
+          ilike(userProfiles.displayName, pattern),
+          ilike(userProfiles.username, pattern),
+          ilike(userProfiles.branch, pattern)
+        )!
+      );
+    }
 
-    const filtered = q
-      ? members.filter((m) => {
-          const query = q.toLowerCase();
-          return (
-            m.user?.displayName?.toLowerCase().includes(query) ||
-            m.user?.username?.toLowerCase().includes(query) ||
-            m.user?.branch?.toLowerCase().includes(query)
-          );
-        })
-      : members;
+    const whereClause = and(...filters);
+
+    // Get total count of matching members directly in SQL
+    const totalCountRows = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(communityMembers)
+      .innerJoin(userProfiles, eq(communityMembers.userId, userProfiles.id))
+      .where(whereClause);
+
+    const totalCount = totalCountRows[0]?.count ?? 0;
+
+    // Get paginated results directly in SQL
+    const rows = await db
+      .select({
+        id: communityMembers.id,
+        communityId: communityMembers.communityId,
+        userId: communityMembers.userId,
+        role: communityMembers.role,
+        status: communityMembers.status,
+        createdAt: communityMembers.createdAt,
+        user: {
+          id: userProfiles.id,
+          username: userProfiles.username,
+          displayName: userProfiles.displayName,
+          avatarUrl: userProfiles.avatarUrl,
+          points: userProfiles.points,
+          branch: userProfiles.branch,
+          year: userProfiles.year,
+        },
+      })
+      .from(communityMembers)
+      .innerJoin(userProfiles, eq(communityMembers.userId, userProfiles.id))
+      .where(whereClause)
+      .orderBy(desc(communityMembers.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     return NextResponse.json({
-      members: filtered,
+      members: rows,
       page,
       limit,
-      count: filtered.length,
+      totalCount,
+      count: rows.length,
+      totalPages: Math.ceil(totalCount / limit),
     });
   } catch (error) {
     console.error("GET /api/communities/[id]/members error:", error);
@@ -109,18 +129,21 @@ export async function PATCH(request: Request, { params }: RouteProps) {
       return NextResponse.json({ error: "Not Found", message: "Community not found" }, { status: 404 });
     }
 
-    // Verify caller is admin
+    // Verify caller is active admin or creator
     const callerMembership = await db.query.communityMembers.findFirst({
       where: and(
         eq(communityMembers.communityId, comm.id),
         eq(communityMembers.userId, profile.id),
-        eq(communityMembers.role, "ADMIN")
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
       ),
     });
 
-    if (comm.creatorId !== profile.id && !callerMembership) {
+    const isCreator = comm.creatorId === profile.id;
+
+    if (!isCreator && !callerMembership) {
       return NextResponse.json(
-        { error: "Forbidden", message: "Only community admins can manage member roles or status" },
+        { error: "Forbidden", message: "Only active community admins can manage member roles or status" },
         { status: 403 }
       );
     }
@@ -134,6 +157,46 @@ export async function PATCH(request: Request, { params }: RouteProps) {
 
     if (!targetUserId) {
       return NextResponse.json({ error: "Bad Request", message: "targetUserId is required" }, { status: 400 });
+    }
+
+    // Prevent privilege escalation: creator cannot be modified
+    if (targetUserId === comm.creatorId) {
+      return NextResponse.json(
+        { error: "Forbidden", message: "The founding creator's role or status cannot be modified" },
+        { status: 403 }
+      );
+    }
+
+    // Admins cannot modify their own role/status to escalate or bypass restrictions
+    if (!isCreator && targetUserId === profile.id) {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Admins cannot modify their own role or status" },
+        { status: 403 }
+      );
+    }
+
+    const targetMember = await db.query.communityMembers.findFirst({
+      where: and(eq(communityMembers.communityId, comm.id), eq(communityMembers.userId, targetUserId)),
+    });
+
+    if (!targetMember) {
+      return NextResponse.json({ error: "Not Found", message: "Target member not found in this community" }, { status: 404 });
+    }
+
+    // Non-creator admins cannot modify other admins
+    if (!isCreator && targetMember.role === "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Only the founding creator can modify other admins" },
+        { status: 403 }
+      );
+    }
+
+    // Non-creator admins cannot grant the ADMIN role
+    if (!isCreator && newRole === "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Only the founding creator can assign the ADMIN role" },
+        { status: 403 }
+      );
     }
 
     const updatePayload: Record<string, unknown> = {};
@@ -154,7 +217,7 @@ export async function PATCH(request: Request, { params }: RouteProps) {
       .where(and(eq(communityMembers.communityId, comm.id), eq(communityMembers.userId, targetUserId)))
       .returning();
 
-    if (newStatus === "ACTIVE") {
+    if (newStatus === "ACTIVE" && targetMember.status !== "ACTIVE") {
       await db
         .update(communities)
         .set({ points: sql`${communities.points} + 15` })
@@ -194,16 +257,19 @@ export async function DELETE(request: Request, { params }: RouteProps) {
       return NextResponse.json({ error: "Not Found", message: "Community not found" }, { status: 404 });
     }
 
-    // Verify caller is admin
+    // Verify caller is active admin or creator
     const callerMembership = await db.query.communityMembers.findFirst({
       where: and(
         eq(communityMembers.communityId, comm.id),
         eq(communityMembers.userId, profile.id),
-        eq(communityMembers.role, "ADMIN")
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
       ),
     });
 
-    if (comm.creatorId !== profile.id && !callerMembership) {
+    const isCreator = comm.creatorId === profile.id;
+
+    if (!isCreator && !callerMembership) {
       return NextResponse.json(
         { error: "Forbidden", message: "Only community admins can remove members" },
         { status: 403 }
@@ -219,6 +285,22 @@ export async function DELETE(request: Request, { params }: RouteProps) {
 
     if (targetUserId === comm.creatorId) {
       return NextResponse.json({ error: "Forbidden", message: "The founding creator cannot be removed" }, { status: 403 });
+    }
+
+    const targetMember = await db.query.communityMembers.findFirst({
+      where: and(eq(communityMembers.communityId, comm.id), eq(communityMembers.userId, targetUserId)),
+    });
+
+    if (!targetMember) {
+      return NextResponse.json({ error: "Not Found", message: "Target member not found in this community" }, { status: 404 });
+    }
+
+    // Non-creator admins cannot remove other admins
+    if (!isCreator && targetMember.role === "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Only the founding creator can remove an admin" },
+        { status: 403 }
+      );
     }
 
     await db
