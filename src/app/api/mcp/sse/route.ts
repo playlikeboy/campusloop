@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   }
 
   const sessionId = randomUUID();
-  const endpointUrl = `/api/mcp/message?sessionId=${sessionId}&key=${encodeURIComponent(key)}`;
+  const endpointUrl = `/api/mcp/message?sessionId=${sessionId}`;
 
   const stream = new ReadableStream({
     start(controller) {

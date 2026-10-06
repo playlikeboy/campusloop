@@ -1,7 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { conversationParticipants, conversations, messages, swipes, userProfiles } from "@/db/schema";
+import {
+  conversationParticipants,
+  conversations,
+  messages,
+  swipes,
+  userProfiles,
+} from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { createNotification } from "@/lib/notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
@@ -25,20 +31,53 @@ export async function POST(req: Request) {
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
 
-    const body = (await req.json()) as {
-      targetId?: string;
-      targetUserId?: string;
-      direction?: "LIKE" | "PASS";
-      action?: "like" | "pass";
+    const body = (await req.json().catch(() => ({}))) as {
+      targetId?: unknown;
+      targetUserId?: unknown;
+      direction?: unknown;
+      action?: unknown;
     };
 
-    const targetId = body.targetId || body.targetUserId;
-    const rawDir = body.direction || (body.action ? body.action.toUpperCase() : undefined);
-    const direction = rawDir === "LIKE" ? "LIKE" : "PASS";
-
-    if (!targetId) {
+    const rawTarget = body.targetId || body.targetUserId;
+    if (typeof rawTarget !== "string" || rawTarget.trim().length === 0) {
       return NextResponse.json({ error: "Missing targetId parameter" }, { status: 400 });
     }
+
+    const targetId = rawTarget.trim();
+
+    if (targetId === profile.id) {
+      return NextResponse.json({ error: "You cannot swipe on yourself" }, { status: 400 });
+    }
+
+    // Verify target exists and is ACTIVE
+    const targetProfile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.id, targetId),
+    });
+
+    if (!targetProfile) {
+      return NextResponse.json({ error: "Target profile not found" }, { status: 404 });
+    }
+
+    if (targetProfile.status !== "ACTIVE") {
+      return NextResponse.json({ error: "Target profile is not active" }, { status: 400 });
+    }
+
+    // Validate direction against exact allowlist ("LIKE", "PASS")
+    let rawDir: string | undefined;
+    if (typeof body.direction === "string") {
+      rawDir = body.direction.trim().toUpperCase();
+    } else if (typeof body.action === "string") {
+      rawDir = body.action.trim().toUpperCase();
+    }
+
+    if (!rawDir || (rawDir !== "LIKE" && rawDir !== "PASS")) {
+      return NextResponse.json(
+        { error: "Invalid direction. Direction must be either 'LIKE' or 'PASS'" },
+        { status: 400 }
+      );
+    }
+
+    const direction: "LIKE" | "PASS" = rawDir;
 
     // Upsert so changing your mind (e.g. like-back after an old pass) works
     await db
@@ -64,61 +103,84 @@ export async function POST(req: Request) {
       });
 
       if (mutual) {
-        // Create conversation
-        const [newConv] = await db.insert(conversations).values({}).returning();
-
-        await db.insert(conversationParticipants).values([
-          { conversationId: newConv.id, userId: profile.id },
-          { conversationId: newConv.id, userId: targetId },
-        ]);
-
-        // Notify both sides through the shared pipeline so the match actually
-        // reaches a phone. A raw insert here used to skip pushToUser entirely,
-        // which meant the highest-urgency notification in the app was the one
-        // nobody was woken for.
-        const matchBlurb = "You matched with each other on Campus Match! 🎉 Say hello in chat.";
-
-        await Promise.all([
-          // The swiper is looking at the match modal right now — the row belongs
-          // in their list, the buzz does not.
-          createNotification({
-            userId: profile.id,
-            actorId: targetId,
-            type: "MATCH",
-            referenceId: newConv.id,
-            previewText: matchBlurb,
-            silent: true,
-          }),
-          createNotification({
-            userId: targetId,
-            actorId: profile.id,
-            type: "MATCH",
-            referenceId: newConv.id,
-            previewText: matchBlurb,
-          }),
-        ]);
-
-        // Send match greeting
-        await db.insert(messages).values({
-          conversationId: newConv.id,
-          senderId: profile.id,
-          body: "🎉 Match made! You both swiped right on each other. Say hello!",
+        // Ensure idempotent conversation creation: check if a DIRECT conversation already exists
+        const myConvs = await db.query.conversationParticipants.findMany({
+          where: eq(conversationParticipants.userId, profile.id),
+        });
+        const targetConvs = await db.query.conversationParticipants.findMany({
+          where: eq(conversationParticipants.userId, targetId),
         });
 
-        // Retrieve matched user's display details to return to client
-        const matchedUser = await db.query.userProfiles.findFirst({
-          where: eq(userProfiles.id, targetId),
-        });
+        const myConvIds = new Set(myConvs.map((m) => m.conversationId));
+        const commonConvParticipant = targetConvs.find((tc) => myConvIds.has(tc.conversationId));
+
+        let conversationId: string | null = null;
+        if (commonConvParticipant) {
+          const existingConv = await db.query.conversations.findFirst({
+            where: and(
+              eq(conversations.id, commonConvParticipant.conversationId),
+              eq(conversations.type, "DIRECT")
+            ),
+          });
+          if (existingConv) {
+            conversationId = existingConv.id;
+          }
+        }
+
+        let isNewMatch = false;
+        if (!conversationId) {
+          const [newConv] = await db
+            .insert(conversations)
+            .values({
+              type: "DIRECT",
+            })
+            .returning();
+          conversationId = newConv.id;
+          isNewMatch = true;
+
+          await db.insert(conversationParticipants).values([
+            { conversationId: newConv.id, userId: profile.id },
+            { conversationId: newConv.id, userId: targetId },
+          ]);
+
+          // Send match greeting
+          await db.insert(messages).values({
+            conversationId: newConv.id,
+            senderId: profile.id,
+            body: "🎉 Match made! You both swiped right on each other. Say hello!",
+          });
+        }
+
+        // Only send push notifications for newly created match conversations
+        if (isNewMatch) {
+          const matchBlurb = "You matched with each other on Campus Match! 🎉 Say hello in chat.";
+
+          await Promise.all([
+            createNotification({
+              userId: profile.id,
+              actorId: targetId,
+              type: "MATCH",
+              referenceId: conversationId,
+              previewText: matchBlurb,
+              silent: true,
+            }),
+            createNotification({
+              userId: targetId,
+              actorId: profile.id,
+              type: "MATCH",
+              referenceId: conversationId,
+              previewText: matchBlurb,
+            }),
+          ]);
+        }
 
         return NextResponse.json({
           matched: true,
-          conversationId: newConv.id,
-          matchedUser: matchedUser
-            ? {
-                displayName: matchedUser.displayName,
-                avatarUrl: matchedUser.avatarUrl,
-              }
-            : null,
+          conversationId,
+          matchedUser: {
+            displayName: targetProfile.displayName,
+            avatarUrl: targetProfile.avatarUrl,
+          },
         });
       }
     }

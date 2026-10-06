@@ -19,7 +19,7 @@ export async function GET() {
       });
     }
 
-    // 2. Fallback to Hexclave user session
+    // 2. Fallback to Hexclave user session - ONLY allow if explicitly linked in merchantUsers
     const user = await hexclaveServerApp.getUser();
     if (user) {
       const db = getDb();
@@ -33,14 +33,18 @@ export async function GET() {
           with: { merchant: true },
         });
 
-        let linkedMerchant = merchantUser?.merchant;
-        if (!linkedMerchant) {
-          linkedMerchant = await db.query.merchants.findFirst({
-            where: eq(merchants.institutionId, profile.institutionId),
-          });
-        }
+        const linkedMerchant = merchantUser?.merchant;
 
+        // Never fallback to institution's first merchant. Only explicitly associated staff/merchants are permitted.
         if (linkedMerchant) {
+          if (
+            linkedMerchant.status === "SUSPENDED" ||
+            linkedMerchant.status === "CLOSED" ||
+            linkedMerchant.status !== "ACTIVE"
+          ) {
+            return NextResponse.json({ authenticated: false, merchant: null }, { status: 401 });
+          }
+
           return NextResponse.json({
             authenticated: true,
             authType: "HEXCLAVE_STUDENT",

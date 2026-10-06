@@ -109,7 +109,14 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     const { productId } = await params;
     const db = getDb();
 
-    await db.delete(products).where(and(eq(products.id, productId), eq(products.merchantId, merchant.id)));
+    const [deleted] = await db
+      .delete(products)
+      .where(and(eq(products.id, productId), eq(products.merchantId, merchant.id)))
+      .returning();
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

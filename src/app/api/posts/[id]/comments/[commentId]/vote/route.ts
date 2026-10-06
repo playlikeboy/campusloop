@@ -36,7 +36,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       where: and(eq(comments.id, commentId), eq(comments.postId, postId)),
     });
 
-    if (!targetComment) {
+    if (!targetComment || targetComment.status === "DELETED") {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
@@ -52,80 +52,92 @@ export async function POST(req: Request, { params }: RouteParams) {
     let newLikesCount = targetComment.likesCount || 0;
 
     if (existingVote) {
-      // Unlike
-      await db
+      // Unlike with returning to ensure idempotency across concurrent racing requests
+      const deleted = await db
         .delete(commentVotes)
         .where(
           and(
             eq(commentVotes.commentId, commentId),
             eq(commentVotes.userId, profile.id)
           )
-        );
+        )
+        .returning({ id: commentVotes.id });
 
-      const [updated] = await db
-        .update(comments)
-        .set({
-          likesCount: sql`GREATEST(0, ${comments.likesCount} - 1)`,
-        })
-        .where(eq(comments.id, commentId))
-        .returning({ likesCount: comments.likesCount });
+      if (deleted.length > 0) {
+        const [updated] = await db
+          .update(comments)
+          .set({
+            likesCount: sql`GREATEST(0, ${comments.likesCount} - 1)`,
+          })
+          .where(eq(comments.id, commentId))
+          .returning({ likesCount: comments.likesCount });
 
-      newLikesCount = updated?.likesCount ?? Math.max(0, newLikesCount - 1);
+        newLikesCount = updated?.likesCount ?? Math.max(0, newLikesCount - 1);
+      }
       hasLiked = false;
     } else {
-      // Like
-      await db.insert(commentVotes).values({
-        commentId,
-        userId: profile.id,
-      });
-
-      const [updated] = await db
-        .update(comments)
-        .set({
-          likesCount: sql`${comments.likesCount} + 1`,
+      // Like with onConflictDoNothing to ensure idempotency and concurrency safety
+      const inserted = await db
+        .insert(commentVotes)
+        .values({
+          commentId,
+          userId: profile.id,
         })
-        .where(eq(comments.id, commentId))
-        .returning({ likesCount: comments.likesCount });
+        .onConflictDoNothing({
+          target: [commentVotes.userId, commentVotes.commentId],
+        })
+        .returning({ id: commentVotes.id });
 
-      newLikesCount = updated?.likesCount ?? newLikesCount + 1;
-      hasLiked = true;
+      if (inserted.length > 0) {
+        const [updated] = await db
+          .update(comments)
+          .set({
+            likesCount: sql`${comments.likesCount} + 1`,
+          })
+          .where(eq(comments.id, commentId))
+          .returning({ likesCount: comments.likesCount });
 
-      // Award +1 Loop Point to comment author (if not self and not anonymous)
-      let authorProfileId = targetComment.authorId;
-      if (!authorProfileId && targetComment.isAnonymous && targetComment.pseudonym) {
-        try {
-          const vault = await db.query.anonIdentityVault.findFirst({
-            where: eq(anonIdentityVault.handle, targetComment.pseudonym),
-          });
-          if (vault?.sealedIdentity) {
-            authorProfileId = openSealedIdentity(vault.sealedIdentity);
+        newLikesCount = updated?.likesCount ?? newLikesCount + 1;
+        hasLiked = true;
+
+        // Award +1 Loop Point to comment author (if not self and not anonymous) ONLY ONCE on new like
+        let authorProfileId = targetComment.authorId;
+        if (!authorProfileId && targetComment.isAnonymous && targetComment.pseudonym) {
+          try {
+            const vault = await db.query.anonIdentityVault.findFirst({
+              where: eq(anonIdentityVault.handle, targetComment.pseudonym),
+            });
+            if (vault?.sealedIdentity) {
+              authorProfileId = openSealedIdentity(vault.sealedIdentity);
+            }
+          } catch {}
+        }
+
+        if (authorProfileId && authorProfileId !== profile.id) {
+          try {
+            await db
+              .update(userProfiles)
+              .set({ points: sql`${userProfiles.points} + 1` })
+              .where(eq(userProfiles.id, authorProfileId));
+          } catch (lpErr) {
+            console.warn("Could not award comment like LP:", lpErr);
           }
-        } catch {}
-      }
 
-      if (authorProfileId && authorProfileId !== profile.id) {
-        // Safe LP increment
-        try {
-          await db
-            .update(userProfiles)
-            .set({ points: sql`${userProfiles.points} + 1` })
-            .where(eq(userProfiles.id, authorProfileId));
-        } catch (lpErr) {
-          console.warn("Could not award comment like LP:", lpErr);
+          try {
+            await createNotification({
+              userId: authorProfileId,
+              type: "LIKE",
+              actorId: profile.id,
+              referenceId: postId,
+              previewText: cleanNotificationSnippet(targetComment.body, 80) || "Liked your comment",
+            });
+          } catch (notifErr) {
+            console.warn("Could not create comment like notification:", notifErr);
+          }
         }
-
-        // Send LIKE notification asynchronously
-        try {
-          await createNotification({
-            userId: authorProfileId,
-            type: "LIKE",
-            actorId: profile.id,
-            referenceId: postId,
-            previewText: cleanNotificationSnippet(targetComment.body, 80) || "Liked your comment",
-          });
-        } catch (notifErr) {
-          console.warn("Could not create comment like notification:", notifErr);
-        }
+      } else {
+        // Already liked in a racing request
+        hasLiked = true;
       }
     }
 

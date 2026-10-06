@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
 
@@ -56,23 +56,29 @@ export const events = pgTable("events", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const eventRegistrations = pgTable("event_registrations", {
-  id: text("id").primaryKey(),
-  eventId: text("event_id")
-    .notNull()
-    .references(() => events.id, { onDelete: "cascade" }),
-  profileId: text("profile_id")
-    .notNull()
-    .references(() => userProfiles.id, { onDelete: "cascade" }),
-  registrationType: varchar("registration_type", { length: 16 }).default("SOLO").notNull(),
-  teamName: text("team_name"),
-  teamMembers: jsonb("team_members").default([]).notNull(), // [{ name, email, rollNo, username }]
-  contactPhone: text("contact_phone"),
-  notes: text("notes"),
-  status: varchar("status", { length: 16 }).default("CONFIRMED").notNull(),
-  reminderSet: boolean("reminder_set").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const eventRegistrations = pgTable(
+  "event_registrations",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    registrationType: varchar("registration_type", { length: 16 }).default("SOLO").notNull(),
+    teamName: text("team_name"),
+    teamMembers: jsonb("team_members").default([]).notNull(), // [{ name, email, rollNo, username }]
+    contactPhone: text("contact_phone"),
+    notes: text("notes"),
+    status: varchar("status", { length: 16 }).default("CONFIRMED").notNull(),
+    reminderSet: boolean("reminder_set").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("event_registrations_event_profile_idx").on(table.eventId, table.profileId),
+  ]
+);
 
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;

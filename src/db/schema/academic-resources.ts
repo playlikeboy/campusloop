@@ -74,7 +74,7 @@ export const academicResourceVotes = pgTable(
     voteType: text("vote_type").notNull(), // 'UPVOTE' | 'DOWNVOTE'
     createdAt,
   },
-  (table) => [index("academic_votes_res_profile_idx").on(table.resourceId, table.profileId)]
+  (table) => [uniqueIndex("academic_votes_res_profile_idx").on(table.resourceId, table.profileId)]
 );
 
 export const savedAcademicResources = pgTable(

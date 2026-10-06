@@ -26,6 +26,10 @@ export async function GET(req: Request) {
       orderBy: [desc(bikes.createdAt)],
     });
 
+    if (bikeId && !fleet.some((b) => b.id === bikeId)) {
+      return NextResponse.json({ error: "Bike not found in your fleet" }, { status: 404 });
+    }
+
     const activeBikeId = bikeId || fleet[0]?.id;
 
     if (!activeBikeId) {
@@ -33,13 +37,17 @@ export async function GET(req: Request) {
     }
 
     const blocks = await db.query.bikeAvailabilityBlocks.findMany({
-      where: eq(bikeAvailabilityBlocks.bikeId, activeBikeId),
+      where: and(
+        eq(bikeAvailabilityBlocks.bikeId, activeBikeId),
+        eq(bikeAvailabilityBlocks.merchantId, merchant.id)
+      ),
       orderBy: [desc(bikeAvailabilityBlocks.startAt)],
     });
 
     const bookings = await db.query.bikeBookings.findMany({
       where: and(
         eq(bikeBookings.bikeId, activeBikeId),
+        eq(bikeBookings.merchantId, merchant.id),
         inArray(bikeBookings.status, ["REQUESTED", "CONFIRMED", "READY_FOR_PICKUP", "ACTIVE"])
       ),
       orderBy: [desc(bikeBookings.startAt)],
@@ -59,9 +67,6 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // The caller's own store, not "whichever rentals merchant exists first" —
-    // that showed every rental store the same bookings, including other
-    // students' names, phone numbers and licence details.
     const merchant = await resolveMerchantSession();
     if (!merchant) {
       return NextResponse.json({ error: "Unauthorized or merchant not found" }, { status: 401 });
@@ -74,6 +79,15 @@ export async function POST(req: Request) {
 
     if (!bikeId || !startAtStr || !endAtStr) {
       return NextResponse.json({ error: "Bike and time range are required" }, { status: 400 });
+    }
+
+    // Verify bike belongs to this merchant's fleet
+    const bike = await db.query.bikes.findFirst({
+      where: and(eq(bikes.id, bikeId), eq(bikes.merchantId, merchant.id)),
+    });
+
+    if (!bike) {
+      return NextResponse.json({ error: "Bike not found in your fleet" }, { status: 404 });
     }
 
     const startAt = new Date(startAtStr);
@@ -104,9 +118,6 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    // The caller's own store, not "whichever rentals merchant exists first" —
-    // that showed every rental store the same bookings, including other
-    // students' names, phone numbers and licence details.
     const merchant = await resolveMerchantSession();
     if (!merchant) {
       return NextResponse.json({ error: "Unauthorized or merchant not found" }, { status: 401 });
@@ -120,7 +131,14 @@ export async function DELETE(req: Request) {
     }
 
     const db = getDb();
-    await db.delete(bikeAvailabilityBlocks).where(eq(bikeAvailabilityBlocks.id, id));
+    const [deleted] = await db
+      .delete(bikeAvailabilityBlocks)
+      .where(and(eq(bikeAvailabilityBlocks.id, id), eq(bikeAvailabilityBlocks.merchantId, merchant.id)))
+      .returning();
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Block not found or unauthorized" }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

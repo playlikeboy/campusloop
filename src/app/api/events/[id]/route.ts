@@ -1,4 +1,4 @@
-import { desc, eq, or } from "drizzle-orm";
+import { and, desc, eq, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
@@ -24,6 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       // Guest viewer
     }
 
+    // Do NOT eagerly load all registrations or attendee profiles in event detail GET
     const event = await db.query.events.findFirst({
       where: or(eq(events.id, id), eq(events.slug, id)),
       with: {
@@ -41,31 +42,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
             name: true,
             slug: true,
             logoUrl: true,
-          },
-        },
-        registrations: {
-          orderBy: [desc(eventRegistrations.createdAt)],
-          with: {
-            profile: {
-              columns: {
-                id: true,
-                username: true,
-                displayName: true,
-                avatarUrl: true,
-                course: true,
-                branch: true,
-                year: true,
-                email: true,
-              },
-              with: {
-                institution: {
-                  columns: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -88,20 +64,97 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
-    const isRegistered = currentProfile
-      ? event.registrations.some((r) => r.profileId === currentProfile.id)
-      : false;
-    const userReg = currentProfile
-      ? event.registrations.find((r) => r.profileId === currentProfile.id)
-      : null;
+    // Use SQL COUNT/SUM to calculate attendee count efficiently without loading attendee data
+    const [countRow] = await db
+      .select({
+        attendeeCount: sql<number>`COALESCE(SUM(
+          CASE 
+            WHEN ${eventRegistrations.registrationType} = 'TEAM' 
+            THEN 1 + COALESCE(jsonb_array_length(
+              CASE WHEN jsonb_typeof(${eventRegistrations.teamMembers}) = 'array' 
+                   THEN ${eventRegistrations.teamMembers} 
+                   ELSE '[]'::jsonb 
+              END
+            ), 0)
+            ELSE 1
+          END
+        ), 0)::int`,
+      })
+      .from(eventRegistrations)
+      .where(
+        and(
+          eq(eventRegistrations.eventId, event.id),
+          ne(eventRegistrations.status, "CANCELLED")
+        )
+      );
 
+    const attendeeCount = Number(countRow?.attendeeCount ?? 0);
+
+    // Only load the current viewer's own registration (if authenticated)
+    let userRegistration = null;
+    let isRegistered = false;
+    if (currentProfile) {
+      userRegistration = await db.query.eventRegistrations.findFirst({
+        where: and(
+          eq(eventRegistrations.eventId, event.id),
+          eq(eventRegistrations.profileId, currentProfile.id),
+          ne(eventRegistrations.status, "CANCELLED")
+        ),
+      });
+      isRegistered = !!userRegistration;
+    }
+
+    // Check if authorized organizer/admin is explicitly requesting the management attendees list
+    const isOrganizerOrAdmin = Boolean(
+      currentProfile && (event.organizerProfileId === currentProfile.id || currentProfile.role === "ADMIN")
+    );
+    const url = new URL(req.url, "http://localhost");
+    const referer = req.headers.get("referer") || "";
+    const isManageRequest =
+      isOrganizerOrAdmin &&
+      (url.searchParams.get("manage") === "true" ||
+       url.searchParams.get("includeRegistrations") === "true" ||
+       referer.includes("/events/manage/"));
+
+    let managedRegistrations: any[] | undefined = undefined;
+    if (isManageRequest) {
+      managedRegistrations = await db.query.eventRegistrations.findMany({
+        where: eq(eventRegistrations.eventId, event.id),
+        orderBy: [desc(eventRegistrations.createdAt)],
+        with: {
+          profile: {
+            columns: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+              course: true,
+              branch: true,
+              year: true,
+              email: true,
+            },
+            with: {
+              institution: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Public event detail response NEVER exposes attendee phone numbers, emails, notes, or private team info
     return NextResponse.json({
       event: {
         ...event,
-        attendeeCount: event.registrations.length,
+        attendeeCount,
         isRegistered,
-        userRegistration: userReg,
-        reminderSet: userReg?.reminderSet ?? false,
+        userRegistration: userRegistration || null,
+        reminderSet: userRegistration?.reminderSet ?? false,
+        ...(managedRegistrations ? { registrations: managedRegistrations } : {}),
       },
     });
   } catch (error) {

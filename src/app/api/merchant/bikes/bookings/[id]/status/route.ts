@@ -51,7 +51,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       await db
         .update(bikes)
         .set({ status: "RENTED", updatedAt: new Date() })
-        .where(eq(bikes.id, booking.bikeId));
+        .where(and(eq(bikes.id, booking.bikeId), eq(bikes.merchantId, merchant.id)));
     }
 
     if (nextStatus === "RETURNED" || nextStatus === "COMPLETED") {
@@ -60,7 +60,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       await db
         .update(bikes)
         .set({ status: "AVAILABLE", updatedAt: new Date() })
-        .where(eq(bikes.id, booking.bikeId));
+        .where(and(eq(bikes.id, booking.bikeId), eq(bikes.merchantId, merchant.id)));
 
       if (nextStatus === "COMPLETED") {
         updatePayload.depositRefundStatus = "REFUNDED";
@@ -70,7 +70,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     const [updated] = await db
       .update(bikeBookings)
       .set(updatePayload)
-      .where(eq(bikeBookings.id, id))
+      .where(and(eq(bikeBookings.id, id), eq(bikeBookings.merchantId, merchant.id)))
       .returning();
 
     // Log status transition history

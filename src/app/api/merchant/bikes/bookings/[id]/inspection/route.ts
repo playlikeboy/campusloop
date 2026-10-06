@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { bikeBookings, bikeInspections } from "@/db/schema";
@@ -13,9 +13,6 @@ interface RouteParams {
 export async function POST(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    // The caller's own store, not "whichever rentals merchant exists first" —
-    // that showed every rental store the same bookings, including other
-    // students' names, phone numbers and licence details.
     const merchant = await resolveMerchantSession();
     if (!merchant) {
       return NextResponse.json({ error: "Unauthorized or merchant not found" }, { status: 401 });
@@ -24,7 +21,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     const db = getDb();
 
     const booking = await db.query.bikeBookings.findFirst({
-      where: eq(bikeBookings.id, id),
+      where: and(eq(bikeBookings.id, id), eq(bikeBookings.merchantId, merchant.id)),
     });
 
     if (!booking) {
@@ -73,7 +70,7 @@ export async function POST(req: Request, { params }: RouteParams) {
           status: "DISPUTED",
           updatedAt: new Date(),
         })
-        .where(eq(bikeBookings.id, id));
+        .where(and(eq(bikeBookings.id, id), eq(bikeBookings.merchantId, merchant.id)));
     }
 
     return NextResponse.json({ success: true, inspection });

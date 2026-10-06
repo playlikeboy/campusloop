@@ -72,9 +72,8 @@ export async function POST(req: NextRequest) {
           sort,
           count: items.length,
           posts: items,
-          accountInfo: {
-            connectedAccount: "reddit_senega-turnup",
-            username: "u_Dull_Boysenberry_442",
+          integration: {
+            provider: "reddit",
             status: "ACTIVE",
           },
         });
@@ -118,34 +117,161 @@ export async function POST(req: NextRequest) {
       }
 
       case "purge_cloudflare": {
-        // Cloudflare purge cache via Composio / Cloudflare zone
-        // Connected account: cloudflare_siren-bohea
         const zoneName = payload?.zoneName || "campusloop.space";
         const purgeEverything = payload?.purgeEverything ?? true;
+        const cfToken = process.env.CLOUDFLARE_API_TOKEN;
+        const cfZoneId = process.env.CLOUDFLARE_ZONE_ID;
 
-        return NextResponse.json({
-          success: true,
-          action: "purge_cache",
-          zone: zoneName,
-          purgeEverything,
-          executedAt: new Date().toISOString(),
-          connectedAccount: "cloudflare_siren-bohea",
-          message: `Cloudflare CDN edge cache successfully purged for ${zoneName}`,
-        });
+        // Eliminate fake-success: if real Cloudflare integration is not configured, return HTTP 501
+        if (!cfToken || !cfZoneId) {
+          return NextResponse.json(
+            {
+              error:
+                "Cloudflare integration is not configured. Missing CLOUDFLARE_API_TOKEN or CLOUDFLARE_ZONE_ID in environment.",
+            },
+            { status: 501 }
+          );
+        }
+
+        try {
+          const cfRes = await fetch(
+            `https://api.cloudflare.com/client/v4/zones/${cfZoneId}/purge_cache`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${cfToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(
+                purgeEverything ? { purge_everything: true } : { hosts: [zoneName] }
+              ),
+            }
+          );
+
+          if (!cfRes.ok) {
+            const errData = (await cfRes.json().catch(() => ({}))) as any;
+            return NextResponse.json(
+              {
+                error: `Cloudflare API error: ${errData?.errors?.[0]?.message || cfRes.statusText}`,
+              },
+              { status: 502 }
+            );
+          }
+
+          return NextResponse.json({
+            success: true,
+            action: "purge_cache",
+            zone: zoneName,
+            purgeEverything,
+            executedAt: new Date().toISOString(),
+            message: `Cloudflare CDN edge cache successfully purged for ${zoneName}`,
+          });
+        } catch (err: any) {
+          return NextResponse.json(
+            { error: `Cloudflare purge request failed: ${err?.message || "Network error"}` },
+            { status: 502 }
+          );
+        }
       }
 
       case "dispatch_alert": {
         const { channel, message, priority } = payload || {};
-        const destination = channel || "discord"; // 'discord' | 'telegram'
+        const destination = String(channel || "discord").toLowerCase();
 
-        return NextResponse.json({
-          success: true,
-          channel: destination,
-          priority: priority || "HIGH",
-          deliveredAt: new Date().toISOString(),
-          status: "SENT",
-          message: `Moderation alert dispatched to ${destination.toUpperCase()}: "${message || "CampusLoop test alert"}"`,
-        });
+        // Eliminate fake-success: execute real webhook or return non-2xx error
+        if (destination === "discord") {
+          const discordUrl =
+            process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_MODERATION_WEBHOOK_URL;
+          if (!discordUrl) {
+            return NextResponse.json(
+              {
+                error:
+                  "Discord webhook integration is not configured. Missing DISCORD_WEBHOOK_URL in environment.",
+              },
+              { status: 501 }
+            );
+          }
+
+          try {
+            const hookRes = await fetch(discordUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                content: `[CampusLoop Alert - ${priority || "HIGH"}] ${message || "Moderation alert"}`,
+              }),
+            });
+
+            if (!hookRes.ok) {
+              return NextResponse.json(
+                { error: `Discord webhook returned HTTP ${hookRes.status}` },
+                { status: 502 }
+              );
+            }
+
+            return NextResponse.json({
+              success: true,
+              channel: "discord",
+              priority: priority || "HIGH",
+              deliveredAt: new Date().toISOString(),
+              status: "SENT",
+              message: `Moderation alert dispatched to DISCORD: "${message || "CampusLoop test alert"}"`,
+            });
+          } catch (err: any) {
+            return NextResponse.json(
+              { error: `Discord alert dispatch failed: ${err?.message || "Network error"}` },
+              { status: 502 }
+            );
+          }
+        } else if (destination === "telegram") {
+          const botToken = process.env.TELEGRAM_BOT_TOKEN;
+          const chatId = process.env.TELEGRAM_CHAT_ID;
+          if (!botToken || !chatId) {
+            return NextResponse.json(
+              {
+                error:
+                  "Telegram integration is not configured. Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in environment.",
+              },
+              { status: 501 }
+            );
+          }
+
+          try {
+            const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `[CampusLoop Alert - ${priority || "HIGH"}]\n${message || "Moderation alert"}`,
+              }),
+            });
+
+            if (!tgRes.ok) {
+              return NextResponse.json(
+                { error: `Telegram bot API returned HTTP ${tgRes.status}` },
+                { status: 502 }
+              );
+            }
+
+            return NextResponse.json({
+              success: true,
+              channel: "telegram",
+              priority: priority || "HIGH",
+              deliveredAt: new Date().toISOString(),
+              status: "SENT",
+              message: `Moderation alert dispatched to TELEGRAM: "${message || "CampusLoop test alert"}"`,
+            });
+          } catch (err: any) {
+            return NextResponse.json(
+              { error: `Telegram alert dispatch failed: ${err?.message || "Network error"}` },
+              { status: 502 }
+            );
+          }
+        } else {
+          return NextResponse.json(
+            { error: `Unsupported alert destination '${destination}'. Supported: discord, telegram` },
+            { status: 400 }
+          );
+        }
       }
 
       case "export_data": {
@@ -155,7 +281,6 @@ export async function POST(req: NextRequest) {
         if (exportType === "users") {
           exportData = await db.query.userProfiles.findMany({
             columns: {
-              userId: true,
               username: true,
               displayName: true,
               email: true,

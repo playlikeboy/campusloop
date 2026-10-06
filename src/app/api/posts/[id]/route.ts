@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { MAX_POST_CHARS } from "@/constants/feed";
 import { getDb } from "@/db";
-import { anonIdentityVault, posts, userProfiles } from "@/db/schema";
+import { anonIdentityVault, comments, pollOptions, posts, userProfiles, votes } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, openSealedIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
@@ -58,19 +58,25 @@ export async function GET(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
+    // Optional user authentication for personalized vote hydration and moderator role check
+    let viewerProfile: (typeof userProfiles.$inferSelect) | null = null;
+    try {
+      const user = await hexclaveServerApp.getUser();
+      if (user) {
+        viewerProfile = (await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, user.id),
+        })) ?? null;
+      }
+    } catch {
+      // Unauthenticated viewers are supported
+    }
+
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, id),
       with: {
         author: true,
         institution: true,
         community: true,
-        votes: true,
-        comments: {
-          with: { author: true },
-        },
-        pollOptions: {
-          with: { votes: true },
-        },
       },
     });
 
@@ -78,7 +84,178 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json(post);
+    // Enforce post visibility:
+    // - DELETED returns 404
+    // - PENDING_REVIEW or other non-published statuses are only visible to MODERATOR/ADMIN or the author
+    if (post.status === "DELETED") {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    const isModerator =
+      viewerProfile?.role === "MODERATOR" || viewerProfile?.role === "ADMIN";
+
+    if (post.status !== "PUBLISHED") {
+      const isAuthor = viewerProfile && post.authorId === viewerProfile.id;
+      if (!isModerator && !isAuthor) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
+    }
+
+    // Calculated vote aggregates (NEVER return raw votes rows)
+    const postVotes = await db.query.votes.findMany({
+      where: eq(votes.postId, id),
+      columns: { value: true, userId: true },
+    });
+
+    let upvotesCount = 0;
+    let downvotesCount = 0;
+    let userVote = 0;
+
+    for (const v of postVotes) {
+      if (v.value > 0) upvotesCount++;
+      else if (v.value < 0) downvotesCount++;
+      if (viewerProfile && v.userId === viewerProfile.id) {
+        userVote = v.value;
+      }
+    }
+    const votesCount = upvotesCount - downvotesCount;
+
+    // Fetch published comments (safe projection only)
+    const postComments = await db.query.comments.findMany({
+      where: and(eq(comments.postId, id), eq(comments.status, "PUBLISHED")),
+      orderBy: [asc(comments.createdAt)],
+      with: {
+        author: {
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+            branch: true,
+            year: true,
+          },
+        },
+      },
+    });
+
+    const commentsCount = postComments.length;
+
+    const safeComments = postComments.map((c) => ({
+      id: c.id,
+      postId: c.postId,
+      body: c.body,
+      createdAt: c.createdAt,
+      isAnonymous: c.isAnonymous,
+      pseudonym: c.pseudonym,
+      likesCount: c.likesCount || 0,
+      repliesCount: c.repliesCount || 0,
+      parentId: c.parentId,
+      imageUrl: c.imageUrl,
+      isPinned: Boolean(c.isPinned),
+      authorId: c.isAnonymous ? null : c.authorId,
+      author: c.isAnonymous
+        ? null
+        : c.author
+        ? {
+            id: c.author.id,
+            username: c.author.username,
+            displayName: c.author.displayName,
+            avatarUrl: c.author.avatarUrl,
+            branch: c.author.branch,
+            year: c.author.year,
+          }
+        : null,
+    }));
+
+    // Poll options aggregates (NEVER return raw pollVotes rows)
+    let pollOptionsData: Array<{
+      id: string;
+      text: string;
+      voteCount: number;
+      selectedByViewer: boolean;
+    }> = [];
+
+    if (post.type === "POLL") {
+      const options = await db.query.pollOptions.findMany({
+        where: eq(pollOptions.postId, id),
+        orderBy: [asc(pollOptions.createdAt)],
+        with: {
+          votes: {
+            columns: { userId: true },
+          },
+        },
+      });
+
+      pollOptionsData = options.map((opt) => ({
+        id: opt.id,
+        text: opt.text,
+        voteCount: opt.votes?.length || 0,
+        selectedByViewer: Boolean(
+          viewerProfile && opt.votes?.some((v) => v.userId === viewerProfile.id)
+        ),
+      }));
+    }
+
+    // Safe author projection: strip authentication fields & anonymous profile IDs
+    const safeAuthor = post.isAnonymous
+      ? null
+      : post.author
+      ? {
+          id: post.author.id,
+          username: post.author.username,
+          displayName: post.author.displayName,
+          avatarUrl: post.author.avatarUrl,
+          branch: post.author.branch,
+          year: post.author.year,
+          institutionId: post.author.institutionId,
+        }
+      : null;
+
+    const safePost = {
+      id: post.id,
+      type: post.type,
+      scope: post.scope,
+      title: post.title,
+      body: post.body,
+      isAnonymous: post.isAnonymous,
+      pseudonym: post.pseudonym,
+      isEdited: post.isEdited,
+      repostOfId: post.repostOfId,
+      repostComment: post.repostComment,
+      status: post.status,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      institutionId: post.institutionId,
+      institution: post.institution
+        ? {
+            id: post.institution.id,
+            name: post.institution.name,
+            slug: post.institution.slug,
+            state: post.institution.state,
+          }
+        : null,
+      communityId: post.communityId,
+      community: post.community
+        ? {
+            id: post.community.id,
+            name: post.community.name,
+            slug: post.community.slug,
+            avatarUrl: post.community.avatarUrl,
+          }
+        : null,
+      authorId: post.isAnonymous ? null : post.authorId,
+      author: safeAuthor,
+      votesCount,
+      upvotesCount,
+      downvotesCount,
+      voteScore: votesCount,
+      userVote,
+      commentsCount,
+      pollOptions: pollOptionsData,
+      comments: safeComments,
+    };
+
+    return NextResponse.json(safePost);
   } catch (error) {
     console.error("Error fetching post:", error);
     return NextResponse.json({ error: "Failed to fetch post" }, { status: 500 });

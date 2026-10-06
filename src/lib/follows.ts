@@ -109,6 +109,10 @@ export interface FollowMutationResult {
  * repeat call a no-op rather than a duplicate row.
  */
 export async function followUser(followerId: string, followingId: string): Promise<FollowMutationResult> {
+  if (followerId === followingId) {
+    throw new Error("Cannot follow yourself");
+  }
+
   const db = getDb();
 
   const inserted = await db
@@ -149,22 +153,29 @@ export async function followUser(followerId: string, followingId: string): Promi
  * "friends", since the relationship is no longer mutual.
  */
 export async function unfollowUser(followerId: string, followingId: string): Promise<FollowMutationResult> {
+  if (followerId === followingId) {
+    return { isFollowing: false, created: false, isFriend: false };
+  }
+
   const db = getDb();
 
-  await db
+  const deleted = await db
     .delete(follows)
-    .where(and(eq(follows.followerId, followerId), eq(follows.followingId, followingId)));
+    .where(and(eq(follows.followerId, followerId), eq(follows.followingId, followingId)))
+    .returning({ id: follows.id });
 
-  await db
-    .update(follows)
-    .set({ isMutual: false })
-    .where(
-      and(
-        eq(follows.followerId, followingId),
-        eq(follows.followingId, followerId),
-        eq(follows.isMutual, true)
-      )
-    );
+  if (deleted.length > 0) {
+    await db
+      .update(follows)
+      .set({ isMutual: false })
+      .where(
+        and(
+          eq(follows.followerId, followingId),
+          eq(follows.followingId, followerId),
+          eq(follows.isMutual, true)
+        )
+      );
+  }
 
   return { isFollowing: false, created: false, isFriend: false };
 }

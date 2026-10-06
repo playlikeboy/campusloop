@@ -56,7 +56,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
         rejectionReason: body.rejectionReason || null,
         updatedAt: new Date(),
       })
-      .where(eq(marketplaceOrders.id, id))
+      .where(and(eq(marketplaceOrders.id, id), eq(marketplaceOrders.merchantId, merchant.id)))
       .returning();
 
     return NextResponse.json({ success: true, order: updated });

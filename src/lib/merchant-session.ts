@@ -51,8 +51,8 @@ export async function resolveMerchantSession(): Promise<typeof merchants.$inferS
     const merchant = merchantUser?.merchant;
     if (!merchant) return null;
 
-    // A suspended or closed store grants nothing, however the caller arrived.
-    if (merchant.status === "SUSPENDED" || merchant.status === "CLOSED") return null;
+    // A suspended, closed, or non-active store grants nothing, however the caller arrived.
+    if (merchant.status === "SUSPENDED" || merchant.status === "CLOSED" || merchant.status !== "ACTIVE") return null;
 
     return merchant;
   } catch (err) {
