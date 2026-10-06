@@ -5,6 +5,7 @@ import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import {
   anonIdentityVault,
   comments,
+  externalPosts,
   institutions,
   marketplaceOrders,
   merchants,
@@ -20,10 +21,14 @@ export type DashboardStats = {
   totalUsers: number;
   activeUsers: number;
   bannedUsers: number;
+  signupsToday: number;
   totalPosts: number;
+  postsToday: number;
   publishedPosts: number;
   pendingPosts: number;
   anonymousPosts: number;
+  confessionsPending: number;
+  externalPostsCount: number;
   totalComments: number;
   openReports: number;
   colleges: number;
@@ -41,6 +46,7 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
         total: count(),
         active: sql<number>`count(*) filter (where ${userProfiles.status} = 'ACTIVE')::int`,
         banned: sql<number>`count(*) filter (where ${userProfiles.status} = 'BANNED')::int`,
+        signupsToday: sql<number>`count(*) filter (where ${userProfiles.createdAt} >= CURRENT_DATE)::int`,
         lp: sql<number>`coalesce(sum(${userProfiles.points}), 0)::int`,
       })
       .from(userProfiles)
@@ -49,51 +55,62 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
     const [postsRow] = await db
       .select({
         total: count(),
+        postsToday: sql<number>`count(*) filter (where ${posts.createdAt} >= CURRENT_DATE)::int`,
         published: sql<number>`count(*) filter (where ${posts.status} = 'PUBLISHED')::int`,
         pending: sql<number>`count(*) filter (where ${posts.status} = 'PENDING_REVIEW')::int`,
         anonymous: sql<number>`count(*) filter (where ${posts.isAnonymous})::int`,
+        confessionsPending: sql<number>`count(*) filter (where ${posts.type} = 'CONFESSION' and ${posts.status} = 'PENDING_REVIEW')::int`,
       })
       .from(posts)
       .catch(() => []);
 
-    const [commentsRes, reportsRes, collegesRes, vaultRes, merchantsRes, ordersRes] = await Promise.all([
-      db
-        .select({ total: count() })
-        .from(comments)
-        .catch(() => [{ total: 0 }]),
-      db
-        .select({ open: sql<number>`count(*) filter (where ${reports.status} = 'OPEN')::int` })
-        .from(reports)
-        .catch(() => [{ open: 0 }]),
-      db
-        .select({ total: count() })
-        .from(institutions)
-        .catch(() => [{ total: 0 }]),
-      db
-        .select({ total: count() })
-        .from(anonIdentityVault)
-        .catch(() => [{ total: 0 }]),
-      db
-        .select({ total: count() })
-        .from(merchants)
-        .catch(() => [{ total: 0 }]),
-      db
-        .select({
-          total: count(),
-          gmv: sql<number>`coalesce(sum(case when ${marketplaceOrders.status} not in ('CANCELLED', 'REJECTED') then ${marketplaceOrders.total} else 0 end), 0)::int`,
-        })
-        .from(marketplaceOrders)
-        .catch(() => [{ total: 0, gmv: 0 }]),
-    ]);
+    const [commentsRes, reportsRes, collegesRes, vaultRes, merchantsRes, ordersRes, extPostsRes] =
+      await Promise.all([
+        db
+          .select({ total: count() })
+          .from(comments)
+          .catch(() => [{ total: 0 }]),
+        db
+          .select({ open: sql<number>`count(*) filter (where ${reports.status} = 'OPEN')::int` })
+          .from(reports)
+          .catch(() => [{ open: 0 }]),
+        db
+          .select({ total: count() })
+          .from(institutions)
+          .catch(() => [{ total: 0 }]),
+        db
+          .select({ total: count() })
+          .from(anonIdentityVault)
+          .catch(() => [{ total: 0 }]),
+        db
+          .select({ total: count() })
+          .from(merchants)
+          .catch(() => [{ total: 0 }]),
+        db
+          .select({
+            total: count(),
+            gmv: sql<number>`coalesce(sum(case when ${marketplaceOrders.status} not in ('CANCELLED', 'REJECTED') then ${marketplaceOrders.total} else 0 end), 0)::int`,
+          })
+          .from(marketplaceOrders)
+          .catch(() => [{ total: 0, gmv: 0 }]),
+        db
+          .select({ total: count() })
+          .from(externalPosts)
+          .catch(() => [{ total: 0 }]),
+      ]);
 
     return {
       totalUsers: usersRow?.total ?? 0,
       activeUsers: usersRow?.active ?? 0,
       bannedUsers: usersRow?.banned ?? 0,
+      signupsToday: usersRow?.signupsToday ?? 0,
       totalPosts: postsRow?.total ?? 0,
+      postsToday: postsRow?.postsToday ?? 0,
       publishedPosts: postsRow?.published ?? 0,
       pendingPosts: postsRow?.pending ?? 0,
       anonymousPosts: postsRow?.anonymous ?? 0,
+      confessionsPending: postsRow?.confessionsPending ?? 0,
+      externalPostsCount: extPostsRes[0]?.total ?? 0,
       totalComments: commentsRes[0]?.total ?? 0,
       openReports: reportsRes[0]?.open ?? 0,
       colleges: collegesRes[0]?.total ?? 0,
@@ -109,10 +126,14 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
       totalUsers: 0,
       activeUsers: 0,
       bannedUsers: 0,
+      signupsToday: 0,
       totalPosts: 0,
+      postsToday: 0,
       publishedPosts: 0,
       pendingPosts: 0,
       anonymousPosts: 0,
+      confessionsPending: 0,
+      externalPostsCount: 0,
       totalComments: 0,
       openReports: 0,
       colleges: 0,

@@ -1,9 +1,11 @@
+import { Zap } from "lucide-react";
 import type { Metadata } from "next";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { ComposioHubClient } from "./composio-hub-client";
 
 export const metadata: Metadata = {
-  title: "Composio Integrations & Automation Hub",
+  title: "Reddit Ingestion Studio & Toolkits",
 };
 
 export const dynamic = "force-dynamic";
@@ -16,21 +18,17 @@ export default async function AdminComposioPage() {
       id: true,
       name: true,
     },
-    limit: 50,
+    limit: 100,
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Composio Integrations &amp; Automation Hub
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Orchestrate Reddit campus sync, Cloudflare edge CDN, webhook moderation alerts, and data exports.
-          </p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Reddit Ingestion Studio & Integrations"
+        category="Ingestion & Toolkits"
+        icon={Zap}
+        description="Fetch campus discussions from Indian university subreddits, control Cloudflare CDN cache, dispatch safety webhooks, and export records."
+      />
 
       <ComposioHubClient institutions={institutions} />
     </div>

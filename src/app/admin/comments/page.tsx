@@ -1,12 +1,16 @@
 import { desc, ilike, sql } from "drizzle-orm";
+import { MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 import { comments } from "@/db/schema";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { CommentsTable } from "./comments-table";
 
 export const metadata: Metadata = {
-  title: "Admin Comments",
+  title: "Comments Moderation",
 };
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: Promise<{ q?: string; page?: string }>;
@@ -17,8 +21,8 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
   const { db } = await resolveAdminSession();
 
   const q = params.q || "";
-  const page = Number(params.page) || 1;
-  const limit = 10;
+  const page = Math.max(1, Number(params.page) || 1);
+  const limit = 20;
   const offset = (page - 1) * limit;
 
   // Search filtering clause
@@ -28,7 +32,7 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(comments).where(whereClause);
 
   const totalCount = countResult[0]?.count || 0;
-  const totalPages = Math.ceil(totalCount / limit);
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   // Fetch comments
   const list = await db.query.comments.findMany({
@@ -43,11 +47,18 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Comment Moderation</h2>
-        <p className="text-muted-foreground text-sm">Review and delete comments across all campuses.</p>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Comment Moderation"
+        category="Content & Campus"
+        icon={MessageSquare}
+        description="Inspect threaded discussions, remove toxic replies, and maintain positive campus conversations."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
+            {totalCount.toLocaleString()} comments
+          </span>
+        }
+      />
 
       <CommentsTable initialComments={list} page={page} totalPages={totalPages} />
     </div>

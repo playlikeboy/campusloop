@@ -1,18 +1,20 @@
 import { and, desc, eq } from "drizzle-orm";
+import { ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
 import { posts, reports, userProfiles } from "@/db/schema";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { ReportsTable } from "./reports-table";
 
 export const metadata: Metadata = {
-  title: "Admin Reports",
+  title: "Reports & Safety Queue",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminReportsPage() {
   const { db } = await resolveAdminSession();
 
-  // Fetch open reports with joined post and author details.
-  // leftJoin keeps anonymous posts (null author) visible for review.
   const openReports = await db
     .select({
       id: reports.id,
@@ -32,15 +34,20 @@ export default async function AdminReportsPage() {
     .orderBy(desc(reports.createdAt));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Content Moderation</h2>
-        <p className="text-muted-foreground">Review flagged posts and take action to keep the campus safe.</p>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Content Reports Queue"
+        category="Operations & Safety"
+        icon={ShieldAlert}
+        description="Review student complaints, harassment flags, and rule violations reported across college hubs."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">
+            {openReports.length} open
+          </span>
+        }
+      />
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <ReportsTable initialReports={openReports} />
-      </div>
+      <ReportsTable initialReports={openReports} />
     </div>
   );
 }

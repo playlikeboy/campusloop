@@ -1,13 +1,13 @@
 import { and, count, desc, eq, ilike, type SQL } from "drizzle-orm";
+import { FileText } from "lucide-react";
 import type { Metadata } from "next";
-
 import { posts } from "@/db/schema";
-
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { PostsTable } from "./posts-table";
 
 export const metadata: Metadata = {
-  title: "Admin Posts & Seed Moderation",
+  title: "Posts Moderation & Unlist Controls",
 };
 
 export type PostStatusFilter = "ALL" | "PUBLISHED" | "PENDING_REVIEW" | "HIDDEN" | "DELETED";
@@ -89,16 +89,18 @@ export default async function AdminPostsPage({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
-          Post Moderation &amp; Unlist Controls
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Identify authentic student posts, unlist bot/seeded data, and toggle instant visibility across all
-          campus feeds.
-        </p>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Post Moderation & Visibility Controls"
+        category="Content & Campus"
+        icon={FileText}
+        description="Filter authentic student discussions vs seeded feeds, audit risk indicators, and manage instant timeline publication."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
+            {totalCount.toLocaleString()} posts
+          </span>
+        }
+      />
 
       <PostsTable
         initialPosts={list as any}

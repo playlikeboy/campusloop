@@ -1,6 +1,8 @@
 import { desc, eq } from "drizzle-orm";
+import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { academicResources, institutions, userProfiles } from "@/db/schema";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { AcademicsAdminClient } from "./academics-admin-client";
 
@@ -45,17 +47,18 @@ export default async function AdminAcademicsPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Academics Vault &amp; Notes Moderation
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Review, verify, and curate university study materials, PYQs, and syllabus notes.
-          </p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Academics Vault Moderation"
+        category="Operations & Safety"
+        icon={BookOpen}
+        description="Verify syllabus coverage, certify official previous-year question papers (PYQs), and moderate uploaded semester study packages."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
+            {resources.length} resources
+          </span>
+        }
+      />
 
       <AcademicsAdminClient initialResources={resources} />
     </div>

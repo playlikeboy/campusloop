@@ -1,6 +1,8 @@
 import { desc, eq, isNotNull } from "drizzle-orm";
+import { Megaphone } from "lucide-react";
 import type { Metadata } from "next";
 import { institutions, posts } from "@/db/schema";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { BroadcastsClient } from "./broadcasts-client";
 
@@ -43,17 +45,18 @@ export default async function AdminBroadcastsPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Campus Broadcasts &amp; Announcements
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Dispatch urgent notices, official university announcements, and timeline banners to students.
-          </p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Campus Broadcasts & Urgent Announcements"
+        category="Content & Campus"
+        icon={Megaphone}
+        description="Dispatch official college notices, placement alerts, emergency campus warnings, and pinned announcements to verified student timelines."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
+            {recentBroadcasts.length} broadcasts
+          </span>
+        }
+      />
 
       <BroadcastsClient institutions={institutionsList} recentBroadcasts={recentBroadcasts} />
     </div>
