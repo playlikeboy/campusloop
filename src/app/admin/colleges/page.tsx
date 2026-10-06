@@ -1,15 +1,16 @@
 import { desc } from "drizzle-orm";
-import { Plus } from "lucide-react";
+import { Plus, School } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getDb } from "@/db";
 import { institutions } from "@/db/schema";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { CollegesTable } from "./colleges-table";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Colleges",
+  title: "Campus Hubs & Colleges Directory",
 };
 
 export default async function CollegesAdminPage() {
@@ -22,24 +23,29 @@ export default async function CollegesAdminPage() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Manage Colleges</h2>
-          <p className="text-muted-foreground">
-            Add, edit, or remove participating institutions and their allowed email domains.
-          </p>
-        </div>
-        <Link
-          href="/admin/colleges/new"
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          Add College
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Campus Hubs Directory"
+        category="Content & Campus"
+        icon={School}
+        description="Index, edit, and verify Indian higher-education institutions, allowed university email domains, and NIRF rankings."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
+            {colleges.length} institutions
+          </span>
+        }
+        actions={
+          <Link
+            href="/admin/colleges/new"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground shadow-2xs transition-colors hover:bg-primary/90 cursor-pointer"
+          >
+            <Plus className="size-3.5" />
+            <span>Add Campus Hub</span>
+          </Link>
+        }
+      />
 
-      <div className="overflow-hidden rounded-xl border border-border">
+      <div className="overflow-hidden rounded-xl border border-border/60 bg-card/70 shadow-2xs">
         <CollegesTable initialColleges={colleges} />
       </div>
     </div>

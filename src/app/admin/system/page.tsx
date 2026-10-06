@@ -1,4 +1,6 @@
+import { Server } from "lucide-react";
 import type { Metadata } from "next";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { SystemClient } from "./system-client";
 
@@ -51,17 +53,18 @@ export default async function AdminSystemPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            System Diagnostics &amp; Health Matrix
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Service environment audits, live latency tests, and architectural invariant checks.
-          </p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="System Diagnostics & Health Matrix"
+        category="Telemetry & Security"
+        icon={Server}
+        description="Verify database connections, live service latency, Upstash Redis signaling, and edge environment configuration."
+        badge={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            Systems Operational
+          </span>
+        }
+      />
 
       <SystemClient envMatrix={envMatrix} />
     </div>

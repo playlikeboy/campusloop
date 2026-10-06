@@ -53,7 +53,8 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       containerRef.current.scrollTop = 0;
     }
   }, []);
-  // Smooth scroll to target index (for keyboard or navigation)
+
+  // Smooth scroll to target index
   const scrollToIndex = useCallback(
     (index: number) => {
       if (!containerRef.current || index < 0 || index >= items.length) return;
@@ -63,7 +64,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       isProgrammaticScrollRef.current = true;
       const targetElement = containerRef.current.children[index] as HTMLElement;
       if (targetElement) {
-        targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        targetElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
       activeIndexRef.current = index;
       setActiveIndex(index);
@@ -87,6 +88,69 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
     },
     [items]
   );
+
+  // Desktop Mouse Wheel / Trackpad Snap Gesture Handler
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      // Don't intercept if user is inside comments drawer
+      if (selectedPostForComments) return;
+      if (isWheelingRef.current || isProgrammaticScrollRef.current) return;
+      hasUserInteractedRef.current = true;
+
+      const threshold = 28;
+      if (e.deltaY > threshold) {
+        if (activeIndexRef.current < items.length - 1) {
+          isWheelingRef.current = true;
+          scrollToIndex(activeIndexRef.current + 1);
+          setTimeout(() => {
+            isWheelingRef.current = false;
+          }, 450);
+        }
+      } else if (e.deltaY < -threshold) {
+        if (activeIndexRef.current > 0) {
+          isWheelingRef.current = true;
+          scrollToIndex(activeIndexRef.current - 1);
+          setTimeout(() => {
+            isWheelingRef.current = false;
+          }, 450);
+        }
+      }
+    },
+    [items.length, scrollToIndex, selectedPostForComments]
+  );
+
+  // Mobile Touch Swipe Gesture Handlers
+  function handleTouchStart(e: React.TouchEvent) {
+    if (selectedPostForComments) return;
+    hasUserInteractedRef.current = true;
+    touchStartYRef.current = e.touches[0].clientY;
+  }
+
+  function handleTouchMove() {
+    hasUserInteractedRef.current = true;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (selectedPostForComments || touchStartYRef.current === null) return;
+    hasUserInteractedRef.current = true;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartYRef.current - touchEndY;
+    touchStartYRef.current = null;
+
+    const swipeThreshold = 40;
+    if (deltaY > swipeThreshold) {
+      if (activeIndexRef.current < items.length - 1) {
+        scrollToIndex(activeIndexRef.current + 1);
+      } else {
+        // At bottom of deck: load more and advance
+        loadMorePosts(true);
+      }
+    } else if (deltaY < -swipeThreshold) {
+      if (activeIndexRef.current > 0) {
+        scrollToIndex(activeIndexRef.current - 1);
+      }
+    }
+  }
 
   // Helper to construct query URL based on active tab
   const getFeedUrl = useCallback((tab: string, pageNum: number) => {
@@ -117,7 +181,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
 
   // Load more posts when near bottom of deck - Truly infinite scroll with feed algorithm
   const loadMorePosts = useCallback(
-    async () => {
+    async (autoAdvance = false) => {
       if (isLoadingMore) return;
       setIsLoadingMore(true);
       try {
@@ -137,6 +201,12 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
             return [...prev, ...newItems];
           });
           setPage(nextPage);
+
+          if (autoAdvance) {
+            setTimeout(() => {
+              scrollToIndex(activeIndexRef.current + 1);
+            }, 150);
+          }
         } else {
           // Fallback: If page runs dry, cycle in trending/viral campus posts so scroll never ends
           const fallbackData = await fetcher<FeedPost[] | { posts: FeedPost[] }>(
@@ -154,6 +224,11 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
               if (freshPosts.length === 0) return prev;
               return [...prev, ...freshPosts.map((p) => ({ type: "POST", post: p }) as LoopDeckItem)];
             });
+            if (autoAdvance) {
+              setTimeout(() => {
+                scrollToIndex(activeIndexRef.current + 1);
+              }, 150);
+            }
           }
         }
       } catch {
@@ -162,15 +237,15 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
         setIsLoadingMore(false);
       }
     },
-    [isLoadingMore, page, activeTab, getFeedUrl]
+    [isLoadingMore, page, activeTab, getFeedUrl, scrollToIndex]
   );
 
-  // Pre-fetch next posts on mount so user always has immediate continuity
+  // Pre-fetch next posts on mount so user always has immediate swipe continuity
   useEffect(() => {
     if (items.length <= 2) {
       loadMorePosts();
     }
-  }, [items.length, loadMorePosts]);
+  }, []);
 
   // Tab change handler with instant refresh & smooth reset to top
   const handleTabChange = useCallback(
@@ -251,61 +326,87 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [scrollToIndex, selectedPostForComments]);
 
-  // Sentinel ref for infinite scroll prefetching
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  // Deterministic scroll position sync (detects snapped page index directly)
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || !hasUserInteractedRef.current || isProgrammaticScrollRef.current) return;
+    const container = containerRef.current;
+    const h = container.clientHeight;
+    if (h <= 0) return;
+    const newIdx = Math.round(container.scrollTop / h);
+    if (newIdx >= 0 && newIdx < items.length && newIdx !== activeIndexRef.current) {
+      activeIndexRef.current = newIdx;
+      setActiveIndex(newIdx);
 
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
-          loadMorePosts();
+      const currentItem = items[newIdx];
+      if (currentItem && currentItem.type === "POST") {
+        const currentPost = currentItem.post;
+        const targetUrl = `/post/${currentPost.id}`;
+        if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+          window.history.replaceState(null, "", targetUrl);
         }
-      },
-      { rootMargin: "600px 0px" }
-    );
+        const author = currentPost.isAnonymous
+          ? "Anonymous Student"
+          : currentPost.author?.displayName || "Student";
+        document.title = `${author}'s Loop | CampusLoop`;
+      }
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [loadMorePosts, isLoadingMore]);
+      if (newIdx >= items.length - 2) {
+        loadMorePosts();
+      }
+    }
+  }, [items, loadMorePosts]);
 
-  // IntersectionObserver to sync URL when a post is visible without hijacking scroll
+  // IntersectionObserver as secondary detector to sync URL when centered
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // CRITICAL: NEVER update URL or active item on initial mount or hydration before user has interacted!
         if (!hasUserInteractedRef.current || isProgrammaticScrollRef.current) return;
-        for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const indexAttr = entry.target.getAttribute("data-index");
-            if (indexAttr !== null) {
-              const newIdx = Number.parseInt(indexAttr, 10);
-              if (newIdx >= 0 && newIdx < items.length && newIdx !== activeIndexRef.current) {
-                activeIndexRef.current = newIdx;
-                setActiveIndex(newIdx);
 
-                const currentItem = items[newIdx];
-                if (currentItem && currentItem.type === "POST") {
-                  const currentPost = currentItem.post;
-                  const targetUrl = `/post/${currentPost.id}`;
-                  if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
-                    window.history.replaceState(null, "", targetUrl);
-                  }
-                  const author = currentPost.isAnonymous
-                    ? "Anonymous Student"
-                    : currentPost.author?.displayName || "Student";
-                  document.title = `${author}'s Loop | CampusLoop`;
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+              bestEntry = entry;
+            }
+          }
+        }
+
+        if (bestEntry) {
+          const indexAttr = bestEntry.target.getAttribute("data-index");
+          if (indexAttr !== null) {
+            const newIdx = Number.parseInt(indexAttr, 10);
+            if (newIdx >= 0 && newIdx < items.length && newIdx !== activeIndexRef.current) {
+              activeIndexRef.current = newIdx;
+              setActiveIndex(newIdx);
+
+              const currentItem = items[newIdx];
+              if (currentItem && currentItem.type === "POST") {
+                const currentPost = currentItem.post;
+                const targetUrl = `/post/${currentPost.id}`;
+                if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+                  window.history.replaceState(null, "", targetUrl);
                 }
+                const author = currentPost.isAnonymous
+                  ? "Anonymous Student"
+                  : currentPost.author?.displayName || "Student";
+                document.title = `${author}'s Loop | CampusLoop`;
+              }
+
+              if (newIdx >= items.length - 2) {
+                loadMorePosts();
               }
             }
           }
         }
       },
-      { root: container, threshold: 0.5 }
+      {
+        root: container,
+        threshold: [0.6, 0.8],
+      }
     );
 
     const elements = container.querySelectorAll("[data-index]");
@@ -314,34 +415,40 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
     }
 
     return () => observer.disconnect();
-  }, [items]);
+  }, [items, loadMorePosts]);
 
   return (
-    <div className="relative w-full h-full min-h-0 flex flex-col bg-background">
+    <div
+      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative w-full h-full min-h-0 flex flex-col overflow-hidden bg-background"
+    >
       {/* ─── Ambient Glow in Background ─── */}
       <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-purple-600/10 blur-[140px] rounded-full -z-10" />
 
       {/* ─── Top Header & Subheader Tabs ─── */}
-      <header className="sticky top-0 shrink-0 z-30 px-3 sm:px-4 py-2 bg-background/90 backdrop-blur-xl border-b border-border/20 transition-all">
-        <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto w-full">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <header className="shrink-0 z-30 px-4 pt-2 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
+        {/* Subheader Filter Tabs */}
+        <div className="flex items-center justify-between gap-2 mt-2 border-b border-border/20 pb-1">
+          <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/feeds"
-              className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0"
               title="Back to Feeds"
             >
               <ArrowLeft className="size-3.5" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">Back to Feed</span>
             </Link>
 
-            <div className="h-3.5 w-px bg-border/40 shrink-0" />
+            <div className="h-4 w-px bg-border/40 hidden sm:block shrink-0" />
 
-            {/* Discovery Tabs */}
-            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-semibold overflow-x-auto no-scrollbar py-0.5">
+            <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar py-0.5">
               {[
                 { id: "for_you", label: "For You" },
                 { id: "latest", label: "Latest" },
-                { id: "clubs", label: "Communities" },
+                { id: "clubs", label: "Clubs" },
                 { id: "opportunities", label: "Opportunities" },
               ].map((tab) => (
                 <button
@@ -349,15 +456,15 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
                   type="button"
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "relative pb-1 transition-colors cursor-pointer whitespace-nowrap",
+                    "relative pb-1.5 transition-colors cursor-pointer whitespace-nowrap",
                     activeTab === tab.id
-                      ? "text-foreground font-bold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-foreground font-black"
+                      : "text-muted-foreground hover:text-foreground font-semibold"
                   )}
                 >
                   {tab.label}
                   {activeTab === tab.id && (
-                    <span className="absolute bottom-0 inset-x-0 h-[2px] rounded-full bg-primary" />
+                    <span className="absolute bottom-0 inset-x-0 h-[2.5px] rounded-full bg-primary" />
                   )}
                 </button>
               ))}
@@ -366,19 +473,17 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
         </div>
       </header>
 
-      {/* ─── Continuous Native Scroll Feed Container ─── */}
+      {/* ─── Vertical Snap Scroll Deck (Flexible Bounds) ─── */}
       <div
         ref={containerRef}
-        onScroll={() => {
-          hasUserInteractedRef.current = true;
-        }}
-        className="flex-1 w-full min-h-0 overflow-y-auto overscroll-y-contain scroll-smooth no-scrollbar pb-28 sm:pb-16 divide-y divide-border/15"
+        onScroll={handleScroll}
+        className="flex-1 w-full min-h-0 overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar pb-0"
       >
         {items.map((item, index) => (
           <div
             key={item.type === "POST" ? item.post.id : item.id}
             data-index={index}
-            className="w-full relative flex flex-col bg-background/50 hover:bg-muted/[0.03] transition-colors"
+            className="w-full h-full snap-start snap-always shrink-0 relative overflow-hidden flex flex-col"
           >
             {item.type === "POST" ? (
               <PostReelCard
@@ -388,13 +493,9 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
                 isActive={index === activeIndex}
               />
             ) : item.type === "USER_SUGGESTIONS" ? (
-              <div className="max-w-2xl mx-auto w-full px-4 py-3 sm:px-6">
-                <DeckUserSuggestionsCard users={item.users} institutionName={campusName} />
-              </div>
+              <DeckUserSuggestionsCard users={item.users} institutionName={campusName} />
             ) : item.type === "ACADEMIC_DROP" ? (
-              <div className="max-w-2xl mx-auto w-full px-4 py-3 sm:px-6">
-                <DeckAcademicDropCard resource={item.resource} />
-              </div>
+              <DeckAcademicDropCard resource={item.resource} />
             ) : item.type === "POLL_SPOTLIGHT" ? (
               <PostReelCard
                 post={item.post}
@@ -405,20 +506,6 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
             ) : null}
           </div>
         ))}
-
-        {/* Infinite Scroll Trigger Sentinel */}
-        <div ref={sentinelRef} className="w-full py-8 flex items-center justify-center select-none">
-          {isLoadingMore ? (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-              <span className="size-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-              <span>Loading more campus moments...</span>
-            </div>
-          ) : (
-            <div className="text-[11px] text-muted-foreground/50 font-medium">
-              Scroll for more
-            </div>
-          )}
-        </div>
       </div>
 
       {/* ─── Slide-Up Comments Drawer ─── */}
@@ -438,6 +525,9 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
           }}
         />
       )}
+
+      {/* Guest messaging is handled once by the main app viewer banner. Keeping a second
+          floating CTA here obscures the bottom navigation and overlaps reel controls. */}
     </div>
   );
 }

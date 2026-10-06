@@ -1,14 +1,15 @@
 import { desc, eq, ilike } from "drizzle-orm";
-import { ExternalLink, Link2 } from "lucide-react";
+import { ExternalLink, Link2, Play } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { institutions, posts } from "@/db/schema";
 import { cleanSnippet } from "@/lib/utils";
+import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { EmbedsInspectorClient } from "./embeds-inspector-client";
 
 export const metadata: Metadata = {
-  title: "Embeds & Link Moderation Hub",
+  title: "Embeds & Media Inspector",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,45 +35,38 @@ export default async function AdminEmbedsPage() {
     .catch(() => []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Embeds &amp; Link Moderation Hub
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Live URL embed sandbox, verified media providers, and timeline link inspection.
-          </p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Embeds & Link Moderation Hub"
+        category="Integrations & Studio"
+        icon={Play}
+        description="Live URL embed sandbox, verified media players (Spotify, SoundCloud, Apple Music, YouTube), and outbound links safety check."
+      />
 
       {/* Live Sandbox & Whitelist */}
       <EmbedsInspectorClient />
 
       {/* Recent Posts with External Links */}
       {recentLinkPosts.length > 0 && (
-        <section className="p-5 rounded-3xl bg-card border border-border/40 shadow-xs space-y-4">
-          <div>
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Link2 className="h-4 w-4 text-primary" />
+        <section className="p-4 sm:p-5 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-3">
+          <div className="flex items-center gap-2">
+            <Link2 className="size-4 text-primary" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">
               Recent Timeline Posts with External Links
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Monitor newly published posts containing media embeds or outbound links
-            </p>
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {recentLinkPosts.map((post) => (
               <div
                 key={post.id}
-                className="p-3.5 rounded-2xl bg-muted/20 border border-border/30 space-y-2 shadow-2xs"
+                className="p-3.5 rounded-xl bg-card border border-border/50 space-y-2 shadow-2xs"
               >
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span className="font-bold text-foreground">
                     {post.isAnonymous ? post.pseudonym || "Anonymous Student" : "Verified Student"}
                   </span>
-                  <span>{post.institutionName || "CampusLoop"}</span>
+                  <span>{post.institutionName?.split(",")[0] || "Campus Hub"}</span>
                 </div>
                 <p className="text-xs text-foreground leading-snug line-clamp-2">
                   {cleanSnippet(post.body, 120)}
@@ -84,7 +78,7 @@ export default async function AdminEmbedsPage() {
                     className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                   >
                     <span>Inspect Post</span>
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="size-3" />
                   </Link>
                 </div>
               </div>
