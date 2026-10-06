@@ -1,12 +1,13 @@
 "use client";
 
-import { MouseEvent, useRef } from "react";
-import Image from "next/image";
-import { Flame, Trophy } from "lucide-react";
+import { MouseEvent, useRef, useState } from "react";
+import { Flame, Trophy, Volume2, VolumeX, Sparkles } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 
 export function VoxelStreakSection() {
   const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   // 3D Interactive Spring Motion
   const x = useMotionValue(0);
@@ -15,8 +16,8 @@ export function VoxelStreakSection() {
   const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
   const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["6deg", "-6deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -34,6 +35,17 @@ export function VoxelStreakSection() {
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
+  };
+
+  const toggleSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    const nextMuted = !isMuted;
+    videoRef.current.muted = nextMuted;
+    setIsMuted(nextMuted);
+    if (!nextMuted) {
+      videoRef.current.play().catch(() => {});
+    }
   };
 
   return (
@@ -106,7 +118,7 @@ export function VoxelStreakSection() {
           </motion.div>
         </div>
 
-        {/* 3 Cute Voxel Characters: Interactive 3D Perspective Tilt & Floating Movement */}
+        {/* 3D Interactive Gossiping Voxel Video with Spring Motion & Audio Control */}
         <motion.div
           ref={cardRef}
           onMouseMove={handleMouseMove}
@@ -117,7 +129,7 @@ export function VoxelStreakSection() {
             transformStyle: "preserve-3d",
           }}
           animate={{
-            y: [0, -7, 0],
+            y: [0, -6, 0],
           }}
           transition={{
             y: {
@@ -126,17 +138,52 @@ export function VoxelStreakSection() {
               ease: "easeInOut",
             },
           }}
-          className="relative mt-8 sm:mt-12 mx-auto max-w-2xl cursor-pointer perspective-1000"
+          className="relative mt-10 sm:mt-14 mx-auto max-w-2xl cursor-pointer perspective-1000"
         >
-          <div className="relative aspect-16/10 w-full overflow-hidden drop-shadow-2xl">
-            <Image
-              src="/campusloop/marketing/voxel/cute-students-trio.webp"
-              alt="Three cute voxel college student characters standing together on grass blocks"
-              fill
-              sizes="(max-width: 768px) 100vw, 700px"
-              priority
-              className="object-contain object-bottom select-none pointer-events-none"
-            />
+          <div className="group relative aspect-video w-full overflow-hidden rounded-3xl border border-border/70 bg-card/60 p-1.5 shadow-2xl backdrop-blur-md transition-all hover:border-emerald-500/40 hover:shadow-emerald-500/10">
+            <div className="relative size-full overflow-hidden rounded-[22px] bg-black">
+              <video
+                ref={videoRef}
+                src="/campusloop/marketing/voxel/videos/gossiping.mp4"
+                poster="/campusloop/marketing/voxel/videos/gossiping_poster.webp"
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+                preload="metadata"
+                className="size-full object-cover select-none pointer-events-none"
+                aria-label="3D voxel college students chatting and gossiping on campus lawn"
+              />
+
+              {/* Subtle Ambient Vignette Overlay */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+
+              {/* Top Left Live Campus Badge */}
+              <div className="pointer-events-none absolute top-3.5 left-3.5 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-[11px] font-black text-white uppercase tracking-wider backdrop-blur-md">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Hostel Tea & Vibes</span>
+              </div>
+
+              {/* Sound Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleSound}
+                className="absolute bottom-3.5 right-3.5 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md transition-all hover:bg-black/70 hover:scale-105 active:scale-95 cursor-pointer"
+                title={isMuted ? "Unmute audio" : "Mute audio"}
+              >
+                {isMuted ? (
+                  <>
+                    <VolumeX className="size-3.5 text-stone-300" />
+                    <span className="text-[11px]">Sound On</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="size-3.5 text-emerald-400" />
+                    <span className="text-[11px]">Playing</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
