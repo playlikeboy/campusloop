@@ -19,21 +19,23 @@ const SITE_URL = "https://campusloop.space";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "CampusLoop — Your Campus, All in One Place",
+  title: "CampusLoop — Where Your Campus Actually Talks | Verified Student Network",
   description:
-    "A verified student network for conversations, academic notes, clubs, and events across Indian colleges and universities.",
+    "The private student-only network for inside hostel tea, anonymous confessions, 45,000+ verified notes & PYQs, campus crush radar, and zero boomers.",
   applicationName: "CampusLoop",
   authors: [{ name: "CampusLoop Team", url: `${SITE_URL}/about` }],
   keywords: [
     "CampusLoop",
-    "campus social network",
+    "where campus talks",
     "verified student network",
-    "college community India",
+    "college confessions",
+    "hostel tea",
     "academic notes",
     "college PYQs",
-    "campus events",
+    "campus crush radar",
+    "college dating India",
     "college clubs",
-    "college directory",
+    "no boomers",
   ],
   robots: {
     index: true,
@@ -53,9 +55,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "CampusLoop — Your Campus, All in One Place",
+    title: "CampusLoop — Where Your Campus Actually Talks",
     description:
-      "Find people, resources, communities, and events around your campus. Verified student network for college life.",
+      "Inside hostel tea, anonymous confessions, 45K+ verified notes & solved PYQs, and secret crushes. 100% verified students only. Zero recruiters. Zero faculty.",
     url: SITE_URL,
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -65,15 +67,15 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/campusloop/marketing/voxel/social-preview.webp`,
         width: 1200,
         height: 630,
-        alt: "CampusLoop — Verified digital campus network for college students",
+        alt: "CampusLoop — Where Your Campus Actually Talks (Verified Student Network)",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CampusLoop — Your Campus, All in One Place",
+    title: "CampusLoop — Where Your Campus Actually Talks",
     description:
-      "Find people, resources, communities, and events around your campus. Verified student network for college life.",
+      "Inside hostel tea, anonymous confessions, 45K+ verified notes & solved PYQs, and secret crushes. 100% verified students only.",
     creator: "@mycampusloop",
     images: [`${SITE_URL}/campusloop/marketing/voxel/social-preview.webp`],
   },

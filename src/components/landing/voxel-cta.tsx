@@ -8,8 +8,10 @@ import {
   Pause,
   Play,
   Shield,
+  Sparkles,
   Volume2,
   VolumeX,
+  Zap,
 } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -42,7 +44,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
     if (!video) return;
 
     if (video.paused) {
-      video.play();
+      video.play().catch(() => {});
       setIsPlaying(true);
     } else {
       video.pause();
@@ -62,7 +64,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white select-none">
-      {/* Background Video: Full Screen, Edge-to-Edge, Vibrant & Crisp */}
+      {/* Background Video: Full Screen, Edge-to-Edge, Vibrant Cloudflare CDN */}
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
@@ -83,13 +85,13 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
           />
         </video>
 
-        {/* Subtle, non-muddy gradient scrim for text legibility while keeping video fully visible */}
+        {/* Non-muddy gradient scrim for text legibility while keeping video vibrant */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent pointer-events-none"
           aria-hidden="true"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"
           aria-hidden="true"
         />
       </div>
@@ -97,9 +99,9 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
       {/* Top Controls Bar: Full Width Edge-to-Edge */}
       <div className="relative z-10 w-full flex items-center justify-between gap-4 px-6 sm:px-12 lg:px-16 pt-8 sm:pt-12">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-black/60 px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-md shadow-xs">
-          <span className="size-2 rounded-xs bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse" />
-          <span className="tracking-wide uppercase text-[11px] font-bold">
-            Built for Students • Verified Campus
+          <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse" />
+          <span className="tracking-wide uppercase text-[11px] font-black">
+            Your Batch Is Waiting • 1,350+ Campuses Live
           </span>
         </div>
 
@@ -119,12 +121,12 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             {!isMuted ? (
               <>
                 <Volume2 className="size-3.5 text-emerald-400 animate-pulse" />
-                <span></span>
+                <span className="text-[11px]">Audio On</span>
               </>
             ) : (
               <>
                 <VolumeX className="size-3.5" />
-                <span></span>
+                <span className="text-[11px]">Mute</span>
               </>
             )}
           </button>
@@ -139,50 +141,59 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             {isPlaying ? (
               <>
                 <Pause className="size-3" />
-                <span className="hidden sm:inline"></span>
+                <span className="hidden sm:inline text-[11px]">Pause</span>
               </>
             ) : (
               <>
                 <Play className="size-3" />
-                <span className="hidden sm:inline"></span>
+                <span className="hidden sm:inline text-[11px]">Play</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Main Hero Typographic Body: Full Bleed, Edge-Aligned */}
+      {/* Main Typographic Body: Punchy Viral Closer */}
       <div className="relative z-10 w-full px-6 sm:px-12 lg:px-16 py-12 sm:py-20 text-left max-w-3xl">
         <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.92] text-white">
-          CONNECT
+          YOUR BATCH
           <br />
-          LEARN
+          IS ALREADY
           <br />
-          <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(192,132,252,0.45)]">
-            BEYOND
+          <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(52,211,153,0.45)]">
+            IN THE LOOP.
           </span>
         </h2>
 
         <p className="mt-6 text-sm sm:text-base text-white/90 max-w-lg font-medium leading-relaxed tracking-wide drop-shadow-sm">
-          CampusLoop isn&apos;t just another app. It&apos;s a verified digital campus world. A peer-contributed vault. A living student network where you are never left out of the loop.
+          Stop digging through buried WhatsApp documents and dead Discord servers. Claim your verified student handle, drop into your college hub, and never miss what happens on campus again.
         </p>
 
         {/* Action Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
-            className="group relative inline-flex items-center justify-center gap-3 rounded-full border border-purple-400/90 bg-black/80 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-wider text-white backdrop-blur-xl shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:border-purple-300 hover:bg-purple-950/60 hover:shadow-[0_0_45px_rgba(168,85,247,0.7)] active:scale-95 transition-all"
+            onClick={() => {
+              sounds.tap();
+              haptics.medium();
+            }}
+            className="group relative inline-flex items-center justify-center gap-3 rounded-full border border-emerald-400/90 bg-[#22c55e] px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-wider text-black backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:bg-[#16a34a] hover:text-white hover:shadow-[0_0_45px_rgba(34,197,94,0.7)] active:scale-95 transition-all cursor-pointer"
           >
-            <span>{isAuthenticated ? "Enter Campus Feed" : "Enter The Loop"}</span>
-            <ArrowRight className="size-4 text-purple-400 transition-transform group-hover:translate-x-1" />
+            <Zap className="size-4" />
+            <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
 
           <Link
             href="/colleges"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-4 text-xs sm:text-sm font-bold tracking-wide text-white backdrop-blur-md hover:bg-white/20 active:scale-95 transition-all"
+            onClick={() => {
+              sounds.tap();
+              haptics.light();
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-4 text-xs sm:text-sm font-bold tracking-wide text-white backdrop-blur-md hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
           >
             <Compass className="size-4 text-white/80" />
-            <span>Explore Campuses</span>
+            <span>Explore 1,350+ Campuses</span>
           </Link>
         </div>
       </div>
@@ -192,16 +203,16 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
         <div className="flex items-center gap-2 font-medium">
           <Shield className="size-4 text-emerald-400" />
           <span className="uppercase tracking-widest text-[11px] text-white/90">
-            The Verified Student Layer • Founded at BIT Mesra
+            The Verified Student Layer • Founded at BIT Mesra • Gated by .ac.in
           </span>
         </div>
 
         <div className="flex items-center gap-4 uppercase tracking-widest text-[11px] font-bold text-white/70">
-          <span>Create</span>
+          <span>Unfiltered</span>
           <span>•</span>
-          <span>Connect</span>
+          <span>Verified</span>
           <span>•</span>
-          <span>Collaborate</span>
+          <span>Encrypted</span>
         </div>
       </div>
     </section>

@@ -6,7 +6,13 @@ import {
   ArrowRight,
   Briefcase,
   CheckCircle2,
+  Code2,
+  FileCheck,
+  Flame,
+  MessageSquare,
   RefreshCw,
+  ShieldCheck,
+  Sparkles,
   Users,
   Volume2,
   Zap,
@@ -20,10 +26,10 @@ export function VoxelDailyRush() {
 
   // Card 2 State: Voice prompts cycling
   const confessions = [
-    "What would you say in this situation?",
-    "Prof moved the submission deadline to 11:59 PM...",
-    "Best quiet corner in the library with charging sockets?",
-    "Anyone building a team for the campus hackathon?",
+    "“The prof actually caught 4 people proxying in the back row today...”",
+    "“Is it just me or does the hostel mess paneer feel like rubber on Tuesdays?”",
+    "“4th floor library AC corner is ice cold — best spot for 2 AM prep.”",
+    "“Building a team for the upcoming inter-college hackathon, need a frontend wizard.”",
   ];
   const [confessionIndex, setConfessionIndex] = useState(0);
 
@@ -31,10 +37,10 @@ export function VoxelDailyRush() {
   const [selectedTag, setSelectedTag] = useState<string>("DSA");
 
   // Card 4 State: Verification builder
-  const [selectedRole, setSelectedRole] = useState<string>("studying");
+  const [selectedRole, setSelectedRole] = useState<string>("verified");
 
   return (
-    <section id="features" className="relative py-16 sm:py-24 bg-background overflow-hidden">
+    <section id="daily-loop" className="relative py-16 sm:py-24 bg-background overflow-hidden select-none">
       {/* Decorative background voxel blocks */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <span className="absolute top-12 right-[14%] size-3.5 rounded-xs bg-[#22c55e]/25 animate-bounce [animation-duration:4s]" />
@@ -45,15 +51,17 @@ export function VoxelDailyRush() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-10">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-black text-[#16a34a] mb-2.5">
-              <Zap className="size-3.5" />
-              <span>CampusLoop Flow</span>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20">
+              <Zap className="size-3.5 text-[#22c55e]" />
+              <span>Real-Time Campus Flow</span>
             </div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-foreground sm:text-4xl">
-              YOUR DAILY LOOP
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
+              THE 24-HOUR CAMPUS
+              <br />
+              <span className="text-[#16a34a] dark:text-emerald-400">DISCOVERY ENGINE.</span>
             </h2>
-            <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-md">
-              Jump into quick, bite-sized challenges and tools designed to strengthen every part of your campus life.
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-md">
+              Fresh confessions cycling live, instant exam survival cheat sheets, club recruitment blasts, and verified peer status.
             </p>
           </div>
 
@@ -63,14 +71,14 @@ export function VoxelDailyRush() {
               sounds.tap();
               haptics.light();
             }}
-            className="inline-flex self-start sm:self-auto items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-5 py-2 text-xs font-black text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex self-start sm:self-auto items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-5 py-2.5 text-xs font-black text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer shrink-0"
           >
-            <span>Explore All</span>
+            <span>Explore The Feed</span>
             <ArrowRight className="size-3.5" />
           </Link>
         </div>
 
-        {/* 2x2 Interactive Cards Grid matching Image 1 */}
+        {/* 2x2 Interactive Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {/* Card 1: QUICK PULSE */}
           <div className="group rounded-3xl border border-border/70 bg-card/80 p-5 sm:p-6 shadow-md transition-all hover:border-[#22c55e]/40 hover:shadow-lg flex flex-col justify-between">
@@ -93,7 +101,7 @@ export function VoxelDailyRush() {
                     <div className="flex size-7 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
                       <Users className="size-4" />
                     </div>
-                    <span className="text-xs sm:text-sm">Campus Clubs &amp; Societies</span>
+                    <span className="text-xs sm:text-sm font-bold">Campus Clubs &amp; Societies</span>
                   </div>
                   {selectedPulse === "clubs" && <CheckCircle2 className="size-4 text-[#22c55e]" />}
                 </button>
@@ -115,7 +123,7 @@ export function VoxelDailyRush() {
                     <div className="flex size-7 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600">
                       <Briefcase className="size-4" />
                     </div>
-                    <span className="text-xs sm:text-sm">Internships &amp; Gigs</span>
+                    <span className="text-xs sm:text-sm font-bold">Hackathons &amp; Verified Gigs</span>
                   </div>
                   {selectedPulse === "career" && <CheckCircle2 className="size-4 text-[#22c55e]" />}
                 </button>
@@ -124,10 +132,10 @@ export function VoxelDailyRush() {
 
             <div className="mt-5 pt-3 border-t border-border/40">
               <span className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                QUICK PULSE
+                LIVE CAMPUS RADAR
               </span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Discover trending student polls, opportunities, and college club announcements.
+                Discover trending student polls, fest recruitment calls, and verified society opportunities.
               </p>
             </div>
           </div>
@@ -135,7 +143,7 @@ export function VoxelDailyRush() {
           {/* Card 2: CAMPUS VOICE & CONFESSIONS */}
           <div className="group rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card to-rose-500/5 p-5 sm:p-6 shadow-md transition-all hover:border-rose-500/30 hover:shadow-lg flex flex-col justify-between">
             <div className="flex flex-col items-center justify-center py-4">
-              {/* Green Speech Bubble matching Image 1 */}
+              {/* Green Speech Bubble with dynamic interactive prompt */}
               <div
                 onClick={() => {
                   sounds.pop();
@@ -164,16 +172,16 @@ export function VoxelDailyRush() {
                 className="mt-5 inline-flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <RefreshCw className="size-3" />
-                <span>Tap to switch prompt</span>
+                <span>Tap to cycle live campus confessions</span>
               </button>
             </div>
 
             <div className="mt-3 pt-3 border-t border-border/40">
               <span className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                CAMPUS VOICE &amp; CONFESSIONS
+                ZERO-KNOWLEDGE ANONYMITY
               </span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Build confidence with anonymous campus channels and real-time student sentiment.
+                Speak truth without fear. Your identity is stripped from database records before saving.
               </p>
             </div>
           </div>
@@ -223,10 +231,10 @@ export function VoxelDailyRush() {
 
             <div className="mt-5 pt-3 border-t border-border/40">
               <span className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                ACADEMIC VAULT
+                MIDNIGHT EXAM SURVIVAL
               </span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Curated peer-shared lecture notes, semester archives, and syllabus roadmaps.
+                Peer-rated handwritten notes, past 5-year question papers, and lab viva cheats.
               </p>
             </div>
           </div>
@@ -234,22 +242,20 @@ export function VoxelDailyRush() {
           {/* Card 4: STUDENT VERIFICATION */}
           <div className="group rounded-3xl border border-border/70 bg-card/80 p-5 sm:p-6 shadow-md transition-all hover:border-purple-500/30 hover:shadow-lg flex flex-col justify-between">
             <div>
-              {/* Fill-in-the-blank puzzle UI matching Image 1 */}
+              {/* Interactive badge preview */}
               <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background/90 p-3 shadow-inner">
                 <span className="rounded-lg bg-muted px-2.5 py-1 text-xs font-black text-foreground">
-                  The
+                  Status:
                 </span>
-                <span className="rounded-lg bg-muted px-2.5 py-1 text-xs font-black text-foreground">
-                  students
-                </span>
-                <span className="rounded-lg bg-[#22c55e]/20 border border-[#22c55e]/40 px-3 py-1 text-xs font-black text-[#16a34a] animate-pulse">
-                  {selectedRole}
+                <span className="rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-black text-[#16a34a] flex items-center gap-1.5">
+                  <ShieldCheck className="size-3.5" />
+                  <span className="capitalize">{selectedRole} Student</span>
                 </span>
               </div>
 
-              {/* Selector Chips matching Image 1 */}
+              {/* Selector Chips */}
               <div className="mt-3 flex flex-wrap gap-2">
-                {["studying", "collaborating", "verified", "graduating"].map((role) => (
+                {["verified", "club lead", "topper", "contributor"].map((role) => (
                   <button
                     key={role}
                     type="button"
@@ -260,7 +266,7 @@ export function VoxelDailyRush() {
                     }}
                     className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
                       selectedRole === role
-                        ? "bg-[#22c55e] text-white shadow-xs"
+                        ? "bg-[#22c55e] text-white shadow-xs font-black"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >
@@ -272,10 +278,10 @@ export function VoxelDailyRush() {
 
             <div className="mt-5 pt-3 border-t border-border/40">
               <span className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                STUDENT VERIFICATION
+                100% INSTITUTIONAL GATING
               </span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Real students with verified .ac.in credentials and college roll numbers.
+                Gated exclusively by university .ac.in email or student ID. Zero bots, zero recruiters.
               </p>
             </div>
           </div>

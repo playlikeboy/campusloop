@@ -1,23 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ShieldCheck } from "lucide-react";
 
 const FOOTER_GROUPS = [
   {
-    title: "Product",
+    title: "Platform",
     links: [
-      { label: "Academics", href: "/academics" },
-      { label: "Communities", href: "/communities" },
-      { label: "Events", href: "/events" },
-      { label: "Colleges", href: "/colleges" },
+      { label: "Campus Feed", href: "/feeds" },
+      { label: "Academic Vault", href: "/academics" },
+      { label: "Campus Match", href: "/dating" },
+      { label: "1,350+ Colleges", href: "/colleges" },
+      { label: "Clubs & Hubs", href: "/communities" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About", href: "/about" },
-      { label: "Safety", href: "/safety" },
-      { label: "Contact", href: "/contact" },
+      { label: "Student Safety", href: "/safety" },
+      { label: "Contact Us", href: "/contact" },
+      { label: "Pitch Deck", href: "/pitch" },
     ],
   },
   {
@@ -33,7 +35,7 @@ const FOOTER_GROUPS = [
 
 export function CleanFooter() {
   return (
-    <footer className="border-t border-border/40 bg-background text-foreground">
+    <footer className="border-t border-border/40 bg-background text-foreground select-none">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
           {/* Brand info */}
@@ -54,23 +56,28 @@ export function CleanFooter() {
             </Link>
 
             <p className="mt-3.5 max-w-sm text-xs leading-relaxed text-muted-foreground">
-              The verified digital campus network connecting students, lecture notes, clubs, and events across universities.
+              The verified student-only campus network. Unfiltered confessions, 45,000+ peer notes &amp; PYQs, campus crush radar, and club hubs across 1,350+ Indian colleges.
             </p>
 
-            {/* Social channels */}
-            <div className="mt-6 flex items-center gap-4 text-xs font-medium text-muted-foreground">
+            <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+              <ShieldCheck className="size-3.5 text-[#22c55e]" />
+              <span>100% Gated by Institutional Student Email &amp; ID</span>
+            </div>
+
+            {/* Social channels with official priorities */}
+            <div className="mt-6 flex items-center gap-4 text-xs font-semibold text-muted-foreground">
               <a
                 href="https://www.instagram.com/campusloop.space/"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-[#16a34a] hover:underline transition-colors"
                 aria-label="Instagram @campusloop.space"
               >
                 Instagram
               </a>
               <span>•</span>
               <a
-                href="https://www.linkedin.com/company/mycampusloop/"
+                href="https://www.linkedin.com/company/mycampusloop/?viewAsMember=true"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-foreground transition-colors"
@@ -80,13 +87,13 @@ export function CleanFooter() {
               </a>
               <span>•</span>
               <a
-                href="https://x.com/mycampusloop"
+                href="https://x.com/company/mycampusloop/"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-foreground transition-colors"
                 aria-label="X @mycampusloop"
               >
-                X
+                X (Twitter)
               </a>
             </div>
           </div>
@@ -95,7 +102,7 @@ export function CleanFooter() {
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
             {FOOTER_GROUPS.map((group) => (
               <div key={group.title}>
-                <p className="text-xs font-bold uppercase tracking-wider text-foreground">
+                <p className="text-xs font-black uppercase tracking-wider text-foreground">
                   {group.title}
                 </p>
                 <ul className="mt-3.5 space-y-2.5">
@@ -118,7 +125,7 @@ export function CleanFooter() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
-          <p>© {new Date().getFullYear()} CampusLoop Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} CampusLoop. Founded at BIT Mesra. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy

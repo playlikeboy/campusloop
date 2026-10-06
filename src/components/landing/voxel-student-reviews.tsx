@@ -1,4 +1,4 @@
-import { ShieldCheck, Star } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Star } from "lucide-react";
 
 export function VoxelStudentReviews() {
   const reviews = [
@@ -8,8 +8,9 @@ export function VoxelStudentReviews() {
       college: "BIT Mesra",
       avatarBg: "bg-emerald-500",
       initials: "RV",
-      text: "The Academic Vault saved our whole batch during mid-terms. Finding handwritten notes and exact PYQ solutions in 2 seconds beats scouring WhatsApp groups.",
+      text: "The 2 AM PYQ drop before the Maths-III end-sem literally saved our batch from backlogs. Having handwritten topper notes indexed by professor rating is pure cheat codes.",
       badge: "Verified Student",
+      highlight: "Saved Mid-Sem CGPA",
     },
     {
       name: "Priya Nair",
@@ -17,8 +18,9 @@ export function VoxelStudentReviews() {
       college: "IIT Bombay",
       avatarBg: "bg-blue-500",
       initials: "PN",
-      text: "Switching between local campus confessions and national hackathons is effortless. It feels like what college social media should have been all along.",
+      text: "Campus Match actually works because everyone is gated by their university ID. No fake accounts, zero creepy bots, just genuine batchmates in your campus radius.",
       badge: "Verified Student",
+      highlight: "Found Campus Circle",
     },
     {
       name: "Aman Singhania",
@@ -26,8 +28,9 @@ export function VoxelStudentReviews() {
       college: "Delhi University",
       avatarBg: "bg-amber-500",
       initials: "AS",
-      text: "Our dramatics society recruited 40+ new freshmen in one week using the official society hub. The student verification keeps the whole platform authentic.",
+      text: "Our cultural society recruited 60+ new freshmen in 48 hours without spending a single rupee on Instagram boost. The campus hub reaches every student instantly.",
       badge: "Society Lead",
+      highlight: "Recruited 60+ Freshmen",
     },
   ];
 
@@ -35,15 +38,17 @@ export function VoxelStudentReviews() {
     <section className="relative py-16 sm:py-24 bg-gradient-to-b from-background via-emerald-50/10 to-background overflow-hidden select-none">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3 shadow-xs">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3 border border-emerald-500/20 shadow-xs">
             <ShieldCheck className="size-3.5 text-[#22c55e]" />
-            <span>Trusted Across Campuses</span>
+            <span>Unfiltered Campus Feedback</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-foreground">
-            LOVED BY STUDENTS ACROSS INDIA
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
+            WHAT STUDENTS SAY BEHIND
+            <br />
+            <span className="text-[#16a34a] dark:text-emerald-400">CLOSED HOSTEL DOORS.</span>
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+          <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
             From premier tech institutes to central universities — built by students, for students.
           </p>
         </div>
@@ -56,15 +61,21 @@ export function VoxelStudentReviews() {
               className="rounded-3xl border border-border/70 bg-card p-6 shadow-md flex flex-col justify-between hover:border-emerald-500/40 transition-all hover:-translate-y-1 duration-300"
             >
               <div>
-                {/* 5-star row */}
-                <div className="flex items-center gap-1 text-amber-400 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  {/* 5-star row */}
+                  <div className="flex items-center gap-1 text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+
+                  <span className="rounded-full bg-emerald-500/10 text-[#16a34a] text-[10px] font-black px-2 py-0.5 border border-emerald-500/20">
+                    {rev.highlight}
+                  </span>
                 </div>
 
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed italic">
-                  “{rev.text}”
+                  &ldquo;{rev.text}&rdquo;
                 </p>
               </div>
 
@@ -83,8 +94,9 @@ export function VoxelStudentReviews() {
                   </div>
                 </div>
 
-                <span className="rounded-full bg-emerald-500/15 text-[#16a34a] text-[9px] font-black px-2 py-0.5">
-                  {rev.badge}
+                <span className="rounded-full bg-emerald-500/15 text-[#16a34a] text-[9px] font-black px-2 py-0.5 flex items-center gap-1">
+                  <CheckCircle2 className="size-2.5" />
+                  <span>{rev.badge}</span>
                 </span>
               </div>
             </div>
