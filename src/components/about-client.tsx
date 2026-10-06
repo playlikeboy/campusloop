@@ -124,15 +124,23 @@ export function AboutClient() {
             }}
           >
             <div className="grid gap-6 md:grid-cols-2 items-center">
-              <div className="relative aspect-square sm:aspect-4/3 w-full overflow-hidden rounded-2xl bg-muted/20 flex items-center justify-center">
-                <Image
-                  src="/campusloop/marketing/voxel/cute-students-trio.webp"
-                  alt="Cute 3D voxel students hanging out on university lawn"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 500px"
-                  className="object-contain p-2"
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border/60 bg-black/40 shadow-inner group">
+                <video
+                  src="/campusloop/marketing/voxel/videos/gossiping.mp4"
+                  poster="/campusloop/marketing/voxel/videos/gossiping_poster.webp"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="size-full object-cover"
+                  aria-label="Cute 3D voxel college students chatting and gossiping on university lawn"
                 />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+                <span className="pointer-events-none absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Hostel Lore in Motion</span>
+                </span>
               </div>
 
               <div className="space-y-4">
