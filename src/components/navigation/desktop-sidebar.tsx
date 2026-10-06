@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
-  Globe,
   GraduationCap,
   Heart,
   Home,
@@ -17,10 +16,8 @@ import {
   MessageSquare,
   PackageSearch,
   Plus,
-  School,
   Search,
   Settings,
-  ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
@@ -30,15 +27,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BrandLogoIcon } from "@/components/ui/brand-logo";
+import { BrandLogo, BrandLogoIcon } from "@/components/ui/brand-logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface DesktopSidebarProps {
   profile?: UserProfile;
@@ -56,14 +53,13 @@ interface NavItemDef {
 }
 
 interface NavSectionDef {
-  title: string;
+  title?: string;
   isAccordion?: boolean;
   items: NavItemDef[];
 }
 
 const SECTIONS: NavSectionDef[] = [
   {
-    title: "HOME",
     items: [
       { href: "/feeds", label: "Home", icon: Home },
       { href: "/explore", label: "Explore", icon: Compass },
@@ -90,17 +86,12 @@ const SECTIONS: NavSectionDef[] = [
     isAccordion: true,
     items: [
       { href: "/living", label: "Living Hub", icon: Sparkles },
+      { href: "/marketplace", label: "Marketplace", icon: Store },
       { href: "/buy-and-sell", label: "Buy & Sell", icon: ShoppingBag },
       { href: "/housing", label: "Housing & Flats", icon: Building2 },
       { href: "/lost-and-found", label: "Lost & Found", icon: PackageSearch },
       { href: "/rideshare", label: "Ride Share", icon: Car },
       { href: "/atlas", label: "Campus Atlas", icon: MapPin },
-    ],
-  },
-  {
-    title: "MARKET",
-    items: [
-      { href: "/marketplace", label: "Campus Market", icon: Store },
     ],
   },
 ];
@@ -113,7 +104,7 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isViewer }: DesktopSidebarProps) {
+export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _isAdmin, isViewer }: DesktopSidebarProps) {
   const pathname = usePathname() || "/feeds";
   const unreadCount = useUnreadNotificationsCount();
 
@@ -127,11 +118,10 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
   });
 
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
-  const [isCampusMenuOpen, setIsCampusMenuOpen] = useState(false);
-  const campusMenuRef = useRef<HTMLDivElement>(null);
 
   const isLivingActive = [
     "/living",
+    "/marketplace",
     "/buy-and-sell",
     "/housing",
     "/lost-and-found",
@@ -168,33 +158,6 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
       return next;
     });
   };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (campusMenuRef.current && !campusMenuRef.current.contains(event.target as Node)) {
-        setIsCampusMenuOpen(false);
-      }
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsCampusMenuOpen(false);
-      }
-    }
-    if (isCampusMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [isCampusMenuOpen]);
-
-  useEffect(() => {
-    if (collapsed) {
-      setIsCampusMenuOpen(false);
-    }
-  }, [collapsed]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -234,11 +197,6 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
     window.dispatchEvent(new CustomEvent("campusloop_open_search_palette"));
   };
 
-  const collegeDisplay =
-    collegeName && collegeName !== "Viewer Mode" && collegeName !== "Campus"
-      ? getCollegeShortName({ name: collegeName }) || collegeName
-      : collegeName || "Campus";
-
   const avatar = profile ? getAvatarUrl(profile.avatarUrl, profile.username) : "";
 
   return (
@@ -249,34 +207,15 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
       )}
       aria-label="Application main sidebar"
     >
-      {/* ── Brand Header Row (CampusLoop + Collapse Toggle) ── */}
-      <div
-        className={cn(
-          "flex shrink-0 items-center justify-between border-b border-border/40 transition-all",
-          collapsed ? "h-14 px-2 justify-center" : "h-14 px-3.5"
-        )}
-      >
+      {/* ── Brand Header & Toggle ── */}
+      <div className="flex h-14 items-center justify-between px-4 border-b border-border/40 shrink-0">
         {!collapsed ? (
           <>
-            <Link
-              href="/feeds"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-              }}
-              className="flex items-center gap-2.5 min-w-0 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg p-0.5 -ml-0.5"
-              title="CampusLoop Home"
-            >
-              <BrandLogoIcon size="sm" className="size-6.5 shrink-0" />
-              <span className="text-base font-bold font-heading tracking-tight text-foreground group-hover:text-primary transition-colors select-none">
-                CampusLoop
-              </span>
-            </Link>
-
+            <BrandLogo size="md" href="/feeds" />
             <button
               type="button"
               onClick={toggleSidebar}
-              className="flex size-7.5 items-center justify-center rounded-lg border border-border/40 bg-muted/20 text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 shrink-0"
+              className="flex size-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               title="Collapse sidebar"
               aria-label="Collapse sidebar"
             >
@@ -309,137 +248,8 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
         )}
       </div>
 
-      {/* ── Current Campus Selector (Clear Identity & Switcher) ── */}
-      {!collapsed ? (
-        <div className="relative px-3 pt-2.5 shrink-0" ref={campusMenuRef}>
-          <button
-            type="button"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-              setIsCampusMenuOpen((prev) => !prev);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between gap-2.5 p-2 rounded-xl text-left transition-all cursor-pointer group",
-              "bg-muted/30 hover:bg-muted/60 border border-border/50 hover:border-border/80",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-              isCampusMenuOpen && "bg-muted/60 border-primary/40 shadow-2xs"
-            )}
-            aria-haspopup="menu"
-            aria-expanded={isCampusMenuOpen}
-            aria-label={`Current campus: ${collegeDisplay}. Click to switch campuses.`}
-          >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0 group-hover:scale-105 transition-transform">
-                <School className="size-4" />
-              </div>
-              <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center gap-1 min-w-0">
-                  <span className="text-xs font-bold text-foreground truncate leading-tight">
-                    {collegeDisplay}
-                  </span>
-                  {profile?.onboardingCompleted && (
-                    <span title="Verified Campus" className="inline-flex shrink-0">
-                      <ShieldCheck className="size-3 text-primary shrink-0" />
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] font-medium text-muted-foreground leading-tight">
-                  Current campus
-                </span>
-              </div>
-            </div>
-
-            <ChevronDown
-              className={cn(
-                "size-3.5 text-muted-foreground transition-transform duration-200 shrink-0",
-                isCampusMenuOpen && "rotate-180 text-foreground"
-              )}
-            />
-          </button>
-
-          {/* Campus Switcher Floating Dropdown Menu */}
-          {isCampusMenuOpen && (
-            <div
-              className="absolute left-3 right-3 top-full mt-1.5 z-50 rounded-xl border border-border/60 bg-popover/95 backdrop-blur-xl shadow-lg p-1.5 space-y-1 animate-in fade-in-0 zoom-in-95 duration-150"
-              role="menu"
-              aria-orientation="vertical"
-            >
-              <div className="px-2.5 py-1.5 border-b border-border/40">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Active Workspace
-                </p>
-                <p className="text-xs font-bold text-foreground truncate mt-0.5 flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
-                  <span className="truncate">{collegeDisplay}</span>
-                </p>
-              </div>
-
-              <Link
-                href="/colleges"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setIsCampusMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
-                role="menuitem"
-              >
-                <Building2 className="size-3.5 text-primary shrink-0" />
-                <span className="flex-1 truncate">Browse 1,350+ Campuses</span>
-              </Link>
-
-              <Link
-                href="/feeds"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setIsCampusMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
-                role="menuitem"
-              >
-                <Globe className="size-3.5 text-muted-foreground shrink-0" />
-                <span className="flex-1 truncate">All-India Global Feed</span>
-              </Link>
-
-              <div className="pt-1 border-t border-border/40">
-                <Link
-                  href="/college-request"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setIsCampusMenuOpen(false);
-                  }}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
-                  role="menuitem"
-                >
-                  <Plus className="size-3 shrink-0" />
-                  <span>Request your campus</span>
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="px-2 pt-2.5 shrink-0 flex justify-center">
-          <Link
-            href="/colleges"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className="flex size-9 items-center justify-center rounded-xl bg-muted/40 hover:bg-muted/70 text-primary border border-border/40 hover:border-border transition-all cursor-pointer"
-            title={`${collegeDisplay} — Current campus (Browse 1,350+ Colleges)`}
-            aria-label={`Current campus: ${collegeDisplay}`}
-          >
-            <School className="size-4" />
-          </Link>
-        </div>
-      )}
-
       {/* ── Quick Search Trigger ── */}
-      <div className={cn("shrink-0 pt-2", collapsed ? "px-2" : "px-3")}>
+      <div className={cn("shrink-0 pt-3 pb-1", collapsed ? "px-2" : "px-3")}>
         <button
           type="button"
           onClick={openSearch}
@@ -463,11 +273,11 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
       </div>
 
       {/* ── Primary Navigation Links ── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 no-scrollbar">
-        {SECTIONS.map((section) => {
+      <nav className="flex-1 overflow-y-auto px-3 py-2.5 space-y-3 no-scrollbar">
+        {SECTIONS.map((section, idx) => {
           if (section.isAccordion) {
             return (
-              <div key={section.title} className="space-y-1">
+              <div key={section.title || idx} className="space-y-1">
                 {!collapsed ? (
                   <button
                     type="button"
@@ -559,8 +369,8 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
           }
 
           return (
-            <div key={section.title} className="space-y-0.5">
-              {!collapsed && (
+            <div key={section.title || idx} className="space-y-0.5">
+              {!collapsed && section.title && (
                 <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
                   {section.title}
                 </p>
