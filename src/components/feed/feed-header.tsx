@@ -44,27 +44,31 @@ export function FeedHeader({
     (sort !== "for_you" ? 1 : 0) +
     (visibility !== "all" ? 1 : 0);
 
-  const primarySorts = ["for_you", "trending", "latest"];
-  const visibleSorts = SORT_TABS.filter((item) => primarySorts.includes(item.id) || item.id === sort);
+  const primaryTabs = [
+    { id: "for_you", label: "For You" },
+    { id: "latest", label: "Latest" },
+    { id: "trending", label: "Trending" },
+  ];
+  const primarySorts = primaryTabs.map((t) => t.id);
 
   return (
-    <div className="sticky top-14 z-30 border-b border-border/30 bg-background/98 backdrop-blur-xl shadow-2xs">
+    <div className="sticky top-12 lg:top-0 z-30 border-b border-border/20 bg-background/90 backdrop-blur-xl shadow-2xs">
       {/* Consolidated Header: Location Scope + Sub-tabs + Filter Trigger */}
-      <div className="flex items-center justify-between gap-2 px-3 py-2">
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
           {/* Location Scope Pill */}
-          <div className="flex shrink-0 items-center rounded-full border border-border/40 bg-muted/40 p-0.5 shadow-2xs">
+          <div className="flex shrink-0 items-center rounded-full border border-border/30 bg-muted/30 p-0.5 shadow-2xs">
             <button
               type="button"
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
-                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold transition-all cursor-pointer",
-                scope === "CAMPUS" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                "flex h-6.5 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-all cursor-pointer",
+                scope === "CAMPUS" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground hover:text-foreground"
               )}
               aria-pressed={scope === "CAMPUS"}
             >
-              <School className="size-3 shrink-0 text-primary" />
-              <span className="max-w-[120px] truncate">
+              <School className="size-2.5 shrink-0 text-primary" />
+              <span className="max-w-[100px] truncate">
                 {institutionSlug
                   ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
                   : "Campus"}
@@ -74,42 +78,22 @@ export function FeedHeader({
               type="button"
               onClick={() => onScopeChange("GLOBAL")}
               className={cn(
-                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold transition-all cursor-pointer",
-                scope === "GLOBAL" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                "flex h-6.5 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-all cursor-pointer",
+                scope === "GLOBAL" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground hover:text-foreground"
               )}
               aria-pressed={scope === "GLOBAL"}
             >
-              <Globe className="size-3 shrink-0 text-emerald-500" />
-              <span>Global</span>
+              <Globe className="size-2.5 shrink-0 text-emerald-400" />
+              <span>All India</span>
             </button>
           </div>
 
-          <div className="h-4 w-px bg-border/40 shrink-0" />
+          <div className="h-3.5 w-px bg-border/30 shrink-0" />
 
-          {/* Sub-tabs: For you | Trending | Latest | Confessions */}
-          <div className="flex items-center gap-1 shrink-0" role="tablist" aria-label="Feed mode">
-            {visibleSorts.map((item) => {
+          {/* Primary Discovery Tabs */}
+          <div className="flex items-center gap-0.5 shrink-0" role="tablist" aria-label="Feed mode">
+            {primaryTabs.map((item) => {
               const isCurrent = sort === item.id;
-              if (item.id === "confessions") {
-                return (
-                  <Link
-                    key={item.id}
-                    href="/confessions"
-                    role="tab"
-                    aria-selected={isCurrent}
-                    className={cn(
-                      "flex h-7 shrink-0 items-center gap-1 rounded-full px-3 text-xs font-bold whitespace-nowrap transition-colors",
-                      isCurrent
-                        ? "bg-secondary text-secondary-foreground shadow-2xs"
-                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                    )}
-                  >
-                    <span>{item.label}</span>
-                    <Flame className="size-3 text-amber-500" />
-                  </Link>
-                );
-              }
-
               return (
                 <button
                   key={item.id}
@@ -118,10 +102,10 @@ export function FeedHeader({
                   aria-selected={isCurrent}
                   onClick={() => onSortChange(item.id)}
                   className={cn(
-                    "flex h-7 shrink-0 items-center rounded-full px-3 text-xs font-bold whitespace-nowrap transition-colors cursor-pointer",
+                    "flex h-6.5 shrink-0 items-center rounded-full px-2.5 text-xs transition-colors cursor-pointer select-none",
                     isCurrent
-                      ? "bg-secondary text-secondary-foreground shadow-2xs"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      ? "bg-primary/15 text-primary font-bold shadow-2xs border border-primary/20"
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium"
                   )}
                 >
                   {item.label}
@@ -129,15 +113,15 @@ export function FeedHeader({
               );
             })}
 
-            {sort !== "for_you" && !visibleSorts.some((item) => item.id === sort) && (
-              <button
-                type="button"
-                onClick={() => onSortChange("for_you")}
-                className="flex h-7 shrink-0 items-center rounded-full px-3 text-xs font-bold text-muted-foreground hover:text-foreground"
-              >
-                For you
-              </button>
-            )}
+            {/* Confessions Quick Access */}
+            <Link
+              href="/confessions"
+              role="tab"
+              className="flex h-6.5 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium transition-colors"
+            >
+              <span>Confessions</span>
+              <Flame className="size-3 text-purple-400" />
+            </Link>
           </div>
         </div>
 

@@ -22,6 +22,7 @@ import {
 import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { applyAuthorDiversityReranking } from "@/lib/recommendations/diversity-reranker";
 import { getPhoenixValueScoreSql } from "@/lib/recommendations/phoenix-ranker";
+import { RANKING_WEIGHTS } from "@/lib/recommendations/ranking-constants";
 import { getAddictiveReelsScoreSql } from "@/lib/reels/algorithm";
 
 export type FeedPost = {
@@ -830,27 +831,37 @@ export function sortFeedPosts<
       return sorted.sort((a, b) => {
         const hoursA = Math.max(0, (Date.now() - new Date(a.createdAt).getTime()) / (3600 * 1000));
         const hoursB = Math.max(0, (Date.now() - new Date(b.createdAt).getTime()) / (3600 * 1000));
-        const decayA = 45 / (hoursA + 1.2) ** 0.75;
-        const decayB = 45 / (hoursB + 1.2) ** 0.75;
-        const campusBonusA = userInstitutionId && a.institutionId === userInstitutionId ? 500 : 0;
-        const campusBonusB = userInstitutionId && b.institutionId === userInstitutionId ? 500 : 0;
+        const decayA = RANKING_WEIGHTS.freshness / (hoursA + 1.2) ** RANKING_WEIGHTS.freshnessHalfLifePower;
+        const decayB = RANKING_WEIGHTS.freshness / (hoursB + 1.2) ** RANKING_WEIGHTS.freshnessHalfLifePower;
+        const campusBonusA = userInstitutionId && a.institutionId === userInstitutionId ? RANKING_WEIGHTS.campusAffinity : 0;
+        const campusBonusB = userInstitutionId && b.institutionId === userInstitutionId ? RANKING_WEIGHTS.campusAffinity : 0;
 
-        // Follow & Friends boosts (1200 for mutual friends, 800 for following)
+        // Follow & Friends boosts (mutual friends vs following)
         const followBonusA =
           a.authorId && friendSet?.has(a.authorId)
-            ? 1200
+            ? RANKING_WEIGHTS.friendAffinity
             : a.authorId && followingSet?.has(a.authorId)
-              ? 800
+              ? RANKING_WEIGHTS.socialAffinity
               : 0;
         const followBonusB =
           b.authorId && friendSet?.has(b.authorId)
-            ? 1200
+            ? RANKING_WEIGHTS.friendAffinity
             : b.authorId && followingSet?.has(b.authorId)
-              ? 800
+              ? RANKING_WEIGHTS.socialAffinity
               : 0;
 
-        const scoreA = campusBonusA + followBonusA + decayA + a.votesCount * 3.5 + a.commentsCount * 2.5;
-        const scoreB = campusBonusB + followBonusB + decayB + b.votesCount * 3.5 + b.commentsCount * 2.5;
+        const scoreA =
+          campusBonusA +
+          followBonusA +
+          decayA +
+          a.votesCount * RANKING_WEIGHTS.interactionProbability +
+          a.commentsCount * RANKING_WEIGHTS.conversationProbability;
+        const scoreB =
+          campusBonusB +
+          followBonusB +
+          decayB +
+          b.votesCount * RANKING_WEIGHTS.interactionProbability +
+          b.commentsCount * RANKING_WEIGHTS.conversationProbability;
 
         if (scoreB !== scoreA) return scoreB - scoreA;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

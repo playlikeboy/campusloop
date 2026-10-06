@@ -1024,12 +1024,12 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     );
   }
 
-  // ─── IMMERSIVE FULL-PAGE REEL (BORDERLESS & RESPONSIVE TO ALL LENGTHS) ───
+  // ─── NATURAL CONTENT-DRIVEN POST FEED CARD ───
   return (
-    <div
+    <article
       data-no-pull-refresh
       onDoubleClick={handleDoubleTap}
-      className="relative w-full h-full flex flex-col justify-between px-4 py-3 sm:px-8 sm:py-5 max-w-2xl mx-auto overflow-hidden"
+      className="relative w-full max-w-2xl mx-auto px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 transition-colors select-none"
     >
       {/* Double Tap Flame Animation */}
       <AnimatePresence>
@@ -1076,9 +1076,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             }}
             className="relative shrink-0 group"
           >
-            <Avatar className="size-10 sm:size-11 border border-white/20 shadow-md">
+            <Avatar className="size-10 sm:size-10.5 border border-border/40 shadow-2xs">
               {avatarUrl && <AvatarImage src={avatarUrl} alt={authorName} />}
-              <AvatarFallback className="bg-purple-950 text-purple-200 font-black text-xs">
+              <AvatarFallback className="bg-purple-950/60 text-purple-200 font-bold text-xs">
                 {avatarFallback}
               </AvatarFallback>
             </Avatar>
@@ -1099,7 +1099,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   {authorName}
                 </Link>
               )}
-              {!post.isAnonymous && <BadgeCheck className="size-4 text-[#1D9BF0] shrink-0" />}
+              {!post.isAnonymous && <BadgeCheck className="size-3.5 text-primary shrink-0" />}
             </div>
 
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
@@ -1152,10 +1152,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             type="button"
             onClick={handleToggleFollowAuthor}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs",
+              "px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 active:scale-95",
               isFollowingAuthor
-                ? "bg-white/10 text-white/80 hover:bg-white/15 border border-white/20"
-                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+                ? "bg-muted/60 text-muted-foreground hover:bg-muted/80 border border-border/40"
+                : "bg-primary/15 text-primary hover:bg-primary/25 border border-primary/30"
             )}
           >
             {isFollowingAuthor ? "Following" : "Follow"}
@@ -1163,28 +1163,16 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         )}
       </div>
 
-      {/* ─── Main Content Body (Natural top-aligned scroll, full reading without clipping) ─── */}
-      <div
-        data-no-pull-refresh
-        className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar space-y-3 sm:space-y-4 py-3 pb-2"
-      >
+      {/* ─── Main Content Body (Content-driven, no nested scroll container) ─── */}
+      <div className="w-full flex flex-col space-y-2.5 pt-0.5">
         {headline && (
-          <h2 className="text-lg sm:text-xl md:text-2xl font-black text-foreground tracking-tight leading-snug">
+          <h2 className="text-[17px] sm:text-lg md:text-xl font-bold text-foreground tracking-tight leading-snug">
             {headline}
           </h2>
         )}
 
         {descriptionText && (
-          <div
-            className={cn(
-              "leading-relaxed font-normal text-foreground/95",
-              descriptionText.length < 140
-                ? "text-base sm:text-lg md:text-xl font-medium"
-                : descriptionText.length < 300
-                  ? "text-sm sm:text-base md:text-lg"
-                  : "text-xs sm:text-sm md:text-base"
-            )}
-          >
+          <div className="text-[15px] sm:text-[16px] leading-relaxed font-normal text-foreground/95 break-words [overflow-wrap:anywhere]">
             <RichText
               content={descriptionText}
               createdAt={post.createdAt}
@@ -1196,7 +1184,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
         {/* Embedded Repost */}
         {post.repostOf && Boolean(post.repostComment) && post.body?.trim() !== post.repostOf.body?.trim() && (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md p-3.5 text-xs space-y-1.5 shadow-sm">
+          <div className="rounded-xl border border-border/40 bg-muted/20 p-3 text-xs space-y-1">
             <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
               <Link
                 href={`/@${post.repostOf.author?.username || "student"}`}
@@ -1224,25 +1212,20 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
         {/* Poll Component */}
         {post.type === "POLL" && post.pollOptions && (
-          <div className="pt-1">
+          <div className="pt-0.5">
             <PollCard post={post} />
           </div>
         )}
 
-        {/* Hashtags / Topic Tags (Rendered cleanly ONCE) */}
+        {/* Hashtags / Topic Tags */}
         {tags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap pt-1">
-            {tags.map((tag, idx) => (
+          <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+            {tags.map((tag) => (
               <Link
                 key={tag}
                 href={`/hashtag/${encodeURIComponent(tag.replace(/^#/, "").toLowerCase())}`}
                 onClick={(e) => e.stopPropagation()}
-                className={cn(
-                  "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",
-                  idx === 0
-                    ? "bg-purple-950/70 border border-purple-500/40 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.25)] hover:bg-purple-900/80"
-                    : "bg-muted/70 border border-border text-foreground/75 hover:bg-muted hover:text-foreground"
-                )}
+                className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground border border-border/30 transition-colors"
               >
                 {tag.startsWith("#") ? tag : `#${tag}`}
               </Link>
@@ -1252,13 +1235,13 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       </div>
 
       {post.socialContext && (
-        <div className="shrink-0 px-1 pt-1">
+        <div className="shrink-0 pt-0.5">
           <FeedSocialContextBar socialContext={post.socialContext} />
         </div>
       )}
 
       {renderPostActionBar()}
       {renderModals()}
-    </div>
+    </article>
   );
 }
