@@ -57,6 +57,7 @@ interface NavItemDef {
 
 interface NavSectionDef {
   title: string;
+  isAccordion?: boolean;
   items: NavItemDef[];
 }
 
@@ -78,7 +79,15 @@ const SECTIONS: NavSectionDef[] = [
     ],
   },
   {
+    title: "CONNECT",
+    items: [
+      { href: "/chat", label: "Chat", icon: MessageSquare },
+      { href: "/dating", label: "Match", icon: Heart },
+    ],
+  },
+  {
     title: "LIVING & UTILITIES",
+    isAccordion: true,
     items: [
       { href: "/living", label: "Living Hub", icon: Sparkles },
       { href: "/buy-and-sell", label: "Buy & Sell", icon: ShoppingBag },
@@ -86,13 +95,6 @@ const SECTIONS: NavSectionDef[] = [
       { href: "/lost-and-found", label: "Lost & Found", icon: PackageSearch },
       { href: "/rideshare", label: "Ride Share", icon: Car },
       { href: "/atlas", label: "Campus Atlas", icon: MapPin },
-    ],
-  },
-  {
-    title: "CONNECT",
-    items: [
-      { href: "/chat", label: "Chat", icon: MessageSquare },
-      { href: "/dating", label: "Match", icon: Heart },
     ],
   },
   {
@@ -127,6 +129,45 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
   const [isCampusMenuOpen, setIsCampusMenuOpen] = useState(false);
   const campusMenuRef = useRef<HTMLDivElement>(null);
+
+  const isLivingActive = [
+    "/living",
+    "/buy-and-sell",
+    "/housing",
+    "/lost-and-found",
+    "/rideshare",
+    "/atlas",
+    "/utilities",
+  ].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+
+  const [isLivingAccordionOpen, setIsLivingAccordionOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    if (isLivingActive) return true;
+    try {
+      const saved = localStorage.getItem("campusloop_sidebar_living_open");
+      return saved === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (isLivingActive) {
+      setIsLivingAccordionOpen(true);
+    }
+  }, [isLivingActive]);
+
+  const toggleLivingAccordion = () => {
+    sounds.tap();
+    haptics.light();
+    setIsLivingAccordionOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("campusloop_sidebar_living_open", String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -422,60 +463,155 @@ export function DesktopSidebar({ profile, collegeName, isAdmin: _isAdmin, isView
       </div>
 
       {/* ── Primary Navigation Links ── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 no-scrollbar">
-        {SECTIONS.map((section) => (
-          <div key={section.title} className="space-y-0.5">
-            {!collapsed && (
-              <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
-                {section.title}
-              </p>
-            )}
-            {section.items.map((item) => {
-              const active = isItemActive(pathname, item.href);
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                  }}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer relative",
-                    active
-                      ? "bg-primary text-primary-foreground shadow-2xs font-bold"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                    collapsed && "justify-center px-2 py-2.5"
-                  )}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-primary-foreground" : "")} />
-                  {!collapsed && <span className="truncate flex-1">{item.label}</span>}
-                  {!collapsed && item.badge && (
-                    <span
-                      className={cn(
-                        "rounded px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
-                        active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 no-scrollbar">
+        {SECTIONS.map((section) => {
+          if (section.isAccordion) {
+            return (
+              <div key={section.title} className="space-y-1">
+                {!collapsed ? (
+                  <button
+                    type="button"
+                    onClick={toggleLivingAccordion}
+                    className={cn(
+                      "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-muted-foreground/75 hover:text-foreground hover:bg-muted/40 transition-all cursor-pointer group select-none",
+                      isLivingActive && !isLivingAccordionOpen && "text-primary bg-primary/5 font-semibold"
+                    )}
+                    aria-expanded={isLivingAccordionOpen}
+                    aria-label="Toggle Living & Utilities section"
+                  >
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider group-hover:text-foreground transition-colors">
+                      <span>{section.title}</span>
+                      <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-muted text-muted-foreground/80 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        {section.items.length}
+                      </span>
+                      {isLivingActive && !isLivingAccordionOpen && (
+                        <span className="size-1.5 rounded-full bg-primary shrink-0" />
                       )}
-                    >
-                      {item.badge}
                     </span>
-                  )}
-                  {item.href === "/chat" && (
-                    <span
+                    <ChevronDown
                       className={cn(
-                        "size-2 rounded-full bg-emerald-500",
-                        active ? "bg-white ring-1 ring-primary" : ""
+                        "size-3.5 text-muted-foreground/60 transition-transform duration-200 group-hover:text-foreground",
+                        isLivingAccordionOpen && "rotate-180 text-foreground"
                       )}
                     />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={toggleLivingAccordion}
+                    className={cn(
+                      "w-full flex items-center justify-center p-2 rounded-xl text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-all cursor-pointer",
+                      (isLivingAccordionOpen || isLivingActive) && "text-primary bg-primary/10"
+                    )}
+                    title={
+                      isLivingAccordionOpen
+                        ? "Collapse Living & Utilities"
+                        : `Expand Living & Utilities (${section.items.length})`
+                    }
+                    aria-label="Living & Utilities"
+                  >
+                    <Sparkles className="size-4 shrink-0" />
+                  </button>
+                )}
+
+                {isLivingAccordionOpen && (
+                  <div className="space-y-0.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {section.items.map((item) => {
+                      const active = isItemActive(pathname, item.href);
+                      const Icon = item.icon;
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => {
+                            sounds.tap();
+                            haptics.light();
+                          }}
+                          className={cn(
+                            "group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer relative",
+                            active
+                              ? "bg-primary text-primary-foreground shadow-2xs font-bold"
+                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                            collapsed && "justify-center px-2 py-2.5"
+                          )}
+                          title={collapsed ? item.label : undefined}
+                        >
+                          <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-primary-foreground" : "")} />
+                          {!collapsed && <span className="truncate flex-1">{item.label}</span>}
+                          {!collapsed && item.badge && (
+                            <span
+                              className={cn(
+                                "rounded px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
+                                active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                              )}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <div key={section.title} className="space-y-0.5">
+              {!collapsed && (
+                <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
+                  {section.title}
+                </p>
+              )}
+              {section.items.map((item) => {
+                const active = isItemActive(pathname, item.href);
+                const Icon = item.icon;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => {
+                      sounds.tap();
+                      haptics.light();
+                    }}
+                    className={cn(
+                      "group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer relative",
+                      active
+                        ? "bg-primary text-primary-foreground shadow-2xs font-bold"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                      collapsed && "justify-center px-2 py-2.5"
+                    )}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-primary-foreground" : "")} />
+                    {!collapsed && <span className="truncate flex-1">{item.label}</span>}
+                    {!collapsed && item.badge && (
+                      <span
+                        className={cn(
+                          "rounded px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
+                          active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                        )}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.href === "/chat" && (
+                      <span
+                        className={cn(
+                          "size-2 rounded-full bg-emerald-500",
+                          active ? "bg-white ring-1 ring-primary" : ""
+                        )}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
       </nav>
 
       {/* ── Footer / Primary Actions ── */}
