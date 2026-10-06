@@ -152,10 +152,10 @@ export function TactilePillNavbar({
               playPillSound("pop");
               onAction?.();
             }}
-            className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-4 sm:px-5 text-xs font-black text-primary-foreground active:scale-95 transition-all shadow-xs shadow-primary/25 cursor-pointer"
+            className="inline-flex h-8.5 sm:h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-3.5 sm:px-5 text-xs font-black text-primary-foreground whitespace-nowrap active:scale-95 transition-all shadow-xs shadow-primary/25 cursor-pointer"
           >
             <span>{actionLabel}</span>
-            <ArrowUpRight className="size-3.5" />
+            <ArrowUpRight className="size-3.5 shrink-0" />
           </button>
 
           {/* Mobile Menu Trigger */}
