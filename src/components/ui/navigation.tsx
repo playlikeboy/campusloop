@@ -236,9 +236,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
       {/* ─── Modern Minimal Top Navigation Bar for Mobile / Tablet ─── */}
       {!shouldHideHeader && (
         <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6">
-          {/* Left: Menu Drawer Toggle + Brand Logo + Campus Badge */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
+          {/* Left: Menu Drawer Toggle + Brand Logo + Campus Selector */}
+          <div className="flex items-center gap-2 shrink-0 min-w-0">
             <button
               type="button"
               onClick={() => {
@@ -246,25 +246,24 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                 haptics.light();
                 setShowDrawer(true);
               }}
-              className="flex size-9 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+              className="flex size-8.5 items-center justify-center rounded-full hover:bg-muted/60 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
               aria-label="Open navigation menu"
               title="All Hubs & Navigation"
             >
-              <Menu className="size-5" />
+              <Menu className="size-4.5" />
             </button>
 
-            <BrandLogo href="/feeds" size="md" />
+            <BrandLogo href="/feeds" size="sm" className="shrink-0" />
 
-            {/* College Affiliation Pill Badge (Compact on xl+) */}
-            <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/30 bg-muted/20 text-xs font-semibold text-muted-foreground truncate shrink-0 max-w-[170px]">
-              <School className="size-3 text-primary shrink-0" />
-              <span className="truncate">
-                {collegeName && collegeName !== "Viewer Mode" && collegeName !== "Campus"
-                  ? getCollegeShortName({ name: collegeName }) || collegeName
-                  : collegeName || "Campus"}
-              </span>
-              {profile?.onboardingCompleted && <ShieldCheck className="size-3 text-primary shrink-0" />}
-            </div>
+            {/* Campus Affiliation Pill (Compact & visually secondary) */}
+            {collegeName && collegeName !== "Viewer Mode" && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-border/25 bg-muted/20 text-[10px] font-medium text-muted-foreground truncate shrink-0 max-w-[110px] sm:max-w-[170px]">
+                <School className="size-2.5 text-primary shrink-0" />
+                <span className="truncate">
+                  {getCollegeShortName({ name: collegeName }) || collegeName}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Center: Desktop Hub Navigation Tabs */}
@@ -387,7 +386,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
           </nav>
 
           {/* Right: Search, Post CTA, Chat, Notifications, Theme, Profile */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -395,11 +394,11 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                 haptics.light();
                 setSearchPaletteOpen(true);
               }}
-              className="flex items-center gap-1.5 h-8.5 px-2.5 sm:px-3 rounded-xl bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground text-xs font-medium border border-border/30 hover:border-border/60 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
+              className="flex items-center justify-center sm:justify-start gap-1.5 size-8.5 sm:size-auto sm:h-8.5 sm:px-3 rounded-full sm:rounded-xl sm:bg-muted/40 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-medium sm:border sm:border-border/30 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-95 shrink-0"
               title="Explore & Search CampusLoop (⌘K)"
               aria-label="Explore & Search"
             >
-              <Search className="size-3.5 shrink-0 text-muted-foreground" />
+              <Search className="size-4 sm:size-3.5 shrink-0" />
               <span className="hidden sm:inline text-xs font-medium">Search</span>
               <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-background/80 text-muted-foreground border border-border/50 font-semibold shadow-2xs">
                 <span>⌘</span>K
@@ -443,7 +442,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
               </Link>
             )}
 
-            {/* Notifications Bell (Shown on both Mobile & Desktop with min 44x44px target) */}
+            {/* Notifications Bell */}
             <Link
               href="/notifications"
               prefetch
@@ -452,17 +451,15 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                 haptics.light();
               }}
               className={cn(
-                "relative flex size-11 sm:size-8.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-full border border-border/40 transition-all cursor-pointer active:scale-95",
-                isPathActive(pathname, "/notifications")
-                  ? "bg-foreground text-background"
-                  : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                "relative flex size-8.5 items-center justify-center rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all cursor-pointer active:scale-95",
+                isPathActive(pathname, "/notifications") && "bg-muted/70 text-foreground"
               )}
               title="Notifications"
               aria-label="Notifications"
             >
               <Bell className="size-4.5 sm:size-3.5" />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-black text-primary-foreground shadow-xs animate-pulse">
+                <span className="absolute 0 top-0.5 right-0.5 flex min-w-3.5 h-3.5 items-center justify-center rounded-full bg-primary px-0.5 text-[8.5px] font-black text-primary-foreground shadow-xs animate-pulse">
                   {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
                 </span>
               )}
@@ -614,74 +611,65 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                   </button>
                 </div>
 
-                {/* Profile Header */}
+                {/* Profile Header (Minimal) */}
                 {profile ? (
                   <Link
                     href={`/@${profile.username}`}
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-start gap-3 rounded-2xl border border-border/50 bg-card/75 p-3 hover:bg-muted/40 transition-colors shadow-2xs group"
+                    className="flex items-center gap-2.5 rounded-xl border border-border/40 bg-muted/20 p-2 hover:bg-muted/50 hover:border-border/60 transition-all group"
                   >
-                    <Avatar className="size-12 shrink-0 border-2 border-primary/30 ring-2 ring-primary/10 shadow-xs mt-0.5">
+                    <Avatar className="size-8.5 shrink-0 border border-border/50">
                       <AvatarImage src={profile.avatarUrl || ""} alt={profile.displayName} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-black">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                         {profile.displayName[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="truncate text-sm font-black text-foreground group-hover:text-primary transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                           {profile.displayName}
                         </span>
                         {profile.onboardingCompleted && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.2 text-[9px] font-black text-primary uppercase tracking-wide">
-                            <ShieldCheck className="size-3 text-primary shrink-0" />
-                            <span>Verified</span>
-                          </span>
+                          <ShieldCheck className="size-3 text-primary shrink-0" />
                         )}
                       </div>
-                      <span className="block truncate text-xs text-muted-foreground font-medium">
-                        @{profile.username}
-                      </span>
-                      {collegeName && collegeName !== "Viewer Mode" && (
-                        <p className="line-clamp-2 text-xs font-semibold text-foreground/80 leading-snug">
-                          {collegeName}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 pt-0.5">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">
-                          <Zap className="size-3 fill-primary/20" />
-                          <span>{profile.points || 0} LP</span>
-                        </span>
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <span className="truncate">@{profile.username}</span>
+                        {profile.points ? (
+                          <>
+                            <span className="text-muted-foreground/30">·</span>
+                            <span className="text-primary font-semibold text-[10px] shrink-0">
+                              {profile.points} LP
+                            </span>
+                          </>
+                        ) : null}
                       </div>
                     </div>
                   </Link>
                 ) : (
-                  <div className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2">
-                    <p className="text-xs text-muted-foreground font-medium">Exploring CampusLoop</p>
-                    <Link
-                      href="/sign-in"
-                      onClick={() => setShowDrawer(false)}
-                      className="block w-full rounded-xl bg-primary text-center py-2.5 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-98 transition-all"
-                    >
-                      Sign In / Join Campus
-                    </Link>
-                  </div>
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold py-2 px-3 transition-colors"
+                  >
+                    <User className="size-3.5" />
+                    <span>Sign In / Join Campus</span>
+                  </Link>
                 )}
 
-                {/* Anonymity Mode Switcher (Always accessible in Drawer for Mobile & Desktop) */}
-                <div className="rounded-2xl border border-border/40 bg-card/60 p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">Timeline Privacy</span>
-                    <span className="text-[10px] text-muted-foreground font-semibold">Feed Filter</span>
+                {/* Anonymity Mode Switcher */}
+                <div className="rounded-xl border border-border/30 bg-muted/15 p-2 space-y-1.5">
+                  <div className="flex items-center justify-between px-0.5">
+                    <span className="text-[10px] text-muted-foreground font-medium">Timeline Privacy</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-muted/50 p-1 border border-border/40 text-xs">
+                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-background/50 p-0.5 border border-border/30 text-xs">
                     <button
                       type="button"
                       onClick={() => toggleAnonMode("ALL")}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center justify-center gap-1.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
                         anonMode === "ALL"
-                          ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
+                          ? "bg-card text-foreground shadow-2xs border border-border/40 font-bold"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
@@ -692,9 +680,9 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                       type="button"
                       onClick={() => toggleAnonMode("NON_ANONYMOUS")}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center justify-center gap-1.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
                         anonMode === "NON_ANONYMOUS"
-                          ? "bg-card text-foreground shadow-xs border border-border/50 font-black"
+                          ? "bg-card text-foreground shadow-2xs border border-border/40 font-bold"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
