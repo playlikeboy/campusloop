@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { FeedPost } from "@/hooks/use-feed";
-import { formatTimeAgo, getCollegeShortName } from "@/lib/utils";
+import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
 interface FeedCardHeaderProps {
   post: FeedPost;
@@ -39,6 +39,29 @@ export function FeedCardHeader({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowPending, setIsFollowPending] = useState(false);
+
+  async function handleToggleFollow(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!currentUserId || !post.author?.username || isFollowPending) return;
+    const next = !isFollowing;
+    setIsFollowing(next);
+    setIsFollowPending(true);
+    try {
+      const res = await fetch(`/api/profile/${encodeURIComponent(post.author.username)}/follow`, {
+        method: next ? "POST" : "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed");
+      if (next) {
+        toast.success(`Following @${post.author.username}`);
+      }
+    } catch {
+      setIsFollowing(!next);
+    } finally {
+      setIsFollowPending(false);
+    }
+  }
 
   async function handleToggleArchive() {
     setIsArchiving(true);
@@ -125,6 +148,21 @@ export function FeedCardHeader({
               size={14}
               className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
             />
+          )}
+
+          {!isBotPost && !post.isAnonymous && post.authorId && currentUserId && currentUserId !== post.authorId && post.author?.username && (
+            <button
+              type="button"
+              onClick={handleToggleFollow}
+              className={cn(
+                "h-5 px-2 rounded-full text-[10px] font-semibold transition-all cursor-pointer shrink-0 active:scale-95",
+                isFollowing
+                  ? "bg-muted/60 text-muted-foreground hover:bg-muted/80 border border-border/40"
+                  : "bg-primary/15 text-primary hover:bg-primary/25 border border-primary/25"
+              )}
+            >
+              {isFollowing ? "Following" : "Follow"}
+            </button>
           )}
 
           {isBotPost && (
