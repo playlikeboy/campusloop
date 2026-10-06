@@ -28,6 +28,7 @@ import { AcademicPdfViewer } from "@/components/academics/academic-pdf-viewer";
 import { AddToPlaylistModal } from "@/components/academics/add-to-playlist-modal";
 import { SimilarResourcesWidget } from "@/components/academics/similar-resources-widget";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
 import {
@@ -63,6 +64,7 @@ export function AcademicDetailClient({
   const [userVote, setUserVote] = useState<"UP" | "DOWN" | null>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isAddToPlaylistOpen, setIsAddToPlaylistOpen] = useState(false);
+  const scrollRef = useScrollIsolation<HTMLElement>();
 
   // Peer comments state
   const [comments, setComments] = useState<any[]>(initialResource.comments || []);
@@ -656,7 +658,10 @@ export function AcademicDetailClient({
         </div>
 
         {/* ─── Right Stage: Intelligence Sidebar (4 cols - PC Space Utilization) ─── */}
-        <aside className="lg:col-span-4 space-y-4 sticky top-20">
+        <aside
+          ref={scrollRef}
+          className="lg:col-span-4 space-y-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
+        >
           {/* Quick Actions & Voting Card */}
           <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3.5 shadow-2xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">

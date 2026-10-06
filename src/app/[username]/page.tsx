@@ -811,7 +811,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           </main>
 
           {/* Sticky Sidebar (Credibility & Connect CTA) */}
-          <aside className="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
+          <aside className="lg:col-span-4 space-y-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:overscroll-contain no-scrollbar pr-1 pb-16">
             {/* Campus Standing Card */}
             <div className="rounded-2xl border border-border/40 bg-card/50 p-4.5 space-y-3.5 shadow-2xs">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">

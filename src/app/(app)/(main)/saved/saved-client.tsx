@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { FeedCard } from "@/components/ui/feed-card";
 import { FeedSkeleton } from "@/components/ui/skeleton-card";
 import type { FeedPost } from "@/hooks/use-feed";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ interface SavedApiResponse {
 export function SavedClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const scrollRef = useScrollIsolation<HTMLElement>();
 
   const { data, isLoading, mutate } = useSWR<SavedApiResponse>("/api/posts/saved", fetcher, {
     revalidateOnFocus: true,
@@ -160,7 +162,10 @@ export function SavedClient() {
         </main>
 
         {/* ─── Desktop Vault Sidebar (4 cols on lg, sticky) ─── */}
-        <aside className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-20 select-none">
+        <aside
+          ref={scrollRef}
+          className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar select-none pr-1 pb-16"
+        >
           {/* Quick Categories Filter Card */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Vault Folders</h3>

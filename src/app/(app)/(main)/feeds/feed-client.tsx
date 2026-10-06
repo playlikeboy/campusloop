@@ -492,9 +492,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
         </main>
 
         {/* ─── Desktop Context Sidebar (4 cols on lg, hidden on mobile) ─── */}
-        <aside className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-20">
+        <div className="hidden lg:block lg:col-span-4 min-w-0">
           <RightSidebar />
-        </aside>
+        </div>
       </div>
 
       <ScrollToTop />

@@ -10,6 +10,7 @@ import { SearchAutocomplete } from "@/components/search/search-autocomplete";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import type { Institution, UserProfile } from "@/db/schema";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -29,7 +30,7 @@ interface TrendsResponse {
   trends: TrendItem[];
 }
 
-export function RightSidebar() {
+export function RightSidebar({ className }: { className?: string } = {}) {
   const router = useRouter();
   const pathname = usePathname() || "";
   const isEventsPage = pathname.startsWith("/events");
@@ -38,6 +39,7 @@ export function RightSidebar() {
   const [trendsScope, setTrendsScope] = useState<"CAMPUS" | "GLOBAL">("CAMPUS");
 
   const [isRefreshingPeers, setIsRefreshingPeers] = useState(false);
+  const scrollRef = useScrollIsolation<HTMLElement>();
 
   // Dynamic live trends from real database (supports Campus / Global toggle)
   const { data: trendsData } = useSWR<TrendsResponse>(
@@ -117,7 +119,13 @@ export function RightSidebar() {
     .slice(0, 2);
 
   return (
-    <aside className="sticky top-3 space-y-4 text-foreground w-full">
+    <aside
+      ref={scrollRef}
+      className={cn(
+        "sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar space-y-4 text-foreground w-full pr-1 pb-16 select-none",
+        className
+      )}
+    >
       {/* ─── Search Bar with Live Autocomplete ─── */}
       <SearchAutocomplete
         placeholder={isEventsPage ? "Search hackathons & fests..." : "Search CampusLoop..."}

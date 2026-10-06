@@ -4,6 +4,7 @@ import { ArrowUpRight, BookOpen, Flame, PenTool, Sparkles, Users } from "lucide-
 import Link from "next/link";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 
 interface TopAuthor {
@@ -30,6 +31,7 @@ const DEFAULT_TOPICS = [
 ];
 
 export function ArticlesRightSidebar() {
+  const scrollRef = useScrollIsolation<HTMLElement>();
   const { data: topAuthorsData } = useSWR<{ authors: TopAuthor[] }>("/api/articles/top-authors", fetcher, {
     dedupingInterval: 60000,
   });
@@ -43,7 +45,10 @@ export function ArticlesRightSidebar() {
   const topics = rawTopics.length > 0 ? rawTopics : DEFAULT_TOPICS;
 
   return (
-    <aside className="w-full lg:w-80 shrink-0 space-y-6">
+    <aside
+      ref={scrollRef}
+      className="w-full lg:w-80 shrink-0 space-y-6 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
+    >
       {/* ─── Write For CampusLoop Callout ─── */}
       <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-background p-5 shadow-xs">
         <div className="space-y-2.5 relative z-10">

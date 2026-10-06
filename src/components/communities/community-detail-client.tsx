@@ -32,6 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -98,6 +99,7 @@ export function CommunityDetailClient({
 }: CommunityDetailProps) {
   const router = useRouter();
   const { profile } = useProfile();
+  const scrollRef = useScrollIsolation<HTMLElement>();
 
   const [activeTab, setActiveTab] = useState<"discussions" | "members" | "rules">("discussions");
   const [feedFilter, setFeedFilter] = useState<"hot" | "new" | "top" | "polls">("hot");
@@ -741,7 +743,10 @@ export function CommunityDetailClient({
         </div>
 
         {/* ─── Desktop Community Sidebar (4 cols - PC space utilization) ─── */}
-        <aside className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-20">
+        <aside
+          ref={scrollRef}
+          className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
+        >
           {/* About Hub Card */}
           <div className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3 shadow-2xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
