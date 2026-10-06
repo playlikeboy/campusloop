@@ -11,7 +11,7 @@ import { CodeBlock } from "./code-block";
  * article or event description can never inject markup into the page.
  *
  * Supported blocks: `#`/`##`/`###` headings, `>` quotes, fenced code, bullet and
- * numbered lists, `---` rules, standalone images and tables of paragraphs.
+ * numbered lists, `---` rules, standalone images, and GFM-style tables.
  * Supported inline: `**bold**`, `*italic*`, `~~strike~~`, `` `code` ``,
  * `[text](url)`, `![alt](url)` and bare links.
  *
@@ -26,6 +26,8 @@ interface MarkdownContentProps {
   /** Renders tighter spacing for compact surfaces such as event cards. */
   compact?: boolean;
 }
+
+type TableAlignment = "left" | "center" | "right";
 
 const INLINE_PATTERN = new RegExp(
   [
@@ -42,6 +44,69 @@ const INLINE_PATTERN = new RegExp(
 );
 
 const MAX_INLINE_DEPTH = 4;
+
+
+/** Splits a pipe-delimited markdown table row while respecting escaped pipes. */
+function splitTableRow(line: string): string[] {
+  let row = line.trim();
+
+  if (row.startsWith("|")) row = row.slice(1);
+  if (row.endsWith("|") && !row.endsWith("\\|")) row = row.slice(0, -1);
+
+  const cells: string[] = [];
+  let current = "";
+
+  for (let index = 0; index < row.length; index++) {
+    const character = row[index];
+
+    if (character === "\\") {
+      const nextCharacter = row[index + 1];
+      if (nextCharacter === "|") {
+        current += "|";
+        index++;
+        continue;
+      }
+    }
+
+    if (character === "|") {
+      cells.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += character;
+  }
+
+  cells.push(current.trim());
+  return cells;
+}
+
+function getTableAlignment(delimiter: string): TableAlignment {
+  const value = delimiter.trim();
+
+  if (value.startsWith(":") && value.endsWith(":")) return "center";
+  if (value.startsWith(":")) return "left";
+  if (value.endsWith(":")) return "right";
+  return "left";
+}
+
+function isTableDelimiterRow(cells: string[]): boolean {
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function isTableStart(lines: string[], index: number): boolean {
+  if (index + 1 >= lines.length) return false;
+
+  const headerCells = splitTableRow(lines[index]);
+  const delimiterCells = splitTableRow(lines[index + 1]);
+
+  return (
+    lines[index].includes("|") &&
+    headerCells.length >= 2 &&
+    headerCells.length === delimiterCells.length &&
+    isTableDelimiterRow(delimiterCells)
+  );
+}
 
 /** Parses inline markdown into React nodes, recursing for nested emphasis. */
 function parseInline(text: string, keyPrefix: string, depth = 0): React.ReactNode[] {
@@ -134,6 +199,87 @@ function parseInline(text: string, keyPrefix: string, depth = 0): React.ReactNod
   return nodes;
 }
 
+
+function MarkdownTable({
+  headers,
+  alignments,
+  rows,
+  compact,
+  tableKey,
+}: {
+  headers: string[];
+  alignments: TableAlignment[];
+  rows: string[][];
+  compact: boolean;
+  tableKey: number;
+}) {
+  const normalizedRows = rows.map((row) =>
+    Array.from({ length: headers.length }, (_, index) => row[index] ?? "")
+  );
+
+  const headerPadding = compact ? "px-3 py-2.5" : "px-4 py-3";
+  const bodyPadding = compact ? "px-3 py-2.5" : "px-4 py-3";
+
+  return (
+    <div className="my-6 -mx-1 overflow-x-auto rounded-2xl border border-border/60 bg-card shadow-xs sm:mx-0">
+      <table className="w-full min-w-[560px] border-separate border-spacing-0 text-left text-[14px] sm:text-[15px]">
+        <thead>
+          <tr className="bg-muted/45">
+            {headers.map((header, columnIndex) => {
+              const alignment = alignments[columnIndex] ?? "left";
+              return (
+                <th
+                  key={["h", tableKey, columnIndex].join("-")}
+                  scope="col"
+                  className={cn(
+                    "border-b border-border/70 font-black text-foreground align-middle",
+                    headerPadding,
+                    alignment === "center" && "text-center",
+                    alignment === "right" && "text-right",
+                    alignment === "left" && "text-left"
+                  )}
+                >
+                  {parseInline(header, ["table", tableKey, "h", columnIndex].join("-"))}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {normalizedRows.map((row, rowIndex) => (
+            <tr
+              key={["r", tableKey, rowIndex].join("-")}
+              className={cn(
+                "align-top transition-colors",
+                rowIndex % 2 === 1 ? "bg-muted/10" : "bg-card",
+                "hover:bg-muted/30"
+              )}
+            >
+              {row.map((cell, columnIndex) => {
+                const alignment = alignments[columnIndex] ?? "left";
+                return (
+                  <td
+                    key={["r", tableKey, rowIndex, "c", columnIndex].join("-")}
+                    className={cn(
+                      "border-b border-border/40 leading-relaxed text-foreground/85",
+                      bodyPadding,
+                      alignment === "center" && "text-center",
+                      alignment === "right" && "text-right",
+                      alignment === "left" && "text-left"
+                    )}
+                  >
+                    {parseInline(cell, ["table", tableKey, "r", rowIndex, "c", columnIndex].join("-"))}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function MarkdownContent({ content, className, compact = false }: MarkdownContentProps) {
   if (!content?.trim()) return null;
 
@@ -150,6 +296,43 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
     // Blank line — collapses into block spacing.
     if (!trimmed) {
       index++;
+      continue;
+    }
+
+
+    // GFM-style table. Detect before paragraph/list parsing so pipe-heavy
+    // content cannot collapse into the raw "|...|---|..." layout.
+    if (isTableStart(lines, index)) {
+      const headers = splitTableRow(lines[index]);
+      const delimiterCells = splitTableRow(lines[index + 1]);
+      const alignments = delimiterCells.map(getTableAlignment);
+      const rows: string[][] = [];
+
+      index += 2;
+
+      while (index < lines.length) {
+        const tableLine = lines[index].trim();
+
+        if (!tableLine || !tableLine.includes("|")) break;
+
+        const cells = splitTableRow(tableLine);
+        if (cells.length < 2) break;
+
+        rows.push(cells);
+        index++;
+      }
+
+      blocks.push(
+        <MarkdownTable
+          key={key}
+          headers={headers}
+          alignments={alignments}
+          rows={rows}
+          compact={compact}
+          tableKey={key}
+        />
+      );
+      key++;
       continue;
     }
 
@@ -279,7 +462,8 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
         /^(#{1,3})\s+/.test(current) ||
         /^[-*]\s+/.test(current) ||
         /^\d+\.\s+/.test(current) ||
-        /^(---|\*\*\*|___)$/.test(current)
+        /^(---|\*\*\*|___)$/.test(current) ||
+        isTableStart(lines, index)
       ) {
         break;
       }
