@@ -78,8 +78,8 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
         </nav>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle className="size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted" />
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <ThemeToggle className="size-8 sm:size-8.5 rounded-full border-none bg-muted/50 hover:bg-muted shrink-0" />
 
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
@@ -87,10 +87,20 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
               sounds.tap();
               haptics.medium();
             }}
-            className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 sm:px-5 text-xs font-black text-white hover:opacity-95 active:scale-95 transition-all shadow-xs shadow-emerald-500/25 cursor-pointer"
+            className="inline-flex h-8 sm:h-9 md:h-10 shrink-0 items-center justify-center gap-1 sm:gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-3 sm:px-4 md:px-5 text-xs font-black text-white whitespace-nowrap hover:opacity-95 active:scale-95 transition-all shadow-xs shadow-emerald-500/25 cursor-pointer"
           >
-            <span>{isAuthenticated ? "Open App" : "Join Campus"}</span>
-            <ArrowUpRight className="size-3.5" />
+            {isAuthenticated ? (
+              <>
+                <span className="sm:hidden">App</span>
+                <span className="hidden sm:inline">Open App</span>
+              </>
+            ) : (
+              <>
+                <span className="sm:hidden">Join</span>
+                <span className="hidden sm:inline">Join Campus</span>
+              </>
+            )}
+            <ArrowUpRight className="size-3 sm:size-3.5 shrink-0" />
           </Link>
 
           {/* Mobile Menu Trigger */}
@@ -101,7 +111,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
               haptics.light();
               setMobileMenuOpen((open) => !open);
             }}
-            className="grid size-8.5 place-items-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground md:hidden transition-colors cursor-pointer"
+            className="grid size-8 sm:size-8.5 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground md:hidden transition-colors cursor-pointer"
             aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={mobileMenuOpen}
           >
