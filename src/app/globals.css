@@ -1274,3 +1274,128 @@ a,
     transition-duration: 0.001ms;
   }
 }
+
+/* ========================================================================= */
+/* Hexclave Direct Authentication Component Styling (Split Auth Layout)      */
+/* ========================================================================= */
+.hexclave-auth-scope .stack-scope {
+  width: 100% !important;
+  max-width: 380px !important;
+  margin: 0 auto !important;
+}
+
+/* Hide duplicate heading inside Hexclave since we have the custom title & radio selector */
+.hexclave-auth-scope .stack-scope > div.text-center.mb-6 {
+  display: none !important;
+}
+
+/* Style Hexclave inputs to match the rounded pill style */
+.hexclave-auth-scope .stack-scope input {
+  border-radius: 9999px !important;
+  height: 2.85rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2ddd3 !important;
+  font-size: 0.875rem !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s ease !important;
+}
+
+.hexclave-auth-scope .stack-scope input:focus {
+  border-color: #1a4d36 !important;
+  box-shadow: 0 0 0 2px rgba(26, 77, 54, 0.15) !important;
+}
+
+.dark .hexclave-auth-scope .stack-scope input {
+  background-color: #14241d !important;
+  border-color: #244234 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Labels */
+.hexclave-auth-scope .stack-scope label {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: #2e3832 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.dark .hexclave-auth-scope .stack-scope label {
+  color: #d1d5db !important;
+}
+
+/* Primary submit button - Forest Green Pill */
+.hexclave-auth-scope .stack-scope button[type="submit"] {
+  border-radius: 9999px !important;
+  height: 3rem !important;
+  background-color: #1a4d36 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 2px 8px rgba(26, 77, 54, 0.25) !important;
+  transition: all 0.2s ease !important;
+  margin-top: 1.25rem !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.hexclave-auth-scope .stack-scope button[type="submit"]:hover {
+  background-color: #143e2b !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 77, 54, 0.35) !important;
+}
+
+.hexclave-auth-scope .stack-scope button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* OAuth Social Buttons (Google, Apple, etc.) - Pill */
+.hexclave-auth-scope .stack-scope button:not([type="submit"]) {
+  border-radius: 9999px !important;
+  height: 2.85rem !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2ddd3 !important;
+  color: #222222 !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+}
+
+.dark .hexclave-auth-scope .stack-scope button:not([type="submit"]) {
+  background-color: #14241d !important;
+  border-color: #244234 !important;
+  color: #f3f4f6 !important;
+}
+
+.hexclave-auth-scope .stack-scope button:not([type="submit"]):hover {
+  background-color: #f7f5ed !important;
+  border-color: #d4cebf !important;
+}
+
+.dark .hexclave-auth-scope .stack-scope button:not([type="submit"]):hover {
+  background-color: #1b3027 !important;
+}
+
+/* Tabs switcher if password / magic-link tabs present */
+.hexclave-auth-scope .stack-scope [role="tablist"] {
+  border-radius: 9999px !important;
+  padding: 0.25rem !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.hexclave-auth-scope .stack-scope [role="tab"] {
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+/* Divider with text */
+.hexclave-auth-scope .stack-scope .separator-with-text,
+.hexclave-auth-scope .stack-scope .relative.flex.items-center {
+  margin: 1rem 0 !important;
+}
+
