@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, ShieldCheck, Sparkles, User, Users } from "lucide-react";
+import { Check, ShieldCheck, Sparkles, User, Users, Zap } from "lucide-react";
 
 interface VoxelMembershipTiersProps {
   isAuthenticated?: boolean;
@@ -8,7 +8,7 @@ interface VoxelMembershipTiersProps {
 export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershipTiersProps) {
   const tiers = [
     {
-      title: "Casual Explorer",
+      title: "Freshman Explorer",
       badge: null,
       price: "₹0",
       period: "forever",
@@ -18,50 +18,50 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
       buttonHref: isAuthenticated ? "/feeds" : "/sign-up",
       isPrimary: false,
       features: [
-        "Search 1,350+ indexed Indian colleges",
-        "Browse public campus hubs & posts",
-        "View public student events & fests",
+        "Search 1,350+ indexed Indian college hubs",
+        "Browse public campus hubs & fest calendars",
+        "View department roadmaps & syllabus guides",
       ],
     },
     {
       title: "Verified Student",
       badge: "Most Popular",
       price: "100% Free",
-      period: "with .ac.in / ID",
-      description: "The core verified experience designed exclusively for enrolled college students.",
+      period: "with .ac.in or Student ID",
+      description: "The core verified sanctuary designed exclusively for currently enrolled college students.",
       icon: ShieldCheck,
-      buttonText: isAuthenticated ? "Enter Campus" : "Verify College Access",
+      buttonText: isAuthenticated ? "Enter Campus" : "Claim Verified Handle",
       buttonHref: isAuthenticated ? "/feeds" : "/sign-up",
       isPrimary: true,
       features: [
-        "Uncensored campus confessions & polls",
-        "Full Academic Vault (PYQs & Notes)",
-        "Campus Match & Secret Crush deck",
-        "Verified student badge & DM chats",
-        "Earn Loop Points (LP) & level up",
+        "Uncensored anonymous confessions & polls",
+        "Full Academic Vault (45K+ PYQs & Notes)",
+        "Campus Match & Secret Crush swipe deck",
+        "Verified campus handle & private DMs",
+        "Earn Loop Points (LP) & level up status",
       ],
     },
     {
       title: "Club & Society Lead",
-      badge: null,
+      badge: "For Leaders",
       price: "Free",
-      period: "for verified clubs",
-      description: "Tools for student societies, cultural teams, and hackathon organizers to mobilize campus.",
+      period: "for recognized clubs",
+      description: "Power tools for student societies, coding chapters, and fest teams to mobilize campus.",
       icon: Users,
-      buttonText: "Register Your Club",
+      buttonText: "Register Your Society",
       buttonHref: "/communities",
       isPrimary: false,
       features: [
-        "Dedicated Club & Society Hub",
+        "Dedicated Club & Society Hub on timeline",
         "Campus-wide broadcast announcements",
-        "Event ticketing & attendee check-ins",
-        "Co-organizer admin roles",
+        "Recruit freshmen & manage fest events",
+        "Co-organizer team management",
       ],
     },
   ];
 
   return (
-    <section id="membership" className="relative py-20 sm:py-28 bg-[#0b1510] text-white overflow-hidden">
+    <section id="membership" className="relative py-20 sm:py-28 bg-[#0b1510] text-white overflow-hidden select-none">
       {/* Voxel starry dusk sky gradient and pixel blocks */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b1510] via-[#0f2219] to-[#0b1510]" />
@@ -73,19 +73,21 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
-        {/* Section Heading matching Image 1 */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-1 text-xs font-black text-emerald-400 mb-3">
-          <Sparkles className="size-3.5" />
-          <span>Verified Student Access</span>
+        {/* Section Heading */}
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-1 text-xs font-black text-emerald-400 mb-3 shadow-xs">
+          <Zap className="size-3.5" />
+          <span>Zero Paywalls • 100% Student-Only</span>
         </div>
-        <h2 className="text-2xl font-black uppercase tracking-tight sm:text-4xl lg:text-5xl text-white">
-          FIND YOUR WAY TO GET INVOLVED
+        <h2 className="text-2xl font-black uppercase tracking-tight sm:text-4xl lg:text-5xl text-white leading-[1.08]">
+          ALWAYS 100% FREE FOR STUDENTS.
+          <br />
+          <span className="text-[#22c55e]">CHOOSE YOUR ACCESS TIER.</span>
         </h2>
         <p className="mt-3 text-xs sm:text-sm text-stone-300 max-w-lg mx-auto">
-          Pick the access level that matches your college journey and start connecting with your campus community.
+          No credit cards. No corporate sponsorships. Just student verification to keep out spammers and bots.
         </p>
 
-        {/* 3 Clean White Cards matching Image 1 */}
+        {/* 3 Clean Cards */}
         <div className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left items-stretch">
           {tiers.map((tier) => {
             const Icon = tier.icon;

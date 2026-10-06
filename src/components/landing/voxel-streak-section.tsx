@@ -1,8 +1,11 @@
 "use client";
 
 import { MouseEvent, useRef, useState } from "react";
-import { Flame, Trophy, Volume2, VolumeX, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Flame, MessageSquare, Sparkles, Trophy, Volume2, VolumeX } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { haptics } from "@/lib/haptics";
+import { sounds } from "@/lib/sounds";
 
 export function VoxelStreakSection() {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -39,6 +42,8 @@ export function VoxelStreakSection() {
 
   const toggleSound = (e: React.MouseEvent) => {
     e.stopPropagation();
+    sounds.pop();
+    haptics.medium();
     if (!videoRef.current) return;
     const nextMuted = !isMuted;
     videoRef.current.muted = nextMuted;
@@ -75,16 +80,22 @@ export function VoxelStreakSection() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-        {/* Section Heading */}
+        {/* Section Pill Badge */}
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3.5 border border-emerald-500/20">
+          <MessageSquare className="size-3.5 text-[#22c55e]" />
+          <span>Real Campus Life • Real Time</span>
+        </div>
+
+        {/* Section Heading: Pitchy Viral Copy */}
         <h2 className="text-2xl font-black uppercase tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-tight drop-shadow-xs">
-          GROW YOUR CAMPUS
+          THE HOSTEL TEA YOU CANNOT FIND
           <br />
-          <span className="text-[#16a34a] dark:text-emerald-400">WITH EVERY CONNECTION.</span>
+          <span className="text-[#16a34a] dark:text-emerald-400">ON LINKEDIN OR INSTAGRAM.</span>
         </h2>
 
         {/* Subtitle */}
         <p className="mt-4 text-xs sm:text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Engage a little every day, earn Loop Points (LP), and complete campus missions to turn college life into a thriving, lasting community.
+          Inside jokes, mess food crises, mid-sem survival panic, and club election drama. Everything real that happens between lectures, captured in high-definition voxel motion.
         </p>
 
         {/* 2 Symmetrical Stat Pills with 3D Hover Lift */}
@@ -98,8 +109,8 @@ export function VoxelStreakSection() {
               <Flame className="size-5 fill-amber-500 text-amber-500" />
             </div>
             <div className="text-left">
-              <p className="text-sm font-black text-foreground">12 Days</p>
-              <p className="text-[11px] font-semibold text-muted-foreground">Current Streak</p>
+              <p className="text-sm font-black text-foreground">14-Day Streak</p>
+              <p className="text-[11px] font-semibold text-muted-foreground">Campus Fire Level</p>
             </div>
           </motion.div>
 
@@ -112,8 +123,8 @@ export function VoxelStreakSection() {
               <Trophy className="size-5 text-blue-600" />
             </div>
             <div className="text-left">
-              <p className="text-sm font-black text-foreground">Level 38</p>
-              <p className="text-[11px] font-semibold text-muted-foreground">Total Campus LP</p>
+              <p className="text-sm font-black text-foreground">Top 1% Rank</p>
+              <p className="text-[11px] font-semibold text-muted-foreground">4,820 Loop Points (LP)</p>
             </div>
           </motion.div>
         </div>
@@ -161,7 +172,7 @@ export function VoxelStreakSection() {
               {/* Top Left Live Campus Badge */}
               <div className="pointer-events-none absolute top-3.5 left-3.5 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-[11px] font-black text-white uppercase tracking-wider backdrop-blur-md">
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Hostel Tea & Vibes</span>
+                <span>Hostel Tea &amp; Lawn Vibes</span>
               </div>
 
               {/* Sound Toggle Button */}
@@ -186,6 +197,21 @@ export function VoxelStreakSection() {
             </div>
           </div>
         </motion.div>
+
+        {/* Micro-CTA link */}
+        <div className="mt-6 flex justify-center">
+          <Link
+            href="/feeds"
+            onClick={() => {
+              sounds.tap();
+              haptics.light();
+            }}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16a34a] hover:underline cursor-pointer"
+          >
+            <span>See live anonymous confessions from your campus</span>
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
       </div>
     </section>
   );
