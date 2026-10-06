@@ -1,40 +1,42 @@
 "use client";
 
 import {
+  ArrowRight,
+  ArrowUpRight,
   Building2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Flame,
+  MapPin,
   Plus,
   School,
   Search,
+  Sparkles,
   Trophy,
   X,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AddCollegeModal } from "@/components/colleges/add-college-modal";
-import {
-  AllIndiaCollegePodium,
-  type LeaderboardCollegeItem,
-} from "@/components/colleges/all-india-college-podium";
-import { CollegeHubRow, type CollegeItem } from "@/components/colleges/college-hub-row";
+import type { LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
+import type { CollegeItem } from "@/components/colleges/college-hub-row";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_FILTERS = [
-  { id: "ALL", label: "All", icon: School },
-  { id: "TRENDING", label: "Trending", icon: Flame },
-  { id: "IIT_NIT", label: "IITs & NITs", icon: Trophy },
-  { id: "NIRF", label: "NIRF Top 100", icon: Zap },
-  { id: "CENTRAL", label: "Central & Deemed", icon: Building2 },
+  { id: "ALL", label: "All" },
+  { id: "IIT_NIT", label: "IITs & NITs" },
+  { id: "NIRF", label: "NIRF 100" },
+  { id: "CENTRAL", label: "Central" },
+  { id: "TRENDING", label: "Trending" },
 ];
 
-const POPULAR_STATES = [
+const STATES = [
   "ALL",
-  "Jharkhand",
   "Delhi",
   "Maharashtra",
   "Karnataka",
@@ -46,12 +48,18 @@ const POPULAR_STATES = [
   "Rajasthan",
   "Punjab",
   "Kerala",
+  "Jharkhand",
+  "Madhya Pradesh",
+  "Odisha",
+  "Bihar",
+  "Assam",
+  "Haryana",
+  "Andhra Pradesh",
 ];
 
 export default function CollegesClient() {
   const searchParams = useSearchParams();
 
-  // Initialize state from URL params
   const initialTab = searchParams.get("tab") === "leaderboard" ? "leaderboard" : "directory";
   const initialSearch = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "ALL";
@@ -63,15 +71,14 @@ export default function CollegesClient() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedState, setSelectedState] = useState(initialState);
   const [page, setPage] = useState(initialPage);
-  const [limit] = useState(25);
+  const [limit] = useState(24);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [colleges, setColleges] = useState<CollegeItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Leaderboard state (fetched unconditionally for instant podium display)
   const [leaderboard, setLeaderboard] = useState<LeaderboardCollegeItem[]>([]);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCollegeName, setNewCollegeName] = useState("");
@@ -80,7 +87,7 @@ export default function CollegesClient() {
   const [newCollegeWebsite, setNewCollegeWebsite] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Synchronize state with URL parameters
+  // Sync state with URL
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
@@ -96,11 +103,7 @@ export default function CollegesClient() {
     if (page > 1) params.set("page", String(page));
 
     const query = params.toString();
-    const basePath =
-      typeof window !== "undefined" && window.location.pathname.startsWith("/colleges")
-        ? "/colleges"
-        : "/colleges";
-    const newUrl = query ? `${basePath}?${query}` : basePath;
+    const newUrl = query ? `/colleges?${query}` : "/colleges";
 
     if (typeof window !== "undefined" && window.location.pathname + window.location.search !== newUrl) {
       window.history.replaceState(null, "", newUrl);
@@ -145,8 +148,9 @@ export default function CollegesClient() {
     };
   }, [search, selectedState, selectedCategory, page, limit]);
 
-  // Fetch real-time leaderboard data unconditionally (for direct podium display)
+  // Fetch Leaderboard on tab activation
   useEffect(() => {
+    if (activeTab !== "leaderboard") return;
     let ignore = false;
     async function fetchLeaderboard() {
       setLeaderboardLoading(true);
@@ -163,7 +167,7 @@ export default function CollegesClient() {
           setLeaderboard(data.leaderboard);
         }
       } catch (err) {
-        console.error("Failed to load college leaderboard:", err);
+        console.error("Failed to load leaderboard:", err);
       } finally {
         if (!ignore) setLeaderboardLoading(false);
       }
@@ -173,7 +177,7 @@ export default function CollegesClient() {
     return () => {
       ignore = true;
     };
-  }, [selectedState, selectedCategory]);
+  }, [activeTab, selectedState, selectedCategory]);
 
   async function handleAddCollege(e: React.FormEvent) {
     e.preventDefault();
@@ -194,7 +198,7 @@ export default function CollegesClient() {
 
       if (!res.ok) throw new Error("Failed to add college");
 
-      toast.success("Campus Hub request submitted! (+50 LP reward credited)");
+      toast.success("Campus hub request submitted!");
       setShowAddModal(false);
       setNewCollegeName("");
       setNewCollegeState("");
@@ -207,445 +211,386 @@ export default function CollegesClient() {
     }
   }
 
-  const tabs = [
-    { id: "directory" as const, label: "Directory" },
-    { id: "leaderboard" as const, label: "Leaderboard" },
-  ];
-
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-0 sm:px-6 lg:px-8 pb-28">
-      {/* ─── Sticky Header: Capped to 15-18% viewport height, sticky below top-14 nav ─── */}
-      <header className="sticky top-14 z-30 border-b border-border/30 bg-background/95 backdrop-blur-xl rounded-none sm:rounded-2xl my-0 sm:my-2 shadow-2xs">
-        <div className="flex items-center justify-between gap-2 px-3.5 py-2 sm:px-4 sm:py-3">
-          <div className="min-w-0">
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground">Colleges</h1>
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 sm:px-6 lg:px-8 pb-28 pt-2">
+      {/* ─── Compact Minimal Header ─── */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 pt-2 border-b border-border/30">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+            Colleges
+          </h1>
+          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted text-muted-foreground">
+            {total > 0 ? `${total.toLocaleString("en-IN")}` : "1,350+"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Minimalist Segmented Tabs */}
+          <div className="flex items-center p-0.5 rounded-full bg-muted/60 border border-border/40 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("directory");
+                setPage(1);
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full transition-all cursor-pointer",
+                activeTab === "directory"
+                  ? "bg-background text-foreground shadow-2xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Directory
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("leaderboard");
+                setPage(1);
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full transition-all cursor-pointer",
+                activeTab === "leaderboard"
+                  ? "bg-background text-foreground shadow-2xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Leaderboard
+            </button>
           </div>
 
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex h-8 sm:h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-primary px-3 sm:px-4 text-xs font-black text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
+            className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 active:scale-95"
           >
             <Plus className="size-3.5" />
-            <span className="hidden sm:inline">Request campus</span>
-            <span className="sm:hidden">Add</span>
+            <span>Request Hub</span>
           </button>
         </div>
+      </header>
 
-        {/* Equal-width underline tabs, matching the feed */}
-        <div className="flex items-center">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
+      {/* ─── Minimal Search & Filter Bar ─── */}
+      <section className="py-3 space-y-2.5 border-b border-border/30">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {/* Clean Search Input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by college or city..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="h-9 w-full rounded-xl border border-border/50 bg-muted/20 pl-9 pr-8 text-xs sm:text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:bg-background"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Minimal State Selector Dropdown */}
+          <div className="relative shrink-0">
+            <select
+              value={selectedState}
+              onChange={(e) => {
+                setSelectedState(e.target.value);
+                setPage(1);
+              }}
+              className="h-9 w-full sm:w-auto appearance-none rounded-xl border border-border/50 bg-muted/20 pl-3 pr-8 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary cursor-pointer"
+            >
+              {STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s === "ALL" ? "All States" : s}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          </div>
+        </div>
+
+        {/* Horizontal Category Chips */}
+        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pt-0.5">
+          {CATEGORY_FILTERS.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
             return (
               <button
-                key={tab.id}
+                key={cat.id}
                 type="button"
                 onClick={() => {
-                  setActiveTab(tab.id);
+                  setSelectedCategory(cat.id);
                   setPage(1);
                 }}
                 className={cn(
-                  "relative flex-1 cursor-pointer py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-colors min-h-[44px] flex items-center justify-center",
-                  isActive
-                    ? "font-black text-foreground"
-                    : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                  "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer",
+                  isSelected
+                    ? "bg-foreground text-background font-bold"
+                    : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
                 )}
               >
-                <span>{tab.label}</span>
-                {isActive && (
-                  <span className="absolute bottom-0 left-1/2 h-0.5 sm:h-1 w-10 sm:w-12 -translate-x-1/2 rounded-full bg-primary" />
-                )}
+                {cat.label}
               </button>
             );
           })}
         </div>
-      </header>
+      </section>
 
-      {/* ─── Directory Tab ─── */}
+      {/* ─── Directory Tab View ─── */}
       {activeTab === "directory" && (
-        <>
-          {/* Direct Top 3 Podium: Immediately rendered when on default directory view */}
-          {!search.trim() && page === 1 && (
-            <AllIndiaCollegePodium leaderboard={leaderboard} loading={leaderboardLoading} compact={true} />
-          )}
-
-          {/* Search */}
-          <div className="border-b border-border/30 px-3 py-2 sm:px-4 sm:py-3">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search by name, city or NIRF rank"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="h-9 w-full rounded-xl sm:rounded-full border border-border/60 bg-muted/30 pl-10 pr-9 text-xs sm:text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+        <section className="pt-4 flex-1 flex flex-col justify-between">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-2xl border border-border/30 bg-card/20 animate-pulse space-y-3"
                 >
-                  <X className="size-4" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="space-y-1.5 border-b border-border/30 px-3 py-2 sm:px-4 sm:py-3">
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
-              {CATEGORY_FILTERS.map((cat) => {
-                const Icon = cat.icon;
-                const isSelected = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(cat.id);
-                      setPage(1);
-                    }}
-                    className={cn(
-                      "flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition-all",
-                      isSelected
-                        ? "bg-foreground font-black text-background"
-                        : "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                    )}
-                  >
-                    <Icon className="size-3.5" />
-                    <span>{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
-              {POPULAR_STATES.map((st) => (
-                <button
-                  key={st}
-                  type="button"
-                  onClick={() => {
-                    setSelectedState(st);
-                    setPage(1);
-                  }}
-                  className={cn(
-                    "shrink-0 cursor-pointer whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold transition-all",
-                    selectedState === st
-                      ? "bg-foreground font-black text-background"
-                      : "border border-border/40 bg-muted/30 text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {st === "ALL" ? "All India" : st}
-                </button>
+                  <div className="size-10 rounded-full bg-muted/60" />
+                  <div className="h-4 w-3/4 rounded bg-muted/60" />
+                  <div className="h-3 w-1/2 rounded bg-muted/40" />
+                </div>
               ))}
             </div>
-          </div>
+          ) : colleges.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {colleges.map((college) => {
+                  const location = [college.district, college.state].filter(Boolean).join(", ") || "India";
+                  const initials =
+                    college.name
+                      .split(/\s+/)
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map((w) => w[0]?.toUpperCase())
+                      .join("") || "CL";
 
-          {/* Results */}
-          <div>
-            {loading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="flex animate-pulse items-center gap-3.5 p-3.5 rounded-2xl border border-border/25 bg-card/30">
-                    <div className="size-11 shrink-0 rounded-full bg-muted/60" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3.5 w-2/3 rounded bg-muted/60" />
-                      <div className="h-2.5 w-1/3 rounded bg-muted/40" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : colleges.length > 0 ? (
-              <>
-                <div className="flex items-center justify-between px-4 py-2.5 text-[13px] text-muted-foreground border-b border-border/20">
-                  <p>
-                    Showing{" "}
-                    <strong className="font-black text-foreground">
-                      {(page - 1) * limit + 1}–{Math.min(page * limit, total || colleges.length)}
-                    </strong>{" "}
-                    of{" "}
-                    <strong className="font-black text-foreground">
-                      {total ? total.toLocaleString("en-IN") : colleges.length}
-                    </strong>{" "}
-                    campuses{selectedState !== "ALL" ? ` in ${selectedState}` : " across India"}
-                  </p>
-                  {totalPages > 1 && (
-                    <span className="text-xs font-bold text-muted-foreground hidden sm:inline-block">
-                      Page {page} of {totalPages}
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
-                  {colleges.map((college) => (
-                    <div
+                  return (
+                    <Link
                       key={college.id}
-                      className="rounded-2xl border border-border/25 bg-card/40 hover:bg-muted/20 hover:border-border/50 transition-all shadow-2xs overflow-hidden"
+                      href={`/college/${college.slug || college.id}`}
+                      className="group flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/40 hover:bg-card hover:border-border/80 transition-all shadow-2xs"
                     >
-                      <CollegeHubRow college={college} />
-                    </div>
-                  ))}
-                </div>
+                      <div className="space-y-3">
+                        {/* Top row: crest + NIRF chip */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="size-10 rounded-full border border-border/50 bg-muted/30 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                            {college.logoUrl ? (
+                              <img
+                                src={college.logoUrl}
+                                alt=""
+                                className="size-full object-contain"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <span className="text-xs font-black text-primary">{initials}</span>
+                            )}
+                          </div>
 
-                {/* ─── Interactive Pagination Bar ─── */}
-                {totalPages > 1 && (
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4 border-t border-border/30 bg-card/40">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        disabled={page <= 1}
-                        onClick={() => {
-                          setPage((p) => Math.max(1, p - 1));
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={cn(
-                          "flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer",
-                          page <= 1
-                            ? "border-border/30 text-muted-foreground/40 opacity-50 cursor-not-allowed"
-                            : "border-border/60 bg-card hover:bg-muted text-foreground active:scale-95"
-                        )}
-                      >
-                        <ChevronLeft className="size-3.5" />
-                        <span>Previous</span>
-                      </button>
+                          {college.nirfRank ? (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                              NIRF #{college.nirfRank}
+                            </span>
+                          ) : college.websiteDomain ? (
+                            <span className="font-mono text-[10px] font-semibold text-muted-foreground truncate max-w-[140px]">
+                              @{college.websiteDomain}
+                            </span>
+                          ) : null}
+                        </div>
 
-                      <button
-                        type="button"
-                        disabled={page >= totalPages}
-                        onClick={() => {
-                          setPage((p) => Math.min(totalPages, p + 1));
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={cn(
-                          "flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer",
-                          page >= totalPages
-                            ? "border-border/30 text-muted-foreground/40 opacity-50 cursor-not-allowed"
-                            : "border-border/60 bg-card hover:bg-muted text-foreground active:scale-95"
-                        )}
-                      >
-                        <span>Next</span>
-                        <ChevronRight className="size-3.5" />
-                      </button>
-                    </div>
+                        {/* College Name & Location */}
+                        <div className="space-y-1">
+                          <h2 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                            {college.name}
+                          </h2>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                            <MapPin className="size-3 shrink-0" />
+                            <span className="truncate">{location}</span>
+                          </p>
+                        </div>
+                      </div>
 
-                    {/* Page Numbers with Smart Ellipsis */}
-                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((p) => {
-                          if (totalPages <= 7) return true;
-                          if (p === 1 || p === totalPages) return true;
-                          return Math.abs(p - page) <= 1;
-                        })
-                        .reduce<(number | string)[]>((acc, p, idx, arr) => {
-                          if (
-                            idx > 0 &&
-                            typeof arr[idx - 1] === "number" &&
-                            (p as number) - (arr[idx - 1] as number) > 1
-                          ) {
-                            acc.push("...");
-                          }
-                          acc.push(p);
-                          return acc;
-                        }, [])
-                        .map((item, idx) => {
-                          if (item === "...") {
-                            return (
-                              <span key={`dots-${idx}`} className="px-1.5 text-xs text-muted-foreground/60">
-                                …
-                              </span>
-                            );
-                          }
-                          const pageNum = Number(item);
-                          const isCurrent = pageNum === page;
-                          return (
-                            <button
-                              key={`page-${pageNum}`}
-                              type="button"
-                              onClick={() => {
-                                setPage(pageNum);
-                                window.scrollTo({ top: 0, behavior: "smooth" });
-                              }}
-                              className={cn(
-                                "size-7 rounded-full text-xs font-bold flex items-center justify-center transition-all cursor-pointer",
-                                isCurrent
-                                  ? "bg-primary text-primary-foreground font-black shadow-xs"
-                                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
-                              )}
-                            >
-                              {pageNum}
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
-                <School className="size-8 text-muted-foreground" />
-                <div className="space-y-1">
-                  <h3 className="text-[15px] font-bold text-foreground">No campuses found</h3>
-                  <p className="text-[13px] text-muted-foreground">
-                    Can&apos;t find your college? Request it and we&apos;ll index it.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className="mt-1 cursor-pointer rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  Request campus
-                </button>
+                      {/* Subtle Footer Hover Arrow */}
+                      <div className="pt-3 mt-3 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span className="group-hover:text-foreground transition-colors">View campus</span>
+                        <ArrowUpRight className="size-3.5 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        </>
+
+              {/* Minimal Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-6 pb-2 text-xs text-muted-foreground border-t border-border/30 mt-6">
+                  <span>
+                    Page <strong className="font-bold text-foreground">{page}</strong> of{" "}
+                    <strong className="font-bold text-foreground">{totalPages}</strong>
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={page <= 1}
+                      onClick={() => {
+                        setPage((p) => Math.max(1, p - 1));
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                        page <= 1
+                          ? "opacity-40 border-border/30 cursor-not-allowed"
+                          : "border-border/60 hover:bg-muted text-foreground"
+                      )}
+                    >
+                      <ChevronLeft className="size-3.5" />
+                      <span>Prev</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={page >= totalPages}
+                      onClick={() => {
+                        setPage((p) => Math.min(totalPages, p + 1));
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                        page >= totalPages
+                          ? "opacity-40 border-border/30 cursor-not-allowed"
+                          : "border-border/60 hover:bg-muted text-foreground"
+                      )}
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
+              <School className="size-8 text-muted-foreground/60" />
+              <p className="text-sm font-bold text-foreground">No campus hubs found</p>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="text-xs font-bold text-primary hover:underline"
+              >
+                Request this college to be added →
+              </button>
+            </div>
+          )}
+        </section>
       )}
 
-      {/* ─── Leaderboard Tab ─── */}
+      {/* ─── Leaderboard Tab View ─── */}
       {activeTab === "leaderboard" && (
-        <div className="space-y-4 pt-2">
-          {/* Filters for Leaderboard */}
-          <div className="space-y-2 border-b border-border/30 px-4 pb-3">
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
-              {CATEGORY_FILTERS.map((cat) => {
-                const Icon = cat.icon;
-                const isSelected = selectedCategory === cat.id;
+        <section className="pt-4 flex-1">
+          {leaderboardLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-14 rounded-xl border border-border/30 bg-card/20 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : leaderboard.length > 0 ? (
+            <div className="space-y-2">
+              {leaderboard.map((item, index) => {
+                const rank = index + 1;
+                const location = [item.district, item.state].filter(Boolean).join(", ") || "India";
+                const initials =
+                  item.name
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((w) => w[0]?.toUpperCase())
+                    .join("") || "CL";
+
                 return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(cat.id);
-                      setPage(1);
-                    }}
-                    className={cn(
-                      "flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition-all",
-                      isSelected
-                        ? "bg-foreground font-black text-background"
-                        : "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                    )}
+                  <Link
+                    key={item.id}
+                    href={`/college/${item.slug || item.id}`}
+                    className="group flex items-center justify-between p-3.5 rounded-xl border border-border/30 bg-card/30 hover:bg-card hover:border-border/60 transition-all"
                   >
-                    <Icon className="size-3.5" />
-                    <span>{cat.label}</span>
-                  </button>
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <span
+                        className={cn(
+                          "w-6 text-center text-sm font-black tabular-nums shrink-0",
+                          rank === 1 && "text-amber-500",
+                          rank === 2 && "text-slate-400",
+                          rank === 3 && "text-amber-700 dark:text-amber-600",
+                          rank > 3 && "text-muted-foreground"
+                        )}
+                      >
+                        #{rank}
+                      </span>
+
+                      <div className="size-9 rounded-full border border-border/40 bg-muted/20 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                        {item.logoUrl ? (
+                          <img src={item.logoUrl} alt="" className="size-full object-contain" />
+                        ) : (
+                          <span className="text-xs font-bold text-primary">{initials}</span>
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                            {item.name}
+                          </h3>
+                          {item.nirfRank && (
+                            <span className="shrink-0 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 rounded">
+                              NIRF #{item.nirfRank}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{location}</p>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 pl-3 text-right">
+                      <span className="text-xs font-bold text-primary">
+                        {item.points ? item.points.toLocaleString("en-IN") : `${item.studentCount || 0} students`}
+                      </span>
+                    </div>
+                  </Link>
                 );
               })}
-            </div>
-
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
-              {POPULAR_STATES.map((st) => (
-                <button
-                  key={st}
-                  type="button"
-                  onClick={() => {
-                    setSelectedState(st);
-                    setPage(1);
-                  }}
-                  className={cn(
-                    "shrink-0 cursor-pointer whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold transition-all",
-                    selectedState === st
-                      ? "bg-foreground font-black text-background"
-                      : "border border-border/40 bg-muted/30 text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {st === "ALL" ? "All India" : st}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Top 3 Podium Component */}
-          <AllIndiaCollegePodium leaderboard={leaderboard} loading={leaderboardLoading} />
-
-          {leaderboardLoading ? (
-            <div className="divide-y divide-border/20 px-4 pt-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex animate-pulse items-center gap-3.5 py-3">
-                  <div className="size-11 rounded-full bg-muted/60" />
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-3.5 w-1/2 rounded bg-muted/60" />
-                    <div className="h-2.5 w-1/4 rounded bg-muted/40" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : leaderboard.length === 0 ? (
-            <div className="px-4 py-16 text-center">
-              <Trophy className="mx-auto size-10 text-muted-foreground/40" />
-              <p className="mt-2 text-sm font-bold text-foreground">No campus standings found</p>
-              <p className="text-xs text-muted-foreground">
-                Try switching filters or be the first student to register your college!
-              </p>
             </div>
           ) : (
-            /* Ranks 4 and above */
-            <div className="pt-2">
-              <div className="px-4 py-2 text-[12px] font-bold text-muted-foreground flex items-center justify-between border-b border-border/20">
-                <span>Campuses {leaderboard.length >= 3 ? `4–${leaderboard.length}` : "Standings"}</span>
-                <span>Clout & Engagement</span>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-3">
-                {(leaderboard.length >= 3 ? leaderboard.slice(3) : leaderboard).map((col) => (
-                  <div
-                    key={col.id}
-                    className="rounded-2xl border border-border/25 bg-card/40 hover:bg-muted/20 hover:border-border/50 transition-all shadow-2xs overflow-hidden"
-                  >
-                    <CollegeHubRow
-                      rank={col.rank}
-                      college={{
-                        id: col.id,
-                        slug: col.slug,
-                        name: col.name,
-                        state: col.state,
-                        district: col.district,
-                        website: col.website,
-                        yearOfEstablishment: col.yearOfEstablishment,
-                        aisheCode: "",
-                        logoUrl: col.logoUrl,
-                        nirfRank: col.nirfRank,
-                      }}
-                      trailing={
-                        <div className="text-right">
-                          <span className="block text-[13px] font-black text-primary tabular-nums">
-                            {col.points.toLocaleString("en-IN")} LP
-                          </span>
-                          <span className="text-[11px] text-muted-foreground">
-                            {col.studentCount} verified {col.studentCount === 1 ? "student" : "students"}
-                          </span>
-                        </div>
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
+            <div className="py-20 text-center text-sm text-muted-foreground">
+              No active leaderboard data yet.
             </div>
           )}
-        </div>
+        </section>
       )}
 
-      {showAddModal && (
-        <AddCollegeModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          newCollegeName={newCollegeName}
-          setNewCollegeName={setNewCollegeName}
-          newCollegeState={newCollegeState}
-          setNewCollegeState={setNewCollegeState}
-          newCollegeDistrict={newCollegeDistrict}
-          setNewCollegeDistrict={setNewCollegeDistrict}
-          newCollegeWebsite={newCollegeWebsite}
-          setNewCollegeWebsite={setNewCollegeWebsite}
-          onSubmit={handleAddCollege}
-          submitting={submitting}
-        />
-      )}
+      {/* Add College Modal */}
+      <AddCollegeModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        newCollegeName={newCollegeName}
+        setNewCollegeName={setNewCollegeName}
+        newCollegeState={newCollegeState}
+        setNewCollegeState={setNewCollegeState}
+        newCollegeDistrict={newCollegeDistrict}
+        setNewCollegeDistrict={setNewCollegeDistrict}
+        newCollegeWebsite={newCollegeWebsite}
+        setNewCollegeWebsite={setNewCollegeWebsite}
+        submitting={submitting}
+        onSubmit={handleAddCollege}
+      />
     </main>
   );
 }
