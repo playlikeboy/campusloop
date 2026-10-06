@@ -142,64 +142,64 @@ export function ConfessionComposerInline({
     <div
       ref={containerRef}
       className={cn(
-        "relative rounded-2xl border transition-all duration-300",
+        "relative rounded-xl border transition-all duration-200",
         isExpanded
-          ? "border-purple-500/35 bg-purple-950/20 shadow-md shadow-purple-950/30 p-3.5 sm:p-4 backdrop-blur-xl"
-          : "border-border/30 bg-card/40 hover:bg-card/70 hover:border-purple-500/30 p-2.5 sm:p-3 shadow-2xs cursor-pointer",
+          ? "border-purple-500/30 bg-card/80 shadow-md p-3 sm:p-3.5 backdrop-blur-md"
+          : "border-border/30 bg-muted/20 hover:bg-muted/35 hover:border-border/50 p-2 sm:p-2.5 cursor-pointer",
         className
       )}
     >
       {!isExpanded ? (
-        /* Collapsed Fast Prompt */
+        /* Collapsed Compact Input Entry Point */
         <div
           onClick={() => {
             sounds.tap();
             haptics.light();
             setIsExpanded(true);
           }}
-          className="flex items-center gap-3 w-full min-w-0"
+          className="flex items-center gap-2.5 w-full min-w-0"
         >
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/30">
-            <VenetianMask className="size-4.5" />
+          <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+            <VenetianMask className="size-4" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate select-none">
-              Spill an anonymous campus secret or hostel vent...
+            <p className="text-xs text-muted-foreground truncate select-none">
+              Spill an anonymous campus secret or hostel tea...
             </p>
-            <div className="flex items-center gap-2 text-[10px] text-purple-400/80 font-semibold select-none">
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 select-none mt-0.5">
               <span className="flex items-center gap-1">
-                <Lock className="size-2.5" />
-                100% Cryptographically Sealed
+                <Lock className="size-2.5 text-emerald-400/90" />
+                100% Anonymous
               </span>
-              <span>•</span>
+              <span>·</span>
               <span>Zero Profile Trace</span>
             </div>
           </div>
 
           <button
             type="button"
-            className="hidden sm:inline-flex h-8 px-3.5 items-center justify-center rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-xs font-bold transition-all shrink-0 active:scale-95 cursor-pointer"
+            className="inline-flex h-7 px-3 items-center justify-center rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-semibold transition-all shrink-0 active:scale-95 cursor-pointer"
           >
-            Spill Secret
+            Whisper
           </button>
         </div>
       ) : (
         /* Expanded Whisper Composer */
-        <form onSubmit={handleSubmit} className="space-y-3 animate-in fade-in zoom-in-98 duration-150">
+        <form onSubmit={handleSubmit} className="space-y-2.5 animate-in fade-in zoom-in-98 duration-150">
           {/* Header & Cryptographic Notice */}
-          <div className="flex items-center justify-between border-b border-purple-500/20 pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/35">
+          <div className="flex items-center justify-between border-b border-border/20 pb-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex size-6.5 items-center justify-center rounded-md bg-purple-500/15 text-purple-400 border border-purple-500/25 shrink-0">
                 <VenetianMask className="size-3.5" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-black tracking-tight text-foreground flex items-center gap-1.5">
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold tracking-tight text-foreground truncate flex items-center gap-1">
                   Whisper as <span className="text-purple-400">@{activePseudonym}</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <ShieldCheck className="size-2.5 text-emerald-400" />
-                  Real identity is AES-isolated &amp; never saved in feed rows
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1 truncate">
+                  <ShieldCheck className="size-2.5 text-emerald-400 shrink-0" />
+                  Real identity is cryptographic &amp; never exposed
                 </span>
               </div>
             </div>
@@ -210,7 +210,7 @@ export function ConfessionComposerInline({
                 sounds.tap();
                 setIsExpanded(false);
               }}
-              className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+              className="flex size-6.5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0 ml-1"
               title="Close whisper box"
               aria-label="Close whisper box"
             >
@@ -222,22 +222,22 @@ export function ConfessionComposerInline({
           <div className="relative">
             <textarea
               ref={textareaRef}
-              rows={4}
+              rows={3}
               maxLength={1000}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="What's the dark secret, hostel lore, or confession you can't tell anyone openly? Drop it here safely..."
-              className="w-full bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none resize-none focus:outline-none selection:bg-purple-500/30 min-h-[90px]"
+              placeholder="What's the secret, hostel lore, or confession you can't tell anyone openly? Drop it here safely..."
+              className="w-full bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none resize-none focus:outline-none selection:bg-purple-500/30 min-h-[75px]"
             />
           </div>
 
           {/* Category Chips Bar */}
-          <div className="space-y-1.5 pt-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
+          <div className="space-y-1 pt-0.5">
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1">
               <Sparkles className="size-2.5 text-purple-400" />
-              <span>Select Whisper Topic</span>
+              <span>Topic</span>
             </label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1">
               {CONFESSION_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
                 return (
@@ -250,10 +250,10 @@ export function ConfessionComposerInline({
                       setSelectedCategory(cat.id);
                     }}
                     className={cn(
-                      "h-7 px-2.5 rounded-full text-[11px] font-bold transition-all cursor-pointer border select-none shrink-0",
+                      "h-6 px-2 rounded-full text-[11px] font-medium transition-all cursor-pointer border select-none shrink-0",
                       isSelected
-                        ? "bg-purple-500 text-white border-purple-400 shadow-xs shadow-purple-500/25 ring-1 ring-purple-400/40"
-                        : "bg-muted/40 hover:bg-muted/70 text-muted-foreground border-border/40 hover:text-foreground"
+                        ? "bg-purple-600/25 text-purple-300 border-purple-500/40 font-semibold shadow-2xs"
+                        : "bg-muted/30 hover:bg-muted/60 text-muted-foreground border-border/25 hover:text-foreground"
                     )}
                   >
                     {cat.label}
@@ -263,9 +263,9 @@ export function ConfessionComposerInline({
             </div>
           </div>
 
-          {/* Scope Selection Pill Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-purple-500/15">
-            <div className="flex items-center gap-1 p-0.5 rounded-full bg-muted/40 border border-border/40 text-[11px] font-bold">
+          {/* Scope Selection Pill Bar & Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/15">
+            <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-muted/30 border border-border/30 text-[10px] font-medium">
               <button
                 type="button"
                 onClick={() => {
@@ -273,13 +273,13 @@ export function ConfessionComposerInline({
                   setPostScope("GLOBAL");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer",
+                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-all cursor-pointer",
                   postScope === "GLOBAL"
-                    ? "bg-foreground text-background shadow-2xs font-black"
+                    ? "bg-foreground text-background font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Globe className="size-3" />
+                <Globe className="size-2.5" />
                 <span>All India</span>
               </button>
               <button
@@ -289,26 +289,26 @@ export function ConfessionComposerInline({
                   setPostScope("CAMPUS");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer max-w-[140px] sm:max-w-none truncate",
+                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[130px] truncate",
                   postScope === "CAMPUS"
-                    ? "bg-foreground text-background shadow-2xs font-black"
+                    ? "bg-foreground text-background font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <School className="size-3 shrink-0" />
+                <School className="size-2.5 shrink-0" />
                 <span className="truncate">{campusName}</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground/80 font-mono">
-                {body.length} / 1000
+            <div className="flex items-center gap-1.5 ml-auto">
+              <span className="text-[10px] text-muted-foreground/70 font-mono">
+                {body.length}/1000
               </span>
 
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className="h-8 px-3 rounded-full text-xs font-semibold text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                className="h-7 px-2.5 rounded-full text-xs font-medium text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -316,17 +316,17 @@ export function ConfessionComposerInline({
               <button
                 type="submit"
                 disabled={isSubmitting || !body.trim()}
-                className="h-8 px-4 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-black transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-sm shadow-primary/20 cursor-pointer"
+                className="h-7 px-3.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1 shadow-xs cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="size-3.5 animate-spin" />
+                    <Loader2 className="size-3 animate-spin" />
                     <span>Sealing...</span>
                   </>
                 ) : (
                   <>
                     <Send className="size-3" />
-                    <span>Spill Secret</span>
+                    <span>Post</span>
                   </>
                 )}
               </button>

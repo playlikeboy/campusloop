@@ -404,8 +404,8 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
 
       {/* Repost Banner Header */}
       {post.repostOfId && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold pl-12 pb-1.5 select-none">
-          <Repeat2 className="size-3.5 text-emerald-500" />
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/75 font-medium pb-1.5 pl-1 select-none">
+          <Repeat2 className="size-3 text-emerald-500/80 shrink-0" />
           <span>{authorName} Reposted</span>
         </div>
       )}

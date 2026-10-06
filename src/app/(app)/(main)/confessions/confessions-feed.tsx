@@ -9,6 +9,7 @@ import {
   Plus,
   RotateCw,
   School,
+  Shield,
   Sparkles,
   Trophy,
   VenetianMask,
@@ -29,11 +30,11 @@ import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const CONFESSION_TABS = [
-  { id: "latest", label: "Latest", icon: Clock, colorClass: "text-sky-400" },
-  { id: "trending", label: "Trending", icon: Flame, colorClass: "text-orange-500" },
-  { id: "top_voted", label: "Top", icon: Trophy, colorClass: "text-yellow-500" },
-  { id: "spicy", label: "Spicy", icon: Sparkles, colorClass: "text-amber-400" },
-  { id: "random", label: "Shuffle", icon: Zap, colorClass: "text-purple-400" },
+  { id: "latest", label: "Latest", icon: Clock },
+  { id: "trending", label: "Trending", icon: Flame },
+  { id: "top_voted", label: "Top", icon: Trophy },
+  { id: "spicy", label: "Spicy", icon: Sparkles },
+  { id: "random", label: "Shuffle", icon: Zap },
 ] as const;
 
 const TOPIC_CHIPS = [
@@ -162,107 +163,75 @@ export function ConfessionsFeed() {
     profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 py-0 sm:py-3">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* ─── Main Confessions Column (8 cols on lg) ─── */}
-        <main className="lg:col-span-8 flex flex-col min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] bg-card/25 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
-          {/* ─── 1. Atmospheric Whisper Sanctuary Header ─── */}
-          <header className="sticky top-0 md:top-14 z-30 border-b border-border/25 bg-background/90 backdrop-blur-xl shadow-2xs">
-            <div className="flex min-h-12 items-center justify-between gap-2 px-3 sm:px-4 py-1.5">
-              {/* Back Button & Title */}
-              <div className="flex min-w-0 items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer relative before:absolute before:-inset-1.5 before:content-['']"
-                  title="Go back"
-                  aria-label="Go back"
-                >
-                  <ArrowLeft className="size-4" />
-                </button>
-
+        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 bg-transparent sm:bg-card/25 sm:rounded-2xl sm:border sm:border-border/30 overflow-hidden shadow-2xs">
+          {/* ─── Sticky Controls Bar (Privacy Banner + Tabs + Filters) ─── */}
+          <div className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/20">
+            {/* 1. Community & Privacy Status Banner */}
+            <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-border/15 bg-muted/10">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 shrink-0">
+                  <Shield className="size-3.5" />
+                </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex size-5 items-center justify-center rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/35">
-                      <VenetianMask className="size-3.5" />
-                    </div>
-                    <h1 className="truncate text-sm sm:text-base font-black tracking-tight text-foreground">
-                      Campus Confessions
-                    </h1>
-                  </div>
-
-                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
-                    <Lock className="size-2.5 text-emerald-400 shrink-0" />
-                    <span>Identity Sealed</span>
-                    <span className="text-muted-foreground/40">·</span>
-                    <span>Zero Trace</span>
-                  </div>
+                  <h1 className="text-sm font-bold text-foreground tracking-tight leading-none truncate">
+                    Campus Confessions
+                  </h1>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 leading-none">
+                    <Lock className="size-2.5 text-emerald-400/90 shrink-0" />
+                    <span>Identity sealed · Zero profile trace</span>
+                  </p>
                 </div>
               </div>
 
-              {/* Scope Switcher Pill & Actions */}
-              <div className="flex shrink-0 items-center gap-1.5">
-                {/* Compact Header Scope Switcher */}
-                <div className="flex items-center p-0.5 rounded-full bg-muted/50 border border-border/40 text-[10px] font-bold">
+              {/* Scope Switcher Pill & Quick Action */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center p-0.5 rounded-full bg-muted/50 border border-border/35 text-[10px] font-semibold">
                   <button
                     type="button"
                     onClick={() => handleScopeToggle("GLOBAL")}
                     className={cn(
-                      "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
+                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer",
                       scope === "GLOBAL"
-                        ? "bg-foreground text-background shadow-2xs font-black"
+                        ? "bg-foreground text-background font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                     title="Pan-India All Colleges"
                   >
-                    <Globe className="size-2.5" />
-                    <span className="hidden sm:inline">All India</span>
+                    All India
                   </button>
-
                   <button
                     type="button"
                     onClick={() => handleScopeToggle("CAMPUS")}
                     className={cn(
-                      "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer max-w-[100px] sm:max-w-[130px] truncate relative before:absolute before:-inset-1 before:content-['']",
+                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[90px] sm:max-w-[120px] truncate",
                       scope === "CAMPUS"
-                        ? "bg-foreground text-background shadow-2xs font-black"
+                        ? "bg-foreground text-background font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                     title={`Campus Hub: ${campusShortName}`}
                   >
-                    <School className="size-2.5 shrink-0" />
-                    <span className="truncate">{campusShortName}</span>
+                    {campusShortName}
                   </button>
                 </div>
 
-                {/* Random Shuffle Refresh Trigger */}
-                <button
-                  type="button"
-                  onClick={handleReloadRandom}
-                  className="flex size-8 sm:size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all cursor-pointer relative before:absolute before:-inset-1.5 before:content-['']"
-                  title="Shuffle random confessions"
-                  aria-label="Shuffle random confessions"
-                >
-                  <RotateCw
-                    className={cn("size-3.5 transition-transform duration-700", isRotating && "animate-spin")}
-                  />
-                </button>
-
-                {/* Dedicated Full Page Confession Link */}
+                {/* Dedicated Editor Link */}
                 <Link
                   href="/post/new?type=CONFESSION"
-                  className="hidden sm:inline-flex size-9 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 active:scale-95 transition-all cursor-pointer"
+                  className="hidden sm:inline-flex size-7 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25 hover:bg-purple-500/25 active:scale-95 transition-all cursor-pointer"
                   title="Open dedicated editor"
                   aria-label="Open dedicated editor"
                 >
-                  <Plus className="size-4" />
+                  <Plus className="size-3.5" />
                 </Link>
               </div>
             </div>
 
-            {/* ─── Primary Sort Tabs Bar ─── */}
-            <div className="flex items-center justify-between border-t border-border/15 px-3">
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+            {/* 2. Feed Navigation Tabs */}
+            <div className="flex items-center justify-between border-b border-border/15 bg-card/20 px-3 sm:px-4 py-1">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
                 {CONFESSION_TABS.map((tab) => {
                   const isActive = currentSort === tab.id;
                   const TabIcon = tab.icon;
@@ -272,35 +241,38 @@ export function ConfessionsFeed() {
                       type="button"
                       onClick={() => handleSortChange(tab.id)}
                       className={cn(
-                        "relative flex min-h-9 items-center gap-1.5 px-3 text-xs font-bold transition-colors cursor-pointer select-none shrink-0 relative before:absolute before:-inset-1 before:content-['']",
-                        isActive ? "text-foreground font-black" : "text-muted-foreground hover:text-foreground"
+                        "relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-all cursor-pointer select-none shrink-0",
+                        isActive
+                          ? "bg-purple-500/15 text-purple-300 font-semibold border border-purple-500/30"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
                       )}
                     >
                       <TabIcon
-                        className={cn("size-3.5", isActive ? tab.colorClass : "text-muted-foreground")}
+                        className={cn("size-3.5", isActive ? "text-purple-400" : "text-muted-foreground")}
                       />
                       <span>{tab.label}</span>
-                      {isActive && (
-                        <span className="absolute inset-x-2.5 bottom-0 h-0.5 rounded-full bg-primary" />
-                      )}
                     </button>
                   );
                 })}
               </div>
 
-              {activeTag && (
+              {currentSort === "random" && (
                 <button
                   type="button"
-                  onClick={() => handleTagSelect("")}
-                  className="text-[10px] font-bold text-purple-400 hover:underline shrink-0 pr-1 cursor-pointer"
+                  onClick={handleReloadRandom}
+                  className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer shrink-0 ml-1"
+                  title="Shuffle confessions"
+                  aria-label="Shuffle confessions"
                 >
-                  Clear Tag ({activeTag})
+                  <RotateCw
+                    className={cn("size-3.5 transition-transform duration-700", isRotating && "animate-spin")}
+                  />
                 </button>
               )}
             </div>
 
-            {/* ─── Topic Hashtag Chips Bar ─── */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto no-scrollbar border-t border-border/10 bg-card/10">
+            {/* 3. Category Filter Chips */}
+            <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 overflow-x-auto no-scrollbar bg-background/40">
               {TOPIC_CHIPS.map((chip) => {
                 const isSelected = activeTag === chip.tag;
                 return (
@@ -309,21 +281,30 @@ export function ConfessionsFeed() {
                     type="button"
                     onClick={() => handleTagSelect(chip.tag)}
                     className={cn(
-                      "h-6 px-2.5 rounded-full text-[10px] font-bold transition-all cursor-pointer border select-none shrink-0",
+                      "h-6 px-2.5 rounded-full text-[11px] transition-all cursor-pointer select-none shrink-0 whitespace-nowrap",
                       isSelected
-                        ? "bg-purple-500 text-white border-purple-400 shadow-2xs"
-                        : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/30"
+                        ? "bg-purple-600/20 text-purple-300 border border-purple-500/40 font-semibold shadow-2xs"
+                        : "bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/20 font-medium"
                     )}
                   >
                     {chip.label}
                   </button>
                 );
               })}
+              {activeTag && (
+                <button
+                  type="button"
+                  onClick={() => handleTagSelect("")}
+                  className="text-[10px] font-medium text-muted-foreground hover:text-purple-300 ml-1 shrink-0 cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
             </div>
-          </header>
+          </div>
 
-          {/* ─── 2. Fast Inline Anonymous Whisper Composer ─── */}
-          <div className="p-3 sm:p-4 border-b border-border/20 bg-card/15">
+          {/* 4. Compact Confession Composer */}
+          <div className="p-3 sm:p-4 border-b border-border/15 bg-card/10">
             <ConfessionComposerInline
               scope={scope}
               campusName={campusShortName}
