@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { academicResources, savedAcademicResources } from "@/db/schema";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { trackUserBehavior } from "@/lib/user-behavior";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,14 @@ export async function POST(req: Request) {
       },
       weight: 10,
     }).catch(() => {});
+
+    if (savedCount > 0) {
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "ACADEMIC_BOOKMARK",
+        resourceId: `sem_pack_${semester}`,
+      }).catch((err) => console.warn("Failed to record streak for semester pack save:", err));
+    }
 
     return NextResponse.json({
       success: true,

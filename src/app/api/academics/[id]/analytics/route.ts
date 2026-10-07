@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { academicResourceVotes, academicResources, savedAcademicResources } from "@/db/schema";
 import { getRedis } from "@/lib/redis";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { trackUserBehavior } from "@/lib/user-behavior";
 
 export const dynamic = "force-dynamic";
@@ -451,6 +452,12 @@ export async function POST(req: Request, { params }: RouteParams) {
             },
             weight: 4,
           }).catch(() => {});
+
+          recordStreakActivity({
+            userId: profile.id,
+            eventType: "ACADEMIC_BOOKMARK",
+            resourceId: id,
+          }).catch((err) => console.warn("Failed to record streak for note save:", err));
         }
       }
 

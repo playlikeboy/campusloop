@@ -11,6 +11,7 @@ import { runSafetyCheck } from "@/lib/moderation/rules";
 import { notifyMentions } from "@/lib/notifications";
 import { notifyFollowersOfNewPost } from "@/lib/post-notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 const ALLOWED_POST_TYPES = new Set([
@@ -219,6 +220,13 @@ export async function POST(req: Request) {
     if (pollTexts.length > 0) {
       await db.insert(pollOptions).values(pollTexts.map((text) => ({ postId: newPost.id, text })));
     }
+
+    // Keep student streak alive for creating a campus post/poll
+    void recordStreakActivity({
+      userId: profile.id,
+      eventType: "POST_CREATE",
+      sourceEntityId: newPost.id,
+    }).catch((err) => console.warn("[Streak Post Hook Error]:", err));
 
     // Trigger @mention notifications asynchronously
     notifyMentions({

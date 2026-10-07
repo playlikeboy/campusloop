@@ -7,6 +7,7 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, openSealedIdentity, sealIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { cleanNotificationSnippet, createNotification, notifyMentions } from "@/lib/notifications";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 interface RouteParams {
@@ -374,6 +375,13 @@ export async function POST(req: Request, { params }: RouteParams) {
     } catch (err) {
       console.warn("Points update warning:", err);
     }
+
+    // Keep student streak alive for participating in discussions
+    void recordStreakActivity({
+      userId: profile.id,
+      eventType: "COMMENT_CREATE",
+      sourceEntityId: newComment.id,
+    }).catch((err) => console.warn("[Streak Comment Hook Error]:", err));
 
     // Trigger in-app notifications safely without blocking the comment response
     try {

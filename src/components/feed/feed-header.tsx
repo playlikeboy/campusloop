@@ -8,6 +8,7 @@ import {
   FEED_SORT_TABS as SORT_TABS,
   FEED_VISIBILITY_OPTIONS as VISIBILITY_OPTIONS,
 } from "@/constants";
+import { StreakBadge } from "@/components/streaks/streak-badge";
 import { cn } from "@/lib/utils";
 
 interface FeedHeaderProps {
@@ -125,24 +126,27 @@ export function FeedHeader({
           </div>
         </div>
 
-        {/* Filter Toggle Trigger Button */}
-        <button
-          type="button"
-          onClick={() => setShowFilters((value) => !value)}
-          className={cn(
-            "relative flex size-8 shrink-0 items-center justify-center rounded-full border border-border/40 transition-colors cursor-pointer",
-            showFilters || activeFiltersCount > 1
-              ? "bg-primary/10 text-primary border-primary/30"
-              : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
-          )}
-          aria-label="Open feed filters"
-          aria-expanded={showFilters}
-        >
-          <ListFilter className="size-3.5" />
-          {activeFiltersCount > 1 && (
-            <span className="absolute top-1 right-1 size-1.5 rounded-full bg-primary" />
-          )}
-        </button>
+        {/* Actions: Streak Badge & Filter Toggle Trigger */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <StreakBadge />
+          <button
+            type="button"
+            onClick={() => setShowFilters((value) => !value)}
+            className={cn(
+              "relative flex size-8 shrink-0 items-center justify-center rounded-full border border-border/40 transition-colors cursor-pointer",
+              showFilters || activeFiltersCount > 1
+                ? "bg-primary/10 text-primary border-primary/30"
+                : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+            )}
+            aria-label="Open feed filters"
+            aria-expanded={showFilters}
+          >
+            <ListFilter className="size-3.5" />
+            {activeFiltersCount > 1 && (
+              <span className="absolute top-1 right-1 size-1.5 rounded-full bg-primary" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Secondary filters stay out of the primary feed navigation. */}

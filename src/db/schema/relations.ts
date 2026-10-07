@@ -51,6 +51,7 @@ import { reelBookmarks, reelComments, reelLikes, reels } from "./reels";
 import { ridesharePools } from "./rideshare";
 import { savedPosts } from "./saved-posts";
 import { stories, storyHighlights, storyLikes } from "./stories";
+import { streakEvents, userStreakMilestones, userStreaks } from "./streaks";
 import { capsuleEntries, timeCapsules } from "./time-capsule";
 import { follows, userProfiles } from "./users";
 
@@ -90,6 +91,33 @@ export const userProfilesRelations = relations(userProfiles, ({ one, many }) => 
   followers: many(follows, { relationName: "profile_followers" }),
   following: many(follows, { relationName: "profile_following" }),
   mcpKeys: many(userMcpKeys),
+  streak: one(userStreaks, {
+    fields: [userProfiles.id],
+    references: [userStreaks.userId],
+  }),
+  streakEvents: many(streakEvents),
+  streakMilestones: many(userStreakMilestones),
+}));
+
+export const userStreaksRelations = relations(userStreaks, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [userStreaks.userId],
+    references: [userProfiles.id],
+  }),
+}));
+
+export const streakEventsRelations = relations(streakEvents, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [streakEvents.userId],
+    references: [userProfiles.id],
+  }),
+}));
+
+export const userStreakMilestonesRelations = relations(userStreakMilestones, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [userStreakMilestones.userId],
+    references: [userProfiles.id],
+  }),
 }));
 
 export const savedPostsRelations = relations(savedPosts, ({ one }) => ({

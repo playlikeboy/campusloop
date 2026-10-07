@@ -10,6 +10,7 @@ import {
   searchAcademicResourcesVector,
 } from "@/lib/recommendations/academic-recommendations";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -380,13 +381,19 @@ export async function POST(req: Request) {
       })
       .returning();
 
-    // Reward uploader with Loop Points (LP) for verified academic contribution
+    // Reward uploader with Loop Points (LP) and record streak for verified academic contribution
     try {
       await db
         .update(userProfiles)
         .set({ points: sql`${userProfiles.points} + 20` })
         .where(eq(userProfiles.id, profile.id));
     } catch {}
+
+    recordStreakActivity({
+      userId: profile.id,
+      eventType: "ACADEMIC_UPLOAD",
+      resourceId: created.id,
+    }).catch((err) => console.warn("Failed to record streak for academic upload:", err));
 
     // Index into Qdrant in background for vector search & recommendations
     indexAcademicResourceVector({

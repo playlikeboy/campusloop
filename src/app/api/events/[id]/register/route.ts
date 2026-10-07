@@ -9,6 +9,7 @@ import { eventRegistrations, events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { createNotification } from "@/lib/notifications";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 
 export const dynamic = "force-dynamic";
 
@@ -291,7 +292,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // Non-blocking
     }
 
-    // Create confirmation notification
+    recordStreakActivity({
+      userId: profile.id,
+      eventType: "EVENT_RSVP",
+      sourceEntityId: event.id,
+    }).catch((err) => console.warn("Failed to record streak for event RSVP:", err));
+
+    // Create confirmation notification. Silent: the student just tapped
+    // Register and is reading the success state — the row is a receipt for
+    // later, not something worth buzzing their phone about.
     await createNotification({
       userId: profile.id,
       actorId: event.organizerProfileId,
