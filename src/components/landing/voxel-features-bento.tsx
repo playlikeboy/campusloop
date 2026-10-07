@@ -60,7 +60,7 @@ export function VoxelFeaturesBento() {
   };
 
   return (
-    <section id="features" className="relative py-20 sm:py-28 bg-background overflow-hidden select-none">
+    <section id="features" className="relative py-10 sm:py-20 md:py-24 bg-background overflow-hidden select-none">
       {/* Decorative 3D Floating Voxel Blocks */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <motion.span
@@ -77,35 +77,35 @@ export function VoxelFeaturesBento() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-4 border border-emerald-500/20 shadow-xs">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 sm:mb-3.5 border border-emerald-500/20 shadow-xs">
             <Zap className="size-3.5 text-[#22c55e]" />
-            <span>Built Specifically For University Survival</span>
+            <span>Built For University Life</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
-            EVERY UNWRITTEN RULE OF CAMPUS.
-            <br />
+          <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.12]">
+            EVERY UNWRITTEN RULE OF CAMPUS.{" "}
+            <br className="hidden sm:inline" />
             <span className="text-[#16a34a] dark:text-emerald-400">CODED INTO ONE SYSTEM.</span>
           </h2>
 
-          <p className="mt-4 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            From surviving 2 AM viva panic to finding your hackathon co-founder or campus crush. We built the digital infrastructure your college administration never gave you.
+          <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
+            Your campus has a digital layer. Anonymous conversations, topper-curated notes, solved PYQs, student clubs, and campus crush radar.
           </p>
         </div>
 
         {/* Voxel Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
           {/* Bento Item 1: Campus Radius Radar (7 cols) */}
-          <div className="md:col-span-7 rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-lg flex flex-col justify-between hover:border-emerald-500/40 transition-all">
+          <div className="md:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-all">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-border/40">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border/40">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex size-9 items-center justify-center rounded-2xl bg-emerald-500/15 text-[#16a34a]">
-                    <Radio className="size-4.5" />
+                  <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-emerald-500/15 text-[#16a34a] shrink-0">
+                    <Radio className="size-4 sm:size-4.5" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-black text-foreground">The Campus Radius Radar</h3>
+                    <h3 className="text-xs sm:text-base font-black text-foreground">The Campus Radius Radar</h3>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">Switch between local hostel banter &amp; national trends</p>
                   </div>
                 </div>
@@ -220,14 +220,14 @@ export function VoxelFeaturesBento() {
           </div>
 
           {/* Bento Item 2: Academic Vault (5 cols) */}
-          <div className="md:col-span-5 rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-lg flex flex-col justify-between hover:border-blue-500/40 transition-all">
+          <div className="md:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-blue-500/40 transition-all">
             <div>
-              <div className="flex items-center gap-2.5 pb-4 border-b border-border/40">
-                <div className="flex size-9 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-600">
-                  <BookOpen className="size-4.5" />
+              <div className="flex items-center gap-2.5 pb-3 sm:pb-4 border-b border-border/40">
+                <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 shrink-0">
+                  <BookOpen className="size-4 sm:size-4.5" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-black text-foreground">The Midnight Academic Vault</h3>
+                  <h3 className="text-xs sm:text-base font-black text-foreground">The Midnight Academic Vault</h3>
                   <p className="text-[10px] sm:text-xs text-muted-foreground">45,000+ verified notes &amp; solved PYQs</p>
                 </div>
               </div>
@@ -259,9 +259,9 @@ export function VoxelFeaturesBento() {
               </div>
 
               {/* Active Subject Detail */}
-              <div className="mt-4 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-background p-4 text-left">
+              <div className="mt-4 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-background p-3.5 sm:p-4 text-left">
                 <p className="text-xs font-black text-foreground">{subjectData[activeSubject].name}</p>
-                <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+                <div className="mt-2.5 flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <FileText className="size-3 text-blue-500" />
                     <span>{subjectData[activeSubject].notes} Lecture Notes</span>
@@ -278,7 +278,7 @@ export function VoxelFeaturesBento() {
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between">
+            <div className="mt-5 sm:mt-6 pt-3 border-t border-border/40 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-semibold">Organized by semester &amp; branch</span>
               <Link
                 href="/academics"
@@ -291,20 +291,20 @@ export function VoxelFeaturesBento() {
           </div>
 
           {/* Bento Item 3: Campus Match & Secret Crush (5 cols) */}
-          <div className="md:col-span-5 rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-lg flex flex-col justify-between hover:border-pink-500/40 transition-all">
+          <div className="md:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-pink-500/40 transition-all">
             <div>
-              <div className="flex items-center gap-2.5 pb-4 border-b border-border/40">
-                <div className="flex size-9 items-center justify-center rounded-2xl bg-pink-500/15 text-pink-600">
-                  <Heart className="size-4.5 fill-pink-500/20 text-pink-600" />
+              <div className="flex items-center gap-2.5 pb-3 sm:pb-4 border-b border-border/40">
+                <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-pink-500/15 text-pink-600 shrink-0">
+                  <Heart className="size-4 sm:size-4.5 fill-pink-500/20 text-pink-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-black text-foreground">Campus Match &amp; Crush Deck</h3>
+                  <h3 className="text-xs sm:text-base font-black text-foreground">Campus Match &amp; Crush Deck</h3>
                   <p className="text-[10px] sm:text-xs text-muted-foreground">Verified student swipe deck • Zero creeps</p>
                 </div>
               </div>
 
               {/* Swipe Card Mockup */}
-              <div className="mt-5 rounded-2xl border border-pink-500/30 bg-gradient-to-b from-pink-500/5 via-background to-background p-4 text-left relative overflow-hidden">
+              <div className="mt-4 sm:mt-5 rounded-2xl border border-pink-500/30 bg-gradient-to-b from-pink-500/5 via-background to-background p-3.5 sm:p-4 text-left relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="size-8 rounded-full bg-pink-500 flex items-center justify-center text-white text-xs font-black">
@@ -321,11 +321,11 @@ export function VoxelFeaturesBento() {
                   </span>
                 </div>
 
-                <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed italic">
+                <p className="mt-2.5 sm:mt-3 text-[11px] text-muted-foreground leading-relaxed italic">
                   &ldquo;Looking for someone to survive thermodynamics with or go on late canteen walks.&rdquo;
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-2.5 sm:mt-3 flex flex-wrap gap-1.5">
                   <span className="rounded-md bg-muted px-2 py-0.5 text-[9px] font-bold text-foreground flex items-center gap-1">
                     <Sparkles className="size-2.5 text-amber-500" />
                     <span>Chai Connoisseur</span>
@@ -336,14 +336,14 @@ export function VoxelFeaturesBento() {
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-center justify-center gap-4 pt-2">
+                <div className="mt-3.5 sm:mt-4 flex items-center justify-center gap-4 pt-1 sm:pt-2">
                   <button
                     type="button"
                     onClick={() => {
                       sounds.pop();
                       haptics.light();
                     }}
-                    className="flex size-10 items-center justify-center rounded-full border border-border/80 bg-background text-muted-foreground hover:scale-110 active:scale-95 transition-all shadow-xs cursor-pointer"
+                    className="flex size-10 items-center justify-center rounded-full border border-border/80 bg-background text-muted-foreground hover:scale-110 active:scale-95 transition-all shadow-xs cursor-pointer touch-manipulation"
                     aria-label="Pass"
                   >
                     ✕
@@ -354,7 +354,7 @@ export function VoxelFeaturesBento() {
                       sounds.match();
                       haptics.medium();
                     }}
-                    className="flex size-11 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                    className="flex size-11 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer touch-manipulation"
                     aria-label="Like"
                   >
                     <Heart className="size-5 fill-white" />
@@ -363,7 +363,7 @@ export function VoxelFeaturesBento() {
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between">
+            <div className="mt-5 sm:mt-6 pt-3 border-t border-border/40 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-semibold">Strict university email gating</span>
               <Link
                 href="/dating"
@@ -376,15 +376,15 @@ export function VoxelFeaturesBento() {
           </div>
 
           {/* Bento Item 4: 1,350+ Colleges & Communities (7 cols) */}
-          <div className="md:col-span-7 rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-lg flex flex-col justify-between hover:border-amber-500/40 transition-all">
+          <div className="md:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-amber-500/40 transition-all">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-border/40">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border/40">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex size-9 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-600">
-                    <GraduationCap className="size-4.5" />
+                  <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 shrink-0">
+                    <GraduationCap className="size-4 sm:size-4.5" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-black text-foreground">1,350+ Live College Hubs</h3>
+                    <h3 className="text-xs sm:text-base font-black text-foreground">1,350+ Live College Hubs</h3>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">Every tier-1 institute, NIT, and university indexed</p>
                   </div>
                 </div>

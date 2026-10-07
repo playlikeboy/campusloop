@@ -54,7 +54,7 @@ export function VoxelStreakSection() {
   };
 
   return (
-    <section id="how-it-works" className="relative py-16 sm:py-24 overflow-hidden bg-background select-none">
+    <section id="how-it-works" className="relative py-10 sm:py-20 md:py-24 overflow-hidden bg-background select-none">
       {/* 3D Floating decorative voxel blocks */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <motion.span
@@ -81,52 +81,46 @@ export function VoxelStreakSection() {
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Section Pill Badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3.5 border border-emerald-500/20">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 sm:mb-3.5 border border-emerald-500/20">
           <MessageSquare className="size-3.5 text-[#22c55e]" />
           <span>Real Campus Life • Real Time</span>
         </div>
 
         {/* Section Heading: Pitchy Viral Copy */}
-        <h2 className="text-2xl font-black uppercase tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-tight drop-shadow-xs">
-          THE HOSTEL TEA YOU CANNOT FIND
-          <br />
+        <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.12] drop-shadow-xs">
+          THE HOSTEL TEA YOU CANNOT FIND{" "}
+          <br className="hidden sm:inline" />
           <span className="text-[#16a34a] dark:text-emerald-400">ON LINKEDIN OR INSTAGRAM.</span>
         </h2>
 
         {/* Subtitle */}
-        <p className="mt-4 text-xs sm:text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
+        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
           Inside jokes, mess food crises, mid-sem survival panic, and club election drama. Everything real that happens between lectures, captured in high-definition voxel motion.
         </p>
 
-        {/* 2 Symmetrical Stat Pills with 3D Hover Lift */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-5">
+        {/* 2 Symmetrical Stat Pills */}
+        <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 max-w-xs sm:max-w-md mx-auto sm:flex sm:items-center sm:justify-center sm:gap-5">
           {/* Streak Pill */}
-          <motion.div
-            whileHover={{ y: -3, scale: 1.04 }}
-            className="flex items-center gap-3.5 rounded-2xl border border-border/80 bg-card/90 px-5 py-3 shadow-md shadow-amber-500/5 backdrop-blur-sm transition-shadow cursor-default"
-          >
-            <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
-              <Flame className="size-5 fill-amber-500 text-amber-500" />
+          <div className="flex items-center gap-2.5 sm:gap-3.5 rounded-2xl border border-border/80 bg-card/90 p-3 sm:px-5 sm:py-3 shadow-xs backdrop-blur-sm">
+            <div className="flex size-8 sm:size-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500 shrink-0">
+              <Flame className="size-4 sm:size-5 fill-amber-500 text-amber-500" />
             </div>
-            <div className="text-left">
-              <p className="text-sm font-black text-foreground">14-Day Streak</p>
-              <p className="text-[11px] font-semibold text-muted-foreground">Campus Fire Level</p>
+            <div className="text-left min-w-0">
+              <p className="text-xs sm:text-sm font-black text-foreground truncate">14-Day Streak</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">Campus Fire</p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Level Pill */}
-          <motion.div
-            whileHover={{ y: -3, scale: 1.04 }}
-            className="flex items-center gap-3.5 rounded-2xl border border-border/80 bg-card/90 px-5 py-3 shadow-md shadow-blue-500/5 backdrop-blur-sm transition-shadow cursor-default"
-          >
-            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
-              <Trophy className="size-5 text-blue-600" />
+          <div className="flex items-center gap-2.5 sm:gap-3.5 rounded-2xl border border-border/80 bg-card/90 p-3 sm:px-5 sm:py-3 shadow-xs backdrop-blur-sm">
+            <div className="flex size-8 sm:size-10 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 shrink-0">
+              <Trophy className="size-4 sm:size-5 text-blue-600" />
             </div>
-            <div className="text-left">
-              <p className="text-sm font-black text-foreground">Top 1% Rank</p>
-              <p className="text-[11px] font-semibold text-muted-foreground">4,820 Loop Points (LP)</p>
+            <div className="text-left min-w-0">
+              <p className="text-xs sm:text-sm font-black text-foreground truncate">Top 1% Rank</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">4,820 LP</p>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* 3D Interactive Gossiping Voxel Video with Spring Motion & Audio Control */}
@@ -140,7 +134,7 @@ export function VoxelStreakSection() {
             transformStyle: "preserve-3d",
           }}
           animate={{
-            y: [0, -6, 0],
+            y: [0, -4, 0],
           }}
           transition={{
             y: {
@@ -149,10 +143,10 @@ export function VoxelStreakSection() {
               ease: "easeInOut",
             },
           }}
-          className="relative mt-10 sm:mt-14 mx-auto max-w-2xl cursor-pointer perspective-1000"
+          className="relative mt-8 sm:mt-12 mx-auto max-w-2xl cursor-pointer perspective-1000"
         >
-          <div className="group relative aspect-video w-full overflow-hidden rounded-3xl border border-border/70 bg-card/60 p-1.5 shadow-2xl backdrop-blur-md transition-all hover:border-emerald-500/40 hover:shadow-emerald-500/10">
-            <div className="relative size-full overflow-hidden rounded-[22px] bg-black">
+          <div className="group relative aspect-video w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-border/70 bg-card/60 p-1 sm:p-1.5 shadow-xl backdrop-blur-md transition-all hover:border-emerald-500/40 hover:shadow-emerald-500/10">
+            <div className="relative size-full overflow-hidden rounded-[18px] sm:rounded-[22px] bg-black">
               <video
                 ref={videoRef}
                 src="/campusloop/marketing/voxel/videos/gossiping.mp4"

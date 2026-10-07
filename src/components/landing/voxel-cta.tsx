@@ -63,7 +63,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
   };
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white select-none">
+    <section className="relative w-full min-h-[auto] sm:min-h-[85vh] lg:min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white select-none">
       {/* Background Video: Full Screen, Edge-to-Edge, Vibrant Cloudflare CDN */}
       <div className="absolute inset-0 z-0">
         <video
@@ -97,11 +97,11 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
       </div>
 
       {/* Top Controls Bar: Full Width Edge-to-Edge */}
-      <div className="relative z-10 w-full flex items-center justify-between gap-4 px-6 sm:px-12 lg:px-16 pt-8 sm:pt-12">
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-black/60 px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-md shadow-xs">
-          <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse" />
-          <span className="tracking-wide uppercase text-[11px] font-black">
-            Your Batch Is Waiting • 1,350+ Campuses Live
+      <div className="relative z-10 w-full flex items-center justify-between gap-3 px-4 sm:px-12 lg:px-16 pt-6 sm:pt-12">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-emerald-500/30 bg-black/60 px-3 sm:px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-md shadow-xs">
+          <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse shrink-0" />
+          <span className="tracking-wide uppercase text-[10px] sm:text-[11px] font-black truncate max-w-[180px] sm:max-w-none">
+            1,350+ Campuses Live
           </span>
         </div>
 
@@ -112,7 +112,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             type="button"
             onClick={toggleSound}
             aria-label={isMuted ? "Turn sound on" : "Turn sound off"}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold backdrop-blur-md transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 sm:px-3.5 py-1.5 min-h-[36px] text-xs font-bold backdrop-blur-md transition-all cursor-pointer ${
               !isMuted
                 ? "border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-[0_0_15px_rgba(52,211,153,0.3)]"
                 : "border-white/20 bg-black/60 text-white/80 hover:bg-black/90 hover:text-white"
@@ -121,12 +121,12 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             {!isMuted ? (
               <>
                 <Volume2 className="size-3.5 text-emerald-400 animate-pulse" />
-                <span className="text-[11px]">Audio On</span>
+                <span className="text-[10px] sm:text-[11px]">Audio On</span>
               </>
             ) : (
               <>
                 <VolumeX className="size-3.5" />
-                <span className="text-[11px]">Mute</span>
+                <span className="text-[10px] sm:text-[11px]">Mute</span>
               </>
             )}
           </button>
@@ -136,7 +136,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
             type="button"
             onClick={togglePlayback}
             aria-label={isPlaying ? "Pause background video" : "Play background video"}
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md hover:bg-black/90 hover:text-white transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-3 sm:px-3.5 py-1.5 min-h-[36px] text-xs font-medium text-white/80 backdrop-blur-md hover:bg-black/90 hover:text-white transition-all cursor-pointer"
           >
             {isPlaying ? (
               <>
@@ -154,8 +154,8 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
       </div>
 
       {/* Main Typographic Body: Punchy Viral Closer */}
-      <div className="relative z-10 w-full px-6 sm:px-12 lg:px-16 py-12 sm:py-20 text-left max-w-3xl">
-        <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.92] text-white">
+      <div className="relative z-10 w-full px-4 sm:px-12 lg:px-16 py-8 sm:py-16 text-left max-w-3xl">
+        <h2 className="text-3xl sm:text-6xl lg:text-8xl font-black uppercase tracking-tight leading-[0.98] sm:leading-[0.92] text-white">
           YOUR BATCH
           <br />
           IS ALREADY
@@ -165,19 +165,19 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
           </span>
         </h2>
 
-        <p className="mt-6 text-sm sm:text-base text-white/90 max-w-lg font-medium leading-relaxed tracking-wide drop-shadow-sm">
+        <p className="mt-4 sm:mt-6 text-xs sm:text-base text-white/90 max-w-lg font-medium leading-relaxed tracking-wide drop-shadow-sm">
           Stop digging through buried WhatsApp documents and dead Discord servers. Claim your verified student handle, drop into your college hub, and never miss what happens on campus again.
         </p>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
             onClick={() => {
               sounds.tap();
               haptics.medium();
             }}
-            className="group relative inline-flex items-center justify-center gap-3 rounded-full border border-emerald-400/90 bg-[#22c55e] px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-wider text-black backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:bg-[#16a34a] hover:text-white hover:shadow-[0_0_45px_rgba(34,197,94,0.7)] active:scale-95 transition-all cursor-pointer"
+            className="group relative inline-flex items-center justify-center gap-2.5 rounded-full border border-emerald-400/90 bg-[#22c55e] px-6 sm:px-8 py-3.5 sm:py-4 min-h-[48px] text-xs sm:text-sm font-black uppercase tracking-wider text-black backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:bg-[#16a34a] hover:text-white hover:shadow-[0_0_45px_rgba(34,197,94,0.7)] active:scale-95 transition-all cursor-pointer"
           >
             <Zap className="size-4" />
             <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>
@@ -190,7 +190,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
               sounds.tap();
               haptics.light();
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-4 text-xs sm:text-sm font-bold tracking-wide text-white backdrop-blur-md hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 sm:px-7 py-3.5 sm:py-4 min-h-[48px] text-xs sm:text-sm font-bold tracking-wide text-white backdrop-blur-md hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
           >
             <Compass className="size-4 text-white/80" />
             <span>Explore 1,350+ Campuses</span>
@@ -199,15 +199,15 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
       </div>
 
       {/* Bottom Bar: Full Width Edge-to-Edge */}
-      <div className="relative z-10 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 sm:px-12 lg:px-16 pb-8 pt-6 border-t border-white/15 text-xs text-white/80">
+      <div className="relative z-10 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-12 lg:px-16 pb-6 sm:pb-8 pt-4 sm:pt-6 border-t border-white/15 text-xs text-white/80">
         <div className="flex items-center gap-2 font-medium">
-          <Shield className="size-4 text-emerald-400" />
-          <span className="uppercase tracking-widest text-[11px] text-white/90">
+          <Shield className="size-4 text-emerald-400 shrink-0" />
+          <span className="uppercase tracking-widest text-[10px] sm:text-[11px] text-white/90">
             The Verified Student Layer • Founded at BIT Mesra • Gated by .ac.in
           </span>
         </div>
 
-        <div className="flex items-center gap-4 uppercase tracking-widest text-[11px] font-bold text-white/70">
+        <div className="flex items-center gap-3 sm:gap-4 uppercase tracking-widest text-[10px] sm:text-[11px] font-bold text-white/70">
           <span>Unfiltered</span>
           <span>•</span>
           <span>Verified</span>
