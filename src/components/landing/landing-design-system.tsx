@@ -23,7 +23,7 @@ export function LandingSection({ id, bg = "default", className, children }: Land
     <section
       id={id}
       className={cn(
-        "relative border-t border-border/50 py-20 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-x-clip",
+        "relative border-t border-border/50 py-12 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-x-clip",
         bgClasses,
         className
       )}
@@ -159,7 +159,7 @@ export function LandingCard({ className, hoverable = true, children }: LandingCa
   return (
     <div
       className={cn(
-        "relative rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-6 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all duration-300",
+        "relative rounded-2xl sm:rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-4 sm:p-6 lg:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all duration-300",
         hoverable &&
           "hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-zinc-300/90 dark:hover:border-white/20 hover:-translate-y-0.5",
         className

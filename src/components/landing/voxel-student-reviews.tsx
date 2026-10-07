@@ -35,10 +35,10 @@ export function VoxelStudentReviews() {
   ];
 
   return (
-    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-background via-emerald-50/10 to-background overflow-hidden select-none">
+    <section className="relative py-10 sm:py-20 md:py-24 bg-gradient-to-b from-background via-emerald-50/10 to-background overflow-hidden select-none">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3 border border-emerald-500/20 shadow-xs">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20 shadow-xs">
             <ShieldCheck className="size-3.5 text-[#22c55e]" />
             <span>Unfiltered Campus Feedback</span>
           </div>
@@ -48,17 +48,17 @@ export function VoxelStudentReviews() {
             <br />
             <span className="text-[#16a34a] dark:text-emerald-400">CLOSED HOSTEL DOORS.</span>
           </h2>
-          <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
+          <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground">
             From premier tech institutes to central universities — built by students, for students.
           </p>
         </div>
 
         {/* 3 Review Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {reviews.map((rev) => (
             <div
               key={rev.name}
-              className="rounded-3xl border border-border/70 bg-card p-6 shadow-md flex flex-col justify-between hover:border-emerald-500/40 transition-all hover:-translate-y-1 duration-300"
+              className="rounded-2xl sm:rounded-3xl border border-border/70 bg-card p-4 sm:p-6 shadow-md flex flex-col justify-between hover:border-emerald-500/40 transition-all hover:-translate-y-1 duration-300"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">

@@ -88,7 +88,7 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
   };
 
   return (
-    <section className="relative w-full min-h-[95vh] sm:min-h-screen flex flex-col justify-between overflow-hidden bg-background select-none pt-4 pb-14 sm:pb-20">
+    <section className="relative w-full min-h-[auto] sm:min-h-[100dvh] flex flex-col justify-start sm:justify-between overflow-hidden bg-background select-none pt-2 sm:pt-4 pb-8 sm:pb-16">
       {/* Background Video: Edge-to-Edge Full Screen, Looping Cloudflare CDN */}
       <div className="absolute inset-0 z-0">
         <video
@@ -104,33 +104,33 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
           <source src="/campusloop/marketing/voxel/videos/hero.mp4" type="video/mp4" />
         </video>
 
-        {/* Lightweight translucent scrim ensuring text is 100% readable while video stays vibrant */}
+        {/* Directional contrast gradient keeping video lively while text has crisp contrast */}
         <div
-          className="absolute inset-0 bg-background/55 dark:bg-black/60 backdrop-blur-[1px] pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/60 to-background dark:from-black/92 dark:via-black/65 dark:to-background pointer-events-none"
           aria-hidden="true"
         />
         <div
-          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background via-background/70 to-transparent pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none"
           aria-hidden="true"
         />
       </div>
 
       {/* Floating Controls Bar: Top Edge-to-Edge */}
-      <div className="relative z-20 w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 pt-2">
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-background/85 dark:bg-black/75 px-3.5 py-1 text-xs font-bold text-[#16a34a] dark:text-emerald-400 backdrop-blur-md shadow-xs">
+      <div className="relative z-20 w-full flex items-center justify-between px-3 sm:px-8 lg:px-12 pt-1 sm:pt-2">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-emerald-500/30 bg-background/90 dark:bg-black/75 px-3 py-1 text-[11px] font-bold text-[#16a34a] dark:text-emerald-400 backdrop-blur-md shadow-xs">
           <span className="size-2 rounded-full bg-[#22c55e] animate-pulse" />
-          <span className="text-[11px] font-black uppercase tracking-wider">
-            100% Verified Students • Zero Outsiders
+          <span className="font-black uppercase tracking-wider text-[10px] sm:text-[11px]">
+            100% Verified Students • 1,350+ Colleges
           </span>
         </div>
 
         {/* Sound Toggle + Video Playback Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={toggleSound}
             aria-label={isMuted ? "Unmute hero video sound" : "Mute hero video sound"}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black backdrop-blur-md transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2.5 sm:px-3 py-1 text-[11px] font-black backdrop-blur-md transition-all cursor-pointer ${
               !isMuted
                 ? "border-emerald-500 bg-emerald-500/20 text-[#16a34a] dark:text-emerald-300 shadow-md shadow-emerald-500/20"
                 : "border-border/60 bg-background/80 dark:bg-black/70 text-foreground/80 hover:bg-background"
@@ -139,12 +139,12 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             {!isMuted ? (
               <>
                 <Volume2 className="size-3.5 text-[#22c55e] animate-pulse" />
-                <span className="text-[11px]">Audio On</span>
+                <span className="text-[10px] sm:text-[11px]">Audio On</span>
               </>
             ) : (
               <>
                 <VolumeX className="size-3.5 text-muted-foreground" />
-                <span className="text-[11px]">Mute</span>
+                <span className="text-[10px] sm:text-[11px]">Mute</span>
               </>
             )}
           </button>
@@ -153,7 +153,7 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             type="button"
             onClick={togglePlayback}
             aria-label={isPlaying ? "Pause video" : "Play video"}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/80 dark:bg-black/70 px-3 py-1.5 text-xs font-semibold text-foreground/80 backdrop-blur-md hover:bg-background transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/80 dark:bg-black/70 px-2.5 sm:px-3 py-1 text-[11px] font-semibold text-foreground/80 backdrop-blur-md hover:bg-background transition-all cursor-pointer"
           >
             {isPlaying ? (
               <>
@@ -170,124 +170,114 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
         </div>
       </div>
 
-      {/* Main Pitchy Viral Hero Text */}
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 text-center mt-4 sm:mt-6">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3.5 border border-emerald-500/20">
-          <Sparkles className="size-3.5 text-[#22c55e]" />
-          <span>The Unfiltered Digital Campus Layer</span>
-        </div>
-
-        <h1 className="text-3xl font-black uppercase tracking-tight text-foreground sm:text-5xl lg:text-7xl max-w-5xl mx-auto leading-[1.05] drop-shadow-sm">
-          WHERE YOUR CAMPUS
-          <br />
+      {/* Main Pitchy Hero Content */}
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 text-center mt-3 sm:mt-5">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tight text-foreground max-w-4xl mx-auto leading-[1.08] sm:leading-[1.02] drop-shadow-sm">
+          WHERE YOUR CAMPUS{" "}
+          <br className="hidden sm:inline" />
           <span className="text-[#16a34a] dark:text-emerald-400">ACTUALLY TALKS.</span>
         </h1>
 
-        <p className="mt-3.5 text-xs sm:text-base md:text-lg text-foreground/85 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-xs">
-          No recruiters. No boomers. No corporate ad tracking. Drop anonymous hostel confessions, download verified semester PYQs, discover campus crushes, and tap the pulse before your 8 AM lecture.
+        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-foreground/80 dark:text-stone-300 font-medium max-w-xl mx-auto leading-relaxed">
+          No recruiters. No boomers. The verified private network for inside hostel tea, anonymous confessions, 45,000+ notes &amp; PYQs, and campus crushes.
         </p>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+        {/* Mobile-First Action Buttons */}
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 max-w-xs sm:max-w-none mx-auto">
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] px-8 py-4 text-sm font-black text-white shadow-xl shadow-emerald-500/30 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-12 sm:h-13 items-center justify-center gap-2 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-6 sm:px-8 text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
           >
-            <Zap className="size-4" />
+            <Zap className="size-4 shrink-0" />
             <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-4 shrink-0" />
           </Link>
 
           <Link
             href="/colleges"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-border/70 bg-background/85 hover:bg-background px-6 py-4 text-sm font-bold text-foreground backdrop-blur-md shadow-md active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-border/80 bg-background/80 hover:bg-muted/70 px-5 sm:px-6 text-xs sm:text-sm font-bold text-foreground backdrop-blur-sm active:scale-95 transition-all cursor-pointer"
           >
-            <Compass className="size-4 text-emerald-500" />
+            <Compass className="size-4 text-[#16a34a] shrink-0" />
             <span>Explore 1,350+ Colleges</span>
           </Link>
         </div>
 
-        {/* Micro Social Proof Badges */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[11px] sm:text-xs font-bold text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <GraduationCap className="size-3.5 text-[#16a34a]" />
-            <span>1,350+ Colleges Live</span>
+        {/* Mobile-First 3-Column Trust Stats */}
+        <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-6 max-w-xs sm:max-w-xl mx-auto pt-3 border-t border-border/40 text-center">
+          <div>
+            <p className="text-sm sm:text-lg font-black text-foreground">1,350+</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Colleges Live</p>
           </div>
-          <span className="text-border">•</span>
-          <div className="flex items-center gap-1.5">
-            <BookOpen className="size-3.5 text-blue-500" />
-            <span>45,000+ Verified Notes &amp; PYQs</span>
+          <div className="border-x border-border/40">
+            <p className="text-sm sm:text-lg font-black text-foreground">45,000+</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Notes &amp; PYQs</p>
           </div>
-          <span className="text-border">•</span>
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-emerald-500" />
-            <span>100% Student-ID Gated</span>
+          <div>
+            <p className="text-sm sm:text-lg font-black text-[#16a34a] dark:text-emerald-400">100%</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Student Gated</p>
           </div>
         </div>
       </div>
 
-      {/* Central Phone Mockup with 4 Floating Symmetrical Action Cards */}
-      <div className="relative z-10 mx-auto w-full max-w-[310px] sm:max-w-[350px] mt-8 sm:mt-12">
-        {/* Top-Left: Anon Confessions */}
+      {/* Central Phone Mockup Area */}
+      <div className="relative z-10 mx-auto w-full max-w-[290px] sm:max-w-[340px] mt-6 sm:mt-10 px-1">
+        {/* Desktop Only: Symmetrical Floating Action Cards (Flanking Phone) */}
         <Link
           href="/feeds"
-          className="group absolute -left-12 sm:-left-40 top-3 sm:top-5 z-30 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5 sm:p-3.5 shadow-xl shadow-rose-500/10 backdrop-blur-md hover:scale-105 hover:border-rose-500/40 transition-all cursor-pointer max-w-[150px] sm:max-w-[185px]"
+          className="group hidden md:flex absolute -left-36 lg:-left-44 top-4 z-30 items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-3 shadow-xl shadow-rose-500/10 backdrop-blur-md hover:scale-105 hover:border-rose-500/40 transition-all cursor-pointer max-w-[170px]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 sm:size-8 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 shrink-0">
+            <div className="flex size-7.5 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 shrink-0">
               <MessageSquare className="size-4" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] sm:text-xs font-black text-foreground">Anon Confessions</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Hostel lore &amp; tea</p>
+              <p className="text-xs font-black text-foreground">Anon Confessions</p>
+              <p className="text-[10px] text-muted-foreground">Hostel lore &amp; tea</p>
             </div>
           </div>
         </Link>
 
-        {/* Top-Right: Academic Vault */}
         <Link
           href="/academics"
-          className="group absolute -right-12 sm:-right-40 top-3 sm:top-5 z-30 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5 sm:p-3.5 shadow-xl shadow-blue-500/10 backdrop-blur-md hover:scale-105 hover:border-blue-500/40 transition-all cursor-pointer max-w-[150px] sm:max-w-[185px]"
+          className="group hidden md:flex absolute -right-36 lg:-right-44 top-4 z-30 items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-3 shadow-xl shadow-blue-500/10 backdrop-blur-md hover:scale-105 hover:border-blue-500/40 transition-all cursor-pointer max-w-[170px]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 sm:size-8 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 shrink-0">
+            <div className="flex size-7.5 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 shrink-0">
               <BookOpen className="size-4" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] sm:text-xs font-black text-foreground">Academic Vault</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Solved PYQs &amp; Notes</p>
+              <p className="text-xs font-black text-foreground">Academic Vault</p>
+              <p className="text-[10px] text-muted-foreground">Solved PYQs &amp; Notes</p>
             </div>
           </div>
         </Link>
 
-        {/* Bottom-Left: Campus Match */}
         <Link
           href="/dating"
-          className="group absolute -left-12 sm:-left-40 bottom-4 sm:bottom-8 z-30 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5 sm:p-3.5 shadow-xl shadow-pink-500/10 backdrop-blur-md hover:scale-105 hover:border-pink-500/40 transition-all cursor-pointer max-w-[150px] sm:max-w-[185px]"
+          className="group hidden md:flex absolute -left-36 lg:-left-44 bottom-6 z-30 items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-3 shadow-xl shadow-pink-500/10 backdrop-blur-md hover:scale-105 hover:border-pink-500/40 transition-all cursor-pointer max-w-[170px]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 sm:size-8 items-center justify-center rounded-xl bg-pink-500/15 text-pink-600 shrink-0">
+            <div className="flex size-7.5 items-center justify-center rounded-xl bg-pink-500/15 text-pink-600 shrink-0">
               <Heart className="size-4" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] sm:text-xs font-black text-foreground">Campus Match</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Secret crush radar</p>
+              <p className="text-xs font-black text-foreground">Campus Match</p>
+              <p className="text-[10px] text-muted-foreground">Secret crush radar</p>
             </div>
           </div>
         </Link>
 
-        {/* Bottom-Right: Level & Clout */}
         <Link
           href="/feeds"
-          className="group absolute -right-12 sm:-right-40 bottom-4 sm:bottom-8 z-30 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5 sm:p-3.5 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:scale-105 hover:border-amber-500/40 transition-all cursor-pointer max-w-[150px] sm:max-w-[185px]"
+          className="group hidden md:flex absolute -right-36 lg:-right-44 bottom-6 z-30 items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/90 p-3 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:scale-105 hover:border-amber-500/40 transition-all cursor-pointer max-w-[170px]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 sm:size-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 shrink-0">
+            <div className="flex size-7.5 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 shrink-0">
               <Flame className="size-4" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] sm:text-xs font-black text-foreground">Loop Points (LP)</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Level 38 Legend</p>
+              <p className="text-xs font-black text-foreground">Loop Points (LP)</p>
+              <p className="text-[10px] text-muted-foreground">Level 38 Legend</p>
             </div>
           </div>
         </Link>
@@ -382,6 +372,61 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             </span>
             <span className="text-[#16a34a] font-black">+50 LP Daily</span>
           </div>
+        </div>
+
+        {/* Mobile 2x2 Feature Highlights (In normal document flow, 0% overlap) */}
+        <div className="grid grid-cols-2 gap-2 mt-3.5 md:hidden">
+          <Link
+            href="/feeds"
+            className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/70 bg-card/90 shadow-2xs backdrop-blur-sm"
+          >
+            <div className="flex size-7 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 shrink-0">
+              <MessageSquare className="size-3.5" />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="text-[11px] font-black text-foreground truncate">Confessions</p>
+              <p className="text-[9px] text-muted-foreground truncate">Hostel lore &amp; tea</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/academics"
+            className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/70 bg-card/90 shadow-2xs backdrop-blur-sm"
+          >
+            <div className="flex size-7 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 shrink-0">
+              <BookOpen className="size-3.5" />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="text-[11px] font-black text-foreground truncate">Notes Vault</p>
+              <p className="text-[9px] text-muted-foreground truncate">Solved PYQs</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/dating"
+            className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/70 bg-card/90 shadow-2xs backdrop-blur-sm"
+          >
+            <div className="flex size-7 items-center justify-center rounded-xl bg-pink-500/15 text-pink-600 shrink-0">
+              <Heart className="size-3.5" />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="text-[11px] font-black text-foreground truncate">Campus Match</p>
+              <p className="text-[9px] text-muted-foreground truncate">Crush radar</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/feeds"
+            className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/70 bg-card/90 shadow-2xs backdrop-blur-sm"
+          >
+            <div className="flex size-7 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 shrink-0">
+              <Flame className="size-3.5" />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="text-[11px] font-black text-foreground truncate">Loop Points</p>
+              <p className="text-[9px] text-muted-foreground truncate">Clout &amp; Rank</p>
+            </div>
+          </Link>
         </div>
       </div>
     </section>

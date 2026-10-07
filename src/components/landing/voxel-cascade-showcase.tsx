@@ -8,22 +8,22 @@ import { haptics } from "@/lib/haptics";
 
 export function VoxelCascadeShowcase() {
   return (
-    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-background via-emerald-50/15 to-background overflow-hidden select-none">
+    <section className="relative py-10 sm:py-20 md:py-24 bg-gradient-to-b from-background via-emerald-50/15 to-background overflow-hidden select-none">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Cascading 3D Perspective Mockup Cards */}
           <div className="lg:col-span-7 relative order-2 lg:order-1 perspective-1000">
             {/* Background Voxel Glow */}
             <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-emerald-500/10 via-emerald-400/5 to-transparent blur-2xl" />
 
             {/* Cascading Mobile Stack Mockup with subtle 3D float */}
-            <div className="relative grid grid-cols-2 gap-4 sm:gap-6">
+            <div className="relative grid grid-cols-2 gap-3 sm:gap-6">
               {/* Phone 1: Campus Feed Stream */}
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                 whileHover={{ rotate: 0, scale: 1.03, y: -8 }}
-                className="rounded-3xl border border-border/80 bg-card p-4 shadow-xl -rotate-2 transition-all duration-300 cursor-default"
+                className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-4 shadow-lg sm:shadow-xl rotate-0 sm:-rotate-2 transition-all duration-300 cursor-default"
               >
                 <div className="flex items-center gap-2 pb-3 border-b border-border/40">
                   <div className="size-6 rounded-full bg-[#22c55e] flex items-center justify-center text-white text-[9px] font-black">
@@ -70,7 +70,7 @@ export function VoxelCascadeShowcase() {
                 animate={{ y: [0, 6, 0] }}
                 transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                 whileHover={{ rotate: 0, scale: 1.03, y: -4 }}
-                className="rounded-3xl border border-border/80 bg-card p-4 shadow-xl rotate-3 translate-y-4 sm:translate-y-6 transition-all duration-300 cursor-default"
+                className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-4 shadow-lg sm:shadow-xl rotate-0 sm:rotate-3 translate-y-0 sm:translate-y-6 transition-all duration-300 cursor-default"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-border/40">
                   <div className="flex items-center gap-2">
@@ -128,13 +128,13 @@ export function VoxelCascadeShowcase() {
               <span>Stop The WhatsApp Group Chaos</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.1] sm:leading-[1.08]">
               REPLACE 17 CLUTTERED
               <br />
               <span className="text-[#16a34a] dark:text-emerald-400">WHATSAPP GROUPS.</span>
             </h2>
 
-            <p className="mt-4 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
               No buried PDFs. No creepy DMs from random phone numbers. No fake internship forwards. Just clean, threaded campus conversations, instant exam survival notes, and real verified students.
             </p>
 
@@ -145,7 +145,7 @@ export function VoxelCascadeShowcase() {
                   sounds.tap();
                   haptics.medium();
                 }}
-                className="inline-flex items-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] px-6 py-3.5 text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] px-5 sm:px-6 py-3 sm:py-3.5 min-h-[44px] text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
               >
                 <span>Find Your College Hub</span>
                 <ArrowRight className="size-4" />
@@ -157,7 +157,7 @@ export function VoxelCascadeShowcase() {
                   sounds.tap();
                   haptics.light();
                 }}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card hover:bg-muted px-5 py-3.5 text-xs sm:text-sm font-bold text-foreground transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card hover:bg-muted px-4 sm:px-5 py-3 sm:py-3.5 min-h-[44px] text-xs sm:text-sm font-bold text-foreground transition-all cursor-pointer"
               >
                 <BookOpen className="size-4 text-blue-500" />
                 <span>Browse 45K+ Notes</span>

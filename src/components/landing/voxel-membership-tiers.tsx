@@ -61,7 +61,7 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
   ];
 
   return (
-    <section id="membership" className="relative py-20 sm:py-28 bg-[#0b1510] text-white overflow-hidden select-none">
+    <section id="membership" className="relative py-12 sm:py-20 md:py-24 bg-[#0b1510] text-white overflow-hidden select-none">
       {/* Voxel starry dusk sky gradient and pixel blocks */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b1510] via-[#0f2219] to-[#0b1510]" />
@@ -88,13 +88,13 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
         </p>
 
         {/* 3 Clean Cards */}
-        <div className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left items-stretch">
+        <div className="mt-8 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 text-left items-stretch">
           {tiers.map((tier) => {
             const Icon = tier.icon;
             return (
               <div
                 key={tier.title}
-                className={`relative flex flex-col justify-between rounded-3xl bg-white p-6 sm:p-7 text-stone-900 shadow-2xl transition-all duration-300 ${
+                className={`relative flex flex-col justify-between rounded-2xl sm:rounded-3xl bg-white p-5 sm:p-7 text-stone-900 shadow-xl transition-all duration-300 ${
                   tier.isPrimary
                     ? "ring-4 ring-[#22c55e] md:-translate-y-2.5 shadow-emerald-500/20"
                     : "hover:-translate-y-1"
@@ -149,7 +149,7 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
                 <div className="mt-8 pt-2">
                   <Link
                     href={tier.buttonHref}
-                    className={`flex w-full items-center justify-center rounded-2xl py-3.5 text-xs font-black transition-all cursor-pointer ${
+                    className={`flex w-full items-center justify-center rounded-xl sm:rounded-2xl py-3 sm:py-3.5 min-h-[44px] text-xs font-black transition-all cursor-pointer ${
                       tier.isPrimary
                         ? "bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-emerald-500/30 active:scale-95"
                         : "bg-stone-100 hover:bg-stone-200 text-stone-900 active:scale-95"

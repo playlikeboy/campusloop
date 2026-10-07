@@ -49,10 +49,10 @@ export function VoxelFAQ() {
   };
 
   return (
-    <section className="relative py-20 sm:py-28 bg-background overflow-hidden select-none border-t border-border/40">
+    <section className="relative py-10 sm:py-20 md:py-24 bg-background overflow-hidden select-none border-t border-border/40">
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-3 border border-emerald-500/20 shadow-xs">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20 shadow-xs">
             <HelpCircle className="size-3.5 text-[#22c55e]" />
             <span>Got Questions? We Have Answers</span>
           </div>
@@ -60,7 +60,7 @@ export function VoxelFAQ() {
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
             FREQUENTLY ASKED QUESTIONS
           </h2>
-          <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
+          <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground">
             Everything you need to know about student privacy, verification, and joining the loop.
           </p>
         </div>
@@ -81,7 +81,7 @@ export function VoxelFAQ() {
                 <button
                   type="button"
                   onClick={() => toggle(idx)}
-                  className="flex w-full items-center justify-between p-4 sm:p-5 text-left text-xs sm:text-sm font-black text-foreground cursor-pointer"
+                  className="flex w-full items-center justify-between p-4 sm:p-5 min-h-[48px] text-left text-xs sm:text-sm font-black text-foreground cursor-pointer"
                   aria-expanded={isOpen}
                 >
                   <span>{faq.question}</span>
