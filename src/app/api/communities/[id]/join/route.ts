@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,12 @@ export async function POST(request: Request, { params }: RouteProps) {
         .update(communities)
         .set({ points: sql`${communities.points} + 15` })
         .where(eq(communities.id, comm.id));
+
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "COMMUNITY_JOIN",
+        resourceId: comm.id,
+      }).catch((err) => console.warn("Failed to record streak for community join:", err));
     }
 
     revalidatePath(`/communities/${comm.slug || comm.id}`);

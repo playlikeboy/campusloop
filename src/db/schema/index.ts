@@ -27,6 +27,7 @@ export * from "./relations";
 export * from "./rideshare";
 export * from "./saved-posts";
 export * from "./stories";
+export * from "./streaks";
 export * from "./time-capsule";
 export * from "./users";
 export * from "./r2-storage";

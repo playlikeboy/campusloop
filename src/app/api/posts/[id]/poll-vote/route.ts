@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { pollOptions, pollVotes, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 interface RouteParams {
@@ -96,6 +97,13 @@ export async function POST(req: Request, { params }: RouteParams) {
     if (insertedVotes.length === 0) {
       return NextResponse.json({ error: "You have already voted on this poll" }, { status: 400 });
     }
+
+    // Keep student streak alive for participating in campus polls
+    void recordStreakActivity({
+      userId: profile.id,
+      eventType: "POLL_VOTE",
+      sourceEntityId: postId,
+    }).catch((err) => console.warn("[Streak Poll Hook Error]:", err));
 
     return NextResponse.json(insertedVotes[0], { status: 201 });
   } catch (error) {

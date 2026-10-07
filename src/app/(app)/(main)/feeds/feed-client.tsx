@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
 import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
+import { StreakBanner } from "@/components/streaks/streak-banner";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
@@ -431,6 +432,11 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             scope={scope}
             institutionId={profile?.institutionId}
           />
+
+          {/* ─── Daily Mission & Streaks Banner ─── */}
+          <div className="p-3 sm:p-4 border-b border-border/30 bg-card/20">
+            <StreakBanner />
+          </div>
 
           {/* ─── Main Feed Stream (Twitter-Style Flat Timeline) ─── */}
           <div className="flex flex-col">

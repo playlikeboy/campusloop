@@ -49,6 +49,8 @@ import { SecretCrushButton } from "@/components/dating/secret-crush-button";
 import { FollowButton } from "@/components/profile/follow-button";
 import { ProfileHighlights } from "@/components/profile/profile-highlights";
 import { ProfileSocialLinks } from "@/components/profile/profile-social-links";
+import { ProfileStreakCard } from "@/components/streaks/profile-streak-card";
+import { useStreaks } from "@/hooks/use-streaks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import { getBranchIcon, slugifyBranch } from "@/constants";
@@ -135,6 +137,7 @@ export function ProfileClientView({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTabParam = searchParams?.get("tab");
+  const { streak: profileStreak } = useStreaks(profile.id);
 
   const [followers, setFollowers] = useState(followersCount);
   const [activeTab, setActiveTab] = useState<
@@ -801,6 +804,21 @@ export function ProfileClientView({
                 </div>
               </button>
 
+              {/* Day Streak */}
+              <Link
+                href="/streak"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                title="View streak details"
+              >
+                <div className="text-left leading-tight">
+                  <span className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
+                    <span>{profileStreak?.currentStreak ?? 0}</span>
+                    <Flame className="size-3 text-amber-500 fill-amber-500/20 inline" />
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Day streak</span>
+                </div>
+              </Link>
+
               {/* Followers */}
               <Link
                 href={`/@${profile.username}/followers`}
@@ -1142,6 +1160,9 @@ export function ProfileClientView({
 
         {activeTab === "clout" && (
           <div className="p-4 space-y-4">
+            {/* Campus Streak & Milestones Progression */}
+            <ProfileStreakCard profileId={profile.id} />
+
             {/* Campus Clout Standing & Tier Card */}
             <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5 space-y-3.5 shadow-2xs">
               <div className="flex items-center justify-between">
