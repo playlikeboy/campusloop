@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Heart, School, X } from "lucide-react";
+import { Heart, School, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,27 +52,8 @@ export function LikesClient() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 bg-background text-foreground select-none">
-      <header className="flex items-center gap-3 py-3 border-b border-border/30">
-        <Link
-          href="/matching"
-          aria-label="Back"
-          className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border border-border/40 cursor-pointer"
-        >
-          <ArrowLeft className="size-4.5" />
-        </Link>
-        <h1 className="flex items-center gap-2 text-base font-black tracking-tight text-foreground">
-          <Heart className="size-4 text-primary fill-primary" />
-          <span>Likes you</span>
-          {likes.length > 0 && (
-            <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-              {likes.length}
-            </span>
-          )}
-        </h1>
-      </header>
-
-      <main className="flex-1 pb-10 pt-4">
+    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none">
+      <div className="flex-1 py-2">
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
@@ -82,37 +63,45 @@ export function LikesClient() {
             ))}
           </div>
         ) : likes.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-24 text-center">
-            <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-              <Heart className="size-7 fill-primary" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+            <div className="size-16 rounded-3xl bg-pink-500/10 text-pink-600 flex items-center justify-center border border-pink-500/20 shadow-xs">
+              <Heart className="size-8 fill-pink-500 text-pink-500" />
             </div>
-            <div>
-              <p className="text-base font-bold text-foreground">No matches yet</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Keep swiping or upload photos to stand out in your campus deck.
+            <div className="space-y-1 max-w-xs">
+              <p className="text-base font-black text-foreground">No pending admirers</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Keep swiping on the campus deck or upload fresh photos to appear on more classmate screens!
               </p>
             </div>
-            <Link
-              href="/profile/edit"
-              className="text-xs font-bold text-primary hover:underline bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
-            >
-              Add photos &amp; interests
-            </Link>
+            <div className="flex items-center gap-2 pt-2">
+              <Link
+                href="/dating"
+                className="text-xs font-black text-white bg-pink-600 hover:bg-pink-700 px-5 py-2.5 rounded-full shadow-md shadow-pink-600/20 active:scale-95 transition-all"
+              >
+                Start Swiping
+              </Link>
+              <Link
+                href="/profile/edit"
+                className="text-xs font-bold text-muted-foreground hover:text-foreground bg-muted/60 px-4 py-2.5 rounded-full border border-border/40 transition-colors"
+              >
+                Edit Profile
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {likes.map((admirer) => (
               <div
                 key={admirer.id}
-                className="relative overflow-hidden rounded-2xl bg-neutral-900 ring-1 ring-white/10 shadow-md"
+                className="relative overflow-hidden rounded-2xl bg-neutral-900 ring-1 ring-white/10 shadow-md group"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={admirer.photo ?? getAvatarUrl(admirer.avatarUrl, admirer.username)}
                   alt={admirer.displayName}
-                  className="aspect-3/4 w-full object-cover"
+                  className="aspect-3/4 w-full object-cover group-hover:scale-102 transition-transform duration-300"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/95 via-black/20 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
 
                 <div className="absolute inset-x-0 bottom-0 space-y-2 p-3">
                   <div>
@@ -126,12 +115,12 @@ export function LikesClient() {
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => swipe(admirer, "PASS")}
                       aria-label={`Pass on ${admirer.displayName}`}
-                      className="flex h-8 flex-1 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-md transition-all hover:bg-white/25 active:scale-95 cursor-pointer"
+                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-md transition-all hover:bg-white/25 active:scale-92 cursor-pointer"
                     >
                       <X className="size-4" />
                     </button>
@@ -139,9 +128,9 @@ export function LikesClient() {
                       type="button"
                       onClick={() => swipe(admirer, "LIKE")}
                       aria-label={`Match with ${admirer.displayName}`}
-                      className="flex h-8 flex-1 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-all hover:opacity-90 active:scale-95 cursor-pointer"
+                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-pink-600 text-white shadow-sm transition-all hover:bg-pink-700 active:scale-92 cursor-pointer"
                     >
-                      <Heart className="size-4 fill-current" />
+                      <Heart className="size-4 fill-white" />
                     </button>
                   </div>
                 </div>
@@ -149,7 +138,7 @@ export function LikesClient() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       <DatingMatchModal matchResult={matchResult} onClose={() => setMatchResult(null)} />
     </div>
