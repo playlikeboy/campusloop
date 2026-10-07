@@ -103,9 +103,18 @@ vi.mock("@/lib/qdrant/indexer", () => ({
 }));
 
 vi.mock("@/lib/notifications", () => ({
-  createNotification: vi.fn(async () => {}),
+  createNotification: vi.fn(async () => true),
   notifyMentions: vi.fn(async () => {}),
-  cleanNotificationSnippet: vi.fn((text: string) => text),
+  cleanNotificationSnippet: vi.fn((text: string, maxLength = 120) => {
+    if (!text) return "";
+    const cleaned = text
+      .replace(/!\[.*?\]\(.*?\)/g, "")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (cleaned.length <= maxLength) return cleaned;
+    return `${cleaned.slice(0, maxLength - 3)}...`;
+  }),
 }));
 
 vi.mock("@/lib/post-notifications", () => ({

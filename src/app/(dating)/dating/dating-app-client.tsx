@@ -1,17 +1,12 @@
 "use client";
 
 import {
-  ArrowLeft,
   Camera,
   EyeOff,
   Globe,
   Heart,
-  Lock,
   RotateCcw,
-  ShieldCheck,
-  SlidersHorizontal,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -59,7 +54,6 @@ export function DatingAppClient() {
 
   const candidates = useMemo(() => data?.candidates ?? [], [data]);
   const remaining = useMemo(() => candidates.slice(deckIndex), [candidates, deckIndex]);
-  const likesYouCount = data?.meta?.likesYouCount ?? 0;
   const isMatchingEnabled = data?.meta?.isMatchingEnabled !== false;
 
   const hasGenderSet = profile?.gender && ["MALE", "FEMALE", "OTHER"].includes(profile.gender);
@@ -67,8 +61,6 @@ export function DatingAppClient() {
     (profile && !hasGenderSet) || (error as { error?: string } | undefined)?.error === "GENDER_REQUIRED";
 
   const sendSwipe = useCallback(async (targetId: string, direction: "LIKE" | "PASS") => {
-    // Advance the deck immediately — waiting on the round trip made every
-    // swipe feel like it stuck. Rolled back below if the request fails.
     setLastSwipedId(targetId);
     setDeckIndex((prev) => prev + 1);
 
@@ -93,29 +85,30 @@ export function DatingAppClient() {
     return null;
   }, []);
 
-  // Preload upcoming card photos into browser memory for zero-lag mobile swiping
+  // Preload upcoming card photos into browser memory for zero-lag swiping
   useEffect(() => {
     if (!candidates || candidates.length === 0) return;
     const nextBatch = candidates.slice(deckIndex, deckIndex + 5);
     for (const c of nextBatch) {
-      for (const photo of c.photos || []) {
-        if (typeof window !== "undefined" && photo) {
-          const img = new Image();
-          img.src = photo;
-        }
+      if (c.photos?.[0]) {
+        const img = new Image();
+        img.src = c.photos[0];
       }
     }
   }, [candidates, deckIndex]);
 
   const handleSwipe = useCallback(
-    (direction: "like" | "pass") => {
+    async (direction: "like" | "pass") => {
       const current = remaining[0];
       if (!current) return;
 
-      if (candidates.length - (deckIndex + 1) <= 3) {
+      const swipeDir = direction === "like" ? "LIKE" : "PASS";
+      await sendSwipe(current.id, swipeDir);
+
+      // When reaching near end of deck, revalidate
+      if (deckIndex >= candidates.length - 2) {
         void mutate();
       }
-      void sendSwipe(current.id, direction === "like" ? "LIKE" : "PASS");
     },
     [remaining, candidates.length, deckIndex, sendSwipe, mutate]
   );
@@ -135,7 +128,7 @@ export function DatingAppClient() {
     }
   }, [lastSwipedId]);
 
-  // ← pass · → like · U undo
+  // Keyboard shortcuts: ← pass · → like · U undo
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (matchResult) return;
@@ -187,63 +180,10 @@ export function DatingAppClient() {
   }
 
   return (
-    <div className="mx-auto flex h-dvh w-full max-w-lg flex-col px-4 bg-background text-foreground select-none">
-      {/* ─── Top Bar ─── */}
-      <header className="flex items-center justify-between py-3 border-b border-border/30">
-        <Link
-          href="/feeds"
-          aria-label="Back to feed"
-          className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/40 cursor-pointer"
-        >
-          <ArrowLeft className="size-4.5" />
-        </Link>
-
-        <div className="flex items-center gap-2">
-          <div className="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-2xs">
-            <Heart className="size-3.5 fill-primary" />
-          </div>
-          <h1 className="text-sm font-black tracking-tight text-foreground leading-tight">Campus Match</h1>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          {/* Secret Crush Vault */}
-          <Link
-            href="/crush"
-            aria-label="Secret Crush Vault"
-            title="Secret Crush Vault"
-            className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-primary hover:bg-muted transition-colors border border-border/40 cursor-pointer"
-          >
-            <Lock className="size-4" />
-          </Link>
-
-          <Link
-            href="/matching/likes"
-            aria-label="Likes you"
-            title="Profiles that liked you"
-            className="relative flex size-9 items-center justify-center rounded-full bg-muted/60 text-primary hover:bg-muted transition-colors border border-border/40 cursor-pointer"
-          >
-            <Heart className="size-4.5 fill-primary/20" />
-            {likesYouCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-black text-primary-foreground shadow-xs">
-                {likesYouCount > 9 ? "9+" : likesYouCount}
-              </span>
-            )}
-          </Link>
-
-          <Link
-            href="/matching/filters"
-            aria-label="Preferences"
-            title="Match Preferences"
-            className="flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/40 cursor-pointer"
-          >
-            <SlidersHorizontal className="size-4" />
-          </Link>
-        </div>
-      </header>
-
+    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none min-h-0">
       {/* Matching Paused Notice */}
       {!isMatchingEnabled && (
-        <div className="mt-2.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3 text-xs">
+        <div className="my-2 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold min-w-0">
             <EyeOff className="size-4 shrink-0" />
             <span className="truncate">Profile paused &amp; hidden</span>
@@ -261,8 +201,8 @@ export function DatingAppClient() {
       {/* Secret Crush Modal */}
       <SecretCrushModal isOpen={showSecretCrushModal} onClose={() => setShowSecretCrushModal(false)} />
 
-      {/* ─── Deck ─── */}
-      <main className="flex min-h-0 flex-1 flex-col py-3 pb-[max(env(safe-area-inset-bottom),1rem)]">
+      {/* ─── Swipe Deck Section ─── */}
+      <div className="flex min-h-0 flex-1 flex-col py-1">
         {genderGateRequired ? (
           <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/90 backdrop-blur-xl p-6 text-center shadow-lg">
             <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
@@ -366,7 +306,7 @@ export function DatingAppClient() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       <DatingMatchModal matchResult={matchResult} onClose={() => setMatchResult(null)} />
     </div>
