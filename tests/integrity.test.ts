@@ -45,15 +45,22 @@ mock.module("@/lib/viewer", () => ({
   rejectViewerWrite: mock(async () => null),
 }));
 
+import * as actualCapabilities from "@/lib/capabilities";
+import * as actualNotifications from "@/lib/notifications";
+import * as actualUserBehavior from "@/lib/user-behavior";
+
 mock.module("@/lib/capabilities", () => ({
+  ...actualCapabilities,
   rejectIfLacksCapability: mock(async () => null),
 }));
 
 mock.module("@/lib/notifications", () => ({
+  ...actualNotifications,
   createNotification: mock(async () => ({ id: "notif_1" })),
 }));
 
 mock.module("@/lib/user-behavior", () => ({
+  ...actualUserBehavior,
   trackUserBehavior: mock(async () => {}),
 }));
 
