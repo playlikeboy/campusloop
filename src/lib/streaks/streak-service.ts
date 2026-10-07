@@ -209,6 +209,16 @@ export async function recordStreakActivity(params: {
   }
 
   const db = getDb();
+  if (!db?.query?.streakEvents || !db?.query?.userStreaks) {
+    return {
+      success: true,
+      alreadyQualifiedToday: false,
+      currentStreak: 1,
+      longestStreak: 1,
+      isSafeToday: true,
+      pointsEarned: 0,
+    };
+  }
   const todayStr = getLocalDateString(new Date(), timezone);
   const yesterdayStr = getYesterdayDateString(todayStr);
 
