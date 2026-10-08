@@ -172,32 +172,32 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
 
       {/* Main Pitchy Hero Content */}
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 text-center mt-3 sm:mt-5">
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tight text-foreground max-w-4xl mx-auto leading-[1.08] sm:leading-[1.02] drop-shadow-sm">
-          WHERE YOUR CAMPUS{" "}
+        <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[var(--text)] max-w-4xl mx-auto leading-[1.1] sm:leading-[1.05]">
+          Where your campus{" "}
           <br className="hidden sm:inline" />
-          <span className="text-[#16a34a] dark:text-emerald-400">ACTUALLY TALKS.</span>
+          <span className="text-[var(--primary)]">actually talks.</span>
         </h1>
 
-        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-foreground/80 dark:text-stone-300 font-medium max-w-xl mx-auto leading-relaxed">
-          No recruiters. No boomers. The verified private network for inside hostel tea, anonymous confessions, 45,000+ notes &amp; PYQs, and campus crushes.
+        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-[var(--text-secondary)] font-medium max-w-xl mx-auto leading-relaxed">
+          No recruiters. No boomers. The verified network for inside hostel discussions, anonymous confessions, 45,000+ notes &amp; PYQs, and campus connections.
         </p>
 
-        {/* Mobile-First Action Buttons */}
+        {/* Action Buttons */}
         <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 max-w-xs sm:max-w-none mx-auto">
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
-            className="inline-flex h-12 sm:h-13 items-center justify-center gap-2 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-6 sm:px-8 text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[var(--primary)] hover:opacity-95 px-6 sm:px-8 text-xs sm:text-sm font-semibold text-white shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             <Zap className="size-4 shrink-0" />
-            <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>
+            <span>{isAuthenticated ? "Enter Campus Feed" : "Join with College Email"}</span>
             <ArrowRight className="size-4 shrink-0" />
           </Link>
 
           <Link
             href="/colleges"
-            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-border/80 bg-background/80 hover:bg-muted/70 px-5 sm:px-6 text-xs sm:text-sm font-bold text-foreground backdrop-blur-sm active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-sunken)] px-5 sm:px-6 text-xs sm:text-sm font-medium text-[var(--text)] active:scale-95 transition-all cursor-pointer"
           >
-            <Compass className="size-4 text-[#16a34a] shrink-0" />
+            <Compass className="size-4 text-[var(--primary)] shrink-0" />
             <span>Explore 1,350+ Colleges</span>
           </Link>
         </div>

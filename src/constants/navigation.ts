@@ -48,28 +48,20 @@ export interface NavGroup {
 
 export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateCompass, href: "/explore", label: "Explore" },
   {
     icon: AnimateGraduationCap,
     href: "/academics",
-    label: "Academics",
+    label: "Notes & PYQs",
   },
   { icon: AnimateUsers, href: "/communities", label: "Communities" },
-  {
-    icon: AnimateFlame,
-    href: "/confessions",
-    label: "Confessions",
-    badge: "HOT",
-    badgeColor: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
-  },
   {
     icon: AnimateCalendar,
     href: "/events",
     label: "Events",
   },
-  { icon: AnimateHeart, href: "/dating", label: "Match" },
+  { icon: Building2, href: "/campus", label: "Campus" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
   { icon: AnimateUser, href: "/profile", label: "Profile" },
-  { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
 // Mobile bottom navigation has 5 core tabs conforming to AGENTS.md Rule 6:

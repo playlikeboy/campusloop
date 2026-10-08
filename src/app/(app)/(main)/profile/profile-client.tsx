@@ -53,6 +53,7 @@ import { ProfileStreakCard } from "@/components/streaks/profile-streak-card";
 import { useStreaks } from "@/hooks/use-streaks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { getBranchIcon, slugifyBranch } from "@/constants";
 
 const BrandedQrModal = dynamic(
@@ -660,10 +661,10 @@ export function ProfileClientView({
 
               {points >= 150 && (
                 <span
-                  className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-7 sm:size-8 rounded-full bg-background flex items-center justify-center shadow-lg border border-border/40"
+                  className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2"
                   title="Verified Campus Student"
                 >
-                  <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
+                  <VerifiedBadge size="md" />
                 </span>
               )}
             </div>
@@ -729,13 +730,11 @@ export function ProfileClientView({
           <div className="space-y-2.5">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-foreground">
+                <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
                   {profile.displayName}
                 </h1>
                 {points >= 150 && (
-                  <span title="Verified Campus Student">
-                    <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
-                  </span>
+                  <VerifiedBadge size="md" />
                 )}
               </div>
               <p className="text-sm sm:text-base font-medium text-muted-foreground mt-0.5">
@@ -786,23 +785,25 @@ export function ProfileClientView({
 
             {/* Borderless Reputation Strip */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-2.5 border-y border-border/25 my-2 text-xs">
-              {/* Loop Points & Clout Rank */}
-              <button
-                type="button"
-                onClick={() => handleTabChange("clout")}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
-              >
-                <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:scale-105 transition-transform">
-                  <Zap className="size-3.5 fill-amber-500/30" />
-                </span>
-                <div className="text-left leading-tight">
-                  <div className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
-                    <span>{points} LP</span>
-                    <span className="text-[10px] font-semibold text-muted-foreground">· {tier.tierName || "Rookie"}</span>
+              {/* Loop Points & Clout Rank (Private to Profile Owner) */}
+              {isOwnProfile && (
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("clout")}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
+                >
+                  <span className="flex size-7 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-soft-border)] group-hover:scale-105 transition-transform">
+                    <Zap className="size-3.5 fill-[var(--primary)]/30" />
+                  </span>
+                  <div className="text-left leading-tight">
+                    <div className="font-bold text-foreground text-xs sm:text-sm flex items-center gap-1">
+                      <span>{points} LP</span>
+                      <span className="text-[10px] font-normal text-muted-foreground">· {tier.tierName || "Rookie"}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">My Points</span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">Campus Standing</span>
-                </div>
-              </button>
+                </button>
+              )}
 
               {/* Day Streak */}
               <Link

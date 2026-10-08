@@ -25,24 +25,24 @@ export function AcademicHeader({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              Academics
+            <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
+              Notes &amp; PYQs
             </h1>
             {typeof totalCount === "number" && totalCount > 0 && (
-              <span className="hidden xs:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20">
-                {totalCount.toLocaleString()} resources
+              <span className="hidden xs:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[var(--tint-notes)] text-[#1A4B8C] border border-[#1A4B8C]/15 dark:bg-[#1A2E4C] dark:text-[#90C2FF]">
+                {totalCount.toLocaleString()} verified resources
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            Study materials, PYQs, notes and playlists shared by students.
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
+            Verified study materials, solved PYQs, notes and cheat sheets shared by students.
           </p>
         </div>
 
         {/* Header Actions */}
         <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
           {/* Scope Switcher: Campus vs All Campuses */}
-          <div className="flex items-center rounded-full bg-muted/60 p-0.5 border border-border/40 text-xs">
+          <div className="flex items-center rounded-full bg-[var(--surface-sunken)] p-0.5 border border-[var(--border)] text-xs">
             <button
               type="button"
               onClick={() => {
@@ -51,15 +51,15 @@ export function AcademicHeader({
                 onScopeChange("campus");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5",
                 scope === "campus"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               title={`Scoped to ${campusName}`}
               aria-label="Filter to my campus"
             >
-              <School className="size-3.5 text-primary" />
+              <School className="size-3.5 text-[var(--primary)]" />
               <span className="max-w-[120px] truncate">{campusName.split(",")[0]}</span>
             </button>
 
@@ -71,15 +71,15 @@ export function AcademicHeader({
                 onScopeChange("global");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5",
                 scope === "global"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               title="All Indian engineering colleges"
               aria-label="Filter to all campuses"
             >
-              <Globe className="size-3.5 text-sky-500" />
+              <Globe className="size-3.5 text-emerald-500" />
               <span>All India</span>
             </button>
           </div>
@@ -91,7 +91,7 @@ export function AcademicHeader({
               sounds.tap();
               haptics.success();
             }}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 text-xs font-semibold text-white shadow-xs hover:opacity-95 active:scale-95 transition-all cursor-pointer"
           >
             <Plus className="size-3.5 stroke-[2.5]" />
             <span>Upload Notes</span>
