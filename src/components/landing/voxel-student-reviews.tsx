@@ -6,7 +6,7 @@ export function VoxelStudentReviews() {
       name: "Rohan Verma",
       role: "B.Tech CSE '25",
       college: "BIT Mesra",
-      avatarBg: "bg-emerald-500",
+      avatarBg: "bg-primary",
       initials: "RV",
       text: "The 2 AM PYQ drop before the Maths-III end-sem literally saved our batch from backlogs. Having handwritten topper notes indexed by professor rating is pure cheat codes.",
       badge: "Verified Student",
@@ -35,18 +35,18 @@ export function VoxelStudentReviews() {
   ];
 
   return (
-    <section className="relative py-10 sm:py-20 md:py-24 bg-gradient-to-b from-background via-emerald-50/10 to-background overflow-hidden select-none">
+    <section className="relative py-10 sm:py-20 md:py-24 bg-gradient-to-b from-background via-muted/20 to-background overflow-hidden select-none">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20 shadow-xs">
-            <ShieldCheck className="size-3.5 text-[#22c55e]" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary mb-2.5 border border-primary/20 shadow-xs">
+            <ShieldCheck className="size-3.5 text-primary" />
             <span>Unfiltered Campus Feedback</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
             WHAT STUDENTS SAY BEHIND
             <br />
-            <span className="text-[#16a34a] dark:text-emerald-400">CLOSED HOSTEL DOORS.</span>
+            <span className="text-primary">CLOSED HOSTEL DOORS.</span>
           </h2>
           <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground">
             From premier tech institutes to central universities — built by students, for students.
@@ -58,7 +58,7 @@ export function VoxelStudentReviews() {
           {reviews.map((rev) => (
             <div
               key={rev.name}
-              className="rounded-2xl sm:rounded-3xl border border-border/70 bg-card p-4 sm:p-6 shadow-md flex flex-col justify-between hover:border-emerald-500/40 transition-all hover:-translate-y-1 duration-300"
+              className="rounded-2xl sm:rounded-3xl border border-border/70 bg-card p-4 sm:p-6 shadow-md flex flex-col justify-between hover:border-primary/40 transition-all hover:-translate-y-1 duration-300"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -69,7 +69,7 @@ export function VoxelStudentReviews() {
                     ))}
                   </div>
 
-                  <span className="rounded-full bg-emerald-500/10 text-[#16a34a] text-[10px] font-black px-2 py-0.5 border border-emerald-500/20">
+                  <span className="rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 border border-primary/20">
                     {rev.highlight}
                   </span>
                 </div>
@@ -94,7 +94,7 @@ export function VoxelStudentReviews() {
                   </div>
                 </div>
 
-                <span className="rounded-full bg-emerald-500/15 text-[#16a34a] text-[9px] font-black px-2 py-0.5 flex items-center gap-1">
+                <span className="rounded-full bg-primary/10 text-primary text-[9px] font-bold px-2 py-0.5 flex items-center gap-1">
                   <CheckCircle2 className="size-2.5" />
                   <span>{rev.badge}</span>
                 </span>

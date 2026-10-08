@@ -22,7 +22,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AddCollegeModal } from "@/components/colleges/add-college-modal";
-import type { LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
+import { AllIndiaCollegePodium, type LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
 import type { CollegeItem } from "@/components/colleges/college-hub-row";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -148,15 +148,14 @@ export default function CollegesClient() {
     };
   }, [search, selectedState, selectedCategory, page, limit]);
 
-  // Fetch Leaderboard on tab activation
+  // Fetch Leaderboard for visual addiction podium (always top 3) and full tab
   useEffect(() => {
-    if (activeTab !== "leaderboard") return;
     let ignore = false;
     async function fetchLeaderboard() {
       setLeaderboardLoading(true);
       try {
         const url = new URL("/api/colleges/leaderboard", window.location.origin);
-        url.searchParams.set("limit", "50");
+        url.searchParams.set("limit", activeTab === "leaderboard" ? "50" : "3");
         if (selectedState !== "ALL") url.searchParams.set("state", selectedState);
         if (selectedCategory !== "ALL") url.searchParams.set("category", selectedCategory);
 
@@ -348,6 +347,34 @@ export default function CollegesClient() {
       {/* ─── Directory Tab View ─── */}
       {activeTab === "directory" && (
         <section className="pt-4 flex-1 flex flex-col justify-between">
+          {/* Top 3 Campus Spotlight / Visual Addiction Podium */}
+          {page === 1 && !search.trim() && (
+            <div className="mb-6 space-y-2">
+              <AllIndiaCollegePodium
+                leaderboard={leaderboard.slice(0, 3)}
+                loading={leaderboardLoading && leaderboard.length === 0}
+                className="mx-0 my-0"
+              />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5 font-semibold text-foreground">
+                  <Flame className="size-3.5 text-primary shrink-0" />
+                  <span>Want your campus in the Top 3? Upload verified notes, invite friends &amp; engage to climb!</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("leaderboard");
+                    setPage(1);
+                  }}
+                  className="text-primary font-bold hover:underline shrink-0 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+                >
+                  <span>Full Leaderboard</span>
+                  <ArrowRight className="size-3" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 9 }).map((_, i) => (

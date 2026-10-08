@@ -51,14 +51,14 @@ export function VoxelDailyRush() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8 sm:pb-10">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20">
-              <Zap className="size-3.5 text-[#22c55e]" />
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary mb-2.5 border border-primary/20">
+              <Zap className="size-3.5 text-primary" />
               <span>Real-Time Campus Flow</span>
             </div>
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.08]">
               THE 24-HOUR CAMPUS
               <br />
-              <span className="text-[#16a34a] dark:text-emerald-400">DISCOVERY ENGINE.</span>
+              <span className="text-primary">DISCOVERY ENGINE.</span>
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-md">
               Fresh confessions cycling live, instant exam survival cheat sheets, club recruitment blasts, and verified peer status.
@@ -71,7 +71,7 @@ export function VoxelDailyRush() {
               sounds.tap();
               haptics.light();
             }}
-            className="inline-flex self-start sm:self-auto items-center justify-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-5 py-2.5 min-h-[44px] text-xs font-black text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="inline-flex self-start sm:self-auto items-center justify-center gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-5 py-2.5 min-h-[44px] text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 active:scale-95 transition-all cursor-pointer shrink-0"
           >
             <span>Explore The Feed</span>
             <ArrowRight className="size-3.5" />
@@ -81,7 +81,7 @@ export function VoxelDailyRush() {
         {/* 2x2 Interactive Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Card 1: QUICK PULSE */}
-          <div className="group rounded-2xl sm:rounded-3xl border border-border/70 bg-card/80 p-4 sm:p-6 shadow-md transition-all hover:border-[#22c55e]/40 hover:shadow-lg flex flex-col justify-between">
+          <div className="group rounded-2xl sm:rounded-3xl border border-border/70 bg-card/80 p-4 sm:p-6 shadow-md transition-all hover:border-primary/40 hover:shadow-lg flex flex-col justify-between">
             <div>
               <div className="space-y-2.5">
                 <button
@@ -93,7 +93,7 @@ export function VoxelDailyRush() {
                   }}
                   className={`flex w-full items-center justify-between p-3 min-h-[48px] rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
                     selectedPulse === "clubs"
-                      ? "border-[#22c55e] bg-emerald-500/10 text-foreground font-bold shadow-xs"
+                      ? "border-primary bg-primary/10 text-foreground font-bold shadow-xs"
                       : "border-border/50 bg-background/80 hover:bg-muted/50 text-muted-foreground"
                   }`}
                 >
@@ -103,7 +103,7 @@ export function VoxelDailyRush() {
                     </div>
                     <span className="text-xs sm:text-sm font-bold">Campus Clubs &amp; Societies</span>
                   </div>
-                  {selectedPulse === "clubs" && <CheckCircle2 className="size-4 text-[#22c55e]" />}
+                  {selectedPulse === "clubs" && <CheckCircle2 className="size-4 text-primary" />}
                 </button>
 
                 <button
@@ -115,7 +115,7 @@ export function VoxelDailyRush() {
                   }}
                   className={`flex w-full items-center justify-between p-3 min-h-[48px] rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
                     selectedPulse === "career"
-                      ? "border-[#22c55e] bg-emerald-500/10 text-foreground font-bold shadow-xs"
+                      ? "border-primary bg-primary/10 text-foreground font-bold shadow-xs"
                       : "border-border/50 bg-background/80 hover:bg-muted/50 text-muted-foreground"
                   }`}
                 >
@@ -125,7 +125,7 @@ export function VoxelDailyRush() {
                     </div>
                     <span className="text-xs sm:text-sm font-bold">Hackathons &amp; Verified Gigs</span>
                   </div>
-                  {selectedPulse === "career" && <CheckCircle2 className="size-4 text-[#22c55e]" />}
+                  {selectedPulse === "career" && <CheckCircle2 className="size-4 text-primary" />}
                 </button>
               </div>
             </div>
@@ -150,16 +150,16 @@ export function VoxelDailyRush() {
                   haptics.light();
                   setConfessionIndex((i) => (i + 1) % confessions.length);
                 }}
-                className="relative rounded-2xl bg-emerald-500/15 border border-emerald-500/30 px-5 py-4 text-center cursor-pointer hover:scale-102 transition-all shadow-xs"
+                className="relative rounded-2xl bg-purple-500/10 border border-purple-500/25 px-5 py-4 text-center cursor-pointer hover:scale-102 transition-all shadow-xs"
                 role="button"
                 tabIndex={0}
                 aria-label="Cycle confession topic"
               >
-                <p className="text-xs sm:text-sm font-black text-emerald-800 dark:text-emerald-300">
+                <p className="text-xs sm:text-sm font-black text-purple-700 dark:text-purple-300">
                   {confessions[confessionIndex]}
                 </p>
                 {/* Speech bubble tail pointer */}
-                <div className="absolute -bottom-2 left-8 size-4 rotate-45 border-r border-b border-emerald-500/30 bg-emerald-500/15" />
+                <div className="absolute -bottom-2 left-8 size-4 rotate-45 border-r border-b border-purple-500/25 bg-purple-500/10" />
               </div>
 
               <button
@@ -223,7 +223,7 @@ export function VoxelDailyRush() {
               </div>
 
               <div className="mt-2 text-center">
-                <span className="text-[11px] font-semibold text-[#16a34a]">
+                <span className="text-[11px] font-semibold text-primary">
                   ✓ 140+ verified notes &amp; PYQs indexed for {selectedTag}
                 </span>
               </div>
@@ -240,14 +240,14 @@ export function VoxelDailyRush() {
           </div>
 
           {/* Card 4: STUDENT VERIFICATION */}
-          <div className="group rounded-2xl sm:rounded-3xl border border-border/70 bg-card/80 p-4 sm:p-6 shadow-md transition-all hover:border-purple-500/30 hover:shadow-lg flex flex-col justify-between">
+          <div className="group rounded-2xl sm:rounded-3xl border border-border/70 bg-card/80 p-4 sm:p-6 shadow-md transition-all hover:border-primary/30 hover:shadow-lg flex flex-col justify-between">
             <div>
               {/* Interactive badge preview */}
               <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background/90 p-3 shadow-inner">
                 <span className="rounded-lg bg-muted px-2.5 py-1 text-xs font-black text-foreground">
                   Status:
                 </span>
-                <span className="rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-black text-[#16a34a] flex items-center gap-1.5">
+                <span className="rounded-lg bg-primary/15 border border-primary/30 px-3 py-1 text-xs font-bold text-primary flex items-center gap-1.5">
                   <ShieldCheck className="size-3.5" />
                   <span className="capitalize">{selectedRole} Student</span>
                 </span>
@@ -266,7 +266,7 @@ export function VoxelDailyRush() {
                     }}
                     className={`rounded-xl px-3 py-2 min-h-[40px] flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
                       selectedRole === role
-                        ? "bg-[#22c55e] text-white shadow-xs font-black"
+                        ? "bg-primary text-primary-foreground shadow-xs font-bold"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >

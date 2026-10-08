@@ -47,9 +47,8 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           </div>
           <div className="flex items-center">
             <span className="text-sm sm:text-base font-black tracking-tight text-foreground">
-              Campus<span className="text-[#16a34a] font-black">Loop</span>
+              Campus<span className="text-primary font-black">Loop</span>
             </span>
-            <span className="ml-1 size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
           </div>
         </Link>
 
@@ -87,7 +86,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
               sounds.tap();
               haptics.medium();
             }}
-            className="inline-flex h-8 sm:h-8.5 md:h-9 shrink-0 items-center justify-center gap-1 sm:gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-3 sm:px-4 text-xs font-black text-white whitespace-nowrap active:scale-95 transition-all shadow-xs shadow-emerald-500/25 cursor-pointer"
+            className="inline-flex h-8 sm:h-8.5 md:h-9 shrink-0 items-center justify-center gap-1 sm:gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-3 sm:px-4 text-xs font-bold text-primary-foreground whitespace-nowrap active:scale-95 transition-all shadow-xs shadow-primary/20 cursor-pointer"
           >
             {isAuthenticated ? (
               <>
@@ -144,7 +143,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                     }}
                     className="flex items-center gap-2 p-2.5 min-h-[44px] rounded-xl bg-muted/40 hover:bg-muted/70 text-xs font-bold text-foreground transition-all cursor-pointer"
                   >
-                    <Icon className="size-3.5 text-[#16a34a] shrink-0" />
+                    <Icon className="size-3.5 text-primary shrink-0" />
                     <span>{link.label}</span>
                   </Link>
                 );
@@ -158,7 +157,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                 haptics.medium();
                 setMobileMenuOpen(false);
               }}
-              className="flex w-full items-center justify-center gap-1.5 min-h-[44px] py-2.5 rounded-xl bg-[#22c55e] text-white text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
+              className="flex w-full items-center justify-center gap-1.5 min-h-[44px] py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md shadow-primary/25 active:scale-95 transition-all"
             >
               <span>{isAuthenticated ? "Enter Campus" : "Join Your College"}</span>
               <ArrowUpRight className="size-3.5" />
