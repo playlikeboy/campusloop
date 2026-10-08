@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { AnimateShieldCheck, AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
 import {
   trackAcademicDownload,
@@ -385,12 +386,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                 {item.uploader.displayName}
               </Link>
               {(item.uploader.points || 0) >= 150 && (
-                <AnimatedIcon
-                  icon={AnimateShieldCheck}
-                  animation="pop"
-                  size={12}
-                  className="text-primary shrink-0"
-                />
+                <VerifiedBadge size="sm" />
               )}
               <span className="text-muted-foreground/40 shrink-0">·</span>
               <span className="text-muted-foreground truncate max-w-[130px] sm:max-w-[220px]">

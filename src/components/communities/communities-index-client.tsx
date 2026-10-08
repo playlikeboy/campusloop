@@ -20,6 +20,7 @@ import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-communi
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import { Pagination } from "@/components/ui/pagination";
+import { Tag } from "@/components/ui/tag";
 import type { FeedPost } from "@/hooks/use-feed";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -369,39 +370,29 @@ function CommunityCard({
   const avatar = getAvatarUrl(community.avatarUrl, community.name);
 
   return (
-    <article className="group relative flex min-h-[290px] flex-col rounded-3xl border border-border/40 bg-card/60 p-4.5 sm:p-5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 hover:border-border/80 hover:bg-card hover:shadow-md overflow-hidden">
-      {/* Subtle top banner accent if present */}
-      {community.bannerUrl && (
-        <div
-          className="absolute top-0 inset-x-0 h-16 opacity-20 pointer-events-none bg-cover bg-center transition-opacity group-hover:opacity-30"
-          style={{ backgroundImage: `url(${community.bannerUrl})` }}
-        />
-      )}
-
-      {/* Top Header: Avatar + Category & Privacy on left, Join button on right */}
+    <article className="group relative flex min-h-[260px] flex-col rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5 transition-all hover:border-[var(--border-strong)] hover:shadow-2xs overflow-hidden">
+      {/* Top Header: Avatar + Category on left, Join button on right */}
       <div className="relative z-10 flex items-center justify-between gap-3">
         <Link
           href={"/communities/" + (community.slug || community.id)}
           className="flex items-center gap-3 min-w-0 flex-1"
         >
-          <Avatar className="size-11 sm:size-12 shrink-0 rounded-2xl shadow-2xs border border-border/40">
+          <Avatar className="size-11 shrink-0 rounded-[var(--r-md)] border border-[var(--border)]">
             <AvatarImage src={avatar} alt="" />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+            <AvatarFallback className="bg-[var(--surface-sunken)] text-[var(--primary)] text-xs font-bold">
               {community.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <span className="block text-[10px] font-black uppercase tracking-wider text-primary truncate">
-              {community.category}
-            </span>
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <Tag category="communities">{community.category}</Tag>
+            <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] mt-1">
               {community.privacy === "PRIVATE" ? (
-                <span className="inline-flex items-center gap-1 text-amber-500">
+                <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
                   <Lock className="size-3" /> Private
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-muted-foreground/80">
-                  <Globe className="size-3" /> Public
+                <span className="inline-flex items-center gap-1">
+                  <Globe className="size-3 text-[var(--text-muted)]" /> Public
                 </span>
               )}
               <span>·</span>
@@ -417,51 +408,27 @@ function CommunityCard({
         />
       </div>
 
-      {/* Community Title: 100% full width across card so title wraps nicely across 2 lines */}
+      {/* Community Title */}
       <Link
         href={"/communities/" + (community.slug || community.id)}
-        className="relative z-10 mt-3.5 block group-hover:text-primary transition-colors"
+        className="relative z-10 mt-3.5 block group-hover:text-[var(--primary)] transition-colors"
       >
-        <h2 className="line-clamp-2 text-[15px] sm:text-base font-bold leading-snug tracking-tight text-foreground">
+        <h2 className="line-clamp-1 font-heading text-base sm:text-lg font-bold tracking-tight text-[var(--text)]">
           c/{community.name}
         </h2>
       </Link>
 
       {/* Description */}
-      <p className="relative z-10 mt-2 line-clamp-3 text-xs sm:text-sm leading-relaxed text-muted-foreground min-h-[54px]">
+      <p className="relative z-10 mt-1.5 line-clamp-2 text-xs sm:text-sm leading-relaxed text-[var(--text-secondary)] flex-1">
         {community.description || "A student-led community for sharing ideas, questions, updates, and campus life."}
       </p>
 
       {/* Footer */}
-      <div className="relative z-10 mt-auto pt-4 space-y-2.5">
-        <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground/80">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Users className="size-3 text-primary shrink-0" />
-              <span>{members} active</span>
-            </div>
-            {(community.points || 0) > 0 && (
-              <>
-                <span>·</span>
-                <div className="flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
-                  <Sparkles className="size-3 text-amber-500 shrink-0" />
-                  <span>{community.points} LP</span>
-                </div>
-              </>
-            )}
-          </div>
-          {community.creator && (
-            <span className="truncate max-w-[110px]">@{community.creator.username}</span>
-          )}
+      <div className="relative z-10 mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs text-[var(--text-muted)]">
+        <div className="flex items-center gap-1 text-[var(--text-secondary)]">
+          <Users className="size-3.5 text-[var(--primary)] shrink-0" />
+          <span>{members} active students</span>
         </div>
-
-        <Link
-          href={"/communities/" + (community.slug || community.id)}
-          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-muted/30 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground group-hover:border-primary/40 active:scale-98"
-        >
-          <span>Open community</span>
-          <ChevronRight className="size-3.5" />
-        </Link>
       </div>
     </article>
   );
