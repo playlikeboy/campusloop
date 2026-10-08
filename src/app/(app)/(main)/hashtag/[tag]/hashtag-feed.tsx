@@ -187,27 +187,34 @@ export default function HashtagFeed() {
       </header>
 
       {/* ─── Topic Strategic Hero Card ─── */}
-      <div className={cn("relative overflow-hidden px-4 pt-5 pb-4 border-b border-border/20 bg-gradient-to-b", theme.gradient)}>
-        <div className="flex items-start gap-3.5">
-          <div className="size-12 rounded-2xl bg-card border border-border/60 shadow-xs flex items-center justify-center shrink-0">
-            <TopicIcon className={cn("size-6", theme.accentColor)} />
+      <div className={cn("relative overflow-hidden px-3.5 py-3 sm:px-4 sm:pt-5 sm:pb-4 border-b border-border/20 bg-gradient-to-b", theme.gradient)}>
+        <div className="flex items-start gap-3">
+          <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-card border border-border/60 shadow-xs flex items-center justify-center shrink-0">
+            <TopicIcon className={cn("size-5 sm:size-6", theme.accentColor)} />
           </div>
 
-          <div className="min-w-0 flex-1 space-y-1">
+          <div className="min-w-0 flex-1 space-y-0.5 sm:space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-black tracking-tight text-foreground">#{theme.tag}</h2>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black">
-                <Flame className="size-3 fill-amber-500/30" />
-                <span>Trending Topic</span>
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground font-[family-name:var(--font-heading)]">#{theme.tag}</h2>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-bold">
+                <Flame className="size-2.5 sm:size-3 fill-amber-500/30" />
+                <span>Trending</span>
               </span>
             </div>
 
-            <p className="text-xs text-muted-foreground leading-relaxed">{theme.description}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">{theme.description}</p>
+
+            {/* Mobile Inline Stat Row */}
+            <div className="sm:hidden flex items-center gap-2 pt-1 text-[11px] text-muted-foreground font-medium">
+              <span>{stats ? `${stats.postsCount} posts` : "Posts"}</span>
+              <span>·</span>
+              <span>{stats ? `${Math.max(1, stats.collegesCount)} colleges` : "Colleges"}</span>
+            </div>
           </div>
         </div>
 
-        {/* Live Topic Statistics */}
-        <div className="grid grid-cols-3 gap-2 pt-4">
+        {/* Live Topic Statistics (Desktop) */}
+        <div className="hidden sm:grid grid-cols-3 gap-2 pt-4">
           <div className="rounded-xl border border-border/40 bg-card/60 p-2.5 text-center">
             <div className="text-base font-black text-foreground tabular-nums">
               {stats ? stats.postsCount : "—"}
@@ -239,9 +246,9 @@ export default function HashtagFeed() {
           </div>
         </div>
 
-        {/* Top Campus Hubs Talking About This */}
+        {/* Top Campus Hubs Talking About This (Desktop) */}
         {stats && stats.topColleges.length > 0 && (
-          <div className="mt-3 flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
+          <div className="mt-3 hidden sm:flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
             <span className="font-semibold text-foreground/80 shrink-0">Active in:</span>
             {stats.topColleges.map((col) => (
               <span
@@ -283,56 +290,56 @@ export default function HashtagFeed() {
         </div>
       )}
 
-      {/* ─── Scope & Content Filter Tabs ─── */}
-      <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-md border-b border-border/25 px-3 py-2 space-y-2">
-        {/* Scope Pill Switcher (India vs My Campus) */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center p-0.5 rounded-xl bg-muted/50 border border-border/40 text-xs w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setScope("GLOBAL");
-              }}
-              className={cn(
-                "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer",
-                scope === "GLOBAL"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Globe2 className="size-3.5" />
-              <span>All India</span>
-            </button>
+      {/* ─── Scope & Content Filter Tabs (Single Consolidated Sticky Row) ─── */}
+      <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-md border-b border-border/25 px-3 py-1.5 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        {/* Scope Pill Switcher */}
+        <div className="flex items-center p-0.5 rounded-full bg-muted/50 border border-border/40 text-[11px] font-semibold shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              sounds.tap();
+              setScope("GLOBAL");
+            }}
+            className={cn(
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
+              scope === "GLOBAL"
+                ? "bg-card text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Globe2 className="size-3" />
+            <span>All India</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setScope("CAMPUS");
-              }}
-              className={cn(
-                "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer",
-                scope === "CAMPUS"
-                  ? "bg-card text-foreground shadow-xs font-black"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Building2 className="size-3.5" />
-              <span className="truncate max-w-[120px]">{userCollege}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              sounds.tap();
+              setScope("CAMPUS");
+            }}
+            className={cn(
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer max-w-[100px] sm:max-w-[140px] truncate",
+              scope === "CAMPUS"
+                ? "bg-card text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Building2 className="size-3" />
+            <span className="truncate">{userCollege}</span>
+          </button>
         </div>
 
-        {/* Content Stream Tabs (Twitter/X style) */}
-        <div className="flex items-center gap-1 border-t border-border/20 pt-1.5 overflow-x-auto no-scrollbar">
+        <div className="h-4 w-px bg-border/40 shrink-0" />
+
+        {/* Content Stream Tabs */}
+        <div className="flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("top")}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "top"
-                ? "bg-foreground text-background font-black shadow-2xs"
+                ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
@@ -344,9 +351,9 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("latest")}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "latest"
-                ? "bg-foreground text-background font-black shadow-2xs"
+                ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
@@ -358,34 +365,34 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("media")}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "media"
-                ? "bg-foreground text-background font-black shadow-2xs"
+                ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             <ImageIcon className="size-3" />
-            <span>Photos & Reviews</span>
+            <span>Media</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("polls")}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "polls"
-                ? "bg-foreground text-background font-black shadow-2xs"
+                ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             <BarChart3 className="size-3" />
-            <span>Polls & Debates</span>
+            <span>Polls</span>
           </button>
         </div>
       </div>
 
-      {/* ─── Fast Inline Prompt Capsule ─── */}
-      <div className="px-4 py-3 bg-muted/20 border-b border-border/20">
+      {/* ─── Fast Inline Prompt Capsule (Desktop only to prevent mobile clutter) ─── */}
+      <div className="hidden sm:block px-4 py-3 bg-muted/20 border-b border-border/20">
         <Link
           href={`/post/new?tag=${encodeURIComponent(tag)}`}
           className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs group"
@@ -399,7 +406,7 @@ export default function HashtagFeed() {
             </span>
           </div>
 
-          <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-foreground text-background shrink-0">
+          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-foreground text-background shrink-0">
             Share
           </span>
         </Link>

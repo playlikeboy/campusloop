@@ -34,7 +34,7 @@ export function AcademicHeader({
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
+          <p className="hidden sm:block text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
             Verified study materials, solved PYQs, notes and cheat sheets shared by students.
           </p>
         </div>

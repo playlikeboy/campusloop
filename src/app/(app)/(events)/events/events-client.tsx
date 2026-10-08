@@ -362,18 +362,17 @@ export function EventsClient() {
               </button>
             </div>
 
-            {/* List External Opportunity Button */}
+            {/* List External Opportunity Button (Desktop only) */}
             <Link
               href="/events/new?type=external"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex h-8 items-center gap-1.5 px-3 rounded-xl bg-card hover:bg-muted/70 text-foreground border border-border/50 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+              className="hidden sm:flex h-8 items-center gap-1.5 px-3 rounded-xl bg-card hover:bg-muted/70 text-foreground border border-border/50 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
             >
               <Globe className="size-3.5 text-primary" />
-              <span className="hidden sm:inline">List External Hackathon</span>
-              <span className="sm:hidden">List</span>
+              <span>List External Hackathon</span>
             </Link>
 
             {/* Organizer Dashboard */}
@@ -400,14 +399,13 @@ export function EventsClient() {
               className="flex h-8 items-center gap-1.5 px-3 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
             >
               <Plus className="size-3.5" />
-              <span className="hidden sm:inline">Host Event</span>
-              <span className="sm:hidden">Host</span>
+              <span>Host</span>
             </Link>
           </div>
         </div>
 
-        {/* Row 2: Unstop Primary Tabs (Live, Closing Soon, Watchlist, Past) */}
-        <div className="pt-2 pb-2.5 space-y-2.5 border-t border-border/40">
+        {/* Row 2: Status Tabs (Streamlined for mobile) */}
+        <div className="pt-2 pb-2.5 space-y-2 border-t border-border/40">
           <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
             <div className="flex items-center p-0.5 rounded-xl bg-muted/70 border border-border/50 text-xs font-semibold shrink-0">
               <button
@@ -425,7 +423,7 @@ export function EventsClient() {
                 )}
               >
                 <Calendar className="size-3.5" />
-                <span>Live &amp; Upcoming</span>
+                <span>Live</span>
               </button>
 
               <button
@@ -461,30 +459,22 @@ export function EventsClient() {
                 )}
               >
                 <BookmarkCheck className="size-3.5" />
-                <span>My Registered</span>
+                <span>Registered</span>
               </button>
 
               <Link
                 href="/events/closed"
-                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
+                className="hidden sm:flex px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all items-center gap-1"
               >
                 <span>Archive</span>
               </Link>
 
               <Link
                 href="/events/my-tickets"
-                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
+                className="hidden sm:flex px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all items-center gap-1"
               >
                 <Ticket className="size-3 text-primary" />
                 <span>My Passes</span>
-              </Link>
-
-              <Link
-                href="/events/dashboard"
-                className="px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 md:hidden"
-              >
-                <Calendar className="size-3 text-primary" />
-                <span>Dashboard</span>
               </Link>
             </div>
 

@@ -199,14 +199,14 @@ export function CommunitiesIndexClient({
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search communities, clubs, coding groups..."
-                className="h-12 w-full rounded-2xl bg-muted/40 pl-11 pr-12 text-sm font-medium outline-none ring-1 ring-foreground/5 transition placeholder:text-muted-foreground/70 focus:bg-card focus:ring-primary/30"
+                className="h-10 sm:h-12 w-full rounded-xl sm:rounded-2xl bg-muted/40 pl-11 pr-12 text-xs sm:text-sm font-medium outline-none ring-1 ring-foreground/5 transition placeholder:text-muted-foreground/70 focus:bg-card focus:ring-primary/30"
                 aria-label="Search communities"
               />
               {search ? (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="absolute right-2.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 flex size-7 sm:size-8 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="Clear search"
                 >
                   ×
@@ -214,7 +214,7 @@ export function CommunitiesIndexClient({
               ) : null}
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {CATEGORIES.map((category) => {
                 const selected = selectedCategory === category;
                 return (
@@ -223,9 +223,9 @@ export function CommunitiesIndexClient({
                     type="button"
                     onClick={() => handleCategoryChange(category)}
                     className={cn(
-                      "shrink-0 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-95",
+                      "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
                       selected
-                        ? "bg-foreground text-background shadow-sm"
+                        ? "bg-foreground text-background shadow-xs font-bold"
                         : "bg-muted/35 text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
