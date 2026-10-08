@@ -29,6 +29,7 @@ import { PublicFollowButton } from "@/components/profile/public-follow-button";
 import { PublicShareButton } from "@/components/profile/public-share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { getBranchIcon } from "@/constants";
 import { getDb } from "@/db";
 import { getCloutTier } from "@/lib/gamification";
@@ -310,6 +311,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   const campusShort = institutionName.split(",")[0];
   const points = profile.points || 0;
   const cloutTier = getCloutTier(points);
+  const isVerified = profile.role === "ADMIN" || profile.role === "MODERATOR" || points >= 50;
 
   const cleanPostText = (body: string) =>
     body
@@ -440,12 +442,12 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   {profile.displayName[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              {points >= 150 && (
+              {isVerified && (
                 <span
-                  className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-7 sm:size-8 rounded-full bg-background flex items-center justify-center shadow-lg border border-border/40"
+                  className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-7 sm:size-8 rounded-full bg-background flex items-center justify-center shadow-xs border border-border/40"
                   title="Verified Campus Student"
                 >
-                  <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
+                  <VerifiedBadge size="md" />
                 </span>
               )}
             </div>
@@ -477,14 +479,10 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           <div className="space-y-2.5">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-foreground">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground font-[family-name:var(--font-heading)]">
                   {profile.displayName}
                 </h1>
-                {points >= 150 && (
-                  <span title="Verified Campus Student">
-                    <BadgeCheck className="size-5 sm:size-6 text-[#1D9BF0] shrink-0" />
-                  </span>
-                )}
+                {isVerified && <VerifiedBadge size="md" />}
               </div>
               <p className="text-sm sm:text-base font-medium text-muted-foreground mt-0.5">
                 @{profile.username}
@@ -534,25 +532,11 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
             <ProfileSocialLinks links={profile.socialLinks as any} />
 
             {/* Borderless Reputation Strip */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-2.5 border-y border-border/25 my-2 text-xs">
-              {/* Loop Points & Campus Standing */}
-              <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-lg bg-[#1D9BF0]/10 text-[#1D9BF0] border border-[#1D9BF0]/20">
-                  <Zap className="size-3.5 fill-[#1D9BF0]/30" />
-                </span>
-                <div className="text-left leading-tight">
-                  <div className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
-                    <span>{points} LP</span>
-                    <span className="text-[10px] font-semibold text-muted-foreground">· {cloutTier.tierName || "Rookie"}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">Campus Standing</span>
-                </div>
-              </div>
-
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 py-2.5 border-y border-border/40 my-2 text-xs">
               {/* Followers */}
               <Link href={`/@${profile.username}/followers`} className="hover:opacity-80 transition-opacity">
                 <div className="text-left leading-tight">
-                  <span className="font-black text-foreground text-xs sm:text-sm block">{publicFollowCounts.followersCount}</span>
+                  <span className="font-bold text-foreground text-xs sm:text-sm block">{publicFollowCounts.followersCount}</span>
                   <span className="text-[10px] text-muted-foreground">Followers</span>
                 </div>
               </Link>
@@ -560,10 +544,20 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
               {/* Following */}
               <Link href={`/@${profile.username}/following`} className="hover:opacity-80 transition-opacity">
                 <div className="text-left leading-tight">
-                  <span className="font-black text-foreground text-xs sm:text-sm block">{publicFollowCounts.followingCount}</span>
+                  <span className="font-bold text-foreground text-xs sm:text-sm block">{publicFollowCounts.followingCount}</span>
                   <span className="text-[10px] text-muted-foreground">Following</span>
                 </div>
               </Link>
+
+              {/* Academic Notes Shared */}
+              {userAcademicResources.length > 0 && (
+                <div className="text-left leading-tight">
+                  <span className="font-bold text-foreground text-xs sm:text-sm block">
+                    {userAcademicResources.length}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Notes & PYQs</span>
+                </div>
+              )}
 
               {/* Contributions */}
               <div className="flex items-center gap-2 ml-auto text-muted-foreground text-[11px] font-medium hidden sm:flex">
