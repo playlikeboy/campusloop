@@ -140,8 +140,8 @@ export function LivingHubClient({ profileId }: Props) {
             </p>
           </div>
 
-          {/* Quick Actions Row */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Actions Row (Desktop only; on mobile each card already contains primary actions) */}
+          <div className="hidden sm:flex flex-wrap items-center gap-2">
             <Button asChild size="sm" className="gap-1.5 font-bold">
               <Link href="/buy-and-sell/new">
                 <Plus className="size-4" />

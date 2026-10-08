@@ -265,7 +265,8 @@ export default function CollegesClient() {
             className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 active:scale-95"
           >
             <Plus className="size-3.5" />
-            <span>Request Hub</span>
+            <span className="hidden sm:inline">Request Hub</span>
+            <span className="sm:hidden">Request</span>
           </button>
         </div>
       </header>
