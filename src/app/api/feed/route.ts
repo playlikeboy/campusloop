@@ -1,4 +1,4 @@
-import { eq, inArray, lt, type SQL, sql } from "drizzle-orm";
+import { eq, inArray, lt, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
@@ -135,7 +135,16 @@ export async function GET(req: Request) {
 
     if (hashtag) {
       const cleanHashtag = decodeURIComponent(hashtag).replace(/^#/, "").trim();
-      conditions.push(sql`${posts.body} ILIKE ${`%#${cleanHashtag}%`}`);
+      if (cleanHashtag) {
+        const hashtagCondition = or(
+          sql`${posts.body} ILIKE ${`%#${cleanHashtag}%`}`,
+          sql`${posts.body} ILIKE ${`%#%${cleanHashtag}%`}`,
+          sql`${posts.body} ILIKE ${`%${cleanHashtag}%`}`
+        );
+        if (hashtagCondition) {
+          conditions.push(hashtagCondition);
+        }
+      }
     }
 
     const authorId = searchParams.get("authorId");

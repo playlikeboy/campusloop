@@ -383,10 +383,10 @@ export function AcademicDetailClient({
             <span className="text-xs font-bold text-foreground/90 bg-muted/60 px-3 py-1 rounded-full border border-border/30">
               {resource.subjectName}
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/40">
               {resource.resourceType?.replace("_", " ") || "Notes"}
             </span>
-            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 ml-auto">
+            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 ml-auto">
               <CheckCircle2 className="size-3" />
               <span>{reliability}% Verified</span>
             </span>
@@ -441,12 +441,12 @@ export function AcademicDetailClient({
                 <span className="hidden sm:inline">Helpful</span>
               </span>
               <span className="flex items-center gap-1">
-                <BookOpen className="size-3.5 text-blue-400" />
+                <BookOpen className="size-3.5 text-muted-foreground" />
                 <strong className="text-foreground font-black tabular-nums">{views}</strong>
                 <span className="hidden sm:inline">Views</span>
               </span>
               <span className="flex items-center gap-1">
-                <Download className="size-3.5 text-emerald-400" />
+                <Download className="size-3.5 text-primary" />
                 <strong className="text-foreground font-black tabular-nums">{downloads}</strong>
                 <span className="hidden sm:inline">Downloads</span>
               </span>
@@ -564,11 +564,11 @@ export function AcademicDetailClient({
                     className={cn(
                       "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
                       isHelpful
-                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        ? "bg-primary/10 text-primary border border-primary/25"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
                     )}
                   >
-                    <CheckCircle2 className="size-3 text-emerald-400" />
+                    <CheckCircle2 className="size-3 text-primary" />
                     <span>Accurate &amp; Verified</span>
                   </button>
                   <button
@@ -577,11 +577,11 @@ export function AcademicDetailClient({
                     className={cn(
                       "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
                       !isHelpful
-                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                        ? "bg-muted text-foreground border border-border/60"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
                     )}
                   >
-                    <AlertTriangle className="size-3 text-amber-400" />
+                    <AlertTriangle className="size-3 text-muted-foreground" />
                     <span>Outdated / Errata</span>
                   </button>
                 </div>
@@ -639,8 +639,8 @@ export function AcademicDetailClient({
                             className={cn(
                               "text-[9px] font-black px-2 py-0.5 rounded-full border",
                               c.isHelpful
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-                                : "bg-amber-500/10 text-amber-400 border-amber-500/25"
+                                ? "bg-primary/10 text-primary border-primary/25"
+                                : "bg-muted text-muted-foreground border-border/40"
                             )}
                           >
                             {c.isHelpful ? "VERIFIED ACCURATE" : "ERRATA NOTED"}

@@ -2,10 +2,15 @@
 
 import {
   Bookmark,
+  ChevronDown,
+  ChevronUp,
   FolderOpen,
   FolderPlus,
+  GraduationCap,
   Loader2,
   Plus,
+  RotateCcw,
+  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +21,7 @@ import useSWRInfinite from "swr/infinite";
 import { AcademicActiveFilters } from "@/components/academics/academic-active-filters";
 import { AcademicAuthBenefitsCard } from "@/components/academics/academic-auth-benefits-card";
 import { AcademicAuthModal } from "@/components/academics/academic-auth-modal";
+import { AcademicCourseModal } from "@/components/academics/academic-course-modal";
 import { AcademicCardSkeleton } from "@/components/academics/academic-card-skeleton";
 import { AcademicContextRail } from "@/components/academics/academic-context-rail";
 import { AcademicEmptyState } from "@/components/academics/academic-empty-state";
@@ -64,6 +70,8 @@ export function AcademicsClient({
 
   // Modals & Infinite Scroll
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isFilterAccordionOpen, setIsFilterAccordionOpen] = useState(false);
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
   const [guestRemaining, setGuestRemaining] = useState<number>(GUEST_DOWNLOAD_LIMIT);
 
@@ -258,35 +266,100 @@ export function AcademicsClient({
         />
       </div>
 
-      {/* ─── 4. Resource Filter Bar: [Branch ▾] [Semester ▾] [Resource Type ▾] [Sort ▾] ─── */}
+      {/* ─── 4. Streamlined Filter & Academic Focus Action Bar ─── */}
       {isFeedTab && (
-        <div className="pt-2 pb-1">
-          <AcademicFilterBar
-            branch={selectedBranch}
-            semester={selectedSemester}
-            resourceType={selectedResourceType}
-            sortBy={sortBy}
-            onBranchChange={setSelectedBranch}
-            onSemesterChange={setSelectedSemester}
-            onResourceTypeChange={setSelectedResourceType}
-            onSortChange={setSortBy}
-            onReset={handleResetFilters}
-            hasActiveFilters={hasActiveFilters}
-            activeTab={activeTab}
-          />
+        <div className="pt-2 pb-1 space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              {/* Accordion Filter Toggle Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  haptics.light();
+                  setIsFilterAccordionOpen(!isFilterAccordionOpen);
+                }}
+                className={cn(
+                  "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer active:scale-95 shadow-2xs",
+                  isFilterAccordionOpen || selectedBranch !== "All" || selectedSemester !== "all" || selectedResourceType !== "all" || sortBy !== "for_you"
+                    ? "bg-foreground text-background border-foreground shadow-xs font-black"
+                    : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <SlidersHorizontal className="size-3.5" />
+                <span>Filters</span>
+                {(selectedBranch !== "All" || selectedSemester !== "all" || selectedResourceType !== "all" || sortBy !== "for_you") && (
+                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-black">
+                    {(selectedBranch !== "All" ? 1 : 0) + (selectedSemester !== "all" ? 1 : 0) + (selectedResourceType !== "all" ? 1 : 0) + (sortBy !== "for_you" ? 1 : 0)}
+                  </span>
+                )}
+                {isFilterAccordionOpen ? (
+                  <ChevronUp className="size-3.5 opacity-70" />
+                ) : (
+                  <ChevronDown className="size-3.5 opacity-70" />
+                )}
+              </button>
 
-          {/* Active Filter Chips: CSE ×, Sem 5 ×, Clear all */}
-          <AcademicActiveFilters
-            branch={selectedBranch}
-            semester={selectedSemester}
-            resourceType={selectedResourceType}
-            sortBy={sortBy}
-            onClearBranch={() => setSelectedBranch("All")}
-            onClearSemester={() => setSelectedSemester("all")}
-            onClearResourceType={() => setSelectedResourceType("all")}
-            onClearSort={() => setSortBy("for_you")}
-            onClearAll={handleResetFilters}
-          />
+              {/* My Academic Focus Customizer Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  haptics.light();
+                  setIsCourseModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border border-primary/30 bg-primary/10 hover:bg-primary/15 text-primary transition-all cursor-pointer active:scale-95 shadow-2xs"
+                title="Customize your enrolled courses (e.g. DBMS, DAA) and branch to prioritize notes"
+              >
+                <GraduationCap className="size-3.5" />
+                <span>My Courses &amp; Focus</span>
+              </button>
+            </div>
+
+            {/* Quick Reset Button (Visible when filters are active) */}
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                <RotateCcw className="size-3" />
+                <span>Reset filters</span>
+              </button>
+            )}
+          </div>
+
+          {/* Expandable Accordion Filter Panel */}
+          {isFilterAccordionOpen && (
+            <div className="p-3 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md space-y-2 animate-in fade-in-50 slide-in-from-top-1 duration-200">
+              <AcademicFilterBar
+                branch={selectedBranch}
+                semester={selectedSemester}
+                resourceType={selectedResourceType}
+                sortBy={sortBy}
+                onBranchChange={setSelectedBranch}
+                onSemesterChange={setSelectedSemester}
+                onResourceTypeChange={setSelectedResourceType}
+                onSortChange={setSortBy}
+                onReset={handleResetFilters}
+                hasActiveFilters={hasActiveFilters}
+                activeTab={activeTab}
+              />
+
+              {/* Active Filter Chips: CSE ×, Sem 5 ×, Clear all */}
+              <AcademicActiveFilters
+                branch={selectedBranch}
+                semester={selectedSemester}
+                resourceType={selectedResourceType}
+                sortBy={sortBy}
+                onClearBranch={() => setSelectedBranch("All")}
+                onClearSemester={() => setSelectedSemester("all")}
+                onClearResourceType={() => setSelectedResourceType("all")}
+                onClearSort={() => setSortBy("for_you")}
+                onClearAll={handleResetFilters}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -514,6 +587,17 @@ export function AcademicsClient({
         onClose={() => setIsAuthModalOpen(false)}
         actionReason="UPLOAD"
         returnTo="/academics"
+      />
+
+      {/* Student Academic Focus & Enrolled Courses Customizer Modal */}
+      <AcademicCourseModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+        onSaved={(updated) => {
+          setSelectedBranch(updated.branch);
+          setSelectedSemester(String(updated.semester));
+          void mutate();
+        }}
       />
     </div>
   );

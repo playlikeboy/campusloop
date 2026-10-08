@@ -240,6 +240,38 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
     ],
   };
 
+  // Schema.org FAQPage for Google Rich Snippets & voice assistant search
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `How can I download ${resource.subjectCode} (${resource.subjectName}) notes for free?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `You can preview and download ${resource.title} (${resource.subjectCode}) verified PDF notes, formula banks, and past year question papers (PYQs) directly on CampusLoop for free with zero login or sign-in required.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `Which branch and semester is this ${resource.subjectCode} material for?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `This resource is curated for ${resource.branch}, Semester ${resource.semester} under university engineering curriculum at ${resource.institution?.name || "Indian Universities"}.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `Are the questions and solutions verified for semester exams?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `Yes, all academic resources on CampusLoop are peer-verified by verified engineering students to ensure syllabus accuracy, formula correctness, and high exam yield.`,
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <script
@@ -254,6 +286,10 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       {/* ─── AI-Friendly Semantic Machine-Readable Manifest (Screen-Reader & Web Crawler Optimized) ─── */}

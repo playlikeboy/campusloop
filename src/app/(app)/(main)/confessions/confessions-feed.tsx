@@ -176,7 +176,7 @@ export function ConfessionsFeed() {
                   <h1 className="text-sm sm:text-base font-bold text-foreground tracking-tight leading-none font-[family-name:var(--font-heading)] truncate">
                     Confessions
                   </h1>
-                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
                     <Lock className="size-2.5" />
                     <span>100% Anon</span>
                   </span>

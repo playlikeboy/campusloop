@@ -186,76 +186,64 @@ export default function HashtagFeed() {
         </div>
       </header>
 
-      {/* ─── Topic Strategic Hero Card ─── */}
-      <div className={cn("relative overflow-hidden px-3.5 py-3 sm:px-4 sm:pt-5 sm:pb-4 border-b border-border/20 bg-gradient-to-b", theme.gradient)}>
+      {/* ─── Topic Clean Header Card ─── */}
+      <div className="px-4 py-4 sm:py-5 border-b border-border/30 bg-card/40 space-y-3">
         <div className="flex items-start gap-3">
-          <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-card border border-border/60 shadow-xs flex items-center justify-center shrink-0">
-            <TopicIcon className={cn("size-5 sm:size-6", theme.accentColor)} />
+          <div className="size-11 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+            <TopicIcon className="size-5.5" />
           </div>
 
-          <div className="min-w-0 flex-1 space-y-0.5 sm:space-y-1">
+          <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground font-[family-name:var(--font-heading)]">#{theme.tag}</h2>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-bold">
-                <Flame className="size-2.5 sm:size-3 fill-amber-500/30" />
-                <span>Trending</span>
+              <h2 className="text-xl font-black tracking-tight text-foreground">
+                #{theme.tag}
+              </h2>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] font-bold">
+                <Flame className="size-3 text-primary" />
+                <span>Trending Topic</span>
               </span>
             </div>
 
-            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">{theme.description}</p>
+            {theme.description && (
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {theme.description}
+              </p>
+            )}
 
-            {/* Mobile Inline Stat Row */}
-            <div className="sm:hidden flex items-center gap-2 pt-1 text-[11px] text-muted-foreground font-medium">
-              <span>{stats ? `${stats.postsCount} posts` : "Posts"}</span>
+            {/* Subtle Inline Statistics Row */}
+            <div className="flex items-center gap-3 pt-1 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1 font-semibold text-foreground">
+                <MessageCircle className="size-3 text-muted-foreground" />
+                <span>{stats ? stats.postsCount : 0} posts</span>
+              </span>
               <span>·</span>
-              <span>{stats ? `${Math.max(1, stats.collegesCount)} colleges` : "Colleges"}</span>
+              <span className="flex items-center gap-1 font-semibold text-foreground">
+                <Building2 className="size-3 text-muted-foreground" />
+                <span>{stats ? Math.max(1, stats.collegesCount) : 1} colleges</span>
+              </span>
+              {stats && stats.mediaPostsCount > 0 && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1 font-semibold text-foreground">
+                    <ImageIcon className="size-3 text-muted-foreground" />
+                    <span>{stats.mediaPostsCount} media</span>
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Live Topic Statistics (Desktop) */}
-        <div className="hidden sm:grid grid-cols-3 gap-2 pt-4">
-          <div className="rounded-xl border border-border/40 bg-card/60 p-2.5 text-center">
-            <div className="text-base font-black text-foreground tabular-nums">
-              {stats ? stats.postsCount : "—"}
-            </div>
-            <div className="text-[10px] font-medium text-muted-foreground flex items-center justify-center gap-1">
-              <MessageCircle className="size-2.5" />
-              <span>Posts</span>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/40 bg-card/60 p-2.5 text-center">
-            <div className="text-base font-black text-foreground tabular-nums">
-              {stats ? Math.max(1, stats.collegesCount) : "—"}
-            </div>
-            <div className="text-[10px] font-medium text-muted-foreground flex items-center justify-center gap-1">
-              <Building2 className="size-2.5" />
-              <span>Colleges</span>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/40 bg-card/60 p-2.5 text-center">
-            <div className="text-base font-black text-foreground tabular-nums">
-              {stats ? stats.mediaPostsCount : "—"}
-            </div>
-            <div className="text-[10px] font-medium text-muted-foreground flex items-center justify-center gap-1">
-              <ImageIcon className="size-2.5" />
-              <span>Photos</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Campus Hubs Talking About This (Desktop) */}
-        {stats && stats.topColleges.length > 0 && (
-          <div className="mt-3 hidden sm:flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
-            <span className="font-semibold text-foreground/80 shrink-0">Active in:</span>
+        {/* Top Campus Hubs Talking About This */}
+        {stats && stats.topColleges && stats.topColleges.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap pt-1 text-xs text-muted-foreground border-t border-border/20">
+            <span className="font-semibold text-foreground/80 shrink-0 text-[11px]">Popular at:</span>
             {stats.topColleges.map((col) => (
               <span
                 key={col.id}
                 className="px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground text-[10px] font-medium border border-border/30 truncate max-w-[140px]"
               >
-                {col.short_name || col.name.split(",")[0]} ({col.count})
+                {col.short_name || col.name.split(",")[0]}
               </span>
             ))}
           </div>
