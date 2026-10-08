@@ -72,15 +72,14 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
-// Mobile keeps one focused persistent navigation system. Search/Explore is
-// already available from the top bar, so the bottom bar prioritizes the
-// high-frequency social destination: Communities.
+// Mobile bottom navigation has 5 core tabs conforming to AGENTS.md Rule 6:
+// Home (/feeds), Colleges (/colleges), Post (/post/new), Chat (/chat), and Dating (/dating).
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateSearch, href: "/explore", label: "Search" },
-  { icon: AnimatePlus, href: "/post/new", label: "Create" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Messages" },
-  { icon: AnimateUser, href: "/profile", label: "Profile" },
+  { icon: AnimateGraduationCap, href: "/colleges", label: "Colleges" },
+  { icon: AnimatePlus, href: "/post/new", label: "Post" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
+  { icon: AnimateHeart, href: "/dating", label: "Dating" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
