@@ -195,9 +195,11 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
 
   const mobileIconAnimations: Record<string, IconMotionName> = {
     "/feeds": "lift",
-    "/explore": "nudge-right",
+    "/colleges": "lift",
     "/post/new": "pop",
     "/chat": "beat",
+    "/dating": "beat",
+    "/explore": "nudge-right",
     "/profile": "pop",
   };
 
