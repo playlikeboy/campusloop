@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { DatingMatchModal } from "@/components/dating/dating-match-modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -63,28 +65,24 @@ export function LikesClient() {
             ))}
           </div>
         ) : likes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-            <div className="size-16 rounded-3xl bg-pink-500/10 text-pink-600 flex items-center justify-center border border-pink-500/20 shadow-xs">
-              <Heart className="size-8 fill-pink-500 text-pink-500" />
-            </div>
-            <div className="space-y-1 max-w-xs">
-              <p className="text-base font-black text-foreground">No pending admirers</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center rounded-3xl border border-border/80 bg-card p-8 my-4 shadow-2xs">
+            <CuteCatEmpty size={100} className="mb-1" />
+            <div className="space-y-1.5 max-w-xs">
+              <h3 className="font-heading font-bold text-base text-foreground">No pending admirers</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Keep swiping on the campus deck or upload fresh photos to appear on more classmate screens!
+                Keep swiping on the campus deck or update your bio and photos to appear on more classmate screens!
               </p>
             </div>
-            <div className="flex items-center gap-2 pt-2">
-              <Link
-                href="/dating"
-                className="text-xs font-black text-white bg-pink-600 hover:bg-pink-700 px-5 py-2.5 rounded-full shadow-md shadow-pink-600/20 active:scale-95 transition-all"
-              >
-                Start Swiping
+            <div className="flex items-center gap-2.5 pt-2">
+              <Link href="/dating">
+                <Button size="default">
+                  <span>Start Swiping</span>
+                </Button>
               </Link>
-              <Link
-                href="/profile/edit"
-                className="text-xs font-bold text-muted-foreground hover:text-foreground bg-muted/60 px-4 py-2.5 rounded-full border border-border/40 transition-colors"
-              >
-                Edit Profile
+              <Link href="/profile/edit">
+                <Button variant="outline" size="default">
+                  <span>Edit Profile</span>
+                </Button>
               </Link>
             </div>
           </div>

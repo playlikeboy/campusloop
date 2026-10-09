@@ -18,11 +18,16 @@ import {
   Calendar,
   Home,
   ShoppingBag,
-  Bell,
   Heart,
   Share2,
   Bookmark,
 } from "lucide-react";
+import {
+  CuteCatMascot,
+  CuteCatEmpty,
+  CuteCatSuccess,
+  CuteCatSearch,
+} from "@/components/ui/cute-illustrations";
 
 export function DesignSystemClient() {
   const [activeChip, setActiveChip] = useState("all");
@@ -44,28 +49,50 @@ export function DesignSystemClient() {
         {/* 1. PALETTE & TINTS */}
         <section className="mb-12">
           <h2 className="font-heading font-bold text-xl mb-4 text-[var(--text)]">
-            1. Core Palette & Semantic Tokens
+            1. Core Warm Palette & Semantic Tokens
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--canvas)]">
-              <div className="text-xs font-semibold text-[var(--text-secondary)]">Canvas</div>
-              <div className="text-sm font-mono mt-1 text-[var(--text)]">#F7F8FC</div>
+              <div className="text-xs font-semibold text-[var(--text-secondary)]">Blush Canvas</div>
+              <div className="text-sm font-mono mt-1 text-[var(--text)]">#FEC7BE</div>
             </div>
             <div className="p-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)]">
-              <div className="text-xs font-semibold text-[var(--text-secondary)]">Surface</div>
-              <div className="text-sm font-mono mt-1 text-[var(--text)]">#FFFFFF</div>
+              <div className="text-xs font-semibold text-[var(--text-secondary)]">Warm Ivory Surface</div>
+              <div className="text-sm font-mono mt-1 text-[var(--text)]">#FFF8ED</div>
             </div>
             <div className="p-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--primary)] text-white">
-              <div className="text-xs font-semibold text-white/80">Primary Action</div>
-              <div className="text-sm font-mono mt-1 text-white">#5B4BFF</div>
+              <div className="text-xs font-semibold text-white/90">Terracotta Action</div>
+              <div className="text-sm font-mono mt-1 text-white">#BD4B2A</div>
             </div>
-            <div className="p-4 rounded-[var(--r-md)] border border-[var(--primary-soft-border)] bg-[var(--primary-soft)] text-[var(--primary)]">
-              <div className="text-xs font-semibold text-[var(--primary)]">Primary Soft</div>
-              <div className="text-sm font-mono mt-1 font-semibold">Tonal Accent</div>
+            <div className="p-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text)]">
+              <div className="text-xs font-semibold text-[var(--text-secondary)]">Raised Surface</div>
+              <div className="text-sm font-mono mt-1 font-semibold">#FFFCF7</div>
             </div>
           </div>
 
           <h3 className="font-heading font-semibold text-base mt-6 mb-3 text-[var(--text)]">
+            Cute Pastel Accents
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="p-3 rounded-2xl border border-[var(--border)] bg-[var(--color-cat-blue,#C4DFEF)]/40 text-[var(--text)]">
+              <div className="text-xs font-semibold">Pastel Blue</div>
+              <div className="text-xs font-mono mt-0.5">#C4DFEF</div>
+            </div>
+            <div className="p-3 rounded-2xl border border-[var(--border)] bg-[var(--color-cat-yellow,#FFE59C)]/50 text-[var(--text)]">
+              <div className="text-xs font-semibold">Pastel Yellow</div>
+              <div className="text-xs font-mono mt-0.5">#FFE59C</div>
+            </div>
+            <div className="p-3 rounded-2xl border border-[var(--border)] bg-[var(--color-cat-pink,#F2A4A4)]/40 text-[var(--text)]">
+              <div className="text-xs font-semibold">Pastel Pink</div>
+              <div className="text-xs font-mono mt-0.5">#F2A4A4</div>
+            </div>
+            <div className="p-3 rounded-2xl border border-[var(--border)] bg-[var(--color-coral,#FF804E)]/30 text-[var(--text)]">
+              <div className="text-xs font-semibold">Coral Accent</div>
+              <div className="text-xs font-mono mt-0.5">#FF804E</div>
+            </div>
+          </div>
+
+          <h3 className="font-heading font-semibold text-base mb-3 text-[var(--text)]">
             Category Tints
           </h3>
           <div className="flex flex-wrap gap-2.5">
@@ -112,7 +139,7 @@ export function DesignSystemClient() {
             </div>
             <div>
               <span className="text-xs text-[var(--text-muted)] font-mono block mb-1">
-                Body Default · Figtree 400 / 500
+                Body Default · Nunito Sans 400 / 500 / 600
               </span>
               <p className="text-sm text-[var(--text)] leading-relaxed">
                 Connect with verified students from your campus. Share study materials, discover campus
@@ -225,6 +252,31 @@ export function DesignSystemClient() {
                 </>
               }
             />
+          </div>
+        </section>
+
+        {/* 5. CUTE MASCOT & ILLUSTRATIVE STATES */}
+        <section className="mb-12">
+          <h2 className="font-heading font-bold text-xl mb-4 text-[var(--text)]">
+            5. Hand-Drawn Mascot & State Illustrations
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] text-center">
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--canvas)] border border-[var(--border)]">
+              <CuteCatMascot size={80} />
+              <span className="text-xs font-semibold mt-2 text-[var(--text)]">Mascot</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--canvas)] border border-[var(--border)]">
+              <CuteCatEmpty size={80} />
+              <span className="text-xs font-semibold mt-2 text-[var(--text)]">Empty State</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--canvas)] border border-[var(--border)]">
+              <CuteCatSuccess size={80} />
+              <span className="text-xs font-semibold mt-2 text-[var(--text)]">Success State</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--canvas)] border border-[var(--border)]">
+              <CuteCatSearch size={80} />
+              <span className="text-xs font-semibold mt-2 text-[var(--text)]">Search State</span>
+            </div>
           </div>
         </section>
       </PageContainer>

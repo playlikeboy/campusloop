@@ -74,10 +74,10 @@ export function DatingFooter() {
       aria-label="Campus Match Navigation"
       className={cn(
         "fixed bottom-0 inset-x-0 z-40 select-none",
-        "bg-background/90 backdrop-blur-xl border-t border-border/40 shadow-lg",
+        "bg-background/95 backdrop-blur-xl border-t border-border/80 shadow-2xs",
         "pb-[max(env(safe-area-inset-bottom),0.35rem)] pt-1.5",
         "sm:bottom-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md",
-        "sm:rounded-2xl sm:border sm:border-border/60 sm:shadow-2xl sm:pb-1.5 sm:pt-1.5"
+        "sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-md sm:pb-1.5 sm:pt-1.5"
       )}
     >
       <div className="flex items-center justify-around px-2">
@@ -96,7 +96,7 @@ export function DatingFooter() {
               className={cn(
                 "relative flex flex-col items-center justify-center flex-1 py-1 px-1.5 min-h-[46px] rounded-xl transition-all cursor-pointer active:scale-92",
                 active
-                  ? "text-pink-600 dark:text-pink-400 font-black"
+                  ? "text-primary font-bold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -105,21 +105,21 @@ export function DatingFooter() {
                 <div
                   className={cn(
                     "flex size-7 items-center justify-center rounded-xl transition-all",
-                    active && "bg-pink-500/10 dark:bg-pink-500/15"
+                    active && "bg-primary/10"
                   )}
                 >
                   <Icon
                     className={cn(
                       "size-4.5 transition-transform",
                       active && "scale-105",
-                      active && item.id === "likes" && "fill-pink-500 text-pink-500",
-                      active && item.id === "discover" && "fill-pink-500 text-pink-500"
+                      active && item.id === "likes" && "fill-primary text-primary",
+                      active && item.id === "discover" && "fill-primary text-primary"
                     )}
                   />
                 </div>
 
                 {item.badge && (
-                  <span className="absolute -top-1 -right-1.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-pink-600 px-1 text-[9px] font-black text-white ring-2 ring-background animate-in zoom-in-50">
+                  <span className="absolute -top-1 -right-1.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground ring-2 ring-background animate-in zoom-in-50">
                     {item.badge}
                   </span>
                 )}
@@ -129,7 +129,7 @@ export function DatingFooter() {
               <span
                 className={cn(
                   "text-[10px] tracking-tight transition-colors mt-0.5",
-                  active ? "font-black text-pink-600 dark:text-pink-400" : "font-medium"
+                  active ? "font-bold text-primary" : "font-medium"
                 )}
               >
                 {item.label}
