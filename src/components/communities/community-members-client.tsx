@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/communities/actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CommunityRoleBadge } from "./community-role-badge";
 
 interface MemberItem {
   id: string;
@@ -179,14 +180,14 @@ export function CommunityMembersClient({
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-amber-500/10 text-amber-600">
+                    <AvatarFallback className="text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300">
                       {m.user.displayName[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
                     <p className="text-xs font-extrabold text-foreground truncate flex items-center gap-1">
                       <span>{m.user.displayName}</span>
-                      <Crown className="size-3 text-amber-500 shrink-0" />
+                      <Crown className="size-3 text-amber-600 dark:text-amber-400 shrink-0" />
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
@@ -194,9 +195,7 @@ export function CommunityMembersClient({
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
-                  Admin
-                </span>
+                <CommunityRoleBadge role={m.role} />
               </div>
             </Link>
           ))}
@@ -226,6 +225,9 @@ export function CommunityMembersClient({
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
+                </div>
+
+                <CommunityRoleBadge role={m.role} />
               </div>
             </Link>
           ))}

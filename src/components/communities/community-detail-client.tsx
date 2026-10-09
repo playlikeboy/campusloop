@@ -43,6 +43,7 @@ import { recordCommunityInviteShare } from "@/app/(app)/(main)/communities/actio
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { PostComposer } from "@/app/(app)/(main)/post/new/post-composer";
 import { ShareQrButton } from "@/components/common/share-qr-button";
+import { CommunityRoleBadge } from "@/components/communities/community-role-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
@@ -697,11 +698,7 @@ export function CommunityDetailClient({
                       </div>
                     </Link>
 
-                    {m.role && m.role !== "MEMBER" ? (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
-                        {m.role === "ADMIN" ? "Admin" : m.role === "MODERATOR" ? "Moderator" : m.role}
-                      </span>
-                    ) : null}
+                    <CommunityRoleBadge role={m.role} />
                   </div>
                 ))
               ) : (
@@ -816,6 +813,8 @@ export function CommunityDetailClient({
                     @{community.creator.username}
                   </p>
                 </div>
+
+                <CommunityRoleBadge role="ADMIN" />
               </Link>
             </div>
           )}
