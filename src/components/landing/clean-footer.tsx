@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
+import { CuteCatMascot } from "@/components/ui/cute-illustrations";
 
 const FOOTER_GROUPS = [
   {
@@ -41,17 +41,11 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="relative size-8 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
-                <Image
-                  src="/campusloop/marketing/voxel/logo.webp"
-                  alt="CampusLoop"
-                  fill
-                  sizes="32px"
-                  className="object-contain"
-                />
+              <div className="size-8.5 rounded-2xl bg-canvas/50 border border-border/70 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:-rotate-3 shadow-2xs">
+                <CuteCatMascot size={30} />
               </div>
-              <span className="text-base font-black tracking-tight text-foreground">
-                Campus<span className="text-primary">Loop</span>
+              <span className="font-heading text-lg font-bold tracking-tight text-foreground">
+                Campus<span className="text-primary font-bold">Loop</span>
               </span>
             </Link>
 

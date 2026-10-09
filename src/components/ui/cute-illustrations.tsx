@@ -315,3 +315,91 @@ export function CuteCatSearch({ className, size = 100, ...props }: IllustrationP
     </svg>
   );
 }
+
+/**
+ * Studious Cat with glasses and open notebook for Academic Vault & Study Notes
+ */
+export function CuteCatStudy({ className, size = 100, ...props }: IllustrationProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("shrink-0 select-none", className)}
+      aria-label="Study Notes Mascot"
+      role="img"
+      {...props}
+    >
+      <ellipse cx="50" cy="88" rx="28" ry="6" fill="currentColor" className="text-black/5 dark:text-white/5" />
+
+      {/* Body */}
+      <path d="M30 84C30 68 38 58 50 58C62 58 70 68 70 84Z" fill="#FFF8ED" stroke="#5A554B" strokeWidth="3" />
+
+      {/* Open Book in Paws */}
+      <path
+        d="M26 78C34 74 46 76 50 80C54 76 66 74 74 78L74 88C66 84 54 86 50 90C46 86 34 84 26 88Z"
+        fill="#C4DFEF"
+        stroke="#5A554B"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* Book Pages */}
+      <path d="M30 80C36 78 44 79 48 82" stroke="#5A554B" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M70 80C64 78 56 79 52 82" stroke="#5A554B" strokeWidth="1.5" strokeLinecap="round" />
+
+      {/* Ears */}
+      <path d="M30 36L36 16C37 14 40 14 42 17L46 28" fill="#FFF8ED" stroke="#5A554B" strokeWidth="3" />
+      <path d="M33 32L37 20L41 28Z" fill="#F2A4A4" opacity="0.8" />
+      <path d="M70 36L64 16C63 14 60 14 58 17L54 28" fill="#FFF8ED" stroke="#5A554B" strokeWidth="3" />
+      <path d="M67 32L63 20L59 28Z" fill="#F2A4A4" opacity="0.8" />
+
+      {/* Head */}
+      <circle cx="50" cy="38" r="23" fill="#FFF8ED" stroke="#5A554B" strokeWidth="3" />
+
+      {/* Cute Round Glasses */}
+      <circle cx="42" cy="38" r="8" fill="#FFFFFF" fillOpacity="0.7" stroke="#5A554B" strokeWidth="2.5" />
+      <circle cx="58" cy="38" r="8" fill="#FFFFFF" fillOpacity="0.7" stroke="#5A554B" strokeWidth="2.5" />
+      <path d="M50 38L50 38" stroke="#5A554B" strokeWidth="2.5" strokeLinecap="round" />
+
+      {/* Friendly Eyes behind glasses */}
+      <path d="M39 38C40.5 40 43.5 40 45 38" stroke="#5A554B" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M55 38C56.5 40 59.5 40 61 38" stroke="#5A554B" strokeWidth="2" strokeLinecap="round" fill="none" />
+
+      {/* Rosy Cheeks */}
+      <circle cx="34" cy="45" r="3.5" fill="#F2A4A4" opacity="0.85" />
+      <circle cx="66" cy="45" r="3.5" fill="#F2A4A4" opacity="0.85" />
+
+      {/* Nose & Smile */}
+      <polygon points="49,43 51,43 50,45" fill="#FF804E" />
+      <path d="M47 46C48.5 48 50 48 50 46C50 48 51.5 48 53 46" stroke="#5A554B" strokeWidth="2" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+/**
+ * Hand-drawn warm 4-point sparkle icon
+ */
+export function CuteSparkle({ className, size = 18, ...props }: IllustrationProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("shrink-0", className)}
+      aria-hidden="true"
+      {...props}
+    >
+      <path
+        d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"
+        fill="#FF804E"
+        stroke="#BD4B2A"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
