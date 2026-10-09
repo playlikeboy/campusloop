@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "website",
       images: [
         {
-          url: "https://campusloop.space/og-image.png",
+          url: comm.bannerUrl || "https://campusloop.space/og-image.png",
           width: 1200,
           height: 630,
           alt: title,
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title,
       description,
-      images: ["https://campusloop.space/og-image.png"],
+      images: [comm.bannerUrl || "https://campusloop.space/og-image.png"],
     },
     robots: { index: comm.privacy === "PUBLIC", follow: comm.privacy === "PUBLIC" },
   };
@@ -177,17 +177,51 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   return (
     <>
-      {/* Educational Organization / DiscussionForum JSON-LD Schema */}
+      {/* Educational Organization / DiscussionForum & Breadcrumbs JSON-LD Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "DiscussionForum",
-            name: `c/${comm.name}`,
-            description: comm.description || `Sub-hub community for ${comm.name} on CampusLoop.`,
-            url: `https://campusloop.space/communities/${comm.slug || comm.id}`,
-            memberCount: activeMembersCount,
+            "@graph": [
+              {
+                "@type": "DiscussionForum",
+                name: `c/${comm.name}`,
+                headline: `c/${comm.name} — Student Community & Campus Sub-Hub`,
+                description: comm.description || `Sub-hub community for ${comm.name} on CampusLoop.`,
+                url: `https://campusloop.space/communities/${comm.slug || comm.id}`,
+                memberCount: activeMembersCount,
+                image: comm.bannerUrl || comm.avatarUrl || undefined,
+                publisher: {
+                  "@type": "Organization",
+                  name: "CampusLoop",
+                  url: "https://campusloop.space",
+                },
+              },
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: "https://campusloop.space",
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Communities",
+                    item: "https://campusloop.space/communities",
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 3,
+                    name: comm.name,
+                    item: `https://campusloop.space/communities/${comm.slug || comm.id}`,
+                  },
+                ],
+              },
+            ],
           }),
         }}
       />

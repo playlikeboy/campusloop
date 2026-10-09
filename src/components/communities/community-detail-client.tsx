@@ -2,29 +2,44 @@
 
 import {
   ArrowLeft,
+  ArrowRight,
   BarChart3,
+  BookOpen,
+  Building2,
+  Check,
   Clock,
+  Code2,
+  Coffee,
+  Compass,
+  ExternalLink,
   Flame,
+  Gamepad2,
   Globe,
+  GraduationCap,
   Image as ImageIcon,
   Loader2,
   Lock,
   MessageSquare,
   MessageSquarePlus,
+  Music,
   Plus,
+  Rocket,
   Settings,
+  Share2,
   ShieldCheck,
-  Smile,
   Sparkles,
   Trophy,
+  UploadCloud,
   Users,
   VenetianMask,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { recordCommunityInviteShare } from "@/app/(app)/(main)/communities/actions";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { PostComposer } from "@/app/(app)/(main)/post/new/post-composer";
 import { ShareQrButton } from "@/components/common/share-qr-button";
@@ -32,11 +47,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
-import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
-import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 export interface CommunityDetailProps {
   community: {
@@ -99,7 +112,6 @@ export function CommunityDetailClient({
 }: CommunityDetailProps) {
   const router = useRouter();
   const { profile } = useProfile();
-  const scrollRef = useScrollIsolation<HTMLElement>();
 
   const [activeTab, setActiveTab] = useState<"discussions" | "members" | "rules">("discussions");
   const [feedFilter, setFeedFilter] = useState<"hot" | "new" | "top" | "polls">("hot");
@@ -108,13 +120,15 @@ export function CommunityDetailClient({
   const [membersCount, setMembersCount] = useState(initialMembersCount);
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   const [isOpeningChat, setIsOpeningChat] = useState(false);
-
-  // Quick Composer State
-  const [quickText, setQuickText] = useState("");
-  const [isQuickPosting, setIsQuickPosting] = useState(false);
+  const [copiedInvite, setCopiedInvite] = useState(false);
   const [showFullComposer, setShowFullComposer] = useState(false);
 
   const identifier = community.slug || community.id;
+  const isAcademicsHub =
+    community.category === "Academics & Placements" ||
+    identifier.includes("notes") ||
+    identifier.includes("pyq") ||
+    identifier.includes("acad");
 
   async function handleOpenCommunityChat() {
     if (isOpeningChat) return;
@@ -138,6 +152,25 @@ export function CommunityDetailClient({
     }
   }
 
+  async function handleShareInvite() {
+    sounds.tap();
+    haptics.light();
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/communities/${identifier}`
+        : `https://campusloop.space/communities/${identifier}`;
+
+    const text = `Join c/${community.name} on CampusLoop!\n${community.description || "Verified student community"}\n\n${url}`;
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      setCopiedInvite(true);
+      toast.success("Community invite link copied! +10 LP awarded");
+      setTimeout(() => setCopiedInvite(false), 2500);
+      recordCommunityInviteShare(community.id).catch(() => {});
+    }
+  }
+
   const parsedRules = useMemo(() => {
     if (!community.rules) return [];
     try {
@@ -149,7 +182,7 @@ export function CommunityDetailClient({
 
   const [referenceTime] = useState(() => Date.now());
 
-  // Reddit-Style Algorithmic Community Feed Sorting
+  // Algorithmic Community Feed Sorting
   const filteredPosts = useMemo(() => {
     const list = [...posts];
     if (feedFilter === "polls") {
@@ -183,197 +216,185 @@ export function CommunityDetailClient({
     }
   }, [posts, feedFilter, topTimeWindow, referenceTime]);
 
-  async function handleQuickPost(e: React.FormEvent) {
-    e.preventDefault();
-    const text = quickText.trim();
-    if (!text || isQuickPosting) return;
+  const avatar = getAvatarUrl(community.avatarUrl, community.name);
 
-    setIsQuickPosting(true);
-    setQuickText("");
-
-    const tempId = `temp_${Date.now()}`;
-    const optimisticPost: FeedPost = {
-      id: tempId,
-      authorId: profile?.id || "temp_author",
-      institutionId: profile?.institutionId || "inst_global",
-      communityId: community.id,
-      body: text,
-      type: "NORMAL",
-      scope: "CAMPUS",
-      isAnonymous: false,
-      pseudonym: null,
-      title: null,
-      status: "PUBLISHED",
-      riskScore: 0,
-      isEdited: false,
-      isSeeded: false,
-      repostOfId: null,
-      repostComment: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      votesCount: 0,
-      commentsCount: 0,
-      userVote: 0,
-      author: profile as unknown as FeedPost["author"],
-      institution: (profile?.institution || {
-        id: profile?.institutionId || "inst_global",
-        name: "Campus",
-      }) as unknown as FeedPost["institution"],
-      community: { id: community.id, name: community.name },
-    };
-
-    setPosts((prev) => [optimisticPost, ...prev]);
-    optimisticAddPost(optimisticPost);
-    sounds.pop();
-    haptics.success();
-    toast.success("Discussion posted!");
-
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body: text,
-          type: "NORMAL",
-          scope: "CAMPUS",
-          isAnonymous: false,
-          communityId: community.id,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish post");
-      }
-
-      const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
-      const confirmed = {
-        ...optimisticPost,
-        id: serverPost.id,
-        createdAt: new Date(serverPost.createdAt || Date.now()),
-      };
-      setPosts((prev) => prev.map((p) => (p.id === tempId ? confirmed : p)));
-      confirmOptimisticPost(tempId, confirmed);
-    } catch (err: unknown) {
-      console.error("Community post failed:", err);
-      setPosts((prev) => prev.filter((p) => p.id !== tempId));
-      revertOptimisticPost(tempId);
-      toast.error(err instanceof Error ? err.message : "Failed to publish post.");
-    } finally {
-      setIsQuickPosting(false);
+  // Category Icon Resolver
+  const CategoryIcon = (() => {
+    switch (community.category) {
+      case "Tech & Coding":
+        return Code2;
+      case "Academics & Placements":
+        return GraduationCap;
+      case "Gaming & Anime":
+        return Gamepad2;
+      case "Music & Arts":
+        return Music;
+      case "Career & Startups":
+        return Rocket;
+      case "Sports & Fitness":
+        return Trophy;
+      case "Campus Services":
+        return Building2;
+      default:
+        return Coffee;
     }
-  }
+  })();
 
   return (
-    <div className="w-full min-w-0 max-w-7xl mx-auto space-y-5 overflow-x-clip pb-20 sm:space-y-6">
-      {/* ─── Breadcrumb & Quick Controls ─── */}
-      <div className="flex min-w-0 items-center justify-between gap-2 px-1">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer group"
-        >
-          <div className="size-7 rounded-full bg-muted/50 group-hover:bg-muted flex items-center justify-center transition-colors">
-            <ArrowLeft className="size-3.5" />
-          </div>
-          <span>Back to Hubs</span>
-        </button>
+    <div className="w-full min-w-0 max-w-7xl mx-auto space-y-6 pb-24">
+      {/* ─── Breadcrumb & Top Navigation Bar ─── */}
+      <nav aria-label="Breadcrumb" className="flex items-center justify-between gap-3 px-1 pt-1">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <Link
+            href="/communities"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group cursor-pointer"
+          >
+            <div className="size-6 rounded-full bg-muted/60 flex items-center justify-center group-hover:bg-muted transition-colors">
+              <ArrowLeft className="size-3 text-foreground" />
+            </div>
+            <span>Communities</span>
+          </Link>
+          <span className="text-muted-foreground/40">/</span>
+          <span className="text-foreground font-bold truncate max-w-[200px] sm:max-w-md">
+            c/{community.name}
+          </span>
+        </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        {/* Top Action Pills */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleShareInvite}
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition cursor-pointer shadow-2xs"
+            title="Share community invite link"
+          >
+            {copiedInvite ? (
+              <>
+                <Check className="size-3 text-emerald-500" />
+                <span className="text-emerald-500">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="size-3" />
+                <span className="hidden sm:inline">Share</span>
+              </>
+            )}
+          </button>
+
+          <ShareQrButton
+            title={`c/${community.name}`}
+            subtitle={community.description || "Campus sub-hub on CampusLoop"}
+            badgeText="Campus Community"
+            shortUrl={`https://campusloop.space/communities/${identifier}`}
+            avatarUrl={community.avatarUrl}
+            category="community"
+            className="size-8 border-border/60 bg-card text-muted-foreground hover:text-foreground shadow-2xs"
+          />
+
           {isAdmin && (
             <Link
               href={`/communities/${identifier}/settings`}
-              className="flex size-8 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+              className="flex size-8 items-center justify-center rounded-full border border-border/60 bg-card text-muted-foreground hover:text-foreground transition shadow-2xs"
               title="Community Settings"
             >
               <Settings className="size-3.5" />
             </Link>
           )}
-
-          <ShareQrButton
-            title={`c/${community.name}`}
-            subtitle={community.description || "Campus sub-hub on CampusLoop"}
-            badgeText="Campus Sub-Hub"
-            shortUrl={`https://campusloop.space/c/${identifier}`}
-            avatarUrl={community.avatarUrl}
-            category="community"
-            className="size-8 border-border/60 bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-          />
         </div>
-      </div>
+      </nav>
 
-      {/* ─── Hero Banner & Header Card (Vibrant Aesthetic, No Stark Black) ─── */}
-      <div className="relative min-w-0 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md overflow-hidden shadow-xs">
-        {/* Banner Area */}
-        <div className="relative h-36 w-full overflow-hidden sm:h-52">
+      {/* ─── Panoramic Cover Banner Header ─── */}
+      <section className="relative rounded-3xl overflow-hidden border border-border/60 bg-muted/30 shadow-2xs">
+        <div className="relative h-44 sm:h-56 lg:h-64 w-full overflow-hidden bg-muted">
           {community.bannerUrl ? (
-            <img
-              src={community.bannerUrl}
-              alt={`${community.name} Banner`}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img
+                src={community.bannerUrl}
+                alt={`${community.name} Banner`}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/25 to-transparent" />
+            </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-emerald-950/70 via-teal-900/40 to-slate-950 relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/25 via-teal-600/10 to-transparent" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]" />
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 backdrop-blur-md border border-white/10 text-[11px] font-semibold text-white/90">
-                <Sparkles className="size-3 text-emerald-400" />
-                <span>Verified Campus Hub</span>
-              </div>
+            <div className="w-full h-full bg-gradient-to-br from-primary/15 via-muted/40 to-secondary/15 flex items-center justify-center relative">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+              <span className="text-5xl sm:text-7xl font-black text-muted-foreground/15 uppercase tracking-widest select-none">
+                {community.name.slice(0, 3)}
+              </span>
             </div>
           )}
+
+          {/* Top Banner Tag */}
+          <div className="absolute top-3.5 left-4 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-background/90 text-foreground backdrop-blur-md shadow-2xs border border-border/40">
+              <CategoryIcon className="size-3" />
+              {community.category || "General"}
+            </span>
+            {community.privacy === "PRIVATE" ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-white shadow-2xs">
+                <Lock className="size-3" /> Private Hub
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-background/80 text-foreground backdrop-blur-xs border border-border/40">
+                <Globe className="size-3 text-muted-foreground" /> Public
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Content Bar & Avatar */}
-        <div className="px-4 pb-5 sm:px-8 sm:pb-6">
-          <div className="flex flex-col gap-4 -mt-10 mb-4 sm:flex-row sm:items-end sm:justify-between sm:-mt-14">
-            <div className="flex min-w-0 items-center gap-3 sm:items-end sm:gap-4">
-              <Avatar className="size-20 shrink-0 rounded-2xl border-4 border-background bg-card shadow-2xl ring-2 ring-primary/20 sm:size-28">
-                <AvatarImage
-                  src={community.avatarUrl || ""}
-                  alt={community.name}
-                  className="object-cover rounded-2xl"
-                />
-                <AvatarFallback className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white text-2xl font-black rounded-2xl shadow-inner flex items-center justify-center">
+        {/* ─── Community Plinth Card (Overlapping Profile) ─── */}
+        <div className="px-5 pb-6 sm:px-8 sm:pb-8 pt-0 relative">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 sm:-mt-16 mb-4">
+            {/* Avatar & Title Block */}
+            <div className="flex items-end gap-3.5 sm:gap-4 min-w-0">
+              <Avatar className="size-20 sm:size-24 rounded-2xl ring-4 ring-card bg-card shadow-sm shrink-0">
+                <AvatarImage src={avatar} alt="" className="object-cover" />
+                <AvatarFallback className="text-xl sm:text-2xl font-black bg-primary/10 text-primary">
                   {community.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
-              <div className="min-w-0 flex-1 space-y-1 pb-1">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <h1 className="break-words text-xl font-black leading-tight tracking-tight text-foreground sm:text-3xl">
-                    {community.name}
+              <div className="min-w-0 space-y-1 pb-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground truncate">
+                    c/{community.name}
                   </h1>
-                  {community.privacy === "PRIVATE" ? (
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-500">
-                      <Lock className="size-3" /> Private
+                  {community.points && community.points > 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-primary/15 text-primary border border-primary/25 shrink-0">
+                      <Zap className="size-3 fill-current" />
+                      {community.points.toLocaleString()} LP Clout
                     </span>
-                  ) : (
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-500">
-                      <Globe className="size-3" /> Public Hub
-                    </span>
-                  )}
+                  ) : null}
                 </div>
-                <p className="break-words text-xs font-bold text-primary">
-                  {community.category || "General"} · c/{community.name}
-                </p>
+
+                {community.creator && (
+                  <p className="text-xs text-muted-foreground">
+                    Moderated by{" "}
+                    <Link
+                      href={`/@${community.creator.username}`}
+                      className="font-bold text-foreground hover:text-primary transition-colors"
+                    >
+                      @{community.creator.username}
+                    </Link>
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Header Action Buttons */}
-            <div className="flex w-full items-center gap-2.5 sm:w-auto sm:justify-end">
+            {/* Header Primary Action Buttons */}
+            <div className="flex items-center gap-2.5 shrink-0 pt-2 sm:pt-0">
               <button
                 type="button"
                 onClick={handleOpenCommunityChat}
                 disabled={isOpeningChat}
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 text-xs font-black text-primary shadow-xs transition-all hover:bg-primary/20 active:scale-95 cursor-pointer sm:flex-none"
-                title={`Join c/${community.name} chat room`}
+                className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card px-4 text-xs font-bold text-foreground hover:bg-muted transition-all active:scale-95 cursor-pointer shadow-2xs"
+                title={`Open c/${community.name} chat room`}
               >
                 {isOpeningChat ? (
                   <Loader2 className="size-3.5 animate-spin" />
                 ) : (
-                  <MessageSquare className="size-3.5" />
+                  <MessageSquare className="size-3.5 text-primary" />
                 )}
                 <span>Chat Room</span>
               </button>
@@ -385,82 +406,115 @@ export function CommunityDetailClient({
                   setIsMember(joined);
                   setMembersCount((c) => Math.max(joined ? c + 1 : c - 1, 0));
                 }}
-                className={cn(
-                  "h-10 flex-1 px-4 text-xs font-black rounded-full transition-all cursor-pointer shadow-xs active:scale-95 sm:flex-none sm:px-5",
-                  isMember
-                    ? "border border-border/80 bg-muted/40 text-foreground hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-                )}
+                className="h-9 sm:h-10 px-5 text-xs font-bold"
               />
             </div>
           </div>
 
-          {/* Description & Fast Stats */}
-          <div className="space-y-3 pt-1">
-            {community.description && (
-              <p className="text-sm text-foreground/90 font-normal leading-relaxed max-w-3xl">
-                {community.description}
-              </p>
-            )}
+          {/* Description */}
+          {community.description && (
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+              {community.description}
+            </p>
+          )}
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground pt-1 border-t border-border/30">
-              <button
-                type="button"
-                onClick={() => setActiveTab("members")}
-                className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
-              >
-                <Users className="size-3.5 text-primary" />
-                <span className="font-bold text-foreground">{membersCount}</span> {membersCount === 1 ? "Member" : "Members"}
-              </button>
+          {/* Social Proof & Fast Metrics */}
+          <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => setActiveTab("members")}
+              className="flex items-center gap-1.5 hover:text-foreground transition cursor-pointer"
+            >
+              <Users className="size-3.5 text-primary" />
+              <span className="font-bold text-foreground">{membersCount}</span>
+              <span>{membersCount === 1 ? "student" : "students"}</span>
+            </button>
 
-              <div className="flex items-center gap-1.5">
-                <MessageSquare className="size-3.5 text-blue-500" />
-                <span className="font-bold text-foreground">{posts.length}</span> Discussions
-              </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("discussions")}
+              className="flex items-center gap-1.5 hover:text-foreground transition cursor-pointer"
+            >
+              <MessageSquare className="size-3.5 text-sky-500" />
+              <span className="font-bold text-foreground">{posts.length}</span>
+              <span>{posts.length === 1 ? "discussion" : "discussions"}</span>
+            </button>
 
-              {community.creator && (
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="size-3.5 text-emerald-500" />
-                  <span>
-                    Moderated by{" "}
-                    <Link
-                      href={`/@${community.creator.username}`}
-                      className="font-bold text-foreground hover:underline"
-                    >
-                      @{community.creator.username}
-                    </Link>
-                  </span>
-                </div>
-              )}
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="size-3.5 text-emerald-500" />
+              <span>Verified Campus Community</span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ─── Desktop 12-Column Responsive Workspace Grid (Full PC Utilization) ─── */}
-      <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-12 lg:gap-6 items-start">
-        {/* ─── Main Content Stream (8 cols) ─── */}
-        <div className="min-w-0 lg:col-span-8 space-y-4">
-          {/* Unified Primary Navigation Tabs */}
-          <div className="flex min-w-0 flex-col gap-2 border-b border-border/30 pb-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 w-full items-center gap-1 overflow-x-auto pb-1 no-scrollbar sm:w-auto sm:overflow-visible sm:pb-0">
+      {/* ─── Academic Vault Domain Callout (Only for Notes / Academics Hub) ─── */}
+      {isAcademicsHub && (
+        <section className="relative rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card to-background p-4 sm:p-5 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex size-6 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BookOpen className="size-3.5" />
+                </span>
+                <h2 className="text-sm sm:text-base font-bold text-foreground">
+                  Official Academic Vault &amp; PYQs Integration
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                Access 45K+ semester handwritten notes, university solved question papers, and lab manuals
+                curated for your syllabus.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/academics"
+                className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-bold text-primary-foreground shadow-xs hover:opacity-90 transition active:scale-95"
+              >
+                <span>Browse Notes</span>
+                <ArrowRight className="size-3" />
+              </Link>
+              <Link
+                href="/academics/upload"
+                className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              >
+                <UploadCloud className="size-3" />
+                <span>Upload</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── Workspace Layout: 8 cols stream + 4 cols sidebar on desktop ─── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+        {/* ─── Main Column (8 cols) ─── */}
+        <div className="space-y-4 lg:col-span-8">
+          {/* Section Navigation Tabs & Sorting */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/40 pb-2">
+            <div className="inline-flex rounded-full bg-muted/50 p-1 border border-border/40 shrink-0">
               {[
-                { key: "discussions", label: "Discussions", icon: MessageSquare },
+                { key: "discussions", label: `Discussions (${posts.length})`, icon: MessageSquare },
                 { key: "members", label: `Members (${membersCount})`, icon: Users },
                 { key: "rules", label: "Rules & Guidelines", icon: ShieldCheck },
               ].map((tab) => {
-                const Icon = tab.icon;
                 const isSelected = activeTab === tab.key;
+                const Icon = tab.icon;
                 return (
                   <button
                     key={tab.key}
                     type="button"
-                    onClick={() => setActiveTab(tab.key as typeof activeTab)}
+                    onClick={() => {
+                      sounds.tap();
+                      haptics.light();
+                      setActiveTab(tab.key as typeof activeTab);
+                    }}
                     className={cn(
-                      "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center gap-1.5 h-8 rounded-full px-3 sm:px-4 text-xs font-semibold transition cursor-pointer",
                       isSelected
-                        ? "bg-foreground text-background shadow-xs font-black"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                        ? "bg-background text-foreground shadow-xs font-bold"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <Icon className="size-3.5" />
@@ -470,9 +524,9 @@ export function CommunityDetailClient({
               })}
             </div>
 
-            {/* Filter Pills when on Discussions tab */}
+            {/* Filter Pills for Discussions */}
             {activeTab === "discussions" && (
-              <div className="flex w-full shrink-0 items-center gap-0.5 overflow-x-auto no-scrollbar sm:w-auto sm:justify-end">
+              <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
                 {[
                   { key: "hot", label: "Hot", icon: Flame },
                   { key: "new", label: "New", icon: Clock },
@@ -485,12 +539,16 @@ export function CommunityDetailClient({
                     <button
                       key={f.key}
                       type="button"
-                      onClick={() => setFeedFilter(f.key as typeof feedFilter)}
+                      onClick={() => {
+                        sounds.tap();
+                        haptics.light();
+                        setFeedFilter(f.key as typeof feedFilter);
+                      }}
                       className={cn(
-                        "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors cursor-pointer",
+                        "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer",
                         active
-                          ? "bg-primary/15 text-primary border border-primary/30"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                          ? "bg-foreground text-background shadow-2xs font-extrabold"
+                          : "text-muted-foreground hover:text-foreground bg-muted/40"
                       )}
                     >
                       <Icon className="size-3" />
@@ -502,200 +560,67 @@ export function CommunityDetailClient({
             )}
           </div>
 
-          {/* Time range selector for Top filter */}
-          {activeTab === "discussions" && feedFilter === "top" && (
-            <div className="flex min-w-0 items-center justify-start gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar text-[11px] font-bold sm:justify-end">
-              <span className="text-muted-foreground">Top period:</span>
-              {(["today", "week", "month", "all"] as const).map((range) => (
-                <button
-                  key={range}
-                  type="button"
-                  onClick={() => setTopTimeWindow(range)}
-                  className={cn(
-                    "shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 uppercase tracking-wider text-[10px] transition-all cursor-pointer",
-                    topTimeWindow === range
-                      ? "bg-foreground text-background font-black"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                  )}
-                >
-                  {range === "today"
-                    ? "24h"
-                    : range === "week"
-                      ? "Week"
-                      : range === "month"
-                        ? "Month"
-                        : "All"}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* ─── Tab Content Views ─── */}
-          {activeTab === "members" ? (
-            /* Members Directory */
-            <div className="rounded-2xl border border-border/30 bg-card/40 divide-y divide-border/20 overflow-hidden">
-              {membersList.length === 0 ? (
-                <div className="p-8 text-center text-sm text-muted-foreground">
-                  No public member list available for this sub-hub.
-                </div>
-              ) : (
-                membersList.map((m) => (
-                  <div
-                    key={m.id}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors"
-                  >
-                    <Link href={`/@${m.user.username}`} className="flex items-center gap-3">
-                      <Avatar className="size-10 rounded-full border border-border/40">
-                        <AvatarImage src={m.user.avatarUrl || ""} />
-                        <AvatarFallback className="bg-muted text-xs font-bold">
-                          {m.user.displayName?.[0] || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-foreground hover:underline">
-                            {m.user.displayName}
-                          </span>
-                          <span className="text-xs text-muted-foreground">@{m.user.username}</span>
-                        </div>
-                        {m.user.headline && (
-                          <p className="text-xs text-muted-foreground truncate max-w-xs">{m.user.headline}</p>
-                        )}
-                      </div>
-                    </Link>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40">
-                      {m.role}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          ) : activeTab === "rules" ? (
-            /* Rules & Bylaws View */
-            <div className="rounded-2xl border border-border/30 bg-card/40 p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-emerald-500" />
-                <h3 className="text-base font-bold text-foreground">c/{community.name} Code of Conduct</h3>
-              </div>
-              {parsedRules.length === 0 ? (
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Standard CampusLoop verified campus conduct applies. Be respectful, no harassment, and
-                  support fellow classmates.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {parsedRules.map((rule, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl border border-border/30 bg-muted/20 space-y-1">
-                      <p className="text-xs font-black text-foreground">
-                        {idx + 1}. {rule.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{rule.description}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Discussions Feed Tab */
+          {/* ─── TAB: DISCUSSIONS ─── */}
+          {activeTab === "discussions" && (
             <div className="space-y-4">
-              {/* Clean Quick Composer (NO harsh green outline, beautifully integrated) */}
+              {/* Sleek Interactive Post Prompt */}
               {isMember ? (
-                <form
-                  onSubmit={handleQuickPost}
-                  className="min-w-0 rounded-2xl border border-border/40 bg-card/60 p-4 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 shadow-xs"
+                <div
+                  onClick={() => setShowFullComposer(true)}
+                  className="rounded-2xl border border-border/60 bg-card p-3.5 sm:p-4 shadow-2xs transition-all hover:border-primary/40 cursor-pointer group"
                 >
-                  <div className="flex min-w-0 gap-3">
-                    <Avatar className="size-9 rounded-full border border-border/40 shrink-0 mt-0.5">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-9 rounded-full ring-2 ring-card bg-muted shrink-0">
                       <AvatarImage src={profile?.avatarUrl || ""} />
-                      <AvatarFallback className="bg-muted text-xs font-bold">
-                        {profile?.displayName?.[0] || "U"}
+                      <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+                        {(profile?.displayName || "U").slice(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0 flex-1 flex flex-col gap-2">
-                      <textarea
-                        rows={quickText ? 2 : 1}
-                        placeholder={`Post to c/${community.name}...`}
-                        value={quickText}
-                        onChange={(e) => setQuickText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                            e.preventDefault();
-                            handleQuickPost(e);
-                          }
-                        }}
-                        className="w-full bg-transparent text-[14px] placeholder:text-muted-foreground/60 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1 border-0 shadow-none leading-relaxed"
-                      />
 
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/20">
-                        {/* Rich composer tools shortcut */}
-                        <div className="flex min-w-0 flex-wrap items-center gap-0.5">
-                          {[
-                            {
-                              id: "photo",
-                              label: "Add photo",
-                              icon: ImageIcon,
-                              color: "text-emerald-500 hover:bg-emerald-500/10",
-                            },
-                            {
-                              id: "gif",
-                              label: "Add GIF",
-                              icon: Smile,
-                              color: "text-primary hover:bg-primary/10",
-                            },
-                            {
-                              id: "poll",
-                              label: "Create poll",
-                              icon: BarChart3,
-                              color: "text-blue-500 hover:bg-blue-500/10",
-                            },
-                            {
-                              id: "anon",
-                              label: "Post anonymously",
-                              icon: VenetianMask,
-                              color: "text-violet-500 hover:bg-violet-500/10",
-                            },
-                          ].map((tool) => (
-                            <button
-                              key={tool.id}
-                              type="button"
-                              title={tool.label}
-                              aria-label={tool.label}
-                              onClick={() => setShowFullComposer(true)}
-                              className={cn(
-                                "flex size-7 items-center justify-center rounded-full transition-all cursor-pointer active:scale-90",
-                                tool.color
-                              )}
-                            >
-                              <tool.icon className="size-4" />
-                            </button>
-                          ))}
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={isQuickPosting || !quickText.trim()}
-                          className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-all cursor-pointer shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {isQuickPosting ? "Posting..." : "Post"}
-                        </button>
-                      </div>
+                    <div className="flex-1 bg-muted/50 rounded-xl px-4 py-2 text-xs sm:text-sm text-muted-foreground group-hover:bg-muted/70 transition">
+                      Start a discussion or ask a question in c/{community.name}...
                     </div>
+
+                    <button
+                      type="button"
+                      className="inline-flex h-8 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs shrink-0"
+                    >
+                      <Plus className="size-3.5" />
+                      <span className="hidden sm:inline">Post</span>
+                    </button>
                   </div>
-                </form>
+
+                  <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-4">
+                      <span className="inline-flex items-center gap-1 hover:text-foreground transition">
+                        <ImageIcon className="size-3.5 text-emerald-500" /> Photo
+                      </span>
+                      <span className="inline-flex items-center gap-1 hover:text-foreground transition">
+                        <BarChart3 className="size-3.5 text-sky-500" /> Poll
+                      </span>
+                      <span className="inline-flex items-center gap-1 hover:text-foreground transition">
+                        <VenetianMask className="size-3.5 text-violet-500" /> Anonymous
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
+                      Markdown &amp; LaTeX supported
+                    </span>
+                  </div>
+                </div>
               ) : (
-                <div className="min-w-0 rounded-2xl border border-border/40 bg-card/40 p-4 flex items-center justify-between gap-4">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
                   <div className="space-y-0.5">
                     <p className="text-xs font-bold text-foreground">
-                      Join c/{community.name} to participate
+                      Join c/{community.name} to participate in discussions
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      Post discussions, ask questions, vote on polls, and chat with members.
+                      Ask questions, post study notes, vote on polls, and chat with members.
                     </p>
                   </div>
                   <JoinCommunityButton
                     communityId={community.id}
                     initialIsMember={false}
-                    className="h-8 px-4 text-xs font-bold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+                    className="h-8 px-4 text-xs font-bold shrink-0"
                     onMembershipChange={(joined) => {
                       setIsMember(joined);
                       setMembersCount((c) => Math.max(joined ? c + 1 : c - 1, 0));
@@ -705,61 +630,142 @@ export function CommunityDetailClient({
               )}
 
               {/* Feed Stream */}
-              {filteredPosts.length === 0 ? (
-                /* Rich Empty State Card */
-                <div className="rounded-3xl border border-border/30 bg-card/30 p-12 text-center space-y-4">
-                  <div className="size-14 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto shadow-inner">
-                    <MessageSquarePlus className="size-7" />
+              {filteredPosts.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredPosts.map((post) => (
+                    <FeedCard key={post.id} post={post} currentUserId={profile?.id} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border/60 bg-card p-12 text-center space-y-4 shadow-2xs">
+                  <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                    <MessageSquarePlus className="size-6" />
                   </div>
                   <div className="space-y-1 max-w-sm mx-auto">
-                    <h3 className="text-base font-black text-foreground">
+                    <h3 className="text-base font-bold text-foreground">
                       No discussions in c/{community.name} yet
                     </h3>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Be the pioneer! Start the first conversation, ask a campus question, or share resources
-                      with fellow classmates.
+                      Be the first student to start a discussion, share study resources, or ask a question.
                     </p>
                   </div>
                   {isMember && (
                     <button
                       type="button"
                       onClick={() => setShowFullComposer(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all cursor-pointer shadow-xs active:scale-95"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs active:scale-95 transition hover:opacity-90 cursor-pointer"
                     >
                       <Plus className="size-3.5" />
                       <span>Start First Discussion</span>
                     </button>
                   )}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── TAB: MEMBERS ─── */}
+          {activeTab === "members" && (
+            <div className="rounded-2xl border border-border/60 bg-card divide-y divide-border/40 overflow-hidden shadow-2xs">
+              {membersList.length > 0 ? (
+                membersList.map((m) => (
+                  <div
+                    key={m.id}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition"
+                  >
+                    <Link href={`/@${m.user.username}`} className="flex items-center gap-3 min-w-0">
+                      <Avatar className="size-10 rounded-full border border-border/40 shrink-0">
+                        <AvatarImage src={m.user.avatarUrl || ""} />
+                        <AvatarFallback className="bg-muted text-xs font-bold">
+                          {(m.user.displayName || "U").slice(0, 1).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs sm:text-sm font-bold text-foreground truncate hover:underline">
+                            {m.user.displayName}
+                          </p>
+                          <span className="text-[11px] text-muted-foreground truncate">
+                            @{m.user.username}
+                          </span>
+                        </div>
+                        {m.user.headline && (
+                          <p className="text-[11px] text-muted-foreground truncate max-w-xs">
+                            {m.user.headline}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40 shrink-0">
+                      {m.role}
+                    </span>
+                  </div>
+                ))
               ) : (
+                <div className="p-8 text-center text-xs text-muted-foreground">
+                  No public member list available for this hub yet.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── TAB: RULES ─── */}
+          {activeTab === "rules" && (
+            <div className="rounded-2xl border border-border/60 bg-card p-6 space-y-4 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-5 text-emerald-500" />
+                <h3 className="text-sm sm:text-base font-bold text-foreground">
+                  c/{community.name} Code of Conduct
+                </h3>
+              </div>
+
+              {parsedRules.length > 0 ? (
                 <div className="space-y-3">
-                  {filteredPosts.map((post) => (
-                    <FeedCard key={post.id} post={post} currentUserId={profile?.id} />
+                  {parsedRules.map((rule, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded-xl border border-border/40 bg-muted/20 space-y-1"
+                    >
+                      <p className="text-xs font-bold text-foreground">
+                        {idx + 1}. {rule.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {rule.description}
+                      </p>
+                    </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Standard CampusLoop verified campus conduct applies: be respectful to fellow students,
+                  no harassment, maintain constructive discussions, and help freshers learn.
+                </p>
               )}
             </div>
           )}
         </div>
 
-        {/* ─── Desktop Community Sidebar (4 cols - PC space utilization) ─── */}
-        <aside
-          ref={scrollRef}
-          className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
-        >
+        {/* ─── Sidebar Column (4 cols on desktop) ─── */}
+        <aside className="space-y-4 lg:col-span-4">
           {/* About Hub Card */}
-          <div className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3 shadow-2xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-              About c/{community.name}
+          <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              About This Hub
             </h3>
             {community.description && (
               <p className="text-xs text-foreground/80 leading-relaxed font-normal">
                 {community.description}
               </p>
             )}
-            <div className="divide-y divide-border/20 text-xs pt-1">
+
+            <div className="divide-y divide-border/30 text-xs pt-1">
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Created</span>
+                <span className="text-muted-foreground">Category</span>
+                <span className="font-bold text-foreground">{community.category || "General"}</span>
+              </div>
+              <div className="py-2 flex items-center justify-between">
+                <span className="text-muted-foreground">Founded</span>
                 <span className="font-semibold text-foreground">
                   {new Date(community.createdAt).toLocaleDateString("en-US", {
                     month: "short",
@@ -768,7 +774,7 @@ export function CommunityDetailClient({
                 </span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Members</span>
+                <span className="text-muted-foreground">Total Members</span>
                 <span className="font-bold text-foreground">{membersCount}</span>
               </div>
               <div className="py-2 flex items-center justify-between">
@@ -776,7 +782,7 @@ export function CommunityDetailClient({
                 <span className="font-bold text-foreground">{posts.length}</span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Privacy</span>
+                <span className="text-muted-foreground">Access</span>
                 <span className="font-semibold text-foreground capitalize">
                   {community.privacy?.toLowerCase() || "public"}
                 </span>
@@ -786,25 +792,27 @@ export function CommunityDetailClient({
 
           {/* Moderator Info Card */}
           {community.creator && (
-            <div className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3 shadow-2xs">
-              <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Community Moderator
               </h3>
               <Link
                 href={`/@${community.creator.username}`}
-                className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/40 transition-colors"
+                className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/30 hover:bg-muted/60 transition group"
               >
-                <Avatar className="size-10 rounded-full border border-border/40">
+                <Avatar className="size-10 rounded-full border border-border/40 shrink-0">
                   <AvatarImage src={community.creator.avatarUrl || ""} />
                   <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
-                    {community.creator.displayName[0]?.toUpperCase() || "M"}
+                    {(community.creator.displayName || "M").slice(0, 1).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-foreground truncate">
+                  <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
                     {community.creator.displayName}
                   </p>
-                  <p className="text-[11px] text-muted-foreground truncate">@{community.creator.username}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    @{community.creator.username}
+                  </p>
                 </div>
               </Link>
             </div>
@@ -812,34 +820,45 @@ export function CommunityDetailClient({
 
           {/* Related Communities Suggestion */}
           {relatedCommunities.length > 0 && (
-            <div className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3 shadow-2xs">
+            <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-                  Explore More Hubs
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Explore Related Hubs
                 </h3>
-                <Link href="/communities" className="text-[11px] text-primary font-bold hover:underline">
+                <Link
+                  href="/communities"
+                  className="text-[11px] text-primary font-bold hover:underline"
+                >
                   All Hubs
                 </Link>
               </div>
+
               <div className="space-y-2">
-                {relatedCommunities.slice(0, 3).map((rel) => (
-                  <Link
-                    key={rel.id}
-                    href={`/communities/${rel.slug || rel.id}`}
-                    className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/30 transition-colors"
-                  >
-                    <Avatar className="size-8 rounded-xl border border-border/30 shrink-0">
-                      <AvatarImage src={rel.avatarUrl || ""} />
-                      <AvatarFallback className="bg-muted text-[10px] font-bold">
-                        {rel.name.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-foreground truncate">c/{rel.name}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{rel.membersCount} members</p>
-                    </div>
-                  </Link>
-                ))}
+                {relatedCommunities.slice(0, 3).map((rel) => {
+                  const relAvatar = getAvatarUrl(rel.avatarUrl, rel.name);
+                  return (
+                    <Link
+                      key={rel.id}
+                      href={`/communities/${rel.slug || rel.id}`}
+                      className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition group"
+                    >
+                      <Avatar className="size-8 rounded-xl border border-border/40 shrink-0">
+                        <AvatarImage src={relAvatar} />
+                        <AvatarFallback className="bg-muted text-[10px] font-bold">
+                          {rel.name.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                          c/{rel.name}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {rel.membersCount} {rel.membersCount === 1 ? "member" : "members"}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
