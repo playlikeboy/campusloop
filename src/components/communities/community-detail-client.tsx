@@ -25,7 +25,7 @@ import {
   Plus,
   Rocket,
   Settings,
-  Share2,
+  Copy,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -242,7 +242,7 @@ export function CommunityDetailClient({
   })();
 
   return (
-    <div className="w-full min-w-0 max-w-7xl mx-auto space-y-6 pb-24">
+    <div className="w-full min-w-0 max-w-7xl mx-auto space-y-6 pb-32 sm:pb-24">
       {/* ─── Breadcrumb & Top Navigation Bar ─── */}
       <nav aria-label="Breadcrumb" className="flex items-center justify-between gap-3 px-1 pt-1">
         <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
@@ -266,8 +266,9 @@ export function CommunityDetailClient({
           <button
             type="button"
             onClick={handleShareInvite}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition cursor-pointer shadow-2xs"
-            title="Share community invite link"
+            aria-label={copiedInvite ? "Invite link copied" : "Copy community invite link"}
+            className="inline-flex h-8 min-w-8 shrink-0 items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-0 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition cursor-pointer shadow-2xs sm:px-3"
+            title="Copy community invite link"
           >
             {copiedInvite ? (
               <>
@@ -276,8 +277,8 @@ export function CommunityDetailClient({
               </>
             ) : (
               <>
-                <Share2 className="size-3" />
-                <span className="hidden sm:inline">Share</span>
+                <Copy className="size-3.5" />
+                <span className="hidden sm:inline">Copy invite</span>
               </>
             )}
           </button>
@@ -348,7 +349,7 @@ export function CommunityDetailClient({
         <div className="px-5 pb-6 sm:px-8 sm:pb-8 pt-0 relative">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 sm:-mt-16 mb-4">
             {/* Avatar & Title Block */}
-            <div className="flex items-end gap-3.5 sm:gap-4 min-w-0">
+            <div className="flex min-w-0 items-start gap-3 sm:items-end sm:gap-4">
               <Avatar className="size-20 sm:size-24 rounded-2xl ring-4 ring-card bg-card shadow-sm shrink-0">
                 <AvatarImage src={avatar} alt="" className="object-cover" />
                 <AvatarFallback className="text-xl sm:text-2xl font-black bg-primary/10 text-primary">
@@ -356,9 +357,9 @@ export function CommunityDetailClient({
                 </AvatarFallback>
               </Avatar>
 
-              <div className="min-w-0 space-y-1 pb-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground truncate">
+              <div className="min-w-0 flex-1 space-y-1 pb-1">
+                <div className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
+                  <h1 className="min-w-0 max-w-full text-lg sm:text-2xl lg:text-3xl font-black leading-tight tracking-tight text-foreground line-clamp-2 sm:line-clamp-none [overflow-wrap:anywhere]">
                     c/{community.name}
                   </h1>
                   {community.points && community.points > 0 ? (
@@ -370,7 +371,7 @@ export function CommunityDetailClient({
                 </div>
 
                 {community.creator && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="break-words text-xs leading-snug text-muted-foreground">
                     Moderated by{" "}
                     <Link
                       href={`/@${community.creator.username}`}
@@ -384,7 +385,7 @@ export function CommunityDetailClient({
             </div>
 
             {/* Header Primary Action Buttons */}
-            <div className="flex items-center gap-2.5 shrink-0 pt-2 sm:pt-0">
+            <div className="flex shrink-0 items-center gap-2 pt-0">
               <button
                 type="button"
                 onClick={handleOpenCommunityChat}
@@ -494,7 +495,7 @@ export function CommunityDetailClient({
         <div className="space-y-4 lg:col-span-8">
           {/* Section Navigation Tabs & Sorting */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/40 pb-2">
-            <div className="inline-flex rounded-full bg-muted/50 p-1 border border-border/40 shrink-0">
+            <div className="flex w-full min-w-0 items-center gap-0.5 overflow-x-auto scrollbar-none rounded-full bg-muted/50 p-1 border border-border/40 sm:w-auto sm:shrink-0">
               {[
                 { key: "discussions", label: `Discussions (${posts.length})`, icon: MessageSquare },
                 { key: "members", label: `Members (${membersCount})`, icon: Users },
@@ -512,7 +513,7 @@ export function CommunityDetailClient({
                       setActiveTab(tab.key as typeof activeTab);
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 h-8 rounded-full px-3 sm:px-4 text-xs font-semibold transition cursor-pointer",
+                      "flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 sm:px-4 text-[11px] sm:text-xs font-semibold transition cursor-pointer",
                       isSelected
                         ? "bg-background text-foreground shadow-xs font-bold"
                         : "text-muted-foreground hover:text-foreground"
@@ -546,7 +547,7 @@ export function CommunityDetailClient({
                         setFeedFilter(f.key as typeof feedFilter);
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer",
+                        "flex shrink-0 items-center gap-1 whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer",
                         active
                           ? "bg-foreground text-background shadow-2xs font-extrabold"
                           : "text-muted-foreground hover:text-foreground bg-muted/40"
