@@ -64,11 +64,11 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: AnimateUser, href: "/profile", label: "Profile" },
 ];
 
-// Mobile bottom navigation has 5 core tabs conforming to AGENTS.md Rule 6:
-// Home (/feeds), Colleges (/colleges), Post (/post/new), Chat (/chat), and Dating (/dating).
+// Mobile bottom navigation has 5 core tabs:
+// Home (/feeds), Academics (/academics), Post (/post/new), Chat (/chat), and Dating (/dating).
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateGraduationCap, href: "/colleges", label: "Colleges" },
+  { icon: AnimateBookOpen, href: "/academics", label: "Academics" },
   { icon: AnimatePlus, href: "/post/new", label: "Post" },
   { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
   { icon: AnimateHeart, href: "/dating", label: "Dating" },
