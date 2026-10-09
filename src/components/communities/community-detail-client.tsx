@@ -697,9 +697,11 @@ export function CommunityDetailClient({
                       </div>
                     </Link>
 
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40 shrink-0">
-                      {m.role}
-                    </span>
+                    {m.role && m.role !== "MEMBER" ? (
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
+                        {m.role === "ADMIN" ? "Admin" : m.role === "MODERATOR" ? "Moderator" : m.role}
+                      </span>
+                    ) : null}
                   </div>
                 ))
               ) : (
