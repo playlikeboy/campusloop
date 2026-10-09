@@ -102,26 +102,26 @@ export function AuthSplitLayout({
                 theme={{
                   radius: "0.75rem",
                   light: {
-                    primary: "hsl(246, 100%, 65%)", // #5B4BFF brand primary
+                    primary: "hsl(13, 64%, 45%)", // #BD4B2A accessible terracotta coral
                     primaryForeground: "hsl(0, 0%, 100%)",
-                    background: "hsl(0, 0%, 100%)",
-                    foreground: "hsl(240, 10%, 4%)",
-                    muted: "hsl(240, 5%, 96%)",
-                    mutedForeground: "hsl(240, 4%, 46%)",
-                    border: "hsl(240, 6%, 90%)",
-                    input: "hsl(240, 6%, 90%)",
-                    ring: "hsl(246, 100%, 65%)",
+                    background: "hsl(37, 100%, 96%)", // #FFF8ED warm ivory
+                    foreground: "hsl(40, 9%, 34%)", // #5A554B deep warm-brown ink
+                    muted: "hsl(35, 52%, 91%)", // #F5ECDD
+                    mutedForeground: "hsl(38, 8%, 42%)", // #746E63
+                    border: "hsl(33, 38%, 86%)", // #EADCCE
+                    input: "hsl(33, 38%, 86%)",
+                    ring: "hsl(13, 64%, 45%)",
                   },
                   dark: {
-                    primary: "hsl(246, 100%, 65%)",
-                    primaryForeground: "hsl(0, 0%, 100%)",
-                    background: "hsl(240, 10%, 4%)",
-                    foreground: "hsl(0, 0%, 98%)",
-                    muted: "hsl(240, 4%, 16%)",
-                    mutedForeground: "hsl(240, 5%, 65%)",
-                    border: "hsl(240, 4%, 20%)",
-                    input: "hsl(240, 4%, 20%)",
-                    ring: "hsl(246, 100%, 65%)",
+                    primary: "hsl(17, 100%, 65%)", // #FF804E coral
+                    primaryForeground: "hsl(14, 11%, 9%)",
+                    background: "hsl(14, 11%, 9%)",
+                    foreground: "hsl(37, 100%, 96%)",
+                    muted: "hsl(15, 9%, 16%)",
+                    mutedForeground: "hsl(36, 17%, 72%)",
+                    border: "hsl(14, 12%, 21%)",
+                    input: "hsl(14, 12%, 21%)",
+                    ring: "hsl(17, 100%, 65%)",
                   },
                 }}
               >
