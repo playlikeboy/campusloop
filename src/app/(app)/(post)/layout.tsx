@@ -23,7 +23,7 @@ export default async function PostLayout({ children }: { children: React.ReactNo
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="relative h-screen h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
+    <div className="relative h-screen h-[100dvh] w-full bg-background overflow-hidden flex flex-col lg:flex-row">
       <Navigation
         profile={profile || undefined}
         collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
