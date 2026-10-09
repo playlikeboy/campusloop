@@ -5,15 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { HexclaveTheme, SignIn, SignUp } from "@hexclave/next";
 import {
+  BookOpen,
   Building2,
   ExternalLink,
   GraduationCap,
   ShieldCheck,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { InstagramIcon } from "@/components/ui/social-icons";
-import { cn } from "@/lib/utils";
 
 interface AuthSplitLayoutProps {
   mode: "sign-in" | "sign-up";
@@ -23,23 +24,22 @@ interface AuthSplitLayoutProps {
 
 function AuthLoadingSkeleton() {
   return (
-    <div className="w-full max-w-[380px] mx-auto space-y-4 animate-pulse py-2">
-      <div className="h-11 rounded-full bg-muted/60" />
-      <div className="h-11 rounded-full bg-muted/60" />
-      <div className="flex items-center gap-3 my-2">
-        <div className="h-px bg-border/40 flex-1" />
-        <div className="h-3 w-8 bg-muted/40 rounded" />
-        <div className="h-px bg-border/40 flex-1" />
+    <div
+      className="mx-auto w-full max-w-[420px] animate-pulse space-y-4 py-2"
+      aria-label="Loading sign-in options"
+    >
+      <div className="h-11 rounded-2xl bg-muted/70" />
+      <div className="h-11 rounded-2xl bg-muted/70" />
+      <div className="flex items-center gap-3 py-1">
+        <div className="h-px flex-1 bg-border" />
+        <div className="h-3 w-24 rounded bg-muted/70" />
+        <div className="h-px flex-1 bg-border" />
       </div>
-      <div className="space-y-1.5">
-        <div className="h-3 w-16 bg-muted/50 rounded" />
-        <div className="h-11 rounded-full bg-muted/60" />
+      <div className="space-y-2">
+        <div className="h-3 w-16 rounded bg-muted/70" />
+        <div className="h-11 rounded-2xl bg-muted/70" />
       </div>
-      <div className="space-y-1.5">
-        <div className="h-3 w-20 bg-muted/50 rounded" />
-        <div className="h-11 rounded-full bg-muted/60" />
-      </div>
-      <div className="h-12 rounded-full bg-primary/40 mt-4" />
+      <div className="h-12 rounded-full bg-primary/30" />
     </div>
   );
 }
@@ -51,69 +51,70 @@ export function AuthSplitLayout({
 }: AuthSplitLayoutProps) {
   const oppositeMode = mode === "sign-in" ? "sign-up" : "sign-in";
   const oppositeHref = returnTo
-    ? `/${oppositeMode}?returnTo=${encodeURIComponent(returnTo)}`
-    : `/${oppositeMode}`;
+    ? "/" + oppositeMode + "?returnTo=" + encodeURIComponent(returnTo)
+    : "/" + oppositeMode;
 
   return (
-    <div className="min-h-screen bg-muted/20 dark:bg-background text-foreground flex items-center justify-center p-3 sm:p-6 lg:p-8 relative select-none">
-      {/* Subtle ambient lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+    <main className="relative isolate flex min-h-svh w-full items-center justify-center overflow-hidden bg-background px-3 py-5 text-foreground sm:px-6 sm:py-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-32 left-1/2 size-[34rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+      />
 
-      {/* Main Split Card Container */}
-      <div className="relative z-10 w-full max-w-5xl xl:max-w-[1040px] bg-card rounded-3xl sm:rounded-[2rem] shadow-xl border border-border/60 overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-        {/* ========================================================= */}
-        {/* LEFT COLUMN: AUTH FORM & DIRECT HEXCLAVE COMPONENT        */}
-        {/* ========================================================= */}
-        <div className="p-6 sm:p-10 lg:p-12 flex flex-col justify-between min-h-[560px] sm:min-h-[620px]">
-          {/* Top Brand & Institutional Label */}
-          <div className="flex items-center justify-between pb-4 sm:pb-6">
+      <div className="relative z-10 grid w-full max-w-[520px] grid-cols-1 overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-xl lg:max-w-[1120px] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.96fr)]">
+        <section
+          aria-labelledby="auth-title"
+          className="flex min-w-0 flex-col p-5 sm:p-8 lg:min-h-[700px] lg:p-9 xl:p-11"
+        >
+          <header className="flex flex-wrap items-center justify-between gap-3 pb-5 sm:pb-7">
             <BrandLogo size="md" href="/" />
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
-              <ShieldCheck className="size-3.5" />
-              <span>Verified Student Gate</span>
-            </div>
-          </div>
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary">
+              <ShieldCheck className="size-3.5" aria-hidden="true" />
+              Verified student access
+            </span>
+          </header>
 
-          {/* Form Content Body */}
-          <div className="my-auto py-4 space-y-5">
-            {/* Heading & Subtitle */}
-            <div className="text-center space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                {mode === "sign-in" ? "Sign In" : "Join CampusLoop"}
+          <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center gap-5 py-3 sm:gap-6 sm:py-5">
+            <div className="space-y-2 text-center">
+              <h1
+                id="auth-title"
+                className="text-3xl font-black tracking-tight text-foreground sm:text-[2.125rem]"
+              >
+                {mode === "sign-in" ? "Welcome back" : "Find your campus"}
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="mx-auto max-w-sm text-sm leading-6 text-muted-foreground">
                 {mode === "sign-in"
-                  ? "Welcome back to your verified campus community"
-                  : "Connect with verified peers across 1,350+ Indian colleges"}
+                  ? "Sign in to pick up where your campus life left off."
+                  : "Create your account and meet your verified campus community."}
               </p>
             </div>
 
-            {/* College Hint Banner if passed in URL */}
             {collegeHint && (
-              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary flex items-center gap-2 text-center justify-center">
-                <Building2 className="size-3.5 shrink-0" />
-                <span>Joining Hub: <strong>{collegeHint}</strong></span>
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2.5 text-center text-sm text-primary">
+                <Building2 className="size-4 shrink-0" aria-hidden="true" />
+                <span>
+                  Joining <strong>{collegeHint}</strong>
+                </span>
               </div>
             )}
 
-            {/* Direct Hexclave Component Container */}
-            <div className="hexclave-auth-scope w-full max-w-[380px] mx-auto pt-1">
+            <div className="hexclave-auth-scope w-full min-w-0 pt-1">
               <HexclaveTheme
                 theme={{
-                  radius: "0.75rem",
+                  radius: "0.875rem",
                   light: {
-                    primary: "hsl(13, 64%, 45%)", // #BD4B2A accessible terracotta coral
+                    primary: "hsl(13, 64%, 45%)",
                     primaryForeground: "hsl(0, 0%, 100%)",
-                    background: "hsl(37, 100%, 96%)", // #FFF8ED warm ivory
-                    foreground: "hsl(40, 9%, 34%)", // #5A554B deep warm-brown ink
-                    muted: "hsl(35, 52%, 91%)", // #F5ECDD
-                    mutedForeground: "hsl(38, 8%, 42%)", // #746E63
-                    border: "hsl(33, 38%, 86%)", // #EADCCE
+                    background: "hsl(37, 100%, 96%)",
+                    foreground: "hsl(40, 9%, 34%)",
+                    muted: "hsl(35, 52%, 91%)",
+                    mutedForeground: "hsl(38, 8%, 42%)",
+                    border: "hsl(33, 38%, 86%)",
                     input: "hsl(33, 38%, 86%)",
                     ring: "hsl(13, 64%, 45%)",
                   },
                   dark: {
-                    primary: "hsl(17, 100%, 65%)", // #FF804E coral
+                    primary: "hsl(17, 100%, 65%)",
                     primaryForeground: "hsl(14, 11%, 9%)",
                     background: "hsl(14, 11%, 9%)",
                     foreground: "hsl(37, 100%, 96%)",
@@ -135,112 +136,133 @@ export function AuthSplitLayout({
               </HexclaveTheme>
             </div>
 
-            {/* Switch between Sign In and Sign Up */}
-            <div className="text-center pt-2">
-              <p className="text-xs text-muted-foreground">
-                {mode === "sign-in" ? "New to CampusLoop? " : "Already verified? "}
-                <Link
-                  href={oppositeHref}
-                  className="font-bold text-primary hover:underline transition-all"
-                >
-                  {mode === "sign-in" ? "Create an account" : "Sign in here"}
-                </Link>
-              </p>
-            </div>
+            <p className="pt-1 text-center text-sm text-muted-foreground">
+              {mode === "sign-in"
+                ? "New to CampusLoop? "
+                : "Already have an account? "}
+              <Link
+                href={oppositeHref}
+                className="font-bold text-primary underline-offset-4 transition-colors hover:underline"
+              >
+                {mode === "sign-in" ? "Create an account" : "Sign in"}
+              </Link>
+            </p>
           </div>
 
-          {/* Bottom Trust & Support Link */}
-          <div className="pt-4 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Sparkles className="size-3 text-primary" />
-              <span>Verified college email or roll number</span>
+          <footer className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border/60 pt-4 text-xs text-muted-foreground sm:mt-6">
+            <span className="inline-flex items-center gap-2">
+              <Sparkles className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+              <span>Use your official college email</span>
             </span>
-
             <a
               href="https://www.instagram.com/campusloop.space/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-primary transition-colors flex items-center gap-1 font-semibold"
+              className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-primary"
             >
-              <InstagramIcon className="size-3 text-primary" />
-              <span>Need help? DM us</span>
-              <ExternalLink className="size-2.5" />
+              <InstagramIcon className="size-3.5 text-primary" />
+              <span>Need help?</span>
+              <ExternalLink className="size-3" aria-hidden="true" />
             </a>
-          </div>
-        </div>
+          </footer>
+        </section>
 
-        {/* ========================================================= */}
-        {/* RIGHT COLUMN: TESTIMONIAL & ENGAGING 3D VOXEL ART         */}
-        {/* ========================================================= */}
-        <div className="relative bg-muted/30 border-t lg:border-t-0 lg:border-l border-border/50 flex flex-col justify-between overflow-hidden p-6 sm:p-10 lg:p-12">
-          {/* Top Testimonial Section */}
-          <div className="space-y-4 relative z-10">
-            <p className="text-foreground font-medium text-sm sm:text-base leading-relaxed">
-              &ldquo;Seamless campus experience! Finding study partners, notes, hackathon teammates,
-              and staying up to date with real campus buzz has never been this easy. The
-              academic vault and 45K+ PYQs literally saved my semester.&rdquo;
+        <aside
+          aria-label="CampusLoop benefits"
+          className="relative hidden min-w-0 flex-col justify-between gap-7 overflow-hidden border-l border-border/50 bg-muted/35 p-7 lg:flex xl:p-9"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl"
+          />
+
+          <div className="relative z-10 space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
+              <Sparkles className="size-3.5" aria-hidden="true" />
+              Made for campus life
+            </div>
+
+            <h2 className="max-w-md text-3xl font-black leading-tight tracking-tight text-foreground xl:text-4xl">
+              Your campus,
+              <span className="block text-primary">all in one loop.</span>
+            </h2>
+            <p className="max-w-md text-sm leading-6 text-muted-foreground xl:text-base">
+              Find study partners, share resources, discover communities, and
+              keep up with what matters on campus—all in one student-first space.
             </p>
 
-            {/* Student Profile Badge */}
-            <div className="flex items-center gap-3 pt-1">
-              <div className="relative size-10 rounded-full ring-2 ring-primary/30 overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="text-primary font-black text-xs">AS</span>
-                <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-bold text-foreground">
-                    Aarav Sharma
-                  </h3>
-                  <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary/10 text-primary">
-                    Verified
-                  </span>
+            <div className="grid gap-3 pt-1">
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-foreground">A space for students</p>
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    Campus-first access and connections.
+                  </p>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  B.Tech CSE &apos;26 · IIT Bombay
-                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Users className="size-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Find your people</p>
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    Clubs, communities, and study partners.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <BookOpen className="size-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Learn and build together</p>
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    Resources, events, and opportunities in one place.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Engaging 3D Voxel Art Illustration */}
-          <div className="relative mt-6 pt-4 z-10 flex flex-col justify-end">
-            <div className="flex items-center justify-between gap-2 mb-2 px-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card shadow-2xs border border-border/50 text-[10px] font-semibold text-muted-foreground">
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>4,200+ students active now</span>
-              </div>
-
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">
-                <span>Campus Network</span>
-              </div>
+          <div className="relative z-10 mt-auto pt-2">
+            <div className="mb-2 flex items-center justify-between gap-2 px-1">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/90 px-3 py-1.5 text-[10px] font-semibold text-muted-foreground">
+                <span className="size-2 rounded-full bg-emerald-500" />
+                Campus network
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary">
+                <GraduationCap className="size-3.5" aria-hidden="true" />
+                1,350+ college hubs
+              </span>
             </div>
 
-            {/* Voxel Image Container */}
-            <div className="relative rounded-2xl overflow-hidden border border-border/60 shadow-md group">
+            <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border/60 bg-muted shadow-md">
               <Image
                 src="/campusloop/marketing/voxel/auth-campus-life.webp"
-                alt="CampusLoop Voxel Student Life"
-                width={1200}
-                height={896}
+                alt="Voxel illustration of students studying and spending time together in a campus courtyard"
+                fill
                 priority
-                className="w-full h-auto object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                sizes="(min-width: 1280px) 500px, (min-width: 1024px) 45vw, 100vw"
+                className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02]"
               />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-3 py-1.5 rounded-xl bg-black/50 backdrop-blur-md text-white text-[10px] font-medium border border-white/10">
-                <span className="flex items-center gap-1">
-                  <GraduationCap className="size-3 text-primary" />
-                  <span>Verified .edu &amp; .ac.in Network</span>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+              <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/55 px-3 py-2 text-[10px] font-medium text-white backdrop-blur-md">
+                <span className="inline-flex min-w-0 items-center gap-1.5">
+                  <GraduationCap className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+                  <span>Verified college community</span>
                 </span>
-                <span className="text-white/80 font-mono font-semibold">1,350+ Hubs</span>
+                <span className="shrink-0 font-mono font-semibold text-white/85">
+                  CampusLoop
+                </span>
               </div>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
-    </div>
+    </main>
   );
 }
