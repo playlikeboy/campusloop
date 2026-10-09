@@ -33,6 +33,7 @@ import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-communi
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import { Pagination } from "@/components/ui/pagination";
+import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
 import type { FeedPost } from "@/hooks/use-feed";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -894,11 +895,11 @@ function EmptyCommunities({ search, category }: { search: string; category: stri
   const query = search ? "?name=" + encodeURIComponent(search) : "";
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card px-6 py-16 text-center shadow-2xs">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        <Users2 className="size-6" />
+    <div className="rounded-3xl border border-border/80 bg-card px-6 py-16 text-center shadow-2xs">
+      <div className="mx-auto flex justify-center mb-2">
+        <CuteCatEmpty size={100} />
       </div>
-      <h2 className="mt-4 text-base font-bold text-foreground">No communities found</h2>
+      <h2 className="mt-2 text-base font-bold text-foreground">No communities found</h2>
       <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-relaxed text-muted-foreground">
         {search
           ? `No communities match "${search}". You can be the first to launch it for your college!`
