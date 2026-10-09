@@ -16,6 +16,8 @@ import { DatingCardSkeleton } from "@/components/dating/dating-card-skeleton";
 import { DatingMatchModal } from "@/components/dating/dating-match-modal";
 import { SecretCrushModal } from "@/components/dating/secret-crush-modal";
 import { type Candidate, SwipeActions, SwipeDeck } from "@/components/dating/swipe-deck";
+import { Button } from "@/components/ui/button";
+import { CuteCatSearch } from "@/components/ui/cute-illustrations";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 
@@ -271,37 +273,37 @@ export function DatingAppClient() {
             </div>
           </>
         ) : (
-          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/60 backdrop-blur-xl p-7 text-center shadow-xs">
-            <div className="relative mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-              <div className="absolute inset-0 rounded-2xl bg-primary/20 animate-ping opacity-40" />
-              <Sparkles className="size-6 text-primary relative z-10" />
+          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/80 bg-card p-7 text-center shadow-2xs">
+            <div className="flex justify-center mb-1">
+              <CuteCatSearch size={96} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-black text-foreground">All Caught Up Nearby</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="font-heading font-bold text-base text-foreground">All Caught Up Nearby</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Expand your scope to meet students across other campuses
               </p>
             </div>
-            <div className="flex flex-col gap-2 pt-2">
-              <button
-                type="button"
+            <div className="flex flex-col gap-2.5 pt-2">
+              <Button
                 onClick={() => widenSearch({ scope: "GLOBAL", gender: "ALL" })}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95"
+                className="w-full"
               >
-                <Globe className="size-4" /> Explore All Campuses
-              </button>
-              <button
-                type="button"
+                <Globe className="size-4" />
+                <span>Explore All Campuses</span>
+              </Button>
+              <Button
+                variant="outline"
                 onClick={handleResetSwipes}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                className="w-full"
               >
-                <RotateCcw className="size-3.5" /> Reset Swipes
-              </button>
-              <Link
-                href="/profile/edit"
-                className="flex w-full items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
-              >
-                <Camera className="size-3.5" /> Edit Dating Profile
+                <RotateCcw className="size-3.5" />
+                <span>Reset Swipes</span>
+              </Button>
+              <Link href="/profile/edit" className="w-full">
+                <Button variant="ghost" className="w-full text-xs">
+                  <Camera className="size-3.5" />
+                  <span>Edit Dating Profile</span>
+                </Button>
               </Link>
             </div>
           </div>

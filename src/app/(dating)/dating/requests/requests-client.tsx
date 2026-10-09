@@ -164,16 +164,16 @@ export function RequestsClient() {
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none">
       <div className="flex-1 py-2 space-y-4">
         {/* Banner: Mystery Incoming Counter */}
-        <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/15 via-card to-pink-500/10 p-4 shadow-sm">
+        <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card p-5 shadow-2xs">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/20 px-2.5 py-0.5 text-[10px] font-black uppercase text-purple-700 dark:text-purple-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-primary border border-primary/20">
                 <ShieldCheck className="size-3" /> Zero Knowledge Vault
               </span>
-              <h2 className="mt-2 text-base font-black tracking-tight text-foreground">
+              <h2 className="mt-2 text-base font-heading font-bold tracking-tight text-foreground">
                 {receivedCrushesCount > 0 ? (
                   <>
-                    <span className="text-purple-600 dark:text-purple-400">{receivedCrushesCount}</span>{" "}
+                    <span className="text-primary font-bold">{receivedCrushesCount}</span>{" "}
                     classmate{receivedCrushesCount > 1 ? "s have" : " has"} a secret crush on you!
                   </>
                 ) : (
@@ -184,7 +184,7 @@ export function RequestsClient() {
                 Add your campus crushes. They will NEVER be notified unless they also add you to their vault!
               </p>
             </div>
-            <div className="size-11 rounded-2xl bg-purple-500/20 text-purple-600 flex items-center justify-center shrink-0 border border-purple-500/30">
+            <div className="size-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
               <Lock className="size-5" />
             </div>
           </div>
@@ -192,17 +192,17 @@ export function RequestsClient() {
 
         {/* Slot Progress / LP Clout */}
         {slotProgress && (
-          <div className="rounded-2xl border border-border/50 bg-card/60 p-3.5 space-y-2">
+          <div className="rounded-2xl border border-border/80 bg-card p-3.5 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="flex items-center gap-1 text-foreground">
                 <Crown className="size-3.5 text-amber-500" />
                 <span>Vault Capacity: {usedSlots}/{maxSlots} Slots</span>
               </span>
-              <span className="text-[11px] text-muted-foreground">{slotProgress.points} LP</span>
+              <span className="text-[11px] text-muted-foreground font-medium">{slotProgress.points} LP</span>
             </div>
             <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${slotProgress.progressPercent}%` }}
               />
             </div>
@@ -229,10 +229,10 @@ export function RequestsClient() {
                       haptics.light();
                       setShowSearchModal(true);
                     }}
-                    className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-dashed border-border/70 hover:border-purple-500/60 bg-muted/20 hover:bg-purple-500/5 transition-all text-left cursor-pointer group"
+                    className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-dashed border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-primary/5 transition-all text-left cursor-pointer group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-muted/60 text-muted-foreground group-hover:text-purple-600 transition-colors">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-muted/60 text-muted-foreground group-hover:text-primary transition-colors">
                         <Plus className="size-5" />
                       </div>
                       <div>
@@ -251,14 +251,14 @@ export function RequestsClient() {
                   key={item.id}
                   className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
                     item.isMutual
-                      ? "border-pink-500/50 bg-pink-500/10 shadow-sm"
-                      : "border-border/60 bg-card"
+                      ? "border-primary/50 bg-primary/10 shadow-2xs"
+                      : "border-border/80 bg-card"
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar className="size-11 shrink-0 ring-1 ring-border/50">
                       <AvatarImage src={item.target.avatarUrl || undefined} />
-                      <AvatarFallback className="bg-purple-500/20 text-purple-700 font-bold">
+                      <AvatarFallback className="bg-primary/15 text-primary font-bold">
                         {item.target.displayName.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
