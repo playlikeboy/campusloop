@@ -6,6 +6,8 @@ import {
   BriefcaseBusiness,
   ExternalLink,
   EyeOff,
+  FileDown,
+  Presentation,
   Flame,
   Heart,
   HeartHandshake,
@@ -23,6 +25,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+
+const PITCH_DECK_PDF_URL = process.env.NEXT_PUBLIC_PITCH_DECK_PDF_URL;
 import { Reveal } from "@/components/landing/reveal";
 import {
   CTABand,
@@ -194,6 +198,30 @@ export function PitchClient() {
             >
               <BookOpen className="size-4" /> Read the full brief
             </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-3 pt-1">
+            <a
+              href="https://canva.link/zdg5k3nnw9ifaaa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-5 text-sm font-bold text-primary transition-colors hover:bg-primary/15"
+            >
+              <Presentation className="size-4" />
+              View pitch deck
+              <ExternalLink className="size-3.5" />
+            </a>
+            {PITCH_DECK_PDF_URL ? (
+              <a
+                href={PITCH_DECK_PDF_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+              >
+                <FileDown className="size-4" />
+                Download PDF
+              </a>
+            ) : null}
           </div>
         </div>
       </Section>
