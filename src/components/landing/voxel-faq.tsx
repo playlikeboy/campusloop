@@ -52,8 +52,8 @@ export function VoxelFAQ() {
     <section className="relative py-10 sm:py-20 md:py-24 bg-background overflow-hidden select-none border-t border-border/40">
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 border border-emerald-500/20 shadow-xs">
-            <HelpCircle className="size-3.5 text-[#22c55e]" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary mb-2.5 border border-primary/20 shadow-xs">
+            <HelpCircle className="size-3.5 text-primary" />
             <span>Got Questions? We Have Answers</span>
           </div>
 
@@ -74,7 +74,7 @@ export function VoxelFAQ() {
                 key={faq.question}
                 className={`rounded-2xl border transition-all ${
                   isOpen
-                    ? "border-[#22c55e]/50 bg-card shadow-md"
+                    ? "border-primary/40 bg-card shadow-md"
                     : "border-border/60 bg-card/60 hover:border-border"
                 }`}
               >
@@ -87,7 +87,7 @@ export function VoxelFAQ() {
                   <span>{faq.question}</span>
                   <ChevronDown
                     className={`size-4 text-muted-foreground shrink-0 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 text-[#22c55e]" : ""
+                      isOpen ? "rotate-180 text-primary" : ""
                     }`}
                   />
                 </button>

@@ -22,7 +22,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AddCollegeModal } from "@/components/colleges/add-college-modal";
-import type { LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
+import { AllIndiaCollegePodium, type LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
 import type { CollegeItem } from "@/components/colleges/college-hub-row";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -148,15 +148,14 @@ export default function CollegesClient() {
     };
   }, [search, selectedState, selectedCategory, page, limit]);
 
-  // Fetch Leaderboard on tab activation
+  // Fetch Leaderboard for visual addiction podium (always top 3) and full tab
   useEffect(() => {
-    if (activeTab !== "leaderboard") return;
     let ignore = false;
     async function fetchLeaderboard() {
       setLeaderboardLoading(true);
       try {
         const url = new URL("/api/colleges/leaderboard", window.location.origin);
-        url.searchParams.set("limit", "50");
+        url.searchParams.set("limit", activeTab === "leaderboard" ? "50" : "3");
         if (selectedState !== "ALL") url.searchParams.set("state", selectedState);
         if (selectedCategory !== "ALL") url.searchParams.set("category", selectedCategory);
 
@@ -265,7 +264,8 @@ export default function CollegesClient() {
             className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 active:scale-95"
           >
             <Plus className="size-3.5" />
-            <span>Request Hub</span>
+            <span className="hidden sm:inline">Request Hub</span>
+            <span className="sm:hidden">Request</span>
           </button>
         </div>
       </header>
@@ -347,6 +347,21 @@ export default function CollegesClient() {
       {/* ─── Directory Tab View ─── */}
       {activeTab === "directory" && (
         <section className="pt-4 flex-1 flex flex-col justify-between">
+          {/* Top 3 Campus Spotlight / Visual Addiction Podium */}
+          {page === 1 && !search.trim() && (
+            <div className="mb-6">
+              <AllIndiaCollegePodium
+                leaderboard={leaderboard.slice(0, 3)}
+                loading={leaderboardLoading && leaderboard.length === 0}
+                className="mx-0 my-0"
+                onExploreMore={() => {
+                  setActiveTab("leaderboard");
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 9 }).map((_, i) => (
@@ -494,7 +509,16 @@ export default function CollegesClient() {
 
       {/* ─── Leaderboard Tab View ─── */}
       {activeTab === "leaderboard" && (
-        <section className="pt-4 flex-1">
+        <section className="pt-4 flex-1 space-y-4">
+          {/* Top 3 Championship Podium */}
+          {leaderboard.length >= 3 && !leaderboardLoading && (
+            <AllIndiaCollegePodium
+              leaderboard={leaderboard.slice(0, 3)}
+              loading={leaderboardLoading}
+              className="mx-0 my-0 mb-5"
+            />
+          )}
+
           {leaderboardLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -506,6 +530,10 @@ export default function CollegesClient() {
             </div>
           ) : leaderboard.length > 0 ? (
             <div className="space-y-2">
+              <div className="flex items-center justify-between px-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <span>Complete Campus Standings</span>
+                <span className="font-mono text-[11px] text-primary">Season 1 Live</span>
+              </div>
               {leaderboard.map((item, index) => {
                 const rank = index + 1;
                 const location = [item.district, item.state].filter(Boolean).join(", ") || "India";

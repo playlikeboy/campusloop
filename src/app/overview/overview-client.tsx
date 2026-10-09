@@ -115,7 +115,7 @@ export function OverviewClient() {
               <div className="text-xs text-muted-foreground">Indexed College Hubs</div>
             </div>
             <div className="space-y-1">
-              <div className="text-3xl sm:text-4xl font-black text-emerald-500 font-mono">100%</div>
+              <div className="text-3xl sm:text-4xl font-black text-foreground font-mono">100%</div>
               <div className="text-xs text-muted-foreground">Institutional Email Gating</div>
             </div>
             <div className="space-y-1">

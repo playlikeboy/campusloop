@@ -29,22 +29,19 @@ import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const CONFESSION_TABS = [
-  { id: "latest", label: "Latest", icon: Clock },
-  { id: "trending", label: "Trending", icon: Flame },
-  { id: "top_voted", label: "Top", icon: Trophy },
-  { id: "spicy", label: "Spicy", icon: Sparkles },
-  { id: "random", label: "Shuffle", icon: Zap },
+const CONFESSION_SORTS = [
+  { id: "latest", label: "Latest" },
+  { id: "trending", label: "Trending" },
+  { id: "top_voted", label: "Top" },
 ] as const;
 
 const TOPIC_CHIPS = [
-  { label: "All Whispers", tag: "" },
-  { label: "#HostelLore", tag: "#HostelLore" },
-  { label: "#PlacementTea", tag: "#PlacementTea" },
-  { label: "#CampusCrush", tag: "#CampusCrush" },
-  { label: "#ExamVent", tag: "#ExamVent" },
-  { label: "#ProfTales", tag: "#ProfTales" },
-  { label: "#Unfiltered", tag: "#Unfiltered" },
+  { label: "Hostel Lore", tag: "#HostelLore" },
+  { label: "Placement Tea", tag: "#PlacementTea" },
+  { label: "Campus Crush", tag: "#CampusCrush" },
+  { label: "Exam Vent", tag: "#ExamVent" },
+  { label: "Prof Tales", tag: "#ProfTales" },
+  { label: "Unfiltered", tag: "#Unfiltered" },
 ];
 
 export function ConfessionsFeed() {
@@ -167,22 +164,22 @@ export function ConfessionsFeed() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* ─── Main Confessions Column (8 cols on lg) ─── */}
         <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 bg-transparent sm:bg-card/25 sm:rounded-2xl sm:border sm:border-border/30 overflow-hidden shadow-2xs">
-          {/* ─── Sticky Controls Bar (Privacy Banner + Tabs + Filters) ─── */}
+          {/* ─── Sticky Controls Bar (Streamlined Header + Single Filter Row) ─── */}
           <div className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/20">
-            {/* 1. Community & Privacy Status Banner */}
+            {/* 1. Sleek Header Row */}
             <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-border/15 bg-muted/10">
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
                 <div className="flex size-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 shrink-0">
-                  <Shield className="size-3.5" />
+                  <VenetianMask className="size-3.5" />
                 </div>
-                <div className="min-w-0">
-                  <h1 className="text-sm font-bold text-foreground tracking-tight leading-none truncate">
-                    Campus Confessions
+                <div className="min-w-0 flex items-center gap-2">
+                  <h1 className="text-sm sm:text-base font-bold text-foreground tracking-tight leading-none font-[family-name:var(--font-heading)] truncate">
+                    Confessions
                   </h1>
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 leading-none">
-                    <Lock className="size-2.5 text-emerald-400/90 shrink-0" />
-                    <span>Identity sealed · Zero profile trace</span>
-                  </p>
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
+                    <Lock className="size-2.5" />
+                    <span>100% Anon</span>
+                  </span>
                 </div>
               </div>
 
@@ -206,7 +203,7 @@ export function ConfessionsFeed() {
                     type="button"
                     onClick={() => handleScopeToggle("CAMPUS")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[90px] sm:max-w-[120px] truncate",
+                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[80px] sm:max-w-[120px] truncate",
                       scope === "CAMPUS"
                         ? "bg-foreground text-background font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -217,94 +214,90 @@ export function ConfessionsFeed() {
                   </button>
                 </div>
 
-                {/* Dedicated Editor Link */}
+                {/* Direct Whisper Action */}
                 <Link
                   href="/post/new?type=CONFESSION"
-                  className="hidden sm:inline-flex size-7 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25 hover:bg-purple-500/25 active:scale-95 transition-all cursor-pointer"
-                  title="Open dedicated editor"
-                  aria-label="Open dedicated editor"
+                  className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95"
+                  title="Whisper an anonymous confession"
                 >
-                  <Plus className="size-3.5" />
+                  <Plus className="size-3" />
+                  <span>Whisper</span>
                 </Link>
               </div>
             </div>
 
-            {/* 2. Feed Navigation Tabs */}
-            <div className="flex items-center justify-between border-b border-border/15 bg-card/20 px-3 sm:px-4 py-1">
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
-                {CONFESSION_TABS.map((tab) => {
-                  const isActive = currentSort === tab.id;
-                  const TabIcon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => handleSortChange(tab.id)}
-                      className={cn(
-                        "relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-all cursor-pointer select-none shrink-0",
-                        isActive
-                          ? "bg-purple-500/15 text-purple-300 font-semibold border border-purple-500/30"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
-                      )}
-                    >
-                      <TabIcon
-                        className={cn("size-3.5", isActive ? "text-purple-400" : "text-muted-foreground")}
-                      />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+            {/* 2. Unified Filter Strip: Sorts + Topics in a single horizontal scroll row */}
+            <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 overflow-x-auto no-scrollbar bg-card/20 select-none">
+              {CONFESSION_SORTS.map((s) => {
+                const isActive = currentSort === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSortChange(s.id)}
+                    className={cn(
+                      "h-7 px-3 rounded-full text-xs transition-all cursor-pointer select-none shrink-0",
+                      isActive
+                        ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
+                    )}
+                  >
+                    {s.label}
+                  </button>
+                );
+              })}
 
-              {currentSort === "random" && (
+              <div className="h-3.5 w-px bg-border/40 shrink-0 mx-0.5" />
+
+              {/* Active Topic Filter Chip with Clear Button */}
+              {activeTag && (
                 <button
                   type="button"
-                  onClick={handleReloadRandom}
-                  className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer shrink-0 ml-1"
-                  title="Shuffle confessions"
-                  aria-label="Shuffle confessions"
+                  onClick={() => handleTagSelect("")}
+                  className="h-7 px-2.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 shrink-0 flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
                 >
-                  <RotateCw
-                    className={cn("size-3.5 transition-transform duration-700", isRotating && "animate-spin")}
-                  />
+                  <span>{activeTag}</span>
+                  <span className="text-xs font-bold">×</span>
                 </button>
               )}
-            </div>
 
-            {/* 3. Category Filter Chips */}
-            <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 overflow-x-auto no-scrollbar bg-background/40">
+              {/* Topic Chips */}
               {TOPIC_CHIPS.map((chip) => {
-                const isSelected = activeTag === chip.tag;
+                if (activeTag === chip.tag) return null;
                 return (
                   <button
                     key={chip.label}
                     type="button"
                     onClick={() => handleTagSelect(chip.tag)}
-                    className={cn(
-                      "h-6 px-2.5 rounded-full text-[11px] transition-all cursor-pointer select-none shrink-0 whitespace-nowrap",
-                      isSelected
-                        ? "bg-purple-600/20 text-purple-300 border border-purple-500/40 font-semibold shadow-2xs"
-                        : "bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/20 font-medium"
-                    )}
+                    className="h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/25 transition-all cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     {chip.label}
                   </button>
                 );
               })}
-              {activeTag && (
-                <button
-                  type="button"
-                  onClick={() => handleTagSelect("")}
-                  className="text-[10px] font-medium text-muted-foreground hover:text-purple-300 ml-1 shrink-0 cursor-pointer"
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
 
-          {/* 4. Compact Confession Composer */}
-          <div className="p-3 sm:p-4 border-b border-border/15 bg-card/10">
+          {/* 3. Mobile Prompt Bar & Desktop Inline Composer */}
+          <div className="sm:hidden px-3 py-2 border-b border-border/15 bg-muted/10">
+            <Link
+              href="/post/new?type=CONFESSION"
+              className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground transition-all shadow-2xs active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <VenetianMask className="size-3.5 text-purple-400 shrink-0" />
+                <span className="text-xs truncate">
+                  Spill an anonymous confession...
+                </span>
+              </div>
+              <span className="text-[10px] font-bold text-primary flex items-center gap-0.5 shrink-0">
+                <Lock className="size-2.5" />
+                Anon
+              </span>
+            </Link>
+          </div>
+
+          <div className="hidden sm:block p-3 sm:p-4 border-b border-border/15 bg-card/10">
             <ConfessionComposerInline
               scope={scope}
               campusName={campusShortName}
@@ -375,21 +368,6 @@ export function ConfessionsFeed() {
           />
         </div>
       </div>
-
-      {/* ─── Mobile Floating Whisper FAB ─── */}
-      <button
-        type="button"
-        onClick={() => {
-          sounds.pop();
-          haptics.medium();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        className="sm:hidden fixed bottom-20 right-4 z-40 flex items-center gap-1.5 h-11 px-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-950/50 text-xs font-black transition-all active:scale-95 cursor-pointer relative before:absolute before:-inset-1.5 before:content-['']"
-        aria-label="Whisper anonymous secret"
-      >
-        <VenetianMask className="size-4" />
-        <span>Whisper</span>
-      </button>
     </div>
   );
 }

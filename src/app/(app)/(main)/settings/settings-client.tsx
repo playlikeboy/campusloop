@@ -35,7 +35,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { NotificationPreferencesPanel } from "@/components/notifications/notification-preferences-panel";
@@ -66,7 +65,33 @@ interface SettingsClientProps {
 
 export function SettingsClient({ profile }: SettingsClientProps) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark" | "system">("light");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("cl_theme");
+    if (saved === "dark" || saved === "light") {
+      setCurrentTheme(saved);
+    } else {
+      setCurrentTheme("system");
+    }
+  }, []);
+
+  const applyTheme = (newTheme: "light" | "dark" | "system") => {
+    setCurrentTheme(newTheme);
+    if (typeof window === "undefined") return;
+    if (newTheme === "system") {
+      localStorage.removeItem("cl_theme");
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", isDark);
+    } else if (newTheme === "dark") {
+      localStorage.setItem("cl_theme", "dark");
+      document.documentElement.classList.add("dark");
+    } else {
+      localStorage.setItem("cl_theme", "light");
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   // Profile Form State
   const [displayName, setDisplayName] = useState(profile.displayName || "");
@@ -1128,11 +1153,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => {
                   sounds.tap();
-                  setTheme("light");
+                  applyTheme("light");
                 }}
                 className={cn(
                   "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
-                  theme === "light"
+                  currentTheme === "light"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -1144,11 +1169,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => {
                   sounds.tap();
-                  setTheme("dark");
+                  applyTheme("dark");
                 }}
                 className={cn(
                   "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
-                  theme === "dark"
+                  currentTheme === "dark"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -1160,11 +1185,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => {
                   sounds.tap();
-                  setTheme("system");
+                  applyTheme("system");
                 }}
                 className={cn(
                   "px-2 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer",
-                  theme === "system"
+                  currentTheme === "system"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}

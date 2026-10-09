@@ -78,15 +78,15 @@ export function VoxelFeaturesBento() {
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 sm:mb-3.5 border border-emerald-500/20 shadow-xs">
-            <Zap className="size-3.5 text-[#22c55e]" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary mb-2.5 sm:mb-3.5 border border-primary/20 shadow-xs">
+            <Zap className="size-3.5 text-primary" />
             <span>Built For University Life</span>
           </div>
 
           <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.12]">
             EVERY UNWRITTEN RULE OF CAMPUS.{" "}
             <br className="hidden sm:inline" />
-            <span className="text-[#16a34a] dark:text-emerald-400">CODED INTO ONE SYSTEM.</span>
+            <span className="text-primary">CODED INTO ONE SYSTEM.</span>
           </h2>
 
           <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
@@ -97,11 +97,11 @@ export function VoxelFeaturesBento() {
         {/* Voxel Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
           {/* Bento Item 1: Campus Radius Radar (7 cols) */}
-          <div className="md:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-all">
+          <div className="md:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-between hover:border-primary/40 transition-all">
             <div>
               <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border/40">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-emerald-500/15 text-[#16a34a] shrink-0">
+                  <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                     <Radio className="size-4 sm:size-4.5" />
                   </div>
                   <div>
@@ -121,7 +121,7 @@ export function VoxelFeaturesBento() {
                     }}
                     className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                       feedRadius === "local"
-                        ? "bg-[#22c55e] text-white shadow-xs font-black"
+                        ? "bg-primary text-primary-foreground shadow-xs font-bold"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -136,7 +136,7 @@ export function VoxelFeaturesBento() {
                     }}
                     className={`px-3 py-1 rounded-full transition-all cursor-pointer flex items-center gap-1 ${
                       feedRadius === "all"
-                        ? "bg-[#22c55e] text-white shadow-xs font-black"
+                        ? "bg-primary text-primary-foreground shadow-xs font-bold"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -164,7 +164,7 @@ export function VoxelFeaturesBento() {
 
                 {/* Interactive Poll item */}
                 <div className="rounded-2xl border border-border/50 bg-background/80 p-3.5 text-left">
-                  <span className="text-[10px] font-black text-[#16a34a] flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-primary flex items-center gap-1">
                     <Vote className="size-3" />
                     <span>Live Student Poll</span>
                   </span>
@@ -183,14 +183,14 @@ export function VoxelFeaturesBento() {
                           onClick={() => handleVote(idx)}
                           className={`relative flex w-full items-center justify-between px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer overflow-hidden ${
                             isSelected
-                              ? "border-[#22c55e] text-foreground"
+                              ? "border-primary text-foreground"
                               : "border-border/60 hover:bg-muted/40 text-muted-foreground"
                           }`}
                         >
                           {/* Progress fill */}
                           <div
                             className={`absolute inset-y-0 left-0 transition-all duration-500 ${
-                              isSelected ? "bg-[#22c55e]/25" : "bg-muted/40"
+                              isSelected ? "bg-primary/20" : "bg-muted/40"
                             }`}
                             style={{ width: `${pct}%` }}
                           />
@@ -206,12 +206,12 @@ export function VoxelFeaturesBento() {
 
             <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                <ShieldCheck className="size-3.5 text-[#16a34a]" />
+                <ShieldCheck className="size-3.5 text-primary" />
                 <span>Encrypted anonymity • Zero doxxing</span>
               </span>
               <Link
                 href="/feeds"
-                className="inline-flex items-center gap-1 text-xs font-black text-[#16a34a] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline cursor-pointer"
               >
                 <span>Open Campus Feed</span>
                 <ArrowRight className="size-3.5" />
@@ -389,7 +389,7 @@ export function VoxelFeaturesBento() {
                   </div>
                 </div>
 
-                <span className="rounded-full bg-emerald-500/15 text-[#16a34a] text-[10px] font-black px-2.5 py-1">
+                <span className="rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-1">
                   Active Directory
                 </span>
               </div>
@@ -399,17 +399,17 @@ export function VoxelFeaturesBento() {
                 {[
                   { name: "BIT Mesra", count: "1,240 Students", tag: "Ranchi Hub" },
                   { name: "IIT Bombay", count: "3,890 Students", tag: "Powai Hub" },
-                  { name: "BITS Pilani", count: "2,150 Students", tag: "Pilani & Goa" },
+                  { name: "BITS Pilani", count: "Pilani & Goa", tag: "Pilani Hub" },
                   { name: "Delhi University", count: "5,420 Students", tag: "North & South" },
                   { name: "VIT Vellore", count: "4,180 Students", tag: "Vellore Hub" },
                   { name: "IIT Delhi", count: "3,110 Students", tag: "Hauz Khas" },
                 ].map((college) => (
                   <div
                     key={college.name}
-                    className="p-3 rounded-2xl border border-border/50 bg-background/80 text-left hover:border-amber-500/40 transition-all cursor-pointer"
+                    className="p-3 rounded-2xl border border-border/50 bg-background/80 text-left hover:border-primary/40 transition-all cursor-pointer"
                   >
                     <p className="text-xs font-black text-foreground truncate">{college.name}</p>
-                    <p className="text-[10px] font-semibold text-[#16a34a] mt-0.5">{college.count}</p>
+                    <p className="text-[10px] font-semibold text-primary mt-0.5">{college.count}</p>
                     <span className="text-[9px] text-muted-foreground flex items-center gap-1 mt-0.5">
                       <MapPin className="size-2.5" />
                       <span>{college.tag}</span>

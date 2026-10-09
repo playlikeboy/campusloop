@@ -54,12 +54,12 @@ function Option({
       className={cn(
         "flex items-center justify-between rounded-2xl border px-4 py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer active:scale-[0.98]",
         selected
-          ? "border-pink-600 bg-pink-500/10 text-pink-600 dark:text-pink-400 font-black shadow-2xs ring-1 ring-pink-500/30"
-          : "border-border/60 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs ring-1 ring-primary/20"
+          : "border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
       )}
     >
       {children}
-      {selected && <Check className="size-4 shrink-0 text-pink-600 dark:text-pink-400" />}
+      {selected && <Check className="size-4 shrink-0 text-primary" />}
     </button>
   );
 }

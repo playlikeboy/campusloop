@@ -27,7 +27,7 @@ interface LivingNavItem {
 
 const LIVING_TABS: LivingNavItem[] = [
   {
-    href: "/living",
+    href: "/campus",
     label: "Overview",
     icon: Sparkles,
   },
@@ -67,23 +67,23 @@ const LIVING_TABS: LivingNavItem[] = [
 ];
 
 export function ContextualLivingNav() {
-  const pathname = usePathname() || "/living";
+  const pathname = usePathname() || "/campus";
 
   const currentTab = LIVING_TABS.find((tab) =>
-    tab.href === "/living"
-      ? pathname === "/living" || pathname === "/utilities"
+    tab.href === "/campus"
+      ? pathname === "/campus" || pathname === "/living" || pathname === "/utilities"
       : pathname === tab.href || pathname.startsWith(tab.href + "/")
   );
 
   return (
-    <div className="sticky top-14 sm:top-0 z-20 border-b border-border/40 bg-background/90 backdrop-blur-xl px-3 py-2.5 sm:px-6 select-none">
+    <div className="sticky top-14 sm:top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-2 sm:px-6 select-none">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
         {/* Horizontal scrollable navigation pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {LIVING_TABS.map((tab) => {
             const isActive =
-              tab.href === "/living"
-                ? pathname === "/living" || pathname === "/utilities"
+              tab.href === "/campus"
+                ? pathname === "/campus" || pathname === "/living" || pathname === "/utilities"
                 : pathname === tab.href || pathname.startsWith(tab.href + "/");
 
             const Icon = tab.icon;
@@ -97,10 +97,10 @@ export function ContextualLivingNav() {
                   haptics.light();
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 border",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-2xs font-bold"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground bg-muted/30 border border-border/30"
+                    ? "bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-soft-border)] font-semibold shadow-2xs"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] bg-[var(--surface)] border-[var(--border)]"
                 )}
               >
                 <Icon className="size-3.5 shrink-0" />

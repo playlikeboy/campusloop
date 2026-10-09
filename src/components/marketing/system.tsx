@@ -55,9 +55,8 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
             />
           </div>
           <span className="font-heading font-black tracking-tight text-foreground text-base sm:text-lg">
-            Campus<span className="text-[#16a34a]">Loop</span>
+            Campus<span className="text-primary">Loop</span>
           </span>
-          <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
         </Link>
 
         <nav className="hidden items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/40 md:flex">
@@ -149,7 +148,7 @@ export function MarketingFooter() {
               />
             </div>
             <span className="font-heading font-black tracking-tight text-foreground text-base">
-              Campus<span className="text-[#16a34a]">Loop</span>
+              Campus<span className="text-primary">Loop</span>
             </span>
           </Link>
           <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">

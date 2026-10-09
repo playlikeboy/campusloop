@@ -117,10 +117,14 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
 
       {/* Floating Controls Bar: Top Edge-to-Edge */}
       <div className="relative z-20 w-full flex items-center justify-between px-3 sm:px-8 lg:px-12 pt-1 sm:pt-2">
-        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-emerald-500/30 bg-background/90 dark:bg-black/75 px-3 py-1 text-[11px] font-bold text-[#16a34a] dark:text-emerald-400 backdrop-blur-md shadow-xs">
-          <span className="size-2 rounded-full bg-[#22c55e] animate-pulse" />
-          <span className="font-black uppercase tracking-wider text-[10px] sm:text-[11px]">
-            100% Verified Students • 1,350+ Colleges
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-border/80 bg-background/90 dark:bg-card/90 px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md shadow-2xs">
+          <ShieldCheck className="size-3.5 text-primary shrink-0" />
+          <span className="font-semibold text-foreground tracking-tight text-[10px] sm:text-[11px]">
+            100% Verified Students
+          </span>
+          <span className="text-muted-foreground/60">·</span>
+          <span className="text-muted-foreground text-[10px] sm:text-[11px]">
+            1,350+ Colleges
           </span>
         </div>
 
@@ -130,15 +134,15 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             type="button"
             onClick={toggleSound}
             aria-label={isMuted ? "Unmute hero video sound" : "Mute hero video sound"}
-            className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2.5 sm:px-3 py-1 text-[11px] font-black backdrop-blur-md transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2.5 sm:px-3 py-1 text-[11px] font-medium backdrop-blur-md transition-all cursor-pointer ${
               !isMuted
-                ? "border-emerald-500 bg-emerald-500/20 text-[#16a34a] dark:text-emerald-300 shadow-md shadow-emerald-500/20"
+                ? "border-primary/40 bg-primary/10 text-primary shadow-xs"
                 : "border-border/60 bg-background/80 dark:bg-black/70 text-foreground/80 hover:bg-background"
             }`}
           >
             {!isMuted ? (
               <>
-                <Volume2 className="size-3.5 text-[#22c55e] animate-pulse" />
+                <Volume2 className="size-3.5 text-primary" />
                 <span className="text-[10px] sm:text-[11px]">Audio On</span>
               </>
             ) : (
@@ -172,32 +176,32 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
 
       {/* Main Pitchy Hero Content */}
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 text-center mt-3 sm:mt-5">
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tight text-foreground max-w-4xl mx-auto leading-[1.08] sm:leading-[1.02] drop-shadow-sm">
-          WHERE YOUR CAMPUS{" "}
+        <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[var(--text)] max-w-4xl mx-auto leading-[1.1] sm:leading-[1.05]">
+          Where your campus{" "}
           <br className="hidden sm:inline" />
-          <span className="text-[#16a34a] dark:text-emerald-400">ACTUALLY TALKS.</span>
+          <span className="text-[var(--primary)]">actually talks.</span>
         </h1>
 
-        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-foreground/80 dark:text-stone-300 font-medium max-w-xl mx-auto leading-relaxed">
-          No recruiters. No boomers. The verified private network for inside hostel tea, anonymous confessions, 45,000+ notes &amp; PYQs, and campus crushes.
+        <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm md:text-base text-[var(--text-secondary)] font-medium max-w-xl mx-auto leading-relaxed">
+          No recruiters. No boomers. The verified network for inside hostel discussions, anonymous confessions, 45,000+ notes &amp; PYQs, and campus connections.
         </p>
 
-        {/* Mobile-First Action Buttons */}
+        {/* Action Buttons */}
         <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 max-w-xs sm:max-w-none mx-auto">
           <Link
             href={isAuthenticated ? "/feeds" : "/sign-up"}
-            className="inline-flex h-12 sm:h-13 items-center justify-center gap-2 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-6 sm:px-8 text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[var(--primary)] hover:opacity-95 px-6 sm:px-8 text-xs sm:text-sm font-semibold text-white shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             <Zap className="size-4 shrink-0" />
-            <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>
+            <span>{isAuthenticated ? "Enter Campus Feed" : "Join with College Email"}</span>
             <ArrowRight className="size-4 shrink-0" />
           </Link>
 
           <Link
             href="/colleges"
-            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-border/80 bg-background/80 hover:bg-muted/70 px-5 sm:px-6 text-xs sm:text-sm font-bold text-foreground backdrop-blur-sm active:scale-95 transition-all cursor-pointer"
+            className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-sunken)] px-5 sm:px-6 text-xs sm:text-sm font-medium text-[var(--text)] active:scale-95 transition-all cursor-pointer"
           >
-            <Compass className="size-4 text-[#16a34a] shrink-0" />
+            <Compass className="size-4 text-[var(--primary)] shrink-0" />
             <span>Explore 1,350+ Colleges</span>
           </Link>
         </div>
@@ -213,7 +217,7 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
             <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Notes &amp; PYQs</p>
           </div>
           <div>
-            <p className="text-sm sm:text-lg font-black text-[#16a34a] dark:text-emerald-400">100%</p>
+            <p className="text-sm sm:text-lg font-black text-foreground">100%</p>
             <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Student Gated</p>
           </div>
         </div>
@@ -283,7 +287,7 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
         </Link>
 
         {/* Phone Body with Live Interactive In-App Feed Mockup */}
-        <div className="rounded-[2.5rem] border-4 border-foreground/20 bg-card/95 p-3.5 sm:p-4 shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
+        <div className="rounded-[2.5rem] border-4 border-foreground/20 bg-card/95 p-3.5 sm:p-4 shadow-2xl shadow-primary/5 backdrop-blur-xl">
           {/* Phone Speaker Notch */}
           <div className="mx-auto mb-3 h-3 w-16 rounded-full bg-muted flex items-center justify-center">
             <span className="size-1.5 rounded-full bg-foreground/30" />
@@ -292,18 +296,18 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
           {/* In-app Header: Active Campus Pulse */}
           <div className="flex items-center justify-between px-1 pb-3 border-b border-border/40">
             <div className="flex items-center gap-2">
-              <div className="size-8 rounded-full bg-[#22c55e] flex items-center justify-center text-white text-xs font-black shadow-xs">
+              <div className="size-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-black shadow-xs">
                 CL
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-foreground">BIT Mesra Hub</span>
-                  <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                  <span className="size-1.5 rounded-full bg-primary animate-pulse" />
                 </div>
                 <p className="text-[9px] text-muted-foreground font-semibold">2,410 Students Online</p>
               </div>
             </div>
-            <span className="rounded-full bg-emerald-500/15 text-[#16a34a] px-2 py-0.5 text-[9px] font-black uppercase">
+            <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[9px] font-bold uppercase">
               Live Feed
             </span>
           </div>
@@ -317,9 +321,9 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
           </div>
 
           {/* Interactive Live Mini-Poll Inside the Mockup */}
-          <div className="mt-2.5 rounded-2xl border border-border/60 bg-gradient-to-br from-emerald-500/10 via-background to-background p-3 text-left">
+          <div className="mt-2.5 rounded-2xl border border-border/60 bg-muted/20 p-3 text-left">
             <div className="flex items-center justify-between">
-              <span className="rounded-md bg-[#22c55e]/20 text-[#16a34a] px-1.5 py-0.5 text-[8px] font-black uppercase">
+              <span className="rounded-md bg-primary/15 text-primary px-1.5 py-0.5 text-[8px] font-bold uppercase">
                 Campus Poll • Tap to Vote
               </span>
               <span className="text-[9px] font-semibold text-muted-foreground">
@@ -337,8 +341,8 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
                 onClick={() => handleHeroVote(0)}
                 className={`w-full text-left p-2 rounded-xl border text-[10px] font-bold transition-all cursor-pointer ${
                   votedOption === 0
-                    ? "border-emerald-500 bg-emerald-500/20 text-[#16a34a]"
-                    : "border-border/60 bg-card hover:border-emerald-500/40"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border/60 bg-card hover:border-primary/40 text-foreground"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -352,8 +356,8 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
                 onClick={() => handleHeroVote(1)}
                 className={`w-full text-left p-2 rounded-xl border text-[10px] font-bold transition-all cursor-pointer ${
                   votedOption === 1
-                    ? "border-emerald-500 bg-emerald-500/20 text-[#16a34a]"
-                    : "border-border/60 bg-card hover:border-emerald-500/40"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border/60 bg-card hover:border-primary/40 text-foreground"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -370,7 +374,7 @@ export function VoxelVocarushHero({ isAuthenticated = false }: VoxelVocarushHero
               <Flame className="size-3.5 fill-amber-500 text-amber-500" />
               <span>12-Day Campus Fire Streak</span>
             </span>
-            <span className="text-[#16a34a] font-black">+50 LP Daily</span>
+            <span className="text-amber-600 dark:text-amber-400 font-bold">+50 LP Daily</span>
           </div>
         </div>
 

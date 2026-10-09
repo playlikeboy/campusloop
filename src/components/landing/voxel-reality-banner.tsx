@@ -22,7 +22,7 @@ export function VoxelRealityBanner({ isAuthenticated = false }: VoxelRealityBann
             />
             
             <div className="absolute top-2.5 right-2.5 sm:top-5 sm:right-5 z-20 flex items-center gap-1.5 rounded-full bg-background/90 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-black text-foreground shadow-md backdrop-blur-md border border-border/40">
-              <Sparkles className="size-3 text-[#22c55e]" />
+              <Sparkles className="size-3 text-primary" />
               <span>CampusLoop Verified Layer</span>
             </div>
           </div>
@@ -40,7 +40,7 @@ export function VoxelRealityBanner({ isAuthenticated = false }: VoxelRealityBann
 
             <Link
               href={isAuthenticated ? "/feeds" : "/sign-up"}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] px-6 sm:px-7 py-3 sm:py-3.5 min-h-[48px] w-full sm:w-auto text-xs sm:text-sm font-black text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary/90 px-6 sm:px-7 py-3 sm:py-3.5 min-h-[48px] w-full sm:w-auto text-xs sm:text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 active:scale-95 transition-all cursor-pointer"
             >
               <Zap className="size-4" />
               <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Free Handle"}</span>

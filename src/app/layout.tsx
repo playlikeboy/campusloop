@@ -1,6 +1,6 @@
 import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
+import { Baloo_2, DM_Mono, Nunito_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -13,8 +13,18 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
 import "./mobile-navigation.css";
 
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+const baloo2 = Baloo_2({
+  subsets: ["latin", "devanagari"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["600", "700", "800"],
+});
 const dmMono = DM_Mono({
   subsets: ["latin"],
   variable: "--font-mono-custom",
@@ -24,8 +34,8 @@ const dmMono = DM_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+    { media: "(prefers-color-scheme: light)", color: "#FFF8ED" },
+    { media: "(prefers-color-scheme: dark)", color: "#1A1615" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -153,7 +163,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`font-sans antialiased ${dmSans.variable} ${spaceGrotesk.variable} ${dmMono.variable}`}
+      className={`font-sans antialiased ${nunitoSans.variable} ${baloo2.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -163,10 +173,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://skill.hexclave.com" />
         <link rel="dns-prefetch" href="https://api.dicebear.com" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
-        />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="author" href="/humans.txt" />
@@ -175,8 +181,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="CampusLoop" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#1A1615" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#FFF8ED" media="(prefers-color-scheme: light)" />
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <meta name="geo.position" content="20.5937;78.9629" />

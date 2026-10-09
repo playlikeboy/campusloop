@@ -196,12 +196,15 @@ export function AcademicPdfViewer({
       return rawUrl;
     }
 
-    // Direct PDFs use the browser-native renderer first to avoid Google Docs viewer size limits.
-    if (isDirectPdf) {
+    // CRITICAL FIX: Direct PDFs (especially raw.githubusercontent.com and external CDNs)
+    // send Content-Disposition: attachment, which causes the browser to immediately auto-download
+    // the file if placed directly into an <iframe>. Routing through Google Docs Viewer renders the PDF
+    // safely inside the iframe as an in-browser preview without triggering an automatic file download!
+    if (viewerEngine === "native" && isDirectPdf && !rawUrl.includes("raw.githubusercontent.com")) {
       return `${rawUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`;
     }
 
-    if (viewerEngine === "google" || isOfficeDoc) {
+    if (viewerEngine === "google" || isOfficeDoc || isDirectPdf) {
       // Google Docs Viewer API: renders PDFs, PPTs, DOCs cleanly server-side without auto-downloads or x-frame blocks
       return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
     }
@@ -938,8 +941,8 @@ export function AcademicPdfViewer({
 
       {/* ─── Footer Notice ─── */}
       <div className="px-4 py-1.5 bg-muted/20 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="flex items-center gap-1 font-semibold text-emerald-400">
-          <span className="size-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+        <span className="flex items-center gap-1 font-semibold text-primary">
+          <span className="size-1.5 rounded-full bg-primary animate-ping inline-block" />
           <span>Public Access: Free reading &amp; download (No sign-in required)</span>
         </span>
         <span className="hidden sm:inline">Press Esc to exit fullscreen</span>

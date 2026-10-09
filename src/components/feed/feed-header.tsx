@@ -53,22 +53,22 @@ export function FeedHeader({
   const primarySorts = primaryTabs.map((t) => t.id);
 
   return (
-    <div className="sticky top-12 lg:top-0 z-30 border-b border-border/20 bg-background/90 backdrop-blur-xl shadow-2xs">
+    <div className="sticky top-12 lg:top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]">
       {/* Consolidated Header: Location Scope + Sub-tabs + Filter Trigger */}
       <div className="flex items-center justify-between gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
           {/* Location Scope Pill */}
-          <div className="flex shrink-0 items-center rounded-full border border-border/30 bg-muted/30 p-0.5 shadow-2xs">
+          <div className="flex shrink-0 items-center rounded-full border border-[var(--border)] bg-[var(--surface-sunken)] p-0.5">
             <button
               type="button"
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
-                "flex h-6.5 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-all cursor-pointer",
-                scope === "CAMPUS" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground hover:text-foreground"
+                "flex h-6.5 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium transition-all cursor-pointer",
+                scope === "CAMPUS" ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs" : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               aria-pressed={scope === "CAMPUS"}
             >
-              <School className="size-2.5 shrink-0 text-primary" />
+              <School className="size-2.5 shrink-0 text-[var(--primary)]" />
               <span className="max-w-[100px] truncate">
                 {institutionSlug
                   ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
@@ -79,20 +79,20 @@ export function FeedHeader({
               type="button"
               onClick={() => onScopeChange("GLOBAL")}
               className={cn(
-                "flex h-6.5 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-all cursor-pointer",
-                scope === "GLOBAL" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground hover:text-foreground"
+                "flex h-6.5 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium transition-all cursor-pointer",
+                scope === "GLOBAL" ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs" : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               aria-pressed={scope === "GLOBAL"}
             >
-              <Globe className="size-2.5 shrink-0 text-emerald-400" />
+              <Globe className="size-2.5 shrink-0 text-emerald-500" />
               <span>All India</span>
             </button>
           </div>
 
-          <div className="h-3.5 w-px bg-border/30 shrink-0" />
+          <div className="h-3.5 w-px bg-[var(--border)] shrink-0" />
 
           {/* Primary Discovery Tabs */}
-          <div className="flex items-center gap-0.5 shrink-0" role="tablist" aria-label="Feed mode">
+          <div className="flex items-center gap-1 shrink-0" role="tablist" aria-label="Feed mode">
             {primaryTabs.map((item) => {
               const isCurrent = sort === item.id;
               return (
@@ -105,8 +105,8 @@ export function FeedHeader({
                   className={cn(
                     "flex h-6.5 shrink-0 items-center rounded-full px-2.5 text-xs transition-colors cursor-pointer select-none",
                     isCurrent
-                      ? "bg-primary/15 text-primary font-bold shadow-2xs border border-primary/20"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium"
+                      ? "bg-[var(--primary-soft)] text-[var(--primary)] font-semibold border border-[var(--primary-soft-border)]"
+                      : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] font-medium"
                   )}
                 >
                   {item.label}

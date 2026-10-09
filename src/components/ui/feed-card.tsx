@@ -328,12 +328,12 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className={cn(
-        "w-full max-w-full min-w-0 border-b border-border/25 bg-card sm:rounded-2xl sm:border p-3 sm:p-4 mb-0 sm:mb-2.5 mx-0 relative cursor-pointer transition-all select-none overflow-x-clip shadow-2xs",
-        isBroadcast && broadcastPriority === "URGENT" && "border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-card to-card ring-1 ring-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.12)]",
-        isBroadcast && broadcastPriority === "WARNING" && "border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-card to-card ring-1 ring-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.12)]",
-        isBroadcast && broadcastPriority === "INFO" && "border-blue-500/40 bg-gradient-to-br from-blue-500/10 via-card to-card ring-1 ring-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.12)]",
-        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card ring-1 ring-primary/20 shadow-[0_0_20px_rgba(147,51,234,0.12)]",
-        !isBroadcast && "sm:border-border/30 hover:bg-muted/10"
+        "w-full max-w-full min-w-0 border-b sm:border border-[var(--border)] bg-[var(--surface)] sm:rounded-[var(--r-lg)] p-4 sm:p-5 mb-0 sm:mb-3 mx-0 relative cursor-pointer transition-all select-none overflow-x-clip",
+        isBroadcast && broadcastPriority === "URGENT" && "border-rose-500/40 bg-rose-500/5",
+        isBroadcast && broadcastPriority === "WARNING" && "border-amber-500/40 bg-amber-500/5",
+        isBroadcast && broadcastPriority === "INFO" && "border-blue-500/40 bg-blue-500/5",
+        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "border-[var(--primary)]/40 bg-[var(--primary-soft)]",
+        !isBroadcast && "hover:border-[var(--border-strong)]"
       )}
     >
       {/* High-Priority Official Campus & Global Broadcast Banner Header */}

@@ -789,18 +789,63 @@ export async function getPersonalizedAcademicFeed(options: PersonalizedAcademicF
       }
     }
 
-    // E. User Interest & Knowledge Graph Relevance
+    // E. Student Enrolled Courses Priority Boost & Knowledge Graph Relevance
+    const COURSE_ALIASES: Record<string, string[]> = {
+      dbms: ["database", "dbms", "sql", "rdbms"],
+      daa: ["daa", "algorithm", "design and analysis", "data structures"],
+      dsa: ["dsa", "data structures", "algorithms"],
+      os: ["operating system", "os", "linux", "kernel"],
+      cn: ["computer network", "cn", "tcp", "networking"],
+      toc: ["theory of computation", "automata", "flat", "toc"],
+      cd: ["compiler design", "compiler"],
+      ai: ["artificial intelligence", "machine learning", "ml", "ai"],
+      se: ["software engineering", "sdlc", "agile"],
+      oop: ["object oriented", "oops", "java", "c++"],
+      co: ["computer organization", "architecture", "coa", "co"],
+    };
+
     let interestMatches = 0;
+    let matchedCourseName = "";
+    const tagsString = Array.isArray(item.tags) ? item.tags.join(" ") : "";
     const itemText =
-      `${item.title} ${item.subjectName} ${item.subjectCode} ${item.moduleOrChapter || ""}`.toLowerCase();
+      `${item.title} ${item.subjectName} ${item.subjectCode} ${item.moduleOrChapter || ""} ${tagsString}`.toLowerCase();
+
+    // Extract all course terms from userInterests and profile course/bio
+    const allStudentCourseTerms = new Set<string>();
     for (const interest of userInterests) {
-      if (interest && itemText.includes(interest)) {
-        interestMatches++;
+      if (!interest) continue;
+      const lower = interest.toLowerCase().trim();
+      allStudentCourseTerms.add(lower);
+      const aliases = COURSE_ALIASES[lower];
+      if (aliases) {
+        for (const a of aliases) allStudentCourseTerms.add(a);
       }
     }
+
+    if (profile?.course) {
+      const parts = profile.course.split(/[,;\n]+/).map((p) => p.toLowerCase().trim()).filter(Boolean);
+      for (const p of parts) {
+        allStudentCourseTerms.add(p);
+        const aliases = COURSE_ALIASES[p];
+        if (aliases) {
+          for (const a of aliases) allStudentCourseTerms.add(a);
+        }
+      }
+    }
+
+    for (const term of allStudentCourseTerms) {
+      if (term && term.length >= 2 && itemText.includes(term)) {
+        interestMatches++;
+        if (!matchedCourseName) matchedCourseName = term.toUpperCase();
+      }
+    }
+
     if (interestMatches > 0) {
-      score += Math.min(50, interestMatches * 20);
-      if (!recommendationReason) recommendationReason = "Matches Your Learning Interests";
+      // Direct enrolled course match gets the highest priority boost (+80 points)
+      score += Math.min(80, 50 + interestMatches * 15);
+      recommendationReason = matchedCourseName
+        ? `From Your Course: ${matchedCourseName}`
+        : "Priority: Matches Your Enrolled Courses";
     }
 
     // Corequisite boost from curriculum graph

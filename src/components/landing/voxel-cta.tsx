@@ -177,7 +177,7 @@ export function VoxelCTA({ isAuthenticated = false }: VoxelCTAProps) {
               sounds.tap();
               haptics.medium();
             }}
-            className="group relative inline-flex items-center justify-center gap-2.5 rounded-full border border-emerald-400/90 bg-[#22c55e] px-6 sm:px-8 py-3.5 sm:py-4 min-h-[48px] text-xs sm:text-sm font-black uppercase tracking-wider text-black backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:bg-[#16a34a] hover:text-white hover:shadow-[0_0_45px_rgba(34,197,94,0.7)] active:scale-95 transition-all cursor-pointer"
+            className="group relative inline-flex items-center justify-center gap-2.5 rounded-full border border-primary/90 bg-primary px-6 sm:px-8 py-3.5 sm:py-4 min-h-[48px] text-xs sm:text-sm font-bold tracking-wide text-primary-foreground backdrop-blur-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:shadow-primary/40 active:scale-95 transition-all cursor-pointer"
           >
             <Zap className="size-4" />
             <span>{isAuthenticated ? "Enter Campus Feed" : "Claim Your Campus Handle"}</span>

@@ -310,6 +310,7 @@ function getForYouScoreSql(
 }
 
 export function normalizeApiFeedSort(value?: string | null): ApiFeedSort {
+  if (value === "top") return "trending";
   if (
     value === "for_you" ||
     value === "reels" ||

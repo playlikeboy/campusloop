@@ -64,6 +64,14 @@ export default async function CommunitiesPage({
 
   const communityFilters = [];
 
+  const sort = stringParam(params.sort, "trending");
+  const orderClause =
+    sort === "newest"
+      ? [desc(communities.createdAt)]
+      : sort === "name"
+      ? [communities.name]
+      : [desc(communities.points), desc(communities.createdAt)];
+
   if (tab === "my_communities") {
     communityFilters.push(
       profile
@@ -104,7 +112,13 @@ export default async function CommunitiesPage({
     );
 
     if (tab === "explore" && category !== "All") {
-      communityFilters.push(eq(communities.category, category));
+      if (category === "Music & Arts") {
+        communityFilters.push(
+          or(eq(communities.category, "Music & Arts"), eq(communities.category, "Cultural & Arts"))
+        );
+      } else {
+        communityFilters.push(eq(communities.category, category));
+      }
     }
 
     if (tab !== "my_communities" && q) {
@@ -145,16 +159,72 @@ export default async function CommunitiesPage({
   const totalCommunityPages = Math.max(1, Math.ceil(totalCommunities / COMMUNITY_PAGE_SIZE));
   const communityPage = Math.min(requestedPage, totalCommunityPages);
 
-  const communityRows = await db.query.communities.findMany({
-    where: communityWhere,
-    orderBy: [desc(communities.createdAt)],
-    limit: COMMUNITY_PAGE_SIZE,
-    offset: (communityPage - 1) * COMMUNITY_PAGE_SIZE,
-    with: {
-      members: { columns: { userId: true, status: true } },
-      creator: { columns: { id: true, username: true, displayName: true } },
-    },
-  });
+  const [communityRows, featuredRows, postCounts, categoryCountsRaw] = await Promise.all([
+    db.query.communities.findMany({
+      where: communityWhere,
+      orderBy: orderClause,
+      limit: COMMUNITY_PAGE_SIZE,
+      offset: (communityPage - 1) * COMMUNITY_PAGE_SIZE,
+      with: {
+        members: {
+          columns: { userId: true, status: true },
+          with: {
+            user: {
+              columns: { id: true, username: true, displayName: true, avatarUrl: true },
+            },
+          },
+        },
+        creator: { columns: { id: true, username: true, displayName: true, avatarUrl: true } },
+      },
+    }),
+    tab === "explore" && requestedPage === 1 && !q && category === "All"
+      ? db.query.communities.findMany({
+          where: ne(communities.privacy, "UNLISTED"),
+          orderBy: [desc(communities.points), desc(communities.createdAt)],
+          limit: 3,
+          with: {
+            members: {
+              columns: { userId: true, status: true },
+              with: {
+                user: {
+                  columns: { id: true, username: true, displayName: true, avatarUrl: true },
+                },
+              },
+            },
+            creator: { columns: { id: true, username: true, displayName: true, avatarUrl: true } },
+          },
+        })
+      : Promise.resolve([]),
+    db
+      .select({
+        communityId: posts.communityId,
+        count: count(posts.id),
+      })
+      .from(posts)
+      .where(isNotNull(posts.communityId))
+      .groupBy(posts.communityId),
+    db
+      .select({
+        category: communities.category,
+        count: count(communities.id),
+      })
+      .from(communities)
+      .where(ne(communities.privacy, "UNLISTED"))
+      .groupBy(communities.category),
+  ]);
+
+  const postCountsMap: Record<string, number> = {};
+  for (const p of postCounts) {
+    if (p.communityId) postCountsMap[p.communityId] = Number(p.count || 0);
+  }
+
+  const categoryCounts: Record<string, number> = { All: totalCommunities };
+  for (const c of categoryCountsRaw) {
+    if (c.category) {
+      const key = c.category === "Cultural & Arts" ? "Music & Arts" : c.category;
+      categoryCounts[key] = (categoryCounts[key] || 0) + Number(c.count || 0);
+    }
+  }
 
   let initialPosts: FeedPost[] = [];
   let feedTotalPages = 1;
@@ -220,17 +290,51 @@ export default async function CommunitiesPage({
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "Student Communities & Campus Sub-Hubs",
-    url: "https://campusloop.space/communities",
-    description:
-      "Directory of student-created technical clubs, cultural societies, and special interest groups across Indian colleges.",
-    publisher: {
-      "@type": "Organization",
-      name: "CampusLoop",
-      url: "https://campusloop.space",
-      logo: "https://campusloop.space/logo.png",
-    },
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": "https://campusloop.space/communities#page",
+        url: "https://campusloop.space/communities",
+        name: "Student Communities, Campus Clubs & Technical Societies | CampusLoop",
+        description:
+          "Directory of student-created technical clubs, cultural societies, gaming clans, and campus sub-hubs across 1,350+ Indian colleges on CampusLoop.",
+        publisher: {
+          "@type": "Organization",
+          name: "CampusLoop",
+          url: "https://campusloop.space",
+          logo: "https://campusloop.space/logo.png",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://campusloop.space",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Communities",
+            item: "https://campusloop.space/communities",
+          },
+        ],
+      },
+      {
+        "@type": "ItemList",
+        name: "Campus Communities Directory",
+        numberOfItems: communityRows.length,
+        itemListElement: communityRows.slice(0, 12).map((comm, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          name: comm.name,
+          url: `https://campusloop.space/communities/${comm.slug || comm.id}`,
+          description: comm.description || undefined,
+        })),
+      },
+    ],
   };
 
   return (
@@ -238,12 +342,16 @@ export default async function CommunitiesPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <CommunitiesIndexClient
         initialCommunities={communityRows as unknown as CommunityItem[]}
+        featuredCommunities={featuredRows as unknown as CommunityItem[]}
         initialPosts={initialPosts}
         profileId={profile?.id || ""}
         page={tab === "feed" ? Math.min(requestedPage, feedTotalPages) : communityPage}
         totalPages={tab === "feed" ? feedTotalPages : totalCommunityPages}
         totalCount={tab === "feed" ? feedTotal : totalCommunities}
         myCommunityCount={myCommunityCount}
+        categoryCounts={categoryCounts}
+        postCountsMap={postCountsMap}
+        currentSort={sort}
       />
     </>
   );

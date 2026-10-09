@@ -4,23 +4,14 @@ import {
   Bell,
   Building2,
   Calendar,
-  Car,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Compass,
   GraduationCap,
-  Heart,
   Home,
-  MapPin,
   MessageSquare,
-  PackageSearch,
   Plus,
   Search,
   Settings,
-  ShoppingBag,
-  Sparkles,
-  Store,
   User,
   Users,
   VenetianMask,
@@ -48,63 +39,45 @@ interface NavItemDef {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  badgeColor?: string;
 }
 
-interface NavSectionDef {
-  title?: string;
-  isAccordion?: boolean;
-  items: NavItemDef[];
-}
-
-const SECTIONS: NavSectionDef[] = [
-  {
-    items: [
-      { href: "/feeds", label: "Home", icon: Home },
-      { href: "/explore", label: "Explore", icon: Compass },
-    ],
-  },
-  {
-    title: "CAMPUS",
-    items: [
-      { href: "/events", label: "Events", icon: Calendar },
-      { href: "/communities", label: "Communities", icon: Users },
-      { href: "/academics", label: "Academics", icon: GraduationCap, badge: "Vault" },
-      { href: "/colleges", label: "Colleges", icon: Building2 },
-    ],
-  },
-  {
-    title: "CONNECT",
-    items: [
-      { href: "/chat", label: "Chat", icon: MessageSquare },
-      { href: "/dating", label: "Match", icon: Heart },
-    ],
-  },
-  {
-    title: "LIVING & UTILITIES",
-    isAccordion: true,
-    items: [
-      { href: "/living", label: "Living Hub", icon: Sparkles },
-      { href: "/marketplace", label: "Marketplace", icon: Store },
-      { href: "/buy-and-sell", label: "Buy & Sell", icon: ShoppingBag },
-      { href: "/housing", label: "Housing & Flats", icon: Building2 },
-      { href: "/lost-and-found", label: "Lost & Found", icon: PackageSearch },
-      { href: "/rideshare", label: "Ride Share", icon: Car },
-      { href: "/atlas", label: "Campus Atlas", icon: MapPin },
-    ],
-  },
+// Strictly <= 7 primary items as specified in Design System Plan
+const NAV_ITEMS: NavItemDef[] = [
+  { href: "/feeds", label: "Home", icon: Home },
+  { href: "/academics", label: "Notes & PYQs", icon: GraduationCap },
+  { href: "/communities", label: "Communities", icon: Users },
+  { href: "/events", label: "Events", icon: Calendar },
+  { href: "/campus", label: "Campus", icon: Building2 },
+  { href: "/chat", label: "Messages", icon: MessageSquare },
 ];
 
 function isItemActive(pathname: string, href: string) {
   if (href === "/feeds") return pathname === "/feeds" || pathname === "/";
-  if (href === "/living") return pathname === "/living" || pathname === "/utilities";
+  if (href === "/academics") return pathname.startsWith("/academics");
+  if (href === "/communities") return pathname.startsWith("/communities");
+  if (href === "/events") return pathname.startsWith("/events");
+  if (href === "/campus") {
+    return (
+      pathname.startsWith("/campus") ||
+      pathname.startsWith("/living") ||
+      pathname.startsWith("/housing") ||
+      pathname.startsWith("/marketplace") ||
+      pathname.startsWith("/buy-and-sell") ||
+      pathname.startsWith("/lost-and-found") ||
+      pathname.startsWith("/rideshare") ||
+      pathname.startsWith("/atlas")
+    );
+  }
   if (href === "/chat") return pathname === "/chat" || pathname.startsWith("/chat/");
-  if (href === "/dating") return pathname === "/dating" || pathname.startsWith("/matching");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _isAdmin, isViewer }: DesktopSidebarProps) {
+export function DesktopSidebar({
+  profile,
+  collegeName: _collegeName,
+  isAdmin: _isAdmin,
+  isViewer,
+}: DesktopSidebarProps) {
   const pathname = usePathname() || "/feeds";
   const unreadCount = useUnreadNotificationsCount();
 
@@ -118,46 +91,6 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
   });
 
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
-
-  const isLivingActive = [
-    "/living",
-    "/marketplace",
-    "/buy-and-sell",
-    "/housing",
-    "/lost-and-found",
-    "/rideshare",
-    "/atlas",
-    "/utilities",
-  ].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-
-  const [isLivingAccordionOpen, setIsLivingAccordionOpen] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    if (isLivingActive) return true;
-    try {
-      const saved = localStorage.getItem("campusloop_sidebar_living_open");
-      return saved === "true";
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (isLivingActive) {
-      setIsLivingAccordionOpen(true);
-    }
-  }, [isLivingActive]);
-
-  const toggleLivingAccordion = () => {
-    sounds.tap();
-    haptics.light();
-    setIsLivingAccordionOpen((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("campusloop_sidebar_living_open", String(next));
-      } catch {}
-      return next;
-    });
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -185,7 +118,9 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
     setAnonMode(next);
     if (typeof window !== "undefined") {
       localStorage.setItem("campusloop_feed_visibility", next);
-      window.dispatchEvent(new CustomEvent("campusloop_feed_visibility_change", { detail: next }));
+      window.dispatchEvent(
+        new CustomEvent("campusloop_feed_visibility_change", { detail: next })
+      );
     }
     sounds.tap();
     haptics.light();
@@ -202,20 +137,20 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
   return (
     <aside
       className={cn(
-        "hidden lg:flex sticky top-0 h-screen z-30 flex-col border-r border-border/50 bg-background/95 backdrop-blur-xl transition-[width] duration-200 select-none overflow-x-hidden shrink-0",
-        collapsed ? "w-18" : "w-64"
+        "hidden lg:flex sticky top-0 h-screen z-30 flex-col border-r border-[var(--border)] bg-[var(--surface)] transition-[width] duration-200 select-none overflow-hidden shrink-0",
+        collapsed ? "w-18" : "w-60"
       )}
       aria-label="Application main sidebar"
     >
       {/* ── Brand Header & Toggle ── */}
-      <div className="flex h-14 items-center justify-between px-4 border-b border-border/40 shrink-0">
+      <div className="flex h-14 items-center justify-between px-4 border-b border-[var(--border)] shrink-0">
         {!collapsed ? (
           <>
             <BrandLogo size="md" href="/feeds" />
             <button
               type="button"
               onClick={toggleSidebar}
-              className="flex size-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="flex size-7 items-center justify-center rounded-[var(--r-sm)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] transition-colors cursor-pointer"
               title="Collapse sidebar"
               aria-label="Collapse sidebar"
             >
@@ -230,7 +165,7 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex size-8 items-center justify-center rounded-lg hover:bg-muted/70 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="flex size-8 items-center justify-center rounded-[var(--r-sm)] hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer"
               title="CampusLoop Home"
             >
               <BrandLogoIcon size="sm" className="size-6 shrink-0" />
@@ -238,7 +173,7 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
             <button
               type="button"
               onClick={toggleSidebar}
-              className="flex size-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="flex size-7 items-center justify-center rounded-[var(--r-sm)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] transition-colors cursor-pointer"
               title="Expand sidebar"
               aria-label="Expand sidebar"
             >
@@ -248,23 +183,23 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
         )}
       </div>
 
-      {/* ── Quick Search Trigger ── */}
+      {/* ── Quick Search Trigger (⌘K) ── */}
       <div className={cn("shrink-0 pt-3 pb-1", collapsed ? "px-2" : "px-3")}>
         <button
           type="button"
           onClick={openSearch}
           className={cn(
-            "w-full flex items-center gap-2 rounded-xl border border-border/50 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground text-xs font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 group",
+            "w-full flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--border-strong)] text-xs font-medium transition-all cursor-pointer group",
             collapsed ? "justify-center p-2.5" : "px-3 py-2"
           )}
           title="Search CampusLoop (⌘K)"
           aria-label="Quick Search"
         >
-          <Search className="size-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <Search className="size-3.5 shrink-0 text-[var(--text-secondary)] group-hover:text-[var(--text)] transition-colors" />
           {!collapsed && (
             <>
-              <span className="flex-1 text-left truncate">Search CampusLoop...</span>
-              <kbd className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-background/80 text-muted-foreground border border-border/60 shrink-0">
+              <span className="flex-1 text-left truncate">Search</span>
+              <kbd className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded-[var(--r-sm)] bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] shrink-0">
                 ⌘K
               </kbd>
             </>
@@ -272,160 +207,51 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
         </button>
       </div>
 
-      {/* ── Primary Navigation Links ── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2.5 space-y-3 no-scrollbar">
-        {SECTIONS.map((section, idx) => {
-          if (section.isAccordion) {
-            return (
-              <div key={section.title || idx} className="space-y-1">
-                {!collapsed ? (
-                  <button
-                    type="button"
-                    onClick={toggleLivingAccordion}
-                    className={cn(
-                      "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-muted-foreground/75 hover:text-foreground hover:bg-muted/40 transition-all cursor-pointer group select-none",
-                      isLivingActive && !isLivingAccordionOpen && "text-primary bg-primary/5 font-semibold"
-                    )}
-                    aria-expanded={isLivingAccordionOpen}
-                    aria-label="Toggle Living & Utilities section"
-                  >
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider group-hover:text-foreground transition-colors">
-                      <span>{section.title}</span>
-                      <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-muted text-muted-foreground/80 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        {section.items.length}
-                      </span>
-                      {isLivingActive && !isLivingAccordionOpen && (
-                        <span className="size-1.5 rounded-full bg-primary shrink-0" />
-                      )}
-                    </span>
-                    <ChevronDown
-                      className={cn(
-                        "size-3.5 text-muted-foreground/60 transition-transform duration-200 group-hover:text-foreground",
-                        isLivingAccordionOpen && "rotate-180 text-foreground"
-                      )}
-                    />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={toggleLivingAccordion}
-                    className={cn(
-                      "w-full flex items-center justify-center p-2 rounded-xl text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-all cursor-pointer",
-                      (isLivingAccordionOpen || isLivingActive) && "text-primary bg-primary/10"
-                    )}
-                    title={
-                      isLivingAccordionOpen
-                        ? "Collapse Living & Utilities"
-                        : `Expand Living & Utilities (${section.items.length})`
-                    }
-                    aria-label="Living & Utilities"
-                  >
-                    <Sparkles className="size-4 shrink-0" />
-                  </button>
-                )}
-
-                {isLivingAccordionOpen && (
-                  <div className="space-y-0.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                    {section.items.map((item) => {
-                      const active = isItemActive(pathname, item.href);
-                      const Icon = item.icon;
-
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => {
-                            sounds.tap();
-                            haptics.light();
-                          }}
-                          className={cn(
-                            "group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer relative",
-                            active
-                              ? "bg-primary text-primary-foreground shadow-2xs font-bold"
-                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                            collapsed && "justify-center px-2 py-2.5"
-                          )}
-                          title={collapsed ? item.label : undefined}
-                        >
-                          <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-primary-foreground" : "")} />
-                          {!collapsed && <span className="truncate flex-1">{item.label}</span>}
-                          {!collapsed && item.badge && (
-                            <span
-                              className={cn(
-                                "rounded px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
-                                active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
-                              )}
-                            >
-                              {item.badge}
-                            </span>
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          }
+      {/* ── Primary Navigation Links (Max 6 + Profile) ── */}
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto no-scrollbar">
+        {NAV_ITEMS.map((item) => {
+          const active = isItemActive(pathname, item.href);
+          const Icon = item.icon;
 
           return (
-            <div key={section.title || idx} className="space-y-0.5">
-              {!collapsed && section.title && (
-                <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
-                  {section.title}
-                </p>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+              }}
+              className={cn(
+                "group flex items-center gap-3 rounded-[var(--r-md)] px-3 py-2.5 text-xs font-medium transition-all cursor-pointer relative",
+                active
+                  ? "bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-soft-border)] font-semibold shadow-2xs"
+                  : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]",
+                collapsed && "justify-center px-2 py-2.5"
               )}
-              {section.items.map((item) => {
-                const active = isItemActive(pathname, item.href);
-                const Icon = item.icon;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                    }}
-                    className={cn(
-                      "group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer relative",
-                      active
-                        ? "bg-primary text-primary-foreground shadow-2xs font-bold"
-                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                      collapsed && "justify-center px-2 py-2.5"
-                    )}
-                    title={collapsed ? item.label : undefined}
-                  >
-                    <Icon className={cn("size-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-primary-foreground" : "")} />
-                    {!collapsed && <span className="truncate flex-1">{item.label}</span>}
-                    {!collapsed && item.badge && (
-                      <span
-                        className={cn(
-                          "rounded px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider",
-                          active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
-                        )}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                    {item.href === "/chat" && (
-                      <span
-                        className={cn(
-                          "size-2 rounded-full bg-emerald-500",
-                          active ? "bg-white ring-1 ring-primary" : ""
-                        )}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
+              title={collapsed ? item.label : undefined}
+            >
+              <Icon
+                className={cn(
+                  "size-4 shrink-0 transition-transform group-hover:scale-105",
+                  active ? "text-[var(--primary)]" : "text-[var(--text-secondary)]"
+                )}
+              />
+              {!collapsed && <span className="truncate flex-1">{item.label}</span>}
+              {item.href === "/chat" && (
+                <span
+                  className={cn(
+                    "size-2 rounded-full bg-emerald-500",
+                    active ? "ring-1 ring-white" : ""
+                  )}
+                />
+              )}
+            </Link>
           );
         })}
       </nav>
 
       {/* ── Footer / Primary Actions ── */}
-      <div className="shrink-0 p-3 border-t border-border/40 space-y-2">
+      <div className="shrink-0 p-3 border-t border-[var(--border)] space-y-2">
         {/* + Post Button */}
         {!isViewer && (
           <Link
@@ -435,13 +261,13 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
               haptics.light();
             }}
             className={cn(
-              "w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs active:scale-[0.98] cursor-pointer",
+              "w-full flex items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--primary)] hover:opacity-95 text-white text-xs font-medium transition-all active:scale-[0.98] cursor-pointer shadow-xs",
               collapsed ? "p-2.5" : "py-2.5 px-3"
             )}
             title="Create Post"
           >
             <Plus className="size-4 shrink-0" />
-            {!collapsed && <span>Create Post</span>}
+            {!collapsed && <span>New Post</span>}
           </Link>
         )}
 
@@ -450,15 +276,19 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
           type="button"
           onClick={toggleAnon}
           className={cn(
-            "w-full flex items-center gap-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/60 text-xs font-semibold transition-all cursor-pointer",
+            "w-full flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-sunken)] hover:bg-[var(--surface)] text-xs transition-colors cursor-pointer",
             collapsed ? "justify-center p-2" : "px-3 py-2",
-            anonMode === "ALL" ? "text-primary" : "text-emerald-600 dark:text-emerald-400"
+            anonMode === "ALL" ? "text-[var(--primary)]" : "text-emerald-600 dark:text-emerald-400"
           )}
-          title={anonMode === "ALL" ? "Timeline: All Posts & Confessions" : "Timeline: Public Only (No Anon)"}
+          title={
+            anonMode === "ALL"
+              ? "Timeline: All Posts & Confessions"
+              : "Timeline: Public Only (No Anon)"
+          }
         >
           <VenetianMask className="size-4 shrink-0" />
           {!collapsed && (
-            <span className="truncate text-left text-[11px]">
+            <span className="truncate text-left text-[11px] font-medium">
               {anonMode === "ALL" ? "All & Anon" : "Public Only"}
             </span>
           )}
@@ -468,25 +298,25 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
         <div className="flex items-center justify-between gap-1 pt-1">
           {profile ? (
             <Link
-              href="/profile"
+              href={`/@${profile.username}`}
               className={cn(
-                "flex items-center gap-2.5 rounded-xl hover:bg-muted/50 transition-all p-1 min-w-0 flex-1",
+                "flex items-center gap-2.5 rounded-[var(--r-md)] hover:bg-[var(--surface-sunken)] transition-colors p-1 min-w-0 flex-1",
                 collapsed && "justify-center"
               )}
               title={`@${profile.username}`}
             >
-              <Avatar className="size-8 rounded-full border border-border/60 shrink-0">
+              <Avatar className="size-8 rounded-full border border-[var(--border)] shrink-0">
                 <AvatarImage src={avatar} alt={profile.displayName} />
-                <AvatarFallback className="text-xs font-bold">
+                <AvatarFallback className="text-xs font-semibold bg-[var(--surface-sunken)] text-[var(--text)]">
                   {profile.displayName[0] || "U"}
                 </AvatarFallback>
               </Avatar>
               {!collapsed && (
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="text-xs font-bold text-foreground truncate leading-tight">
+                  <p className="text-xs font-semibold text-[var(--text)] truncate leading-tight">
                     {profile.displayName}
                   </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
+                  <p className="text-[11px] text-[var(--text-secondary)] truncate">
                     @{profile.username}
                   </p>
                 </div>
@@ -496,7 +326,7 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
             <Link
               href="/sign-in"
               className={cn(
-                "flex items-center gap-2 rounded-xl bg-muted/40 hover:bg-muted/70 text-xs font-bold p-2 text-foreground",
+                "flex items-center gap-2 rounded-[var(--r-md)] bg-[var(--surface-sunken)] hover:bg-[var(--surface)] text-xs font-medium p-2 text-[var(--text)]",
                 collapsed ? "justify-center" : "flex-1"
               )}
             >
@@ -509,18 +339,18 @@ export function DesktopSidebar({ profile, collegeName: _collegeName, isAdmin: _i
             <div className="flex items-center gap-1 shrink-0">
               <Link
                 href="/notifications"
-                className="relative flex size-8 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+                className="relative flex size-8 items-center justify-center rounded-[var(--r-sm)] hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors"
                 title="Notifications"
                 aria-label="Notifications"
               >
                 <Bell className="size-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
+                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-[var(--surface)]" />
                 )}
               </Link>
               <Link
                 href="/settings"
-                className="flex size-8 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+                className="flex size-8 items-center justify-center rounded-[var(--r-sm)] hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors"
                 title="Settings"
                 aria-label="Settings"
               >
