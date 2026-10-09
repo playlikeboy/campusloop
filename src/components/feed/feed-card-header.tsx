@@ -14,6 +14,7 @@ import {
   AnimateTrash2,
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { FeedPost } from "@/hooks/use-feed";
 import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
@@ -142,12 +143,7 @@ export function FeedCardHeader({
           )}
 
           {isVerified && (
-            <AnimatedIcon
-              icon={AnimateShieldCheck}
-              animation="pop"
-              size={14}
-              className="text-primary drop-shadow-[0_0_8px_rgba(0,210,133,0.5)] shrink-0"
-            />
+            <VerifiedBadge size="sm" />
           )}
 
           {!isBotPost && !post.isAnonymous && post.authorId && currentUserId && currentUserId !== post.authorId && post.author?.username && (

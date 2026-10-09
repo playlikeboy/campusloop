@@ -48,39 +48,30 @@ export interface NavGroup {
 
 export const DESKTOP_NAV_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateCompass, href: "/explore", label: "Explore" },
   {
     icon: AnimateGraduationCap,
     href: "/academics",
-    label: "Academics",
+    label: "Notes & PYQs",
   },
   { icon: AnimateUsers, href: "/communities", label: "Communities" },
-  {
-    icon: AnimateFlame,
-    href: "/confessions",
-    label: "Confessions",
-    badge: "HOT",
-    badgeColor: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
-  },
   {
     icon: AnimateCalendar,
     href: "/events",
     label: "Events",
   },
-  { icon: AnimateHeart, href: "/dating", label: "Match" },
+  { icon: Building2, href: "/campus", label: "Campus" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
   { icon: AnimateUser, href: "/profile", label: "Profile" },
-  { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
-// Mobile keeps one focused persistent navigation system. Search/Explore is
-// already available from the top bar, so the bottom bar prioritizes the
-// high-frequency social destination: Communities.
+// Mobile bottom navigation has 5 core tabs:
+// Home (/feeds), Academics (/academics), Post (/post/new), Chat (/chat), and Dating (/dating).
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateSearch, href: "/explore", label: "Search" },
-  { icon: AnimatePlus, href: "/post/new", label: "Create" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Messages" },
-  { icon: AnimateUser, href: "/profile", label: "Profile" },
+  { icon: AnimateBookOpen, href: "/academics", label: "Academics" },
+  { icon: AnimatePlus, href: "/post/new", label: "Post" },
+  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
+  { icon: AnimateHeart, href: "/dating", label: "Dating" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [

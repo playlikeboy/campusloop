@@ -102,7 +102,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
       <article
         onClick={() => setDetailModalOpen(true)}
         className={cn(
-          "group flex flex-col justify-between rounded-2xl border border-border/40 bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:border-border/80 cursor-pointer",
+          "group flex flex-col justify-between rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden transition-all hover:border-[var(--border-strong)] cursor-pointer",
           variant === "list" && "sm:flex-row sm:items-center"
         )}
       >

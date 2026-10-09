@@ -69,111 +69,20 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
   }, [sortedStudents, searchQuery, selectedBranch, selectedYear]);
 
   return (
-    <div className="space-y-5 select-none animate-in fade-in">
-      {/* ─── Campus Leaderboard Top 3 Students ─── */}
-      {students.length >= 3 && (
-        <div className="rounded-3xl bg-card p-6 shadow-2xs space-y-6 overflow-hidden relative">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <h3 className="text-xs font-black uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
-                <Crown className="size-4 text-amber-500" /> Top Campus Clout Leaders
-              </h3>
-              <p className="text-[11px] text-muted-foreground">
-                Top student contributors and peer leaders in {collegeName.split(",")[0]}.
-              </p>
-            </div>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              Active Leaders
-            </span>
-          </div>
-
-          {/* Podium Layout */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 items-end pt-4 max-w-md mx-auto">
-            {/* Rank 2 (Silver) */}
-            {top2 && (
-              <Link href={`/@${top2.username}`} className="group flex flex-col items-center cursor-pointer">
-                <div className="relative mb-2">
-                  <Avatar className="size-14 sm:size-16 rounded-full border-2 border-slate-300 shadow-md group-hover:scale-105 transition-transform">
-                    <AvatarImage src={top2.avatarUrl || ""} className="rounded-full object-cover" />
-                    <AvatarFallback className="font-bold text-xs">{top2.displayName[0]}</AvatarFallback>
-                  </Avatar>
-                  <span className="absolute -top-1 -right-1 size-5 rounded-full bg-slate-300 text-slate-900 flex items-center justify-center font-black text-[10px] shadow-md">
-                    2
-                  </span>
-                </div>
-                <div className="text-center w-full min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">{top2.displayName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">@{top2.username}</p>
-                </div>
-                <div className="w-full mt-2 rounded-t-2xl bg-muted/40 p-2 text-center h-16 flex flex-col items-center justify-center">
-                  <span className="text-xs font-black text-foreground">{top2.points || 0}</span>
-                  <span className="text-[9px] font-bold text-muted-foreground">LP</span>
-                </div>
-              </Link>
-            )}
-
-            {/* Rank 1 (Gold / Crown) */}
-            {top1 && (
-              <Link
-                href={`/@${top1.username}`}
-                className="group flex flex-col items-center cursor-pointer -mt-4"
-              >
-                <div className="relative mb-2">
-                  <Avatar className="size-18 sm:size-20 rounded-full border-4 border-amber-400 shadow-xl group-hover:scale-105 transition-transform">
-                    <AvatarImage src={top1.avatarUrl || ""} className="rounded-full object-cover" />
-                    <AvatarFallback className="font-black text-sm bg-amber-500/10 text-amber-600">
-                      {top1.displayName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="absolute -bottom-0.5 right-0 size-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center font-black text-xs shadow-lg">
-                    1
-                  </span>
-                </div>
-                <div className="text-center w-full min-w-0">
-                  <p className="text-xs font-extrabold text-foreground truncate flex items-center justify-center gap-1">
-                    <span>{top1.displayName}</span>
-                    <span title="Verified Campus Student" className="inline-flex shrink-0">
-                      <BadgeCheck className="size-3.5 text-brand" />
-                    </span>
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">@{top1.username}</p>
-                </div>
-                <div className="w-full mt-2 rounded-t-2xl bg-amber-500/15 p-2.5 text-center h-24 flex flex-col items-center justify-center">
-                  <span className="text-sm font-black text-amber-600 dark:text-amber-400">
-                    {top1.points || 0}
-                  </span>
-                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300">
-                    CAMPUS ICON
-                  </span>
-                </div>
-              </Link>
-            )}
-
-            {/* Rank 3 (Bronze) */}
-            {top3 && (
-              <Link href={`/@${top3.username}`} className="group flex flex-col items-center cursor-pointer">
-                <div className="relative mb-2">
-                  <Avatar className="size-14 sm:size-16 rounded-full border-2 border-amber-700 shadow-md group-hover:scale-105 transition-transform">
-                    <AvatarImage src={top3.avatarUrl || ""} className="rounded-full object-cover" />
-                    <AvatarFallback className="font-bold text-xs">{top3.displayName[0]}</AvatarFallback>
-                  </Avatar>
-                  <span className="absolute -top-1 -right-1 size-5 rounded-full bg-amber-700 text-white flex items-center justify-center font-black text-[10px] shadow-md">
-                    3
-                  </span>
-                </div>
-                <div className="text-center w-full min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">{top3.displayName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">@{top3.username}</p>
-                </div>
-                <div className="w-full mt-2 rounded-t-2xl bg-muted/30 p-2 text-center h-14 flex flex-col items-center justify-center">
-                  <span className="text-xs font-black text-foreground">{top3.points || 0}</span>
-                  <span className="text-[9px] font-bold text-muted-foreground">LP</span>
-                </div>
-              </Link>
-            )}
-          </div>
+    <div className="space-y-4 select-none animate-in fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[var(--border)]">
+        <div>
+          <h2 className="font-heading font-bold text-xl text-[var(--text)]">
+            Verified Students Directory
+          </h2>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            Connect with verified peers and seniors across departments in {collegeName.split(",")[0]}.
+          </p>
         </div>
-      )}
+        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)] self-start sm:self-auto">
+          {students.length} verified students
+        </span>
+      </div>
 
       {/* ─── Search & Department Filtering Controls ─── */}
       <div className="space-y-2.5">

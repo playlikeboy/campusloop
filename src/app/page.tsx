@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CleanFooter } from "@/components/landing/clean-footer";
-import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
-import { VoxelCascadeShowcase } from "@/components/landing/voxel-cascade-showcase";
-import { VoxelCTA } from "@/components/landing/voxel-cta";
-import { VoxelDailyRush } from "@/components/landing/voxel-daily-rush";
-import { VoxelFAQ } from "@/components/landing/voxel-faq";
-import { VoxelFeaturesBento } from "@/components/landing/voxel-features-bento";
-import { VoxelMembershipTiers } from "@/components/landing/voxel-membership-tiers";
-import { VoxelRealityBanner } from "@/components/landing/voxel-reality-banner";
-import { VoxelStreakSection } from "@/components/landing/voxel-streak-section";
-import { VoxelStudentReviews } from "@/components/landing/voxel-student-reviews";
-import { VoxelVocarushHero } from "@/components/landing/voxel-vocarush-hero";
+import { CuteLandingNavbar } from "@/components/landing/cute-landing-navbar";
+import { CuteLandingHero } from "@/components/landing/cute-landing-hero";
+import { CuteFeaturesBento } from "@/components/landing/cute-features-bento";
+import { CuteDailyRush } from "@/components/landing/cute-daily-rush";
+import { CuteStreaksSection } from "@/components/landing/cute-streaks-section";
+import { CuteStudentVoices } from "@/components/landing/cute-student-voices";
+import { CuteLandingFAQ } from "@/components/landing/cute-landing-faq";
+import { CuteLandingCTA } from "@/components/landing/cute-landing-cta";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { hexclaveServerApp } from "@/hexclave/server";
 
@@ -183,8 +180,8 @@ export default async function LandingPage() {
         Skip to main campus content
       </a>
 
-      {/* Header */}
-      <MinimalLandingNavbar isAuthenticated={isAuthenticated} />
+      {/* Cute Floating Header */}
+      <CuteLandingNavbar isAuthenticated={isAuthenticated} />
 
       {/* Semantic Screen-Reader & AI Knowledge Base */}
       <section
@@ -224,16 +221,13 @@ export default async function LandingPage() {
 
       {/* Main Storytelling Flow */}
       <main id="main-landing-content" className="flex-1">
-        <VoxelVocarushHero isAuthenticated={isAuthenticated} />
-        <VoxelStreakSection />
-        <VoxelFeaturesBento />
-        <VoxelCascadeShowcase />
-        <VoxelDailyRush />
-        <VoxelRealityBanner isAuthenticated={isAuthenticated} />
-        <VoxelStudentReviews />
-        <VoxelMembershipTiers isAuthenticated={isAuthenticated} />
-        <VoxelFAQ />
-        <VoxelCTA isAuthenticated={isAuthenticated} />
+        <CuteLandingHero isAuthenticated={isAuthenticated} />
+        <CuteFeaturesBento />
+        <CuteDailyRush />
+        <CuteStreaksSection />
+        <CuteStudentVoices />
+        <CuteLandingFAQ />
+        <CuteLandingCTA isAuthenticated={isAuthenticated} />
       </main>
 
       {/* Footer */}

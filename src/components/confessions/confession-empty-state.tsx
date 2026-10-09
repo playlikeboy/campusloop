@@ -1,6 +1,8 @@
 "use client";
 
 import { Sparkles, VenetianMask } from "lucide-react";
+import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
+import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
@@ -21,15 +23,12 @@ export function ConfessionEmptyState({
 }: ConfessionEmptyStateProps) {
   return (
     <div className="py-16 sm:py-20 text-center px-4 space-y-4 max-w-sm mx-auto select-none animate-in fade-in zoom-in-95 duration-200">
-      <div className="relative flex size-16 items-center justify-center rounded-3xl bg-purple-500/15 text-purple-400 border border-purple-500/30 mx-auto shadow-lg shadow-purple-950/20">
-        <VenetianMask className="size-8" />
-        <div className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
-          <Sparkles className="size-2.5" />
-        </div>
+      <div className="flex justify-center mb-2">
+        <CuteCatEmpty size={104} />
       </div>
 
       <div className="space-y-1.5">
-        <h3 className="text-base font-black tracking-tight text-foreground">
+        <h3 className="font-heading text-base font-bold tracking-tight text-foreground">
           {activeTag
             ? `No whispers in ${activeTag} yet`
             : scope === "CAMPUS"
@@ -45,31 +44,32 @@ export function ConfessionEmptyState({
         </p>
       </div>
 
-      <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-        <button
-          type="button"
+      <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+        <Button
           onClick={() => {
             sounds.pop();
             haptics.medium();
             onOpenComposer?.();
           }}
-          className="w-full sm:w-auto h-10 px-5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-black shadow-sm shadow-primary/25 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+          size="default"
+          className="w-full sm:w-auto"
         >
           <VenetianMask className="size-4" />
           <span>Spill First Confession</span>
-        </button>
+        </Button>
 
         {activeTag && onResetFilter && (
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={() => {
               sounds.tap();
               onResetFilter();
             }}
-            className="w-full sm:w-auto h-10 px-4 rounded-full border border-border/50 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            size="default"
+            className="w-full sm:w-auto"
           >
             Show All Whispers
-          </button>
+          </Button>
         )}
       </div>
     </div>

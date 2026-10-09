@@ -49,7 +49,7 @@ export function PageShell({
   return (
     <main
       className={cn(
-        "mx-auto flex min-h-screen w-full flex-col border-x border-border/45 bg-background/70 pb-28 shadow-[0_0_50px_rgba(117,104,245,0.035)]",
+        "mx-auto flex min-h-screen w-full flex-col border-x border-border/60 bg-background pb-28 shadow-2xs",
         widthClass,
         className
       )}

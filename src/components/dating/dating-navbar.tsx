@@ -94,17 +94,17 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
           }}
           className="flex items-center gap-2 group cursor-pointer"
         >
-          <div className="size-7 rounded-full bg-pink-500/10 dark:bg-pink-500/15 flex items-center justify-center text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-2xs group-hover:scale-105 transition-transform">
-            <HeaderIcon className={cn("size-3.5", isDeckHome || isLikes ? "fill-pink-500 text-pink-500" : "")} />
+          <div className="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-2xs group-hover:scale-105 transition-transform">
+            <HeaderIcon className={cn("size-3.5", isDeckHome || isLikes ? "fill-primary text-primary" : "")} />
           </div>
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-black tracking-tight text-foreground leading-none">
+              <span className="text-sm font-heading font-bold tracking-tight text-foreground leading-none">
                 {getHeaderTitle()}
               </span>
               {isDeckHome && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-pink-500/10 px-1.5 py-0.5 text-[9px] font-bold text-pink-600 dark:text-pink-400">
-                  <Sparkles className="size-2 text-pink-500" />
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary border border-primary/20">
+                  <Sparkles className="size-2 text-primary" />
                   <span>Vibes</span>
                 </span>
               )}
@@ -117,52 +117,8 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
           </div>
         </Link>
 
-        {/* Right: Quick Action Controls Cluster */}
+        {/* Right: Clean Contextual Info Badge without duplicating footer tabs */}
         <div className="flex items-center gap-1.5">
-          {/* Secret Crush Vault */}
-          <Link
-            href="/dating/requests"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            aria-label="Secret Crush Vault"
-            title="Secret Crush Vault"
-            className={cn(
-              "flex size-9 items-center justify-center rounded-full transition-all border cursor-pointer active:scale-95",
-              isRequests
-                ? "bg-purple-500/15 text-purple-600 border-purple-500/30 shadow-xs ring-1 ring-purple-500/20"
-                : "bg-muted/60 text-muted-foreground hover:text-purple-600 hover:bg-muted border-border/40"
-            )}
-          >
-            <Lock className="size-4" />
-          </Link>
-
-          {/* Likes Action with Real-time Count Badge */}
-          <Link
-            href="/dating/likes"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            aria-label="Who Likes You"
-            title="Who Likes You"
-            className={cn(
-              "relative flex size-9 items-center justify-center rounded-full transition-all border cursor-pointer active:scale-95",
-              isLikes
-                ? "bg-pink-500/15 text-pink-600 border-pink-500/30 shadow-xs ring-1 ring-pink-500/20"
-                : "bg-muted/60 text-muted-foreground hover:text-pink-600 hover:bg-muted border-border/40"
-            )}
-          >
-            <Heart className={cn("size-4", isLikes ? "fill-pink-500 text-pink-500" : "")} />
-            {likesYouCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-pink-600 text-[9px] font-black text-white ring-2 ring-background animate-in zoom-in-50">
-                {likesYouCount > 9 ? "9+" : likesYouCount}
-              </span>
-            )}
-          </Link>
-
-          {/* Preferences / Filter Action */}
           <Link
             href="/dating/settings"
             onClick={() => {
@@ -174,8 +130,8 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
             className={cn(
               "flex size-9 items-center justify-center rounded-full transition-all border cursor-pointer active:scale-95",
               isSettings
-                ? "bg-blue-500/15 text-blue-600 border-blue-500/30 shadow-xs ring-1 ring-blue-500/20"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border-border/40"
+                ? "bg-primary/15 text-primary border-primary/30 shadow-xs"
+                : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted border-border/40"
             )}
           >
             <SlidersHorizontal className="size-4" />

@@ -74,14 +74,14 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Section Heading */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-1 text-xs font-black text-emerald-400 mb-3 shadow-xs">
-          <Zap className="size-3.5" />
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 border border-primary/30 px-3.5 py-1 text-xs font-bold text-white mb-3 shadow-xs">
+          <Zap className="size-3.5 text-primary" />
           <span>Zero Paywalls • 100% Student-Only</span>
         </div>
         <h2 className="text-2xl font-black uppercase tracking-tight sm:text-4xl lg:text-5xl text-white leading-[1.08]">
           ALWAYS 100% FREE FOR STUDENTS.
           <br />
-          <span className="text-[#22c55e]">CHOOSE YOUR ACCESS TIER.</span>
+          <span className="text-primary-foreground/90">CHOOSE YOUR ACCESS TIER.</span>
         </h2>
         <p className="mt-3 text-xs sm:text-sm text-stone-300 max-w-lg mx-auto">
           No credit cards. No corporate sponsorships. Just student verification to keep out spammers and bots.
@@ -96,13 +96,13 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
                 key={tier.title}
                 className={`relative flex flex-col justify-between rounded-2xl sm:rounded-3xl bg-white p-5 sm:p-7 text-stone-900 shadow-xl transition-all duration-300 ${
                   tier.isPrimary
-                    ? "ring-4 ring-[#22c55e] md:-translate-y-2.5 shadow-emerald-500/20"
+                    ? "ring-4 ring-primary md:-translate-y-2.5 shadow-primary/20"
                     : "hover:-translate-y-1"
                 }`}
               >
                 {/* Popular Badge */}
                 {tier.badge && (
-                  <div className="absolute -top-3.5 right-6 rounded-full bg-[#22c55e] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
+                  <div className="absolute -top-3.5 right-6 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
                     {tier.badge}
                   </div>
                 )}
@@ -112,7 +112,7 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
                   <div className="flex items-center gap-3">
                     <div
                       className={`flex size-10 items-center justify-center rounded-2xl ${
-                        tier.isPrimary ? "bg-[#22c55e]/15 text-[#16a34a]" : "bg-stone-100 text-stone-700"
+                        tier.isPrimary ? "bg-primary/15 text-primary" : "bg-stone-100 text-stone-700"
                       }`}
                     >
                       <Icon className="size-5" />
@@ -136,7 +136,7 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
                   <ul className="mt-5 space-y-2.5 border-t border-stone-100 pt-4">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2.5 text-xs text-stone-700 font-medium">
-                        <div className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[#16a34a]">
+                        <div className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                           <Check className="size-3" strokeWidth={3} />
                         </div>
                         <span>{feature}</span>
@@ -149,9 +149,9 @@ export function VoxelMembershipTiers({ isAuthenticated = false }: VoxelMembershi
                 <div className="mt-8 pt-2">
                   <Link
                     href={tier.buttonHref}
-                    className={`flex w-full items-center justify-center rounded-xl sm:rounded-2xl py-3 sm:py-3.5 min-h-[44px] text-xs font-black transition-all cursor-pointer ${
+                    className={`flex w-full items-center justify-center rounded-xl sm:rounded-2xl py-3 sm:py-3.5 min-h-[44px] text-xs font-bold transition-all cursor-pointer ${
                       tier.isPrimary
-                        ? "bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-emerald-500/30 active:scale-95"
+                        ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
                         : "bg-stone-100 hover:bg-stone-200 text-stone-900 active:scale-95"
                     }`}
                   >

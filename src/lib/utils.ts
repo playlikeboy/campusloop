@@ -105,15 +105,26 @@ export function cleanSnippet(text?: string | null, maxLength = 80): string {
  */
 export function getCollegeShortName(inst?: { name?: string | null } | null): string {
   if (!inst?.name) return "";
-  let name = inst.name.trim();
+  return formatCollegeName(inst.name);
+}
+
+/**
+ * Normalizes full formal university names into clean, readable college hub display titles
+ */
+export function formatCollegeName(rawName?: string | null): string {
+  if (!rawName) return "";
+  let name = rawName.trim();
+  name = name.replace(/Birla Institute of Technology and Science/gi, "BITS");
   name = name.replace(/Birla Institute of Technology/gi, "BIT");
   name = name.replace(/Indian Institute of Technology/gi, "IIT");
   name = name.replace(/National Institute of Technology/gi, "NIT");
-  const parts = name
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
-  if (parts.length > 1 && (parts[0] === "BIT" || parts[0] === "IIT" || parts[0] === "NIT")) {
+  name = name.replace(/Indian Institute of Information Technology/gi, "IIIT");
+  name = name.replace(/All India Institute of Medical Sciences/gi, "AIIMS");
+  name = name.replace(/Delhi Technological University/gi, "DTU");
+  name = name.replace(/Netaji Subhas University of Technology/gi, "NSUT");
+
+  const parts = name.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length > 1 && ["BIT", "BITS", "IIT", "NIT", "IIIT", "AIIMS"].includes(parts[0])) {
     return `${parts[0]} ${parts[1]}`;
   }
   return parts[0] || name;

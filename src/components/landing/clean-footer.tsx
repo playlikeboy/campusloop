@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
+import { CuteCatMascot } from "@/components/ui/cute-illustrations";
 
 const FOOTER_GROUPS = [
   {
@@ -41,17 +41,11 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="relative size-8 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
-                <Image
-                  src="/campusloop/marketing/voxel/logo.webp"
-                  alt="CampusLoop"
-                  fill
-                  sizes="32px"
-                  className="object-contain"
-                />
+              <div className="size-8.5 rounded-2xl bg-canvas/50 border border-border/70 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:-rotate-3 shadow-2xs">
+                <CuteCatMascot size={30} />
               </div>
-              <span className="text-base font-black tracking-tight text-foreground">
-                Campus<span className="text-[#16a34a]">Loop</span>
+              <span className="font-heading text-lg font-bold tracking-tight text-foreground">
+                Campus<span className="text-primary font-bold">Loop</span>
               </span>
             </Link>
 
@@ -59,8 +53,8 @@ export function CleanFooter() {
               The verified student-only campus network. Unfiltered confessions, 45,000+ peer notes &amp; PYQs, campus crush radar, and club hubs across 1,350+ Indian colleges.
             </p>
 
-            <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-              <ShieldCheck className="size-3.5 text-[#22c55e]" />
+            <div className="mt-4 flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+              <ShieldCheck className="size-3.5 text-primary" />
               <span>100% Gated by Institutional Student Email &amp; ID</span>
             </div>
 
@@ -70,7 +64,7 @@ export function CleanFooter() {
                 href="https://www.instagram.com/campusloop.space/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[#16a34a] hover:underline transition-colors"
+                className="text-foreground hover:text-primary transition-colors font-semibold"
                 aria-label="Instagram @campusloop.space"
               >
                 Instagram

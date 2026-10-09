@@ -195,9 +195,12 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
 
   const mobileIconAnimations: Record<string, IconMotionName> = {
     "/feeds": "lift",
-    "/explore": "nudge-right",
+    "/academics": "lift",
+    "/colleges": "lift",
     "/post/new": "pop",
     "/chat": "beat",
+    "/dating": "beat",
+    "/explore": "nudge-right",
     "/profile": "pop",
   };
 
@@ -694,24 +697,19 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
 
                 {/* Categorized Navigation Links */}
                 <div className="space-y-4 pt-1">
-                  {/* Core Features (Deduplicated: Feeds and Explore live in bottom nav) */}
                   <div>
-                    <span className="px-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Core Campus
+                    <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                      Explore Campus
                     </span>
                     <div className="mt-1 space-y-0.5">
                       {[
-                        { href: "/academics", label: "Academics Vault", icon: GraduationCap, badge: "PYQs" },
-                        { href: "/communities", label: "Communities & Clubs", icon: Users },
-                        { href: "/colleges", label: "College Directory", icon: Building2 },
-                        { href: "/events", label: "Events & Hackathons", icon: Calendar },
-                        {
-                          href: "/confessions",
-                          label: "Confessions Vault",
-                          icon: VenetianMask,
-                          badge: "Anon",
-                        },
-                        { href: "/dating", label: "Campus Dating", icon: Heart },
+                        { href: "/academics", label: "Notes & PYQs", icon: GraduationCap },
+                        { href: "/communities", label: "Communities", icon: Users },
+                        { href: "/events", label: "Events", icon: Calendar },
+                        { href: "/campus", label: "Campus Hub", icon: Building2 },
+                        { href: "/colleges", label: "Colleges", icon: School },
+                        { href: "/confessions", label: "Confessions", icon: VenetianMask },
+                        { href: "/dating", label: "Campus Match", icon: Heart },
                       ].map((item) => {
                         const Icon = item.icon;
                         const active = isPathActive(pathname, item.href);
@@ -721,63 +719,16 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                             href={item.href}
                             onClick={() => setShowDrawer(false)}
                             className={cn(
-                              "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all",
+                              "flex items-center justify-between rounded-[var(--r-md)] px-3 py-2 text-xs font-medium transition-all",
                               active
-                                ? "bg-primary text-primary-foreground font-bold shadow-xs"
-                                : "text-foreground hover:bg-muted/60"
+                                ? "bg-[var(--primary-soft)] text-[var(--primary)] font-semibold border border-[var(--primary-soft-border)]"
+                                : "text-[var(--text)] hover:bg-[var(--surface-sunken)]"
                             )}
                           >
                             <span className="flex items-center gap-2.5">
-                              <Icon className="size-4 shrink-0" />
+                              <Icon className="size-4 shrink-0 text-[var(--text-secondary)]" />
                               <span>{item.label}</span>
                             </span>
-                            {item.badge && (
-                              <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider">
-                                {item.badge}
-                              </span>
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Campus Living & Utilities */}
-                  <div>
-                    <span className="px-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Living &amp; Utilities
-                    </span>
-                    <div className="mt-1 space-y-0.5">
-                      {[
-                        { href: "/buy-and-sell", label: "Buy & Sell", icon: ShoppingBag, badge: "Market" },
-                        { href: "/housing", label: "Housing & Flatmates", icon: Building2, badge: "PG & Flats" },
-                        { href: "/lost-and-found", label: "Lost & Found Hub", icon: Search, badge: "Recovery" },
-                        { href: "/rideshare", label: "Ride Share & Pool", icon: Car, badge: "Pool" },
-                        { href: "/atlas", label: "Campus Atlas", icon: Compass, badge: "Map" },
-                      ].map((item) => {
-                        const Icon = item.icon;
-                        const active = isPathActive(pathname, item.href);
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setShowDrawer(false)}
-                            className={cn(
-                              "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all",
-                              active
-                                ? "bg-primary text-primary-foreground font-bold shadow-xs"
-                                : "text-foreground hover:bg-muted/60"
-                            )}
-                          >
-                            <span className="flex items-center gap-2.5">
-                              <Icon className="size-4 shrink-0" />
-                              <span>{item.label}</span>
-                            </span>
-                            {item.badge && (
-                              <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider">
-                                {item.badge}
-                              </span>
-                            )}
                           </Link>
                         );
                       })}

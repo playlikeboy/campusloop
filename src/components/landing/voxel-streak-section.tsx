@@ -81,8 +81,8 @@ export function VoxelStreakSection() {
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Section Pill Badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-[#16a34a] dark:text-emerald-400 mb-2.5 sm:mb-3.5 border border-emerald-500/20">
-          <MessageSquare className="size-3.5 text-[#22c55e]" />
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary mb-2.5 sm:mb-3.5 border border-primary/20">
+          <MessageSquare className="size-3.5 text-primary" />
           <span>Real Campus Life • Real Time</span>
         </div>
 
@@ -90,7 +90,7 @@ export function VoxelStreakSection() {
         <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.12] drop-shadow-xs">
           THE HOSTEL TEA YOU CANNOT FIND{" "}
           <br className="hidden sm:inline" />
-          <span className="text-[#16a34a] dark:text-emerald-400">ON LINKEDIN OR INSTAGRAM.</span>
+          <span className="text-primary">ON LINKEDIN OR INSTAGRAM.</span>
         </h2>
 
         {/* Subtitle */}
@@ -200,7 +200,7 @@ export function VoxelStreakSection() {
               sounds.tap();
               haptics.light();
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16a34a] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline cursor-pointer"
           >
             <span>See live anonymous confessions from your campus</span>
             <ArrowRight className="size-3.5" />

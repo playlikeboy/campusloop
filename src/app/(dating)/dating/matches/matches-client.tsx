@@ -12,6 +12,8 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -66,23 +68,20 @@ export function MatchesClient() {
             ))}
           </div>
         ) : matches.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-            <div className="size-16 rounded-3xl bg-pink-500/10 text-pink-600 flex items-center justify-center border border-pink-500/20 shadow-xs">
-              <MessageCircleHeart className="size-8 text-pink-500" />
-            </div>
-            <div className="space-y-1 max-w-xs">
-              <p className="text-base font-black text-foreground">No mutual matches yet</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center rounded-3xl border border-border/80 bg-card p-8 my-4 shadow-2xs">
+            <CuteCatEmpty size={100} className="mb-1" />
+            <div className="space-y-1.5 max-w-xs">
+              <h3 className="font-heading font-bold text-base text-foreground">No mutual matches yet</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 When you and another classmate both swipe right on each other, you&apos;ll be able to chat here!
               </p>
             </div>
             <div className="pt-2">
-              <Link
-                href="/dating"
-                className="text-xs font-black text-white bg-pink-600 hover:bg-pink-700 px-6 py-2.5 rounded-full shadow-md shadow-pink-600/20 active:scale-95 transition-all inline-flex items-center gap-1.5"
-              >
-                <Sparkles className="size-3.5" />
-                <span>Keep Swiping</span>
+              <Link href="/dating">
+                <Button size="default">
+                  <Sparkles className="size-3.5" />
+                  <span>Keep Swiping</span>
+                </Button>
               </Link>
             </div>
           </div>
