@@ -9,19 +9,23 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
-        secondary: "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+        default: "bg-primary text-primary-foreground font-bold shadow-2xs [a]:hover:bg-primary/90",
+        secondary: "bg-secondary text-secondary-foreground border border-border/80 font-semibold shadow-2xs [a]:hover:bg-secondary/80",
         destructive:
-          "bg-destructive/10 text-destructive border border-destructive/20 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-destructive/10 text-destructive border border-destructive/30 font-semibold focus-visible:ring-destructive/20 dark:bg-destructive/20 [a]:hover:bg-destructive/20",
         success:
-          "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
+          "bg-emerald-500/10 text-emerald-950 dark:text-emerald-200 border border-emerald-500/40 font-bold",
         warning:
-          "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
+          "bg-amber-500/10 text-amber-950 dark:text-amber-200 border border-amber-500/40 font-bold",
         info:
-          "bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20",
-        outline: "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
-        ghost: "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-sky-500/10 text-sky-950 dark:text-sky-200 border border-sky-500/40 font-bold",
+        outline: "border-border bg-card text-foreground font-semibold shadow-2xs [a]:hover:bg-muted",
+        ghost: "hover:bg-muted hover:text-foreground text-muted-foreground",
+        link: "text-primary underline-offset-4 hover:underline font-semibold",
+        catBlue: "bg-[var(--color-cat-blue)]/25 text-[#1E4870] dark:text-[#C4DFEF] border border-[#A2C7E0] font-bold",
+        catYellow: "bg-[var(--color-cat-yellow)]/35 text-[#5C4500] dark:text-[#FFE59C] border border-[#E8CE7D] font-bold",
+        catPink: "bg-[var(--color-cat-pink)]/25 text-[#7A2B2B] dark:text-[#F2A4A4] border border-[#E28D8D] font-bold",
+        coral: "bg-[var(--color-coral)]/15 text-primary dark:text-[#FFA27B] border border-[var(--color-coral)]/40 font-bold",
       },
     },
     defaultVariants: {

@@ -9,24 +9,25 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs",
-        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs font-bold",
+        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs font-bold",
         secondary:
-          "bg-primary-soft text-primary border border-primary-soft-border hover:bg-primary-soft/80",
+          "bg-secondary text-primary border border-primary-soft-border hover:bg-secondary/80 font-semibold shadow-2xs",
         outline:
-          "border-border bg-surface text-text hover:bg-surface-sunken",
+          "border-border bg-card text-foreground hover:bg-muted font-medium shadow-2xs",
         ghost:
-          "text-text hover:bg-surface-sunken",
+          "text-foreground hover:bg-muted font-medium",
         destructive:
-          "bg-danger-soft text-danger border border-danger/20 hover:bg-danger/20 focus-visible:ring-danger",
+          "bg-danger-soft text-danger border border-danger/20 hover:bg-danger/20 focus-visible:ring-danger font-semibold",
         pillTab:
-          "bg-surface-sunken text-text-secondary hover:text-text data-[active=true]:bg-surface data-[active=true]:text-text data-[active=true]:border-border font-medium rounded-full transition-all border border-transparent",
+          "bg-muted text-muted-foreground hover:text-foreground data-[active=true]:bg-card data-[active=true]:text-foreground data-[active=true]:border-border font-semibold rounded-full transition-all border border-transparent shadow-2xs",
         circleIcon:
-          "rounded-full bg-surface border border-border text-text-secondary hover:text-text transition-all",
-        pill: "rounded-full bg-primary-soft text-primary hover:bg-primary-soft/80 font-medium",
-        link: "text-primary underline-offset-4 hover:underline",
-        emerald: "bg-success text-white hover:opacity-90 shadow-2xs",
-        violet: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs",
+          "rounded-full bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-2xs",
+        pill: "rounded-full bg-secondary text-primary border border-primary-soft-border hover:bg-secondary/80 font-semibold shadow-2xs",
+        link: "text-primary underline-offset-4 hover:underline font-semibold",
+        emerald: "bg-success text-white hover:opacity-90 shadow-2xs font-bold",
+        coral: "bg-coral text-white hover:opacity-90 shadow-2xs font-bold",
+        violet: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs font-bold",
       },
       size: {
         default: "h-10 gap-2 px-4 text-sm rounded-xl",

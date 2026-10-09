@@ -1,6 +1,6 @@
 import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
-import { Baloo_2, DM_Mono, Figtree } from "next/font/google";
+import { Baloo_2, DM_Mono, Nunito_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -13,11 +13,11 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
 import "./mobile-navigation.css";
 
-const figtree = Figtree({
+const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 const baloo2 = Baloo_2({
   subsets: ["latin", "devanagari"],
@@ -34,8 +34,8 @@ const dmMono = DM_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F7F8FC" },
-    { media: "(prefers-color-scheme: dark)", color: "#0E1020" },
+    { media: "(prefers-color-scheme: light)", color: "#FFF8ED" },
+    { media: "(prefers-color-scheme: dark)", color: "#1A1615" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -163,7 +163,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`font-sans antialiased ${figtree.variable} ${baloo2.variable} ${dmMono.variable}`}
+      className={`font-sans antialiased ${nunitoSans.variable} ${baloo2.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -181,8 +181,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="CampusLoop" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#0E1020" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#F7F8FC" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#1A1615" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#FFF8ED" media="(prefers-color-scheme: light)" />
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <meta name="geo.position" content="20.5937;78.9629" />
