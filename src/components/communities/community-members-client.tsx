@@ -226,11 +226,6 @@ export function CommunityMembersClient({
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
-                </div>
-
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
-                  Member
-                </span>
               </div>
             </Link>
           ))}
