@@ -349,29 +349,16 @@ export default function CollegesClient() {
         <section className="pt-4 flex-1 flex flex-col justify-between">
           {/* Top 3 Campus Spotlight / Visual Addiction Podium */}
           {page === 1 && !search.trim() && (
-            <div className="mb-6 space-y-2">
+            <div className="mb-6">
               <AllIndiaCollegePodium
                 leaderboard={leaderboard.slice(0, 3)}
                 loading={leaderboardLoading && leaderboard.length === 0}
                 className="mx-0 my-0"
+                onExploreMore={() => {
+                  setActiveTab("leaderboard");
+                  setPage(1);
+                }}
               />
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <Flame className="size-3.5 text-primary shrink-0" />
-                  <span>Want your campus in the Top 3? Upload verified notes, invite friends &amp; engage to climb!</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab("leaderboard");
-                    setPage(1);
-                  }}
-                  className="text-primary font-bold hover:underline shrink-0 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
-                >
-                  <span>Full Leaderboard</span>
-                  <ArrowRight className="size-3" />
-                </button>
-              </div>
             </div>
           )}
 
@@ -522,7 +509,16 @@ export default function CollegesClient() {
 
       {/* ─── Leaderboard Tab View ─── */}
       {activeTab === "leaderboard" && (
-        <section className="pt-4 flex-1">
+        <section className="pt-4 flex-1 space-y-4">
+          {/* Top 3 Championship Podium */}
+          {leaderboard.length >= 3 && !leaderboardLoading && (
+            <AllIndiaCollegePodium
+              leaderboard={leaderboard.slice(0, 3)}
+              loading={leaderboardLoading}
+              className="mx-0 my-0 mb-5"
+            />
+          )}
+
           {leaderboardLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -534,6 +530,10 @@ export default function CollegesClient() {
             </div>
           ) : leaderboard.length > 0 ? (
             <div className="space-y-2">
+              <div className="flex items-center justify-between px-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <span>Complete Campus Standings</span>
+                <span className="font-mono text-[11px] text-primary">Season 1 Live</span>
+              </div>
               {leaderboard.map((item, index) => {
                 const rank = index + 1;
                 const location = [item.district, item.state].filter(Boolean).join(", ") || "India";
