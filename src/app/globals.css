@@ -1348,6 +1348,11 @@ a,
   margin-inline: auto !important;
 }
 
+/* Hide the SDK's duplicate title; the page provides its own accessible heading. */
+.hexclave-auth-scope .stack-scope > div.text-center.mb-6 {
+  display: none !important;
+}
+
 /* Keep fields comfortably tappable without changing hidden SDK inputs. */
 .hexclave-auth-scope .stack-scope input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]) {
   box-sizing: border-box !important;
