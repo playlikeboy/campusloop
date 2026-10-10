@@ -13,17 +13,7 @@ export function StreakBanner({ className }: StreakBannerProps) {
   const { streak, isLoading } = useStreaks();
 
   if (isLoading || !streak) {
-    return (
-      <div className={cn("rounded-2xl border border-border/30 bg-card/60 p-4 sm:p-5 animate-pulse", className)}>
-        <div className="flex items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="h-7 w-28 rounded bg-muted/60" />
-            <div className="h-3 w-24 rounded bg-muted/40" />
-          </div>
-          <div className="h-10 w-44 rounded-xl bg-muted/40" />
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const { currentStreak, longestStreak, isSafeToday, weeklyTracker } = streak;
