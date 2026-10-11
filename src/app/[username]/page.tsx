@@ -1,4 +1,3 @@
-import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -31,20 +30,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { getBranchIcon } from "@/constants";
-import { getDb } from "@/db";
 import { getCloutTier } from "@/lib/gamification";
-import {
-  academicPlaylists,
-  academicResources,
-  externalPosts,
-  institutions,
-  posts,
-  userProfiles,
-} from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
-import type { ExternalPostInfo, FeedPost } from "@/hooks/use-feed";
-import { getFollowCounts, getFollowState } from "@/lib/follows";
 import { extractMediaAttachments } from "@/lib/media-attachments";
+import {
+  formatProfilePosts,
+  getInteractiveProfileHeaderData,
+  getProfileForUsername,
+  getPublicProfileActivity,
+  getPublicProfileCardData,
+  getVanityProfileContext,
+} from "@/server/features/profile/profile.service";
 
 interface VanityProfileProps {
   params: Promise<{ username: string }>;
@@ -62,14 +57,7 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
   const rawUsername = decodeURIComponent(resolved.username);
 
   const username = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
-  const db = getDb();
-  const profile = await db.query.userProfiles.findFirst({
-    where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
-    ),
-    with: { institution: true },
-  });
+  const profile = await getProfileForUsername(username);
 
   const title = profile ? `${profile.displayName} (@${username})` : `@${username}`;
   const description = profile?.bio
@@ -127,151 +115,34 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     search?.view === "viewer" ||
     search?.view === "public";
 
-  const user = await hexclaveServerApp.getUser();
-  const db = getDb();
+  const { user, profile, currentProfile } = await getVanityProfileContext(username, !isViewerMode);
 
-  // Look up profile by username (case-insensitive fallback)
-  const profile = await db.query.userProfiles.findFirst({
-    where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
-    ),
-    with: {
-      institution: true,
-    },
-  });
-
-  if (!profile || profile.isSeeded) {
+  if (!profile) {
     notFound();
   }
 
   // Route an authenticated owner to the canonical interactive profile before loading public activity.
   // This prevents the vanity URL from rendering the public profile shell for its signed-in owner.
   if (user && !isViewerMode) {
-    const viewerProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!viewerProfile) {
+    if (!currentProfile) {
       redirect("/onboarding");
     }
 
-    if (viewerProfile.id === profile.id) {
+    if (currentProfile.id === profile.id) {
       redirect("/profile");
     }
   }
 
-  // Fetch posts written by this user (never expose anonymous posts on public profile)
-  const userPosts = await db.query.posts.findMany({
-    where: and(
-      or(eq(posts.authorId, profile.id), eq(posts.authorId, profile.userId)),
-      eq(posts.status, "PUBLISHED"),
-      eq(posts.isSeeded, false),
-      eq(posts.isAnonymous, false)
-    ),
-    orderBy: [desc(posts.createdAt)],
-    limit: 20,
-    with: {
-      author: true,
-      institution: true,
-      votes: true,
-      comments: true,
-      pollOptions: {
-        with: { votes: true },
-      },
-    },
-  });
-
-  // Hydrate external posts info (media, reddit syndication)
-  const postIds = userPosts.map((p) => p.id);
-  const externalPostsMap = new Map<string, ExternalPostInfo>();
-  if (postIds.length > 0) {
-    try {
-      const extPosts = await db.query.externalPosts.findMany({
-        where: inArray(externalPosts.postId, postIds),
-        with: {
-          media: {
-            orderBy: (media, { asc }) => [asc(media.position)],
-          },
-        },
-      });
-      for (const ep of extPosts) {
-        externalPostsMap.set(ep.postId, {
-          id: ep.id,
-          source: ep.source,
-          externalId: ep.externalId,
-          subreddit: ep.subreddit,
-          externalAuthor: ep.externalAuthor,
-          permalink: ep.permalink,
-          canonicalUrl: ep.canonicalUrl,
-          score: ep.score,
-          commentCount: ep.commentCount,
-          contentType: ep.contentType,
-          media: ep.media.map((m) => ({
-            id: m.id,
-            mediaType: m.mediaType,
-            mediaUrl: m.mediaUrl,
-            previewUrl: m.previewUrl,
-            thumbnailUrl: m.thumbnailUrl,
-            hlsUrl: m.hlsUrl,
-            dashUrl: m.dashUrl,
-            width: m.width,
-            height: m.height,
-            duration: m.duration,
-            isGif: m.isGif,
-            position: m.position,
-          })),
-        });
-      }
-    } catch {
-      // Graceful fallback if external_posts query fails
-    }
-  }
+  const { userPosts, externalPostsMap } = await getPublicProfileActivity(profile.id, profile.userId);
 
   // If user is authenticated and not explicitly in viewer mode, render with interactive sidebar layout
   if (user && !isViewerMode) {
-    const currentProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
     if (currentProfile) {
       const isOwnProfile = profile.id === currentProfile.id;
 
-      // Format posts to match FeedPost type required by FeedCard
-      const formattedPosts = userPosts.map((post) => {
-        const votesCount = post.votes.reduce((acc, vote) => acc + vote.value, 0);
-        const commentsCount = post.comments.length;
-        const userVote = post.votes.find((v) => v.userId === currentProfile.id)?.value || 0;
+      const formattedPosts = formatProfilePosts(userPosts, externalPostsMap, currentProfile.id);
 
-        const formattedPollOptions = post.pollOptions?.map((opt) => {
-          const optVotesCount = opt.votes.length;
-          const userVoted = opt.votes.some((v) => v.userId === currentProfile.id);
-          return { id: opt.id, text: opt.text, votesCount: optVotesCount, userVoted };
-        });
-
-        const hasVotedPoll = formattedPollOptions?.some((opt) => opt.userVoted) || false;
-        const totalPollVotes = formattedPollOptions?.reduce((acc, opt) => acc + opt.votesCount, 0) || 0;
-
-        return {
-          ...post,
-          externalPost: externalPostsMap.get(post.id) || null,
-          votesCount,
-          commentsCount,
-          userVote,
-          pollOptions: formattedPollOptions,
-          hasVotedPoll,
-          totalPollVotes,
-          votes: undefined,
-          comments: undefined,
-        };
-      });
-
-      const [college, followState] = await Promise.all([
-        currentProfile.institutionId
-          ? db.query.institutions.findFirst({ where: eq(institutions.id, currentProfile.institutionId) })
-          : Promise.resolve(null),
-        getFollowState(profile.id, currentProfile.id),
-      ]);
+      const { college, followState } = await getInteractiveProfileHeaderData(currentProfile.institutionId, profile.id, currentProfile.id);
 
       return (
         <div className="relative min-h-screen bg-background">
@@ -290,7 +161,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
               >
                 <ProfileClientView
                   profile={profile}
-                  formattedPosts={formattedPosts as FeedPost[]}
+                  formattedPosts={formattedPosts}
                   isOwnProfile={isOwnProfile}
                   currentUserId={currentProfile.id}
                   followersCount={followState.followersCount}
@@ -307,22 +178,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   }
 
   // If not authenticated, render LinkedIn-style public card
-  const [publicFollowCounts, userAcademicResources, userPlaylists] = await Promise.all([
-    getFollowCounts(profile.id),
-    db.query.academicResources.findMany({
-      where: eq(academicResources.uploaderId, profile.id),
-      orderBy: [desc(academicResources.createdAt)],
-      limit: 6,
-      with: {
-        institution: true,
-      },
-    }),
-    db.query.academicPlaylists.findMany({
-      where: eq(academicPlaylists.creatorId, profile.id),
-      orderBy: [desc(academicPlaylists.createdAt)],
-      limit: 4,
-    }),
-  ]);
+  const { publicFollowCounts, userAcademicResources, userPlaylists } = await getPublicProfileCardData(profile.id);
   const branchIcon = getBranchIcon(profile.branch || profile.course);
   const institutionName = profile.institution?.name || "Indian Institute of Technology";
   const campusShort = institutionName.split(",")[0];
