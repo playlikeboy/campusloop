@@ -10,7 +10,7 @@ function Brand() {
   return (
     <Link href="/" className={styles.brand} aria-label="CampusLoop home">
       <span className={styles.brandMark}>
-        <Image src="/campusloop/marketing/voxel/logo.webp" alt="" width={36} height={36} />
+        <Image src="/campusloop/marketing/voxel/logo.png" alt="" width={36} height={36} />
       </span>
       <span className={styles.brandName}>
         Campus<span>Loop</span><i aria-hidden="true">✦</i>
@@ -67,7 +67,7 @@ export function CampusLoopHomepageRefresh() {
             <div className={styles.heroVisual}>
               <div className={styles.heroArtwork}>
                 <Image
-                  src="/campusloop/marketing/voxel/landing-campus.webp"
+                  src="/campusloop/marketing/voxel/landing-campus.png"
                   alt="Voxel-style university courtyard with students meeting, studying, and exploring campus"
                   fill priority sizes="(max-width: 900px) 100vw, 52vw"
                   className={styles.heroImage}
@@ -113,7 +113,7 @@ export function CampusLoopHomepageRefresh() {
                 </div>
                 <div className={styles.featureImage}>
                   <Image
-                    src="/campusloop/marketing/voxel/landing-study.webp"
+                    src="/campusloop/marketing/voxel/landing-study.png"
                     alt="Warm voxel-style dorm study desk with a laptop, books, notes, and a campus view"
                     fill sizes="(max-width: 900px) 100vw, 38vw" className={styles.cardImage}
                   />
@@ -123,7 +123,7 @@ export function CampusLoopHomepageRefresh() {
               <article className={styles.featureCard + " " + styles.communityCard}>
                 <div className={styles.communityImage}>
                   <Image
-                    src="/campusloop/marketing/voxel/landing-clubs.webp"
+                    src="/campusloop/marketing/voxel/landing-clubs.png"
                     alt="Voxel-style student club fair with colorful stalls and classmates meeting outdoors"
                     fill sizes="(max-width: 900px) 100vw, 36vw" className={styles.cardImage}
                   />
