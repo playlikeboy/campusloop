@@ -141,16 +141,6 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
         </div>
       </div>
 
-      {/* ─── Info Banner ─── */}
-      <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-1">
-        <p className="text-xs font-bold text-amber-500 flex items-center gap-1.5">
-          <Megaphone className="size-3.5" /> Instant Notification Alert
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Your message will be delivered immediately to all {activeAttendees} confirmed attendees via their CampusLoop in-app notification center.
-        </p>
-      </div>
-
       {/* ─── Quick Templates ─── */}
       <div className="space-y-2">
         <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">

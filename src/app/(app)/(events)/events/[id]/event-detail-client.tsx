@@ -278,20 +278,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               className="h-8 px-3 rounded-full text-xs font-bold gap-1.5 flex items-center bg-primary text-primary-foreground hover:bg-primary/95 transition-all shadow-xs"
             >
               <Settings className="size-3.5" />
-              <span>Manage Hub</span>
+              <span>Manage</span>
             </Link>
           )}
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowQrModal(true)}
-            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-bold gap-1.5 cursor-pointer bg-primary/5 border-primary/20 text-primary hover:bg-primary/10"
-            title="Cute QR Code Share Card"
-          >
-            <QrCode className="size-3.5" />
-            <span className="hidden sm:inline">Pass QR</span>
-          </Button>
 
           <Button
             size="sm"
@@ -354,7 +343,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           </div>
 
           {/* Countdown Ticker */}
-          {countdown && !countdown.hasEnded && (
+          {countdown && !countdown.hasEnded && !countdown.isLive && (
             <div className="flex items-center justify-between p-3 rounded-2xl border border-primary/20 bg-primary/5">
               <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                 <Clock className="size-4 text-primary shrink-0" />

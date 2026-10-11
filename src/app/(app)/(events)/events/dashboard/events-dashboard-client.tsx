@@ -77,17 +77,9 @@ export function EventsDashboardClient({
       {/* ─── Header ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/30">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              Events Dashboard
-            </h1>
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-              Organizer
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Manage your hosted hackathons, fests, workshops, and track live student attendance.
-          </p>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            My events
+          </h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -96,14 +88,14 @@ export function EventsDashboardClient({
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border/60 bg-card text-foreground text-xs font-bold hover:bg-muted transition-colors"
           >
             <Ticket className="size-3.5 text-primary" />
-            <span>My Registered Passes</span>
+            <span>Tickets</span>
           </Link>
           <Link
             href="/events/new"
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs active:scale-95"
           >
             <Plus className="size-4" />
-            <span>Host New Event</span>
+            <span>Host event</span>
           </Link>
         </div>
       </div>

@@ -369,13 +369,9 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
         </div>
       </div>
 
-      {/* ─── Management Action Hub Cards ─── */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-          Management Controls
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Shortcuts */}
+      <div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Card 1: Attendees Roster */}
           <Link
             href={`/events/manage/${slug}/attendees`}
@@ -385,13 +381,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               <Users className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center justify-between">
-                <span>Attendee Roster</span>
-                <span className="text-xs font-normal text-muted-foreground">{attendeeCount} registered</span>
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                View student directory, teams, contact info, and export to CSV.
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Attendees</h4>
             </div>
           </Link>
 
@@ -404,13 +394,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               <QrCode className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center justify-between">
-                <span>Fast Venue Check-In</span>
-                <span className="text-xs font-normal text-emerald-500">{attendedCount} present</span>
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Instant search and 1-tap admission scanner for venue entrance.
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Check-in</h4>
             </div>
           </Link>
 
@@ -423,13 +407,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               <Megaphone className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center justify-between">
-                <span>Broadcast Announcements</span>
-                <span className="text-xs font-normal text-amber-500">In-App</span>
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Send live notifications and room links to all registered students.
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Announcements</h4>
             </div>
           </Link>
 
@@ -442,13 +420,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               <BarChart3 className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center justify-between">
-                <span>Attendee Analytics</span>
-                <span className="text-xs font-normal text-blue-500">{checkInRate}% turnout</span>
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Breakdown of colleges, branches, years, and solo vs. team ratios.
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Analytics</h4>
             </div>
           </Link>
 
@@ -461,24 +433,17 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               <Settings className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center justify-between">
-                <span>Edit Event Details</span>
-                <span className="text-xs font-normal text-muted-foreground">Full Page</span>
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Modify title, description, banner, venue, schedule, and perks.
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Edit event</h4>
             </div>
           </Link>
         </div>
       </div>
 
-      {/* ─── Recent Registrations Preview ─── */}
+      {/* Recent registrations */}
       <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-foreground">Recent Registrations</h3>
-            <p className="text-xs text-muted-foreground">Latest students who signed up for this event</p>
+            <h3 className="text-sm font-semibold text-foreground">Recent registrations</h3>
           </div>
           <Link
             href={`/events/manage/${slug}/attendees`}
