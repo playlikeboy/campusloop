@@ -636,14 +636,14 @@ export function ProfileClientView({
         {/* ─── Profile Header Main Info (Clean Social Identity Architecture) ─── */}
         <div className="px-4 sm:px-6 pb-4">
           {/* Avatar & Action Buttons Bar */}
-          <div className="flex items-end justify-between -mt-14 sm:-mt-20 lg:-mt-24 mb-3 relative z-10">
+          <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 -mt-14 sm:-mt-20 lg:-mt-24 mb-3 relative z-10">
             {/* Clickable Circular Profile Picture with Online Status & Verified Badge */}
             <div className="relative group">
               <div
                 onClick={() => {
                   if (isOwnProfile) setShowAvatarMenu(true);
                 }}
-                className="relative size-28 sm:size-36 lg:size-40 rounded-full ring-4 ring-background shadow-2xl border-2 border-primary/25 overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity"
+                className="relative size-24 sm:size-36 lg:size-40 rounded-full ring-4 ring-background shadow-2xl border-2 border-primary/25 overflow-hidden bg-background cursor-pointer group-hover:opacity-95 transition-opacity"
               >
                 <Avatar className="size-full">
                   <AvatarImage src={currentAvatarUrl || ""} className="object-cover size-full" />
@@ -670,11 +670,11 @@ export function ProfileClientView({
             </div>
 
             {/* Action Buttons: Edit Profile (Own) or Message/Follow (Viewer) */}
-            <div className="flex items-center gap-2 pb-1 sm:pb-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pb-1 sm:pb-2">
               <button
                 type="button"
                 onClick={() => setShowShareModal(true)}
-                className="h-9 px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
                 title="Share Profile"
               >
                 <Share2 className="size-3.5 text-muted-foreground" />
@@ -686,7 +686,7 @@ export function ProfileClientView({
                   <button
                     type="button"
                     onClick={() => setShowQrModal(true)}
-                    className="h-9 px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                    className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
                   >
                     <QrCode className="size-3.5 text-muted-foreground" />
                     <span className="hidden sm:inline">QR Card</span>
@@ -705,7 +705,7 @@ export function ProfileClientView({
                     username={profile.username}
                     displayName={profile.displayName}
                     initialIsFollowing={isFollowedByViewer}
-                    className="h-9 px-6 rounded-full font-bold shadow-xs bg-primary hover:bg-primary/95 text-primary-foreground"
+                    className="h-10 px-3 sm:h-9 sm:px-6 rounded-full font-bold shadow-xs bg-primary hover:bg-primary/95 text-primary-foreground"
                     onChange={(nowFollowing, counts) =>
                       setFollowers((prev) =>
                         counts ? counts.followersCount : Math.max(prev + (nowFollowing ? 1 : -1), 0)
@@ -714,13 +714,13 @@ export function ProfileClientView({
                   />
                   <Link
                     href={`/chat?userId=${profile.id}`}
-                    className="group relative inline-flex h-9 w-9 sm:w-10 items-center justify-center rounded-full border border-border/70 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-2xs hover:border-primary/40 hover:shadow-primary/10 transition-all cursor-pointer shrink-0 active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
+                    className="group relative inline-flex h-10 w-10 sm:h-9 sm:w-10 items-center justify-center rounded-full border border-border/70 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-2xs hover:border-primary/40 hover:shadow-primary/10 transition-all cursor-pointer shrink-0 active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
                     title="Message"
                     aria-label="Message"
                   >
                     <MessageCircle className="size-5 text-secondary-foreground transition-transform group-hover:scale-105 shrink-0" />
                   </Link>
-                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} iconOnly />
+                  <SecretCrushButton targetId={profile.id} targetName={profile.displayName} iconOnly className="h-10 w-10" />
                 </div>
               )}
             </div>
@@ -922,7 +922,7 @@ export function ProfileClientView({
             ))}
 
             {posts.length === 0 && (
-              <div className="text-center py-16 border border-dashed rounded-3xl border-border bg-card text-muted-foreground text-xs font-semibold space-y-2 p-6">
+              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-primary">
                   <Flame className="size-6" />
                 </div>
@@ -995,7 +995,7 @@ export function ProfileClientView({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 border border-dashed rounded-3xl border-border bg-card text-muted-foreground text-xs font-semibold space-y-2 p-6">
+              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-primary">
                   <BookOpen className="size-6" />
                 </div>
@@ -1084,7 +1084,7 @@ export function ProfileClientView({
 
             {/* Empty State */}
             {!isLoadingAcademics && userPlaylists.length === 0 && userResources.length === 0 && (
-              <div className="text-center py-16 border border-dashed rounded-3xl border-border bg-card text-muted-foreground text-xs font-semibold space-y-2 p-6">
+              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
                   <FolderPlus className="size-6" />
                 </div>
@@ -1303,7 +1303,7 @@ export function ProfileClientView({
                 </div>
               ))
             ) : (
-              <div className="text-center py-16 border border-dashed rounded-3xl border-border bg-card text-muted-foreground text-xs font-semibold space-y-2 p-6">
+              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-muted-foreground">
                   <Archive className="size-6" />
                 </div>
