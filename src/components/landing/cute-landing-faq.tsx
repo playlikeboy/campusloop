@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, HelpCircle, ShieldCheck } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { CuteSparkle } from "@/components/ui/cute-illustrations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 

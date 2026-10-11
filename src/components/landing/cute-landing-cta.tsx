@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, GraduationCap, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, GraduationCap, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CuteCatSuccess, CuteSparkle } from "@/components/ui/cute-illustrations";
 import { haptics } from "@/lib/haptics";

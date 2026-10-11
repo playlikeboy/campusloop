@@ -327,7 +327,7 @@
   --border-strong: #465C6A;
   --text: #F4F7F8;
   --text-secondary: #BDCCD4;
-  --text-muted: #AFC0CA;
+  --text-muted: #BDCCD4;
 
   --background: #101922;
   --foreground: #F4F7F8;
@@ -426,6 +426,7 @@
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+    overflow-wrap: break-word;
     letter-spacing: var(--tracking-normal);
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
@@ -441,13 +442,28 @@
     overscroll-behavior-y: none;
   }
 
-  /* Mobile layout guardrails: keep app surfaces and feed content from collapsing or overflowing. */
+  /* Mobile layout guardrails: prevent horizontal overflow or clipping on 320px - 390px screens. */
   @media screen and (max-width: 768px) {
     .app-surface,
     .app-surface main,
-    .app-surface article {
+    .app-surface article,
+    .app-surface section,
+    .app-surface header,
+    .app-surface form {
       width: 100%;
       min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    pre,
+    code {
+      max-width: 100%;
+      overflow-x: auto;
+      word-break: break-word;
+    }
+
+    table {
       max-width: 100%;
     }
   }
@@ -1318,7 +1334,12 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid var(--primary);
-  outline-offset: 1px;
+  outline-offset: 2px;
+}
+
+.focus-ring {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 img,
@@ -1336,10 +1357,36 @@ a,
   *,
   *::before,
   *::after {
-    scroll-behavior: auto;
-    animation-duration: 0.001ms;
-    animation-iteration-count: 1;
-    transition-duration: 0.001ms;
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Explicit reduced-motion overrides for key animation utilities */
+  .animate-marquee,
+  .animate-marquee-vertical,
+  .animate-shiny-text,
+  .animate-gradient,
+  .animate-spin,
+  .animate-spin-around,
+  .animate-bounce,
+  .animate-pulse,
+  .animate-ping,
+  .animate-rainbow,
+  .animate-shimmer-slide,
+  .animate-shine,
+  .animate-meteor,
+  .animate-orbit,
+  .animate-loading-progress,
+  .animate-rippling,
+  [class*="animate-marquee"],
+  [class*="animate-spin"],
+  [class*="animate-bounce"],
+  [class*="animate-pulse"],
+  [class*="animate-gradient"] {
+    animation: none !important;
+    transform: none !important;
   }
 }
 

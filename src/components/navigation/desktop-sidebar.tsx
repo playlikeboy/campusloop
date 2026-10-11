@@ -121,6 +121,11 @@ export function DesktopSidebar({
       window.dispatchEvent(
         new CustomEvent("campusloop_feed_visibility_change", { detail: next })
       );
+      fetch("/api/profile/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedVisibility: next }),
+      }).catch(() => {});
     }
     sounds.tap();
     haptics.light();
@@ -282,14 +287,14 @@ export function DesktopSidebar({
           )}
           title={
             anonMode === "ALL"
-              ? "Timeline: All Posts & Confessions"
-              : "Timeline: Public Only (No Anon)"
+              ? "Timeline: All Posts & Anon"
+              : "Timeline: Public Only"
           }
         >
           <VenetianMask className="size-4 shrink-0" />
           {!collapsed && (
             <span className="truncate text-left text-[11px] font-medium">
-              {anonMode === "ALL" ? "All & Anon" : "Public Only"}
+              {anonMode === "ALL" ? "All Posts & Anon" : "Public Only"}
             </span>
           )}
         </button>

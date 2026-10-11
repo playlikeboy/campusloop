@@ -2,20 +2,14 @@
 
 import { useState } from "react";
 import {
-  BookOpen,
   Clock,
-  Coffee,
-  Flame,
-  Heart,
   Moon,
-  Sparkles,
   Sun,
   Users,
   Utensils,
-  VenetianMask,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { CuteHeart, CuteSparkle } from "@/components/ui/cute-illustrations";
+import { CuteSparkle } from "@/components/ui/cute-illustrations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 

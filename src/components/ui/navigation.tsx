@@ -36,6 +36,7 @@ import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { AnimatedIcon, type IconMotionName } from "@/components/ui/animated-icon";
 import { DesktopSidebar } from "@/components/navigation/desktop-sidebar";
+import { MobileBottomNav } from "@/components/feed/mobile-bottom-nav";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
@@ -188,6 +189,11 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
     if (typeof window !== "undefined") {
       localStorage.setItem("campusloop_feed_visibility", mode);
       window.dispatchEvent(new CustomEvent("campusloop_feed_visibility_change", { detail: mode }));
+      fetch("/api/profile/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedVisibility: mode }),
+      }).catch(() => {});
     }
     sounds.tap();
     haptics.light();
@@ -677,7 +683,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                       )}
                     >
                       <VenetianMask className="size-3.5 text-purple-400" />
-                      <span>All + Anon</span>
+                      <span>All Posts &amp; Anon</span>
                     </button>
                     <button
                       type="button"
@@ -781,134 +787,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
       </AnimatePresence>
 
       {/* ─── Mobile Bottom Navigation Dock ─── */}
-      {!isMobileFlow(pathname) && (
-        <nav
-          className={cn(
-            "fixed left-1/2 -translate-x-1/2 z-40",
-            "w-[calc(100%-24px)] max-w-[420px] h-[62px]",
-            "bottom-[max(10px,env(safe-area-inset-bottom,0px))]",
-            "grid items-center justify-items-center",
-            mobileBottomItems.length === 5 ? "grid-cols-5" : mobileBottomItems.length === 4 ? "grid-cols-4" : "grid-cols-3",
-            "rounded-[22px] border border-border/50 bg-card/95 p-1",
-            "shadow-[0_12px_36px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,255,255,0.06)]",
-            "backdrop-blur-2xl md:hidden select-none"
-          )}
-          aria-label="Mobile bottom navigation"
-        >
-          {mobileBottomItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              item.href === "/profile"
-                ? profile
-                  ? pathname.startsWith("/@" + profile.username) || pathname === "/profile"
-                  : pathname === "/sign-in"
-                : isPathActive(pathname, item.href);
-            const animation = mobileIconAnimations[item.href] ?? "pop";
-            const playKey =
-              mobileNavPulse?.href === item.href ? mobileNavPulse.key : undefined;
-
-            if (item.href === "/post/new") {
-              return (
-                <Link
-                  key="post-create"
-                  href="/post/new"
-                  prefetch
-                  onClick={() => handleMobileNavPress(item.href)}
-                  className="mobile-nav-item mobile-nav-create group"
-                  aria-label="Create new campus post"
-                >
-                  <span className="mobile-nav-icon mobile-nav-create-icon" aria-hidden="true">
-                    <AnimatedIcon
-                      icon={Icon}
-                      animation="pop"
-                      size={20}
-                      strokeWidth={2.4}
-                      animateOnHover={false}
-                      playKey={playKey}
-                      className="size-full"
-                    />
-                  </span>
-                  <span className="mobile-nav-label">Create</span>
-                </Link>
-              );
-            }
-
-            if (item.href === "/profile") {
-              const profileHref = profile ? "/@" + profile.username : "/sign-in";
-
-              return (
-                <Link
-                  key="profile"
-                  href={profileHref}
-                  prefetch
-                  onClick={() => handleMobileNavPress(item.href)}
-                  className={cn(
-                    "mobile-nav-item",
-                    isActive && "mobile-nav-item-active"
-                  )}
-                  aria-label="View user profile"
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <span className="mobile-nav-icon mobile-nav-avatar" aria-hidden="true">
-                    {profile ? (
-                      <Avatar
-                        className={cn(
-                          "size-6.5 border transition-all",
-                          isActive ? "border-primary ring-2 ring-primary/30" : "border-border/50"
-                        )}
-                      >
-                        <AvatarImage src={profile.avatarUrl || ""} alt="" />
-                        <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
-                          {profile.displayName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <AnimatedIcon
-                        icon={Icon}
-                        animation={animation}
-                        size={21}
-                        strokeWidth={isActive ? 2.2 : 1.8}
-                        animateOnHover={false}
-                        playKey={playKey}
-                        className="size-full"
-                      />
-                    )}
-                  </span>
-                  <span className="mobile-nav-label">Profile</span>
-                </Link>
-              );
-            }
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch
-                onClick={() => handleMobileNavPress(item.href)}
-                className={cn(
-                  "mobile-nav-item",
-                  isActive && "mobile-nav-item-active"
-                )}
-                aria-label={item.label}
-                aria-current={isActive ? "page" : undefined}
-              >
-                <span className="mobile-nav-icon" aria-hidden="true">
-                  <AnimatedIcon
-                    icon={Icon}
-                    animation={animation}
-                    size={21}
-                    strokeWidth={isActive ? 2.2 : 1.8}
-                    animateOnHover={false}
-                    playKey={playKey}
-                    className="size-full"
-                  />
-                </span>
-                <span className="mobile-nav-label">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      )}
+      <MobileBottomNav profile={profile} isViewer={isViewer} />
 
       {/* Preview Modals */}
       <CampusUnlockedModal isOpen={showUnlockModal} onClose={() => setShowUnlockModal(false)} />

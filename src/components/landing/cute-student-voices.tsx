@@ -1,8 +1,7 @@
 "use client";
 
-import { CheckCircle2, GraduationCap, Quote, ShieldCheck, Sparkles } from "lucide-react";
+import { GraduationCap, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { CuteSparkle } from "@/components/ui/cute-illustrations";
 
 export function CuteStudentVoices() {
   const reviews = [
@@ -75,9 +74,9 @@ export function CuteStudentVoices() {
                   <Badge variant={r.badgeVariant} className="text-[10px] py-0.5 px-2">
                     {r.college}
                   </Badge>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="size-3" />
-                    <span>Verified</span>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                    <GraduationCap className="size-3 text-primary" />
+                    <span>Student Voice</span>
                   </div>
                 </div>
 
@@ -94,6 +93,13 @@ export function CuteStudentVoices() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Responsible Transparency Disclaimer */}
+        <div className="mt-8 text-center">
+          <p className="text-[11px] text-muted-foreground font-medium">
+            Illustrative student feedback compiled from student pilot users and community discussions across Indian university hubs.
+          </p>
         </div>
       </div>
     </section>

@@ -16,23 +16,21 @@ const SITE_URL = "https://campusloop.space";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "CampusLoop — Where Your Campus Actually Talks | Verified Student Network",
+  title: "CampusLoop — Where Your Campus Actually Talks | One Connected Digital Home",
   description:
-    "The private student-only network for inside hostel tea, anonymous confessions, 45,000+ verified notes & PYQs, campus crush radar, and zero boomers.",
+    "Where your campus actually talks. One connected digital home for college life in India. Verified student discussions, peer-curated lecture notes & solved PYQs, campus communities, and student match across 1,350+ universities.",
   applicationName: "CampusLoop",
   authors: [{ name: "CampusLoop Team", url: `${SITE_URL}/about` }],
   keywords: [
     "CampusLoop",
     "where campus talks",
     "verified student network",
-    "college confessions",
-    "hostel tea",
+    "college community India",
     "academic notes",
     "college PYQs",
-    "campus crush radar",
-    "college dating India",
+    "campus match",
     "college clubs",
-    "no boomers",
+    "student discussions",
   ],
   robots: {
     index: true,
@@ -54,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CampusLoop — Where Your Campus Actually Talks",
     description:
-      "Inside hostel tea, anonymous confessions, 45K+ verified notes & solved PYQs, and secret crushes. 100% verified students only. Zero recruiters. Zero faculty.",
+      "Where your campus actually talks. One connected digital home for college life in India. Verified peer discussions, peer-curated academic notes, semester PYQs, and student communities.",
     url: SITE_URL,
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -72,7 +70,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CampusLoop — Where Your Campus Actually Talks",
     description:
-      "Inside hostel tea, anonymous confessions, 45K+ verified notes & solved PYQs, and secret crushes. 100% verified students only.",
+      "Where your campus actually talks. One connected digital home for college life in India. Verified peer discussions, 45,000+ notes & solved PYQs, and campus communities.",
     creator: "@mycampusloop",
     images: [`${SITE_URL}/campusloop/marketing/voxel/social-preview.webp`],
   },
@@ -96,8 +94,8 @@ export default async function LandingPage() {
         logo: `${SITE_URL}/campusloop/marketing/voxel/logo.webp`,
         sameAs: [
           "https://www.instagram.com/campusloop.space/",
-          "https://www.linkedin.com/company/mycampusloop/",
-          "https://x.com/mycampusloop",
+          "https://www.linkedin.com/company/mycampusloop/?viewAsMember=true",
+          "https://x.com/company/mycampusloop/",
         ],
       },
       {
@@ -129,34 +127,34 @@ export default async function LandingPage() {
         mainEntity: [
           {
             "@type": "Question",
-            name: "What is CampusLoop?",
+            name: "How does student verification work, and what if my college isn't indexed yet?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "CampusLoop is a verified campus social network and academic collaboration platform designed exclusively for university students across India. It connects students within their college and across 1,350+ indexed Indian universities.",
+              text: "You can verify your student status using your official institutional email (.ac.in, .edu, or college domain) or by uploading a photo of your student ID card. If your college is not yet indexed in our 1,350+ directory, you can submit an instant Hub Request at /college-request.",
             },
           },
           {
             "@type": "Question",
-            name: "Is CampusLoop free for college students?",
+            name: "How does anonymous posting work, and how is safety maintained?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes, CampusLoop is 100% free for college students. Students can sign up with their official .ac.in or institutional email address or student ID to unlock full verified campus access.",
+              text: "When you post in anonymous discussion spaces, your identity is cryptographically decoupled on the server before database persistence, ensuring complete privacy. Our automated Agatha safety filter screens for doxxing, harassment, and harmful keywords in real time.",
             },
           },
           {
             "@type": "Question",
-            name: "What is the Academic Vault on CampusLoop?",
+            name: "How do I access the Academic Vault, and is it really 100% free?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "The Academic Vault is a peer-curated repository containing thousands of semester lecture notes, previous year question papers (PYQs), course roadmaps, and syllabus guides across engineering, science, management, and humanities disciplines.",
+              text: "Yes, the Academic Vault is 100% free with zero paywalls. Any verified student can browse, search, and download thousands of peer-curated handwritten notes, syllabus roadmaps, and solved previous year question papers (PYQs).",
             },
           },
           {
             "@type": "Question",
-            name: "How does campus verification and student privacy work?",
+            name: "Do professors, deans, or college administrations monitor discussions?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "CampusLoop validates student identities via Hexclave authentication and Agatha trust algorithms. Students can participate under verified handles or post anonymously in dedicated confession spaces without sacrificing their privacy.",
+              text: "No. CampusLoop is an independent, student-first platform. College administrations, faculty members, and corporate recruiters have zero administrative privileges or access to private student hubs.",
             },
           },
         ],

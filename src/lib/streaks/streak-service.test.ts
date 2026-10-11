@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { STREAK_MILESTONES, STREAK_QUALIFYING_EVENTS } from "@/constants/streaks";
 import {
   getLocalDateString,

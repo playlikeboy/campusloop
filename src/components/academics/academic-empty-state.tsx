@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Bookmark, BookOpen, Plus, RotateCcw } from "lucide-react";
+import { AlertCircle, ArrowRight, Bookmark, BookOpen, Plus, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { sounds } from "@/lib/sounds";
 
@@ -40,7 +40,8 @@ export function AcademicEmptyState({
             }}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
           >
-            <span>Browse Academic Materials →</span>
+            <span>Browse Academic Materials</span>
+            <ArrowRight className="size-3.5" />
           </button>
         )}
       </div>
@@ -89,8 +90,8 @@ export function AcademicEmptyState({
         </h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {filterContext
-            ? `No study materials matched "${filterContext}". Try another subject, semester, or clear filters.`
-            : "Try another subject, semester, or filter."}
+            ? `No study materials matched "${filterContext}". Try searching for another subject or clear filters.`
+            : "No study materials found for your active filters. Try searching by course code, selecting another semester, or resetting filters."}
         </p>
       </div>
 

@@ -26,6 +26,7 @@ const FOOTER_GROUPS = [
     title: "Resources",
     links: [
       { label: "Help & FAQs", href: "/help" },
+      { label: "Request College Hub", href: "/college-request" },
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
       { label: "Visual Sitemap", href: "/sitemap" },
@@ -50,7 +51,7 @@ export function CleanFooter() {
             </Link>
 
             <p className="mt-3.5 max-w-sm text-xs leading-relaxed text-muted-foreground">
-              The verified student-only campus network. Unfiltered confessions, 45,000+ peer notes &amp; PYQs, campus crush radar, and club hubs across 1,350+ Indian colleges.
+              Where your campus actually talks. One connected digital home for college life in India. Candid discussions, 45,000+ peer notes &amp; PYQs, and student communities across 1,350+ colleges.
             </p>
 
             <div className="mt-4 flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
@@ -58,33 +59,34 @@ export function CleanFooter() {
               <span>100% Gated by Institutional Student Email &amp; ID</span>
             </div>
 
-            {/* Social channels with official priorities */}
-            <div className="mt-6 flex items-center gap-4 text-xs font-semibold text-muted-foreground">
+            {/* Social channels with official priorities: Instagram > LinkedIn > X */}
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs">
               <a
                 href="https://www.instagram.com/campusloop.space/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-foreground hover:text-primary transition-colors font-semibold"
-                aria-label="Instagram @campusloop.space"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold hover:bg-primary/20 transition-colors shadow-2xs"
+                aria-label="Instagram @campusloop.space (Highlighted)"
               >
-                Instagram
+                <span>Instagram</span>
+                <span className="text-[10px] opacity-75">@campusloop.space</span>
               </a>
-              <span>•</span>
+              <span className="text-muted-foreground/40 hidden sm:inline">•</span>
               <a
                 href="https://www.linkedin.com/company/mycampusloop/?viewAsMember=true"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground font-semibold transition-colors"
                 aria-label="LinkedIn CampusLoop"
               >
                 LinkedIn
               </a>
-              <span>•</span>
+              <span className="text-muted-foreground/40 hidden sm:inline">•</span>
               <a
                 href="https://x.com/company/mycampusloop/"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground font-semibold transition-colors"
                 aria-label="X @mycampusloop"
               >
                 X (Twitter)

@@ -4,21 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Coffee,
   GraduationCap,
-  Heart,
   MessageSquare,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
-  Users,
   VenetianMask,
   Vote,
   Zap,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { CuteCatMascot, CuteHeart, CuteSparkle } from "@/components/ui/cute-illustrations";
 import { haptics } from "@/lib/haptics";

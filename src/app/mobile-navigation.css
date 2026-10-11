@@ -41,6 +41,8 @@
     justify-content: center;
     width: 100% !important;
     height: 48px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
     padding: 2px 0 !important;
     border-radius: 12px !important;
     gap: 2px !important;
