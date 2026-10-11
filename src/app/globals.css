@@ -1597,3 +1597,41 @@ body select:focus-visible {
 .story-creator-shell [class*="border-white/"] {
   border-color: transparent !important;
 }
+
+/* Form fields stay clean: no browser outline or glowing ring on focus.
+   A subtle border color change keeps focused controls easy to locate. */
+body input,
+body textarea,
+body select,
+body [contenteditable="true"] {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+body input:focus,
+body textarea:focus,
+body select:focus,
+body [contenteditable="true"]:focus,
+body input:focus-visible,
+body textarea:focus-visible,
+body select:focus-visible,
+body [contenteditable="true"]:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+body input:focus,
+body textarea:focus,
+body select:focus,
+body [contenteditable="true"]:focus {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--input)) !important;
+}
+
+/* On wide screens use the persistent navigation rail, not mobile menu buttons. */
+@media (min-width: 1024px) {
+  button[aria-label="Open navigation menu"],
+  button[title="All Hubs & Navigation"] {
+    display: none !important;
+  }
+}
