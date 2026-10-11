@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import { LikesClient } from "./likes-client";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Likes You · Campus Match | CampusLoop",
-  description: "See verified students who swiped right on your campus profile.",
-};
-
-export default function DatingLikesPage() {
-  return <LikesClient />;
+export default function LegacyMatchingRedirect() {
+  redirect("/matching/likes");
 }

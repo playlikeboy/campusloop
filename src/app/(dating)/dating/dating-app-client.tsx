@@ -242,6 +242,19 @@ export function DatingAppClient() {
               </button>
             </form>
           </div>
+        ) : error ? (
+          <div className="m-auto w-full max-w-sm space-y-3 rounded-3xl bg-card/70 p-6 text-center shadow-sm">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Heart className="size-6" />
+            </div>
+            <h3 className="text-base font-bold text-foreground">Matching could not load</h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Your preferences are safe. Please try loading student profiles again.
+            </p>
+            <Button onClick={() => void mutate()} className="w-full">
+              Try again
+            </Button>
+          </div>
         ) : isLoading && candidates.length === 0 ? (
           <DatingCardSkeleton />
         ) : remaining.length > 0 ? (
@@ -278,9 +291,9 @@ export function DatingAppClient() {
               <CuteCatSearch size={96} />
             </div>
             <div className="space-y-1">
-              <h3 className="font-heading font-bold text-base text-foreground">All Caught Up Nearby</h3>
+              <h3 className="font-heading font-bold text-base text-foreground">No profiles to show yet</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Expand your scope to meet students across other campuses
+                More verified students will appear as people opt into Matching.
               </p>
             </div>
             <div className="flex flex-col gap-2.5 pt-2">
@@ -302,7 +315,7 @@ export function DatingAppClient() {
               <Link href="/profile/edit" className="w-full">
                 <Button variant="ghost" className="w-full text-xs">
                   <Camera className="size-3.5" />
-                  <span>Edit Dating Profile</span>
+                  <span>Edit Profile</span>
                 </Button>
               </Link>
             </div>

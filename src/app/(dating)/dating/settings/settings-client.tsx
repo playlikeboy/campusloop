@@ -116,7 +116,7 @@ export function SettingsClient() {
             <div className="rounded-2xl border border-border/60 bg-card p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs sm:text-sm font-black text-foreground">Dating Profile Visibility</h3>
+                  <h3 className="text-xs sm:text-sm font-black text-foreground">Matching Profile Visibility</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isEnabled ? "Your profile is active in campus decks" : "Paused — hidden from decks"}
                   </p>
@@ -265,7 +265,7 @@ export function SettingsClient() {
                       <User className="size-4" />
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm font-bold text-foreground">Edit Dating Photos &amp; Bio</p>
+                      <p className="text-xs sm:text-sm font-bold text-foreground">Edit Profile Photos &amp; Bio</p>
                       <p className="text-[10px] text-muted-foreground">Update prompt tags and campus photos</p>
                     </div>
                   </div>

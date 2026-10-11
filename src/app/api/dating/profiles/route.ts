@@ -75,7 +75,7 @@ export async function GET(req: Request) {
       eq(userProfiles.status, "ACTIVE"), // Only active students
       eq(userProfiles.isSeeded, false), // Exclude seeded synthetic profiles
       ne(userProfiles.institutionId, viewerInstitutionId), // Never surface viewer accounts
-      sql`coalesce((${userProfiles.datingPreferences}->>'isEnabled')::boolean, true) = true`, // Only users who haven't paused/opted-out
+      sql`lower(coalesce(${userProfiles.datingPreferences}->>'isEnabled', 'true')) <> 'false'`, // Only users who haven't paused/opted-out
       swipedIds.length > 0 ? notInArray(userProfiles.id, swipedIds) : undefined,
     ];
 

@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import { RequestsClient } from "./requests-client";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Secret Crush Vault · Campus Match | CampusLoop",
-  description: "Anonymous zero-knowledge crush vault for verified college students.",
-};
-
-export default function DatingRequestsPage() {
-  return <RequestsClient />;
+export default function LegacyMatchingRedirect() {
+  redirect("/matching/requests");
 }

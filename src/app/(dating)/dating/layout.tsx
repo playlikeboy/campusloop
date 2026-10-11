@@ -19,14 +19,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Campus Match · Verified Dating & Vibes | CampusLoop",
+  title: "CampusLoop Matching · Campus Vibes",
   description:
-    "Connect with verified students across your college campus for friends, soft dating, and campus talk in a safe, ID-gated sanctuary.",
+    "Discover verified students from your campus for friendships, study partners, and shared interests.",
   openGraph: {
-    title: "Campus Match · Verified Dating & Friends",
+    title: "CampusLoop Matching · Friends & Shared Interests",
     description:
       "Connect with verified fellow students within your campus radius. Zero creeps, 100% college-verified.",
-    url: "https://campusloop.space/dating",
+    url: "https://campusloop.space/matching",
     siteName: "CampusLoop Match",
     images: [
       {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Campus Match · Verified Student Dating | CampusLoop",
+    title: "CampusLoop Matching | Verified Students",
     description: "Meet verified fellow students on your campus.",
     images: ["https://campusloop.space/og-dating.png"],
   },
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
 export default async function DatingLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
   if (!user) {
-    redirect("/sign-in?returnTo=/dating");
+    redirect("/sign-in?returnTo=/matching");
   }
 
   const profile = await getCachedUserProfile(user.id);

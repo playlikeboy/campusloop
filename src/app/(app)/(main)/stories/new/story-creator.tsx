@@ -29,6 +29,8 @@ import { uploadImageToImgBB } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 
 interface StoryCreatorProps {
+  initialText?: string;
+  initialMediaUrl?: string | null;
   profile: {
     id: string;
     displayName: string;
@@ -121,11 +123,11 @@ type Alignment = (typeof ALIGNMENTS)[number];
 
 const MAX_CHARS = 160;
 
-export function StoryCreator({ profile }: StoryCreatorProps) {
+export function StoryCreator({ profile, initialText = "", initialMediaUrl = null }: StoryCreatorProps) {
   const router = useRouter();
 
-  const [storyText, setStoryText] = useState("");
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [storyText, setStoryText] = useState(initialText.slice(0, MAX_CHARS));
+  const [mediaUrl, setMediaUrl] = useState<string | null>(initialMediaUrl);
   const [showUnsplashPicker, setShowUnsplashPicker] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [gradIndex, setGradIndex] = useState(0);
@@ -307,11 +309,11 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black select-none touch-manipulation">
+    <div className="story-creator-shell fixed inset-0 z-50 flex items-center justify-center bg-black select-none touch-manipulation">
       {/* 9:16 Responsive Story Canvas */}
       <div
         className={cn(
-          "relative w-full h-full md:h-[680px] md:w-[390px] md:rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between transition-colors duration-300",
+          "relative h-full w-full overflow-hidden shadow-2xl flex flex-col justify-between transition-colors duration-300 md:h-[min(92dvh,844px)] md:max-h-[92dvh] md:w-[min(430px,100vw)] md:max-w-[100vw] md:rounded-[28px]",
           mediaUrl ? "bg-black" : selectedGrad.class
         )}
       >
@@ -328,7 +330,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
         )}
 
         {/* ─── Top Control Toolbar ─── */}
-        <div className="relative z-20 p-4 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between gap-2">
+        <div className="relative z-20 p-3 sm:p-4 pt-[max(0.75rem,env(safe-area-inset-top))] flex items-center justify-between gap-2">
           {/* Close / Discard Button */}
           <button
             type="button"
@@ -343,7 +345,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
           </button>
 
           {/* Quick Editing Actions Strip */}
-          <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md p-1 rounded-full border border-white/10">
+          <div className="flex min-w-0 max-w-[calc(100vw-4.75rem)] shrink items-center gap-1 overflow-x-auto no-scrollbar rounded-full bg-black/35 p-1 backdrop-blur-md">
             {/* Font Toggle */}
             <button
               type="button"
@@ -560,7 +562,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
                   setStoryText(e.target.value);
                 }
               }}
-              placeholder="Type your campus vibe..."
+              placeholder="Write your story..."
               maxLength={MAX_CHARS}
               rows={3}
               className={cn(
@@ -582,7 +584,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
                 sounds.tap();
                 setMediaUrl(null);
               }}
-              className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 text-white/80 hover:text-white border border-white/20 text-xs font-semibold backdrop-blur-md cursor-pointer transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-white/85 backdrop-blur-md transition-colors hover:text-white cursor-pointer"
             >
               <Trash2 className="size-3" />
               <span>Remove Photo</span>
@@ -594,7 +596,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
         {/* 1. Text Formatting Tray (Size & Highlights) */}
         {activeTray === "text_format" && (
-          <div className="relative z-30 p-4 bg-black/90 backdrop-blur-xl border-t border-white/15 animate-in slide-in-from-bottom duration-200 space-y-3 text-white">
+          <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 text-white">
             <div className="flex items-center justify-between text-xs font-bold text-white/80">
               <span>Text Sizing</span>
               <span>Backdrop Highlight</span>
@@ -650,7 +652,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
         {/* 2. Color Palette Tray */}
         {activeTray === "palette" && (
-          <div className="relative z-30 p-4 bg-black/90 backdrop-blur-xl border-t border-white/15 animate-in slide-in-from-bottom duration-200 space-y-2">
+          <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-2">
             <p className="text-xs font-bold text-white/80">Canvas Gradient Themes</p>
             <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
               {GRADIENTS.map((grad, idx) => (
@@ -675,7 +677,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
         {/* 3. Stickers Tray */}
         {activeTray === "stickers" && (
-          <div className="relative z-30 p-4 bg-black/90 backdrop-blur-xl border-t border-white/15 animate-in slide-in-from-bottom duration-200 space-y-3 max-h-52 overflow-y-auto">
+          <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 max-h-52 overflow-y-auto">
             {STICKER_CATEGORIES.map((category) => (
               <div key={category.name} className="space-y-1.5">
                 <p className="text-[11px] font-bold text-white/60">{category.name}</p>
@@ -703,7 +705,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
         {/* 4. Music Vibe Tray */}
         {activeTray === "music" && (
-          <div className="relative z-30 p-4 bg-black/90 backdrop-blur-xl border-t border-white/15 animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
+          <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-white flex items-center gap-1.5">
                 <Music2 className="size-3.5 text-emerald-400" />
@@ -761,7 +763,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
 
         {/* 5. Campus Location Tray */}
         {activeTray === "location" && (
-          <div className="relative z-30 p-4 bg-black/90 backdrop-blur-xl border-t border-white/15 animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
+          <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-white flex items-center gap-1.5">
                 <MapPin className="size-3.5 text-rose-400" />
@@ -841,7 +843,7 @@ export function StoryCreator({ profile }: StoryCreatorProps) {
               </>
             ) : (
               <>
-                <span>Share Vibe</span>
+                <span>Share story</span>
                 <Send className="size-3.5" />
               </>
             )}

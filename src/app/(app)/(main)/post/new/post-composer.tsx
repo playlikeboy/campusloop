@@ -741,6 +741,23 @@ export function PostComposer({
       : []),
   ];
 
+  function handleAddStory() {
+    if (isUploadingMedia || uploadedImages.some((url) => url.startsWith("blob:"))) {
+      toast.warning("Wait for the photo upload to finish before adding it to a story.");
+      return;
+    }
+
+    const params = new URLSearchParams();
+    const currentText = (editor?.getText() || "").trim();
+    if (currentText) params.set("text", currentText.slice(0, 160));
+
+    const storyImage = uploadedImages.find((url) => url.startsWith("https://"));
+    if (storyImage) params.set("media", storyImage);
+
+    const query = params.toString();
+    router.push(query ? "/stories/new?" + query : "/stories/new");
+  }
+
   function handleContainerPaste(e: React.ClipboardEvent) {
     const items = Array.from(e.clipboardData?.items || []);
     const imageFiles = items
@@ -821,6 +838,18 @@ export function PostComposer({
             <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-extrabold text-primary shadow-2xs">
               <Zap className="size-3" /> +5 LP
             </span>
+
+            <button
+              type="button"
+              onClick={handleAddStory}
+              disabled={isUploadingMedia}
+              aria-label="Add story with this post content"
+              title="Add Story"
+              className="flex h-8.5 items-center justify-center gap-1.5 rounded-full bg-primary/10 px-2.5 text-primary text-xs font-bold transition-colors hover:bg-primary/15 cursor-pointer disabled:opacity-50"
+            >
+              <Sparkles className="size-3.5" />
+              <span>Story</span>
+            </button>
 
             <button
               type="submit"

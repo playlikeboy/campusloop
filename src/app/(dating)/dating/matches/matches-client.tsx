@@ -77,7 +77,7 @@ export function MatchesClient() {
               </p>
             </div>
             <div className="pt-2">
-              <Link href="/dating">
+              <Link href="/matching">
                 <Button size="default">
                   <Sparkles className="size-3.5" />
                   <span>Keep Swiping</span>
