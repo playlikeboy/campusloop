@@ -52,14 +52,15 @@ export function DialogContent({ className, children }: { className?: string; chi
       aria-modal="true"
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative z-50 w-full max-w-lg rounded-3xl border border-border/80 bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200",
+        "relative z-50 w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200",
         className
       )}
     >
       <button
         type="button"
         onClick={() => ctx?.onOpenChange(false)}
-        className="absolute top-4 right-4 size-8 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+        aria-label="Close dialog"
+        className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 size-9 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <X className="size-4" />
       </button>

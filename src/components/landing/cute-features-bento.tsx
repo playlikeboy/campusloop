@@ -8,23 +8,17 @@ import {
   Code2,
   Cpu,
   Database,
-  Flame,
   Globe2,
   GraduationCap,
   Heart,
   Layers,
   Lock,
-  MessageSquare,
-  ShieldCheck,
-  Sparkles,
-  Users,
   VenetianMask,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   CuteCatStudy,
-  CuteCatMascot,
   CuteHeart,
   CuteSparkle,
 } from "@/components/ui/cute-illustrations";

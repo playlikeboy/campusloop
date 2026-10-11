@@ -1,18 +1,33 @@
 "use client";
 
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
 import { Button } from "@/components/ui/button";
 
 export function FeedEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center rounded-3xl bg-card border border-border/80 p-8 my-4 mx-3 shadow-2xs">
-      <CuteCatEmpty size={104} className="mb-3" />
-      <h3 className="font-heading font-bold text-foreground text-base">Your campus feed is quiet</h3>
-      <p className="text-xs text-muted-foreground mt-1.5 max-w-xs px-4 leading-relaxed">
-        No posts matched your active filter settings. Try resetting filters or drop the first confession or discussion!
+    <div className="flex flex-col items-center justify-center py-14 sm:py-16 text-center rounded-3xl bg-card border border-border/80 p-6 sm:p-8 my-4 mx-3 shadow-2xs">
+      <CuteCatEmpty size={108} className="mb-3.5" />
+      <h3 className="font-heading font-bold text-foreground text-base sm:text-lg">
+        Be the first to break the ice in your campus feed!
+      </h3>
+      <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-sm px-2 leading-relaxed">
+        Share a thought, confession, question, or campus poll. Your fellow students are here to connect and discuss!
       </p>
+      <div className="flex items-center justify-center gap-2.5 mt-5 flex-wrap">
+        <Link href="/post/new">
+          <Button size="default" className="gap-2 shadow-xs cursor-pointer rounded-full px-5 font-bold">
+            <Plus className="size-4" />
+            <span>Create Post</span>
+          </Button>
+        </Link>
+        <Link href="/colleges">
+          <Button variant="secondary" size="default" className="cursor-pointer rounded-full px-4 font-semibold text-xs sm:text-sm">
+            <span>Explore Other Campuses</span>
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

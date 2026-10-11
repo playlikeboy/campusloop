@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Bot, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal } from "lucide-react";
+import { Archive, Bot, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal, VenetianMask } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -165,6 +165,13 @@ export function FeedCardHeader({
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/25 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
               <Bot className="size-2.5" />
               <span>BOT</span>
+            </span>
+          )}
+
+          {post.isAnonymous && !isBotPost && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-[9px] font-bold uppercase tracking-wider shrink-0 shadow-2xs">
+              <VenetianMask className="size-2.5" />
+              <span>Anon</span>
             </span>
           )}
 

@@ -60,7 +60,7 @@ export function ConfirmDialog({
       }}
     >
       <div
-        className="w-full max-w-md rounded-3xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -85,7 +85,8 @@ export function ConfirmDialog({
             type="button"
             disabled={isLoading}
             onClick={onClose}
-            className="size-7 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer disabled:opacity-50 transition-colors"
+            aria-label="Close dialog"
+            className="size-9 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer disabled:opacity-50 transition-colors outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background shrink-0"
           >
             <X className="size-4" />
           </button>
@@ -98,7 +99,7 @@ export function ConfirmDialog({
             type="button"
             disabled={isLoading}
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-border/70 bg-muted/30 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
+            className="h-9 min-h-[36px] px-4 rounded-xl border border-border/70 bg-muted/30 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {cancelText}
           </button>
@@ -108,7 +109,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             onClick={onConfirm}
             className={cn(
-              "px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50",
+              "h-9 min-h-[36px] px-4 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               btnVariants[variant]
             )}
           >

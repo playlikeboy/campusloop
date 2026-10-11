@@ -5,7 +5,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -30,15 +30,15 @@ const buttonVariants = cva(
         violet: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs font-bold",
       },
       size: {
-        default: "h-10 gap-2 px-4 text-sm rounded-xl",
-        md: "h-10 gap-2 px-4 text-sm rounded-xl",
-        sm: "h-8 gap-1.5 px-3 text-xs rounded-lg [&_svg:not([class*='size-'])]:size-3.5",
-        xs: "h-7 gap-1 px-2.5 text-xs rounded-md [&_svg:not([class*='size-'])]:size-3",
-        lg: "h-12 gap-2.5 px-6 text-base font-semibold rounded-2xl",
-        icon: "size-10 rounded-xl",
-        "icon-sm": "size-8 rounded-lg",
-        "icon-xs": "size-7 rounded-md",
-        "icon-lg": "size-12 rounded-2xl",
+        default: "h-11 min-h-[44px] gap-2 px-4 text-sm rounded-xl",
+        md: "h-11 min-h-[44px] gap-2 px-4 text-sm rounded-xl",
+        sm: "h-9 min-h-[36px] gap-1.5 px-3 text-xs rounded-lg [&_svg:not([class*='size-'])]:size-3.5",
+        xs: "h-7 min-h-[28px] gap-1 px-2.5 text-xs rounded-md [&_svg:not([class*='size-'])]:size-3",
+        lg: "h-12 min-h-[48px] gap-2.5 px-6 text-base font-semibold rounded-2xl",
+        icon: "size-11 min-h-[44px] min-w-[44px] rounded-xl",
+        "icon-sm": "size-9 min-h-[36px] min-w-[36px] rounded-lg",
+        "icon-xs": "size-7 min-h-[28px] min-w-[28px] rounded-md",
+        "icon-lg": "size-12 min-h-[48px] min-w-[48px] rounded-2xl",
       },
     },
     defaultVariants: {

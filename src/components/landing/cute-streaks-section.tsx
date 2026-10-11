@@ -1,20 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import {
-  Award,
-  Crown,
-  Flame,
-  Lock,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { Flame, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CuteCatSuccess, CuteSparkle } from "@/components/ui/cute-illustrations";
+import { CuteCatSuccess } from "@/components/ui/cute-illustrations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 

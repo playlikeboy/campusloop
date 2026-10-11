@@ -24,6 +24,7 @@ import {
   Trophy,
   Users,
   Users2,
+  X,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -312,10 +313,10 @@ export function CommunitiesIndexClient({
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                   aria-label="Clear search"
                 >
-                  ×
+                  <X className="size-3.5" />
                 </button>
               ) : null}
             </div>

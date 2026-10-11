@@ -65,10 +65,10 @@ export const DESKTOP_NAV_ITEMS: NavItem[] = [
 ];
 
 // Mobile bottom navigation has 5 core tabs:
-// Home (/feeds), Academics (/academics), Post (/post/new), Chat (/chat), and Dating (/dating).
+// Home (/feeds), Colleges (/colleges), Post (/post/new), Chat (/chat), and Dating (/dating).
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
   { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: AnimateBookOpen, href: "/academics", label: "Academics" },
+  { icon: Building2, href: "/colleges", label: "Colleges" },
   { icon: AnimatePlus, href: "/post/new", label: "Post" },
   { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
   { icon: AnimateHeart, href: "/dating", label: "Dating" },
