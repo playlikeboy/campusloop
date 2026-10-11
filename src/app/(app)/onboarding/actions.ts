@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { institutionDomains, institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
 import { getAvatarUrl } from "@/lib/utils";
@@ -200,14 +201,17 @@ export async function completeOnboarding(formData: FormData) {
         collegeName,
       });
 
-      sendEmail({
-        to: email.trim().toLowerCase(),
-        from: "welcome@mail.campsy.app",
-        fromName: "CampusLoop",
-        subject,
-        html,
-        text,
-      }).catch((err) => console.warn("[Onboarding welcome email failed]:", err));
+      runInBackground(
+        sendEmail({
+          to: email.trim().toLowerCase(),
+          from: "welcome@mail.campsy.app",
+          fromName: "CampusLoop",
+          subject,
+          html,
+          text,
+        }),
+        "onboarding welcome email"
+      );
     } catch {
       // Non-blocking email dispatch
     }

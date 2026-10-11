@@ -103,7 +103,7 @@ export async function awardPoints(
   if (newTier.level > prevTier.level) {
     try {
       await createNotification({
-        userId: currentProfile.userId,
+        userId: currentProfile.id,
         actorId: currentProfile.id,
         type: "MILESTONE",
         previewText: `Level Up! You just unlocked ${newTier.tierName} (Level ${newTier.level}) with ${newPoints} LP!`,
@@ -116,7 +116,7 @@ export async function awardPoints(
   } else if (prevPoints < VERIFIED_LP_THRESHOLD && newPoints >= VERIFIED_LP_THRESHOLD) {
     try {
       await createNotification({
-        userId: currentProfile.userId,
+        userId: currentProfile.id,
         actorId: currentProfile.id,
         type: "MILESTONE",
         previewText: `You reached 150 LP! Verified Student Shield & 50 Secret Crush slots are now unlocked.`,

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { notifyNewMessage } from "@/lib/chat-notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -353,7 +354,10 @@ export async function POST(req: Request) {
 
       // A story reply or first DM is the one message most worth surfacing —
       // the recipient has no thread open to notice it in.
-      notifyNewMessage({ conversationId, senderId: profile.id, body: openingLine }).catch(() => {});
+      runInBackground(
+        notifyNewMessage({ conversationId, senderId: profile.id, body: openingLine }),
+        "message notification"
+      );
     }
 
     return NextResponse.json({ id: conversationId }, { status: 200 });

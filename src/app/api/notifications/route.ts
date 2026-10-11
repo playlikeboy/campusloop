@@ -31,7 +31,9 @@ export async function GET(req: NextRequest) {
     if (tab === "mentions") {
       whereConditions.push(eq(notifications.type, "MENTION"));
     } else if (tab === "replies") {
-      whereConditions.push(inArray(notifications.type, ["COMMENT", "REPLY", "STORY_REPLY"]));
+      whereConditions.push(
+        inArray(notifications.type, ["COMMENT", "ARTICLE_COMMENT", "REPLY", "STORY_REPLY"])
+      );
     } else if (tab === "reactions") {
       whereConditions.push(inArray(notifications.type, ["LIKE", "REPOST", "STORY_LIKE"]));
     } else if (tab === "crushes") {
@@ -193,7 +195,7 @@ export async function DELETE(req: NextRequest) {
       if (tab === "mentions") {
         conditions.push(eq(notifications.type, "MENTION"));
       } else if (tab === "replies") {
-        conditions.push(inArray(notifications.type, ["COMMENT", "REPLY", "STORY_REPLY"]));
+        conditions.push(inArray(notifications.type, ["COMMENT", "ARTICLE_COMMENT", "REPLY", "STORY_REPLY"]));
       } else if (tab === "reactions") {
         conditions.push(inArray(notifications.type, ["LIKE", "REPOST", "STORY_LIKE"]));
       } else if (tab === "crushes") {

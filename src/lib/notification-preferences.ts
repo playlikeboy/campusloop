@@ -51,6 +51,7 @@ export function channelForType(type: string): NotificationChannel | null {
     case "LIKE":
       return "LIKE";
     case "COMMENT":
+    case "ARTICLE_COMMENT":
     case "REPLY":
       return "COMMENT";
     case "MENTION":
