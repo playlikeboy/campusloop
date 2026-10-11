@@ -12,11 +12,13 @@ export function MobileFloatingCreateButton({ isViewer }: { isViewer?: boolean })
   const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
+    // Start hidden on each route so a scroll on the previous page does not
+    // leave the create action floating above the new page's first viewport.
+    setHasScrolled(false);
     const updateVisibility = () => setHasScrolled(window.scrollY > 120);
-    updateVisibility();
     window.addEventListener("scroll", updateVisibility, { passive: true });
     return () => window.removeEventListener("scroll", updateVisibility);
-  }, []);
+  }, [pathname]);
 
   if (isViewer || !hasScrolled || HIDE_ON_ROUTES.some((route) => pathname.startsWith(route))) {
     return null;
