@@ -1,15 +1,12 @@
-const CACHE_NAME = "campusloop-shell-v7";
+const CACHE_NAME = "campusloop-shell-v8";
 const STATIC_SHELL = [
   "/",
-  "/app",
-  "/app/chat",
-  "/app/discover",
-  "/app/colleges",
-  "/app/communities",
-  "/app/notifications",
-  "/app/matching",
-  "/app/marketplace",
-  "/app/profile",
+  "/feeds",
+  "/chat",
+  "/discover",
+  "/colleges",
+  "/communities",
+  "/notifications",
   "/merchant-portal",
   "/merchant-portal/orders",
   "/merchant-portal/products",
@@ -149,7 +146,7 @@ self.addEventListener("fetch", (event) => {
           }
 
           // Main Student App isolated shell
-          const appShell = await caches.match("/app");
+          const appShell = await caches.match("/feeds");
           if (appShell) return appShell;
           return caches.match("/");
         })
@@ -188,7 +185,7 @@ self.addEventListener("push", (event) => {
 
       const title = payload?.title || "CampusLoop";
       const body = payload?.body || "You have a new campus notification";
-      const url = payload?.url || "/app/notifications";
+      const url = payload?.url || "/notifications";
 
       await self.registration.showNotification(title, {
         body,
@@ -204,7 +201,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || "/app/notifications";
+  const targetUrl = event.notification.data?.url || "/notifications";
 
   event.waitUntil(
     (async () => {

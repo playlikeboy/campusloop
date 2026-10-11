@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { savedPosts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { checkCampusUpgradeEligibility } from "@/lib/campus-upgrade";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
@@ -86,14 +87,17 @@ export async function POST(req: Request) {
         displayName: profile.displayName || profile.username,
         collegeName: institution.name,
       });
-      sendEmail({
-        to: email,
-        from: "welcome@mail.campsy.app",
-        fromName: "CampusLoop",
-        subject,
-        html,
-        text,
-      }).catch((err) => console.warn("[Upgrade welcome email failed]:", err));
+      runInBackground(
+        sendEmail({
+          to: email,
+          from: "welcome@mail.campsy.app",
+          fromName: "CampusLoop",
+          subject,
+          html,
+          text,
+        }),
+        "upgrade welcome email"
+      );
     } catch {
       // Non-blocking email dispatch
     }

@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { academicResourceVotes, academicResources, savedAcademicResources } from "@/db/schema";
+import { academicResources, academicResourceVotes, savedAcademicResources } from "@/db/schema";
 import { getRedis } from "@/lib/redis";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
@@ -14,6 +14,7 @@ interface RouteParams {
 }
 
 import { analyticsRateLimitCache } from "@/lib/analytics-cache";
+import { runInBackground } from "@/lib/background";
 
 async function checkAndApplyRateLimit(key: string, ttlSeconds: number): Promise<boolean> {
   const redisClient = getRedis();
@@ -178,10 +179,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       const existingVote = await db.query.academicResourceVotes.findFirst({
-        where: and(
-          eq(academicResourceVotes.resourceId, id),
-          eq(academicResourceVotes.profileId, profile.id)
-        ),
+        where: and(eq(academicResourceVotes.resourceId, id), eq(academicResourceVotes.profileId, profile.id)),
       });
 
       // Idempotency: user already upvoted this resource
@@ -269,10 +267,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       const existingVote = await db.query.academicResourceVotes.findFirst({
-        where: and(
-          eq(academicResourceVotes.resourceId, id),
-          eq(academicResourceVotes.profileId, profile.id)
-        ),
+        where: and(eq(academicResourceVotes.resourceId, id), eq(academicResourceVotes.profileId, profile.id)),
       });
 
       // Idempotency: user already downvoted this resource
@@ -345,18 +340,13 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       const existingVote = await db.query.academicResourceVotes.findFirst({
-        where: and(
-          eq(academicResourceVotes.resourceId, id),
-          eq(academicResourceVotes.profileId, profile.id)
-        ),
+        where: and(eq(academicResourceVotes.resourceId, id), eq(academicResourceVotes.profileId, profile.id)),
       });
 
       let updated = resource;
 
       if (existingVote?.voteType === "UPVOTE") {
-        await db
-          .delete(academicResourceVotes)
-          .where(eq(academicResourceVotes.id, existingVote.id));
+        await db.delete(academicResourceVotes).where(eq(academicResourceVotes.id, existingVote.id));
 
         const [res] = await db
           .update(academicResources)
@@ -389,18 +379,13 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       const existingVote = await db.query.academicResourceVotes.findFirst({
-        where: and(
-          eq(academicResourceVotes.resourceId, id),
-          eq(academicResourceVotes.profileId, profile.id)
-        ),
+        where: and(eq(academicResourceVotes.resourceId, id), eq(academicResourceVotes.profileId, profile.id)),
       });
 
       let updated = resource;
 
       if (existingVote?.voteType === "DOWNVOTE") {
-        await db
-          .delete(academicResourceVotes)
-          .where(eq(academicResourceVotes.id, existingVote.id));
+        await db.delete(academicResourceVotes).where(eq(academicResourceVotes.id, existingVote.id));
 
         const [res] = await db
           .update(academicResources)
@@ -453,11 +438,14 @@ export async function POST(req: Request, { params }: RouteParams) {
             weight: 4,
           }).catch(() => {});
 
-          recordStreakActivity({
-            userId: profile.id,
-            eventType: "ACADEMIC_BOOKMARK",
-            resourceId: id,
-          }).catch((err) => console.warn("Failed to record streak for note save:", err));
+          runInBackground(
+            recordStreakActivity({
+              userId: profile.id,
+              eventType: "ACADEMIC_BOOKMARK",
+              resourceId: id,
+            }),
+            "streak activity"
+          );
         }
       }
 

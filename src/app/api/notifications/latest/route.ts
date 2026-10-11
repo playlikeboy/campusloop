@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { notifications, userProfiles } from "@/db/schema";
@@ -39,8 +39,8 @@ export async function GET() {
       },
     });
 
-    const unread = await db
-      .select({ id: notifications.id })
+    const [unreadRow] = await db
+      .select({ count: sql<number>`count(*)::int` })
       .from(notifications)
       .where(and(eq(notifications.userId, profile.id), eq(notifications.isRead, false)));
 
@@ -53,7 +53,7 @@ export async function GET() {
     const actorName = anonymous ? "Someone" : latest.actor?.displayName || "A student";
 
     return NextResponse.json({
-      unreadCount: unread.length,
+      unreadCount: unreadRow?.count || 0,
       notification: {
         id: latest.id,
         type: latest.type,
@@ -100,6 +100,8 @@ function defaultBody(type: string, actorName: string): string {
       return `${actorName} liked your campus vibe`;
     case "COMMENT":
       return `${actorName} replied to your post`;
+    case "ARTICLE_COMMENT":
+      return `${actorName} commented on your article`;
     case "REPLY":
     case "STORY_REPLY":
       return `${actorName} replied to you`;
@@ -143,6 +145,8 @@ function buildUrl(type: string, referenceId: string | null): string {
     case "STORY_LIKE":
     case "STORY_REPLY":
       return `/story/${referenceId}`;
+    case "ARTICLE_COMMENT":
+      return `/articles/${referenceId}`;
     case "MESSAGE":
     case "MATCH":
       return `/chat/${referenceId}`;

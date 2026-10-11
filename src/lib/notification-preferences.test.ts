@@ -40,6 +40,7 @@ describe("channelForType", () => {
     const types = [
       "LIKE",
       "COMMENT",
+      "ARTICLE_COMMENT",
       "REPLY",
       "MENTION",
       "REPOST",

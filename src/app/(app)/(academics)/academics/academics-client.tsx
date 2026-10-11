@@ -29,6 +29,7 @@ import { AcademicFilterBar } from "@/components/academics/academic-filter-bar";
 import { AcademicHeader } from "@/components/academics/academic-header";
 import { AcademicNavTabs } from "@/components/academics/academic-nav-tabs";
 import { AcademicPlaylistCard } from "@/components/academics/academic-playlist-card";
+import { AcademicPlaylistShelf } from "@/components/academics/academic-playlist-shelf";
 import { AcademicSearchBar } from "@/components/academics/academic-search-bar";
 import { AcademicCard } from "@/components/communities/academic-card";
 import { GUEST_DOWNLOAD_LIMIT, getGuestDownloadCount } from "@/lib/academic-download-limiter";
@@ -150,14 +151,29 @@ export function AcademicsClient({
     dedupingInterval: 4000,
   });
 
-  // Playlists Query
-  const { data: playlistsData, isLoading: isPlaylistsLoading } = useSWR<{
+  // Playlists are part of the For You feed as well as their dedicated tab.
+  // The feed loads a small curated set; the dedicated playlist and saved views can load more.
+  // The desktop companion rail uses playlists on every tab, while list views load a larger page.
+  const playlistLimit =
+    activeTab === "PLAYLISTS" || (activeTab === "SAVED" && savedSubTab === "playlists") ? "20" : "3";
+  const playlistParams = new URLSearchParams({
+    branch: selectedBranch,
+    semester: selectedSemester,
+    q: searchQuery.trim(),
+    scope,
+    sort: "popular",
+    limit: playlistLimit,
+  });
+  const {
+    data: playlistsData,
+    isLoading: isPlaylistsLoading,
+    error: playlistsError,
+    mutate: mutatePlaylists,
+  } = useSWR<{
     playlists: any[];
-    pagination: { total: number };
+    pagination: { total: number; totalPages?: number };
   }>(
-    activeTab === "PLAYLISTS" || (activeTab === "SAVED" && savedSubTab === "playlists")
-      ? `/api/academics/playlists?branch=${selectedBranch}&semester=${selectedSemester}&q=${encodeURIComponent(searchQuery)}&scope=${scope}`
-      : null,
+    `/api/academics/playlists?${playlistParams.toString()}`,
     fetcher
   );
 
@@ -385,6 +401,17 @@ export function AcademicsClient({
             </div>
           )}
 
+          {/* Curated playlist shelf: playlists are discoverable without leaving For You. */}
+          {activeTab === "for_you" && (
+            <AcademicPlaylistShelf
+              playlists={playlistsData?.playlists || []}
+              isLoading={isPlaylistsLoading}
+              error={playlistsError}
+              onRetry={() => void mutatePlaylists()}
+              onViewAll={() => setActiveTab("PLAYLISTS")}
+            />
+          )}
+
           {/* ── Tab: SAVED MATERIALS ── */}
           {activeTab === "SAVED" ? (
             <div className="space-y-4">
@@ -578,6 +605,9 @@ export function AcademicsClient({
           collegeName={collegeName}
           userSemester={userSemester}
           userBranch={userBranch}
+          playlists={playlistsData?.playlists || []}
+          playlistsLoading={isPlaylistsLoading}
+          playlistsError={playlistsError}
         />
       </div>
 

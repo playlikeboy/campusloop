@@ -15,6 +15,65 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 /**
+ * Whether this browser currently holds a Web Push subscription, i.e. the
+ * service worker will surface new notifications on its own.
+ */
+export async function hasActivePushSubscription(): Promise<boolean> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return false;
+  }
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    return Boolean(await reg?.pushManager.getSubscription());
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Create (or reuse) this browser's push subscription and register it with the
+ * server. The server upserts on endpoint, so calling this repeatedly is safe.
+ */
+async function registerPushSubscription(vapidPublicKey: string): Promise<boolean> {
+  const registration = await navigator.serviceWorker.ready;
+  const existing = await registration.pushManager.getSubscription();
+  const subscription =
+    existing ||
+    (await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource,
+    }));
+
+  const res = await fetch("/api/push/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(subscription.toJSON()),
+  });
+  return res.ok;
+}
+
+// One background sync per page load is enough; every mounted hook shares it.
+let pushSyncStarted = false;
+
+/** Set when the student turns push off, so the background re-sync respects it. */
+const PUSH_OPT_OUT_KEY = "campusloop_push_opt_out";
+
+function readPushOptOut(): boolean {
+  try {
+    return localStorage.getItem(PUSH_OPT_OUT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writePushOptOut(optedOut: boolean) {
+  try {
+    if (optedOut) localStorage.setItem(PUSH_OPT_OUT_KEY, "1");
+    else localStorage.removeItem(PUSH_OPT_OUT_KEY);
+  } catch {}
+}
+
+/**
  * Trigger a native browser or PWA system notification.
  * Works across desktop Chrome/Edge/Safari/Firefox, Android Chrome, and iOS PWA.
  */
@@ -92,7 +151,25 @@ export function usePushNotifications() {
         })
         .catch(() => {});
     }
-  }, []);
+
+    // Students who granted permission before Web Push was configured — or whose
+    // browser rotated its subscription — would otherwise never be re-registered,
+    // and the server would have no endpoint to wake. Silently re-sync once.
+    if (
+      Notification.permission === "granted" &&
+      vapidPublicKey &&
+      !pushSyncStarted &&
+      !readPushOptOut() &&
+      "serviceWorker" in navigator &&
+      "PushManager" in window
+    ) {
+      pushSyncStarted = true;
+      registerPushSubscription(vapidPublicKey).catch((err) => {
+        pushSyncStarted = false;
+        console.warn("Background push subscription sync failed:", err);
+      });
+    }
+  }, [vapidPublicKey]);
 
   const subscribe = useCallback(async () => {
     if (typeof window === "undefined" || !("Notification" in window)) {
@@ -119,6 +196,7 @@ export function usePushNotifications() {
       }
 
       setIsSubscribed(true);
+      writePushOptOut(false);
       sounds.ting();
       haptics.success();
       toast.success("Campus notifications active! You'll receive instant alerts.");
@@ -126,20 +204,7 @@ export function usePushNotifications() {
       // If VAPID is configured, register WebPush background subscription
       if (vapidPublicKey && "serviceWorker" in navigator && "PushManager" in window) {
         try {
-          const registration = await navigator.serviceWorker.ready;
-          const existing = await registration.pushManager.getSubscription();
-          const subscription =
-            existing ||
-            (await registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource,
-            }));
-
-          await fetch("/api/push/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(subscription.toJSON()),
-          });
+          await registerPushSubscription(vapidPublicKey);
         } catch (pushErr) {
           console.warn(
             "Optional WebPush subscription failed (browser notifications remain active):",
@@ -198,6 +263,7 @@ export function usePushNotifications() {
       }
 
       setIsSubscribed(false);
+      writePushOptOut(true);
       toast.success("Notifications muted");
       return true;
     } catch (err) {

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,10 @@ export async function POST(request: Request, { params }: RouteProps) {
     const { id: paramId } = await params;
     const user = await hexclaveServerApp.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized", message: "Sign in to join communities" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Sign in to join communities" },
+        { status: 401 }
+      );
     }
 
     const db = getDb();
@@ -66,11 +70,14 @@ export async function POST(request: Request, { params }: RouteProps) {
         .set({ points: sql`${communities.points} + 15` })
         .where(eq(communities.id, comm.id));
 
-      recordStreakActivity({
-        userId: profile.id,
-        eventType: "COMMUNITY_JOIN",
-        resourceId: comm.id,
-      }).catch((err) => console.warn("Failed to record streak for community join:", err));
+      runInBackground(
+        recordStreakActivity({
+          userId: profile.id,
+          eventType: "COMMUNITY_JOIN",
+          resourceId: comm.id,
+        }),
+        "streak activity"
+      );
     }
 
     revalidatePath(`/communities/${comm.slug || comm.id}`);
