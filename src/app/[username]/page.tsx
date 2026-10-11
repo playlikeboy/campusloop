@@ -141,7 +141,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     },
   });
 
-  if (!profile) {
+  if (!profile || profile.isSeeded) {
     notFound();
   }
 
@@ -166,6 +166,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     where: and(
       or(eq(posts.authorId, profile.id), eq(posts.authorId, profile.userId)),
       eq(posts.status, "PUBLISHED"),
+      eq(posts.isSeeded, false),
       eq(posts.isAnonymous, false)
     ),
     orderBy: [desc(posts.createdAt)],

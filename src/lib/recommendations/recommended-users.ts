@@ -112,6 +112,7 @@ export async function getRecommendedUsers(
   const conditions: (SQL | undefined)[] = [
     ne(userProfiles.id, viewer.id),
     eq(userProfiles.status, "ACTIVE"),
+    eq(userProfiles.isSeeded, false),
     ne(userProfiles.institutionId, viewerInstitutionId),
   ];
 

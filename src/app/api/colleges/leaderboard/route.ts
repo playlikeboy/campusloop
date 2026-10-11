@@ -60,8 +60,8 @@ export async function GET(request: Request) {
         score: sql<number>`${rankingScore}::int`,
       })
       .from(institutions)
-      .leftJoin(userProfiles, eq(userProfiles.institutionId, institutions.id))
-      .leftJoin(posts, eq(posts.institutionId, institutions.id))
+      .leftJoin(userProfiles, and(eq(userProfiles.institutionId, institutions.id), eq(userProfiles.isSeeded, false)))
+      .leftJoin(posts, and(eq(posts.institutionId, institutions.id), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)))
       .where(whereClause)
       .groupBy(institutions.id)
       .orderBy(desc(rankingScore))

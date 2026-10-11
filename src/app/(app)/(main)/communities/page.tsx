@@ -201,7 +201,7 @@ export default async function CommunitiesPage({
         count: count(posts.id),
       })
       .from(posts)
-      .where(isNotNull(posts.communityId))
+      .where(and(isNotNull(posts.communityId), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)))
       .groupBy(posts.communityId),
     db
       .select({
@@ -231,7 +231,7 @@ export default async function CommunitiesPage({
   let feedTotal = 0;
 
   if (tab === "feed") {
-    const feedFilters = [isNotNull(posts.communityId)];
+    const feedFilters = [isNotNull(posts.communityId), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
     if (q) {
       const pattern = "%" + q + "%";
       feedFilters.push(or(ilike(posts.title, pattern), ilike(posts.body, pattern)) as never);

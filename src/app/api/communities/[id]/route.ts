@@ -70,7 +70,7 @@ export async function GET(request: Request, { params }: RouteProps) {
     const postsCountRows = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(posts)
-      .where(eq(posts.communityId, comm.id));
+      .where(and(eq(posts.communityId, comm.id), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)));
     const postsCount = postsCountRows[0]?.count ?? 0;
 
     return NextResponse.json({

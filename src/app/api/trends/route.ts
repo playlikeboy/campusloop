@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     }
 
     // Determine query conditions based on scope
-    const conditions = [eq(posts.status, "PUBLISHED")];
+    const conditions = [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
     if (requestedScope === "CAMPUS" && userInstitutionId) {
       conditions.push(eq(posts.institutionId, userInstitutionId));
     }
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
             LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
             count(*)::int as count
           FROM posts
-          WHERE status = 'PUBLISHED' AND institution_id = ${userInstitutionId}
+          WHERE status = 'PUBLISHED' AND is_seeded = false AND institution_id = ${userInstitutionId}
           GROUP BY 1
           ORDER BY count DESC
           LIMIT 12;
@@ -89,7 +89,7 @@ export async function GET(req: Request) {
             LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
             count(*)::int as count
           FROM posts
-          WHERE status = 'PUBLISHED'
+          WHERE status = 'PUBLISHED' AND is_seeded = false
           GROUP BY 1
           ORDER BY count DESC
           LIMIT 12;
@@ -105,7 +105,7 @@ export async function GET(req: Request) {
           LOWER((regexp_matches(body, '#[a-zA-Z0-9_]+', 'g'))[1]) as tag,
           count(*)::int as count
         FROM posts
-        WHERE status = 'PUBLISHED'
+        WHERE status = 'PUBLISHED' AND is_seeded = false
         GROUP BY 1
         ORDER BY count DESC
         LIMIT 10;

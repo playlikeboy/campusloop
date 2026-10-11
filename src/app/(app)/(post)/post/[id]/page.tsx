@@ -23,10 +23,11 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const { id } = await params;
   const post = await getCachedPostDetail(id);
 
-  if (!post) {
+  if (!post || post.isSeeded || post.status !== "PUBLISHED") {
     return {
-      title: "Campus Loop",
-      description: "Explore student yaps, confessions, and campus discussions on CampusLoop.",
+      title: "Post Not Found · CampusLoop",
+      description: "This post is no longer available on CampusLoop.",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -85,7 +86,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
     user ? getCachedUserProfile(user.id) : Promise.resolve(null),
   ]);
 
-  if (!rawPost) {
+  if (!rawPost || rawPost.isSeeded || rawPost.status !== "PUBLISHED") {
     notFound();
   }
 
