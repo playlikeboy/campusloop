@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-labelledby="title">
+<title id="title">CampusLoop voxel study nook</title>
+<defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#fff5e7"/><stop offset="1" stop-color="#f3d9bd"/></linearGradient><linearGradient id="view" x2="0" y2="1"><stop stop-color="#80c4e9"/><stop offset="1" stop-color="#e5f6ff"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="150%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#805f4d" flood-opacity=".18"/></filter></defs>
+<rect width="800" height="520" fill="url(#wall)"/>
+<path d="M0 0H800V56L0 80Z" fill="#eed0b0"/>
+<rect x="405" y="58" width="325" height="253" rx="7" fill="#9d7554"/>
+<rect x="421" y="73" width="293" height="222" fill="url(#view)"/>
+<g fill="#fff" opacity=".82"><rect x="469" y="98" width="58" height="13"/><rect x="485" y="111" width="44" height="12"/><rect x="620" y="118" width="43" height="12"/></g>
+<g fill="#96c77f"><rect x="431" y="204" width="44" height="37"/><rect x="470" y="185" width="37" height="47"/><rect x="505" y="209" width="38" height="34"/><rect x="560" y="192" width="46" height="48"/><rect x="605" y="174" width="42" height="55"/><rect x="650" y="201" width="49" height="38"/></g>
+<g fill="#e7d6bf"><rect x="451" y="181" width="47" height="70"/><rect x="506" y="163" width="53" height="88"/><rect x="575" y="190" width="54" height="61"/><rect x="645" y="171" width="43" height="80"/></g>
+<g fill="#7ca9c6"><rect x="461" y="192" width="10" height="18"/><rect x="480" y="192" width="10" height="18"/><rect x="518" y="176" width="12" height="21"/><rect x="537" y="176" width="12" height="21"/><rect x="589" y="201" width="11" height="17"/><rect x="608" y="201" width="11" height="17"/><rect x="656" y="183" width="10" height="18"/></g>
+<path d="M393 58h14v265h-14zM405 180h325v13H405z" fill="#c19871"/>
+<!-- shelf and books -->
+<path d="M0 135L268 103L268 127L0 159Z" fill="#b57b4f"/><path d="M0 159L268 127V140L0 173Z" fill="#8e6040"/>
+<g><path d="M28 115l34-4v37l-34 5z" fill="#78a9ba"/><path d="M66 110l27-3v38l-27 4z" fill="#e6a779"/><path d="M97 106l30-4v38l-30 4z" fill="#f7d9a7"/><path d="M131 102l36-5v39l-36 5z" fill="#87af8b"/><path d="M171 98l30-4v38l-30 4z" fill="#e58b72"/><path d="M206 94l29-4v39l-29 4z" fill="#5f8baa"/></g>
+<!-- wall notes -->
+<g><rect x="48" y="211" width="145" height="94" rx="4" fill="#d0a276"/><rect x="57" y="220" width="127" height="75" fill="#f8e5c6"/><path d="M71 239h51M71 251h74M71 263h57M71 278h79" stroke="#d7b894" stroke-width="5" stroke-linecap="square"/><rect x="133" y="231" width="36" height="25" fill="#c6e5f2"/><path d="M139 249l8-9l7 6l10-12" fill="none" stroke="#508cac" stroke-width="3"/></g>
+<!-- desktop -->
+<g filter="url(#shadow)"><path d="M0 361L442 310L800 389L349 453Z" fill="#d8a36c"/><path d="M349 453L800 389V419L349 488Z" fill="#ad754c"/><path d="M53 428v78h22v-81M299 457v51h22v-54M699 408v78h21v-81" fill="#9b6845"/></g>
+<!-- laptop -->
+<g filter="url(#shadow)"><path d="M273 279L405 263L437 326L301 344Z" fill="#6c7d8e"/><path d="M286 282L398 269L421 318L309 333Z" fill="#a9d7f0"/><path d="M301 344L437 326L461 347L324 366Z" fill="#d8e5ec"/><path d="M323 350L434 334L445 344L335 359Z" fill="#90a8b6"/></g>
+<!-- open notebook -->
+<g filter="url(#shadow)"><path d="M365 365L466 350L527 378L425 398Z" fill="#fcf5df"/><path d="M365 365L425 398L425 405L365 372Z" fill="#d3c1a5"/><path d="M425 398L527 378V385L425 405Z" fill="#e0ceb2"/><path d="M384 370l37 21M400 367l38 21M416 364l37 21M444 363l53 13M444 372l52 12" stroke="#d7c4a9" stroke-width="2"/></g>
+<!-- book pile -->
+<g><path d="M90 368L178 355L222 374L132 389Z" fill="#83b4c7"/><path d="M132 389L222 374V385L132 401Z" fill="#5c91ab"/><path d="M90 368L132 389V401L90 379Z" fill="#d1e8f0"/><path d="M97 351L178 340L213 356L132 368Z" fill="#fff0c9"/><path d="M132 368L213 356V366L132 378Z" fill="#d6bb8f"/><path d="M97 351L132 368V378L97 361Z" fill="#eddcb5"/></g>
+<!-- cup and plant -->
+<g><path d="M535 347h43l-5 42h-34z" fill="#fffaf0"/><path d="M578 355h13v17h-13" fill="none" stroke="#fffaf0" stroke-width="6"/><path d="M548 343c-10-12 7-17 0-26M558 343c-8-10 7-17 1-25" fill="none" stroke="#e4b58d" stroke-width="4" stroke-linecap="round"/><path d="M641 350h56l-8 29h-39z" fill="#d8a77b"/><path d="M668 350v-38" stroke="#638b58" stroke-width="7"/><g fill="#84bb76"><rect x="644" y="304" width="28" height="22"/><rect x="671" y="291" width="26" height="26"/><rect x="690" y="310" width="24" height="21"/><rect x="659" y="329" width="28" height="21"/></g></g>
+<!-- small pencil -->
+<path d="M234 386l82-13l7 6l-81 14z" fill="#e9b64d"/><path d="M316 373l11-2l-4 8l-7-6z" fill="#76573c"/>
+<!-- backpack -->
+<path d="M712 410l36-6l14 11l-2 56l-45 7z" fill="#385d7b"/><path d="M712 410l36-6l14 11l-40 8z" fill="#547f9c"/><rect x="723" y="430" width="25" height="18" fill="#e0ab61"/><path d="M720 421v-13q16-22 33-6v11" fill="none" stroke="#263f55" stroke-width="5"/>
+<g fill="#9fb9c4" opacity=".8"><rect x="175" y="490" width="57" height="6"/><rect x="186" y="500" width="57" height="6"/></g>
+</svg>

@@ -11,6 +11,7 @@ import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { RouteProgress } from "@/components/ui/route-progress";
 import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
+import "./campusloop-design-system.css";
 import "./mobile-navigation.css";
 
 const nunitoSans = Nunito_Sans({
