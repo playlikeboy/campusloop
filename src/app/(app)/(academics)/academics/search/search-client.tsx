@@ -20,6 +20,7 @@ import {
   RotateCcw,
   Search,
   SearchX,
+  SlidersHorizontal,
   Sparkles,
   TrendingUp,
   Upload,
@@ -139,6 +140,21 @@ export function AcademicsSearchClient({
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isFiltersOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsFiltersOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFiltersOpen]);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -352,6 +368,12 @@ export function AcademicsSearchClient({
     selectedSemester !== "all" ||
     selectedScope !== "global" ||
     sortBy !== (debouncedQuery ? "relevance" : "latest");
+  const activeFilterCount = [
+    selectedBranch !== "All",
+    selectedSemester !== "all",
+    selectedScope !== "global",
+    sortBy !== (debouncedQuery ? "relevance" : "latest"),
+  ].filter(Boolean).length;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col min-h-screen select-none pb-28 px-3 sm:px-6 lg:px-8 bg-background">
@@ -377,7 +399,7 @@ export function AcademicsSearchClient({
                 <Search className="size-3.5" />
               </div>
               <h1 className="text-sm sm:text-base font-black text-foreground tracking-tight truncate">
-                Academic Search Vault
+                Academic search
               </h1>
             </div>
           </div>
@@ -451,8 +473,8 @@ export function AcademicsSearchClient({
               value={searchInput}
               onFocus={() => setIsFocused(true)}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by subject code (CS201), topic, chapter, book, or PYQ 2024..."
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 focus:border-primary/60 focus:bg-background focus:ring-4 focus:ring-primary/10 pl-10 pr-24 text-xs sm:text-sm font-medium placeholder:text-muted-foreground/60 outline-none transition-all text-foreground shadow-xs"
+              placeholder="Search notes, subjects, course codes…"
+              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 focus:border-primary/60 focus:bg-background focus:ring-0 pl-10 pr-24 text-xs sm:text-sm font-medium placeholder:text-muted-foreground/60 outline-none transition-all text-foreground shadow-xs"
             />
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
               {searchInput && (
@@ -562,37 +584,57 @@ export function AcademicsSearchClient({
           )}
         </div>
 
-        {/* ─── Resource Type Sliding Tabs ─── */}
-        <div className="flex border-b border-border/25 overflow-x-auto no-scrollbar pt-0.5 -mb-1">
-          {RESOURCE_TYPES.map((type) => {
-            const isSelected = selectedType === type.id;
-            const Icon = type.icon;
-            return (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setSelectedType(type.id);
-                }}
-                className={cn(
-                  "relative pb-2.5 pt-1 px-3 text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center gap-1.5",
-                  isSelected ? "text-foreground font-black" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Icon className={cn("size-3.5", isSelected ? "text-primary" : "text-muted-foreground/70")} />
-                <span>{type.label}</span>
-                {isSelected && (
-                  <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-foreground rounded-full" />
-                )}
-              </button>
-            );
-          })}
+        {/* Resource types and one compact mobile filter trigger. */}
+        <div className="flex min-w-0 items-center gap-2 pt-0.5 -mb-1">
+          <div className="flex min-w-0 flex-1 border-b border-border/25 overflow-x-auto no-scrollbar">
+            {RESOURCE_TYPES.map((type) => {
+              const isSelected = selectedType === type.id;
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => {
+                    sounds.tap();
+                    haptics.light();
+                    setSelectedType(type.id);
+                  }}
+                  className={cn(
+                    "relative pb-2.5 pt-1 px-3 text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center gap-1.5",
+                    isSelected ? "text-foreground font-black" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("size-3.5", isSelected ? "text-primary" : "text-muted-foreground/70")} />
+                  <span>{type.label}</span>
+                  {isSelected && (
+                    <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-foreground rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => { sounds.tap(); haptics.light(); setIsFiltersOpen(true); }}
+            className={cn(
+              "relative inline-flex sm:hidden size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
+              activeFilterCount > 0 ? "bg-primary/10 text-primary" : "bg-muted/40 text-muted-foreground"
+            )}
+            aria-label={"Open search filters" + (activeFilterCount ? ", " + activeFilterCount + " active" : "")}
+            aria-haspopup="dialog"
+            aria-expanded={isFiltersOpen}
+          >
+            <SlidersHorizontal className="size-5" aria-hidden="true" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* ─── Secondary Filter & Scope Controls Bar ─── */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5 pt-1">
+        <div className="hidden sm:flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5 pt-1">
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Campus vs All India Scope Toggle */}
             <div className="flex items-center p-0.5 rounded-full border border-border/40 bg-muted/40 shrink-0">
@@ -696,7 +738,86 @@ export function AcademicsSearchClient({
             </button>
           )}
         </div>
+
       </header>
+
+      {isFiltersOpen && (
+        <div className="fixed inset-0 z-[100] sm:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+            onClick={() => setIsFiltersOpen(false)}
+            aria-label="Close search filters"
+          />
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="academic-search-filters-title"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-border/50 bg-card px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-200"
+          >
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-muted-foreground/25" />
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 id="academic-search-filters-title" className="text-base font-bold text-foreground">Filters</h2>
+                <p className="text-xs text-muted-foreground">{activeFilterCount ? activeFilterCount + " active" : "All resources"}</p>
+              </div>
+              <button type="button" onClick={() => setIsFiltersOpen(false)} className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close search filters">
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-foreground">Campus</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { sounds.tap(); haptics.light(); setSelectedScope("campus"); }}
+                    aria-pressed={selectedScope === "campus"}
+                    className={cn("min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors", selectedScope === "campus" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground")}
+                  >My college</button>
+                  <button
+                    type="button"
+                    onClick={() => { sounds.tap(); haptics.light(); setSelectedScope("global"); }}
+                    aria-pressed={selectedScope === "global"}
+                    className={cn("min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors", selectedScope === "global" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground")}
+                  >All India</button>
+                </div>
+              </div>
+
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-foreground">Branch</span>
+                <select value={selectedBranch} onChange={(event) => { sounds.tap(); haptics.light(); setSelectedBranch(event.target.value); }} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50">
+                  {BRANCHES.map((branch) => <option key={branch} value={branch}>{branch === "All" ? "All branches" : branch}</option>)}
+                </select>
+              </label>
+
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-foreground">Semester</span>
+                <select value={selectedSemester} onChange={(event) => { sounds.tap(); haptics.light(); setSelectedSemester(event.target.value); }} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50">
+                  {SEMESTERS.map((semester) => <option key={semester.id} value={semester.id}>{semester.id === "all" ? "All semesters" : semester.label}</option>)}
+                </select>
+              </label>
+
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-foreground">Sort by</span>
+                <select value={sortBy} onChange={(event) => { sounds.tap(); haptics.light(); setSortBy(event.target.value as any); }} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50">
+                  {debouncedQuery && <option value="relevance">Best match</option>}
+                  <option value="popular">Most upvoted</option>
+                  <option value="downloads">Most downloaded</option>
+                  <option value="views">Most viewed</option>
+                  <option value="latest">Latest uploads</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-2 border-t border-border/30 pt-3">
+              <button type="button" onClick={() => { sounds.tap(); haptics.light(); handleResetFilters(); }} className="min-h-11 rounded-xl px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted">Reset all</button>
+              <button type="button" onClick={() => { sounds.tap(); setIsFiltersOpen(false); }} className="min-h-11 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Done</button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* ─── Search Stats & Active Filter Chips ─── */}
       <div className="flex flex-col gap-2 py-3">
@@ -710,29 +831,13 @@ export function AcademicsSearchClient({
                 )}
               </span>
             ) : (
-              <span>
-                Browsing <strong className="text-foreground">{totalCount.toLocaleString()}</strong> verified
-                academic resources
-              </span>
+              <span><strong className="text-foreground">{totalCount.toLocaleString()}</strong> resources</span>
             )}
-            <span className="text-muted-foreground/40">·</span>
-            <span className="text-[11px] text-muted-foreground">
-              Sorted by{" "}
-              {sortBy === "relevance"
-                ? "Best Match"
-                : sortBy === "popular"
-                  ? "Most Upvoted"
-                  : sortBy === "downloads"
-                    ? "Most Downloaded"
-                    : sortBy === "views"
-                      ? "Most Viewed"
-                      : "Latest"}
-            </span>
           </div>
 
           {/* Active filter badges */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="hidden sm:flex flex-wrap items-center gap-1.5">
               {selectedType !== "all" && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-foreground">
                   {RESOURCE_TYPES.find((t) => t.id === selectedType)?.label}
@@ -921,33 +1026,9 @@ export function AcademicsSearchClient({
               </p>
             </div>
 
-            {/* Smart suggestions */}
-            <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/30 max-w-md mx-auto text-left space-y-2">
-              <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
-                <Sparkles className="size-3 text-amber-500" />
-                Search Tips & Suggestions:
-              </span>
-              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                <li>
-                  Search using exact subject code (e.g. <strong>CS201</strong>, <strong>MA101</strong>)
-                </li>
-                <li>
-                  Try searching with broader terms like <strong>Operating Systems</strong> or{" "}
-                  <strong>PYQ</strong>
-                </li>
-                {selectedScope === "campus" && (
-                  <li>
-                    Switch from <strong>My College</strong> to <strong>All India</strong> to search across
-                    1,350+ campuses
-                  </li>
-                )}
-                {selectedSemester !== "all" && (
-                  <li>
-                    Set semester filter to <strong>All Semesters</strong>
-                  </li>
-                )}
-              </ul>
-            </div>
+            <p className="mx-auto max-w-md text-xs text-muted-foreground">
+              Try a course code (CS201) or a broader topic.
+            </p>
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">

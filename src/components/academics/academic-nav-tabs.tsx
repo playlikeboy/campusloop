@@ -16,6 +16,7 @@ interface AcademicNavTabsProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   savedCount?: number;
+  className?: string;
 }
 
 const TABS: AcademicTabItem[] = [
@@ -26,12 +27,12 @@ const TABS: AcademicTabItem[] = [
   { id: "SAVED", label: "Saved", icon: Bookmark },
 ];
 
-export function AcademicNavTabs({ activeTab, onTabChange, savedCount }: AcademicNavTabsProps) {
+export function AcademicNavTabs({ activeTab, onTabChange, savedCount, className }: AcademicNavTabsProps) {
   return (
     <nav
       role="tablist"
       aria-label="Academics content sections"
-      className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 pb-2 select-none"
+      className={cn("flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 pb-2 select-none", className)}
     >
       {TABS.map((tab) => {
         const Icon = tab.icon;

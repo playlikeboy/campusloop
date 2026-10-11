@@ -2,15 +2,10 @@
 
 import {
   Bookmark,
-  ChevronDown,
-  ChevronUp,
   FolderOpen,
   FolderPlus,
-  GraduationCap,
   Loader2,
   Plus,
-  RotateCcw,
-  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -71,7 +66,6 @@ export function AcademicsClient({
 
   // Modals & Infinite Scroll
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isFilterAccordionOpen, setIsFilterAccordionOpen] = useState(false);
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
   const [guestRemaining, setGuestRemaining] = useState<number>(GUEST_DOWNLOAD_LIMIT);
@@ -244,6 +238,7 @@ export function AcademicsClient({
     setSelectedSemester("all");
     setSelectedResourceType("all");
     setSortBy("for_you");
+    setScope("campus");
     setSearchQuery("");
   }
 
@@ -252,6 +247,7 @@ export function AcademicsClient({
     selectedSemester !== "all" ||
     selectedResourceType !== "all" ||
     sortBy !== "for_you" ||
+    scope !== "campus" ||
     Boolean(searchQuery.trim());
 
   return (
@@ -279,103 +275,42 @@ export function AcademicsClient({
           activeTab={activeTab}
           onTabChange={setActiveTab}
           savedCount={savedData?.items?.length}
+          className="pr-12 sm:pr-0"
         />
       </div>
 
-      {/* ─── 4. Streamlined Filter & Academic Focus Action Bar ─── */}
+      {/* Compact filter access on mobile; desktop keeps the dropdown toolbar. */}
       {isFeedTab && (
-        <div className="pt-2 pb-1 space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              {/* Accordion Filter Toggle Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setIsFilterAccordionOpen(!isFilterAccordionOpen);
-                }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer active:scale-95 shadow-2xs",
-                  isFilterAccordionOpen || selectedBranch !== "All" || selectedSemester !== "all" || selectedResourceType !== "all" || sortBy !== "for_you"
-                    ? "bg-foreground text-background border-foreground shadow-xs font-black"
-                    : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <SlidersHorizontal className="size-3.5" />
-                <span>Filters</span>
-                {(selectedBranch !== "All" || selectedSemester !== "all" || selectedResourceType !== "all" || sortBy !== "for_you") && (
-                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-black">
-                    {(selectedBranch !== "All" ? 1 : 0) + (selectedSemester !== "all" ? 1 : 0) + (selectedResourceType !== "all" ? 1 : 0) + (sortBy !== "for_you" ? 1 : 0)}
-                  </span>
-                )}
-                {isFilterAccordionOpen ? (
-                  <ChevronUp className="size-3.5 opacity-70" />
-                ) : (
-                  <ChevronDown className="size-3.5 opacity-70" />
-                )}
-              </button>
-
-              {/* My Academic Focus Customizer Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setIsCourseModalOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border border-primary/30 bg-primary/10 hover:bg-primary/15 text-primary transition-all cursor-pointer active:scale-95 shadow-2xs"
-                title="Customize your enrolled courses (e.g. DBMS, DAA) and branch to prioritize notes"
-              >
-                <GraduationCap className="size-3.5" />
-                <span>My Courses &amp; Focus</span>
-              </button>
-            </div>
-
-            {/* Quick Reset Button (Visible when filters are active) */}
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              >
-                <RotateCcw className="size-3" />
-                <span>Reset filters</span>
-              </button>
-            )}
-          </div>
-
-          {/* Expandable Accordion Filter Panel */}
-          {isFilterAccordionOpen && (
-            <div className="p-3 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md space-y-2 animate-in fade-in-50 slide-in-from-top-1 duration-200">
-              <AcademicFilterBar
-                branch={selectedBranch}
-                semester={selectedSemester}
-                resourceType={selectedResourceType}
-                sortBy={sortBy}
-                onBranchChange={setSelectedBranch}
-                onSemesterChange={setSelectedSemester}
-                onResourceTypeChange={setSelectedResourceType}
-                onSortChange={setSortBy}
-                onReset={handleResetFilters}
-                hasActiveFilters={hasActiveFilters}
-                activeTab={activeTab}
-              />
-
-              {/* Active Filter Chips: CSE ×, Sem 5 ×, Clear all */}
-              <AcademicActiveFilters
-                branch={selectedBranch}
-                semester={selectedSemester}
-                resourceType={selectedResourceType}
-                sortBy={sortBy}
-                onClearBranch={() => setSelectedBranch("All")}
-                onClearSemester={() => setSelectedSemester("all")}
-                onClearResourceType={() => setSelectedResourceType("all")}
-                onClearSort={() => setSortBy("for_you")}
-                onClearAll={handleResetFilters}
-              />
-            </div>
-          )}
+        <div className="pb-1 pt-1">
+          <AcademicFilterBar
+            branch={selectedBranch}
+            semester={selectedSemester}
+            resourceType={selectedResourceType}
+            sortBy={sortBy}
+            scope={scope}
+            campusName={collegeName}
+            onScopeChange={setScope}
+            onBranchChange={setSelectedBranch}
+            onSemesterChange={setSelectedSemester}
+            onResourceTypeChange={setSelectedResourceType}
+            onSortChange={setSortBy}
+            onReset={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+            activeTab={activeTab}
+            onOpenCourseModal={() => setIsCourseModalOpen(true)}
+          />
+          <AcademicActiveFilters
+            branch={selectedBranch}
+            semester={selectedSemester}
+            resourceType={selectedResourceType}
+            sortBy={sortBy}
+            onClearBranch={() => setSelectedBranch("All")}
+            onClearSemester={() => setSelectedSemester("all")}
+            onClearResourceType={() => setSelectedResourceType("all")}
+            onClearSort={() => setSortBy("for_you")}
+            onClearAll={handleResetFilters}
+            className="hidden sm:flex"
+          />
         </div>
       )}
 
@@ -392,13 +327,11 @@ export function AcademicsClient({
         <main className="min-w-0 w-full space-y-4">
           {/* Subtle Personalization Explanation on For You Tab */}
           {activeTab === "for_you" && !hasActiveFilters && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 text-xs text-muted-foreground">
-              <Sparkles className="size-3.5 text-primary shrink-0" />
-              <span>
-                Recommended for you · Based on verified syllabus for{" "}
-                <strong className="text-foreground">Sem {userSemester} · {userBranch}</strong>
-              </span>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              For you <span className="px-1 text-muted-foreground/50">·</span>
+              Sem {userSemester} <span className="px-1 text-muted-foreground/50">·</span>
+              {userBranch}
+            </p>
           )}
 
           {/* Curated playlist shelf: playlists are discoverable without leaving For You. */}

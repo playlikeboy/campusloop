@@ -27,7 +27,7 @@ export function AcademicSearchBar({
   value,
   onChange,
   onSubmit,
-  placeholder = "Search notes, PYQs, subjects, course codes...",
+  placeholder = "Search notes, subjects, PYQs…",
   className,
 }: AcademicSearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -90,7 +90,7 @@ export function AcademicSearchBar({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
           placeholder={placeholder}
-          className="w-full h-11 sm:h-12 rounded-2xl bg-card/80 border border-border/50 pl-10 pr-24 text-sm text-foreground placeholder:text-muted-foreground/65 outline-none transition-all shadow-xs focus:border-primary/60 focus:ring-2 focus:ring-primary/20 backdrop-blur-md"
+          className="w-full h-10 sm:h-12 rounded-xl sm:rounded-2xl bg-card/80 border border-transparent pl-10 pr-10 sm:pr-24 text-sm text-foreground placeholder:text-muted-foreground/65 outline-none transition-colors focus:border-primary/50 backdrop-blur-md"
         />
 
         {/* Right actions: Clear button + Keyboard shortcut pill */}

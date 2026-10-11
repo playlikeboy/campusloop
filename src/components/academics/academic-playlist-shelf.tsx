@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BookOpenCheck, Layers3, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Layers3, RefreshCw } from "lucide-react";
 import { AcademicPlaylistCard, type AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
 
 interface AcademicPlaylistShelfProps {
@@ -21,26 +21,15 @@ export function AcademicPlaylistShelf({
   if (!isLoading && !error && playlists.length === 0) return null;
 
   return (
-    <section aria-labelledby="academic-playlists-heading" className="space-y-3.5">
+    <section aria-labelledby="academic-playlists-heading" className="space-y-2.5">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
-            <BookOpenCheck className="size-5" aria-hidden="true" />
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <BookOpenCheck className="size-4" aria-hidden="true" />
           </div>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 id="academic-playlists-heading" className="text-sm font-extrabold tracking-tight text-foreground sm:text-base">
-                Study playlists
-              </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                <Sparkles className="size-3" aria-hidden="true" />
-                Curated study stacks
-              </span>
-            </div>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Notes and PYQs, thoughtfully bundled by students.
-            </p>
-          </div>
+          <h2 id="academic-playlists-heading" className="text-sm font-bold tracking-tight text-foreground sm:text-base">
+            Study playlists
+          </h2>
         </div>
         <button
           type="button"

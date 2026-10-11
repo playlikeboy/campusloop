@@ -2,12 +2,9 @@
 
 import {
   ArrowUpDown,
-  BookOpen,
   Check,
   ChevronDown,
-  Filter,
   GraduationCap,
-  Layers,
   RotateCcw,
   SlidersHorizontal,
   X,
@@ -70,6 +67,10 @@ interface AcademicFilterBarProps {
   onReset: () => void;
   hasActiveFilters: boolean;
   activeTab: string;
+  scope: "campus" | "global";
+  onScopeChange: (scope: "campus" | "global") => void;
+  campusName?: string;
+  onOpenCourseModal: () => void;
 }
 
 export function AcademicFilterBar({
@@ -84,6 +85,10 @@ export function AcademicFilterBar({
   onReset,
   hasActiveFilters,
   activeTab,
+  scope,
+  onScopeChange,
+  campusName = "My campus",
+  onOpenCourseModal,
 }: AcademicFilterBarProps) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
@@ -100,6 +105,21 @@ export function AcademicFilterBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isMobileSheetOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsMobileSheetOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileSheetOpen]);
+
   function toggleDropdown(id: string) {
     sounds.tap();
     haptics.light();
@@ -108,6 +128,7 @@ export function AcademicFilterBar({
 
   // Active filter count for badge
   const activeCount = [
+    scope !== "campus",
     branch !== "All",
     semester !== "all",
     resourceType !== "all" && activeTab === "for_you",
@@ -115,7 +136,7 @@ export function AcademicFilterBar({
   ].filter(Boolean).length;
 
   return (
-    <div ref={barRef} className="space-y-2 select-none">
+    <div ref={barRef} className="relative space-y-2 select-none">
       {/* ─── Desktop Filter Bar (Compact Popovers) ─── */}
       <div className="hidden sm:flex items-center justify-between gap-2 flex-wrap pt-1">
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -289,6 +310,20 @@ export function AcademicFilterBar({
           </div>
         </div>
 
+        <button
+          type="button"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+            onOpenCourseModal();
+          }}
+          className="hidden sm:inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          title="Set your courses and academic focus"
+        >
+          <GraduationCap className="size-3.5" />
+          <span>Courses</span>
+        </button>
+
         {/* Clear Filters on Right */}
         {hasActiveFilters && (
           <button
@@ -306,8 +341,8 @@ export function AcademicFilterBar({
         )}
       </div>
 
-      {/* ─── Mobile Filter Trigger (Opens Bottom Sheet) ─── */}
-      <div className="flex sm:hidden items-center justify-between gap-2 pt-1">
+      {/* One mobile filter control; every option lives in the sheet below. */}
+      <div className="absolute -top-10 right-0 z-10 sm:hidden">
         <button
           type="button"
           onClick={() => {
@@ -316,142 +351,178 @@ export function AcademicFilterBar({
             setIsMobileSheetOpen(true);
           }}
           className={cn(
-            "inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer",
+            "relative inline-flex size-10 items-center justify-center rounded-xl transition-colors",
             activeCount > 0
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-border/60 bg-card text-foreground shadow-2xs"
+              ? "bg-primary/10 text-primary"
+              : "bg-muted/40 text-muted-foreground hover:bg-muted"
           )}
+          title="Filters"
+          aria-label={"Open academic filters" + (activeCount ? ", " + activeCount + " active" : "")}
+          aria-haspopup="dialog"
+          aria-expanded={isMobileSheetOpen}
         >
-          <SlidersHorizontal className="size-3.5" />
-          <span>Filters</span>
+          <SlidersHorizontal className="size-5" aria-hidden="true" />
           {activeCount > 0 && (
-            <span className="flex size-4.5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-black">
+            <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
               {activeCount}
             </span>
           )}
         </button>
-
-        {/* Quick Sort Pill on Mobile */}
-        <select
-          value={sortBy}
-          onChange={(e) => {
-            sounds.tap();
-            onSortChange(e.target.value);
-          }}
-          className="h-8 rounded-full bg-card border border-border/60 px-3 text-xs font-semibold text-foreground outline-none cursor-pointer"
-        >
-          {SORT_OPTIONS.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
       </div>
 
-      {/* ─── Mobile Bottom Sheet Drawer ─── */}
       {isMobileSheetOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/70 backdrop-blur-sm sm:hidden animate-in fade-in duration-200">
-          <div className="fixed inset-0" onClick={() => setIsMobileSheetOpen(false)} aria-hidden="true" />
-
-          <div
+        <div className="fixed inset-0 z-[100] sm:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+            onClick={() => setIsMobileSheetOpen(false)}
+            aria-label="Close filters"
+          />
+          <section
             role="dialog"
             aria-modal="true"
-            aria-label="Filter academic resources"
-            className="relative z-10 w-full rounded-t-3xl border-t border-border/60 bg-card p-5 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200"
+            aria-labelledby="academics-filter-title"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-border/50 bg-card px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-200"
           >
-            {/* Sheet Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-border/30">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="size-4 text-primary" />
-                <h3 className="text-sm font-black text-foreground">Filter Resources</h3>
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-muted-foreground/25" />
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 id="academics-filter-title" className="text-base font-bold text-foreground">Filters</h2>
+                <p className="text-xs text-muted-foreground">
+                  {activeCount ? activeCount + " active" : "All resources"}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMobileSheetOpen(false)}
-                className="flex size-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground"
+                className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                aria-label="Close filters"
               >
                 <X className="size-4" />
               </button>
             </div>
 
-            {/* Branch Section */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-foreground">Department / Branch</span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {BRANCHES.map((b) => (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-foreground">Campus</p>
+                <div className="grid grid-cols-2 gap-2">
                   <button
-                    key={b}
                     type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      onBranchChange(b);
-                    }}
+                    onClick={() => { sounds.tap(); onScopeChange("campus"); }}
+                    aria-pressed={scope === "campus"}
+                    title={"Filter to " + campusName}
                     className={cn(
-                      "px-3 py-2 rounded-xl text-left text-xs font-semibold border transition-all cursor-pointer truncate",
-                      branch === b
-                        ? "border-primary bg-primary/15 text-primary font-bold"
-                        : "border-border/40 bg-muted/30 text-foreground"
+                      "min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors",
+                      scope === "campus" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground"
                     )}
                   >
-                    {b === "All" ? "All Branches" : b}
+                    My campus
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Semester Section */}
-            {activeTab !== "SAVED" && (
-              <div className="space-y-2 pt-1">
-                <span className="text-xs font-bold text-foreground">Semester</span>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {SEMESTERS.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => {
-                        sounds.tap();
-                        onSemesterChange(s.id);
-                      }}
-                      className={cn(
-                        "py-2 rounded-xl text-center text-xs font-semibold border transition-all cursor-pointer",
-                        semester === s.id
-                          ? "border-primary bg-primary/15 text-primary font-bold"
-                          : "border-border/40 bg-muted/30 text-foreground"
-                      )}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => { sounds.tap(); onScopeChange("global"); }}
+                    aria-pressed={scope === "global"}
+                    className={cn(
+                      "min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors",
+                      scope === "global" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground"
+                    )}
+                  >
+                    All India
+                  </button>
                 </div>
               </div>
-            )}
 
-            {/* Sheet Footer */}
-            <div className="flex items-center gap-2 pt-3 border-t border-border/30">
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-foreground">Branch</span>
+                <select
+                  value={branch}
+                  onChange={(event) => { sounds.tap(); onBranchChange(event.target.value); }}
+                  className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50"
+                >
+                  {BRANCHES.map((item) => (
+                    <option key={item} value={item}>{item === "All" ? "All branches" : item}</option>
+                  ))}
+                </select>
+              </label>
+
+              {activeTab !== "SAVED" && (
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-semibold text-foreground">Semester</span>
+                  <select
+                    value={semester}
+                    onChange={(event) => { sounds.tap(); onSemesterChange(event.target.value); }}
+                    className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50"
+                  >
+                    {SEMESTERS.map((item) => (
+                      <option key={item.id} value={item.id}>{item.label}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
+              {activeTab === "for_you" && (
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-semibold text-foreground">Resource type</span>
+                  <select
+                    value={resourceType}
+                    onChange={(event) => { sounds.tap(); onResourceTypeChange(event.target.value); }}
+                    className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50"
+                  >
+                    {RESOURCE_TYPES.map((item) => (
+                      <option key={item.id} value={item.id}>{item.label}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-foreground">Sort by</span>
+                <select
+                  value={sortBy}
+                  onChange={(event) => { sounds.tap(); onSortChange(event.target.value); }}
+                  className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm text-foreground outline-none focus-visible:border-primary/50"
+                >
+                  {SORT_OPTIONS.map((item) => (
+                    <option key={item.id} value={item.id}>{item.label}</option>
+                  ))}
+                </select>
+              </label>
+
               <button
                 type="button"
                 onClick={() => {
                   sounds.tap();
-                  onReset();
-                }}
-                className="flex-1 py-2.5 rounded-full border border-border/60 bg-muted/40 font-bold text-xs text-foreground text-center"
-              >
-                Reset All
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
+                  haptics.light();
                   setIsMobileSheetOpen(false);
+                  onOpenCourseModal();
                 }}
-                className="flex-1 py-2.5 rounded-full bg-primary font-bold text-xs text-primary-foreground text-center shadow-md"
+                className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-muted/40 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
               >
-                Apply Filters
+                <GraduationCap className="size-4 text-primary" />
+                Courses &amp; focus
               </button>
             </div>
-          </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-2 border-t border-border/30 pt-3">
+              <button
+                type="button"
+                onClick={() => { sounds.tap(); onReset(); }}
+                className="min-h-11 rounded-xl px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted"
+              >
+                Reset all
+              </button>
+              <button
+                type="button"
+                onClick={() => { sounds.tap(); setIsMobileSheetOpen(false); }}
+                className="min-h-11 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition-colors hover:opacity-90"
+              >
+                Done
+              </button>
+            </div>
+          </section>
         </div>
       )}
+
     </div>
   );
 }
