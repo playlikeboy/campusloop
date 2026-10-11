@@ -41,7 +41,7 @@ export function BranchDirectoryClient() {
   return (
     <div className="w-full max-w-2xl mx-auto min-h-screen border-x border-border/30 pb-24 select-none">
       {/* ─── Twitter-Style Sticky Top Bar ─── */}
-      <header className="sticky top-0 z-30 flex h-13 w-full items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-12 lg:top-0 z-30 flex h-13 w-full items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             type="button"

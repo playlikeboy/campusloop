@@ -426,7 +426,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-2xl px-3 sm:px-6 py-4 pb-32 text-foreground">
       {/* ─── Mobile-First Top Header ─── */}
-      <div className="sticky top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-background/95 backdrop-blur-xl border-b border-border/40 flex items-center justify-between gap-3 mb-5">
+      <div className="sticky top-12 lg:top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-background/95 backdrop-blur-xl border-b border-border/40 flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
             href="/feeds"

@@ -47,7 +47,7 @@ export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3.5 space-y-3">
+      <header className="sticky top-12 lg:top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3.5 space-y-3">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
             <Hourglass className="size-5 text-amber-500" />

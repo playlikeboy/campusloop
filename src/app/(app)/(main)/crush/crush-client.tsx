@@ -165,7 +165,7 @@ export function CrushClient() {
   return (
     <div className="min-h-screen pb-24 text-foreground select-none max-w-2xl mx-auto px-4 pt-3 space-y-4">
       {/* ─── Sticky Minimal Top Header ─── */}
-      <div className="sticky top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-xl border-b border-border/30 px-1 -mx-4 px-4">
+      <div className="sticky top-12 lg:top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-xl border-b border-border/30 px-1 -mx-4 px-4">
         <div className="flex items-center gap-3">
           <button
             type="button"

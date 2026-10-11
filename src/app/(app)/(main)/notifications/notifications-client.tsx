@@ -266,7 +266,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         {/* ─── Main Notifications Feed Column (8 cols on lg) ─── */}
         <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 bg-card/30 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
           {/* ─── Sticky Header ─── */}
-          <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
+          <header className="sticky top-12 lg:top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-2.5">
             <h1 className="text-lg font-black tracking-tight text-foreground">Notifications</h1>
