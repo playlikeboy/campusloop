@@ -8,7 +8,9 @@ import {
   ShieldCheck,
   Shirt,
   ShoppingBag,
+  SlidersHorizontal,
   Sparkles,
+  X,
   Star,
   Store,
   Tag,
@@ -58,6 +60,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
   const { profile } = useProfile();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const isBitMesraStudent = useMemo(() => {
     const slug = profile?.institution?.slug?.toLowerCase();
@@ -130,11 +133,22 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
         }
       />
 
-      <SearchField
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder="Search canteens, rentals or services"
-      />
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <SearchField value={searchQuery} onChange={setSearchQuery} placeholder="Search services" bordered={false} className="!px-0 !py-0" />
+        </div>
+        <button
+          type="button"
+          onClick={() => { sounds.tap(); haptics.light(); setIsFiltersOpen(true); }}
+          className={cn("relative inline-flex sm:hidden size-10 shrink-0 items-center justify-center rounded-xl transition-colors", selectedCategory !== "all" ? "bg-primary/10 text-primary" : "bg-muted/50 text-muted-foreground")}
+          aria-label={"Filter marketplace categories" + (selectedCategory !== "all" ? ", 1 active" : "")}
+          aria-haspopup="dialog"
+          aria-expanded={isFiltersOpen}
+        >
+          <SlidersHorizontal className="size-5" aria-hidden="true" />
+          {selectedCategory !== "all" && <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">1</span>}
+        </button>
+      </div>
 
       {/* ─── Dynamic Banner (BIT Mesra vs Other Campuses) ─── */}
       {isBitMesraStudent ? (
@@ -343,8 +357,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                 Bring CampusLoop Marketplace to Your College
               </h4>
               <p className="text-[11px] text-muted-foreground max-w-md">
-                We partner directly with campus canteens, laundries, cycle rentals, and water suppliers.
-                Contact us on Instagram to onboard your campus vendors!
+                Local vendors wanted? Message us to bring Marketplace to your campus.
               </p>
             </div>
             <a
@@ -363,7 +376,34 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
       {/* ─── Community-Maintained Campus Utility Hubs (6 Dedicated Services) ─── */}
       <CommunityHubStrip />
 
-      <FilterPills pills={CATEGORY_PILLS} value={selectedCategory} onChange={handleCategorySelect} />
+      <FilterPills pills={CATEGORY_PILLS} value={selectedCategory} onChange={handleCategorySelect} className="hidden sm:block" />
+
+      {isFiltersOpen && (
+        <div className="fixed inset-0 z-[100] sm:hidden">
+          <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-[2px]" onClick={() => setIsFiltersOpen(false)} aria-label="Close marketplace filters" />
+          <section role="dialog" aria-modal="true" aria-labelledby="marketplace-filter-title" className="absolute inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-3xl border-t border-border/50 bg-card px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-200">
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-muted-foreground/25" />
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div><h2 id="marketplace-filter-title" className="text-base font-bold text-foreground">Categories</h2><p className="text-xs text-muted-foreground">Choose a service</p></div>
+              <button type="button" onClick={() => setIsFiltersOpen(false)} className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close categories"><X className="size-4" /></button>
+            </div>
+            <div className="space-y-1.5">
+              {CATEGORIES.map((category) => {
+                const Icon = category.icon;
+                const active = selectedCategory === category.id;
+                return (
+                  <button key={category.id} type="button" aria-pressed={active} onClick={() => { handleCategorySelect(category.id); setIsFiltersOpen(false); }} className={cn("flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors", active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted/60")}>
+                    <span className="flex size-9 items-center justify-center rounded-lg bg-muted/50"><Icon className="size-4" /></span>
+                    <span className="flex-1">{category.label}</span>
+                    {active && <span className="size-2 rounded-full bg-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-4 border-t border-border/30 pt-3"><button type="button" onClick={() => setIsFiltersOpen(false)} className="min-h-11 w-full rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground">Done</button></div>
+          </section>
+        </div>
+      )}
 
       {/* ─── Student deals ─── */}
       {deals.length > 0 && selectedCategory === "all" && !searchQuery && (
