@@ -63,7 +63,9 @@ export async function GET(req: Request) {
         conferences: ["SEMINAR"],
         hiring: ["COMPETITION", "HACKATHON"],
         sports: ["SPORTS"],
-        meetup: ["MEETUP"],\n        meetups: ["MEETUP"],\n        gaming: ["SPORTS"],
+        meetup: ["MEETUP"],
+        meetups: ["MEETUP"],
+        gaming: ["SPORTS"],
       };
 
       const mapped = typeMap[category.toLowerCase()] || [category.toUpperCase()];
