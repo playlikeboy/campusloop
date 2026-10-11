@@ -160,15 +160,28 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
     }
   }, [profile?.feedVisibility]);
 
-  // Listen for mobile/desktop drawer toggle events from header or buttons
+  // The persistent DesktopSidebar already owns global navigation on desktop.
+  // Only open the duplicate slide-over menu below the desktop breakpoint.
   useEffect(() => {
-    const handleOpenDrawer = () => setShowDrawer(true);
+    const isMobileOrTablet = () => window.matchMedia("(max-width: 1023px)").matches;
+    const handleOpenDrawer = () => {
+      if (isMobileOrTablet()) setShowDrawer(true);
+      else setShowDrawer(false);
+    };
     const handleCloseDrawer = () => setShowDrawer(false);
+    const handleResize = () => {
+      if (!isMobileOrTablet()) setShowDrawer(false);
+    };
+
     window.addEventListener("campusloop_open_mobile_drawer", handleOpenDrawer);
     window.addEventListener("campusloop_close_mobile_drawer", handleCloseDrawer);
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
     return () => {
       window.removeEventListener("campusloop_open_mobile_drawer", handleOpenDrawer);
       window.removeEventListener("campusloop_close_mobile_drawer", handleCloseDrawer);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -531,7 +544,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setShowDrawer(false)}
-              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs"
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs lg:hidden"
               aria-hidden="true"
             />
 
@@ -541,7 +554,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed inset-y-0 left-0 z-50 flex h-full w-[85%] max-w-[340px] flex-col justify-between overflow-y-auto bg-background/98 border-r border-border/50 px-4 py-4 shadow-2xl backdrop-blur-2xl"
+              className="fixed inset-y-0 left-0 z-50 flex h-full w-[85%] max-w-[340px] flex-col justify-between overflow-y-auto bg-background/98 border-r border-border/50 px-4 py-4 shadow-2xl backdrop-blur-2xl lg:hidden"
               aria-label="Navigation drawer"
             >
               <div className="space-y-4">
