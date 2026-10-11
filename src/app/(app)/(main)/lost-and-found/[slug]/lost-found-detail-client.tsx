@@ -155,7 +155,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col min-h-screen pb-28 border-x border-border/20 bg-background text-foreground select-none">
       {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"

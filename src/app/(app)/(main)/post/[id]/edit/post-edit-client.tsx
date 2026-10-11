@@ -165,7 +165,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* ─── Sticky Editor Header ─── */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-background/80 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-12 lg:top-0 z-30 flex items-center justify-between border-b border-border/40 bg-background/80 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button
             type="button"

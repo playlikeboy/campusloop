@@ -74,7 +74,7 @@ export function SavedClient() {
         {/* ─── Main Saved Vault Stream (8 cols on lg) ─── */}
         <main className="lg:col-span-8 flex flex-col min-h-screen pb-24 bg-card/30 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
           {/* Header */}
-          <header className="sticky top-0 z-40 bg-background/85 px-4 pt-3.5 pb-2 backdrop-blur-xl border-b border-border/30 space-y-3">
+          <header className="sticky top-12 lg:top-0 z-30 bg-background/85 px-4 pt-3.5 pb-2 backdrop-blur-xl border-b border-border/30 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="size-9 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
