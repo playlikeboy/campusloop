@@ -489,3 +489,39 @@ These are Next.js marking those routes dynamic, not failures, and the build exit
 ### Git & Deployment Policy:
 - Every step is committed atomically with conventional commit prefixes (`feat:`, `fix:`, `refactor:`).
 - Final state is deployed live to Cloudflare Workers and pushed to GitHub `main`.
+
+
+---
+
+## 11. Strict TypeScript Module Boundaries
+
+New and refactored code follows this dependency direction:
+
+```text
+App Router page / route / Server Action
+                |
+                v
+          Feature service
+                |
+                v
+        Feature repository
+                |
+                v
+      src/db + Drizzle schema
+```
+
+### Responsibilities
+
+- `src/app/**/page.tsx` and `layout.tsx`: resolve route parameters, metadata, redirects/not-found behavior, call server query/service modules, and render UI. No DB/Drizzle imports or query calls.
+- `src/app/api/**/route.ts`: HTTP parsing and validation, shared authorization helpers, service invocation, response serialization. No DB/Drizzle query calls.
+- `src/app/**/actions.ts`: validated Server Action boundary, authorization, service invocation, narrow cache revalidation. No DB/Drizzle query calls.
+- `src/server/features/<feature>/*.repository.ts`: focused Drizzle reads/writes only.
+- `src/server/features/<feature>/*.service.ts`: business rules, authorization orchestration, multi-repository workflows, side-effect sequencing, and safe DTO creation.
+- `src/contracts/`: browser-safe serializable request/response types. Client modules may not import server/db modules.
+- `src/db/index.ts` and `src/db/schema/**`: retained database setup and schema definitions.
+
+### Enforcement and migration
+
+Run `bun run check:architecture` to reject database-boundary violations in files introduced or changed by the commit/PR. Run `bun run check:architecture:full` to audit the entire existing source tree. The full scan is expected to report legacy violations until their domains are migrated; the architecture-baseline document records the initial examples and migration policy. The legacy inventory is transitional and must be removed by finishing the migration, not by adding new exceptions.
+
+Server Components should call server-only services directly for server rendering. Do not fetch the application's own API endpoint from a Server Component merely to reach the same database. Preserve Next.js 16, React 19, Drizzle/Neon, Hexclave, OpenNext/Cloudflare edge compatibility, all current API contracts, and feature behavior.

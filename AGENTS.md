@@ -147,3 +147,19 @@ campusloop/
         └── campusloop-guide/
             └── SKILL.md       # Comprehensive AI Agent skill handbook
 ```
+
+## 15. Strict Backend / Frontend / Database Boundaries
+
+These rules are mandatory for all new and modified code. The architecture checker is wired into CI; do not introduce new legacy violations.
+
+- **Pages and layouts:** UI and route composition only. Do not import `@/db`, `@/db/schema`, or `drizzle-orm`; do not call `getDb()` or run queries. Call a server-only feature query/service directly instead of making an HTTP request to the app's own API.
+- **Route handlers:** `route.ts` files parse/validate HTTP input, invoke shared auth/capability helpers and feature services, then serialize a response. They must not issue database queries or own domain workflows.
+- **Server Actions:** `actions.ts` files validate input, verify permissions, call feature services, revalidate affected cache keys, and return serializable results. They must not issue queries.
+- **Repositories:** Only focused `*.repository.ts` modules under `src/server/features/**` may execute feature-level Drizzle queries. They may import the database connection and schema; they must not import React components or Next.js navigation/HTTP APIs.
+- **Services:** `*.service.ts` modules own business rules, authorization orchestration, repository composition, side-effect order, and safe DTO shaping. They must not depend on UI components or HTTP Request/Response objects.
+- **Client boundary:** Components and hooks must never import `@/db`, `@/server`, or `@/hexclave/server`. Use the existing `@/lib/api.ts` helper for browser HTTP calls and use type-only shared contracts for browser/server data shapes.
+- **Security:** Client-provided user IDs, institution IDs, roles, admin flags, and anonymity claims are untrusted until verified server-side. Never return raw database records, secrets, internal auth data, or sealed anonymous identities to the browser.
+- **Quality:** Do not duplicate domain logic across pages, routes, and actions. Keep queries bounded, preserve existing pagination/API contracts, and avoid unrelated schema, product, or UI changes during architectural refactors.
+- **Enforcement:** Run `bun run check:architecture` for changed-file enforcement. Use `bun run check:architecture:full` to audit legacy violations. Full-scan violations are technical debt that must decrease as domains are migrated; never add a permanent exception to evade the rule.
+
+Before moving existing code, search all imports/callers and preserve authentication, authorization, privacy, anonymity, caching, revalidation, SEO metadata, and side-effect ordering. Do not push, deploy, or execute database mutations unless explicitly instructed by the user.
