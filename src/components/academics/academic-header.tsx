@@ -26,16 +26,16 @@ export function AcademicHeader({
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
-              Notes &amp; PYQs
+              Academics
             </h1>
             {typeof totalCount === "number" && totalCount > 0 && (
               <span className="hidden xs:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[var(--tint-notes)] text-[#1A4B8C] border border-[#1A4B8C]/15 dark:bg-[#1A2E4C] dark:text-[#90C2FF]">
-                {totalCount.toLocaleString()} verified resources
+                {totalCount.toLocaleString()} study resources
               </span>
             )}
           </div>
           <p className="hidden sm:block text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
-            Verified study materials, solved PYQs, notes and cheat sheets shared by students.
+            Notes, PYQs, and curated study playlists—organized around your campus and semester.
           </p>
         </div>
 
