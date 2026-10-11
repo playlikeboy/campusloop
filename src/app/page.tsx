@@ -38,7 +38,7 @@ export default async function LandingPage() {
     "@graph": [
       {
         "@type": "Organization", "@id": SITE_URL + "/#organization", name: "CampusLoop", url: SITE_URL,
-        logo: SITE_URL + "/campusloop/marketing/voxel/logo.webp",
+        logo: SITE_URL + "/campusloop/marketing/voxel/logo.png",
         sameAs: ["https://www.instagram.com/campusloop.space/", "https://www.linkedin.com/company/mycampusloop/?viewAsMember=true", "https://x.com/company/mycampusloop/"],
       },
       {
