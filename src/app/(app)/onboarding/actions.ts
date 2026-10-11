@@ -2,7 +2,6 @@
 
 import { eq, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { institutionDomains, institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -227,5 +226,5 @@ export async function completeOnboarding(formData: FormData) {
     throw error;
   }
 
-  redirect("/feeds");
+  return { success: true };
 }

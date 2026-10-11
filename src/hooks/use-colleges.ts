@@ -19,11 +19,12 @@ export interface College {
 interface CollegesApiResponse {
   colleges: College[];
   hasMore?: boolean;
+  total?: number;
 }
 
-export function useColleges(limit = 100, page = 1) {
+export function useColleges(limit = 100, page = 1, searchQuery = "") {
   const { data, error, isLoading, mutate } = useSWR<CollegesApiResponse | College[]>(
-    `/api/colleges?limit=${limit}&page=${page}`,
+    `/api/colleges?limit=${limit}&page=${page}${searchQuery.trim() ? `&q=${encodeURIComponent(searchQuery.trim())}` : ""}`,
     fetcher,
     {
       revalidateIfStale: true,
@@ -36,6 +37,11 @@ export function useColleges(limit = 100, page = 1) {
     if (!data) return [];
     const raw = Array.isArray(data) ? data : data.colleges || [];
     return raw.filter((c) => c.slug !== "viewer-hub");
+  }, [data]);
+
+  const total = useMemo(() => {
+    if (!data) return 0;
+    return Array.isArray(data) ? data.length : Number(data.total ?? data.colleges?.length ?? 0);
   }, [data]);
 
   const hasMore = useMemo(() => {
@@ -60,6 +66,7 @@ export function useColleges(limit = 100, page = 1) {
 
   return {
     colleges,
+    total,
     hasMore,
     isLoading,
     error,

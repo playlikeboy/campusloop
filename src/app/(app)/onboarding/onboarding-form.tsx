@@ -1,13 +1,14 @@
 "use client";
 
 import { AlertCircle, Camera, Check, Loader2, Lock, School, Search, Zap } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { isUsernameBlocking, UsernameStatusHint } from "@/components/ui/username-status";
 import { DEGREE_CATEGORIES, getBranchOptionsForDegree } from "@/constants";
-import { useColleges } from "@/hooks/use-colleges";
+import { useColleges, type College } from "@/hooks/use-colleges";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
 import { uploadImageToImgBB } from "@/lib/upload";
 import { cn, getAvatarUrl } from "@/lib/utils";
@@ -109,6 +110,7 @@ export function OnboardingForm({
   initialAvatarUrl = "",
   variant = "student",
 }: OnboardingFormProps) {
+  const router = useRouter();
   const isViewer = variant === "viewer";
 
   const [displayName, setDisplayName] = useState(initialDisplayName);
@@ -131,6 +133,13 @@ export function OnboardingForm({
   const [aspirantStage, setAspirantStage] = useState("Class 12");
   const [dreamCampusIds, setDreamCampusIds] = useState<string[]>([]);
   const [campusQuery, setCampusQuery] = useState("");
+  const [debouncedCampusQuery, setDebouncedCampusQuery] = useState("");
+  const [selectedCampusDetails, setSelectedCampusDetails] = useState<Record<string, College>>({});
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedCampusQuery(campusQuery.trim()), 250);
+    return () => window.clearTimeout(timeoutId);
+  }, [campusQuery]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -144,40 +153,56 @@ export function OnboardingForm({
     icon: b.icon,
   }));
 
-  const { colleges } = useColleges(120);
+  const {
+    colleges,
+    total: totalColleges,
+    hasMore: hasMoreColleges,
+    isLoading: isLoadingColleges,
+    error: collegesError,
+    mutate: reloadColleges,
+  } = useColleges(debouncedCampusQuery ? 100 : 8, 1, debouncedCampusQuery);
 
-  const visibleCampuses = useMemo(() => {
-    if (!colleges) return [];
-    const q = campusQuery.trim().toLowerCase();
-    if (!q) return colleges.slice(0, 8);
-    return colleges
-      .filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.state?.toLowerCase().includes(q) ||
-          c.district?.toLowerCase().includes(q)
-      )
-      .slice(0, 8);
-  }, [colleges, campusQuery]);
+  // The API applies q directly to the entire institutions table. Do not filter
+  // a local 120-row sample: it silently omitted most of the college directory.
+  const isCampusSearchPending =
+    campusQuery.trim() !== debouncedCampusQuery || isLoadingColleges;
+  const visibleCampuses = useMemo(
+    () =>
+      campusQuery.trim() !== debouncedCampusQuery
+        ? []
+        : campusQuery.trim()
+          ? colleges
+          : colleges.slice(0, 8),
+    [colleges, campusQuery, debouncedCampusQuery]
+  );
 
   const selectedCampuses = useMemo(
-    () => (colleges || []).filter((c) => dreamCampusIds.includes(c.id)),
-    [colleges, dreamCampusIds]
+    () => Object.values(selectedCampusDetails).filter((college) => dreamCampusIds.includes(college.id)),
+    [selectedCampusDetails, dreamCampusIds]
   );
 
   function toggleInterest(tag: string) {
     setInterests((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   }
 
-  function toggleDreamCampus(id: string) {
-    setDreamCampusIds((prev) => {
-      if (prev.includes(id)) return prev.filter((c) => c !== id);
-      if (prev.length >= MAX_DREAM_CAMPUSES) {
-        toast.info(`You can pick up to ${MAX_DREAM_CAMPUSES} campuses`);
-        return prev;
-      }
-      return [...prev, id];
-    });
+  function toggleDreamCampus(id: string, college?: College) {
+    if (dreamCampusIds.includes(id)) {
+      setDreamCampusIds((prev) => prev.filter((selectedId) => selectedId !== id));
+      setSelectedCampusDetails((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      return;
+    }
+
+    if (dreamCampusIds.length >= MAX_DREAM_CAMPUSES) {
+      toast.info("You can pick up to " + MAX_DREAM_CAMPUSES + " campuses");
+      return;
+    }
+
+    if (college) setSelectedCampusDetails((prev) => ({ ...prev, [id]: college }));
+    setDreamCampusIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   }
 
   async function handlePfpUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -235,7 +260,35 @@ export function OnboardingForm({
     }
 
     try {
-      await completeOnboarding(formData);
+      const result = await completeOnboarding(formData);
+      if (!result?.success) throw new Error("We couldn’t finish setting up your profile. Please try again.");
+
+      toast.success("You’re in! Welcome to CampusLoop.");
+      let celebrated = false;
+      try {
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!prefersReducedMotion) {
+          const confetti = (await import("canvas-confetti")).default;
+          const colors = ["#8fd0e7", "#a7f3d0", "#f9c5d1", "#f6d58b", "#ffffff"];
+          void confetti({ particleCount: 110, spread: 78, startVelocity: 42, gravity: 0.9, ticks: 180, colors, origin: { x: 0.5, y: 0.68 }, zIndex: 9999 });
+          window.setTimeout(() => {
+            void confetti({ particleCount: 55, spread: 110, startVelocity: 34, gravity: 0.95, ticks: 150, colors, origin: { x: 0.5, y: 0.72 }, zIndex: 9999 });
+          }, 220);
+          celebrated = true;
+        }
+      } catch {
+        // Animation is optional; a successful profile save must still navigate.
+      }
+
+      if (celebrated) {
+        window.setTimeout(() => {
+          router.replace("/feeds");
+          router.refresh();
+        }, 1150);
+      } else {
+        router.replace("/feeds");
+        router.refresh();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsLoading(false);
@@ -519,22 +572,40 @@ export function OnboardingForm({
               <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search colleges"
+                placeholder="Search all colleges by name, city, or state"
+                aria-label="Search all colleges"
+                autoComplete="off"
                 value={campusQuery}
                 onChange={(e) => setCampusQuery(e.target.value)}
                 className={cn(inputClass, "pl-10")}
               />
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              {campusQuery.trim() && !isCampusSearchPending && !collegesError
+                ? totalColleges.toLocaleString() + " matching colleges in the full directory"
+                : "Search the full college directory, not just popular campuses."}
+            </p>
 
-            <div className="divide-y divide-border/30 overflow-hidden rounded-xl border border-border/50">
-              {visibleCampuses.length > 0 ? (
+            <div className="max-h-80 divide-y divide-border/30 overflow-y-auto rounded-xl border border-border/50">
+              {isCampusSearchPending ? (
+                <p className="px-3.5 py-4 text-[13px] text-muted-foreground" role="status">
+                  Searching colleges…
+                </p>
+              ) : collegesError ? (
+                <div className="flex items-center justify-between gap-3 px-3.5 py-4 text-[13px] text-muted-foreground">
+                  <span>Couldn’t load the college directory.</span>
+                  <button type="button" onClick={() => void reloadColleges()} className="font-bold text-primary hover:underline">
+                    Retry
+                  </button>
+                </div>
+              ) : visibleCampuses.length > 0 ? (
                 visibleCampuses.map((c) => {
                   const selected = dreamCampusIds.includes(c.id);
                   return (
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => toggleDreamCampus(c.id)}
+                      onClick={() => toggleDreamCampus(c.id, c)}
                       className="flex w-full cursor-pointer items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-muted/25"
                     >
                       <School className="size-4 shrink-0 text-muted-foreground" />
@@ -549,9 +620,14 @@ export function OnboardingForm({
                   );
                 })
               ) : (
-                <p className="px-3.5 py-4 text-[13px] text-muted-foreground">No colleges found.</p>
+                <p className="px-3.5 py-4 text-[13px] text-muted-foreground">{campusQuery.trim() ? "No matching colleges. Try a different name, city, or state." : "No colleges available right now."}</p>
               )}
             </div>
+            {!isCampusSearchPending && !collegesError && campusQuery.trim() && hasMoreColleges && (
+              <p className="text-[11px] text-muted-foreground">
+                Showing the first {colleges.length} of {totalColleges.toLocaleString()} matches. Add more of the college name or city to narrow the results.
+              </p>
+            )}
           </div>
         </section>
       ) : (
