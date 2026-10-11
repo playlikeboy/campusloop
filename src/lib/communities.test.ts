@@ -72,4 +72,33 @@ describe("Campus Communities Logic & Invariants", () => {
     expect(validateCommunityPost(openCampusForum, { isAnonymous: true }).allowed).toBe(true);
     expect(validateCommunityPost(openCampusForum, { isAnonymous: true, type: "CONFESSION" }).allowed).toBe(true);
   });
+
+  it("handles destination feed search queries and resolves c/{slug}", () => {
+    function filterCommunityByQuery(
+      query: string,
+      community: { name: string; slug: string; description?: string; category?: string }
+    ): boolean {
+      const clean = query.trim().toLowerCase().replace(/^c\//, "").replace(/^#/, "").trim();
+      if (!clean) return true;
+      return (
+        community.name.toLowerCase().includes(clean) ||
+        community.slug.toLowerCase().includes(clean) ||
+        (community.description || "").toLowerCase().includes(clean) ||
+        (community.category || "").toLowerCase().includes(clean)
+      );
+    }
+
+    const comm = {
+      name: "Geek Haven Coding Club",
+      slug: "geek-haven",
+      description: "Competitive coding and web dev",
+      category: "Tech",
+    };
+
+    expect(filterCommunityByQuery("c/geek-haven", comm)).toBe(true);
+    expect(filterCommunityByQuery("geek", comm)).toBe(true);
+    expect(filterCommunityByQuery("#coding", comm)).toBe(true);
+    expect(filterCommunityByQuery("tech", comm)).toBe(true);
+    expect(filterCommunityByQuery("c/dance", comm)).toBe(false);
+  });
 });

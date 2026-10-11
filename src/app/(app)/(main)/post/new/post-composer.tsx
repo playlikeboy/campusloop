@@ -34,6 +34,7 @@ import { AudioPlayer } from "@/components/media/audio-player";
 import { DocumentCard } from "@/components/media/document-card";
 import { VideoPlayer } from "@/components/media/video-player";
 import { VoiceRecorderModal } from "@/components/media/voice-recorder-modal";
+import { CommunityFeedSelector } from "@/components/post/community-feed-selector";
 import { PollOptionsEditor } from "@/components/post/poll-options-editor";
 import { PostComposerToolbar } from "@/components/post/post-composer-toolbar";
 import { AnimateImage, AnimateZap } from "@/components/ui/animated-icon";
@@ -81,6 +82,8 @@ interface PostComposerProps {
   initialType?: PostType;
   /** Pre-filled text to initialize the composer (e.g. from quick composer draft) */
   initialContent?: string;
+  /** Initial feed scope: "GLOBAL" across India or "CAMPUS" for verified college hub */
+  initialScope?: "CAMPUS" | "GLOBAL";
   /** Community name to lock the composer to, hiding the audience picker. */
   lockedCommunityName?: string;
   onPublished?: (post: FeedPost) => void;
@@ -98,6 +101,7 @@ export function PostComposer({
   variant = "page",
   initialType,
   initialContent,
+  initialScope,
   lockedCommunityName,
   onPublished,
   onPublishConfirmed,
@@ -113,7 +117,7 @@ export function PostComposer({
   const [showFormatting, setShowFormatting] = useState(false);
 
   const [postType, setPostType] = useState<PostType>(initialType ?? "NORMAL");
-  const [scope, setScope] = useState<"CAMPUS" | "GLOBAL">("GLOBAL");
+  const [scope, setScope] = useState<"CAMPUS" | "GLOBAL">(initialScope ?? "GLOBAL");
   const [showAudienceMenu, setShowAudienceMenu] = useState(false);
   const [selectedCommunityId, setSelectedCommunityId] = useState<string>(initialCommunityId || "NONE");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
@@ -150,6 +154,30 @@ export function PostComposer({
 
   const firstName = profile?.displayName?.split(" ")[0];
   const [mentionTrigger, setMentionTrigger] = useState<TriggerContext | null>(null);
+
+  const selectedCommunityObj = useMemo(() => {
+    if (!selectedCommunityId || selectedCommunityId === "NONE") return null;
+    return communities.find((c) => c.id === selectedCommunityId) || null;
+  }, [communities, selectedCommunityId]);
+
+  // Client-side search params resolution for c/{slug} when navigating directly
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const targetC = params.get("c") || params.get("slug") || params.get("community");
+    if (targetC && selectedCommunityId === "NONE" && communities.length > 0) {
+      const clean = targetC.replace(/^c\//, "").toLowerCase();
+      const match = communities.find(
+        (comm) =>
+          comm.id === clean ||
+          comm.slug?.toLowerCase() === clean ||
+          comm.name.toLowerCase() === clean
+      );
+      if (match) {
+        setSelectedCommunityId(match.id);
+      }
+    }
+  }, [communities, selectedCommunityId]);
 
   const uploadedVideosRef = useRef(uploadedVideos);
   uploadedVideosRef.current = uploadedVideos;
@@ -389,7 +417,10 @@ export function PostComposer({
     if (textToRestore && !editor.getText().trim()) {
       editor.commands.setContent(textToRestore);
       setCharCount(textToRestore.length);
-      toast.success("Draft restored from quick post", { id: "draft-restored" });
+      // Only notify if restoring an unposted draft from a prior interrupted session
+      if (!initialContent && !searchParamText && sessionDraft) {
+        toast.success("Draft restored from previous session", { id: "draft-restored" });
+      }
       try {
         sessionStorage.removeItem("campusloop_draft_post");
       } catch {}
@@ -825,13 +856,17 @@ export function PostComposer({
           <p className="flex-1 text-center text-sm font-black tracking-tight text-foreground truncate">
             {lockedCommunityName
               ? `Post to c/${lockedCommunityName}`
-              : isConfession
-                ? "Anonymous Confession"
-                : postType === "POLL"
-                  ? "Campus Poll"
-                  : postType === "QUESTION"
-                    ? "Ask Campus"
-                    : "New Post"}
+              : selectedCommunityObj
+                ? `Post in c/${selectedCommunityObj.slug || selectedCommunityObj.name.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-")}`
+                : isConfession
+                  ? "Anonymous Confession"
+                  : postType === "POLL"
+                    ? "Campus Poll"
+                    : postType === "QUESTION"
+                      ? "Ask Campus"
+                      : postType === "MEME"
+                        ? "Campus Meme"
+                        : "New Post"}
           </p>
 
           <div className="flex items-center gap-2">
@@ -978,24 +1013,11 @@ export function PostComposer({
                     )}
                   </div>
 
-                  {communities && communities.length > 0 && (
-                    <div className="relative flex items-center">
-                      <Users className="pointer-events-none absolute left-2.5 size-3 text-muted-foreground" />
-                      <select
-                        value={selectedCommunityId}
-                        onChange={(e) => setSelectedCommunityId(e.target.value)}
-                        className="max-w-40 cursor-pointer appearance-none truncate rounded-full bg-muted/60 py-1 pl-7 pr-6 text-[11px] font-black text-foreground outline-none transition-colors hover:bg-muted"
-                      >
-                        <option value="NONE">Main Feed</option>
-                        {communities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            c/{c.name}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-2 size-3 text-muted-foreground" />
-                    </div>
-                  )}
+                  <CommunityFeedSelector
+                    selectedCommunityId={selectedCommunityId}
+                    onSelectCommunity={(commId) => setSelectedCommunityId(commId)}
+                    lockedCommunityName={lockedCommunityName}
+                  />
                 </>
               )}
 
@@ -1017,16 +1039,16 @@ export function PostComposer({
             className="top-12 left-5"
           />
           {charCount === 0 && (
-            <span className="pointer-events-none absolute left-5 top-4 text-[17px] text-muted-foreground/45">
+            <span className="pointer-events-none absolute left-5 top-4 text-[17px] text-muted-foreground/60 select-none">
               {isConfession
-                ? "Confess it. Nobody will ever know it's you... 🤫"
+                ? "Share what's on your mind anonymously. Your identity remains strictly encrypted."
                 : postType === "MEME"
-                  ? "Drop inside campus joke, aura minus/plus moment, or viral lore... 😂"
+                  ? "Share campus humor, relatable moments, or college lore..."
                   : postType === "QUESTION"
                     ? "Ask your campus anything..."
                     : postType === "POLL"
-                      ? "What should the campus vote on?"
-                      : `What's on your mind${firstName ? `, ${firstName}` : ""}?`}
+                      ? "Ask a question for students to vote on..."
+                      : `What's happening on campus${firstName ? `, ${firstName}` : ""}?`}
             </span>
           )}
           <EditorContent editor={editor} />
