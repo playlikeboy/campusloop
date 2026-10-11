@@ -32,7 +32,7 @@ function isPathActive(currentPath: string, targetHref: string) {
   if (targetHref === "/feeds") return currentPath === "/feeds" || currentPath === "/";
   if (targetHref === "/chat") return currentPath === "/chat" || currentPath.startsWith("/chat/");
   if (targetHref === "/colleges") return currentPath === "/colleges" || currentPath.startsWith("/colleges/");
-  if (targetHref === "/matching") return currentPath === "/dating" || currentPath.startsWith("/dating/");
+  if (targetHref === "/matching") return currentPath === "/matching" || currentPath.startsWith("/matching/");
   return currentPath === targetHref || currentPath.startsWith(`${targetHref}/`);
 }
 
