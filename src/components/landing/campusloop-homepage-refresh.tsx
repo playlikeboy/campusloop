@@ -67,7 +67,7 @@ export function CampusLoopHomepageRefresh() {
             <div className={styles.heroVisual}>
               <div className={styles.heroArtwork}>
                 <Image
-                  src="/campusloop/marketing/voxel/landing-campus.svg"
+                  src="/campusloop/marketing/voxel/landing-campus.webp"
                   alt="Voxel-style university courtyard with students meeting, studying, and exploring campus"
                   fill priority sizes="(max-width: 900px) 100vw, 52vw"
                   className={styles.heroImage}
@@ -113,7 +113,7 @@ export function CampusLoopHomepageRefresh() {
                 </div>
                 <div className={styles.featureImage}>
                   <Image
-                    src="/campusloop/marketing/voxel/landing-study.svg"
+                    src="/campusloop/marketing/voxel/landing-study.webp"
                     alt="Warm voxel-style dorm study desk with a laptop, books, notes, and a campus view"
                     fill sizes="(max-width: 900px) 100vw, 38vw" className={styles.cardImage}
                   />
@@ -123,7 +123,7 @@ export function CampusLoopHomepageRefresh() {
               <article className={styles.featureCard + " " + styles.communityCard}>
                 <div className={styles.communityImage}>
                   <Image
-                    src="/campusloop/marketing/voxel/landing-clubs.svg"
+                    src="/campusloop/marketing/voxel/landing-clubs.webp"
                     alt="Voxel-style student club fair with colorful stalls and classmates meeting outdoors"
                     fill sizes="(max-width: 900px) 100vw, 36vw" className={styles.cardImage}
                   />
