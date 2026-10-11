@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Plus, School } from "lucide-react";
+import { Globe, Plus, School, Upload } from "lucide-react";
 import Link from "next/link";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -20,9 +20,9 @@ export function AcademicHeader({
   totalCount,
 }: AcademicHeaderProps) {
   return (
-    <header className="space-y-3.5 pt-2 pb-4">
+    <header className="space-y-2 sm:space-y-3.5 pt-1 sm:pt-2 pb-2 sm:pb-4">
       {/* Top Title & Primary Action Row */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
@@ -40,9 +40,9 @@ export function AcademicHeader({
         </div>
 
         {/* Header Actions */}
-        <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Scope Switcher: Campus vs All Campuses */}
-          <div className="flex items-center rounded-full bg-[var(--surface-sunken)] p-0.5 border border-[var(--border)] text-xs">
+          <div className="hidden sm:flex items-center rounded-full bg-[var(--surface-sunken)] p-0.5 border border-[var(--border)] text-xs">
             <button
               type="button"
               onClick={() => {
@@ -91,10 +91,22 @@ export function AcademicHeader({
               sounds.tap();
               haptics.success();
             }}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 text-xs font-semibold text-white shadow-xs hover:opacity-95 active:scale-95 transition-all cursor-pointer"
+            className="hidden sm:inline-flex min-h-9 items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 text-xs font-semibold text-white shadow-xs transition-all hover:opacity-95 active:scale-95"
           >
             <Plus className="size-3.5 stroke-[2.5]" />
-            <span>Upload Notes</span>
+            <span>Upload notes</span>
+          </Link>
+          <Link
+            href="/academics/upload"
+            onClick={() => {
+              sounds.tap();
+              haptics.success();
+            }}
+            className="inline-flex sm:hidden size-9 items-center justify-center rounded-xl bg-[var(--primary)] text-white transition-opacity active:opacity-80"
+            aria-label="Upload notes"
+            title="Upload notes"
+          >
+            <Upload className="size-4" />
           </Link>
         </div>
       </div>
