@@ -279,7 +279,7 @@ export function EventsClient() {
 
             <div className="flex items-center gap-1.5 min-w-0">
               <h1 className="text-sm sm:text-base font-bold tracking-tight text-foreground truncate">
-                Opportunities
+                Events
               </h1>
               {!isLoading && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground border border-border/60 shrink-0">
@@ -677,7 +677,7 @@ export function EventsClient() {
             <p className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
               {metrics.totalOpportunities}
             </p>
-            <p className="text-[11px] text-muted-foreground truncate">Campus Opportunities</p>
+            <p className="text-[11px] text-muted-foreground truncate">Opportunities</p>
           </div>
 
           <div className="rounded-2xl border border-border/60 bg-card/60 p-3 sm:p-3.5 space-y-1 shadow-2xs">
@@ -817,7 +817,7 @@ export function EventsClient() {
               <Calendar className="size-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-foreground">No Opportunities Found</h3>
+              <h3 className="text-base font-bold text-foreground">No events found</h3>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                 {isAnyFilterActive
                   ? "Try resetting filters or searching for another keyword."
