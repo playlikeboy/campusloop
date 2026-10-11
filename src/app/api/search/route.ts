@@ -106,11 +106,14 @@ export async function GET(request: Request) {
       // 1. People / Students
       shouldFetchPeople
         ? db.query.userProfiles.findMany({
-            where: or(
-              ilike(userProfiles.username, searchPattern),
-              ilike(userProfiles.displayName, searchPattern),
-              ilike(userProfiles.officialName, searchPattern),
-              ilike(userProfiles.headline, searchPattern)
+            where: and(
+              eq(userProfiles.isSeeded, false),
+              or(
+                ilike(userProfiles.username, searchPattern),
+                ilike(userProfiles.displayName, searchPattern),
+                ilike(userProfiles.officialName, searchPattern),
+                ilike(userProfiles.headline, searchPattern)
+              )
             ),
             limit: entityLimit,
             with: { institution: true },
@@ -122,6 +125,7 @@ export async function GET(request: Request) {
         ? db.query.posts.findMany({
             where: and(
               eq(posts.status, "PUBLISHED"),
+              eq(posts.isSeeded, false),
               scope === "CAMPUS" && userInstitutionId ? eq(posts.institutionId, userInstitutionId) : undefined,
               or(ilike(posts.body, searchPattern), ilike(posts.title, searchPattern))
             ),

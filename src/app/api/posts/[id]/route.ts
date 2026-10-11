@@ -94,7 +94,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     const isModerator =
       viewerProfile?.role === "MODERATOR" || viewerProfile?.role === "ADMIN";
 
-    if (post.status !== "PUBLISHED") {
+    if (post.status !== "PUBLISHED" || post.isSeeded) {
       const isAuthor = viewerProfile && post.authorId === viewerProfile.id;
       if (!isModerator && !isAuthor) {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });

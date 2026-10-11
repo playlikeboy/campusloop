@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CollegeHubClient } from "@/components/colleges/college-hub-client";
@@ -97,7 +97,11 @@ export default async function MainCollegePage({ params }: PageProps) {
   // Fetch posts, competitor campuses, and academic resources in parallel for optimal TTFB
   const [collegePosts, rawRelatedColleges, collegeAcademics] = await Promise.all([
     db.query.posts.findMany({
-      where: eq(posts.institutionId, college.id),
+      where: and(
+        eq(posts.institutionId, college.id),
+        eq(posts.status, "PUBLISHED"),
+        eq(posts.isSeeded, false)
+      ),
       orderBy: [desc(posts.createdAt)],
       limit: 30,
       with: {
@@ -165,7 +169,9 @@ export default async function MainCollegePage({ params }: PageProps) {
   });
 
   // Extract enrolled student profiles
-  const students = (college.profiles || []).map((p) => ({
+  const students = (college.profiles || [])
+    .filter((p) => !p.isSeeded)
+    .map((p) => ({
     id: p.id,
     username: p.username,
     displayName: p.displayName,
