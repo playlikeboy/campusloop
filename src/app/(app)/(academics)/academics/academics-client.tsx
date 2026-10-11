@@ -153,8 +153,7 @@ export function AcademicsClient({
 
   // Playlists are part of the For You feed as well as their dedicated tab.
   // The feed loads a small curated set; the dedicated playlist and saved views can load more.
-  const shouldLoadPlaylists =
-    isFeedTab || activeTab === "PLAYLISTS" || (activeTab === "SAVED" && savedSubTab === "playlists");
+  // The desktop companion rail uses playlists on every tab, while list views load a larger page.
   const playlistLimit =
     activeTab === "PLAYLISTS" || (activeTab === "SAVED" && savedSubTab === "playlists") ? "20" : "3";
   const playlistParams = new URLSearchParams({
@@ -174,7 +173,7 @@ export function AcademicsClient({
     playlists: any[];
     pagination: { total: number; totalPages?: number };
   }>(
-    shouldLoadPlaylists ? `/api/academics/playlists?${playlistParams.toString()}` : null,
+    `/api/academics/playlists?${playlistParams.toString()}`,
     fetcher
   );
 
@@ -608,6 +607,7 @@ export function AcademicsClient({
           userBranch={userBranch}
           playlists={playlistsData?.playlists || []}
           playlistsLoading={isPlaylistsLoading}
+          playlistsError={playlistsError}
         />
       </div>
 
