@@ -356,7 +356,10 @@ export function AcademicsSearchClient({
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col min-h-screen select-none pb-28 px-3 sm:px-6 lg:px-8 bg-background">
       {/* ─── Elevated Sticky Search Header ─── */}
-      <header className="sticky top-0 z-40 flex flex-col gap-3 border-b border-border/30 bg-background/95 pt-3.5 pb-2.5 backdrop-blur-xl -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 shadow-xs">
+      <header className={cn(
+          "sticky z-30 flex flex-col gap-3 border-b border-border/30 bg-background/95 pt-3.5 pb-2.5 backdrop-blur-xl -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 shadow-xs",
+          profileId ? "top-12 lg:top-0" : "top-14"
+        )}>
         {/* Top bar: Back button, Title & Action */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
