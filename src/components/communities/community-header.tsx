@@ -98,7 +98,7 @@ export function CommunityHeader({
   return (
     <header className="select-none">
       {/* ─── Sticky Twitter/X Top Navigation Bar ─── */}
-      <div className="sticky top-0 z-40 bg-background/88 px-3.5 py-2 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
+      <div className="sticky top-12 lg:top-0 z-30 bg-background/88 px-3.5 py-2 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
             href="/communities"
