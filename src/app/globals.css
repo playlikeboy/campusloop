@@ -1576,7 +1576,7 @@ a,
 
 
 /* CampusLoop clean surfaces: remove decorative card/panel outlines app-wide.
-   Form controls keep their affordance, and :focus-visible rings remain accessible. */
+   Form controls keep a subtle border change on focus instead of a glowing outline. */
 body *:not(input):not(textarea):not(select) {
   border-color: transparent !important;
 }
@@ -1634,4 +1634,20 @@ body [contenteditable="true"]:focus {
   button[title="All Hubs & Navigation"] {
     display: none !important;
   }
+}
+
+/* The auth provider has a more-specific focus rule; override it too. */
+body .hexclave-auth-scope .stack-scope input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus,
+body .hexclave-auth-scope .stack-scope input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus-visible,
+body .hexclave-auth-scope .stack-scope textarea:focus,
+body .hexclave-auth-scope .stack-scope textarea:focus-visible,
+body .hexclave-auth-scope .stack-scope select:focus,
+body .hexclave-auth-scope .stack-scope select:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+body .hexclave-auth-scope .stack-scope input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--input)) !important;
 }
