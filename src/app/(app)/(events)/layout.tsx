@@ -61,8 +61,7 @@ export default async function EventsLayout({ children }: { children: React.React
               <span className="inline-flex items-center gap-1.5">
                 <Eye className="size-3.5 shrink-0" />
                 <span>
-                  You&apos;re browsing in <strong>Viewer Mode</strong> — sign up with your college email to
-                  host events, register in teams, and earn Loop Points.
+                  <strong>Preview mode</strong> · verify your college email to host or register for events.
                 </span>
               </span>
             </div>
