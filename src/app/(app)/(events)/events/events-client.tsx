@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
-import { CalendarDays, Filter, Plus, Search, SlidersHorizontal, Ticket, X } from "lucide-react";
+import { CalendarDays, ChevronDown, Filter, Plus, Search, SlidersHorizontal, Ticket, X } from "lucide-react";
 import { EventCard, isEventClosed, type EventItem } from "@/components/events/event-card";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
