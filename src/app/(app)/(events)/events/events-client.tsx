@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
-import { CalendarDays, ChevronDown, Filter, Plus, Search, Ticket, X } from "lucide-react";
+import { CalendarDays, Filter, Plus, Search, SlidersHorizontal, Ticket, X } from "lucide-react";
 import { EventCard, isEventClosed, type EventItem } from "@/components/events/event-card";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,7 @@ export function EventsClient({
 }: EventsClientProps) {
   const isArchive = initialStatus === "CLOSED";
   const [activeTab, setActiveTab] = useState<ActiveTab>("ALL");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [scope, setScope] = useState<"ALL" | "MY_CAMPUS">("ALL");
   const [mode, setMode] = useState("ALL");
@@ -74,6 +75,20 @@ export function EventsClient({
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 260);
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    if (!isFiltersOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsFiltersOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFiltersOpen]);
 
   const apiUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -122,6 +137,16 @@ export function EventsClient({
     sort !== "trending" ||
     activeTab !== "ALL";
 
+  const activeFilterCount = [
+    activeCategory !== initialCategory,
+    scope !== "ALL",
+    mode !== "ALL",
+    fee !== "ALL",
+    participation !== "ALL",
+    hasPrizes,
+    sort !== "trending",
+  ].filter(Boolean).length;
+
   function resetFilters() {
     setSearch("");
     setDebouncedSearch("");
@@ -165,7 +190,7 @@ export function EventsClient({
         {search && <button type="button" onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-3 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-background hover:text-foreground"><X className="size-3.5" /></button>}
       </div>
 
-      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-0.5">
+      <div className="hidden sm:flex no-scrollbar items-center gap-2 overflow-x-auto pb-0.5">
         {CATEGORIES.map((category) => (
           <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} className={pillClass(activeCategory === category.id)}>{category.label}</button>
         ))}
@@ -185,7 +210,7 @@ export function EventsClient({
         ) : (
           <Link href="/events" className="text-xs font-medium text-primary hover:underline">← All events</Link>
         )}
-        <details className="group relative shrink-0">
+        <details className="group relative hidden shrink-0 sm:block">
           <summary className={cn("flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-full px-3 text-xs font-medium", mode !== "ALL" || fee !== "ALL" || participation !== "ALL" || hasPrizes || sort !== "trending" ? "bg-primary/10 text-primary" : "bg-muted/60 text-muted-foreground hover:text-foreground")}>
             <Filter className="size-3.5" /> Filters <ChevronDown className="size-3 transition-transform group-open:rotate-180" />
           </summary>
@@ -221,7 +246,80 @@ export function EventsClient({
             {filterActive && <button type="button" onClick={resetFilters} className="mt-1 h-9 rounded-full bg-muted text-xs font-semibold hover:bg-muted/80">Reset filters</button>}
           </div>
         </details>
+        <button
+          type="button"
+          onClick={() => setIsFiltersOpen(true)}
+          className={cn(
+            "relative inline-flex sm:hidden size-9 shrink-0 items-center justify-center rounded-xl transition-colors",
+            activeFilterCount > 0 ? "bg-primary/10 text-primary" : "bg-muted/60 text-muted-foreground"
+          )}
+          aria-label={"Open event filters" + (activeFilterCount ? ", " + activeFilterCount + " active" : "")}
+          aria-haspopup="dialog"
+          aria-expanded={isFiltersOpen}
+        >
+          <SlidersHorizontal className="size-4" aria-hidden="true" />
+          {activeFilterCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
+
+      {isFiltersOpen && (
+        <div className="fixed inset-0 z-[100] sm:hidden">
+          <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-[2px]" onClick={() => setIsFiltersOpen(false)} aria-label="Close event filters" />
+          <section role="dialog" aria-modal="true" aria-labelledby="event-filters-title" className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-border/50 bg-card px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] text-card-foreground shadow-2xl animate-in slide-in-from-bottom duration-200">
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-muted-foreground/25" />
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 id="event-filters-title" className="text-base font-bold">Filters</h2>
+                <p className="text-xs text-muted-foreground">{activeFilterCount ? activeFilterCount + " active" : "All events"}</p>
+              </div>
+              <button type="button" onClick={() => setIsFiltersOpen(false)} className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close event filters"><X className="size-4" /></button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold">Category</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {CATEGORIES.map((category) => (
+                    <button key={category.id} type="button" aria-pressed={activeCategory === category.id} onClick={() => setActiveCategory(category.id)} className={cn("min-h-10 rounded-xl border px-3 text-left text-sm font-medium transition-colors", activeCategory === category.id ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground")}>{category.label}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="grid gap-1.5 text-xs font-medium">Mode
+                  <select value={mode} onChange={(event) => setMode(event.target.value)} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm font-normal text-foreground outline-none focus-visible:border-primary/50">{MODES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium">Participation
+                  <select value={participation} onChange={(event) => setParticipation(event.target.value)} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm font-normal text-foreground outline-none focus-visible:border-primary/50"><option value="ALL">Solo or team</option><option value="SOLO">Solo</option><option value="TEAM">Team</option></select>
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium">Price
+                  <select value={fee} onChange={(event) => setFee(event.target.value)} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm font-normal text-foreground outline-none focus-visible:border-primary/50">{FEES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium">Sort by
+                  <select value={sort} onChange={(event) => setSort(event.target.value)} className="h-11 w-full rounded-xl border border-border/40 bg-muted/30 px-3 text-sm font-normal text-foreground outline-none focus-visible:border-primary/50">{SORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
+                </label>
+              </div>
+              <label className="flex min-h-10 cursor-pointer items-center gap-2 rounded-xl bg-muted/30 px-3 text-sm font-medium">
+                <input type="checkbox" checked={hasPrizes} onChange={(event) => setHasPrizes(event.target.checked)} className="size-4 accent-primary" />
+                Prize or rewards
+              </label>
+              <div className="space-y-2">
+                <p className="text-xs font-semibold">Campus</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" aria-pressed={scope === "MY_CAMPUS"} onClick={() => setScope("MY_CAMPUS")} className={cn("min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors", scope === "MY_CAMPUS" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground")}>My campus</button>
+                  <button type="button" aria-pressed={scope === "ALL"} onClick={() => setScope("ALL")} className={cn("min-h-10 rounded-xl border px-3 text-sm font-medium transition-colors", scope === "ALL" ? "border-primary/50 bg-primary/10 text-primary" : "border-border/50 bg-muted/30 text-foreground")}>All India</button>
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-2 border-t border-border/30 pt-3">
+              <button type="button" onClick={resetFilters} className="min-h-11 rounded-xl px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted">Reset all</button>
+              <button type="button" onClick={() => setIsFiltersOpen(false)} className="min-h-11 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Done</button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {!isArchive && <div className="flex items-center justify-end"><Link href="/events/closed" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Past events →</Link></div>}
 
