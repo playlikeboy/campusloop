@@ -37,6 +37,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { cn } from "@/lib/utils";
 
 interface MarketplaceClientProps {
   profileId?: string;
