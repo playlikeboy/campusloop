@@ -1,7 +1,16 @@
 "use client";
 
-import useSWR from "swr";
+import { useEffect, useRef } from "react";
+import useSWR, { mutate as globalMutate } from "swr";
 import { fetcher } from "@/lib/api";
+import { hasActivePushSubscription, triggerBrowserNotification } from "@/hooks/use-push-notifications";
+
+const UNREAD_COUNT_KEY = "/api/notifications/unread-count";
+
+/** The nav/sidebar badge polls its own key; refresh it whenever the list changes. */
+function refreshUnreadBadge() {
+  globalMutate(UNREAD_COUNT_KEY);
+}
 
 export type NotificationTab =
   | "all"
@@ -19,6 +28,7 @@ export interface NotificationItem {
   type:
     | "LIKE"
     | "COMMENT"
+    | "ARTICLE_COMMENT"
     | "REPLY"
     | "MENTION"
     | "REPOST"
@@ -57,9 +67,6 @@ interface NotificationsResponse {
   unreadCount: number;
 }
 
-import { useEffect, useRef } from "react";
-import { triggerBrowserNotification } from "@/hooks/use-push-notifications";
-
 export function useNotifications(tab: NotificationTab = "all") {
   const lastTopIdRef = useRef<string | null>(null);
 
@@ -79,6 +86,9 @@ export function useNotifications(tab: NotificationTab = "all") {
   const unreadCount = data?.unreadCount || 0;
 
   useEffect(() => {
+    // The list response carries the authoritative count; keep the nav badge in step.
+    if (data) globalMutate(UNREAD_COUNT_KEY, { unreadCount }, false);
+
     if (typeof navigator !== "undefined" && "setAppBadge" in navigator) {
       if (unreadCount > 0) {
         navigator.setAppBadge(unreadCount).catch(() => {});
@@ -91,10 +101,17 @@ export function useNotifications(tab: NotificationTab = "all") {
       const top = data.notifications[0];
       if (lastTopIdRef.current && lastTopIdRef.current !== top.id && !top.isRead) {
         if (typeof document !== "undefined" && document.visibilityState === "hidden") {
-          const actorName = top.actor?.displayName || "A classmate";
-          triggerBrowserNotification(`CampusLoop: ${actorName}`, {
-            body: top.previewText || "Sent you a new campus notification",
-            url: "/notifications",
+          // When Web Push is live the service worker already shows this one;
+          // only fall back to an in-page alert for browsers without it.
+          hasActivePushSubscription().then((hasPush: boolean) => {
+            if (hasPush) return;
+            const actorName =
+              top.type === "CRUSH_ALERT" ? "Someone" : top.actor?.displayName || "A classmate";
+            triggerBrowserNotification(`CampusLoop: ${actorName}`, {
+              body: top.previewText || "Sent you a new campus notification",
+              url: "/notifications",
+              tag: top.type,
+            });
           });
         }
       }
@@ -118,10 +135,11 @@ export function useNotifications(tab: NotificationTab = "all") {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ all: true }),
       });
-      mutate();
     } catch (err) {
       console.warn("Failed to mark all as read:", err);
+    } finally {
       mutate();
+      refreshUnreadBadge();
     }
   }
 
@@ -142,6 +160,9 @@ export function useNotifications(tab: NotificationTab = "all") {
       });
     } catch (err) {
       console.warn("Failed to mark notification as read:", err);
+      mutate();
+    } finally {
+      refreshUnreadBadge();
     }
   }
 
@@ -167,6 +188,7 @@ export function useNotifications(tab: NotificationTab = "all") {
       });
       if (!res.ok) throw new Error("Request failed");
       await mutate();
+      refreshUnreadBadge();
       return true;
     } catch (err) {
       console.warn("Failed to clear notifications:", err);
@@ -193,6 +215,7 @@ export function useNotifications(tab: NotificationTab = "all") {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Request failed");
+      refreshUnreadBadge();
       return true;
     } catch (err) {
       console.warn("Failed to delete notification:", err);
@@ -215,7 +238,7 @@ export function useNotifications(tab: NotificationTab = "all") {
 }
 
 export function useUnreadNotificationsCount() {
-  const { data } = useSWR<{ unreadCount: number }>("/api/notifications/unread-count", fetcher, {
+  const { data } = useSWR<{ unreadCount: number }>(UNREAD_COUNT_KEY, fetcher, {
     refreshInterval: 6000,
     dedupingInterval: 3000,
     revalidateOnFocus: true,

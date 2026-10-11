@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { academicPlaylistStars, academicPlaylists, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { awardPoints } from "@/lib/gamification-server";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -81,11 +82,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
       // Award Loop Points to playlist creator if not self-starring
       if (playlist.creatorId !== profile.id) {
-        awardPoints(
-          playlist.creatorId,
-          5,
-          `Your study playlist "${playlist.title}" was saved by a peer`
-        ).catch(console.error);
+        runInBackground(
+          awardPoints(playlist.creatorId, 5, `Your study playlist "${playlist.title}" was saved by a peer`),
+          "loop points award"
+        );
       }
 
       return NextResponse.json({

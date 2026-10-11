@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { pollOptions, pollVotes, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -66,10 +67,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     if (pollOption.postId !== postId) {
-      return NextResponse.json(
-        { error: "Poll option does not belong to this poll" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Poll option does not belong to this poll" }, { status: 400 });
     }
 
     // Check if user has already voted
@@ -99,11 +97,14 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     // Keep student streak alive for participating in campus polls
-    void recordStreakActivity({
-      userId: profile.id,
-      eventType: "POLL_VOTE",
-      sourceEntityId: postId,
-    }).catch((err) => console.warn("[Streak Poll Hook Error]:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "POLL_VOTE",
+        sourceEntityId: postId,
+      }),
+      "streak activity"
+    );
 
     return NextResponse.json(insertedVotes[0], { status: 201 });
   } catch (error) {

@@ -3,6 +3,7 @@ import { and, eq, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityWebhooks, posts, userProfiles } from "@/db/schema";
+import { runInBackground } from "@/lib/background";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { notifyMentions } from "@/lib/notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
@@ -211,11 +212,14 @@ export async function POST(req: Request, { params }: RouteProps) {
     }).catch(() => {});
 
     // Async mention notifications
-    notifyMentions({
-      text: body.trim(),
-      actorId: webhook.createdById,
-      referenceId: newPost.id,
-    }).catch(() => {});
+    runInBackground(
+      notifyMentions({
+        text: body.trim(),
+        actorId: webhook.createdById,
+        referenceId: newPost.id,
+      }),
+      "webhook mention notifications"
+    );
 
     return NextResponse.json(
       {

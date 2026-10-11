@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversations, messages, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { requireConversationParticipant } from "@/lib/chat-auth";
 import { notifyNewMessage } from "@/lib/chat-notifications";
 import { recordHeartbeat } from "@/lib/presence-server";
@@ -129,7 +130,10 @@ export async function POST(req: Request, { params }: RouteParams) {
     // Ping the other participants' devices. Fire-and-forget: the sender's
     // request must not wait on push delivery, and a push failure must not
     // fail a message that is already stored.
-    notifyNewMessage({ conversationId: id, senderId: profile.id, body }).catch(() => {});
+    runInBackground(
+      notifyNewMessage({ conversationId: id, senderId: profile.id, body }),
+      "message notification"
+    );
 
     // Return message populated with sender
     const populatedMessage = {

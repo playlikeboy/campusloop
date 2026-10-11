@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { articleComments, articleCommentVotes, articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
@@ -172,32 +173,45 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
 
     // Notify the article author if not commenting on one's own article
     if (article.authorId !== profile.id) {
-      createNotification({
-        userId: article.authorId,
-        actorId: profile.id,
-        type: "COMMENT",
-        referenceId: article.slug,
-        previewText: `${profile.displayName || profile.username} commented on "${article.title.slice(0, 40)}"`,
-      }).catch((err) => console.error("Article comment notification error:", err));
+      runInBackground(
+        createNotification({
+          userId: article.authorId,
+          actorId: profile.id,
+          type: "ARTICLE_COMMENT",
+          referenceId: article.slug,
+          previewText: `${profile.displayName || profile.username} commented on "${article.title.slice(0, 40)}"`,
+        }),
+        "article comment notification"
+      );
     }
 
     // If this is a reply to another comment, notify that parent comment author
-    if (parentComment && parentComment.authorId !== profile.id && parentComment.authorId !== article.authorId) {
-      createNotification({
-        userId: parentComment.authorId,
-        actorId: profile.id,
-        type: "COMMENT",
-        referenceId: article.slug,
-        previewText: `${profile.displayName || profile.username} replied to your comment on "${article.title.slice(0, 40)}"`,
-      }).catch((err) => console.error("Reply notification error:", err));
+    if (
+      parentComment &&
+      parentComment.authorId !== profile.id &&
+      parentComment.authorId !== article.authorId
+    ) {
+      runInBackground(
+        createNotification({
+          userId: parentComment.authorId,
+          actorId: profile.id,
+          type: "ARTICLE_COMMENT",
+          referenceId: article.slug,
+          previewText: `${profile.displayName || profile.username} replied to your comment on "${article.title.slice(0, 40)}"`,
+        }),
+        "article reply notification"
+      );
     }
 
     // Award LP to student for contributing an insightful comment (+5 LP)
-    awardPoints(profile.id, 5, "ARTICLE_COMMENT", {
-      referenceId: commentId,
-      actorId: profile.id,
-      bypassCaps: false,
-    }).catch((err) => console.error("Article comment LP award error:", err));
+    runInBackground(
+      awardPoints(profile.id, 5, "ARTICLE_COMMENT", {
+        referenceId: commentId,
+        actorId: profile.id,
+        bypassCaps: false,
+      }),
+      "loop points award"
+    );
 
     return NextResponse.json({
       comment: {

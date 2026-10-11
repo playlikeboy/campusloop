@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { createNotification } from "@/lib/notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -61,13 +62,16 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     // Trigger REPOST notification to original author
     if (originalPost.authorId && originalPost.authorId !== profile.id) {
-      createNotification({
-        userId: originalPost.authorId,
-        actorId: profile.id,
-        type: "REPOST",
-        referenceId: originalPost.id,
-        previewText: commentary || originalPost.body,
-      }).catch((err) => console.warn("Repost notification error:", err));
+      runInBackground(
+        createNotification({
+          userId: originalPost.authorId,
+          actorId: profile.id,
+          type: "REPOST",
+          referenceId: originalPost.id,
+          previewText: commentary || originalPost.body,
+        }),
+        "repost notification"
+      );
     }
 
     return NextResponse.json(repostedPost, { status: 201 });

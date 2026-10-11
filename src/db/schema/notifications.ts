@@ -9,7 +9,7 @@ export const notifications = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => userProfiles.id, { onDelete: "cascade" }),
-    // LIKE, COMMENT, REPLY, MENTION, REPOST, MATCH, CRUSH_ALERT, MILESTONE,
+    // LIKE, COMMENT, ARTICLE_COMMENT, REPLY, MENTION, REPOST, MATCH, CRUSH_ALERT, MILESTONE,
     // FOLLOW, FRIEND, STORY_LIKE, STORY_REPLY, MESSAGE, NEW_POST
     type: text("type").notNull(),
     actorId: text("actor_id")

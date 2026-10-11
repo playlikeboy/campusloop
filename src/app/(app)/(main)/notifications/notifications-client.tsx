@@ -100,14 +100,29 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "Reply",
         };
+      case "ARTICLE_COMMENT":
+        return {
+          icon: <AnimateMessageCircle size={14} className="text-brand" />,
+          badgeBg: "bg-brand/15 border-brand/30 text-brand",
+          actionText: "commented on your article",
+          href: n.referenceId ? `/articles/${n.referenceId}` : "/articles",
+          actionLabel: "View article",
+        };
       case "REPLY":
-      case "STORY_REPLY":
         return {
           icon: <AnimateMessageCircle size={14} className="text-brand" />,
           badgeBg: "bg-brand/15 border-brand/30 text-brand",
           actionText: "replied to your comment",
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "Reply",
+        };
+      case "STORY_REPLY":
+        return {
+          icon: <AnimateMessageCircle size={14} className="text-brand" />,
+          badgeBg: "bg-brand/15 border-brand/30 text-brand",
+          actionText: "replied to your campus vibe",
+          href: n.referenceId ? `/story/${n.referenceId}` : "/feeds",
+          actionLabel: "View vibe",
         };
       case "MENTION":
         return {
