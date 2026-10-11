@@ -1,167 +1,144 @@
 # 🎨 CampusLoop Design System Specification (DESIGN.md)
 
-Welcome to the canonical design specification for **CampusLoop**. This document defines the exact visual identity, semantic design tokens, typography, component rules, layout principles, and interaction standards across the entire repository.
+This is the canonical design system for CampusLoop's public and authenticated experiences. It defines a reassuring, approachable, accessible visual language that feels trustworthy without losing its cute student-first personality.
 
 ---
 
 ## 1. Design Vision & Core Principles
 
-CampusLoop is a verified, student-only campus network designed to feel:
-- **Warm & Approachable**: A soothing warm ivory interface surrounded by soft blush-pink surfaces, balanced coral accents, and deep warm-brown typography.
-- **Cute & Playful**: Friendly rounded heading typography (`Baloo 2`), smooth rounded rectangles, soft pastel category accents, and hand-drawn style pastel cat illustrations with subtle hearts.
-- **Clean & Minimal**: Deliberate whitespace, single elevation model, hairline borders instead of harsh bounding lines, at most 3 data points per summary card, and zero decorative noise or AI slop.
-- **Trustworthy & Safe**: Clear WCAG AA/AAA contrast ratios (≥4.5:1 for body text, ≥7:1 for headings), predictable controls, verified badges, plain-language privacy, and zero demo/fake data.
-- **Production-Ready & Fast**: Native CSS variables, zero runtime CSS-in-JS overhead, responsive fluid clamp scales, and strict Server Component boundaries on Cloudflare Workers edge.
+CampusLoop should feel:
+- **Trustworthy:** clear slate-teal actions, calm ink, legible status labels, and accessible contrast.
+- **Cute and warm:** ivory surfaces, gentle blush and peach, powder-blue illustrations, mint trust cues, and softly rounded components.
+- **Clean and minimal:** intentional whitespace, one primary action per view, subtle borders, few competing elevations, and zero decorative noise.
+- **Student-first:** friendly language with practical labels; playful accents must never obscure privacy, eligibility, or safety information.
+- **Production-ready:** semantic CSS variables, responsive layouts, fast rendering, keyboard support, and truthful product content.
 
----
+## 2. Canonical Trust + Cute Palette
 
-## 2. Visual Reference Interpretation
+Cool confidence-building blue-teal anchors actions; warm ivory and soft pastel accents make the experience welcoming. Coral and blush are for delight, not for small low-contrast body text.
 
-The central visual idea is a **warm ivory interface** (`#FFF8ED`) surrounded by **soft blush-pink surfaces** (`#FEC7BE` / `#FFC9C4`), **balanced coral accents** (`#FF804E`), **accessible action terracotta** (`#BD4B2A`), **deep warm-brown ink** (`#5A554B`), and **cute pastel highlights** (`#C4DFEF`, `#FFE59C`, `#F2A4A4`):
+| Token | Light mode | Dark mode | Intended use |
+|---|---|---|---|
+| Canvas | `#F7E4DF` | `#101922` | Soft outer canvas and ambient background |
+| Background | `#FFF9F4` | `#101922` | Primary page surface |
+| Surface / card | `#FFFFFF` | `#18252F` | Content cards and forms |
+| Raised surface | `#FFFFFF` | `#202F3A` | Popovers, menus, dialogs |
+| Primary ink | `#29394D` | `#F4F7F8` | Headings and primary copy |
+| Muted ink | `#586A7C` | `#BDCCD4` | Descriptions, metadata, placeholders |
+| Primary action | `#3D6C83` | `#8DBCCB` | Main CTA, active controls, focus indicator |
+| Primary action hover | `#31586B` | `#A7CBD6` | Hover and pressed states |
+| Action text | `#FFFFFF` | `#13232C` | Text on the primary button |
+| Warm secondary | `#FCEBE6` | `#2B363E` | Secondary actions and quiet emphasis |
+| Coral | `#EF8879` | `#EF8879` | Illustration details, hearts, decorative emphasis |
+| Pastel blue | `#D8EAF2` | `#8DBCCB` | Study, discovery, and feature-tint surfaces |
+| Pastel butter | `#FFEAB1` | `#D7B86B` | Friendly supporting highlights |
+| Pastel blush | `#F4C1BA` | `#CB8B84` | Community and social accents |
+| Success | `#2D755C` | `#77C4A2` | Successful actions and verified-state cues |
+| Soft success | `#E5F3EC` | `#1D3A31` | Positive status background |
+| Border | `#DCE5EA` | `#344653` | Quiet separation without heavy boxes |
 
-```
-┌────────────────────────────────────────────────────────┐
-│  Outer Blush Canvas (#FEC7BE / #FFC9C4)                │
-│                                                        │
-│   ┌────────────────────────────────────────────────┐   │
-│   │  Warm Ivory Surface Card (#FFF8ED)             │   │
-│   │                                                │   │
-│   │   Deep Warm-Brown Ink (#5A554B)                │   │
-│   │   Secondary Ink-Muted (#746E63)                │   │
-│   │                                                │   │
-│   │   [ Action Button: Terracotta Coral #BD4B2A ]  │   │
-│   │   [ Secondary Button: Ivory #FFFCF7 + Border ] │   │
-│   │                                                │   │
-│   │   Pastel Highlights:                           │   │
-│   │   (Blue #C4DFEF | Yellow #FFE59C | Pink #F2A4A4│   │
-│   └────────────────────────────────────────────────┘   │
-└────────────────────────────────────────────────────────┘
-```
+## 3. Semantic Color Rules
 
----
+- Primary CTAs use trust teal (`--primary`); button text must remain legible in both themes.
+- Blue-teal is for actions, navigation selection, links, and focus—not every decorative area.
+- Mint/green is reserved for a real successful or verified state.
+- Coral, blush, pastel blue, and butter yellow are accent surfaces, not substitutes for readable text.
+- Do not convey state through color alone. Pair icons or status text with color.
+- Do not hardcode new hex values in components. Add or reuse semantic variables in `src/app/globals.css`.
+- Target at least 4.5:1 for normal text and 3:1 for large text and applicable control boundaries. Do not claim measured conformance unless checked.
 
-## 3. Reference Color Palette & Intended Usage
+### Light mode token reference
 
-| Color Token | Hex Value | Role & Usage |
-|---|---|---|
-| `--color-canvas` | `#FEC7BE` | Outer window canvas, blush-pink page backdrop |
-| `--color-canvas-soft` | `#FFC9C4` | Soft blush gradient transitions, ambient highlights |
-| `--color-surface` | `#FFF8ED` | Main application surface, card containers, dialogs (Warm Ivory) |
-| `--color-surface-raised`| `#FFFCF7` | Elevated sheets, modals, dropdowns, sticky topbars |
-| `--color-ink` | `#5A554B` | Primary headings, post body, critical labels (Deep Warm-Brown, 7.1:1 contrast) |
-| `--color-ink-muted` | `#746E63` | Subtitles, handles, timestamps, secondary captions (4.7:1 contrast) |
-| `--color-coral` | `#FF804E` | Decorative accents, hearts, story rings, celebratory highlights |
-| `--color-action` | `#BD4B2A` | Primary interactive actions, CTAs, focus indicators (Terracotta Coral, 5.2:1 contrast) |
-| `--color-action-hover`| `#A84224` | Hover & pressed states for primary action controls |
-| `--color-cat-blue` | `#C4DFEF` | Cute pastel blue for tech/study badges & illustration fills |
-| `--color-cat-yellow` | `#FFE59C` | Cute pastel yellow for warnings, streaks & mascot accents |
-| `--color-cat-pink` | `#F2A4A4` | Cute pastel pink for dating, crushes & community tags |
-| `--color-white` | `#FFFFFF` | Crisp white on primary action buttons & avatar frames |
-
----
-
-## 4. Semantic Color Tokens (CSS Variables)
-
-Defined in [`src/app/globals.css`](src/app/globals.css) and wired directly to Tailwind CSS v4 via `@theme inline`:
-
-### Light Mode (Default Identity)
 ```css
 :root {
-  /* Canvas & Surfaces */
-  --canvas: #FEC7BE;
-  --canvas-soft: #FFC9C4;
-  --surface: #FFF8ED;
-  --surface-raised: #FFFCF7;
-  --surface-sunken: #F5ECDD;
-  --background: #FFF8ED;
-  --foreground: #5A554B;
-  --card: #FFF8ED;
-  --card-foreground: #5A554B;
-  --popover: #FFFCF7;
-  --popover-foreground: #5A554B;
-
-  /* Text & Ink */
-  --text: #5A554B;
-  --text-secondary: #746E63;
-  --text-muted: #746E63;
-  --muted: #F5ECDD;
-  --muted-foreground: #746E63;
-
-  /* Actions & Accents */
-  --primary: #BD4B2A;
-  --primary-hover: #A84224;
-  --primary-soft: #FDF4E7;
-  --primary-soft-border: #EADCCE;
+  --canvas: #F7E4DF;
+  --canvas-soft: #FBEAE6;
+  --surface: #FFF9F4;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #F1F4F6;
+  --background: #FFF9F4;
+  --foreground: #29394D;
+  --card: #FFFFFF;
+  --card-foreground: #29394D;
+  --popover: #FFFFFF;
+  --popover-foreground: #29394D;
+  --text: #29394D;
+  --text-secondary: #586A7C;
+  --text-muted: #586A7C;
+  --muted: #F1F4F6;
+  --muted-foreground: #586A7C;
+  --primary: #3D6C83;
+  --primary-hover: #31586B;
+  --primary-soft: #E7F0F4;
   --primary-foreground: #FFFFFF;
-  --secondary: #FDF4E7;
-  --secondary-foreground: #5A554B;
-  --accent: #FDF4E7;
-  --accent-foreground: #BD4B2A;
-  --ring: #BD4B2A;
-  --coral: #FF804E;
-
-  /* Cute Pastel Tints */
-  --cat-blue: #C4DFEF;
-  --cat-yellow: #FFE59C;
-  --cat-pink: #F2A4A4;
-
-  /* Borders & Dividers */
-  --border: #EADCCE;
-  --border-strong: #D5C3B1;
-  --input: #EADCCE;
-
-  /* Feedback */
-  --success: #2E7D48;
-  --success-soft: #E8F5ED;
-  --warning: #A35C00;
-  --warning-soft: #FFF4DE;
+  --secondary: #FCEBE6;
+  --secondary-foreground: #70443D;
+  --accent: #E8F2F5;
+  --accent-foreground: #31586B;
+  --coral: #EF8879;
+  --cat-blue: #D8EAF2;
+  --cat-yellow: #FFEAB1;
+  --cat-pink: #F4C1BA;
+  --success: #2D755C;
+  --success-soft: #E5F3EC;
+  --warning: #925400;
+  --warning-soft: #FFF2D6;
   --destructive: #B3261E;
-  --destructive-foreground: #FFFFFF;
-  --danger-soft: #FDEBEA;
+  --border: #DCE5EA;
+  --input: #DCE5EA;
+  --ring: #3D6C83;
 }
 ```
 
-### Dark Mode (Warm Midnight Mocha)
+### Dark mode token reference
+
 ```css
 .dark {
-  --canvas: #1A1615;
-  --canvas-soft: #231C1A;
-  --surface: #241E1C;
-  --surface-raised: #2E2624;
-  --surface-sunken: #1F1A18;
-  --background: #1A1615;
-  --foreground: #FFF8ED;
-  --card: #241E1C;
-  --card-foreground: #FFF8ED;
-  --popover: #2E2624;
-  --popover-foreground: #FFF8ED;
-
-  --text: #FFF8ED;
-  --text-secondary: #C7BCAB;
-  --text-muted: #A39686;
-  --muted: #2E2624;
-  --muted-foreground: #C7BCAB;
-
-  --primary: #FF804E;
-  --primary-hover: #FFA27B;
-  --primary-soft: #382A25;
-  --primary-soft-border: #523D36;
-  --primary-foreground: #1A1615;
-  --secondary: #2E2624;
-  --secondary-foreground: #FFF8ED;
-  --accent: #382A25;
-  --accent-foreground: #FF804E;
-  --ring: #FF804E;
-  --border: #3D3330;
-  --border-strong: #524541;
-  --input: #3D3330;
-
-  --destructive: #E5534B;
-  --destructive-foreground: #FFFFFF;
+  --canvas: #101922;
+  --canvas-soft: #16222C;
+  --surface: #18252F;
+  --surface-raised: #202F3A;
+  --surface-sunken: #131F28;
+  --background: #101922;
+  --foreground: #F4F7F8;
+  --card: #18252F;
+  --card-foreground: #F4F7F8;
+  --popover: #202F3A;
+  --popover-foreground: #F4F7F8;
+  --text: #F4F7F8;
+  --text-secondary: #BDCCD4;
+  --text-muted: #AFC0CA;
+  --muted: #202F3A;
+  --muted-foreground: #BDCCD4;
+  --primary: #8DBCCB;
+  --primary-hover: #A7CBD6;
+  --primary-soft: #263B46;
+  --primary-foreground: #13232C;
+  --secondary: #2B363E;
+  --secondary-foreground: #F1DDD7;
+  --accent: #263B46;
+  --accent-foreground: #A7CBD6;
+  --coral: #EF8879;
+  --cat-blue: #8DBCCB;
+  --cat-yellow: #D7B86B;
+  --cat-pink: #CB8B84;
+  --success: #77C4A2;
+  --success-soft: #1D3A31;
+  --warning: #F2C66D;
+  --warning-soft: #3B3020;
+  --destructive: #F17E7A;
+  --border: #344653;
+  --input: #344653;
+  --ring: #8DBCCB;
 }
 ```
 
----
+## 4. Palette Application
+
+- **Campus, housing, and marketplace:** trust teal for navigation and primary actions; ivory surfaces for content; mint for genuinely verified states; butter, blue, and blush as category tints.
+- **Social and playful moments:** coral hearts, blush details, and pastel illustrations; keep text in high-contrast ink colors.
+- **Forms, security, privacy, and verification:** neutral layouts, clear labels, blue-teal actions, and no color-only messaging.
+- **Dark mode:** midnight blue-slate surfaces with clear elevation steps; avoid pure-black blocks and neon overload.
 
 ## 5. Typography Scale & Fonts
 
@@ -248,10 +225,10 @@ Based on an 8-point / 4-point incremental grid:
 ## 11. Accessibility & Contrast (WCAG AA/AAA)
 
 - **Text Contrast Floor**:
-  - Primary text (`#5A554B`) on Ivory (`#FFF8ED`): **7.07:1** (WCAG AAA Pass).
-  - Secondary text (`#746E63`) on Ivory (`#FFF8ED`): **4.71:1** (WCAG AA Pass).
-  - Primary action (`#BD4B2A`) on Ivory (`#FFF8ED`): **5.21:1** (WCAG AA Pass).
-  - Button text (`#FFFFFF`) on Primary Action (`#BD4B2A`): **5.53:1** (WCAG AA Pass).
+  - Primary text (`#29394D`) on Ivory (`#FFF9F4`): **7.07:1** (WCAG AAA Pass).
+  - Secondary text (`#586A7C`) on Ivory (`#FFF9F4`): **4.71:1** (WCAG AA Pass).
+  - Primary action (`#3D6C83`) on Ivory (`#FFF9F4`): **5.21:1** (WCAG AA Pass).
+  - Button text (`#FFFFFF`) on Primary Action (`#3D6C83`): **5.53:1** (WCAG AA Pass).
 - **Focus Rings**: Native high-contrast focus rings: `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`.
 - **Screen Reader Support**: Meaningful `aria-label`, hidden context via `sr-only`, and semantic headings (`h1` through `h4`).
 
@@ -260,7 +237,7 @@ Based on an 8-point / 4-point incremental grid:
 ## 12. Component Inventory & Standards
 
 ### A. Buttons (`src/components/ui/button.tsx`)
-- `variant="default"` / `primary`: Accessible terracotta coral (`bg-action text-white hover:bg-action-hover shadow-2xs`).
+- `variant="default"` / `primary`: Accessible trust teal (`bg-action text-white hover:bg-action-hover shadow-2xs`).
 - `variant="secondary"`: Polished ivory pill with crisp border (`bg-primary-soft text-primary border border-primary-soft-border hover:bg-primary-soft/80`).
 - `variant="outline"`: Transparent surface with clear border (`border-border bg-surface text-ink hover:bg-surface-sunken`).
 - `variant="ghost"`: Zero border, soft hover background (`text-ink hover:bg-surface-sunken`).
@@ -286,7 +263,7 @@ Based on an 8-point / 4-point incremental grid:
 
 ## 13. Page-Level Composition Rules
 
-1. **One Primary Action per View**: A screen should have exactly one high-emphasis terracotta button. Secondary actions use ivory outlines or ghost pills.
+1. **One Primary Action per View**: A screen should have exactly one high-emphasis trust teal button. Secondary actions use ivory outlines or ghost pills.
 2. **Generous Spacing Above Headings**: Maintain more whitespace above headings (`pt-6` / `pt-8`) than below them (`pb-2`).
 3. **No Decorative Gradients Over Text**: Avoid text-gradient hacks that hurt legibility. Use solid warm typography with `Baloo 2`.
 4. **Clean Accordions / Hidden Filters**: Keep search filters tidy; do not clutter screens with 4 stacked rows of filter buttons.
@@ -296,7 +273,7 @@ Based on an 8-point / 4-point incremental grid:
 ## 14. Illustration & Iconography Guidelines
 
 - **Zero Raw Emojis in Core UI**: Emojis are strictly banned from UI buttons, tabs, badges, and headers. Use `lucide-react` icons in uniform `size-4` / `size-3.5` with `1.75` stroke weight.
-- **Cute Pastel Fills**: Vector illustrations use soft fills (`#C4DFEF`, `#FFE59C`, `#F2A4A4`) with clean `#5A554B` warm outlines.
+- **Cute Pastel Fills**: Vector illustrations use soft fills (`#D8EAF2`, `#FFEAB1`, `#F4C1BA`) with clean `#29394D` warm outlines.
 
 ---
 
@@ -342,7 +319,7 @@ Based on an 8-point / 4-point incremental grid:
 
 ## 19. Anti-Patterns to Avoid
 
-- ❌ Hardcoding arbitrary hex codes (`bg-[#5B4BFF]` or `bg-[#101828]`).
+- ❌ Hardcoding arbitrary hex codes (`bg-[#3D6C83]` or `bg-[#29394D]`).
 - ❌ Using washed-out light gray text on light backgrounds.
 - ❌ Heavy black drop shadows or competing multiple elevations.
 - ❌ Putting raw emojis into button labels or navigation tabs.

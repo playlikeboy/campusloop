@@ -145,6 +145,22 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     notFound();
   }
 
+  // Route an authenticated owner to the canonical interactive profile before loading public activity.
+  // This prevents the vanity URL from rendering the public profile shell for its signed-in owner.
+  if (user && !isViewerMode) {
+    const viewerProfile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+    });
+
+    if (!viewerProfile) {
+      redirect("/onboarding");
+    }
+
+    if (viewerProfile.id === profile.id) {
+      redirect("/profile");
+    }
+  }
+
   // Fetch posts written by this user (never expose anonymous posts on public profile)
   const userPosts = await db.query.posts.findMany({
     where: and(
