@@ -84,7 +84,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      const data = await response.json().catch(() => ({}));
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(data.error || "Could not register");
       setIsRegistered(true);
       setAttendeeCount((count) => count + 1);
