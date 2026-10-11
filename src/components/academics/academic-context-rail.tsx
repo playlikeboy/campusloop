@@ -21,6 +21,7 @@ interface AcademicContextRailProps {
   userBranch?: string;
   playlists?: AcademicPlaylistData[];
   playlistsLoading?: boolean;
+  playlistsError?: unknown;
 }
 
 const POPULAR_THIS_WEEK = [
@@ -59,6 +60,7 @@ export function AcademicContextRail({
   userBranch = "Computer Science",
   playlists = [],
   playlistsLoading = false,
+  playlistsError,
 }: AcademicContextRailProps) {
   const scrollRef = useScrollIsolation<HTMLElement>();
 
@@ -142,6 +144,10 @@ export function AcademicContextRail({
             [0, 1].map((item) => (
               <div key={item} className="h-14 animate-pulse rounded-xl bg-muted/40" />
             ))
+          ) : playlistsError ? (
+            <p className="rounded-xl border border-border/30 bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
+              Study playlists are temporarily unavailable.
+            </p>
           ) : playlists.length > 0 ? (
             playlists.slice(0, 2).map((playlist) => (
               <Link
