@@ -594,15 +594,9 @@ export function NewEventClient() {
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-muted-foreground">Events</span>
-                <span className="text-muted-foreground/40">/</span>
-                <h1 className="text-sm font-black tracking-tight text-foreground sm:text-base">
-                  Host an Event
+                <h1 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
+                  Host an event
                 </h1>
-                <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">
-                  <Sparkles className="size-2.5" />
-                  +50 LP Host
-                </span>
               </div>
               {lastSavedTime && (
                 <p className="text-[10px] font-medium text-muted-foreground">Autosaved at {lastSavedTime}</p>

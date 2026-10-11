@@ -116,12 +116,7 @@ export function MyTicketsClient({
             <ArrowLeft className="size-4" />
           </Link>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Pass Vault</span>
-              <span className="text-muted-foreground/60 text-xs">·</span>
-              <span className="text-xs text-muted-foreground">{events.length} passes registered</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-foreground">My Event Passes & Tickets</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">My tickets</h1>
           </div>
         </div>
 
@@ -131,7 +126,7 @@ export function MyTicketsClient({
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border/50 bg-card hover:bg-muted text-foreground text-xs font-bold transition-colors"
           >
             <Calendar className="size-3.5 text-primary" />
-            <span>Organizer Dashboard</span>
+            <span>My events</span>
           </Link>
 
           <Link

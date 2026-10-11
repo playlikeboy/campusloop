@@ -171,9 +171,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Attendee Roster</span>
-              <span className="text-muted-foreground/60 text-xs">·</span>
-              <span className="text-xs text-muted-foreground">{registrations.length} registered</span>
+              <span className="text-xs font-medium text-muted-foreground">Attendees</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-foreground truncate max-w-md sm:max-w-xl">
               {eventTitle}
@@ -196,7 +194,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-xs"
           >
             <UserCheck className="size-3.5" />
-            <span>Live Check-In Desk</span>
+            <span>Check-in</span>
           </Link>
         </div>
       </div>

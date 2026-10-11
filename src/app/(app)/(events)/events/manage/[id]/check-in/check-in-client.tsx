@@ -136,8 +136,8 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
             <ArrowLeft className="size-4" />
           </Link>
           <div className="min-w-0">
-            <span className="text-[11px] font-bold text-emerald-500 uppercase tracking-wider block">
-              Venue Check-In Desk
+            <span className="text-[11px] font-medium text-muted-foreground block">
+              Check-in
             </span>
             <h1 className="text-lg font-black text-foreground truncate">{eventTitle}</h1>
           </div>
@@ -155,7 +155,6 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
       <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs text-muted-foreground font-semibold">Live Venue Admission</span>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-foreground">{totalAttended}</span>
               <span className="text-xs text-muted-foreground">/ {totalAttendees} admitted</span>

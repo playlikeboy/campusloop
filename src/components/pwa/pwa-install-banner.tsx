@@ -105,7 +105,6 @@ export function PWAInstallBanner() {
       const promptEvent = e as BeforeInstallPromptEvent;
       globalDeferredPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
-      setShowBanner(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -132,14 +131,6 @@ export function PWAInstallBanner() {
     };
 
     window.addEventListener("campusloop_trigger_pwa_install", handleCustomTrigger);
-
-    // If iOS and not standalone, show after 2.5s on visit
-    if (isIosDevice && !isStandaloneMode) {
-      const timer = setTimeout(() => {
-        setShowBanner(true);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
