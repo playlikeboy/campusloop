@@ -1,0 +1,28 @@
+
+/* CampusLoop visual refresh — shared semantic tokens for app surfaces, borders and controls. */
+:root {
+  --canvas:#eef6fc; --canvas-soft:#f5faff; --surface:#fff; --surface-raised:#fff; --surface-sunken:#f4f8fb;
+  --border:#dce7ef; --border-strong:#c5d8e5; --text:#172b3a; --text-secondary:#526a7a; --text-muted:#526a7a;
+  --background:#f9fcff; --foreground:#172b3a; --card:#fff; --card-foreground:#172b3a; --popover:#fff; --popover-foreground:#172b3a;
+  --primary:#2d7fa4; --primary-hover:#236b8b; --primary-soft:#e4f2fa; --primary-soft-border:#c9e3f0; --primary-foreground:#fff;
+  --secondary:#edf6fb; --secondary-foreground:#294a5e; --muted:#f1f6fa; --muted-foreground:#536a7b; --accent:#e8f4fb; --accent-foreground:#245f7d;
+  --coral:#e98d72; --cat-blue:#d7ebf7; --cat-yellow:#fff0bd; --cat-pink:#f8ddd4; --sun:#e98d72;
+  --success:#267a5c; --success-soft:#e3f4ec; --warning:#875300; --warning-soft:#fff2d2; --danger:#b3261e; --danger-soft:#fbe9e7;
+  --destructive:#b3261e; --destructive-foreground:#fff; --input:#d6e4ed; --ring:#2d7fa4;
+  --chart-1:#2d7fa4; --chart-2:#267a5c; --chart-3:#e98d72; --chart-4:#d7ebf7; --chart-5:#536a7b;
+  --sidebar:#fff; --sidebar-foreground:#172b3a; --sidebar-primary:#2d7fa4; --sidebar-primary-foreground:#fff;
+  --sidebar-accent:#edf6fb; --sidebar-accent-foreground:#294a5e; --sidebar-border:#dce7ef; --sidebar-ring:#2d7fa4;
+}
+.dark {
+  --canvas:#101c27; --canvas-soft:#162734; --surface:#172a38; --surface-raised:#203646; --surface-sunken:#0d1a24;
+  --border:#2e4859; --border-strong:#446275; --text:#f3f7fa; --text-secondary:#c5d4de; --text-muted:#c5d4de;
+  --background:#101c27; --foreground:#f3f7fa; --card:#172a38; --card-foreground:#f3f7fa; --popover:#203646; --popover-foreground:#f3f7fa;
+  --primary:#91c8e1; --primary-hover:#b5dced; --primary-soft:#203f50; --primary-soft-border:#35586c; --primary-foreground:#102532;
+  --secondary:#263c49; --secondary-foreground:#edf5f8; --muted:#203442; --muted-foreground:#bfd0da; --accent:#244253; --accent-foreground:#b5dced;
+  --coral:#f5a18a; --cat-blue:#91c8e1; --cat-yellow:#d8bd79; --cat-pink:#d19a91; --sun:#f5a18a;
+  --success:#77c9a6; --success-soft:#1d3a31; --warning:#f2ca76; --warning-soft:#3b3020; --danger:#f17e7a; --danger-soft:#402725;
+  --destructive:#f17e7a; --destructive-foreground:#fff; --input:#385060; --ring:#91c8e1;
+  --chart-1:#91c8e1; --chart-2:#77c9a6; --chart-3:#f5a18a; --chart-4:#d8bd79; --chart-5:#385060;
+  --sidebar:#101c27; --sidebar-foreground:#f3f7fa; --sidebar-primary:#91c8e1; --sidebar-primary-foreground:#102532;
+  --sidebar-accent:#203442; --sidebar-accent-foreground:#f3f7fa; --sidebar-border:#2e4859; --sidebar-ring:#91c8e1;
+}
