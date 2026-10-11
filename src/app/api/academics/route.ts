@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { academicResources, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { validateResourceUrl } from "@/lib/academics/pdf-validator";
+import { runInBackground } from "@/lib/background";
 import { indexAcademicResourceVector } from "@/lib/qdrant/indexer";
 import {
   getPersonalizedAcademicFeed,
@@ -389,11 +390,14 @@ export async function POST(req: Request) {
         .where(eq(userProfiles.id, profile.id));
     } catch {}
 
-    recordStreakActivity({
-      userId: profile.id,
-      eventType: "ACADEMIC_UPLOAD",
-      resourceId: created.id,
-    }).catch((err) => console.warn("Failed to record streak for academic upload:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "ACADEMIC_UPLOAD",
+        resourceId: created.id,
+      }),
+      "streak activity"
+    );
 
     // Index into Qdrant in background for vector search & recommendations
     indexAcademicResourceVector({

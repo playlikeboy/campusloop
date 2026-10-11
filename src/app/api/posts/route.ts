@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { anonIdentityVault, communities, pollOptions, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, sealIdentity } from "@/lib/anonymity";
+import { runInBackground } from "@/lib/background";
 import { assertCanCreateCommunityPost, CommunityPostAuthError } from "@/lib/communities";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { notifyMentions } from "@/lib/notifications";
@@ -25,12 +26,7 @@ const ALLOWED_POST_TYPES = new Set([
   "LOST_FOUND",
 ]);
 
-const ALLOWED_POST_SCOPES = new Set([
-  "CAMPUS",
-  "STATE",
-  "INDIA",
-  "GLOBAL",
-]);
+const ALLOWED_POST_SCOPES = new Set(["CAMPUS", "STATE", "INDIA", "GLOBAL"]);
 
 export async function POST(req: Request) {
   try {
@@ -80,10 +76,7 @@ export async function POST(req: Request) {
     if (typeof title === "string" && title.trim().length > 0) {
       trimmedTitle = title.trim();
       if (trimmedTitle.length > 200) {
-        return NextResponse.json(
-          { error: "Post title cannot exceed 200 characters" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Post title cannot exceed 200 characters" }, { status: 400 });
       }
     }
 
@@ -157,10 +150,7 @@ export async function POST(req: Request) {
       }
 
       if (distinctOptions.length > 6) {
-        return NextResponse.json(
-          { error: "A poll cannot have more than 6 options" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "A poll cannot have more than 6 options" }, { status: 400 });
       }
 
       pollTexts = distinctOptions;
@@ -222,29 +212,38 @@ export async function POST(req: Request) {
     }
 
     // Keep student streak alive for creating a campus post/poll
-    void recordStreakActivity({
-      userId: profile.id,
-      eventType: "POST_CREATE",
-      sourceEntityId: newPost.id,
-    }).catch((err) => console.warn("[Streak Post Hook Error]:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "POST_CREATE",
+        sourceEntityId: newPost.id,
+      }),
+      "streak activity"
+    );
 
     // Trigger @mention notifications asynchronously
-    notifyMentions({
-      text: trimmedBody,
-      actorId: profile.id,
-      referenceId: newPost.id,
-    }).catch((err) => console.warn("Mention notification error:", err));
+    runInBackground(
+      notifyMentions({
+        text: trimmedBody,
+        actorId: profile.id,
+        referenceId: newPost.id,
+      }),
+      "post mention notifications"
+    );
 
     // Tell followers and friends there is something new. Anonymous posts are
     // filtered out inside the helper — an author-attributed ping would undo the
     // anonymity the post row is careful to preserve.
-    notifyFollowersOfNewPost({
-      postId: newPost.id,
-      authorId: anonymous ? null : profile.id,
-      isAnonymous: anonymous,
-      title: trimmedTitle,
-      body: trimmedBody,
-    }).catch((err) => console.warn("New post notification error:", err));
+    runInBackground(
+      notifyFollowersOfNewPost({
+        postId: newPost.id,
+        authorId: anonymous ? null : profile.id,
+        isAnonymous: anonymous,
+        title: trimmedTitle,
+        body: trimmedBody,
+      }),
+      "new post notifications"
+    );
 
     // Asynchronously index post vector in Qdrant (fire-and-forget)
     indexPostVector({

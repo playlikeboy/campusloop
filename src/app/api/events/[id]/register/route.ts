@@ -7,6 +7,7 @@ const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { createNotification } from "@/lib/notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
@@ -122,7 +123,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const max = event.maxTeamSize || 4;
       if (requestedParticipants < min) {
         return NextResponse.json(
-          { error: `Team must have at least ${min} members (including leader). Current: ${requestedParticipants}` },
+          {
+            error: `Team must have at least ${min} members (including leader). Current: ${requestedParticipants}`,
+          },
           { status: 400 }
         );
       }
@@ -152,12 +155,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         ), 0)::int`,
       })
       .from(eventRegistrations)
-      .where(
-        and(
-          eq(eventRegistrations.eventId, event.id),
-          ne(eventRegistrations.status, "CANCELLED")
-        )
-      );
+      .where(and(eq(eventRegistrations.eventId, event.id), ne(eventRegistrations.status, "CANCELLED")));
 
     const currentParticipants = Number(countResult?.currentParticipants ?? 0);
 
@@ -260,11 +258,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
     } else {
       // Unlimited capacity
-      const [inserted] = await db
-        .insert(eventRegistrations)
-        .values(newReg)
-        .onConflictDoNothing()
-        .returning();
+      const [inserted] = await db.insert(eventRegistrations).values(newReg).onConflictDoNothing().returning();
 
       if (!inserted) {
         const checkDuplicate = await db.query.eventRegistrations.findFirst({
@@ -292,11 +286,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // Non-blocking
     }
 
-    recordStreakActivity({
-      userId: profile.id,
-      eventType: "EVENT_RSVP",
-      sourceEntityId: event.id,
-    }).catch((err) => console.warn("Failed to record streak for event RSVP:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "EVENT_RSVP",
+        sourceEntityId: event.id,
+      }),
+      "streak activity"
+    );
 
     // Create confirmation notification. Silent: the student just tapped
     // Register and is reading the success state — the row is a receipt for

@@ -2,9 +2,18 @@ import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { anonIdentityVault, comments, commentVotes, posts, reelComments, reels, userProfiles } from "@/db/schema";
+import {
+  anonIdentityVault,
+  comments,
+  commentVotes,
+  posts,
+  reelComments,
+  reels,
+  userProfiles,
+} from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle, openSealedIdentity, sealIdentity } from "@/lib/anonymity";
+import { runInBackground } from "@/lib/background";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { cleanNotificationSnippet, createNotification, notifyMentions } from "@/lib/notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
@@ -132,12 +141,7 @@ export async function GET(req: Request, { params }: RouteParams) {
       const userVotes = await db
         .select({ commentId: commentVotes.commentId })
         .from(commentVotes)
-        .where(
-          and(
-            eq(commentVotes.userId, currentProfileId),
-            inArray(commentVotes.commentId, itemIds)
-          )
-        );
+        .where(and(eq(commentVotes.userId, currentProfileId), inArray(commentVotes.commentId, itemIds)));
       for (const v of userVotes) {
         likedCommentIds.add(v.commentId);
       }
@@ -306,17 +310,11 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       if (parentComment.postId !== id) {
-        return NextResponse.json(
-          { error: "Parent comment does not belong to this post" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Parent comment does not belong to this post" }, { status: 400 });
       }
 
       if (parentComment.status === "DELETED") {
-        return NextResponse.json(
-          { error: "Cannot reply to a deleted comment" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Cannot reply to a deleted comment" }, { status: 400 });
       }
     }
 
@@ -377,11 +375,14 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     // Keep student streak alive for participating in discussions
-    void recordStreakActivity({
-      userId: profile.id,
-      eventType: "COMMENT_CREATE",
-      sourceEntityId: newComment.id,
-    }).catch((err) => console.warn("[Streak Comment Hook Error]:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "COMMENT_CREATE",
+        sourceEntityId: newComment.id,
+      }),
+      "streak activity"
+    );
 
     // Trigger in-app notifications safely without blocking the comment response
     try {
@@ -438,11 +439,14 @@ export async function POST(req: Request, { params }: RouteParams) {
       }
 
       // Also trigger @mention notifications from comment body
-      notifyMentions({
-        text: body,
-        actorId: profile.id,
-        referenceId: id,
-      }).catch((err) => console.warn("Comment mention notification error:", err));
+      runInBackground(
+        notifyMentions({
+          text: body,
+          actorId: profile.id,
+          referenceId: id,
+        }),
+        "comment mention notifications"
+      );
     } catch (notifErr) {
       console.warn("Notification insert warning:", notifErr);
     }

@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { lostAndFoundItems, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { runInBackground } from "@/lib/background";
 import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 
@@ -201,11 +202,14 @@ export async function POST(req: NextRequest) {
       })
       .returning();
 
-    recordStreakActivity({
-      userId: profile.id,
-      eventType: "UTILITY_LIST",
-      resourceId: item.id,
-    }).catch((err) => console.warn("Failed to record streak for lost & found item:", err));
+    runInBackground(
+      recordStreakActivity({
+        userId: profile.id,
+        eventType: "UTILITY_LIST",
+        resourceId: item.id,
+      }),
+      "streak activity"
+    );
 
     return NextResponse.json({ success: true, item, slug }, { status: 201 });
   } catch (error) {

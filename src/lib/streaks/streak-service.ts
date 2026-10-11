@@ -155,9 +155,7 @@ export async function getUserStreakState(
 
   // 4. Milestone calculations
   const nextMilestone = STREAK_MILESTONES.find((m) => m.days > activeStreak) || null;
-  const unlockedMilestones = STREAK_MILESTONES.filter(
-    (m) => m.days <= (streakRow?.longestStreak || 0)
-  );
+  const unlockedMilestones = STREAK_MILESTONES.filter((m) => m.days <= (streakRow?.longestStreak || 0));
 
   return {
     currentStreak: activeStreak,
@@ -281,7 +279,7 @@ export async function recordStreakActivity(params: {
   }
 
   // 4. Fetch current streak record
-  let streakRow = await db.query.userStreaks.findFirst({
+  const streakRow = await db.query.userStreaks.findFirst({
     where: eq(userStreaks.userId, userId),
   });
 
@@ -361,7 +359,7 @@ export async function recordStreakActivity(params: {
 
         // Dispatch celebratory notification
         await createNotification({
-          userId: profile.userId,
+          userId: profile.id,
           actorId: profile.id,
           type: "MILESTONE",
           previewText: `Streak Milestone! You reached ${candidateMilestone.days} days and unlocked +${candidateMilestone.points} LP!`,

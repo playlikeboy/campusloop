@@ -1,6 +1,7 @@
 import { inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { notifications, userProfiles } from "@/db/schema";
+import { runInBackground } from "@/lib/background";
 import {
   channelForType,
   filterAllowedRecipients,
@@ -12,6 +13,7 @@ import { pushToUser } from "@/lib/push-dispatch";
 export type NotificationType =
   | "LIKE"
   | "COMMENT"
+  | "ARTICLE_COMMENT"
   | "REPLY"
   | "MENTION"
   | "REPOST"
@@ -41,6 +43,13 @@ export interface CreateNotificationParams {
    */
   silent?: boolean;
 }
+
+/**
+ * System notifications about the recipient's own progress (level-ups, streak
+ * milestones). The student is both recipient and actor, so these are exempt
+ * from the self-notification guard.
+ */
+const SELF_ADDRESSED_TYPES = new Set<NotificationType>(["MILESTONE"]);
 
 /** Types that should buzz a phone immediately rather than ride the normal queue. */
 const HIGH_URGENCY_TYPES = new Set<NotificationType>(["MATCH", "MESSAGE"]);
@@ -82,8 +91,8 @@ export function extractMentionUsernames(text: string): string[] {
  * no push and no email — nothing for the student to dismiss later.
  */
 export async function createNotification(params: CreateNotificationParams): Promise<boolean> {
-  // Prevent notifying oneself
-  if (params.userId === params.actorId) {
+  // Prevent notifying oneself about one's own social actions
+  if (params.userId === params.actorId && !SELF_ADDRESSED_TYPES.has(params.type)) {
     return false;
   }
 
@@ -105,12 +114,17 @@ export async function createNotification(params: CreateNotificationParams): Prom
     });
 
     // Wake the recipient's devices; failures here never fail the write above.
+    // Both side channels run under waitUntil — a bare un-awaited promise is
+    // cancelled by the Workers runtime as soon as the response is returned.
     if (!params.silent) {
-      await pushToUser(params.userId, HIGH_URGENCY_TYPES.has(params.type) ? "high" : "normal");
+      runInBackground(
+        pushToUser(params.userId, HIGH_URGENCY_TYPES.has(params.type) ? "high" : "normal"),
+        "notification push"
+      );
     }
 
     // Dispatch transactional email via Cloudflare Email Sending
-    dispatchNotificationEmail(params).catch(() => {});
+    runInBackground(dispatchNotificationEmail(params), "notification email");
 
     return true;
   } catch (error) {
@@ -175,9 +189,14 @@ export async function createNotificationsForMany({
     // simultaneous sockets from one worker invocation.
     const urgency = HIGH_URGENCY_TYPES.has(type) ? "high" : "normal";
     const WAVE = 25;
-    for (let i = 0; i < audience.length; i += WAVE) {
-      await Promise.all(audience.slice(i, i + WAVE).map((userId) => pushToUser(userId, urgency)));
-    }
+    runInBackground(
+      (async () => {
+        for (let i = 0; i < audience.length; i += WAVE) {
+          await Promise.all(audience.slice(i, i + WAVE).map((userId) => pushToUser(userId, urgency)));
+        }
+      })(),
+      "notification fan-out push"
+    );
 
     return audience.length;
   } catch (error) {
