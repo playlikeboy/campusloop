@@ -478,37 +478,21 @@ export function EventsClient() {
               </Link>
             </div>
 
-            {/* Quick Sort Dropdown */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  sounds.tap();
-                  setSortBy(e.target.value);
-                }}
-                aria-label="Sort opportunities"
-                className="h-7.5 rounded-lg border border-border/60 bg-muted/40 px-2 text-xs font-medium text-foreground outline-none cursor-pointer hover:bg-muted"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-
+            <div className="flex items-center shrink-0">
               <button
                 type="button"
                 onClick={() => setShowAdvancedFilters((prev) => !prev)}
                 className={cn(
-                  "flex h-7.5 items-center gap-1 px-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer",
-                  showAdvancedFilters || hasPrizesFilter || modeFilter !== "ALL" || participationFilter !== "ALL" || feeFilter !== "ALL"
-                    ? "border-primary/50 bg-primary/10 text-primary font-bold"
-                    : "border-border/60 bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  "flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-all cursor-pointer",
+                  showAdvancedFilters || hasPrizesFilter || modeFilter !== "ALL" || participationFilter !== "ALL" || feeFilter !== "ALL" || sortBy !== "trending"
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
-                title="Toggle advanced filters"
+                title="Show filters and sorting"
+                aria-expanded={showAdvancedFilters}
               >
-                <Filter className="size-3" />
-                <span className="hidden sm:inline">Filters</span>
+                <Filter className="size-3.5" />
+                <span>Filters</span>
               </button>
             </div>
           </div>
@@ -520,7 +504,7 @@ export function EventsClient() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search hackathons, case comps, fests, or universities..."
+              placeholder="Search events and hackathons..."
               className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
             />
             {searchQuery && (
@@ -565,7 +549,7 @@ export function EventsClient() {
 
           {/* Expandable Advanced Filters (Mode, Participation, Fee, Prizes) */}
           {showAdvancedFilters && (
-            <div className="pt-2 pb-1 border-t border-border/30 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div className="pt-2 pb-1 grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
                   Mode
@@ -619,6 +603,27 @@ export function EventsClient() {
 
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                  Sort by
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    sounds.tap();
+                    setSortBy(e.target.value);
+                  }}
+                  aria-label="Sort opportunities"
+                  className="h-7.5 w-full rounded-lg bg-muted/40 px-2 text-xs font-medium text-foreground outline-none cursor-pointer hover:bg-muted"
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
                   Rewards
                 </label>
                 <button
@@ -659,9 +664,9 @@ export function EventsClient() {
 
       {/* ─── Unstop Stats / Metrics Strip ─── */}
       {isLoading ? (
-        <EventMetricsSkeleton />
+        <div className="hidden sm:block"><EventMetricsSkeleton /></div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 py-3">
+        <div className="hidden sm:grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 py-3">
           <div className="rounded-2xl border border-border/60 bg-card/60 p-3 sm:p-3.5 space-y-1 shadow-2xs">
             <div className="flex items-center justify-between text-primary">
               <Compass className="size-4 sm:size-4.5" />
@@ -718,9 +723,9 @@ export function EventsClient() {
 
       {/* ─── Featured Spotlight Card (Unstop Premier Hackathon / Case Comp) ─── */}
       {isLoading ? (
-        <EventFeaturedSkeleton />
+        <div className="hidden sm:block"><EventFeaturedSkeleton /></div>
       ) : featuredEvent && !isAnyFilterActive ? (
-        <div className="py-2 sm:py-3">
+        <div className="hidden sm:block py-2 sm:py-3">
           <Link
             href={`/events/${featuredEvent.slug || featuredEvent.id}`}
             className="group relative block overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-200 hover:border-primary/40 hover:shadow-md shadow-2xs"
@@ -858,17 +863,17 @@ export function EventsClient() {
           <div className="mt-8 p-4 rounded-2xl border border-border/60 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div>
               <p className="text-xs font-bold text-foreground">
-                Looking for past hackathon winning projects or fest records?
+                Looking for past events?
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Browse concluded university hackathons, case presentations, and winners in the Closed Events archive.
+                Browse concluded events and winners in the archive.
               </p>
             </div>
             <Link
               href="/events/closed"
               className="px-3.5 py-1.5 rounded-xl border border-border/60 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all shrink-0"
             >
-              View Closed Events Archive →
+              View archive →
             </Link>
           </div>
         )}

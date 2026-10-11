@@ -74,7 +74,7 @@ export function LikesClient() {
               </p>
             </div>
             <div className="flex items-center gap-2.5 pt-2">
-              <Link href="/dating">
+              <Link href="/matching">
                 <Button size="default">
                   <span>Start Swiping</span>
                 </Button>

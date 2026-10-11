@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
+  Heart,
   Home,
   MessageSquare,
   Plus,
@@ -41,14 +42,16 @@ interface NavItemDef {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-// Strictly <= 7 primary items as specified in Design System Plan
+// Keep the everyday destinations visible; secondary settings stay in the footer.
 const NAV_ITEMS: NavItemDef[] = [
   { href: "/feeds", label: "Home", icon: Home },
-  { href: "/academics", label: "Notes & PYQs", icon: GraduationCap },
+  { href: "/academics", label: "Academics", icon: GraduationCap },
+  { href: "/matching", label: "Matching", icon: Heart },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/campus", label: "Campus", icon: Building2 },
   { href: "/chat", label: "Messages", icon: MessageSquare },
+  { href: "/notifications", label: "Notifications", icon: Bell },
 ];
 
 function isItemActive(pathname: string, href: string) {
@@ -250,6 +253,17 @@ export function DesktopSidebar({
                   )}
                 />
               )}
+              {item.href === "/notifications" && unreadCount > 0 && (
+                <span
+                  className={cn(
+                    "flex min-w-5 h-5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground",
+                    collapsed && "absolute right-1 top-1 size-2 min-w-0 h-2 p-0"
+                  )}
+                  aria-label="Unread notifications"
+                >
+                  {!collapsed && (unreadCount > 99 ? "99+" : unreadCount)}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -342,17 +356,6 @@ export function DesktopSidebar({
 
           {!collapsed && (
             <div className="flex items-center gap-1 shrink-0">
-              <Link
-                href="/notifications"
-                className="relative flex size-8 items-center justify-center rounded-[var(--r-sm)] hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors"
-                title="Notifications"
-                aria-label="Notifications"
-              >
-                <Bell className="size-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-[var(--surface)]" />
-                )}
-              </Link>
               <Link
                 href="/settings"
                 className="flex size-8 items-center justify-center rounded-[var(--r-sm)] hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors"

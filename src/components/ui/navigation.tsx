@@ -34,11 +34,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { AnimatedIcon, type IconMotionName } from "@/components/ui/animated-icon";
 import { DesktopSidebar } from "@/components/navigation/desktop-sidebar";
-import { MobileBottomNav } from "@/components/feed/mobile-bottom-nav";
+import { MobileFloatingCreateButton } from "@/components/feed/mobile-floating-create-button";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
-import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { haptics } from "@/lib/haptics";
@@ -51,15 +49,6 @@ interface NavigationProps {
   isAdmin?: boolean;
   isViewer?: boolean;
   hideHeader?: boolean;
-}
-
-/**
- * Fullscreen creation / viewer flows where bottom navigation should be temporarily hidden.
- */
-const HIDE_GLOBAL_MOBILE_NAV = ["/chat/", "/stories/new", "/story/", "/post/", "/academics/upload"];
-
-function isMobileFlow(pathname: string) {
-  return HIDE_GLOBAL_MOBILE_NAV.some((prefix) => pathname.startsWith(prefix));
 }
 
 function isPathActive(currentPath: string, targetHref: string) {
@@ -86,7 +75,7 @@ const EXPANDABLE_NAV_TABS = [
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/colleges", label: "Colleges", icon: Building2 },
   { href: "/events", label: "Events", icon: Calendar },
-  { href: "/dating", label: "Match", icon: Heart },
+  { href: "/matching", label: "Matching", icon: Heart },
 ];
 
 export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader }: NavigationProps) {
@@ -97,7 +86,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [showDreamModal, setShowDreamModal] = useState(false);
   const [anonMode, setAnonMode] = useState<"ALL" | "NON_ANONYMOUS">("ALL");
-  const [mobileNavPulse, setMobileNavPulse] = useState<{ href: string; key: number } | null>(null);
   const [searchPaletteOpen, setSearchPaletteOpen] = useState(false);
   const unreadNotificationsCount = useUnreadNotificationsCount();
 
@@ -199,33 +187,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
     haptics.light();
   };
 
-  const mobileIconAnimations: Record<string, IconMotionName> = {
-    "/feeds": "lift",
-    "/academics": "lift",
-    "/colleges": "lift",
-    "/post/new": "pop",
-    "/chat": "beat",
-    "/dating": "beat",
-    "/explore": "nudge-right",
-    "/profile": "pop",
-  };
-
-  const handleMobileNavPress = (href: string) => {
-    sounds.tap();
-    haptics.light();
-    setMobileNavPulse((prev) => ({ href, key: (prev?.key ?? 0) + 1 }));
-  };
-
-  const mobileBottomItems = useMemo(
-    () =>
-      MOBILE_BOTTOM_ITEMS.filter((item) => {
-        if (isViewer && item.href === "/chat") return false;
-        if (isViewer && item.href === "/post/new") return false;
-        return true;
-      }),
-    [isViewer]
-  );
-
   return (
     <>
       {/* ─── Desktop Persistent Sidebar (Campus-native Navigation) ─── */}
@@ -243,7 +204,7 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
       />
 
       {/* ─── Modern Minimal Top Navigation Bar for Mobile / Tablet ─── */}
-      {!shouldHideHeader && (
+      {!shouldHideHeader && !searchPaletteOpen && (
         <header className="sticky top-0 z-40 w-full border-b border-border/20 bg-background/80 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
           {/* Left: Menu Drawer Toggle + Brand Logo + Campus Selector */}
@@ -450,29 +411,6 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                 <MessageSquare className="size-3.5" />
               </Link>
             )}
-
-            {/* Notifications Bell */}
-            <Link
-              href="/notifications"
-              prefetch
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-              }}
-              className={cn(
-                "relative flex size-8.5 items-center justify-center rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all cursor-pointer active:scale-95",
-                isPathActive(pathname, "/notifications") && "bg-muted/70 text-foreground"
-              )}
-              title="Notifications"
-              aria-label="Notifications"
-            >
-              <Bell className="size-4.5 sm:size-3.5" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute 0 top-0.5 right-0.5 flex min-w-3.5 h-3.5 items-center justify-center rounded-full bg-primary px-0.5 text-[8.5px] font-black text-primary-foreground shadow-xs animate-pulse">
-                  {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
-                </span>
-              )}
-            </Link>
 
             {/* Desktop-only Theme Toggle (Mobile has theme switch inside sidebar drawer) */}
             <div className="hidden sm:block">
@@ -709,13 +647,14 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                     </span>
                     <div className="mt-1 space-y-0.5">
                       {[
-                        { href: "/academics", label: "Notes & PYQs", icon: GraduationCap },
+                        { href: "/academics", label: "Academics", icon: GraduationCap },
+                        { href: "/matching", label: "Matching", icon: Heart },
+                        { href: "/notifications", label: "Notifications", icon: Bell },
                         { href: "/communities", label: "Communities", icon: Users },
                         { href: "/events", label: "Events", icon: Calendar },
                         { href: "/campus", label: "Campus Hub", icon: Building2 },
                         { href: "/colleges", label: "Colleges", icon: School },
                         { href: "/confessions", label: "Confessions", icon: VenetianMask },
-                        { href: "/dating", label: "Campus Match", icon: Heart },
                       ].map((item) => {
                         const Icon = item.icon;
                         const active = isPathActive(pathname, item.href);
@@ -731,10 +670,15 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
                                 : "text-[var(--text)] hover:bg-[var(--surface-sunken)]"
                             )}
                           >
-                            <span className="flex items-center gap-2.5">
+                            <span className="flex min-w-0 items-center gap-2.5">
                               <Icon className="size-4 shrink-0 text-[var(--text-secondary)]" />
                               <span>{item.label}</span>
                             </span>
+                            {item.href === "/notifications" && unreadNotificationsCount > 0 && (
+                              <span className="flex min-w-5 h-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                                {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
+                              </span>
+                            )}
                           </Link>
                         );
                       })}
@@ -786,8 +730,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
         )}
       </AnimatePresence>
 
-      {/* ─── Mobile Bottom Navigation Dock ─── */}
-      <MobileBottomNav profile={profile} isViewer={isViewer} />
+      {/* Mobile create action appears after the reader starts scrolling. */}
+      <MobileFloatingCreateButton isViewer={isViewer} />
 
       {/* Preview Modals */}
       <CampusUnlockedModal isOpen={showUnlockModal} onClose={() => setShowUnlockModal(false)} />

@@ -1573,3 +1573,27 @@ a,
     transition: none !important;
   }
 }
+
+
+/* CampusLoop clean surfaces: remove decorative card/panel outlines app-wide.
+   Form controls keep their affordance, and :focus-visible rings remain accessible. */
+body *:not(input):not(textarea):not(select) {
+  border-color: transparent !important;
+}
+
+body input,
+body textarea,
+body select {
+  border-color: var(--border) !important;
+}
+
+body input:focus-visible,
+body textarea:focus-visible,
+body select:focus-visible {
+  border-color: var(--primary) !important;
+}
+
+
+.story-creator-shell [class*="border-white/"] {
+  border-color: transparent !important;
+}

@@ -23,7 +23,7 @@ interface ProfilesResponse {
 export function DatingFooter() {
   const pathname = usePathname();
 
-  const { data } = useSWR<ProfilesResponse>("/api/dating/profiles", {
+  const { data } = useSWR<ProfilesResponse>("/api/matching/profiles", {
     revalidateOnFocus: true,
     dedupingInterval: 10000,
   });
@@ -34,44 +34,44 @@ export function DatingFooter() {
     {
       id: "discover",
       label: "Discover",
-      href: "/dating",
+      href: "/matching",
       icon: Flame,
-      isActive: pathname === "/dating" || pathname === "/dating/discover",
+      isActive: pathname === "/matching" || pathname === "/matching/discover",
     },
     {
       id: "likes",
       label: "Likes",
-      href: "/dating/likes",
+      href: "/matching/likes",
       icon: Heart,
-      isActive: pathname.startsWith("/dating/likes"),
+      isActive: pathname.startsWith("/matching/likes"),
       badge: likesYouCount > 0 ? (likesYouCount > 9 ? "9+" : likesYouCount) : null,
     },
     {
       id: "matches",
       label: "Matches",
-      href: "/dating/matches",
+      href: "/matching/matches",
       icon: MessageCircleHeart,
-      isActive: pathname.startsWith("/dating/matches"),
+      isActive: pathname.startsWith("/matching/matches"),
     },
     {
       id: "crush",
       label: "Crush",
-      href: "/dating/requests",
+      href: "/matching/requests",
       icon: Lock,
-      isActive: pathname.startsWith("/dating/requests") || pathname === "/crush",
+      isActive: pathname.startsWith("/matching/requests") || pathname === "/crush",
     },
     {
       id: "settings",
       label: "Settings",
-      href: "/dating/settings",
+      href: "/matching/settings",
       icon: SlidersHorizontal,
-      isActive: pathname.startsWith("/dating/settings") || pathname.startsWith("/dating/filters"),
+      isActive: pathname.startsWith("/matching/settings") || pathname.startsWith("/matching/filters"),
     },
   ];
 
   return (
     <nav
-      aria-label="Campus Match Navigation"
+      aria-label="Matching Navigation"
       className={cn(
         "fixed bottom-0 inset-x-0 z-40 select-none",
         "bg-background/95 backdrop-blur-xl border-t border-border/80 shadow-2xs",

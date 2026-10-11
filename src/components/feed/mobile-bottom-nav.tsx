@@ -32,7 +32,7 @@ function isPathActive(currentPath: string, targetHref: string) {
   if (targetHref === "/feeds") return currentPath === "/feeds" || currentPath === "/";
   if (targetHref === "/chat") return currentPath === "/chat" || currentPath.startsWith("/chat/");
   if (targetHref === "/colleges") return currentPath === "/colleges" || currentPath.startsWith("/colleges/");
-  if (targetHref === "/dating") return currentPath === "/dating" || currentPath.startsWith("/dating/");
+  if (targetHref === "/matching") return currentPath === "/dating" || currentPath.startsWith("/dating/");
   return currentPath === targetHref || currentPath.startsWith(`${targetHref}/`);
 }
 
@@ -41,7 +41,7 @@ const mobileIconAnimations: Record<string, IconMotionName> = {
   "/colleges": "lift",
   "/post/new": "pop",
   "/chat": "beat",
-  "/dating": "beat",
+  "/matching": "beat",
   "/profile": "pop",
 };
 

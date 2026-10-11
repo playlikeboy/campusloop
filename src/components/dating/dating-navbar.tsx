@@ -39,15 +39,15 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
   });
 
   const likesYouCount = data?.meta?.likesYouCount ?? 0;
-  const isDeckHome = pathname === "/dating" || pathname === "/dating/discover";
-  const isLikes = pathname.startsWith("/dating/likes");
-  const isMatches = pathname.startsWith("/dating/matches");
-  const isRequests = pathname.startsWith("/dating/requests");
-  const isSettings = pathname.startsWith("/dating/settings") || pathname.startsWith("/dating/filters");
+  const isDeckHome = pathname === "/matching" || pathname === "/matching/discover";
+  const isLikes = pathname.startsWith("/matching/likes");
+  const isMatches = pathname.startsWith("/matching/matches");
+  const isRequests = pathname.startsWith("/matching/requests");
+  const isSettings = pathname.startsWith("/matching/settings") || pathname.startsWith("/matching/filters");
 
   // Determine back navigation destination
-  const backHref = isDeckHome ? "/feeds" : "/dating";
-  const backLabel = isDeckHome ? "Back to Campus Feed" : "Back to Match Deck";
+  const backHref = isDeckHome ? "/feeds" : "/matching";
+  const backLabel = isDeckHome ? "Back to Campus Feed" : "Back to Matching";
 
   // Contextual Title
   const getHeaderTitle = () => {
@@ -55,7 +55,7 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
     if (isMatches) return "Matches";
     if (isRequests) return "Secret Crush";
     if (isSettings) return "Preferences";
-    return "Campus Match";
+    return "Matching";
   };
 
   const HeaderIcon = isLikes
@@ -85,9 +85,9 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
           <ArrowLeft className="size-4" />
         </Link>
 
-        {/* Center: Campus Match Branding */}
+        {/* Center: Matching Branding */}
         <Link
-          href="/dating"
+          href="/matching"
           onClick={() => {
             sounds.tap();
             haptics.light();
@@ -120,7 +120,7 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
         {/* Right: Clean Contextual Info Badge without duplicating footer tabs */}
         <div className="flex items-center gap-1.5">
           <Link
-            href="/dating/settings"
+            href="/matching/settings"
             onClick={() => {
               sounds.tap();
               haptics.light();
