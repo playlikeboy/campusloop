@@ -10,7 +10,7 @@ function Brand() {
   return (
     <Link href="/" className={styles.brand} aria-label="CampusLoop home">
       <span className={styles.brandMark}>
-        <Image src="/campusloop/marketing/voxel/logo.webp" alt="" width={36} height={36} priority />
+        <Image src="/campusloop/marketing/voxel/logo.webp" alt="" width={36} height={36} />
       </span>
       <span className={styles.brandName}>
         Campus<span>Loop</span><i aria-hidden="true">✦</i>

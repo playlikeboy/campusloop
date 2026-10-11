@@ -1,5 +1,6 @@
 
 .page {
+  color-scheme: light;
   min-height: 100vh; padding: 22px; background: #eaf4fc; color: #172a39;
   font-family: var(--font-body), "Nunito Sans", system-ui, sans-serif;
 }
@@ -30,8 +31,8 @@
 .hero h1 span { color: #3285a8; }
 .heroDescription { max-width: 485px; margin: 24px 0 0; color: #4e6271; font-size: 17px; line-height: 1.72; }
 .heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 11px; margin-top: 28px; }
-.primaryButton { background: #2580a7; color: #fff; box-shadow: 0 7px 16px rgba(37,128,167,.16); }
-.primaryButton:hover { background: #206d90; box-shadow: 0 10px 22px rgba(37,128,167,.2); }
+.primaryButton { background: #9bcbdd; color: #173746; box-shadow: 0 7px 16px rgba(37,128,167,.12); }
+.primaryButton:hover { background: #8fc3d6; box-shadow: 0 10px 22px rgba(37,128,167,.16); }
 .secondaryButton { background: #fff; border-color: #dce7ee; color: #294657; }
 .secondaryButton:hover { background: #f4f9fc; }
 .trustNote { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 22px; color: #5c7180; font-size: 11px; font-weight: 700; }
@@ -115,8 +116,8 @@
 .finalCta .eyebrow { margin-bottom: 11px; }
 .finalCta h2 { margin: 0; color: #172f40; font-family: var(--font-display),var(--font-body),system-ui,sans-serif; font-size: clamp(30px,3.5vw,43px); line-height: 1.08; letter-spacing: -.045em; font-weight: 800; }
 .finalCta p:not(.eyebrow) { margin: 12px 0 19px; color: #5e7788; font-size: 13px; }
-.ctaButton { color: #fff; background: #2580a7; }
-.ctaButton:hover { background: #206d90; }
+.ctaButton { color: #173746; background: #9bcbdd; }
+.ctaButton:hover { background: #8fc3d6; }
 .ctaMark { width: 76px; height: 76px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 24px; background: #fff; color: #2d86aa; box-shadow: 0 5px 18px rgba(34,97,130,.08); }
 .footer { padding: 34px max(32px,calc((100% - 1256px)/2)) 23px; border-top: 1px solid #e7eef3; display: grid; grid-template-columns: minmax(220px,1.7fr) repeat(3,minmax(100px,.75fr)); gap: 34px; }
 .footerBrand > p { margin: 13px 0 0; color: #738694; font-size: 11px; }

@@ -42,6 +42,14 @@ export default async function LandingPage() {
         sameAs: ["https://www.instagram.com/campusloop.space/", "https://www.linkedin.com/company/mycampusloop/?viewAsMember=true", "https://x.com/company/mycampusloop/"],
       },
       {
+        "@type": "WebSite",
+        "@id": SITE_URL + "/#website",
+        url: SITE_URL,
+        name: "CampusLoop",
+        publisher: { "@id": SITE_URL + "/#organization" },
+        inLanguage: "en-IN",
+      },
+      {
         "@type": "WebApplication", "@id": SITE_URL + "/#software", name: "CampusLoop", url: SITE_URL,
         applicationCategory: "SocialNetworkingApplication", operatingSystem: "Web",
         description: "A student-only campus network with peer conversations, academic notes, student communities, college hubs, and campus match.",
