@@ -12,12 +12,15 @@ import Link from "next/link";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+import type { AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
 
 interface AcademicContextRailProps {
   onSelectTopic?: (topic: string) => void;
   collegeName?: string;
   userSemester?: number;
   userBranch?: string;
+  playlists?: AcademicPlaylistData[];
+  playlistsLoading?: boolean;
 }
 
 const POPULAR_THIS_WEEK = [
@@ -47,26 +50,15 @@ const POPULAR_THIS_WEEK = [
   },
 ];
 
-const CURATED_PLAYLISTS = [
-  {
-    title: "CSE Sem 5 Complete Exam Bundle",
-    count: "14 items",
-    curator: "Shaswat Raj",
-    slug: "cse-sem-5-complete-exam-bundle",
-  },
-  {
-    title: "Operating Systems Core Concepts",
-    count: "8 items",
-    curator: "ACM Chapter",
-    slug: "operating-systems-core-concepts",
-  },
-];
+
 
 export function AcademicContextRail({
   onSelectTopic,
   collegeName = "BIT Mesra",
   userSemester = 5,
   userBranch = "Computer Science",
+  playlists = [],
+  playlistsLoading = false,
 }: AcademicContextRailProps) {
   const scrollRef = useScrollIsolation<HTMLElement>();
 
@@ -146,22 +138,44 @@ export function AcademicContextRail({
         </div>
 
         <div className="space-y-2">
-          {CURATED_PLAYLISTS.map((pl) => (
-            <Link
-              key={pl.slug}
-              href={`/academics/playlists/${pl.slug}`}
-              onClick={() => sounds.tap()}
-              className="block p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 transition-colors group cursor-pointer"
-            >
-              <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                {pl.title}
-              </h4>
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-1">
-                <span>By {pl.curator}</span>
-                <span className="font-mono font-medium">{pl.count}</span>
-              </div>
-            </Link>
-          ))}
+          {playlistsLoading ? (
+            [0, 1].map((item) => (
+              <div key={item} className="h-14 animate-pulse rounded-xl bg-muted/40" />
+            ))
+          ) : playlists.length > 0 ? (
+            playlists.slice(0, 2).map((playlist) => (
+              <Link
+                key={playlist.id}
+                href={`/academics/playlists/${playlist.slug || playlist.id}`}
+                onClick={() => sounds.tap()}
+                className="group block rounded-xl border border-border/30 bg-muted/20 p-2.5 transition-colors hover:border-primary/25 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="line-clamp-2 min-w-0 text-xs font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+                    {playlist.title}
+                  </h4>
+                  <ArrowRight className="mt-0.5 size-3 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
+                </div>
+                <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+                  <span className="truncate">{playlist.semester ? `Sem ${playlist.semester}` : playlist.branch === "All" ? "All branches" : playlist.branch}</span>
+                  <span className="shrink-0 font-mono tabular-nums">{playlist.itemsCount} {playlist.itemsCount === 1 ? "item" : "items"}</span>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="rounded-xl border border-dashed border-border/40 p-3">
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                No public playlists yet. Bundle notes and PYQs into a study stack.
+              </p>
+              <Link
+                href="/academics/playlists/new"
+                onClick={() => sounds.tap()}
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+              >
+                Create a playlist <ArrowRight className="size-3" aria-hidden="true" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </aside>
