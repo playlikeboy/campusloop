@@ -77,12 +77,12 @@ export default async function DatingLayout({ children }: { children: React.React
     <div className="dating-isolated-shell min-h-dvh flex flex-col bg-background text-foreground selection:bg-pink-500/20 selection:text-pink-600">
       <PresenceHeartbeat />
       <AppPullToRefresh>
-        <div className="relative flex flex-col min-h-dvh w-full">
+        <div className="relative flex h-dvh min-h-0 w-full flex-col overflow-hidden">
           {/* Isolated Dating Navbar */}
           <DatingNavbar profile={profile} collegeName={collegeName} />
 
           {/* Isolated Dating Main Body */}
-          <main className="flex-1 w-full flex flex-col min-h-0 pt-14 pb-20 sm:pb-24">
+          <main className="flex min-h-0 flex-1 w-full flex-col overflow-hidden pt-14 pb-20 sm:pb-24">
             {children}
           </main>
 
