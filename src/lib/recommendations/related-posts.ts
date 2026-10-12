@@ -68,6 +68,7 @@ export async function getRelatedPosts(
         where: and(
           inArray(posts.id, pointIds),
           eq(posts.status, "PUBLISHED"),
+          eq(posts.isSeeded, false),
           basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined
         ),
         with: {
@@ -136,6 +137,7 @@ export async function getRelatedPosts(
     const baseConditions = [
       ne(posts.id, targetPostId),
       eq(posts.status, "PUBLISHED"),
+      eq(posts.isSeeded, false),
       basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined,
     ].filter(Boolean);
 

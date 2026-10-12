@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const { id } = await params;
   const post = await getCachedPostDetail(id);
 
-  if (!post || post.isSeeded || post.status !== "PUBLISHED") {
+  if (!post || post.status === "DELETED") {
     return {
       title: "Post Not Found · CampusLoop",
       description: "This post is no longer available on CampusLoop.",
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       description: snippet,
       images: ["https://campusloop.space/og-image.png"],
     },
-    robots: { index: true, follow: true },
+    robots: post.isSeeded || post.status !== "PUBLISHED" ? { index: false, follow: false } : { index: true, follow: true },
   };
 }
 
@@ -86,7 +86,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
     user ? getCachedUserProfile(user.id) : Promise.resolve(null),
   ]);
 
-  if (!rawPost || rawPost.isSeeded || rawPost.status !== "PUBLISHED") {
+  if (!rawPost || rawPost.status === "DELETED") {
     notFound();
   }
 

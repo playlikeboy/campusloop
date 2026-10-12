@@ -91,16 +91,6 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const isModerator =
-      viewerProfile?.role === "MODERATOR" || viewerProfile?.role === "ADMIN";
-
-    if (post.status !== "PUBLISHED" || post.isSeeded) {
-      const isAuthor = viewerProfile && post.authorId === viewerProfile.id;
-      if (!isModerator && !isAuthor) {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-      }
-    }
-
     // Calculated vote aggregates (NEVER return raw votes rows)
     const postVotes = await db.query.votes.findMany({
       where: eq(votes.postId, id),
