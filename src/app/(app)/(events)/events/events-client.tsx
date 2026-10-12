@@ -161,13 +161,41 @@ export function EventsClient({
   }
 
   const pageTitle = isArchive ? (title || "Past events") : activeCategory !== "ALL" ? (CATEGORIES.find((category) => category.id === activeCategory)?.label || title || "Events") : "Events";
+  const opportunityCount = rawEvents.filter((event) => {
+    const type = String(event.eventType || "").toUpperCase();
+    return ["COMPETITION", "HACKATHON", "WORKSHOP", "SEMINAR"].includes(type) && !isEventClosed(event);
+  }).length;
+  const nextDeadlineCount = rawEvents.filter((event) => {
+    const deadline = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : 0;
+    return deadline > Date.now() && deadline <= Date.now() + 7 * 24 * 60 * 60 * 1000;
+  }).length;
 
   return (
     <section className="mx-auto w-full max-w-5xl space-y-4 pb-12 pt-3 sm:space-y-5 sm:pt-6">
+      {!isArchive && (
+        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-5 shadow-sm sm:p-7">
+          <div className="pointer-events-none absolute -right-10 -top-12 size-44 rounded-full bg-primary/10 blur-2xl" />
+          <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div className="max-w-xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">CampusLoop discovery</p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Make your next move count.</h1>
+              <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">Find hackathons, contests, workshops and student-led campus events in one place. Host your own event separately from the opportunities you discover.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground">{opportunityCount} opportunities</span>
+                <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground">{nextDeadlineCount} deadlines in 7 days</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/events/new" className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"><Plus className="size-4" /> Host an event</Link>
+              <Link href="/events/closed" className="inline-flex h-10 items-center justify-center rounded-full border border-border/70 bg-background/70 px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted">Past events</Link>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{pageTitle}</h1>
-          {!isLoading && <p className="mt-0.5 text-xs text-muted-foreground">{visibleEvents.length} events</p>}
+          <h2 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{pageTitle}</h2>
+          {!isLoading && <p className="mt-0.5 text-xs text-muted-foreground">{visibleEvents.length} events and opportunities</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Link href="/events/my-tickets" aria-label="My tickets" title="My tickets" className="inline-flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
