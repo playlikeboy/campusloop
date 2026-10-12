@@ -105,6 +105,17 @@ describe("CampusLoop MCP Events Engine (/mcp/events)", () => {
     expect(await res.text()).toBe("");
   });
 
+  it("does not expose draft events through unauthenticated listing endpoints", async () => {
+    // Regression guard: public listings must only return published, public content.
+    const req = new Request("https://campusloop.space/mcp/events?format=json", {
+      headers: { accept: "application/json" },
+    });
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.events.every((event: any) => event.status === "PUBLISHED" && event.visibility === "PUBLIC")).toBe(true);
+  });
+
   it("responds to standard MCP ping requests", async () => {
     const req = new Request("https://campusloop.space/mcp/events", {
       method: "POST",
