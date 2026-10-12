@@ -105,42 +105,114 @@ function pickMeta(html, name) {
   }
   return "";
 }
-function parseExplicitDate(text) {
+function monthNumber(value) {
+  return ({ jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 })[String(value || "").toLowerCase().slice(0, 3)] || 0;
+}
+function dayDate(year, month, day) {
+  const y = Number(year), m = Number(month), d = Number(day);
+  if (!y || m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const value = new Date(Date.UTC(y, m - 1, d) - 330 * 60 * 1000);
+  return Number.isFinite(value.getTime()) ? value : null;
+}
+function localDayKey(date) {
+  return new Date(date.getTime() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+function sourceOffset(context, sourceUrl) {
+  const value = (String(context || "") + " " + String(sourceUrl || "")).toLowerCase();
+  if (/jst|japan standard time|utc\s*\+\s*0?9|gmt\s*\+\s*0?9/.test(value)) return "+09:00";
+  if (/pdt|pacific daylight time|utc\s*-\s*0?7|gmt\s*-\s*0?7/.test(value)) return "-07:00";
+  if (/pst|pacific standard time|utc\s*-\s*0?8|gmt\s*-\s*0?8/.test(value)) return "-08:00";
+  if (/edt|eastern daylight time|utc\s*-\s*0?4|gmt\s*-\s*0?4/.test(value)) return "-04:00";
+  if (/est|eastern standard time|utc\s*-\s*0?5|gmt\s*-\s*0?5/.test(value)) return "-05:00";
+  if (/utc|gmt/.test(value) && !/utc\s*[+-]\s*\d/.test(value)) return "+00:00";
+  return "+05:30";
+}
+function parseExplicitDate(text, sourceUrl = "") {
   const patterns = [
-    /(?:registration|application|submission|entry)\s+(?:deadline|closes|close|ends|end date|last date)[^\n.;]{0,120}?(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)[,\s]+(20\d{2})(?:[^\n.;]{0,50}?(\d{1,2}:\d{2}\s*(?:AM|PM)?))?/i,
-    /(?:registration|application|submission|entry)\s+(?:deadline|closes|close|ends|end date|last date)[^\n.;]{0,120}?(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(20\d{2})(?:[^\n.;]{0,50}?(\d{1,2}:\d{2}\s*(?:AM|PM)?))?/i,
-    /(?:registration|application|submission|entry)\s+(?:deadline|closes|close|ends|end date|last date)[^\n.;]{0,120}?(20\d{2}-\d{2}-\d{2})/i,
+    /(?:registration|application|submission|entry|applications?)\s+(?:deadline|closes|close|ends|end date|last date)[^\n.;]{0,160}?(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)[,\s]+(20\d{2})/i,
+    /(?:registration|application|submission|entry|applications?)\s+(?:deadline|closes|close|ends|end date|last date)[^\n.;]{0,160}?(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(20\d{2})/i,
+    /(?:last date|closing date|deadline|last day)[^\n.;]{0,160}?(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)[,\s]+(20\d{2})/i,
+    /(?:last date|closing date|deadline|last day)[^\n.;]{0,160}?(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(20\d{2})/i,
+    /(?:last date|closing date|deadline|applications? close)[^\n.;]{0,140}?(\d{1,2})[./-](\d{1,2})[./-](20\d{2})/i,
+    /(?:last date|closing date|deadline|applications? close)[^\n.;]{0,140}?(20\d{2}-\d{2}-\d{2})/i,
   ];
   for (let index = 0; index < patterns.length; index++) {
-    const match = text.match(patterns[index]);
+    const match = patterns[index].exec(text);
     if (!match) continue;
-    let date;
-    if (index === 0) date = new Date(`${match[3]}-${String(new Date(`${match[2]} 1, 2000`).getMonth() + 1).padStart(2, "0")}-${String(match[1]).padStart(2, "0")}T23:59:59+05:30`);
-    if (index === 1) date = new Date(`${match[3]}-${String(new Date(`${match[1]} 1, 2000`).getMonth() + 1).padStart(2, "0")}-${String(match[2]).padStart(2, "0")}T23:59:59+05:30`);
-    if (index === 2) date = new Date(`${match[1]}T23:59:59+05:30`);
-    if (date && Number.isFinite(date.getTime())) return date;
+    let year, month, day;
+    if (index === 0 || index === 2) {
+      day = Number(match[1]); month = monthNumber(match[2]); year = Number(match[3]);
+    } else if (index === 1 || index === 3) {
+      month = monthNumber(match[1]); day = Number(match[2]); year = Number(match[3]);
+    } else if (index === 4) {
+      day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+    } else {
+      const parts = match[1].split("-");
+      year = Number(parts[0]); month = Number(parts[1]); day = Number(parts[2]);
+    }
+    if (!year || !month || !day) continue;
+    const context = text.slice(Math.max(0, match.index - 40), Math.min(text.length, match.index + match[0].length + 140));
+    const offset = sourceOffset(context, sourceUrl);
+    const timeMatch = context.slice(Math.max(0, context.indexOf(match[0]) + match[0].length)).match(/\b(\d{1,2}):(\d{2})(?:\s*(AM|PM))?\b/i);
+    let hour = 23, minute = 59, second = 59;
+    if (timeMatch) {
+      hour = Number(timeMatch[1]); minute = Number(timeMatch[2]); second = 0;
+      if (timeMatch[3]) {
+        const meridiem = timeMatch[3].toUpperCase();
+        if (meridiem === "PM" && hour < 12) hour += 12;
+        if (meridiem === "AM" && hour === 12) hour = 0;
+      }
+    }
+    const dateText = String(year).padStart(4, "0") + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    const timeText = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0") + ":" + String(second).padStart(2, "0");
+    const date = new Date(dateText + "T" + timeText + offset);
+    if (Number.isFinite(date.getTime())) return date;
   }
   return null;
+}
+function parseDateList(text) {
+  const dates = new Map();
+  const add = (year, month, day) => {
+    const parsed = dayDate(year, month, day);
+    if (parsed) dates.set(localDayKey(parsed), parsed);
+  };
+  for (const match of text.matchAll(/\b(20\d{2})-(\d{2})-(\d{2})\b/g)) add(match[1], match[2], match[3]);
+  const month = "(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)";
+  const dayFirst = new RegExp("\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+" + month + "[,\\s]+(20\\d{2})\\b", "gi");
+  const monthFirst = new RegExp("\\b" + month + "\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(20\\d{2})\\b", "gi");
+  for (const match of text.matchAll(dayFirst)) add(match[3], monthNumber(match[2]), match[1]);
+  for (const match of text.matchAll(monthFirst)) add(match[4], monthNumber(match[1]), match[2]);
+  for (const match of text.matchAll(/\b(\d{1,2})[./](\d{1,2})[./](20\d{2})\b/g)) add(match[3], match[2], match[1]);
+  return [...dates.values()].sort((a, b) => a - b);
 }
 function parseStartEnd(text, deadline, jsonLd) {
   const startLd = jsonLd?.startDate ? new Date(jsonLd.startDate) : null;
   const endLd = jsonLd?.endDate ? new Date(jsonLd.endDate) : null;
-  const isoDates = [...text.matchAll(/\b(20\d{2}-\d{2}-\d{2})\b/g)]
-    .map((match) => new Date(`${match[1]}T00:00:00Z`))
-    .filter((date) => Number.isFinite(date.getTime()))
-    .sort((a, b) => a - b);
-  let start = startLd && Number.isFinite(startLd.getTime()) ? startLd : isoDates.find((date) => date > NOW);
+  let start = startLd && Number.isFinite(startLd.getTime()) ? startLd : null;
   let end = endLd && Number.isFinite(endLd.getTime()) ? endLd : null;
-  if (!end && start) end = isoDates.find((date) => date >= start && date <= (deadline || new Date(start.getTime() + 90 * 86400000))) || start;
-  // Application windows for job/scholarship/fellowship listings are represented as
-  // starting today through their explicit deadline when no event dates exist.
-  if (!start && deadline && /internship|job|scholarship|fellowship|grant|research program|graduate program/i.test(text)) {
-    start = new Date(Date.UTC(NOW.getUTCFullYear(), NOW.getUTCMonth(), NOW.getUTCDate()));
+  const dates = parseDateList(text);
+  const deadlineKey = deadline ? localDayKey(deadline) : null;
+  const nonDeadlineDates = dates.filter((date) => localDayKey(date) !== deadlineKey);
+  const todayKey = new Date(NOW.getTime() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const nearFuture = nonDeadlineDates.filter((date) => localDayKey(date) >= todayKey);
+  if (!start) start = nearFuture[0] || nonDeadlineDates[0] || null;
+  if (!end && start) {
+    const startKey = localDayKey(start);
+    const endCandidates = nonDeadlineDates.filter((date) => localDayKey(date) >= startKey && date.getTime() - start.getTime() <= 210 * 86400000);
+    end = endCandidates.at(-1) || start;
+    if (end.getUTCHours() === 18 && end.getUTCMinutes() === 30 && end.getUTCSeconds() === 0) {
+      end = new Date(end.getTime() + 24 * 60 * 60 * 1000 - 1000);
+    }
+  }
+  if (!start && deadline && /internship|job|scholarship|fellowship|grant|research program|graduate program/.test(text.toLowerCase())) {
+    const localToday = new Date(NOW.getTime() + 5.5 * 60 * 60 * 1000);
+    start = dayDate(localToday.getUTCFullYear(), localToday.getUTCMonth() + 1, localToday.getUTCDate());
   }
   if (!end && deadline && start) end = deadline;
   if (start && end && end < start) end = start;
   return { start, end };
 }
+
 function inferCategory(text) {
   const lower = text.toLowerCase();
   if (/scholarship|tuition support/.test(lower)) return "SCHOLARSHIP";
@@ -183,7 +255,11 @@ function trustedListingHost(url) {
     host === "events.mlh.com" || host === "ghw.mlh.com" ||
     host === "hack2skill.com" || host.endsWith(".hack2skill.com") ||
     host.endsWith(".edu") || host.endsWith(".ac.in") ||
-    host === "developers.google.com" || host === "ethindia.co";
+    host === "developers.google.com" || host === "ethindia.co" ||
+    host === "licindia.in" || host.endsWith(".licindia.in") ||
+    host === "oist.jp" || host.endsWith(".oist.jp") ||
+    host === "isro.gov.in" || host.endsWith(".isro.gov.in") ||
+    host === "apps.lpsc.gov.in";
 }
 function hasClosedSignal(text) {
   return /registration closed|applications are closed|applications closed|deadline has passed|registration has ended|not accepting applications|event has ended/i.test(text);
@@ -194,6 +270,9 @@ const queries = [
   "site:unstop.com/competitions 2026 registration deadline student contest case competition",
   "site:unstop.com/competitions "Registration Deadline" "October" "2026"",
   "site:unstop.com/internships OR site:unstop.com/jobs OR site:unstop.com/scholarships 2026 student applications open",
+  "site:oist.jp/admissions/research-internship Spring 2027 application deadline",
+  "site:web.licindia.in/golden-jubilee-foundation scholarship 2026 application deadline",
+  "site:apps.lpsc.gov.in/commonC/advt.jsp 2026 Scientist Engineer recruitment deadline",
   "site:devfolio.co/hackathons open hackathon India October November 2026",
   "site:events.mlh.com/events 2026 hackathon student registration",
   "site:hack2skill.com 2026 hackathon challenge student registration",
@@ -250,7 +329,7 @@ for (const candidate of candidateMap.values()) {
       skipped.push({ title, url: canonical, reason: "Source indicates registration is closed" });
       continue;
     }
-    const deadline = parseExplicitDate(sourceText);
+    const deadline = parseExplicitDate(sourceText, canonical);
     if (!deadline || deadline <= NOW) {
       skipped.push({ title, url: canonical, reason: "No verifiable future deadline on fetched source page" });
       continue;
