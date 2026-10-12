@@ -1402,7 +1402,9 @@ a,
 }
 
 /* Hide the SDK's duplicate title; the page provides its own accessible heading. */
-.hexclave-auth-scope .stack-scope > div.text-center.mb-6 {
+.hexclave-auth-scope .stack-scope > div.text-center.mb-6,
+.hexclave-auth-scope .stack-scope > div:first-child:has(h2),
+.hexclave-auth-scope .stack-scope h2 {
   display: none !important;
 }
 
@@ -1412,14 +1414,14 @@ a,
   display: block !important;
   width: 100% !important;
   min-width: 0 !important;
-  min-height: 2.875rem !important;
+  min-height: 2.75rem !important;
   height: auto !important;
-  padding: 0.75rem 1rem !important;
+  padding: 0.625rem 0.875rem !important;
   border: 1px solid var(--input) !important;
-  border-radius: 0.875rem !important;
+  border-radius: 0.75rem !important;
   background: var(--surface-raised) !important;
   color: var(--foreground) !important;
-  font-size: 0.9375rem !important;
+  font-size: 0.875rem !important;
   box-shadow: none !important;
   transition: border-color 160ms ease, box-shadow 160ms ease !important;
 }
@@ -1434,11 +1436,11 @@ a,
 /* Labels and helper copy follow the active light/dark design tokens. */
 .hexclave-auth-scope .stack-scope label {
   display: block !important;
-  margin-bottom: 0.375rem !important;
+  margin-bottom: 0.25rem !important;
   color: var(--foreground) !important;
   font-size: 0.8125rem !important;
   font-weight: 650 !important;
-  line-height: 1.4 !important;
+  line-height: 1.35 !important;
 }
 
 .hexclave-auth-scope .stack-scope button[type="submit"] {
@@ -1446,17 +1448,17 @@ a,
   display: inline-flex !important;
   width: 100% !important;
   min-width: 0 !important;
-  min-height: 3rem !important;
+  min-height: 2.75rem !important;
   height: auto !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0.75rem 1rem !important;
+  padding: 0.625rem 0.875rem !important;
   border: 1px solid transparent !important;
   border-radius: 9999px !important;
-  margin-top: 0.5rem !important;
+  margin-top: 0.375rem !important;
   background: var(--primary) !important;
   color: var(--primary-foreground) !important;
-  font-size: 0.9375rem !important;
+  font-size: 0.875rem !important;
   font-weight: 750 !important;
   line-height: 1.25 !important;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 22%, transparent) !important;
@@ -1539,7 +1541,7 @@ a,
 .hexclave-auth-scope .stack-scope .relative.flex.items-center {
   box-sizing: border-box !important;
   min-width: 0 !important;
-  margin-block: 1rem !important;
+  margin-block: 0.625rem !important;
 }
 
 .hexclave-auth-scope .stack-scope .separator-with-text > span,
