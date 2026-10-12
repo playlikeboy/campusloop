@@ -10,7 +10,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
   "Access-Control-Allow-Headers":
-    "Content-Type, Authorization, x-api-key, X-API-KEY, x-campusloop-mcp-key, x-mcp-key",
+    "Accept, Content-Type, Authorization, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID, x-api-key, X-API-KEY, x-campusloop-mcp-key, x-mcp-key",
 };
 
 const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
@@ -48,10 +48,8 @@ function verifyApiKey(req: Request): boolean {
     ? authHeader.slice(7).trim()
     : null;
 
-  const candidateKey = (queryKey || headerKey || bearerKey || "").trim();
-  if (!candidateKey) return false;
-
-  return candidateKey === configuredKey.trim();
+  const expectedKey = configuredKey.trim();
+  return [queryKey, headerKey, bearerKey].some((candidateKey) => candidateKey?.trim() === expectedKey);
 }
 
 /**
@@ -979,6 +977,15 @@ async function handleMcpJsonRpcRequest({
   const { id = null, method, params = {} } = body;
 
   switch (method) {
+    // Streamable HTTP clients send this notification after initialize. Notifications
+    // must be acknowledged with 202 and an empty body (not a JSON-RPC response).
+    case "notifications/initialized":
+      return new NextResponse(null, { status: 202, headers: CORS_HEADERS });
+
+    // MCP clients use ping as a lightweight connection health check.
+    case "ping":
+      return NextResponse.json({ jsonrpc: "2.0", id, result: {} }, { headers: CORS_HEADERS });
+
     case "initialize":
       return NextResponse.json(
         {

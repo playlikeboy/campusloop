@@ -89,6 +89,32 @@ describe("CampusLoop MCP Events Engine (/mcp/events)", () => {
     expect(res.status).toBe(204);
     expect(res.headers.get("access-control-allow-origin")).toBe("*");
     expect(res.headers.get("access-control-allow-methods")).toContain("POST");
+    expect(res.headers.get("access-control-allow-headers")).toContain("MCP-Protocol-Version");
+    expect(res.headers.get("access-control-allow-headers")).toContain("MCP-Session-Id");
+  });
+
+  it("acknowledges notifications/initialized with an empty 202 response", async () => {
+    const req = new Request("https://campusloop.space/mcp/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }),
+    });
+    const res = await POST(req);
+
+    expect(res.status).toBe(202);
+    expect(await res.text()).toBe("");
+  });
+
+  it("responds to standard MCP ping requests", async () => {
+    const req = new Request("https://campusloop.space/mcp/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 12, method: "ping", params: {} }),
+    });
+    const res = await POST(req);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ jsonrpc: "2.0", id: 12, result: {} });
   });
 
   it("allows unauthenticated GET requests to list events & tools schema", async () => {
@@ -114,6 +140,22 @@ describe("CampusLoop MCP Events Engine (/mcp/events)", () => {
     const res = await GET(req);
     expect(res.status).toBe(200);
 
+    const data = await res.json();
+    expect(data.mcp.auth.authenticated).toBe(true);
+  });
+
+  it("accepts any valid auth source when another supplied source is stale", async () => {
+    const req = new Request(
+      `https://campusloop.space/mcp/events?format=json&apikey=stale-test-key`,
+      {
+        headers: {
+          accept: "application/json",
+          "x-api-key": TEST_API_KEY,
+        },
+      }
+    );
+    const res = await GET(req);
+    expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.mcp.auth.authenticated).toBe(true);
   });
@@ -203,6 +245,50 @@ describe("CampusLoop MCP Events Engine (/mcp/events)", () => {
     expect(toolsRes.status).toBe(200);
     const toolsData = await toolsRes.json();
     expect(Array.isArray(toolsData.result.tools)).toBe(true);
+  });
+
+  it("supports authenticated MCP update_event and delete_event tool calls", async () => {
+    const updateReq = new Request(`https://campusloop.space/mcp/events?apikey=${TEST_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "update_event_test",
+        method: "tools/call",
+        params: {
+          name: "update_event",
+          arguments: {
+            idOrSlug: "remote-ai-hackathon-abc123",
+            title: "MCP Updated AI Hackathon",
+            status: "DRAFT",
+          },
+        },
+      }),
+    });
+    const updateRes = await POST(updateReq);
+    expect(updateRes.status).toBe(200);
+    const updateData = await updateRes.json();
+    expect(updateData.result.isError).toBeUndefined();
+    expect(updateData.result.content[0].text).toContain("MCP Updated AI Hackathon");
+
+    const deleteReq = new Request(`https://campusloop.space/mcp/events?apikey=${TEST_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "delete_event_test",
+        method: "tools/call",
+        params: {
+          name: "delete_event",
+          arguments: { idOrSlug: "remote-ai-hackathon-abc123" },
+        },
+      }),
+    });
+    const deleteRes = await POST(deleteReq);
+    expect(deleteRes.status).toBe(200);
+    const deleteData = await deleteRes.json();
+    expect(deleteData.result.isError).toBeUndefined();
+    expect(deleteData.result.content[0].text).toContain("deleted");
   });
 
   it("blocks MCP mutation tools when unauthenticated and executes when authenticated", async () => {
