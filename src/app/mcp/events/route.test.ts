@@ -277,4 +277,29 @@ describe("CampusLoop MCP Events Engine (/mcp/events)", () => {
     const delData = await delRes.json();
     expect(delData.success).toBe(true);
   });
+
+  it("exposes OpenAPI 3.1.0 specification with paths and tools for Composio import", async () => {
+    const req = new Request(`https://campusloop.space/mcp/events?apikey=${TEST_API_KEY}`);
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+
+    const data = await res.json();
+    expect(data.openapi).toBe("3.1.0");
+    expect(data.paths).toBeDefined();
+    expect(data.paths["/mcp/events"].get.operationId).toBe("list_events");
+    expect(data.paths["/mcp/events"].post.operationId).toBe("create_remote_event");
+    expect(data.paths["/mcp/events"].put.operationId).toBe("update_event");
+    expect(data.paths["/mcp/events"].delete.operationId).toBe("delete_event");
+    expect(Array.isArray(data.functions)).toBe(true);
+    expect(Array.isArray(data.result.tools)).toBe(true);
+  });
+
+  it("handles MCP SSE streaming when text/event-stream is requested", async () => {
+    const sseReq = new Request(`https://campusloop.space/mcp/events?apikey=${TEST_API_KEY}`, {
+      headers: { accept: "text/event-stream" },
+    });
+    const sseRes = await GET(sseReq);
+    expect(sseRes.status).toBe(200);
+    expect(sseRes.headers.get("content-type")).toContain("text/event-stream");
+  });
 });
