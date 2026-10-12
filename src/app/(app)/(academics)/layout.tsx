@@ -44,7 +44,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
         />
 
         <div className="flex min-h-screen w-full min-w-0 overflow-x-clip">
-          <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto min-h-screen overflow-x-clip px-3 sm:px-6 pt-2 sm:pt-4 pb-4">
+          <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto min-h-screen overflow-x-clip px-0 sm:px-6 pt-2 sm:pt-4 pb-4">
             {viewerMode && (
               <div className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-[11px] font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
                 <span className="inline-flex items-center gap-1.5">
@@ -130,7 +130,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-3 py-4 sm:px-6">
+      <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-0 py-2 sm:px-6 sm:py-4">
         {children}
       </main>
 

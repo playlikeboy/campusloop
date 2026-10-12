@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Eye, FolderPlus, Layers, Star } from "lucide-react";
+import { ArrowRight, ChevronDown, Eye, FolderPlus, Layers, Star } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -63,6 +63,7 @@ export function AcademicPlaylistCard({
   const [stars, setStars] = useState(playlist.starsCount);
   const [isStarred, setIsStarred] = useState(false);
   const [isStarring, setIsStarring] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const isCompact = variant === "compact";
   const playlistHref = `/academics/playlists/${playlist.slug || playlist.id}`;
   const categoryLabel = CATEGORY_LABELS[playlist.category] || "Study playlist";
@@ -165,9 +166,29 @@ export function AcademicPlaylistCard({
         </Link>
 
         {playlist.description && (
-          <p className={cn("line-clamp-2 text-xs leading-relaxed text-muted-foreground", isCompact && "min-h-[2.25rem]")}>
-            {playlist.description}
-          </p>
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => setShowDescription((current) => !current)}
+              aria-expanded={showDescription}
+              aria-controls={"playlist-description-" + playlist.id}
+              className="inline-flex min-h-7 items-center gap-1 rounded-md text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              {showDescription ? "Hide details" : "Details"}
+              <ChevronDown
+                className={cn("size-3.5 transition-transform duration-200", showDescription && "rotate-180")}
+                aria-hidden="true"
+              />
+            </button>
+            {showDescription && (
+              <p
+                id={"playlist-description-" + playlist.id}
+                className="text-xs leading-relaxed text-muted-foreground whitespace-pre-line"
+              >
+                {playlist.description}
+              </p>
+            )}
+          </div>
         )}
 
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/30 pt-3">

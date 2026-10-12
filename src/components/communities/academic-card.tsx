@@ -7,6 +7,7 @@ import {
   ArrowUp,
   Bookmark,
   CheckCircle2,
+  ChevronDown,
   ExternalLink,
   FolderOpen,
   MessageSquare,
@@ -85,6 +86,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
 
   // Comments State
   const [showComments, setShowComments] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isHelpful, setIsHelpful] = useState(true);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
@@ -115,6 +117,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    // Nested links and buttons keep their own keyboard behavior.
+    if (e.target !== e.currentTarget) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleCardClick();
@@ -446,11 +450,34 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
           </h2>
         </div>
 
-        {/* ── 4. Short Description ── */}
+        {/* Keep long descriptions available without crowding every card by default. */}
         {item.description && (
-          <p className="text-xs sm:text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2">
-            {item.description}
-          </p>
+          <div className="pt-0.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDescription((current) => !current);
+              }}
+              aria-expanded={showDescription}
+              aria-controls={"academic-description-" + item.id}
+              className="inline-flex min-h-7 items-center gap-1 rounded-md pr-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              {showDescription ? "Hide details" : "Details"}
+              <ChevronDown
+                className={cn("size-3.5 transition-transform duration-200", showDescription && "rotate-180")}
+                aria-hidden="true"
+              />
+            </button>
+            {showDescription && (
+              <p
+                id={"academic-description-" + item.id}
+                className="pt-1 text-xs sm:text-[13px] leading-relaxed text-muted-foreground/80 whitespace-pre-line"
+              >
+                {item.description}
+              </p>
+            )}
+          </div>
         )}
 
         {/* ── 5. Quality & Verification: ✓ Verified · 98% helpful ── */}
