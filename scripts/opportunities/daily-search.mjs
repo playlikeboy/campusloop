@@ -96,9 +96,9 @@ async function googleSearch(query) {
 }
 function pickMeta(html, name) {
   const target = name.toLowerCase();
-  for (const tagMatch of html.matchAll(/<meta\\b[^>]*>/gi)) {
+  for (const tagMatch of html.matchAll(/<meta\b[^>]*>/gi)) {
     const attrs = {};
-    for (const attr of tagMatch[0].matchAll(/([^\\s=]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)')/g)) {
+    for (const attr of tagMatch[0].matchAll(/([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
       attrs[attr[1].toLowerCase()] = attr[2] ?? attr[3] ?? "";
     }
     if ((attrs.name || attrs.property || "").toLowerCase() === target) return attrs.content || "";
