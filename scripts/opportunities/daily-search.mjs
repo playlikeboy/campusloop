@@ -11,6 +11,7 @@ const SERP_KEY = process.env.SERPAPI_API_KEY;
 const NOW = new Date();
 const TODAY = NOW.toISOString().slice(0, 10);
 const added = [];
+const postersUpdated = [];
 const duplicates = [];
 const skipped = [];
 const failures = [];
@@ -105,6 +106,38 @@ function pickMeta(html, name) {
   }
   return "";
 }
+
+function extractPosterImage(html, pageUrl, jsonLd) {
+  const candidates = [
+    pickMeta(html, "og:image"),
+    pickMeta(html, "og:image:url"),
+    pickMeta(html, "twitter:image"),
+    pickMeta(html, "twitter:image:src"),
+  ];
+  const addJsonLdImage = (value) => {
+    if (Array.isArray(value)) {
+      for (const entry of value) addJsonLdImage(entry);
+    } else if (typeof value === "string") {
+      candidates.push(value);
+    } else if (value && typeof value === "object") {
+      if (typeof value.url === "string") candidates.push(value.url);
+      if (typeof value.contentUrl === "string") candidates.push(value.contentUrl);
+    }
+  };
+  addJsonLdImage(jsonLd?.image);
+
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== "string") continue;
+    try {
+      const parsed = new URL(candidate.trim(), pageUrl);
+      if (parsed.protocol !== "https:" || !parsed.hostname) continue;
+      if (/\/(?:favicon|apple-touch-icon)(?:[-.]|$)/i.test(parsed.pathname)) continue;
+      return parsed.toString();
+    } catch { /* Skip malformed metadata and try the next candidate. */ }
+  }
+  return null;
+}
+
 function monthNumber(value) {
   return ({ jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 })[String(value || "").toLowerCase().slice(0, 3)] || 0;
 }
@@ -305,6 +338,31 @@ const existingTitles = liveCatalog.map((event) => ({
 }));
 
 const reportRows = [];
+// Enrich existing published records that have a trusted official URL but no poster.
+// Only allowlist-approved source hosts are fetched; anything else keeps its category gradient.
+for (const event of liveCatalog.filter((item) => !item.bannerUrl && (item.externalUrl || item.registrationUrl)).slice(0, 40)) {
+  const sourceUrl = canonicalUrl(event.externalUrl || event.registrationUrl || "");
+  if (!sourceUrl || !trustedListingHost(sourceUrl)) continue;
+  try {
+    const page = await get(sourceUrl, {
+      "user-agent": "CampusLoopOpportunityBot/1.0 (+https://campusloop.space/events)",
+      accept: "text/html,application/xhtml+xml",
+    });
+    const jsonLd = parseJsonLd(page.text);
+    const posterImageUrl = extractPosterImage(page.text, page.url, jsonLd);
+    if (!posterImageUrl) continue;
+    await mcpCall("update_event", { idOrSlug: event.id || event.slug, bannerUrl: posterImageUrl });
+    event.bannerUrl = posterImageUrl;
+    postersUpdated.push({
+      title: event.title,
+      campusUrl: event.publicUrl || (event.slug ? "https://campusloop.space/events/" + event.slug : ""),
+      posterUrl: posterImageUrl,
+    });
+  } catch (error) {
+    failures.push({ title: event.title || "Existing event poster", source: sourceUrl, reason: "Poster enrichment failed: " + error.message });
+  }
+}
+
 for (const candidate of candidateMap.values()) {
   const canonical = candidate.link;
   if (existingUrls.has(canonical)) {
@@ -319,6 +377,7 @@ for (const candidate of candidateMap.values()) {
     const title = safeText(pickMeta(page.text, "og:title") || (page.text.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || candidate.title);
     const description = safeText(pickMeta(page.text, "og:description") || pickMeta(page.text, "description"));
     const jsonLd = parseJsonLd(page.text);
+    const posterImageUrl = extractPosterImage(page.text, page.url, jsonLd);
     const body = safeText(page.text).slice(0, 50000);
     const sourceText = `${title}\n${description}\n${body}\n${candidate.snippet}`;
     if (!trustedListingHost(page.url)) {
@@ -382,6 +441,7 @@ for (const candidate of candidateMap.values()) {
       endDate: end.toISOString(),
       registrationDeadline: deadline.toISOString(),
       externalUrl: canonical,
+      ...(posterImageUrl ? { bannerUrl: posterImageUrl } : {}),
       status: "PUBLISHED",
       isPaid: /entry fee|registration fee|paid registration/i.test(sourceText) && !/free (?:to|for) (?:register|participate|apply)/i.test(sourceText),
       entryFee: /free (?:to|for) (?:register|participate|apply)|no application fee/i.test(sourceText) ? "Free" : "Check official listing",
@@ -396,8 +456,8 @@ for (const candidate of candidateMap.values()) {
     }
     existingUrls.add(canonical);
     existingTitles.push({ id: record.id || "new", title: titleKey, organizer: organizerKey, start: start.getTime(), url: canonical });
-    added.push({ title: cleanTitle, campusUrl, sourceUrl: canonical, deadline: deadlineLabel, category });
-    reportRows.push(`- [${cleanTitle}](${campusUrl}) — deadline ${deadlineLabel}; [official source](${canonical})`);
+    added.push({ title: cleanTitle, campusUrl, sourceUrl: canonical, deadline: deadlineLabel, category, posterUrl: posterImageUrl || null });
+    reportRows.push(`- [${cleanTitle}](${campusUrl}) — deadline ${deadlineLabel}; [official source](${canonical}); ${posterImageUrl ? `[source poster](${posterImageUrl})` : "category gradient artwork (no source poster found)"}`);
   } catch (error) {
     failures.push({ title: candidate.title, source: canonical, reason: error.message });
   }
@@ -408,12 +468,16 @@ const summary = [
   `Run date: ${TODAY} (UTC; deadlines shown in IST)`,
   "",
   `- Newly published: **${added.length}**`,
+  `- Existing event posters added: **${postersUpdated.length}**`,
   `- Skipped as duplicate: **${duplicates.length}**`,
   `- Skipped by quality/deadline checks: **${skipped.length}**`,
   `- Errors requiring attention: **${failures.length}**`,
   "",
   "## Published this run",
   ...(reportRows.length ? reportRows : ["- No new listings met all verification and SEO-quality checks."]),
+  "",
+  "## Existing posters added",
+  ...(postersUpdated.length ? postersUpdated.map((x) => `- [${x.title}](${x.campusUrl || "https://campusloop.space/events"}) — [poster image](${x.posterUrl})`) : ["- No existing source posters were found on trusted pages during this run. Category gradients remain as the fallback."]),
   "",
   "## Duplicate candidates",
   ...(duplicates.length ? duplicates.map((x) => `- ${x.title}: ${x.reason} — ${x.url}`) : ["- None."]),
@@ -438,6 +502,7 @@ console.log(JSON.stringify({
   runDate: TODAY,
   discovered: candidateMap.size,
   published: added,
+  postersUpdated,
   duplicateCount: duplicates.length,
   skippedCount: skipped.length,
   failures,
