@@ -259,7 +259,7 @@ export function DatingAppClient() {
           <DatingCardSkeleton />
         ) : remaining.length > 0 ? (
           <>
-            <div className="relative min-h-0 flex-1 py-1">
+            <div className="relative min-h-[min(56dvh,500px)] flex-1 py-1">
               <SwipeDeck candidates={remaining} onSwipe={handleSwipe} />
             </div>
             <div className="pt-2">

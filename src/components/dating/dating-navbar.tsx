@@ -7,7 +7,6 @@ import {
   Lock,
   MessageCircleHeart,
   SlidersHorizontal,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -102,12 +101,7 @@ export function DatingNavbar({ collegeName }: DatingNavbarProps) {
               <span className="text-sm font-heading font-bold tracking-tight text-foreground leading-none">
                 {getHeaderTitle()}
               </span>
-              {isDeckHome && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary border border-primary/20">
-                  <Sparkles className="size-2 text-primary" />
-                  <span>Vibes</span>
-                </span>
-              )}
+              {/* Keep the matching header minimal; profile discovery is the primary focus. */}
             </div>
             {collegeName && isDeckHome && (
               <span className="text-[10px] text-muted-foreground font-medium truncate max-w-[140px] leading-tight">
