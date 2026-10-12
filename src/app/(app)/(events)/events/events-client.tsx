@@ -30,6 +30,7 @@ const CATEGORIES = [
   { id: "seminars", label: "Talks" },
   { id: "gaming", label: "Gaming" },
   { id: "meetups", label: "Meetups" },
+  { id: "meetups", label: "Meetups" },
 ];
 
 const MODES = [
