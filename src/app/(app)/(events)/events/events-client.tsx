@@ -18,6 +18,12 @@ type EventsClientProps = {
 const CATEGORIES = [
   { id: "ALL", label: "All" },
   { id: "hackathons", label: "Hackathons" },
+  { id: "contests", label: "Contests" },
+  { id: "internships", label: "Internships" },
+  { id: "scholarships", label: "Scholarships" },
+  { id: "fellowships", label: "Fellowships" },
+  { id: "grants", label: "Grants" },
+  { id: "jobs", label: "Jobs" },
   { id: "fests", label: "Fests" },
   { id: "workshops", label: "Workshops" },
   { id: "competitions", label: "Competitions" },
@@ -163,7 +169,7 @@ export function EventsClient({
   const pageTitle = isArchive ? (title || "Past events") : activeCategory !== "ALL" ? (CATEGORIES.find((category) => category.id === activeCategory)?.label || title || "Events") : "Events";
   const opportunityCount = rawEvents.filter((event) => {
     const type = String(event.eventType || "").toUpperCase();
-    return ["COMPETITION", "HACKATHON", "WORKSHOP", "SEMINAR"].includes(type) && !isEventClosed(event);
+    return ["COMPETITION", "HACKATHON", "WORKSHOP", "SEMINAR", "CONTEST", "INTERNSHIP", "SCHOLARSHIP", "FELLOWSHIP", "GRANT", "JOB"].includes(type) && !isEventClosed(event);
   }).length;
   const nextDeadlineCount = rawEvents.filter((event) => {
     const deadline = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : 0;
