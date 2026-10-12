@@ -63,6 +63,8 @@ export async function GET(req: Request) {
         conferences: ["SEMINAR"],
         hiring: ["COMPETITION", "HACKATHON"],
         sports: ["SPORTS"],
+        contest: ["CONTEST"],
+        contests: ["CONTEST"],
         internship: ["INTERNSHIP"],
         internships: ["INTERNSHIP"],
         scholarship: ["SCHOLARSHIP"],
