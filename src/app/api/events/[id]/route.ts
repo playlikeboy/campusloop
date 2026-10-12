@@ -51,7 +51,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
+    // Drafts are private to the organizer and admins; unlisted events are
+    // reachable by direct link but never surfaced in general discovery.
+    const isOrganizer = Boolean(currentProfile && event.organizerProfileId === currentProfile.id);
+    const isAdmin = currentProfile?.role === "ADMIN";
+    if (event.status !== "PUBLISHED" && !isOrganizer && !isAdmin) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
     // Check visibility authorization
+    if (event.visibility === "UNLISTED" && !isOrganizer && !isAdmin) {
+      // Unlisted events are allowed through a direct link, not as public listings.
+    }
     if (event.visibility === "PRIVATE") {
       const isOrganizer = currentProfile && event.organizerProfileId === currentProfile.id;
       const isSameCampus = currentProfile && event.institutionId === currentProfile.institutionId;
