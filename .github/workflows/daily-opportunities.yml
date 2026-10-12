@@ -1,0 +1,40 @@
+name: Daily student opportunities
+
+on:
+  schedule:
+    # 08:00 Asia/Kolkata (02:30 UTC)
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: campusloop-daily-opportunities
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check configuration
+        env:
+          CAMPUSLOOP_MCP_API_KEY: ${{ secrets.CAMPUSLOOP_MCP_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+        run: |
+          if [ -z "$CAMPUSLOOP_MCP_API_KEY" ]; then
+            echo "::error::Configure CAMPUSLOOP_MCP_API_KEY in repository Actions secrets."
+            exit 1
+          fi
+          if [ -z "$EXA_API_KEY" ]; then
+            echo "::error::Configure EXA_API_KEY in repository Actions secrets."
+            exit 1
+          fi
+
+      - name: Call CampusLoop MCP discover-and-deduplicate runner
+        env:
+          CAMPUSLOOP_MCP_URL: https://campusloop.space/mcp/events
+          CAMPUSLOOP_MCP_API_KEY: ${{ secrets.CAMPUSLOOP_MCP_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+        run: node scripts/opportunities/daily-search.mjs
