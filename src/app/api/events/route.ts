@@ -129,21 +129,24 @@ export async function GET(req: Request) {
       );
     }
 
-    // Visibility filter:
-    // 1. If viewing own hosted events, don't restrict visibility
-    // 2. Never show UNLISTED events in the general listing/search unless specifically invited
-    // 3. PRIVATE events only shown if user is from the same institution or is organizer
-    if (scope !== "HOSTED" && scope !== "ORGANIZED" && scope !== "MY_EVENTS") {
+    // Listing privacy/lifecycle boundary:
+    // - General discovery never exposes drafts or unlisted events.
+    // - Organizers can still view their own drafts in the hosted/manage scope.
+    // - PRIVATE events are limited to their host campus, the organizer, or an admin.
+    const isOrganizerScope = ["HOSTED", "ORGANIZED", "MY_EVENTS"].includes(scope);
+    if (!isOrganizerScope) {
+      conditions.push(eq(events.status, "PUBLISHED"));
       if (currentProfile?.institutionId) {
         conditions.push(
           or(
             eq(events.visibility, "PUBLIC"),
             and(eq(events.visibility, "PRIVATE"), eq(events.institutionId, currentProfile.institutionId)),
-            eq(events.organizerProfileId, currentProfile.id)
+            eq(events.organizerProfileId, currentProfile.id),
+            eq(userProfiles.role, "ADMIN")
           )
         );
       } else {
-        // Unauthenticated / guest only sees PUBLIC
+        // Guests only see published, public events.
         conditions.push(eq(events.visibility, "PUBLIC"));
       }
     }
