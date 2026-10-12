@@ -92,7 +92,10 @@ function safePosterUrl(value: string | null | undefined): string | null {
   if (!value) return null;
   try {
     const parsed = new URL(value);
-    return parsed.protocol === "https:" ? parsed.toString() : null;
+    if (parsed.protocol !== "https:") return null;
+    // The older catalog has generic Unsplash stock photos, not event posters.
+    if (parsed.hostname.toLowerCase() === "images.unsplash.com") return null;
+    return parsed.toString();
   } catch {
     return null;
   }

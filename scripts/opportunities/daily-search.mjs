@@ -132,6 +132,8 @@ function extractPosterImage(html, pageUrl, jsonLd) {
       const parsed = new URL(candidate.trim(), pageUrl);
       if (parsed.protocol !== "https:" || !parsed.hostname) continue;
       if (/\/(?:favicon|apple-touch-icon)(?:[-.]|$)/i.test(parsed.pathname)) continue;
+      // Avoid generic stock imagery when the source does not provide an event poster.
+      if (parsed.hostname.toLowerCase() === "images.unsplash.com") continue;
       // Do not persist short-lived signed URLs (e.g. MLH S3 presigned posters).
       if ([...parsed.searchParams.keys()].some((key) => /^(x-amz-(credential|date|expires|signature|signedheaders|security-token)|x-goog-(algorithm|credential|date|expires|signature)|signature|expires|token|policy|key-pair-id)$/i.test(key))) continue;
       return parsed.toString();
