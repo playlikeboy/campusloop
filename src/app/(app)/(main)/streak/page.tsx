@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function StreakPage() {
-  return <StreakDetailClient />;
+export default async function StreakPage({ searchParams }: { searchParams: Promise<{ profileId?: string }> }) {
+  const { profileId } = await searchParams;
+  return <StreakDetailClient profileId={profileId} />;
 }

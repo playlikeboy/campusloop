@@ -31,18 +31,52 @@ const MILESTONE_ICONS: Record<string, typeof Flame> = {
   Sparkles: Sparkles,
 };
 
-export function StreakDetailClient() {
+interface StreakDetailClientProps {
+  profileId?: string;
+}
+
+export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
   const router = useRouter();
-  const { streak, isLoading, qualifyActivity } = useStreaks();
+  const isOwnStreak = !profileId;
+  const { streak, isLoading, isError, mutate, qualifyActivity } = useStreaks(profileId);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (isLoading || !streak) {
+  if (isLoading) {
     return (
       <div className="w-full max-w-3xl mx-auto px-4 py-8 space-y-6 animate-pulse">
         <div className="h-6 w-24 bg-muted/60 rounded" />
         <div className="h-28 bg-muted/40 rounded-2xl" />
         <div className="h-44 bg-muted/30 rounded-2xl" />
       </div>
+    );
+  }
+
+  if (isError || !streak) {
+    return (
+      <main className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center px-4 py-12 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+          <Flame className="size-7" />
+        </div>
+        <h1 className="mt-4 text-lg font-bold text-foreground">Streaks couldn’t load</h1>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+          Your activity is safe. Try loading your streak again.
+        </p>
+        <div className="mt-5 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void mutate()}
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Retry
+          </button>
+          <Link
+            href="/profile"
+            className="rounded-full bg-muted px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted/80"
+          >
+            Profile
+          </Link>
+        </div>
+      </main>
     );
   }
 
@@ -79,19 +113,21 @@ export function StreakDetailClient() {
   }
 
   // Monthly activity calendar calculation (Last 28 days grid: 4 weeks x 7 columns)
-  const today = new Date();
-  const todayStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-    .toISOString()
-    .split("T")[0];
+  const todayStr = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 
   const calendarDays = Array.from({ length: 28 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (27 - i));
-    const dateStr = d.toISOString().split("T")[0];
+    const d = new Date(todayStr + "T00:00:00.000Z");
+    d.setUTCDate(d.getUTCDate() - (27 - i));
+    const dateStr = d.toISOString().slice(0, 10);
     const isCompleted = historyDates.includes(dateStr);
     const isCurrent = dateStr === todayStr;
     const isFuture = dateStr > todayStr;
-    const dayOfMonth = d.getDate();
+    const dayOfMonth = d.getUTCDate();
     return {
       dateStr,
       dayOfMonth,
@@ -370,38 +406,39 @@ export function StreakDetailClient() {
             ))}
           </div>
 
-          {/* Today Action CTA */}
-          <div className="pt-2 border-t border-border/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-foreground block">
-                Today’s Mission: {todayMission.title}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {todayMission.instruction}
-              </span>
-            </div>
+          {isOwnStreak && (
+            <div className="pt-2 border-t border-border/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <span className="text-xs font-bold text-foreground block">
+                  Today’s Mission: {todayMission.title}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {todayMission.instruction}
+                </span>
+              </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <Link
-                href={todayMission.ctaHref}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/95 transition-all active:scale-98 cursor-pointer"
-              >
-                <span>{todayMission.ctaLabel}</span>
-                <ChevronRight className="size-3.5" />
-              </Link>
-
-              {!isSafeToday && (
-                <button
-                  type="button"
-                  onClick={handleQuickQualify}
-                  disabled={isSubmitting}
-                  className="inline-flex items-center justify-center rounded-xl border border-border/50 bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href={todayMission.ctaHref}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/95 transition-all active:scale-98 cursor-pointer"
                 >
-                  {isSubmitting ? "Updating..." : "I did this"}
-                </button>
-              )}
+                  <span>{todayMission.ctaLabel}</span>
+                  <ChevronRight className="size-3.5" />
+                </Link>
+
+                {!isSafeToday && (
+                  <button
+                    type="button"
+                    onClick={handleQuickQualify}
+                    disabled={isSubmitting}
+                    className="inline-flex items-center justify-center rounded-xl border border-border/50 bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Updating..." : "I did this"}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

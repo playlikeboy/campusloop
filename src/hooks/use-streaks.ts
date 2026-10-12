@@ -19,7 +19,7 @@ interface QualifyResult {
 }
 
 export function useStreaks(profileId?: string) {
-  const endpoint = profileId ? `/api/streaks/me?profileId=${profileId}` : "/api/streaks/me";
+  const endpoint = profileId ? `/api/streaks/me?profileId=${encodeURIComponent(profileId)}` : "/api/streaks/me";
   const { data, error, isLoading, mutate } = useSWR<UserStreakState>(
     endpoint,
     fetcher,

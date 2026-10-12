@@ -4,7 +4,7 @@
  * and direct Loop Points integration.
  */
 
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import {
   DEFAULT_STREAK_TIMEZONE,
   getTodayDailyMission,
@@ -72,6 +72,49 @@ export interface DayStatus {
   isCompleted: boolean;
 }
 
+
+
+/** Derive the active run from the unique qualifying-day journal.
+ * A streak remains active through today if today's action exists, or through
+ * yesterday until the current day is qualified. A missed day resets it to zero.
+ */
+export function calculateCurrentStreakFromDates(
+  qualifyingDates: string[],
+  todayDateString: string
+): { currentStreak: number; isSafeToday: boolean } {
+  const dates = new Set(qualifyingDates);
+  const isSafeToday = dates.has(todayDateString);
+  let cursor: string | null = isSafeToday
+    ? todayDateString
+    : dates.has(getYesterdayDateString(todayDateString))
+      ? getYesterdayDateString(todayDateString)
+      : null;
+  let currentStreak = 0;
+
+  while (cursor && dates.has(cursor)) {
+    currentStreak += 1;
+    cursor = getYesterdayDateString(cursor);
+  }
+
+  return { currentStreak, isSafeToday };
+}
+
+/** Longest consecutive run represented by the event journal. */
+export function calculateLongestStreakFromDates(qualifyingDates: string[]): number {
+  const dates = Array.from(new Set(qualifyingDates)).sort();
+  let best = 0;
+  let run = 0;
+  let previous: string | null = null;
+
+  for (const date of dates) {
+    run = previous && getYesterdayDateString(date) === previous ? run + 1 : 1;
+    best = Math.max(best, run);
+    previous = date;
+  }
+
+  return best;
+}
+
 export interface UserStreakState {
   currentStreak: number;
   longestStreak: number;
@@ -102,7 +145,8 @@ export async function getUserStreakState(
   });
 
   if (!streakRow) {
-    // Lazy-create initial row
+    // Profile stats and the streak page can request this state simultaneously.
+    // Avoid turning the losing request into a 500 when the row is created first.
     const [created] = await db
       .insert(userStreaks)
       .values({
@@ -112,30 +156,63 @@ export async function getUserStreakState(
         totalQualifiedDays: 0,
         lastQualifiedDate: null,
       })
+      .onConflictDoNothing({ target: userStreaks.userId })
       .returning();
-    streakRow = created;
+
+    streakRow = created ?? (await db.query.userStreaks.findFirst({
+      where: eq(userStreaks.userId, profileId),
+    }));
+
+    if (!streakRow) {
+      throw new Error("Unable to initialize streak state");
+    }
   }
 
-  // 2. Check streak freshness
+  // 2. Read the unique daily journal as the source of truth for streak counts.
+  // Keep a bounded history (one row/day) to protect large accounts.
+  const qualifyingEvents = await db.query.streakEvents.findMany({
+    where: eq(streakEvents.userId, profileId),
+    columns: { localDate: true },
+    orderBy: [desc(streakEvents.localDate)],
+    limit: 4000,
+  });
+  const qualifyingDates = Array.from(new Set(qualifyingEvents.map((event) => event.localDate)));
+  const qualifyingDateSet = new Set(qualifyingDates);
   const lastDate = streakRow.lastQualifiedDate;
-  const isSafeToday = lastDate === todayStr;
-  let activeStreak = streakRow.currentStreak;
+  const isRecentSummaryDate = lastDate === todayStr || lastDate === yesterdayStr;
 
-  // If student missed yesterday and hasn't qualified today, the active streak decays to 0
-  if (lastDate && lastDate < yesterdayStr && !isSafeToday) {
-    activeStreak = 0;
+  // Some older profiles may have a summary row from before the event journal
+  // existed. If that latest summary date has no journal row, preserve it as a
+  // compatibility fallback. Otherwise compute the streak from actual activity.
+  const useJournal = qualifyingDates.length > 0 &&
+    !(isRecentSummaryDate && lastDate && !qualifyingDateSet.has(lastDate));
+
+  let activeStreak: number;
+  let isSafeToday: boolean;
+  let authoritativeLastDate: string | null;
+
+  if (useJournal) {
+    const currentFromJournal = calculateCurrentStreakFromDates(qualifyingDates, todayStr);
+    activeStreak = currentFromJournal.currentStreak;
+    isSafeToday = currentFromJournal.isSafeToday;
+    authoritativeLastDate = qualifyingDates[0] ?? null;
+  } else {
+    isSafeToday = lastDate === todayStr;
+    activeStreak = streakRow.currentStreak;
+    if (lastDate && lastDate < yesterdayStr && !isSafeToday) activeStreak = 0;
+    authoritativeLastDate = lastDate;
   }
 
-  // 3. Fetch past 35 days events to construct weekly tracker and monthly calendar
+  const longestFromJournal = calculateLongestStreakFromDates(qualifyingDates);
+  const longestStreak = Math.max(streakRow.longestStreak, longestFromJournal);
+  const totalQualifiedDays = Math.max(streakRow.totalQualifiedDays, qualifyingDateSet.size);
+
+  // 3. Build the weekly tracker and recent calendar from this same date journal.
   const past35Days = getRecentCalendarDays(35, todayStr);
   const earliest35Date = past35Days[0];
-
-  const recentEvents = await db.query.streakEvents.findMany({
-    where: and(eq(streakEvents.userId, profileId), gte(streakEvents.localDate, earliest35Date)),
-    columns: { localDate: true },
-  });
-
-  const completedDates = new Set(recentEvents.map((e) => e.localDate));
+  const completedDates = new Set(
+    qualifyingDates.filter((date) => date >= earliest35Date && date <= todayStr)
+  );
 
   // 7-day tracker for quick widget view
   const past7Days = past35Days.slice(-7);
@@ -155,14 +232,14 @@ export async function getUserStreakState(
 
   // 4. Milestone calculations
   const nextMilestone = STREAK_MILESTONES.find((m) => m.days > activeStreak) || null;
-  const unlockedMilestones = STREAK_MILESTONES.filter((m) => m.days <= (streakRow?.longestStreak || 0));
+  const unlockedMilestones = STREAK_MILESTONES.filter((m) => m.days <= longestStreak);
 
   return {
     currentStreak: activeStreak,
-    longestStreak: streakRow.longestStreak,
-    totalQualifiedDays: streakRow.totalQualifiedDays,
+    longestStreak,
+    totalQualifiedDays,
     isSafeToday,
-    lastQualifiedDate: lastDate,
+    lastQualifiedDate: authoritativeLastDate,
     weeklyTracker,
     historyDates: Array.from(completedDates),
     nextMilestone,
@@ -254,6 +331,9 @@ export async function recordStreakActivity(params: {
     };
   }
 
+  // Read the corrected state before adding today so a stale summary row cannot undercount the run.
+  const previousState = await getUserStreakState(userId, timezone);
+
   // 3. Atomically attempt to journal today's streak event
   try {
     await db.insert(streakEvents).values({
@@ -290,9 +370,9 @@ export async function recordStreakActivity(params: {
 
   if (streakRow) {
     const wasYesterday = streakRow.lastQualifiedDate === yesterdayStr;
-    newCurrentStreak = wasYesterday ? streakRow.currentStreak + 1 : 1;
-    newLongestStreak = Math.max(streakRow.longestStreak, newCurrentStreak);
-    newTotalDays = streakRow.totalQualifiedDays + 1;
+    newCurrentStreak = wasYesterday ? previousState.currentStreak + 1 : 1;
+    newLongestStreak = Math.max(streakRow.longestStreak, previousState.longestStreak, newCurrentStreak);
+    newTotalDays = Math.max(streakRow.totalQualifiedDays, previousState.totalQualifiedDays) + 1;
 
     await db
       .update(userStreaks)
@@ -303,7 +383,7 @@ export async function recordStreakActivity(params: {
         lastQualifiedDate: todayStr,
         streakStartedAt: wasYesterday ? streakRow.streakStartedAt : now,
         longestStreakStartedAt:
-          newCurrentStreak > streakRow.longestStreak ? now : streakRow.longestStreakStartedAt,
+          newCurrentStreak > previousState.longestStreak ? now : streakRow.longestStreakStartedAt,
         updatedAt: now,
       })
       .where(eq(userStreaks.userId, userId));
