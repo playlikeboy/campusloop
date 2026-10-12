@@ -95,10 +95,15 @@ async function googleSearch(query) {
   })).filter((item) => item.title && item.link);
 }
 function pickMeta(html, name) {
-  const esc = name.replace(/[.*+?^\x24{}()|[\]\\]/g, "\\$&");
-  const re1 = new RegExp('<meta[^>]+(?:name|property)=["\\']' + esc + '["\\'][^>]+content=["\\']([^"\\']*)["\\']', "i");
-  const re2 = new RegExp('<meta[^>]+content=["\\']([^"\\']*)["\\'][^>]+(?:name|property)=["\\']' + esc + '["\\']', "i");
-  return (html.match(re1) || html.match(re2) || [])[1] || "";
+  const target = name.toLowerCase();
+  for (const tagMatch of html.matchAll(/<meta\\b[^>]*>/gi)) {
+    const attrs = {};
+    for (const attr of tagMatch[0].matchAll(/([^\\s=]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)')/g)) {
+      attrs[attr[1].toLowerCase()] = attr[2] ?? attr[3] ?? "";
+    }
+    if ((attrs.name || attrs.property || "").toLowerCase() === target) return attrs.content || "";
+  }
+  return "";
 }
 function parseExplicitDate(text) {
   const patterns = [
