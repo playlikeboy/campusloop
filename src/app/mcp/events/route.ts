@@ -1068,7 +1068,7 @@ async function handleMcpJsonRpcRequest({
 
         if (toolName === "list_events") {
           const limit = Math.min(Math.max(1, Number(args.limit) || 20), 100);
-          const conditions = [eq(events.status, "PUBLISHED")];
+          const conditions = [eq(events.status, "PUBLISHED"), eq(events.visibility, "PUBLIC")];
           if (args.remoteOnly || args.mode === "ONLINE") {
             conditions.push(eq(events.mode, "ONLINE"));
           } else if (args.mode && args.mode !== "ALL") {
@@ -1095,7 +1095,9 @@ async function handleMcpJsonRpcRequest({
             where: or(eq(events.id, target), eq(events.slug, target)),
             with: { institution: true },
           });
-          if (!found) throw new Error(`Event '${target}' not found`);
+          if (!found || (!isAuthenticated && (found.status !== "PUBLISHED" || found.visibility !== "PUBLIC"))) {
+            throw new Error(`Event '${target}' not found`);
+          }
           toolOutput = formatEventOutput(found);
         } else if (toolName === "get_event_categories") {
           toolOutput = {
