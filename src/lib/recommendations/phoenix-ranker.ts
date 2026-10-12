@@ -1,5 +1,5 @@
 import { sql, type SQL } from "drizzle-orm";
-import { comments, externalPosts, follows, institutions, posts, reports, userProfiles, votes } from "@/db/schema";
+import { comments, follows, posts, reports, votes } from "@/db/schema";
 
 /**
  * 🐦 Phoenix Multi-Action Ranking & Explicit Value Function

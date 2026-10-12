@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GET as getFileRoute } from "@/app/api/files/r2/[...key]/route";
-import { deleteR2Object, getR2Object, putR2Object } from "@/lib/r2";
+import { putR2Object } from "@/lib/r2";
 import { NextRequest } from "next/server";
 
 describe("R2 File Storage & Delivery Pipeline", () => {

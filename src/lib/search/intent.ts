@@ -1,4 +1,4 @@
-import type { SearchCategoryFilter, SearchIntent } from "./types";
+import type { SearchIntent } from "./types";
 
 const COMMON_CORRECTIONS: Record<string, string> = {
   hackthon: "hackathon",

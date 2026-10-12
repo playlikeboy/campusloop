@@ -18,10 +18,8 @@ import {
   MessageSquare,
   Music2,
   Radio,
-  Share2,
   ShieldCheck,
   Sparkles,
-  Users,
   Vote,
   Zap,
 } from "lucide-react";

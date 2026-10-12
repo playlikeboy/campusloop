@@ -7,18 +7,14 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   Calendar,
-  CheckCircle2,
-  Clock,
   ExternalLink,
   MapPin,
-  QrCode,
   Ticket,
   Trash2,
-  Users,
   Video,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface TicketEvent {
   id: string;

@@ -1,7 +1,7 @@
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { bikeBookings, bikes, merchants } from "@/db/schema";
+import { bikeBookings, bikes } from "@/db/schema";
 import { resolveMerchantSession } from "@/lib/merchant-session";
 
 export const dynamic = "force-dynamic";

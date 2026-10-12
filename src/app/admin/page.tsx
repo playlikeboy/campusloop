@@ -1,17 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 import {
-  Activity,
   ArrowRight,
-  CheckCircle2,
   FileText,
   Ghost,
   GraduationCap,
-  MessageSquare,
   RotateCw,
   Server,
   ShieldAlert,
-  ShoppingBag,
-  Store,
   TrendingUp,
   UserCheck,
   Users,

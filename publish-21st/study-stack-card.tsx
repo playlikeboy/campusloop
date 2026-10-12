@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Eye, FolderPlus, Layers, Sparkles, Star, Users } from "lucide-react";
+import { BookOpen, Eye, FolderPlus, Layers, Sparkles, Star } from "lucide-react";
 
 export interface StudyStackResource {
   id: string;

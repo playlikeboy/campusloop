@@ -1,7 +1,6 @@
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { articles } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 

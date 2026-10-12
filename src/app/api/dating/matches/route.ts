@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import {
   conversationParticipants,
-  conversations,
-  messages,
   swipes,
   userProfiles,
 } from "@/db/schema";

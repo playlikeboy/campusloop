@@ -6,15 +6,9 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Check,
   CheckCircle2,
   Clock,
   Download,
-  Filter,
-  GraduationCap,
-  Mail,
-  Phone,
-  RefreshCw,
   Search,
   UserCheck,
   UserX,

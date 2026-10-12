@@ -7,7 +7,6 @@ import {
   Link2,
   MessageCircle,
   MoreHorizontal,
-  Pin,
   Send,
   Sparkles,
   User,

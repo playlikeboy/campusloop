@@ -2,17 +2,13 @@
 
 import * as React from "react";
 import {
-  ChevronDown,
   Maximize2,
   Mic,
   MicOff,
   Minimize2,
   PhoneOff,
-  Radio,
-  Share2,
   Video,
   VideoOff,
-  Volume2,
 } from "lucide-react";
 
 export interface ActiveCallHudProps {

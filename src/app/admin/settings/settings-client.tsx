@@ -1,21 +1,13 @@
 "use client";
 
 import {
-  Bell,
-  CheckCircle2,
-  Database,
   Lock,
   Save,
-  Send,
-  Server,
-  Settings,
   ShieldAlert,
-  Sliders,
   Webhook,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 export function SettingsClient() {
   const [toxicityThreshold, setToxicityThreshold] = useState(70);

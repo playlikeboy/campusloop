@@ -3,7 +3,6 @@
 import { ArrowRight, Building2, GraduationCap, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { hexclaveClientApp } from "@/hexclave/client";
 
 export type AuthRequiredAction =
   | "like"

@@ -14,7 +14,7 @@
 
 import { getDb } from "../src/db";
 import { academicResources } from "../src/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import crypto from "crypto";
 
 const UPLOADER_ID = "e446595b-d8fe-4376-9a53-d80f863dc3df"; // @sh20raj

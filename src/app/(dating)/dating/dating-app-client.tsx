@@ -6,7 +6,6 @@ import {
   Globe,
   Heart,
   RotateCcw,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";

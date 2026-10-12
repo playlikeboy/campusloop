@@ -5,7 +5,6 @@ import {
   ArrowUpDown,
   ArrowUpRight,
   Building2,
-  Check,
   Code2,
   Coffee,
   Compass,

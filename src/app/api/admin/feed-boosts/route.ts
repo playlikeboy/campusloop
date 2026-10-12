@@ -1,7 +1,6 @@
 import { and, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
 import { feedBoosts, posts, userProfiles } from "@/db/schema";
 import { invalidateBoostCache } from "@/lib/feed-boosts";
 

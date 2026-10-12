@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";

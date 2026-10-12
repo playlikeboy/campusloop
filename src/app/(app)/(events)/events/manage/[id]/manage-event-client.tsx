@@ -17,9 +17,7 @@ import {
   QrCode,
   Settings,
   Share2,
-  Sparkles,
   Trash2,
-  UserCheck,
   Users,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";

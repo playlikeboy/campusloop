@@ -1,18 +1,15 @@
 "use client";
 
 import {
-  ArrowUpDown,
   CheckCircle2,
   Filter,
   Grid,
   Home,
   List as ListIcon,
   Loader2,
-  MapPin,
   Plus,
   Search,
   SlidersHorizontal,
-  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";

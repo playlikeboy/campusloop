@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Globe, Lock, School, Send, Sparkles, VenetianMask, X } from "lucide-react";
+import { Check, Globe, Lock, School, Send, VenetianMask, X } from "lucide-react";
 
 export interface ConfessionCategory {
   id: string;

@@ -6,7 +6,6 @@ import {
   Lock,
   MessageSquare,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";

@@ -7,10 +7,8 @@ import {
   Globe,
   Info,
   Megaphone,
-  Radio,
   School,
   ShieldAlert,
-  Sparkles,
   X,
 } from "lucide-react";
 import Link from "next/link";

@@ -1,7 +1,7 @@
 import { eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { eventRegistrations, events, userProfiles } from "@/db/schema";
+import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { createNotification } from "@/lib/notifications";
 

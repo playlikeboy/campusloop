@@ -10,15 +10,12 @@ import {
   Flame,
   Globe,
   GraduationCap,
-  HelpCircle,
   Image as ImageIcon,
   Loader2,
   Lock,
   Music,
   Palette,
   Plus,
-  Radio,
-  ShieldCheck,
   Sparkles,
   Swords,
   Trash2,
@@ -31,10 +28,9 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { createCommunity } from "@/app/(app)/(main)/communities/actions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, getAvatarUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
   { id: "Tech & Coding", label: "Tech & Coding", icon: Code, color: "text-blue-500", bg: "bg-blue-500/10" },

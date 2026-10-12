@@ -1,19 +1,10 @@
 "use client";
 
 import {
-  ArrowLeft,
-  Clock,
-  Flame,
-  Globe,
   Lock,
   Plus,
-  RotateCw,
-  School,
-  Shield,
   Sparkles,
-  Trophy,
   VenetianMask,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

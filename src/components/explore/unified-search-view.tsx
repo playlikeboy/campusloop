@@ -3,14 +3,11 @@
 import {
   ArrowRight,
   ChevronDown,
-  Flame,
   HelpCircle,
   Loader2,
   RefreshCw,
   Search,
-  Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { EntityResult } from "@/components/explore/entity-result";
 import { Badge } from "@/components/ui/badge";

@@ -1,21 +1,15 @@
 "use client";
 
 import {
-  ArrowRight,
   ArrowUpRight,
-  Building2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Flame,
   MapPin,
   Plus,
   School,
   Search,
-  Sparkles,
-  Trophy,
   X,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

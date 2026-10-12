@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   Eye,
-  Package,
   Scissors,
   Shirt,
   Sparkles,

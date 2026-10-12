@@ -1,12 +1,10 @@
 "use client";
 
 import {
-  AlertTriangle,
   BookOpen,
   Calendar,
   CheckCircle2,
   ChevronDown,
-  ChevronRight,
   Code2,
   Coffee,
   Compass,
@@ -14,7 +12,6 @@ import {
   ExternalLink,
   HeartPulse,
   Info,
-  Layers,
   MapPin,
   Printer,
   RefreshCw,

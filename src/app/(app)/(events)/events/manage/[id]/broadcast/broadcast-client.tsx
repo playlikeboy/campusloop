@@ -6,17 +6,12 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Bell,
   CheckCircle2,
-  Clock,
   Loader2,
-  Megaphone,
   Send,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";
-import { cn } from "@/lib/utils";
 
 interface BroadcastClientProps {
   eventId: string;

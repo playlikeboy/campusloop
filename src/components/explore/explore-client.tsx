@@ -6,7 +6,6 @@ import {
   Calendar,
   GraduationCap,
   ShoppingBag,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

@@ -4,20 +4,15 @@ import {
   ArrowLeft,
   Calendar,
   CheckCircle2,
-  ExternalLink,
   Gift,
-  HelpCircle,
-  Image as ImageIcon,
   Loader2,
   MapPin,
   MessageCircle,
   PackageSearch,
   School,
   Share2,
-  ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Tag,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,7 +21,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
-import { LostFoundCard } from "@/components/communities/lost-found-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/api";

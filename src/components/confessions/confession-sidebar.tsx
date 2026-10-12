@@ -2,7 +2,6 @@
 
 import {
   Globe,
-  Hash,
   Info,
   Lock,
   School,

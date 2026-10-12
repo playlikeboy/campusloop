@@ -15,10 +15,6 @@ import {
   Sparkles,
   BookOpen,
   Users,
-  Calendar,
-  Home,
-  ShoppingBag,
-  Heart,
   Share2,
   Bookmark,
 } from "lucide-react";

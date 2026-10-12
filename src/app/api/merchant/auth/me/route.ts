@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { merchants, merchantUsers, userProfiles } from "@/db/schema";
+import { merchantUsers, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getAuthenticatedMerchant } from "@/lib/merchant-auth";
 

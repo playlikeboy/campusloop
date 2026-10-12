@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronLeft, ChevronRight, GraduationCap, Heart, RotateCcw, Sparkles, X } from "lucide-react";
+import { Check, GraduationCap, Heart, RotateCcw, Sparkles, X } from "lucide-react";
 
 export interface SwipeCardProfile {
   id: string;

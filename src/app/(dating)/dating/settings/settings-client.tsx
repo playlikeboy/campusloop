@@ -8,8 +8,6 @@ import {
   Loader2,
   RotateCcw,
   School,
-  SlidersHorizontal,
-  Sparkles,
   User,
 } from "lucide-react";
 import Link from "next/link";

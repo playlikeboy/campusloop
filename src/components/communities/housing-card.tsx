@@ -1,20 +1,15 @@
 "use client";
 
 import {
-  Calendar,
   Check,
-  ChevronRight,
   Eye,
   Home,
-  Image as ImageIcon,
   MapPin,
   MessageCircle,
   Share2,
   ShieldCheck,
-  Users,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

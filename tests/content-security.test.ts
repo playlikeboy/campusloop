@@ -130,7 +130,6 @@ import { POST as voteComment } from "@/app/api/posts/[id]/comments/[commentId]/v
 import { POST as swipeDating } from "@/app/api/dating/swipe/route";
 import {
   assertCanCreateCommunityPost,
-  CommunityPostAuthError,
 } from "@/lib/communities";
 import { followUser, unfollowUser } from "@/lib/follows";
 

@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { articles, articleVotes, follows, savedArticles, userProfiles } from "@/db/schema";
+import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
 import { rejectViewerWrite } from "@/lib/viewer";
