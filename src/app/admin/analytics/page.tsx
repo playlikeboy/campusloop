@@ -13,8 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { posts, votes } from "@/db/schema";
+import { votes } from "@/db/schema";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { getActivitySeries, getDashboardStats, getTopColleges } from "../_lib/queries";

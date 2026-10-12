@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUpRight, BookOpen, Compass, Heart, Shield, Sparkles, Users, Zap } from "lucide-react";
+import { ArrowUpRight, BookOpen, Heart, Shield, Sparkles, Zap } from "lucide-react";
 
 export interface BentoCardItem {
   id: string;

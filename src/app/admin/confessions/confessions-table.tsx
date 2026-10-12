@@ -10,7 +10,6 @@ import {
   Search,
   Shield,
   Trash2,
-  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

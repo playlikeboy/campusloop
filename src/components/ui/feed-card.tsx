@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Bot, Flame, Globe, Heart, Megaphone, Repeat2, School, ShieldAlert, VenetianMask } from "lucide-react";
+import { ArrowRight, Bot, Flame, Globe, Megaphone, Repeat2, School, ShieldAlert, VenetianMask } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
 import { academicResources } from "@/db/schema";
 
 export const dynamic = "force-dynamic";

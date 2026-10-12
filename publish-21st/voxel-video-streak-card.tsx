@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Flame, Sparkles, Trophy, Volume2, VolumeX } from "lucide-react";
+import { Flame, Trophy, Volume2, VolumeX } from "lucide-react";
 
 export interface VoxelVideoStreakCardProps {
   headingPrimary?: string;

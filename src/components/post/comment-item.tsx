@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Link2, MoreHorizontal, Pin, Sparkles, User, VenetianMask } from "lucide-react";
+import { Copy, Link2, MoreHorizontal, Pin, User, VenetianMask } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";

@@ -1,8 +1,8 @@
 "use client";
 
-import { Check, Copy, Download, QrCode, Share2, Sparkles, X } from "lucide-react";
+import { Check, Copy, Download, Share2, X } from "lucide-react";
 import QRCode from "qrcode";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";

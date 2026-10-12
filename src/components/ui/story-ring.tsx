@@ -6,7 +6,7 @@ import { StoryAvatarItem } from "@/components/stories/story-avatar-item";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 interface Story {

@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  Bookmark,
-  FolderOpen,
-  FolderPlus,
   Loader2,
   Plus,
   Sparkles,

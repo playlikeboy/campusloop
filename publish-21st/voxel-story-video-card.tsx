@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { GraduationCap, ShieldCheck, Sparkles, Volume2, VolumeX, Zap } from "lucide-react";
+import { GraduationCap, ShieldCheck, Volume2, VolumeX } from "lucide-react";
 
 export interface VoxelStoryVideoCardProps {
   badgeText?: string;

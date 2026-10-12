@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, VenetianMask } from "lucide-react";
+import { VenetianMask } from "lucide-react";
 import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
 import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";

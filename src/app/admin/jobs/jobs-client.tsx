@@ -2,16 +2,13 @@
 
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   Clock,
   Filter,
   Play,
   RefreshCw,
   RotateCw,
-  Search,
   X,
-  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

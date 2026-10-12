@@ -13,7 +13,6 @@ import {
   Lock,
   Mail,
   ShoppingBag,
-  Sparkles,
   Users,
   VenetianMask,
 } from "lucide-react";

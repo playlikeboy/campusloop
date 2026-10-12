@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Search, Sparkles, X } from "lucide-react";
+import { Search, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";

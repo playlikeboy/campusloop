@@ -5,9 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import {
   ArrowLeft,
-  BarChart3,
   Building2,
-  Calendar,
   CheckCircle2,
   GraduationCap,
   PieChart,
@@ -16,7 +14,6 @@ import {
   Users,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";
-import { cn } from "@/lib/utils";
 
 interface RegistrationItem {
   id: string;

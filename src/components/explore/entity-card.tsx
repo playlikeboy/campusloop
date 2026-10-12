@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
   Building2,
   Calendar,
   Download,
@@ -10,7 +9,6 @@ import {
   ShoppingBag,
   UserCheck,
   UserPlus,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

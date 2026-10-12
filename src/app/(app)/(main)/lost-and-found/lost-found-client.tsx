@@ -1,19 +1,12 @@
 "use client";
 
 import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle2,
-  Filter,
   Globe,
   Loader2,
   PackageSearch,
   Plus,
   School,
   Search,
-  ShieldCheck,
-  Sparkles,
-  Tag,
   X,
 } from "lucide-react";
 import Link from "next/link";

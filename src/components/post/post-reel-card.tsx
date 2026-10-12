@@ -5,7 +5,6 @@ import {
   Bookmark,
   Edit3,
   Flame,
-  Heart,
   MessageCircle,
   MoreHorizontal,
   Pause,

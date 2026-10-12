@@ -2,7 +2,7 @@
 
 import { MouseEvent, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Flame, MessageSquare, Sparkles, Trophy, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Flame, MessageSquare, Trophy, Volume2, VolumeX } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";

@@ -2,16 +2,13 @@
 
 import {
   ArrowRight,
-  BookOpen,
   FolderPlus,
-  GraduationCap,
   Sparkles,
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 import type { AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
 
 interface AcademicContextRailProps {

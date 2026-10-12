@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, GraduationCap, Plus, Sparkles, X } from "lucide-react";
+import { Check, GraduationCap, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/use-profile";

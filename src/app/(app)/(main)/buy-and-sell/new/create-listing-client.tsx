@@ -6,8 +6,6 @@ import {
   Bike,
   BookOpen,
   Camera,
-  Check,
-  CheckCircle2,
   Compass,
   Eye,
   Home,
@@ -15,14 +13,11 @@ import {
   Laptop,
   Loader2,
   MapPin,
-  Plus,
   Send,
-  Sparkles,
   Tag,
   Wind,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";

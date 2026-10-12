@@ -10,13 +10,10 @@ import {
   FolderPlus,
   GraduationCap,
   Lock,
-  MapPin,
   MessageSquare,
-  Play,
   School,
   ShieldCheck,
   ThumbsUp,
-  Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";

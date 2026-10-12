@@ -2,7 +2,6 @@
 
 import {
   ArrowLeft,
-  Flame,
   Heart,
   Lock,
   MessageCircleHeart,

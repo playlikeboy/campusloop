@@ -10,11 +10,8 @@ import {
   Clock,
   QrCode,
   Search,
-  Sparkles,
   UserCheck,
-  Users,
   X,
-  Zap,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";

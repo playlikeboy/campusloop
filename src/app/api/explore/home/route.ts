@@ -6,7 +6,6 @@ import {
   articles,
   communities,
   events,
-  institutions,
   merchants,
   posts,
   userProfiles,

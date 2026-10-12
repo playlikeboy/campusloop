@@ -9,7 +9,6 @@ import {
   FlaskConical,
   Gamepad2,
   Home,
-  Image as ImageIcon,
   Loader2,
   PackageSearch,
   Send,

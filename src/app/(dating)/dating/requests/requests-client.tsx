@@ -2,18 +2,14 @@
 
 import {
   Crown,
-  Flame,
-  Heart,
   Loader2,
   Lock,
   MessageSquare,
   Plus,
   Search,
   ShieldCheck,
-  Sparkles,
   Trash2,
   X,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

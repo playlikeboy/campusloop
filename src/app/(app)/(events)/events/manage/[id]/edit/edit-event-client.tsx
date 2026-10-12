@@ -7,20 +7,10 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Calendar,
-  Check,
   Eye,
-  Gift,
-  Globe,
-  Image as ImageIcon,
   Loader2,
-  Lock,
-  MapPin,
   Save,
-  Sparkles,
-  Trophy,
   Upload,
-  Users,
 } from "lucide-react";
 import { MarkdownEditor } from "@/components/common/markdown-editor";
 import { fetcher } from "@/lib/api";

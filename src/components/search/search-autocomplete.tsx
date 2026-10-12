@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  ArrowRight,
   ArrowUpLeft,
   BookOpen,
   Clock,
-  Compass,
   CornerDownLeft,
   Hash,
   Loader2,
@@ -15,7 +13,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import useSWR from "swr";

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, Download, Flame, MessageSquare, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Flame, MessageSquare, ShieldCheck, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";

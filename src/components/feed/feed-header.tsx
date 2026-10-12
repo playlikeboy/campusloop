@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Flame, Globe, ListFilter, School } from "lucide-react";
+import { Flame, Globe, ListFilter, School } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import {

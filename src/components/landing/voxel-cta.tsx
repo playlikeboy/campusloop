@@ -8,7 +8,6 @@ import {
   Pause,
   Play,
   Shield,
-  Sparkles,
   Volume2,
   VolumeX,
   Zap,

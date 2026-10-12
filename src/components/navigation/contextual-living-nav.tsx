@@ -3,7 +3,6 @@
 import {
   Building2,
   Car,
-  Home,
   MapPin,
   PackageSearch,
   Plus,

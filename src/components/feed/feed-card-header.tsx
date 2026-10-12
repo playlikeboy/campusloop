@@ -11,7 +11,6 @@ import { RedditAttribution } from "@/components/reddit/reddit-attribution";
 import {
   AnimatedIcon,
   AnimateRepeat2,
-  AnimateShieldCheck,
   AnimateTrash2,
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";

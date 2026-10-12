@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronDown, ChevronUp, Link2, Plus } from "lucide-react";
+import { ChevronUp, Plus } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SocialPlatformIcon } from "@/components/ui/social-icons";

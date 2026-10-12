@@ -9,7 +9,6 @@ import {
   Lock,
   Search,
   Sparkles,
-  Users,
   X,
 } from "lucide-react";
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";

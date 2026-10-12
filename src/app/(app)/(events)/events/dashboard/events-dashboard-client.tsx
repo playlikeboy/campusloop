@@ -4,10 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
 import {
-  BarChart3,
   Calendar,
   CheckCircle2,
-  Clock,
   ExternalLink,
   MapPin,
   Megaphone,
@@ -19,7 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { fetcher } from "@/lib/api";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface HostedEvent {
   id: string;

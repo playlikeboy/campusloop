@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, ShoppingBag, Tag } from "lucide-react";
+import { ExternalLink, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 

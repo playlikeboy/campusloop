@@ -1,5 +1,5 @@
-import { and, desc, eq, ne, or } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { desc, eq, ne, or } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { lostAndFoundItems, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";

@@ -1,14 +1,9 @@
 "use client";
 
 import {
-  ArrowRight,
-  Calendar,
   Car,
-  CheckCircle2,
   Clock,
-  MapPin,
   MessageCircle,
-  Navigation,
   Share2,
   ShieldCheck,
   Users,
@@ -21,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import type { RidesharePool } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface RideshareCardProps {
   item: RidesharePool & {

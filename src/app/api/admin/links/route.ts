@@ -1,7 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/app/admin/_lib/guard";
-import { getDb } from "@/db";
 import { linkClicks, shortLinks } from "@/db/schema";
 
 export const dynamic = "force-dynamic";

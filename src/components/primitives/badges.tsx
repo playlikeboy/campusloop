@@ -1,4 +1,4 @@
-import { CheckCircle2, MapPin, ShieldCheck, Tag } from "lucide-react";
+import { MapPin, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**

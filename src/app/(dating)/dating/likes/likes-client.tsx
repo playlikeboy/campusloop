@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, School, Sparkles, X } from "lucide-react";
+import { Heart, School, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";

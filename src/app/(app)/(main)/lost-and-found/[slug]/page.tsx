@@ -1,6 +1,5 @@
 import { eq, or } from "drizzle-orm";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { LostFoundDetailClient } from "./lost-found-detail-client";
 import { getDb } from "@/db";
 import { lostAndFoundItems } from "@/db/schema";

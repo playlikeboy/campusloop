@@ -1,6 +1,6 @@
 import { getDb } from "../src/db";
 import { posts, userProfiles, reels, externalPosts } from "../src/db/schema";
-import { inArray, eq, sql, or } from "drizzle-orm";
+import { inArray, eq, or } from "drizzle-orm";
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 

@@ -4,7 +4,6 @@ import { Flame, Hash, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 export interface PulseTrend {
   category: string;

@@ -2,20 +2,13 @@
 
 import {
   BookOpen,
-  Building2,
   Calendar,
   Command,
-  FileText,
   Loader2,
-  MapPin,
-  MessageSquare,
   Search,
-  Store,
-  User,
   Users,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

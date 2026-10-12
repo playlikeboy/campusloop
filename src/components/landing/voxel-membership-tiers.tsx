@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, ShieldCheck, Sparkles, User, Users, Zap } from "lucide-react";
+import { Check, ShieldCheck, User, Users, Zap } from "lucide-react";
 
 interface VoxelMembershipTiersProps {
   isAuthenticated?: boolean;

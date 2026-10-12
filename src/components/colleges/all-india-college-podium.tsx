@@ -5,14 +5,10 @@ import {
   Crown,
   Flame,
   Medal,
-  ShieldCheck,
-  Sparkles,
   Trophy,
   Users,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { CuteSparkle } from "@/components/ui/cute-illustrations";
 import type { CollegeItem } from "./college-hub-row";
 

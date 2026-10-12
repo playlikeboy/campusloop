@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Globe, MoreHorizontal, Plus, RotateCw, School, Search, ShieldCheck, Trophy, Zap } from "lucide-react";
+import { Clock, Globe, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
