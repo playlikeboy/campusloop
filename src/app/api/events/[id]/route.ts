@@ -60,9 +60,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     // Check visibility authorization
-    if (event.visibility === "UNLISTED" && !isOrganizer && !isAdmin) {
-      // Unlisted events are allowed through a direct link, not as public listings.
-    }
     if (event.visibility === "PRIVATE") {
       const isOrganizer = currentProfile && event.organizerProfileId === currentProfile.id;
       const isSameCampus = currentProfile && event.institutionId === currentProfile.institutionId;
