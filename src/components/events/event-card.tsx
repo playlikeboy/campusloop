@@ -2,7 +2,7 @@
 
 import { BriefcaseBusiness, CalendarDays, Check, Dumbbell, GraduationCap, MessageSquareText, Palette, Rocket, Sparkles, Trophy, Users, Wrench } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 
@@ -99,11 +99,10 @@ function safePosterUrl(value: string | null | undefined): string | null {
 }
 
 function EventArtwork({ event, variant }: { event: EventItem; variant: "row" | "grid" }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  useEffect(() => setImageFailed(false), [event.bannerUrl]);
+  const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null);
 
   const posterUrl = safePosterUrl(event.bannerUrl);
-  const hasPoster = Boolean(posterUrl && !imageFailed);
+  const hasPoster = Boolean(posterUrl && failedPosterUrl !== posterUrl);
   const { gradient, kicker, Icon } = categoryArtwork(event.eventType);
 
   return (
@@ -135,7 +134,7 @@ function EventArtwork({ event, variant }: { event: EventItem; variant: "row" | "
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
-          onError={() => setImageFailed(true)}
+          onError={() => setFailedPosterUrl(posterUrl)}
           className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
       )}
