@@ -617,7 +617,7 @@ export async function GET(req: Request) {
         where: eq(academicResources.id, resourceId),
         with: {
           institution: {
-            columns: { id: true, name: true, slug: true, city: true, state: true },
+            columns: { id: true, name: true, slug: true, district: true, state: true },
           },
           uploader: {
             columns: { id: true, username: true, displayName: true, avatarUrl: true },
@@ -742,7 +742,7 @@ export async function GET(req: Request) {
       limit,
       with: {
         institution: {
-          columns: { id: true, name: true, slug: true, city: true, state: true },
+          columns: { id: true, name: true, slug: true, district: true, state: true },
         },
         uploader: {
           columns: { id: true, username: true, displayName: true },
