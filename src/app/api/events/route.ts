@@ -75,8 +75,6 @@ export async function GET(req: Request) {
         grants: ["GRANT"],
         job: ["JOB"],
         jobs: ["JOB"],
-        contest: ["CONTEST"],
-        contests: ["CONTEST"],
         meetup: ["MEETUP"],
         meetups: ["MEETUP"],
         gaming: ["SPORTS"],
