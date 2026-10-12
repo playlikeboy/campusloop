@@ -11,6 +11,12 @@ export const eventTypeEnum = [
   "FEST",
   "MEETUP",
   "COMPETITION",
+  "INTERNSHIP",
+  "SCHOLARSHIP",
+  "FELLOWSHIP",
+  "GRANT",
+  "JOB",
+  "CONTEST",
 ] as const;
 
 export const eventModeEnum = ["OFFLINE", "ONLINE", "HYBRID"] as const;
