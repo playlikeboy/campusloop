@@ -148,13 +148,14 @@ export async function GET(req: Request) {
     const isOrganizerScope = ["HOSTED", "ORGANIZED", "MY_EVENTS"].includes(scope);
     if (!isOrganizerScope) {
       conditions.push(eq(events.status, "PUBLISHED"));
-      if (currentProfile?.institutionId) {
+      if (currentProfile?.role === "ADMIN") {
+        // Admins may inspect all visibility levels, but still not drafts in discovery.
+      } else if (currentProfile?.institutionId) {
         conditions.push(
           or(
             eq(events.visibility, "PUBLIC"),
             and(eq(events.visibility, "PRIVATE"), eq(events.institutionId, currentProfile.institutionId)),
-            eq(events.organizerProfileId, currentProfile.id),
-            eq(userProfiles.role, "ADMIN")
+            eq(events.organizerProfileId, currentProfile.id)
           )
         );
       } else {
