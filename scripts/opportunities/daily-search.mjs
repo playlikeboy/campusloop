@@ -268,7 +268,7 @@ function hasClosedSignal(text) {
 const queries = [
   "site:unstop.com/hackathons 2026 registration deadline October November student hackathon",
   "site:unstop.com/competitions 2026 registration deadline student contest case competition",
-  "site:unstop.com/competitions "Registration Deadline" "October" "2026"",
+  "site:unstop.com/competitions registration deadline October 2026",
   "site:unstop.com/internships OR site:unstop.com/jobs OR site:unstop.com/scholarships 2026 student applications open",
   "site:oist.jp/admissions/research-internship Spring 2027 application deadline",
   "site:web.licindia.in/golden-jubilee-foundation scholarship 2026 application deadline",
