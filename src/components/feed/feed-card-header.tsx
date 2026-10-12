@@ -4,6 +4,7 @@ import { Archive, Bot, Copy, Edit3, ExternalLink, Flag, Link2, MoreHorizontal, V
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import { archivePost, deletePost } from "@/app/(app)/(main)/post/actions";
 import { RedditAttribution } from "@/components/reddit/reddit-attribution";
@@ -36,7 +37,10 @@ export function FeedCardHeader({
   avatarSlot,
 }: FeedCardHeaderProps) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [showMenu, setShowMenu] = useState(false);
+  const [isUndoingRepost, setIsUndoingRepost] = useState(false);
+  const isOwnRepost = Boolean(currentUserId && post.authorId === currentUserId && post.repostOfId);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -61,6 +65,32 @@ export function FeedCardHeader({
       setIsFollowing(!next);
     } finally {
       setIsFollowPending(false);
+    }
+  }
+
+  async function handleUndoRepost() {
+    if (!isOwnRepost || isUndoingRepost) return;
+    setIsUndoingRepost(true);
+    setShowMenu(false);
+
+    try {
+      const response = await fetch("/api/posts/" + encodeURIComponent(post.id) + "/repost", {
+        method: "DELETE",
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || "Could not undo repost");
+      }
+
+      toast.success("Repost removed");
+      await mutate(
+        (key) => typeof key === "string" && key.includes("/api/feed"),
+      );
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not undo repost");
+    } finally {
+      setIsUndoingRepost(false);
     }
   }
 
@@ -259,22 +289,39 @@ export function FeedCardHeader({
                   className="absolute right-0 mt-1.5 w-48 rounded-2xl border border-border/50 bg-popover text-popover-foreground shadow-2xl z-30 py-1.5 animate-in fade-in zoom-in-95"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowMenu(false);
-                      onOpenRepostModal();
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                  >
-                    <AnimatedIcon
-                      icon={AnimateRepeat2}
-                      animation="nudge-right"
-                      size={16}
-                      className="text-emerald-500"
-                    />
-                    <span>Repost or Quote</span>
-                  </button>
+                  {isOwnRepost ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleUndoRepost()}
+                      disabled={isUndoingRepost}
+                      className="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                    >
+                      <AnimatedIcon
+                        icon={AnimateRepeat2}
+                        animation="nudge-right"
+                        size={16}
+                        className="text-rose-500"
+                      />
+                      <span>{isUndoingRepost ? "Undoing repost…" : "Undo repost"}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMenu(false);
+                        onOpenRepostModal();
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <AnimatedIcon
+                        icon={AnimateRepeat2}
+                        animation="nudge-right"
+                        size={16}
+                        className="text-emerald-500"
+                      />
+                      <span>Repost or Quote</span>
+                    </button>
+                  )}
 
                   <button
                     type="button"
@@ -319,7 +366,7 @@ export function FeedCardHeader({
                     <span>Report Post</span>
                   </button>
 
-                  {currentUserId && post.authorId === currentUserId && (
+                  {currentUserId && post.authorId === currentUserId && !post.repostOfId && (
                     <>
                       <Link
                         href={`/post/${post.id}/edit`}
