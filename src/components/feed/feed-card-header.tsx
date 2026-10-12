@@ -76,9 +76,9 @@ export function FeedCardHeader({
       const response = await fetch("/api/posts/" + encodeURIComponent(post.id) + "/repost", {
         method: "DELETE",
       });
-      const result = await response.json().catch(() => ({}));
+      const result = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) {
-        throw new Error(result.error || "Could not undo repost");
+        throw new Error(result?.error || "Could not undo repost");
       }
 
       toast.success("Repost removed");
