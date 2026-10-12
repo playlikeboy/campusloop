@@ -32,6 +32,8 @@ import {
   Trash2,
   TrendingUp,
   Trophy,
+  UserRound,
+  Users,
   X,
   Zap,
 } from "lucide-react";
@@ -138,7 +140,11 @@ export function ProfileClientView({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTabParam = searchParams?.get("tab");
-  const { streak: profileStreak } = useStreaks(profile.id);
+  const {
+    streak: profileStreak,
+    isLoading: isProfileStreakLoading,
+    isError: isProfileStreakError,
+  } = useStreaks(profile.id);
 
   const [followers, setFollowers] = useState(followersCount);
   const [activeTab, setActiveTab] = useState<
@@ -783,73 +789,71 @@ export function ProfileClientView({
             {/* Compact Social Identity Bar */}
             <ProfileSocialLinks links={profile.socialLinks} isOwnProfile={isOwnProfile} />
 
-            {/* Borderless Reputation Strip */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-2.5 border-y border-border/25 my-2 text-xs">
-              {/* Loop Points & Clout Rank (Private to Profile Owner) */}
+            {/* Profile statistics: aligned tiles with clear visual grouping */}
+            <div className={cn(
+              "my-3 grid grid-cols-2 gap-2.5 text-xs",
+              isOwnProfile ? "sm:grid-cols-4" : "sm:grid-cols-3"
+            )}>
               {isOwnProfile && (
                 <button
                   type="button"
                   onClick={() => handleTabChange("clout")}
-                  className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
+                  className="group flex min-h-[76px] items-center gap-2.5 rounded-2xl border border-border/40 bg-card/80 p-3 text-left transition-colors hover:bg-primary/5"
+                  aria-label="View Loop Points and clout"
                 >
-                  <span className="flex size-7 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-soft-border)] group-hover:scale-105 transition-transform">
-                    <Zap className="size-3.5 fill-[var(--primary)]/30" />
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
+                    <Zap className="size-4 fill-primary/20" />
                   </span>
-                  <div className="text-left leading-tight">
-                    <div className="font-bold text-foreground text-xs sm:text-sm flex items-center gap-1">
-                      <span>{points} LP</span>
-                      <span className="text-[10px] font-normal text-muted-foreground">· {tier.tierName || "Rookie"}</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">My Points</span>
-                  </div>
+                  <span className="min-w-0 leading-tight">
+                    <span className="block text-[10px] font-medium text-muted-foreground">Loop points</span>
+                    <span className="mt-1 block truncate text-sm font-extrabold tabular-nums text-foreground">{points.toLocaleString()} LP</span>
+                    <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{tier.tierName || "Rookie"}</span>
+                  </span>
                 </button>
               )}
 
-              {/* Day Streak */}
               <Link
-                href="/streak"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                href={isOwnProfile ? "/streak" : "/streak?profileId=" + encodeURIComponent(profile.id)}
                 title="View streak details"
+                className="group flex min-h-[76px] items-center gap-2.5 rounded-2xl border border-amber-500/15 bg-linear-to-br from-amber-500/10 via-card/90 to-card p-3 transition-colors hover:border-amber-500/30 hover:bg-amber-500/10"
               >
-                <div className="text-left leading-tight">
-                  <span className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
-                    <span>{profileStreak?.currentStreak ?? 0}</span>
-                    <Flame className="size-3 text-amber-500 fill-amber-500/20 inline" />
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-105">
+                  <Flame className="size-4 fill-amber-500/20" />
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block text-[10px] font-medium text-muted-foreground">Day streak</span>
+                  <span className="mt-1 block text-lg font-extrabold tabular-nums text-foreground">
+                    {isProfileStreakLoading ? "…" : isProfileStreakError ? "—" : profileStreak?.currentStreak ?? 0}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">Day streak</span>
-                </div>
+                  <span className="mt-0.5 block text-[10px] text-muted-foreground">consecutive days</span>
+                </span>
               </Link>
 
-              {/* Followers */}
               <Link
-                href={`/@${profile.username}/followers`}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                href={"/@" + profile.username + "/followers"}
+                className="group flex min-h-[76px] items-center gap-2.5 rounded-2xl border border-border/40 bg-card/80 p-3 transition-colors hover:bg-muted/50"
               >
-                <div className="text-left leading-tight">
-                  <span className="font-black text-foreground text-xs sm:text-sm block">{followers}</span>
-                  <span className="text-[10px] text-muted-foreground">Followers</span>
-                </div>
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 transition-transform group-hover:scale-105">
+                  <Users className="size-4" />
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block text-[10px] font-medium text-muted-foreground">Followers</span>
+                  <span className="mt-1 block text-lg font-extrabold tabular-nums text-foreground">{followers.toLocaleString()}</span>
+                </span>
               </Link>
 
-              {/* Following */}
               <Link
-                href={`/@${profile.username}/following`}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                href={"/@" + profile.username + "/following"}
+                className="group flex min-h-[76px] items-center gap-2.5 rounded-2xl border border-border/40 bg-card/80 p-3 transition-colors hover:bg-muted/50"
               >
-                <div className="text-left leading-tight">
-                  <span className="font-black text-foreground text-xs sm:text-sm block">{followingCount}</span>
-                  <span className="text-[10px] text-muted-foreground">Following</span>
-                </div>
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 transition-transform group-hover:scale-105">
+                  <UserRound className="size-4" />
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block text-[10px] font-medium text-muted-foreground">Following</span>
+                  <span className="mt-1 block text-lg font-extrabold tabular-nums text-foreground">{followingCount.toLocaleString()}</span>
+                </span>
               </Link>
-
-              {/* Contributions */}
-              <div className="flex items-center gap-2 ml-auto text-muted-foreground text-[11px] font-medium hidden sm:flex">
-                <span>{posts.length} Posts</span>
-                <span>·</span>
-                <span>{userAcademicsCount} Notes</span>
-                <span>·</span>
-                <span>{userArticles.length} Articles</span>
-              </div>
             </div>
 
             {/* Clean Interests Chips */}

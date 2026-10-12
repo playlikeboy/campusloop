@@ -12,6 +12,7 @@ import {
   Trophy,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { STREAK_MILESTONES, type StreakMilestone } from "@/constants/streaks";
 import { useStreaks } from "@/hooks/use-streaks";
 import { cn } from "@/lib/utils";
@@ -33,9 +34,9 @@ const MILESTONE_ICONS: Record<string, typeof Flame> = {
 };
 
 export function ProfileStreakCard({ className, profileId }: ProfileStreakCardProps) {
-  const { streak, isLoading } = useStreaks(profileId);
+  const { streak, isLoading, isError, mutate } = useStreaks(profileId);
 
-  if (isLoading || !streak) {
+  if (isLoading) {
     return (
       <div className={cn("rounded-2xl border border-border/40 bg-card/60 p-5 space-y-4 animate-pulse", className)}>
         <div className="h-5 w-32 rounded bg-muted/60" />
@@ -43,6 +44,21 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
           <div className="h-16 rounded-xl bg-muted/40" />
           <div className="h-16 rounded-xl bg-muted/40" />
           <div className="h-16 rounded-xl bg-muted/40" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !streak) {
+    return (
+      <div className={cn("flex items-center justify-between gap-3 rounded-2xl bg-card/70 p-4", className)}>
+        <div className="flex items-center gap-2.5">
+          <Flame className="size-5 text-amber-500" />
+          <span className="text-sm font-semibold text-foreground">Streak details unavailable</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <button type="button" onClick={() => void mutate()} className="text-xs font-semibold text-primary hover:underline">Retry</button>
+          <Link href="/streak" className="text-xs font-semibold text-primary hover:underline">Open</Link>
         </div>
       </div>
     );

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { STREAK_MILESTONES, STREAK_QUALIFYING_EVENTS } from "@/constants/streaks";
 import {
+  calculateCurrentStreakFromDates,
+  calculateLongestStreakFromDates,
   getLocalDateString,
   getRecentCalendarDays,
   getYesterdayDateString,
@@ -191,5 +193,39 @@ describe("Streak Progression Mathematical Simulation", () => {
     expect(m7).not.toBeNull();
     expect(m7?.days).toBe(7);
     expect(awardedPoints).toBe(40); // 15 + 25
+  });
+});
+
+describe("Streak counts derived from qualifying-day journal", () => {
+  it("counts a consecutive run ending today", () => {
+    expect(
+      calculateCurrentStreakFromDates(
+        ["2026-10-12", "2026-10-11", "2026-10-10", "2026-10-08"],
+        "2026-10-12"
+      )
+    ).toEqual({ currentStreak: 3, isSafeToday: true });
+  });
+
+  it("keeps yesterday's run active until the user qualifies today", () => {
+    expect(
+      calculateCurrentStreakFromDates(["2026-10-11", "2026-10-10"], "2026-10-12")
+    ).toEqual({ currentStreak: 2, isSafeToday: false });
+  });
+
+  it("resets the active count after a missed day while preserving longest history separately", () => {
+    expect(
+      calculateCurrentStreakFromDates(["2026-10-08", "2026-10-07"], "2026-10-12")
+    ).toEqual({ currentStreak: 0, isSafeToday: false });
+    expect(calculateLongestStreakFromDates([
+      "2026-10-05", "2026-10-06", "2026-10-07",
+      "2026-10-10", "2026-10-11",
+    ])).toBe(3);
+  });
+
+  it("deduplicates dates and supports a one-day run", () => {
+    expect(
+      calculateCurrentStreakFromDates(["2026-10-12", "2026-10-12"], "2026-10-12")
+    ).toEqual({ currentStreak: 1, isSafeToday: true });
+    expect(calculateLongestStreakFromDates(["2026-10-12", "2026-10-12"])).toBe(1);
   });
 });
