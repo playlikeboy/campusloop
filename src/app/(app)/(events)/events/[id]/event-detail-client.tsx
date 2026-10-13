@@ -326,43 +326,39 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           <>
             <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 size-64 rounded-full border border-white/20 bg-white/10 blur-xl sm:size-80" />
             <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 size-72 rounded-full bg-black/10 blur-2xl" />
-            <div className="absolute inset-0 flex items-center justify-between gap-4 px-5 py-6 sm:px-8 md:px-10">
-              <div className="relative z-10 max-w-[65%] space-y-2 sm:space-y-3">
-                <span className="inline-flex rounded-full border border-white/20 bg-black/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur-sm sm:text-xs">{heroArtwork.eyebrow}</span>
-                <p className="line-clamp-3 text-xl font-semibold leading-tight tracking-tight text-white drop-shadow-sm sm:text-2xl md:text-3xl">{event.title}</p>
-              </div>
-              <heroArtwork.Icon className="relative z-10 size-20 shrink-0 text-white/25 drop-shadow sm:size-28 md:size-36" strokeWidth={1.1} />
+            <div className="absolute inset-0 flex items-start justify-between gap-4 px-4 py-4 sm:px-8 sm:py-6 md:px-10">
+              <span className="relative z-10 inline-flex max-w-[75%] rounded-full border border-white/20 bg-black/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm sm:text-xs">
+                {heroArtwork.eyebrow}
+              </span>
+              <heroArtwork.Icon className="relative z-10 mt-8 size-16 shrink-0 text-white/25 drop-shadow sm:mt-10 sm:size-28 md:size-36" strokeWidth={1.1} />
             </div>
           </>
         )}
         <div className={cn("absolute inset-0", showPoster ? "bg-gradient-to-t from-black/85 via-black/25 to-transparent" : "bg-gradient-to-t from-black/30 via-transparent to-black/5")} />
 
-        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 flex items-end justify-between gap-2.5 text-white">
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <span className="rounded-lg bg-black/80 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase tracking-wider backdrop-blur-md">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-3 pb-3 pt-10 text-white sm:px-4 sm:pb-4">
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-md sm:text-xs">
                 {event.eventType}
               </span>
-              <span className="rounded-lg bg-primary px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-primary-foreground backdrop-blur-md">
+              <span className="rounded-full border border-white/15 bg-white/15 px-2.5 py-1 text-[10px] font-bold uppercase text-white backdrop-blur-md sm:text-xs">
                 {event.mode}
               </span>
               {countdown?.isLive && (
-                <span className="rounded-lg bg-red-500 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-white backdrop-blur-md inline-flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-white animate-ping inline-block" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500 px-2.5 py-1 text-[10px] font-bold uppercase text-white sm:text-xs">
+                  <span className="inline-block size-1.5 animate-ping rounded-full bg-white" />
                   Live Now
                 </span>
               )}
             </div>
-            <p className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide truncate">
+            <p className="max-w-full truncate text-[11px] font-semibold uppercase tracking-wide text-white/85 sm:text-sm">
               {event.clubName}
             </p>
           </div>
-
-          <div className="text-right shrink-0">
-            <span className="rounded-xl bg-black/80 px-3 py-1.5 text-xs font-black backdrop-blur-md text-white border border-white/10">
-              {event.entryFee || "Free"}
-            </span>
-          </div>
+          <span className="shrink-0 rounded-full border border-white/15 bg-black/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-md sm:text-xs">
+            {event.entryFee || "Free"}
+          </span>
         </div>
       </div>
 
