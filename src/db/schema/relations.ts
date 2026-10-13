@@ -7,7 +7,17 @@ import {
   savedAcademicResources,
 } from "./academic-resources";
 import { aiConversations, aiFeedback, aiMessages, aiUsageEvents } from "./ai";
-import { articleComments, articleCommentVotes, articles, articleVotes, savedArticles } from "./articles";
+import {
+  articleCategories,
+  articleComments,
+  articleCommentVotes,
+  articleLinks,
+  articles,
+  articleTags,
+  articleToTags,
+  articleVotes,
+  savedArticles,
+} from "./articles";
 import { callSessions, userBehaviorEvents } from "./calls-and-analytics";
 import { conversationParticipants, conversations, messages } from "./chat";
 import {
@@ -857,6 +867,8 @@ export const articlesRelations = relations(articles, ({ one, many }) => ({
   votes: many(articleVotes),
   comments: many(articleComments),
   savedBy: many(savedArticles),
+  links: many(articleLinks),
+  tags: many(articleToTags),
 }));
 
 export const savedArticlesRelations = relations(savedArticles, ({ one }) => ({
@@ -909,6 +921,28 @@ export const articleCommentVotesRelations = relations(articleCommentVotes, ({ on
   profile: one(userProfiles, {
     fields: [articleCommentVotes.profileId],
     references: [userProfiles.id],
+  }),
+}));
+
+export const articleLinksRelations = relations(articleLinks, ({ one }) => ({
+  article: one(articles, {
+    fields: [articleLinks.articleId],
+    references: [articles.id],
+  }),
+}));
+
+export const articleTagsRelations = relations(articleTags, ({ many }) => ({
+  articles: many(articleToTags),
+}));
+
+export const articleToTagsRelations = relations(articleToTags, ({ one }) => ({
+  article: one(articles, {
+    fields: [articleToTags.articleId],
+    references: [articles.id],
+  }),
+  tag: one(articleTags, {
+    fields: [articleToTags.tagId],
+    references: [articleTags.id],
   }),
 }));
 
