@@ -847,6 +847,28 @@ export async function POST(req: Request) {
         );
       }
 
+      const playlistBranch = typeof body.branch === "string" && body.branch.trim() ? body.branch.trim() : "All";
+      const playlistSemester = typeof body.semester === "number" ? body.semester : null;
+      const playlistCategory = typeof body.category === "string" ? body.category : "SEMESTER_PACK";
+      const samePlaylist = await db.query.academicPlaylists.findFirst({
+        where: and(
+          eq(academicPlaylists.title, title),
+          eq(academicPlaylists.branch, playlistBranch),
+          eq(academicPlaylists.category, playlistCategory),
+          playlistSemester === null ? isNull(academicPlaylists.semester) : eq(academicPlaylists.semester, playlistSemester)
+        ),
+      });
+      if (samePlaylist) {
+        const full = await db.query.academicPlaylists.findFirst({
+          where: eq(academicPlaylists.id, samePlaylist.id),
+          with: { institution: { columns: { id: true, name: true, slug: true } }, creator: { columns: { username: true, displayName: true } } },
+        });
+        return NextResponse.json(
+          { success: true, duplicate: true, message: "Matching playlist already exists; nothing was created.", playlist: formatPlaylist(full || samePlaylist), publicUrl: "https://campusloop.space/academics/playlists/" + samePlaylist.slug },
+          { status: 200, headers: CORS_HEADERS }
+        );
+      }
+
       const { uploaderId, institutionId } = await resolveUploaderAndInstitution(
         db,
         typeof body.creatorId === "string" ? body.creatorId : undefined,
@@ -872,13 +894,13 @@ export async function POST(req: Request) {
           description: typeof body.description === "string" ? body.description : null,
           creatorId: uploaderId,
           institutionId: institutionId || null,
-          branch: typeof body.branch === "string" ? body.branch : "All",
-          semester: typeof body.semester === "number" ? body.semester : null,
-          category: typeof body.category === "string" ? body.category : "SEMESTER_PACK",
+          branch: playlistBranch,
+          semester: playlistSemester,
+          category: playlistCategory,
           visibility: typeof body.visibility === "string" ? body.visibility : "PUBLIC",
           coverGradient: typeof body.coverGradient === "string" ? body.coverGradient : "from-slate-900 to-stone-900",
           isFeatured: Boolean(body.isFeatured),
-          isVerified: body.isVerified !== undefined ? Boolean(body.isVerified) : true,
+          isVerified: false,
           tags: Array.isArray(body.tags) ? body.tags : [],
         })
         .returning();
@@ -939,6 +961,53 @@ export async function POST(req: Request) {
       );
     }
 
+    const branch = typeof body.branch === "string" && body.branch.trim() ? body.branch.trim() : "All";
+    const semester = typeof body.semester === "number" ? body.semester : 1;
+    const resourceType = typeof body.resourceType === "string" ? body.resourceType.toUpperCase() : "NOTES";
+    const moduleOrChapter = typeof body.moduleOrChapter === "string" ? body.moduleOrChapter.trim() : "";
+    if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
+      return NextResponse.json({ error: "Validation Error: semester must be an integer from 1 to 8." }, { status: 400, headers: CORS_HEADERS });
+    }
+    if (!["NOTES", "PYQ", "LAB_MANUAL", "CHEAT_SHEET", "BOOK", "PPT", "MODULE"].includes(resourceType)) {
+      return NextResponse.json({ error: "Validation Error: unsupported resourceType." }, { status: 400, headers: CORS_HEADERS });
+    }
+
+    const fileUrl = typeof body.fileUrl === "string" ? validateAcademicResourceUrl(body.fileUrl, "fileUrl") : null;
+    const driveUrl = typeof body.driveUrl === "string" ? validateAcademicResourceUrl(body.driveUrl, "driveUrl") : null;
+    if (!fileUrl && !driveUrl) {
+      return NextResponse.json({ error: "Validation Error: provide a stable HTTPS fileUrl or driveUrl." }, { status: 400, headers: CORS_HEADERS });
+    }
+
+    const rawAttachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 20) : [];
+    const attachments = rawAttachments.filter((item: any) => item && typeof item === "object" && typeof item.url === "string").map((item: any, index: number) => {
+      const url = validateAcademicResourceUrl(item.url, "attachment URL");
+      return { id: typeof item.id === "string" ? item.id : "att_" + nanoid(10) + "_" + (index + 1), title: String(item.title || item.name || ("Attachment " + (index + 1))).slice(0, 200), url, type: inferAcademicAttachmentType(url) };
+    });
+    const incomingUrls = new Set([fileUrl, driveUrl, ...attachments.map((attachment: any) => attachment.url)].filter(Boolean).map((url) => canonicalAcademicUrl(String(url))));
+    const urlConditions = [];
+    for (const url of [fileUrl, driveUrl, ...attachments.map((attachment: any) => attachment.url)].filter(Boolean)) {
+      urlConditions.push(eq(academicResources.fileUrl, url));
+      urlConditions.push(eq(academicResources.driveUrl, url));
+    }
+    let duplicate: any = null;
+    if (urlConditions.length) {
+      const byUrl = await db.query.academicResources.findMany({ where: or(...urlConditions), limit: 100 });
+      duplicate = byUrl.find((item) => [item.fileUrl, item.driveUrl, ...(Array.isArray(item.attachments) ? item.attachments.map((attachment: any) => attachment?.url) : [])].filter(Boolean).some((url) => incomingUrls.has(canonicalAcademicUrl(String(url))))) || null;
+    }
+    if (!duplicate) {
+      const sameCourse = await db.query.academicResources.findMany({
+        where: and(eq(academicResources.subjectCode, subjectCode), eq(academicResources.branch, branch), eq(academicResources.semester, semester), eq(academicResources.resourceType, resourceType)),
+        limit: 100,
+      });
+      const titleKey = normalizeAcademicTitle(title);
+      const moduleKey = normalizeAcademicTitle(moduleOrChapter);
+      duplicate = sameCourse.find((item) => normalizeAcademicTitle(item.title) === titleKey && normalizeAcademicTitle(item.moduleOrChapter || "") === moduleKey) || null;
+    }
+    if (duplicate) {
+      const full = await db.query.academicResources.findFirst({ where: eq(academicResources.id, duplicate.id), with: { institution: { columns: { id: true, name: true, slug: true } }, uploader: { columns: { username: true, displayName: true } } } });
+      return NextResponse.json({ success: true, duplicate: true, message: "Matching resource already exists; nothing was inserted.", resource: formatResource(full || duplicate), publicUrl: "https://campusloop.space/academics/" + duplicate.id }, { status: 200, headers: CORS_HEADERS });
+    }
+
     const { uploaderId, institutionId } = await resolveUploaderAndInstitution(
       db,
       typeof body.uploaderId === "string" ? body.uploaderId : undefined,
@@ -964,15 +1033,15 @@ export async function POST(req: Request) {
         description: typeof body.description === "string" ? body.description : null,
         subjectCode,
         subjectName,
-        branch: typeof body.branch === "string" ? body.branch : "All",
-        semester: typeof body.semester === "number" ? body.semester : 1,
-        resourceType: typeof body.resourceType === "string" ? body.resourceType : "NOTES",
-        moduleOrChapter: typeof body.moduleOrChapter === "string" ? body.moduleOrChapter : null,
-        fileUrl: typeof body.fileUrl === "string" ? body.fileUrl : null,
-        driveUrl: typeof body.driveUrl === "string" ? body.driveUrl : null,
-        attachments: Array.isArray(body.attachments) ? body.attachments : [],
-        tags: Array.isArray(body.tags) ? body.tags : [],
-        isVerified: body.isVerified !== undefined ? Boolean(body.isVerified) : true,
+        branch,
+        semester,
+        resourceType,
+        moduleOrChapter: moduleOrChapter || null,
+        fileUrl,
+        driveUrl,
+        attachments,
+        tags: Array.isArray(body.tags) ? [...new Set(body.tags.filter((tag: unknown): tag is string => typeof tag === "string").map((tag: string) => tag.trim()).filter(Boolean))].slice(0, 30) : [],
+        isVerified: false,
       })
       .returning();
 
@@ -981,7 +1050,7 @@ export async function POST(req: Request) {
         success: true,
         message: `Academic resource '${title}' created successfully!`,
         resource: formatResource(newResource),
-        publicUrl: `https://campusloop.space/academics/resources/${newResource.id}`,
+        publicUrl: "https://campusloop.space/academics/" + newResource.id,
       },
       { status: 201, headers: CORS_HEADERS }
     );
