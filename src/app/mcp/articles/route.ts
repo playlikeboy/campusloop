@@ -758,7 +758,7 @@ const MCP_ARTICLE_TOOLS = [
       type: "object",
       required: ["username"],
       properties: {
-        username: { type: "string", description: "Username (e.g. 'demo_tech', 'demo_ai')" },
+        username: { type: "string", description: "Username (e.g. 'loop_tech', 'loop_ai')" },
       },
     },
   },
@@ -1340,7 +1340,12 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
       if (toolName === "list_authors" || toolName === "list_demo_accounts") {
         const demoOnly = toolName === "list_demo_accounts" || args.demoOnly === true;
         const authors = await db.query.userProfiles.findMany({
-          where: demoOnly ? and(ilike(userProfiles.username, "demo_%"), eq(userProfiles.isSeeded, true)) : undefined,
+          where: demoOnly
+            ? and(
+                or(ilike(userProfiles.username, "loop_%"), ilike(userProfiles.username, "demo_%")),
+                eq(userProfiles.isSeeded, true)
+              )
+            : undefined,
           limit: Math.min(Number(args.limit || 30), 50),
           columns: { id: true, username: true, displayName: true, headline: true, bio: true, branch: true, year: true, avatarUrl: true, isSeeded: true },
         });

@@ -159,16 +159,16 @@ bun scripts/articles/seed-articles.mjs
 ```
 What this does:
 - Upserts all **38 categories** into `article_categories`.
-- Upserts **30 synthetic demo author accounts** (`demo_tech`, `demo_ai`, `demo_placements`, etc.) in `user_profiles` with `is_seeded = TRUE` and synthetic emails (`demo+...@campusloop.test`).
+- Upserts **30 synthetic student author accounts** (`loop_tech`, `loop_ai`, `loop_placements`, etc.) in `user_profiles` with `is_seeded = TRUE` and emails (`loop+...@campusloop.space`).
 - Upserts **55 in-depth, original sample articles** in `articles` with `is_demo = TRUE`, attached external resource links (`article_links`), and initial peer comments (`article_comments`).
 - Running the script multiple times is safe and idempotent (performs SQL `ON CONFLICT DO UPDATE` or checks for existing keys).
 
 ### 2. Cleaning Up Demo Data
-To safely remove only synthetic demo data without touching real student content:
+To safely remove only synthetic student author fixtures without touching real student content:
 ```bash
 bun scripts/articles/cleanup-articles.mjs
 ```
-This targets strictly `is_demo = TRUE` articles, comments on demo articles, and `is_seeded = TRUE` demo author profiles matching `demo_%`.
+This targets strictly `is_demo = TRUE` articles, comments on demo articles, and `is_seeded = TRUE` author profiles matching `loop_%` or `demo_%`.
 
 ---
 
