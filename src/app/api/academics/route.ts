@@ -378,7 +378,7 @@ export async function POST(req: Request) {
         downvotesCount: 0,
         downloadsCount: 0,
         viewsCount: 1,
-        isVerified: true,
+        isVerified: profile.role === "ADMIN" && body.isVerified === true,
       })
       .returning();
 
