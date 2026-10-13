@@ -985,7 +985,7 @@ export async function POST(req: Request) {
     });
     const incomingUrls = new Set([fileUrl, driveUrl, ...attachments.map((attachment: any) => attachment.url)].filter(Boolean).map((url) => canonicalAcademicUrl(String(url))));
     const urlConditions = [];
-    for (const url of [fileUrl, driveUrl, ...attachments.map((attachment: any) => attachment.url)].filter(Boolean)) {
+    for (const url of [fileUrl, driveUrl, ...attachments.map((attachment: any) => attachment.url)].filter((v): v is string => Boolean(v))) {
       urlConditions.push(eq(academicResources.fileUrl, url));
       urlConditions.push(eq(academicResources.driveUrl, url));
     }
@@ -1441,7 +1441,7 @@ async function handleJsonRpcRequest(req: Request, body: Record<string, unknown>)
         if (!fileUrl && !driveUrl) throw new Error("At least one stable HTTPS fileUrl or driveUrl is required");
         const incomingUrls = new Set([fileUrl, driveUrl].filter(Boolean).map((value) => canonicalAcademicUrl(String(value))));
         const urlConditions = [];
-        for (const value of [fileUrl, driveUrl].filter(Boolean)) { urlConditions.push(eq(academicResources.fileUrl, value)); urlConditions.push(eq(academicResources.driveUrl, value)); }
+        for (const value of [fileUrl, driveUrl].filter((v): v is string => Boolean(v))) { urlConditions.push(eq(academicResources.fileUrl, value)); urlConditions.push(eq(academicResources.driveUrl, value)); }
         let duplicate: any = null;
         if (urlConditions.length) {
           const byUrl = await db.query.academicResources.findMany({ where: or(...urlConditions), limit: 100 });
@@ -1503,7 +1503,7 @@ async function handleJsonRpcRequest(req: Request, body: Record<string, unknown>)
         if (Array.isArray(args.tags)) updates.tags = [...new Set(args.tags.filter((tag: unknown): tag is string => typeof tag === "string").map((tag: string) => tag.trim()).filter(Boolean))].slice(0, 30);
         if (Array.isArray(args.attachments)) updates.attachments = args.attachments.slice(0, 20).filter((item: any) => item && typeof item.url === "string").map((item: any, index: number) => { const url = validateAcademicResourceUrl(item.url, "attachment URL"); return { id: typeof item.id === "string" ? item.id : "att_" + nanoid(10) + "_" + (index + 1), title: String(item.title || item.name || ("Attachment " + (index + 1))).slice(0, 200), url, type: inferAcademicAttachmentType(url) }; });
         if (typeof args.isVerified === "boolean") updates.isVerified = args.isVerified;
-        const nextValues = [typeof updates.fileUrl === "string" ? updates.fileUrl : existing.fileUrl, typeof updates.driveUrl === "string" ? updates.driveUrl : existing.driveUrl].filter(Boolean);
+        const nextValues = [typeof updates.fileUrl === "string" ? updates.fileUrl : existing.fileUrl, typeof updates.driveUrl === "string" ? updates.driveUrl : existing.driveUrl].filter((v): v is string => Boolean(v));
         const nextUrls = new Set(nextValues.map((value: string) => canonicalAcademicUrl(value))); const dupeConditions = [];
         for (const value of nextValues) { dupeConditions.push(eq(academicResources.fileUrl, value)); dupeConditions.push(eq(academicResources.driveUrl, value)); }
         if (dupeConditions.length) { const candidates = await db.query.academicResources.findMany({ where: or(...dupeConditions), limit: 100 }); const duplicate = candidates.find((item) => item.id !== resourceId && [item.fileUrl,item.driveUrl].filter(Boolean).some((value) => nextUrls.has(canonicalAcademicUrl(String(value))))); if (duplicate) throw new Error("This URL is already indexed by resource " + duplicate.id + "; update rejected to avoid a duplicate."); }
