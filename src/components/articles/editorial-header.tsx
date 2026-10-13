@@ -43,7 +43,6 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
             />
             <div className="flex flex-col truncate">
               <span className="text-sm sm:text-base font-black tracking-tight text-foreground flex items-center gap-1.5">
-                <span>CampusLoop</span>
                 <span className="text-primary font-bold">Articles</span>
               </span>
             </div>
