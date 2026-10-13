@@ -1381,7 +1381,7 @@ async function handleJsonRpcRequest(req: Request, body: Record<string, unknown>)
         if (!duplicate) {
           const sameCourse = await db.query.academicResources.findMany({ where: and(eq(academicResources.subjectCode, subjectCode), eq(academicResources.branch, branch), eq(academicResources.semester, semester), eq(academicResources.resourceType, resourceType)), limit: 100 });
           const titleKey = normalizeAcademicTitle(title), moduleKey = normalizeAcademicTitle(moduleOrChapter);
-          duplicate = sameCourse.find((item) => normalizeAcademicTitle(item.title) === titleKey && normalizeAcademicTitle(item.moduleOrChapter || "") === moduleKey && [item.fileUrl, item.driveUrl].filter(Boolean).some((value) => incomingUrls.has(canonicalAcademicUrl(String(value))))) || null;
+          duplicate = sameCourse.find((item) => normalizeAcademicTitle(item.title) === titleKey && normalizeAcademicTitle(item.moduleOrChapter || "") === moduleKey) || null;
         }
         if (duplicate) {
           const full = await db.query.academicResources.findFirst({ where: eq(academicResources.id, duplicate.id), with: { institution: { columns: { id: true, name: true, slug: true } }, uploader: { columns: { username: true, displayName: true } } } });
