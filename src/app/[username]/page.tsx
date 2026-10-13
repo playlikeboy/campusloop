@@ -33,6 +33,7 @@ import { getCloutTier } from "@/lib/gamification";
 import {
   academicPlaylists,
   academicResources,
+  articles,
   externalPosts,
   institutions,
   posts,
@@ -138,7 +139,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     },
   });
 
-  if (!profile || profile.isSeeded) {
+  if (!profile) {
     notFound();
   }
 
@@ -304,7 +305,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   }
 
   // If not authenticated, render LinkedIn-style public card
-  const [publicFollowCounts, userAcademicResources, userPlaylists] = await Promise.all([
+  const [publicFollowCounts, userAcademicResources, userPlaylists, userArticles] = await Promise.all([
     getFollowCounts(profile.id),
     db.query.academicResources.findMany({
       where: eq(academicResources.uploaderId, profile.id),
@@ -319,13 +320,22 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
       orderBy: [desc(academicPlaylists.createdAt)],
       limit: 4,
     }),
+    db.query.articles.findMany({
+      where: and(
+        eq(articles.authorId, profile.id),
+        eq(articles.status, "PUBLISHED")
+      ),
+      orderBy: [desc(articles.publishedAt)],
+      limit: 12,
+    }),
   ]);
   const branchIcon = getBranchIcon(profile.branch || profile.course);
   const institutionName = profile.institution?.name || "Indian Institute of Technology";
   const campusShort = institutionName.split(",")[0];
   const points = profile.points || 0;
   const cloutTier = getCloutTier(points);
-  const isVerified = profile.role === "ADMIN" || profile.role === "MODERATOR" || points >= 50;
+  const isOfficialDesk = profile.username.startsWith("loop_") || profile.role === "ADMIN";
+  const isVerified = isOfficialDesk || profile.role === "ADMIN" || profile.role === "MODERATOR" || points >= 50;
 
   const cleanPostText = (body: string) =>
     body
@@ -492,11 +502,16 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           {/* Full-Width Identity Section with Intentional Hierarchy */}
           <div className="space-y-2.5">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground font-[family-name:var(--font-heading)]">
                   {profile.displayName}
                 </h1>
                 {isVerified && <VerifiedBadge size="md" />}
+                {isOfficialDesk && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold tracking-wide border border-primary/20">
+                    <ShieldCheck className="size-3" /> Official CampusLoop Desk
+                  </span>
+                )}
               </div>
               <p className="text-sm sm:text-base font-medium text-muted-foreground mt-0.5">
                 @{profile.username}
@@ -563,6 +578,16 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                 </div>
               </Link>
 
+              {/* Articles Published */}
+              {userArticles.length > 0 && (
+                <div className="text-left leading-tight">
+                  <span className="font-bold text-foreground text-xs sm:text-sm block">
+                    {userArticles.length}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Articles</span>
+                </div>
+              )}
+
               {/* Academic Notes Shared */}
               {userAcademicResources.length > 0 && (
                 <div className="text-left leading-tight">
@@ -575,6 +600,12 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
 
               {/* Contributions */}
               <div className="flex items-center gap-2 ml-auto text-muted-foreground text-[11px] font-medium hidden sm:flex">
+                {userArticles.length > 0 && (
+                  <>
+                    <span>{userArticles.length} Articles</span>
+                    <span>·</span>
+                  </>
+                )}
                 <span>{userPosts.length} Posts</span>
                 <span>·</span>
                 <span>{userAcademicResources.length + userPlaylists.length} Study Items</span>
@@ -599,8 +630,69 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
 
         {/* 2-Column Content Showcase Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 pt-6">
-          {/* Main Column (Study Library & Recent Activity) */}
+          {/* Main Column (Articles, Study Library & Recent Activity) */}
           <main className="lg:col-span-8 space-y-6 min-w-0">
+            {/* Published Articles & Editorial Guides Section */}
+            {userArticles.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-border/30">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <FileText className="size-4 text-primary" /> Published Articles &amp; Editorial ({userArticles.length})
+                  </h3>
+                  <Link
+                    href="/articles"
+                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                  >
+                    <span>CampusLoop Articles</span>
+                    <ArrowUpRight className="size-3" />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {userArticles.map((art) => (
+                    <Link
+                      key={art.id}
+                      href={`/articles/${art.slug}`}
+                      className="p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group shadow-2xs"
+                    >
+                      <div className="space-y-1.5 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            {art.category.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {art.readingTimeMinutes || 3} min read
+                          </span>
+                          {art.viewsCount > 0 && (
+                            <span className="text-[11px] text-muted-foreground">
+                              · {art.viewsCount} reads
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                          {art.title}
+                        </h4>
+                        {art.excerpt && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                            {art.excerpt}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/20">
+                        <span>
+                          {art.publishedAt
+                            ? new Date(art.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                            : "Published"}
+                        </span>
+                        <span className="font-semibold text-primary flex items-center gap-1">
+                          Read Guide <ArrowUpRight className="size-3" />
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Study Library Section */}
             {(userAcademicResources.length > 0 || userPlaylists.length > 0) && (
               <div className="space-y-4">

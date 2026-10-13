@@ -763,6 +763,27 @@ const MCP_ARTICLE_TOOLS = [
     },
   },
   {
+    name: "update_author_account",
+    description: "Update display name, headline, bio, role, points, status, or interests of an official author account.",
+    inputSchema: {
+      type: "object",
+      required: ["username"],
+      properties: {
+        username: { type: "string" },
+        displayName: { type: "string" },
+        headline: { type: "string" },
+        bio: { type: "string" },
+        branch: { type: "string" },
+        role: { type: "string", enum: ["STUDENT", "MODERATOR", "ADMIN"] },
+        points: { type: "integer" },
+        isSeeded: { type: "boolean" },
+        avatarUrl: { type: "string" },
+        bannerUrl: { type: "string" },
+        interests: { type: "array", items: { type: "string" } },
+      },
+    },
+  },
+  {
     name: "update_demo_account",
     description: "Update display name, headline, bio, or interests of a synthetic demo account.",
     inputSchema: {
@@ -1341,8 +1362,9 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         const demoOnly = toolName === "list_demo_accounts" || args.demoOnly === true;
         const authors = await db.query.userProfiles.findMany({
           where: demoOnly
-            ? and(
-                or(ilike(userProfiles.username, "loop_%"), ilike(userProfiles.username, "demo_%")),
+            ? or(
+                ilike(userProfiles.username, "loop_%"),
+                ilike(userProfiles.username, "demo_%"),
                 eq(userProfiles.isSeeded, true)
               )
             : undefined,
@@ -1514,6 +1536,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
           if (args.status === "PUBLISHED" && !existing.publishedAt) updates.publishedAt = new Date();
         }
         if (typeof args.isFeatured === "boolean") updates.isFeatured = args.isFeatured;
+        if (typeof args.isDemo === "boolean") updates.isDemo = args.isDemo;
 
         const [updated] = await db.update(articles).set(updates).where(eq(articles.id, existing.id)).returning();
         const full = await db.query.articles.findFirst({
@@ -1760,15 +1783,21 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         }, { headers: CORS_HEADERS });
       }
 
-      if (toolName === "update_demo_account") {
+      if (toolName === "update_demo_account" || toolName === "update_author_account") {
         const username = String(args.username || "").trim();
         const existing = await db.query.userProfiles.findFirst({ where: eq(userProfiles.username, username) });
-        if (!existing) throw new Error(`Demo account not found: ${username}`);
+        if (!existing) throw new Error(`Author account not found: ${username}`);
 
         const updates: Record<string, any> = { updatedAt: new Date() };
         if (typeof args.displayName === "string") updates.displayName = args.displayName.trim();
         if (typeof args.headline === "string") updates.headline = args.headline.trim();
         if (typeof args.bio === "string") updates.bio = args.bio.trim();
+        if (typeof args.branch === "string") updates.branch = args.branch.trim();
+        if (typeof args.avatarUrl === "string") updates.avatarUrl = args.avatarUrl.trim();
+        if (typeof args.bannerUrl === "string") updates.bannerUrl = args.bannerUrl.trim();
+        if (typeof args.role === "string") updates.role = args.role;
+        if (typeof args.points === "number") updates.points = args.points;
+        if (typeof args.isSeeded === "boolean") updates.isSeeded = args.isSeeded;
         if (Array.isArray(args.interests)) updates.interests = args.interests;
 
         const [updated] = await db.update(userProfiles).set(updates).where(eq(userProfiles.id, existing.id)).returning();

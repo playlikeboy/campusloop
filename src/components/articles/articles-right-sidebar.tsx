@@ -110,7 +110,7 @@ export function ArticlesRightSidebar() {
                 key={author.id}
                 className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
               >
-                <Link href={`/${author.username}`} className="flex items-center gap-2.5 min-w-0 group">
+                <Link href={`/@${author.username.replace(/^@/, "")}`} className="flex items-center gap-2.5 min-w-0 group">
                   <Avatar className="size-8 border border-border/40 shrink-0">
                     <AvatarImage src={author.avatarUrl || ""} />
                     <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
@@ -129,7 +129,7 @@ export function ArticlesRightSidebar() {
                 </Link>
 
                 <Link
-                  href={`/${author.username}`}
+                  href={`/@${author.username.replace(/^@/, "")}`}
                   className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
                   title="View author profile"
                 >

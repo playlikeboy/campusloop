@@ -173,7 +173,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
             <div className="space-y-2.5">
               {/* Author Row */}
               <div className="flex items-center gap-2 text-xs">
-                <Link href={`/${authorUsername}`} className="flex items-center gap-2 group/author">
+                <Link href={`/@${authorUsername.replace(/^@/, "")}`} className="flex items-center gap-2 group/author">
                   <Avatar className="size-6 border border-border/40">
                     <AvatarImage src={article.author?.avatarUrl || ""} />
                     <AvatarFallback className="text-[10px] font-bold bg-muted text-foreground">
@@ -279,7 +279,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
         <div className="flex-1 min-w-0 space-y-2">
           {/* Author Byline */}
           <div className="flex items-center gap-2 text-xs">
-            <Link href={`/${authorUsername}`} className="flex items-center gap-1.5 group/author">
+            <Link href={`/@${authorUsername.replace(/^@/, "")}`} className="flex items-center gap-1.5 group/author">
               <Avatar className="size-5.5 border border-border/40 shrink-0">
                 <AvatarImage src={article.author?.avatarUrl || ""} />
                 <AvatarFallback className="text-[9px] font-bold bg-muted text-foreground">
