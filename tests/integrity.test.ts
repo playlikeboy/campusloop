@@ -79,38 +79,55 @@ mock.module("@/lib/redis", () => ({
 }));
 
 // Mock Database layer
+const rawIntegrityQuery: any = {
+  userProfiles: {
+    findFirst: mock(async () => currentProfile),
+  },
+  merchants: {
+    findFirst: mock(async () => mockMerchant),
+  },
+  products: {
+    findMany: mock(async () => mockProducts),
+    findFirst: mock(async () => mockProducts[0] || null),
+  },
+  events: {
+    findFirst: mock(async () => mockEvent),
+  },
+  eventRegistrations: {
+    findFirst: mock(async (options: any) => {
+      // If filtering by eventId and profileId
+      return mockRegistrations.find(
+        (r) => r.status !== "CANCELLED" && (!currentProfile || r.profileId === currentProfile.id)
+      ) || null;
+    }),
+    findMany: mock(async () => mockRegistrations),
+  },
+  academicResources: {
+    findFirst: mock(async () => mockAcademicResource),
+    findMany: mock(async () => [mockAcademicResource].filter(Boolean)),
+  },
+  academicResourceVotes: {
+    findFirst: mock(async () => mockAcademicVotes[0] || null),
+  },
+  articles: {
+    findFirst: mock(async () => null),
+    findMany: mock(async () => []),
+  },
+};
+
+const safeIntegrityQuery = new Proxy(rawIntegrityQuery, {
+  get(target: any, prop: string) {
+    if (prop in target) return target[prop];
+    return {
+      findFirst: mock(async () => null),
+      findMany: mock(async () => []),
+    };
+  },
+});
+
 mock.module("@/db", () => ({
   getDb: () => ({
-    query: {
-      userProfiles: {
-        findFirst: mock(async () => currentProfile),
-      },
-      merchants: {
-        findFirst: mock(async () => mockMerchant),
-      },
-      products: {
-        findMany: mock(async () => mockProducts),
-        findFirst: mock(async () => mockProducts[0] || null),
-      },
-      events: {
-        findFirst: mock(async () => mockEvent),
-      },
-      eventRegistrations: {
-        findFirst: mock(async (options: any) => {
-          // If filtering by eventId and profileId
-          return mockRegistrations.find(
-            (r) => r.status !== "CANCELLED" && (!currentProfile || r.profileId === currentProfile.id)
-          ) || null;
-        }),
-        findMany: mock(async () => mockRegistrations),
-      },
-      academicResources: {
-        findFirst: mock(async () => mockAcademicResource),
-      },
-      academicResourceVotes: {
-        findFirst: mock(async () => mockAcademicVotes[0] || null),
-      },
-    },
+    query: safeIntegrityQuery,
     update: mock((table: any) => ({
       set: mock((values: any) => ({
         where: mock((condition: any) => ({

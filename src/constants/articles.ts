@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import type { articleCategoryEnum } from "@/db/schema/articles";
 
-export const ARTICLES_CANONICAL_HOST = "https://campsy.app";
+export const ARTICLES_CANONICAL_HOST = "https://campusloop.space";
 export const CANONICAL_ARTICLE_HOST = ARTICLES_CANONICAL_HOST;
 export const ARTICLES_TITLE = "Articles";
 export const ARTICLES_SUBTITLE = "Ideas, guides & stories from students";

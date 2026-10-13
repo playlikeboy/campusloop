@@ -74,8 +74,18 @@ const mockDbDelete = vi.fn();
 const mockDbExecute = vi.fn();
 const mockDbSelect = vi.fn();
 
+const safeMockDbQuery = new Proxy(mockDbQuery, {
+  get(target: any, prop: string) {
+    if (prop in target) return target[prop];
+    return {
+      findFirst: vi.fn(async () => null),
+      findMany: vi.fn(async () => []),
+    };
+  },
+});
+
 const mockDb = {
-  query: mockDbQuery,
+  query: safeMockDbQuery,
   insert: mockDbInsert,
   update: mockDbUpdate,
   delete: mockDbDelete,
