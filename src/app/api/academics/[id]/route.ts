@@ -42,7 +42,9 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ resource });
+    const sourceUrls = [resource.fileUrl, resource.driveUrl, ...(Array.isArray(resource.attachments) ? resource.attachments.map((attachment: any) => attachment?.url) : [])];
+    const hasPlaceholderSource = /academic-sample[.]pdf|campusloop-demo|placeholder|sample[.]pdf/i.test(sourceUrls.filter(Boolean).join(" "));
+    return NextResponse.json({ resource: { ...resource, isVerified: Boolean(resource.isVerified) && !hasPlaceholderSource } });
   } catch (error) {
     console.error("Error fetching single academic resource:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -1596,6 +1596,11 @@ function inferAcademicAttachmentType(value: string): string {
   if (path.endsWith(".mp4") || path.endsWith(".m3u8")) return "VIDEO";
   return "LINK";
 }
+function isPlaceholderAcademicResource(res: any): boolean {
+  const sources = [res?.fileUrl, res?.driveUrl, ...(Array.isArray(res?.attachments) ? res.attachments.map((attachment: any) => attachment?.url) : [])];
+  return /academic-sample[.]pdf|campusloop-demo|placeholder|sample[.]pdf/i.test(sources.filter(Boolean).join(" "));
+}
+
 function formatResource(res: any) {
   return {
     id: res.id,
@@ -1614,7 +1619,7 @@ function formatResource(res: any) {
     upvotesCount: res.upvotesCount || 0,
     downloadsCount: res.downloadsCount || 0,
     viewsCount: res.viewsCount || 0,
-    isVerified: res.isVerified,
+    isVerified: Boolean(res.isVerified) && !isPlaceholderAcademicResource(res),
     institution: res.institution ? { id: res.institution.id, name: res.institution.name, slug: res.institution.slug } : null,
     uploader: res.uploader ? { username: res.uploader.username, displayName: res.uploader.displayName } : null,
     publicUrl: "https://campusloop.space/academics/" + res.id,
