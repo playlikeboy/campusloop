@@ -148,7 +148,7 @@ async function seed() {
       ) VALUES (
         ${profileId}, ${userId}, ${a.username}, ${a.name}, ${email}, ${a.headline},
         ${a.branch}, ${a.year}, ${a.bio}, ${JSON.stringify(a.interests)}, ${avatarUrl},
-        ${institutionId}, 'STUDENT', 'ACTIVE', TRUE, NOW(), NOW()
+        ${institutionId}, 'ADMIN', 'ACTIVE', FALSE, NOW(), NOW()
       )
       ON CONFLICT (username) DO UPDATE SET
         display_name = EXCLUDED.display_name,
@@ -157,7 +157,9 @@ async function seed() {
         interests = EXCLUDED.interests,
         branch = EXCLUDED.branch,
         year = EXCLUDED.year,
-        is_seeded = TRUE,
+        role = 'ADMIN',
+        points = 500,
+        is_seeded = FALSE,
         updated_at = NOW()
       RETURNING id, username
     `;
@@ -623,7 +625,7 @@ Don't wait for administrative committees. Students have the agency to install e-
         ${art.subtitle || art.title}, ${art.content}, ${art.cover},
         ${authorId}, ${institutionId}, ${art.category}, ${JSON.stringify(art.tags)},
         ${art.readingTime || 5}, ${25 + (inserted * 7) % 300}, ${12 + (inserted * 3) % 80},
-        ${(inserted % 5)}, ${inserted < 6}, TRUE, ${status},
+        ${(inserted % 5)}, ${inserted < 6}, FALSE, ${status},
         ${publishedAt}, NOW(), NOW()
       )
       ON CONFLICT (slug) DO UPDATE SET
@@ -634,7 +636,7 @@ Don't wait for administrative committees. Students have the agency to install e-
         cover_image_url = EXCLUDED.cover_image_url,
         category = EXCLUDED.category,
         tags = EXCLUDED.tags,
-        is_demo = TRUE,
+        is_demo = FALSE,
         status = EXCLUDED.status,
         updated_at = NOW()
       RETURNING id, slug

@@ -264,7 +264,7 @@ export function ArticleReaderClient({
           {/* Author Byline Row */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-y border-border/30 py-4">
             <div className="flex items-center gap-3">
-              <Link href={`/${authorUsername}`}>
+              <Link href={`/@${authorUsername.replace(/^@/, "")}`}>
                 <Avatar className="size-11 border border-border/50 shadow-xs">
                   <AvatarImage src={article.author?.avatarUrl || ""} />
                   <AvatarFallback className="text-sm font-bold bg-muted text-foreground">
@@ -276,7 +276,7 @@ export function ArticleReaderClient({
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/${authorUsername}`}
+                    href={`/@${authorUsername.replace(/^@/, "")}`}
                     className="text-sm font-bold text-foreground hover:underline"
                   >
                     {authorName}
@@ -425,7 +425,7 @@ export function ArticleReaderClient({
         {/* ─── Author Bio Box ─── */}
         <div className="rounded-2xl border border-border/40 bg-card/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
-            <Link href={`/${authorUsername}`}>
+            <Link href={`/@${authorUsername.replace(/^@/, "")}`}>
               <Avatar className="size-14 border border-border/50">
                 <AvatarImage src={article.author?.avatarUrl || ""} />
                 <AvatarFallback className="text-base font-bold bg-muted text-foreground">
@@ -437,7 +437,7 @@ export function ArticleReaderClient({
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2">
                 <Link
-                  href={`/${authorUsername}`}
+                  href={`/@${authorUsername.replace(/^@/, "")}`}
                   className="font-bold text-foreground hover:underline text-base truncate"
                 >
                   {authorName}
@@ -456,7 +456,7 @@ export function ArticleReaderClient({
           </div>
 
           <Link
-            href={`/${authorUsername}`}
+            href={`/@${authorUsername.replace(/^@/, "")}`}
             className="px-4 py-2 rounded-full border border-border/50 bg-background hover:bg-muted text-xs font-bold text-foreground transition-colors shrink-0"
           >
             View Profile
