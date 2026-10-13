@@ -7,7 +7,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticlesRightSidebar } from "@/components/articles/articles-right-sidebar";
-import { ARTICLE_CATEGORY_LIST, ARTICLE_FEED_TABS, type ArticleFeedTab } from "@/constants/articles";
+import {
+  ARTICLE_CATEGORY_GROUPS,
+  ARTICLE_CATEGORY_LIST,
+  ARTICLE_FEED_TABS,
+  type ArticleCategoryGroupKey,
+  type ArticleFeedTab,
+} from "@/constants/articles";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -31,6 +37,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
 
   const [activeTab, setActiveTab] = useState<ArticleFeedTab>(initialTab);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [selectedGroup, setSelectedGroup] = useState<ArticleCategoryGroupKey>("ALL");
   const [activeTag, setActiveTag] = useState<string>(initialTag);
   const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(initialQuery);
@@ -352,6 +359,34 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
               );
             })}
           </div>
+ 
+          {/* Category Group Filter Bar */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            {ARTICLE_CATEGORY_GROUPS.map((group) => {
+              const Icon = group.icon;
+              const isGroupActive = selectedGroup === group.id;
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => {
+                    sounds.tap();
+                    haptics.light();
+                    setSelectedGroup(group.id);
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border",
+                    isGroupActive
+                      ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
+                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/40"
+                  )}
+                >
+                  <Icon className="size-3" />
+                  <span>{group.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
           {/* Categories Horizontal Scroll Strip */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
@@ -368,7 +403,10 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
               All Topics
             </button>
 
-            {ARTICLE_CATEGORY_LIST.map((cat) => {
+            {(selectedGroup === "ALL"
+              ? ARTICLE_CATEGORY_LIST
+              : ARTICLE_CATEGORY_LIST.filter((cat) => cat.group === selectedGroup)
+            ).map((cat) => {
               const isSelected = selectedCategory === cat.key;
               const Icon = cat.icon;
 
