@@ -4,19 +4,27 @@ import confetti from "canvas-confetti";
 import {
   ArrowLeft,
   Bell,
+  BriefcaseBusiness,
   Calendar,
   ChevronDown,
   Clock,
   ExternalLink,
   Gift,
+  GraduationCap,
   HelpCircle,
   MapPin,
+  MessageSquareText,
+  Palette,
   QrCode,
+  Rocket,
   School,
   Settings,
   Share2,
   Trophy,
   Users,
+  Wrench,
+  Dumbbell,
+  Sparkles,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -60,12 +68,27 @@ const FAQ_ITEMS = [
   },
 ];
 
+function getEventHeroArtwork(eventType: string) {
+  const type = String(eventType || "").toUpperCase();
+  if (type === "HACKATHON") return { gradient: "from-violet-800 via-indigo-700 to-cyan-500", eyebrow: "BUILD · SHIP · WIN", Icon: Rocket };
+  if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) return { gradient: "from-amber-600 via-orange-600 to-pink-600", eyebrow: "FUND YOUR FUTURE", Icon: GraduationCap };
+  if (["INTERNSHIP", "JOB"].includes(type)) return { gradient: "from-sky-800 via-blue-700 to-indigo-500", eyebrow: "YOUR NEXT CAREER MOVE", Icon: BriefcaseBusiness };
+  if (["COMPETITION", "CONTEST"].includes(type)) return { gradient: "from-orange-700 via-rose-600 to-amber-500", eyebrow: "SHOW WHAT YOU CAN DO", Icon: Trophy };
+  if (type === "WORKSHOP") return { gradient: "from-cyan-800 via-teal-700 to-emerald-500", eyebrow: "LEARN BY DOING", Icon: Wrench };
+  if (type === "SEMINAR") return { gradient: "from-blue-800 via-indigo-700 to-violet-500", eyebrow: "IDEAS & INSIGHTS", Icon: MessageSquareText };
+  if (type === "MEETUP") return { gradient: "from-teal-800 via-cyan-700 to-blue-500", eyebrow: "MEET YOUR PEOPLE", Icon: Users };
+  if (["FEST", "CULTURAL"].includes(type)) return { gradient: "from-fuchsia-800 via-pink-700 to-rose-500", eyebrow: "CAMPUS CULTURE", Icon: Palette };
+  if (type === "SPORTS") return { gradient: "from-lime-800 via-green-700 to-emerald-500", eyebrow: "PLAY TO WIN", Icon: Dumbbell };
+  return { gradient: "from-slate-800 via-slate-700 to-indigo-600", eyebrow: "YOUR NEXT OPPORTUNITY", Icon: Sparkles };
+}
 export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const router = useRouter();
   const { profile } = useProfile();
   const { data, isLoading } = useSWR<{ event: any }>(`/api/events/${eventId}`, fetcher);
 
   const event = data?.event;
+  const [bannerFailed, setBannerFailed] = useState(false);
+  useEffect(() => setBannerFailed(false), [event?.bannerUrl]);
   const isOrganizer = Boolean(
     profile && event && (profile.id === event.organizerProfileId || profile.id === event.organizer?.id || profile.role === "ADMIN")
   );
@@ -116,7 +139,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl min-h-screen p-4 border-x border-border/30 space-y-4 animate-pulse">
+      <div className="mx-auto max-w-5xl min-h-screen p-4 border-x border-border/30 space-y-4 animate-pulse">
         <div className="h-8 w-32 bg-muted/40 rounded-full" />
         <div className="h-64 bg-muted/30 rounded-3xl" />
         <div className="h-10 w-3/4 bg-muted/40 rounded-xl" />
@@ -126,7 +149,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
   if (!event) {
     return (
-      <div className="mx-auto max-w-3xl min-h-screen p-8 text-center border-x border-border/30 flex flex-col items-center justify-center space-y-3">
+      <div className="mx-auto max-w-5xl min-h-screen p-8 text-center border-x border-border/30 flex flex-col items-center justify-center space-y-3">
         <Calendar className="size-12 text-muted-foreground" />
         <h2 className="text-lg font-bold">Event Not Found</h2>
         <Button onClick={() => router.push("/events")} variant="outline" className="rounded-full">
@@ -154,8 +177,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
     minute: "2-digit",
   })} – ${endDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
 
-  const fallbackBanner = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(event.slug || event.id)}&backgroundColor=0f172a,1e1b4b,18181b`;
-  const displayBanner = event.bannerUrl || fallbackBanner;
+  const posterUrl = typeof event.bannerUrl === "string" && event.bannerUrl.startsWith("https://") ? event.bannerUrl : null;
+  const showPoster = Boolean(posterUrl && !bannerFailed);
+  const heroArtwork = getEventHeroArtwork(event.eventType);
 
   const calendarEvent: CalendarEvent = {
     id: event.id,
@@ -260,7 +284,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl min-h-screen pb-28 border-x border-border/30 bg-background">
+    <div className="mx-auto max-w-5xl min-h-screen pb-28 border-x border-border/30 bg-background">
       {/* Top Header Bar */}
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
         <button
@@ -295,9 +319,23 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       </div>
 
       {/* Event Hero Banner with Scrim & Tags */}
-      <div className="relative aspect-16/9 sm:aspect-21/9 md:aspect-3/1 w-full overflow-hidden bg-muted/40">
-        <img src={displayBanner} alt={event.title} className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
+      <div className={cn("relative aspect-[16/9] sm:aspect-[24/9] md:aspect-[3/1] w-full overflow-hidden", showPoster ? "bg-muted/40" : "bg-gradient-to-br " + heroArtwork.gradient)}>
+        {showPoster ? (
+          <img src={posterUrl!} alt={event.title + " poster"} className="absolute inset-0 h-full w-full object-cover" loading="eager" decoding="async" referrerPolicy="no-referrer" onError={() => setBannerFailed(true)} />
+        ) : (
+          <>
+            <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 size-64 rounded-full border border-white/20 bg-white/10 blur-xl sm:size-80" />
+            <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 size-72 rounded-full bg-black/10 blur-2xl" />
+            <div className="absolute inset-0 flex items-center justify-between gap-4 px-5 py-6 sm:px-8 md:px-10">
+              <div className="relative z-10 max-w-[65%] space-y-2 sm:space-y-3">
+                <span className="inline-flex rounded-full border border-white/20 bg-black/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur-sm sm:text-xs">{heroArtwork.eyebrow}</span>
+                <p className="line-clamp-3 text-xl font-semibold leading-tight tracking-tight text-white drop-shadow-sm sm:text-2xl md:text-3xl">{event.title}</p>
+              </div>
+              <heroArtwork.Icon className="relative z-10 size-20 shrink-0 text-white/25 drop-shadow sm:size-28 md:size-36" strokeWidth={1.1} />
+            </div>
+          </>
+        )}
+        <div className={cn("absolute inset-0", showPoster ? "bg-gradient-to-t from-black/85 via-black/25 to-transparent" : "bg-gradient-to-t from-black/30 via-transparent to-black/5")} />
 
         <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 flex items-end justify-between gap-2.5 text-white">
           <div className="space-y-1.5 min-w-0">
