@@ -68,6 +68,66 @@ async function mcp(tool, args) {
   if (txt) { try { return JSON.parse(txt); } catch { return txt; } }
   return envelope.result && (envelope.result.structuredContent || envelope.result);
 }
+async function checkSafeMcpSchema() {
+  try {
+    const response = await get(MCP_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+        "x-api-key": MCP_KEY,
+        "mcp-protocol-version": "2024-11-05",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: rpcId++, method: "tools/list" }),
+    });
+    const envelope = await response.json();
+    if (envelope.error) throw new Error(envelope.error.message || JSON.stringify(envelope.error));
+    const tools = envelope.result && Array.isArray(envelope.result.tools) ? envelope.result.tools : [];
+    const listTool = tools.find((tool) => tool.name === "list_academic_resources");
+    const createTool = tools.find((tool) => tool.name === "create_academic_resource");
+    const supportsOffset = Boolean(listTool && listTool.inputSchema && listTool.inputSchema.properties && listTool.inputSchema.properties.offset);
+    const safeUnverifiedDefault = Boolean(createTool && createTool.inputSchema && createTool.inputSchema.properties &&
+      createTool.inputSchema.properties.isVerified && createTool.inputSchema.properties.isVerified.default === false);
+    return {
+      ready: supportsOffset && safeUnverifiedDefault,
+      toolCount: tools.length,
+      supportsOffset,
+      safeUnverifiedDefault,
+      reason: !supportsOffset
+        ? "Live MCP does not advertise offset pagination yet; it may return the same page for every request."
+        : !safeUnverifiedDefault
+          ? "Live MCP does not default new academic resources to unverified; refusing to risk a false Verified badge."
+          : "",
+    };
+  } catch (error) {
+    return { ready: false, supportsOffset: false, safeUnverifiedDefault: false, reason: "Could not inspect live MCP tool schemas: " + (error instanceof Error ? error.message : String(error)) };
+  }
+}
+
+async function writeBlockedReport(readiness) {
+  const report = [
+    "# CampusLoop Daily Academic Materials",
+    "",
+    "Run date: " + today + " (UTC)",
+    "",
+    "- Newly indexed: 0",
+    "- Duplicate checks: not run because live publishing safety checks failed.",
+    "- Errors requiring attention: 1",
+    "- Publication status: BLOCKED; no create/update mutations were attempted.",
+    "",
+    "## Blocker",
+    "- " + readiness.reason,
+    "",
+    "## Required live MCP schema",
+    "- list_academic_resources must expose offset pagination and return different records for successive offsets.",
+    "- create_academic_resource must default isVerified to false so an automatic ingest cannot grant a misleading Verified badge.",
+    "- Redeploy CampusLoop main and retest the schema before allowing the scheduled indexer to publish.",
+  ].join("\n") + "\n";
+  const fs = await import("node:fs/promises");
+  await fs.writeFile("academic-material-report.md", report, "utf8");
+  if (process.env.GITHUB_STEP_SUMMARY) await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, report + "\n", "utf8");
+}
+
 async function search(q) {
   const u = new URL("https://serpapi.com/search.json");
   u.searchParams.set("engine", "google"); u.searchParams.set("q", q); u.searchParams.set("num", "10"); u.searchParams.set("api_key", SERP_KEY);
@@ -218,6 +278,14 @@ async function verify(candidate) {
   return { url, payload };
 }
 async function main() {
+  const readiness = await checkSafeMcpSchema();
+  if (!readiness.ready) {
+    await writeBlockedReport(readiness);
+    console.error("Academic indexing was safely blocked: " + readiness.reason);
+    console.log(JSON.stringify({ runDate: today, blocked: true, newlyIndexed: 0, reason: readiness.reason, liveMcpSchema: readiness }, null, 2));
+    process.exitCode = 1;
+    return;
+  }
   const catalogResult = await fullCatalog(), catalog = catalogResult.items;
   const urlSet = new Set(), titles = new Set();
   for (const item of catalog) {
