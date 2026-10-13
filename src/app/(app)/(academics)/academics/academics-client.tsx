@@ -248,7 +248,7 @@ export function AcademicsClient({
     Boolean(searchQuery.trim());
 
   return (
-    <div className="min-h-screen w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 pb-20 select-none">
+    <div className="min-h-screen w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 pb-20">
       {/* ─── 1. Primary Page Header (Academics Title + Subtitle + Upload CTA) ─── */}
       <AcademicHeader
         scope={scope}
