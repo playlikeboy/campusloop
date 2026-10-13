@@ -171,7 +171,7 @@ const MCP_ACADEMIC_TOOLS = [
   {
     name: "create_academic_resource",
     description:
-      "Upload or index a verified study resource, handwritten notes, PYQ solution, or formula sheet on CampusLoop. (Requires API key).",
+      "Index an existing source-linked study resource, notes, PYQ, lab manual, or formula sheet. New records remain unverified until reviewed. (Requires API key).",
     inputSchema: {
       type: "object",
       required: ["title", "subjectCode", "subjectName"],
@@ -1456,6 +1456,7 @@ async function handleJsonRpcRequest(req: Request, body: Record<string, unknown>)
         const target = String(args.idOrSlug || "").trim(); if (!target) throw new Error("idOrSlug is required");
         const playlist = await db.query.academicPlaylists.findFirst({ where: or(eq(academicPlaylists.id, target), eq(academicPlaylists.slug, target)), with: { institution: { columns: { id: true, name: true, slug: true } }, creator: { columns: { id: true, username: true, displayName: true } }, items: { with: { resource: true } } } });
         if (!playlist) throw new Error("Academic playlist not found: " + target);
+        if (playlist.visibility !== "PUBLIC" && !isAuthenticated) throw new Error("This playlist is not public.");
         return NextResponse.json({ jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify(formatPlaylist(playlist), null, 2) }] } }, { headers: CORS_HEADERS });
       }
 
