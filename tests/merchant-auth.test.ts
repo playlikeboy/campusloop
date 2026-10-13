@@ -2,13 +2,25 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 
 let mockMerchantRecord: any = null;
 
+const merchantQueryMock: any = {
+  merchants: {
+    findFirst: async () => mockMerchantRecord,
+  },
+};
+
+const safeMerchantQuery = new Proxy(merchantQueryMock, {
+  get(target: any, prop: string) {
+    if (prop in target) return target[prop];
+    return {
+      findFirst: async () => null,
+      findMany: async () => [],
+    };
+  },
+});
+
 vi.mock("@/db", () => ({
   getDb: () => ({
-    query: {
-      merchants: {
-        findFirst: async () => mockMerchantRecord,
-      },
-    },
+    query: safeMerchantQuery,
   }),
 }));
 

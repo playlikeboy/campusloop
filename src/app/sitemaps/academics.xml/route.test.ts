@@ -11,8 +11,9 @@ describe("Academics Sitemap Route (sitemaps/academics.xml)", () => {
 
     const xml = await res.text();
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(xml).toContain('<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>');
     expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
-    expect(xml).toContain("<loc>https://campusloop.space/app/academics</loc>");
+    expect(xml).toContain("<loc>https://campusloop.space/academics</loc>");
     expect(xml).toContain("<priority>1.0</priority>");
     expect(xml).toContain("</urlset>");
   });

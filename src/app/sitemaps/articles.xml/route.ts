@@ -41,7 +41,7 @@ export async function GET() {
         // Canonical public article publication URL
         return `
   <url>
-    <loc>https://campsy.app/articles/${item.slug}</loc>
+    <loc>https://campusloop.space/articles/${item.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>${image}
@@ -50,6 +50,7 @@ export async function GET() {
       .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls}
 </urlset>`;
 
@@ -62,7 +63,7 @@ export async function GET() {
   } catch (error) {
     console.error("Articles sitemap error:", error);
     return new NextResponse(
-      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`,
+      `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`,
       { headers: { "Content-Type": "application/xml" } }
     );
   }

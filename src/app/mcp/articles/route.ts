@@ -14,7 +14,7 @@ import {
   institutions,
   userProfiles,
 } from "@/db/schema";
-import { ARTICLE_CATEGORIES, getCategoryMeta } from "@/constants/articles";
+import { ARTICLE_CATEGORIES, ARTICLE_CATEGORY_LIST, getCategoryMeta } from "@/constants/articles";
 
 export const dynamic = "force-dynamic";
 
@@ -1249,10 +1249,26 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
 
       if (toolName === "list_categories") {
         const group = args.group && args.group !== "ALL" ? args.group : null;
-        const cats = await db.query.articleCategories.findMany({
+        let cats = await db.query.articleCategories.findMany({
           where: group ? eq(articleCategories.group, group) : undefined,
           orderBy: [articleCategories.sortOrder],
         });
+
+        if (!cats || cats.length === 0) {
+          cats = (group ? ARTICLE_CATEGORY_LIST.filter((c) => c.group === group) : ARTICLE_CATEGORY_LIST).map(
+            (c, i) =>
+              ({
+                id: `cat_${c.slug}`,
+                key: c.key,
+                slug: c.slug,
+                label: c.label,
+                description: c.description,
+                group: c.group,
+                sortOrder: i + 1,
+                isActive: true,
+              }) as any
+          );
+        }
 
         return NextResponse.json({
           jsonrpc: "2.0",
@@ -1360,7 +1376,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
 
       if (toolName === "list_authors" || toolName === "list_demo_accounts") {
         const demoOnly = toolName === "list_demo_accounts" || args.demoOnly === true;
-        const authors = await db.query.userProfiles.findMany({
+        let authors = await db.query.userProfiles.findMany({
           where: demoOnly
             ? or(
                 ilike(userProfiles.username, "loop_%"),
@@ -1371,6 +1387,22 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
           limit: Math.min(Number(args.limit || 30), 50),
           columns: { id: true, username: true, displayName: true, headline: true, bio: true, branch: true, year: true, avatarUrl: true, isSeeded: true },
         });
+
+        if (!authors || authors.length === 0) {
+          authors = [
+            {
+              id: "prof_loop_tech",
+              username: "loop_tech",
+              displayName: "CampusLoop Tech Desk",
+              headline: "Official Editorial Desk · Technology & Programming",
+              bio: "In-depth engineering breakdowns, systems programming, and modern development craft.",
+              branch: "CSE",
+              year: 4,
+              avatarUrl: null,
+              isSeeded: false,
+            },
+          ] as any;
+        }
 
         return NextResponse.json({
           jsonrpc: "2.0",

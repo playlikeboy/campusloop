@@ -20,12 +20,12 @@ export async function GET() {
 
     const rootUrl = `
   <url>
-    <loc>https://campusloop.space/app/academics</loc>
+    <loc>https://campusloop.space/academics</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://campusloop.space/app/academics/sources</loc>
+    <loc>https://campusloop.space/academics/sources</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`;
@@ -35,7 +35,7 @@ export async function GET() {
         const lastMod = (item.updatedAt || item.createdAt || new Date()).toISOString().split("T")[0];
         return `
   <url>
-    <loc>https://campusloop.space/app/academics/${item.id}</loc>
+    <loc>https://campusloop.space/academics/${item.id}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -44,6 +44,7 @@ export async function GET() {
       .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${rootUrl}${urls}
 </urlset>`;
 
@@ -56,7 +57,7 @@ export async function GET() {
   } catch (error) {
     console.error("Academics sitemap error:", error);
     return new NextResponse(
-      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://campusloop.space/app/academics</loc><priority>1.0</priority></url></urlset>`,
+      `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://campusloop.space/academics</loc><priority>1.0</priority></url></urlset>`,
       { headers: { "Content-Type": "application/xml; charset=utf-8" } }
     );
   }

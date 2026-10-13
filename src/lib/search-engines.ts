@@ -25,7 +25,7 @@ export async function pingIndexNow(urls: string[]): Promise<PingResult[]> {
   // Clean and filter valid HTTPS URLs
   const cleanUrls = urls
     .map((u) => u.trim())
-    .filter((u) => u.startsWith(`https://${CANONICAL_HOST}`) || u.startsWith("https://campsy.app"));
+    .filter((u) => u.startsWith(`https://${CANONICAL_HOST}`));
 
   if (cleanUrls.length === 0) return [];
 

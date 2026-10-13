@@ -7,6 +7,7 @@ import { GET, OPTIONS, POST } from "@/app/mcp/articles/route";
 import { GET as getOpenApi } from "@/app/mcp/articles/openapi.json/route";
 
 const VALID_API_KEY = process.env.MCP_ARTICLES_API_KEY || process.env.MCP_API_KEY || "HBEifejbwhfbiaqDQHW";
+process.env.MCP_ARTICLES_API_KEY = VALID_API_KEY;
 
 describe("CampusLoop Articles MCP Engine (/mcp/articles)", () => {
   describe("CORS & Preflight Handling", () => {
