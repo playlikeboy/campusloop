@@ -6,7 +6,7 @@ import { AcademicsClient } from "./academics-client";
 export const metadata: Metadata = {
   title: "Academic Notes, PYQs & Cheat Sheets | Free Engineering PDF Download | CampusLoop",
   description:
-    "Free semester exam previous year question papers (PYQ), verified professor notes, formula cheat sheets, AKTU quantum series, and lab manuals. Zero-login direct PDF downloads for 1,350+ Indian colleges.",
+    "Find college notes, previous-year questions (PYQs), formula sheets and lab manuals by subject, branch and semester, with source links and community feedback to help you choose useful study materials.",
   keywords: [
     "Free College Notes PDF",
     "B.Tech Semester Notes",
@@ -24,12 +24,12 @@ export const metadata: Metadata = {
     "Free PDF Download Zero Login",
     "Semester Exam Preparation",
   ],
-  alternates: { canonical: "https://campusloop.space/app/academics" },
+  alternates: { canonical: "https://campusloop.space/academics" },
   openGraph: {
     title: "Academic Notes, PYQs & Cheat Sheets | CampusLoop Study Vault",
     description:
-      "Free semester exam question papers (PYQs), verified professor notes, formula cheat sheets, and lab manuals. Direct PDF preview without sign-in.",
-    url: "https://campusloop.space/app/academics",
+      "Discover course notes, previous-year questions, formula sheets and lab manuals from campus contributors and public education sources.",
+    url: "https://campusloop.space/academics",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -81,8 +81,8 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
     "@type": "CollectionPage",
     name: "CampusLoop Academic Study Vault & PYQs",
     description:
-      "Free semester exam question papers, verified professor notes, formula cheat sheets, and lab manuals shared by college students across 1,350+ Indian universities.",
-    url: "https://campusloop.space/app/academics",
+      "A searchable collection of college notes, previous-year questions, formula sheets and lab manuals from campus contributors and public education sources.",
+    url: "https://campusloop.space/academics",
     inLanguage: "en-IN",
     mainEntity: {
       "@type": "ItemList",
@@ -93,37 +93,37 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
           "@type": "ListItem",
           position: 1,
           name: "Data Structures & Algorithms (DSA)",
-          url: "https://campusloop.space/app/academics?subject=CS201",
+          url: "https://campusloop.space/academics?q=CS201",
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Operating Systems (OS)",
-          url: "https://campusloop.space/app/academics?subject=CS303",
+          url: "https://campusloop.space/academics?q=CS303",
         },
         {
           "@type": "ListItem",
           position: 3,
           name: "Database Management Systems (DBMS)",
-          url: "https://campusloop.space/app/academics?subject=CS302",
+          url: "https://campusloop.space/academics?q=CS302",
         },
         {
           "@type": "ListItem",
           position: 4,
           name: "Computer Networks (CN)",
-          url: "https://campusloop.space/app/academics?subject=CS401",
+          url: "https://campusloop.space/academics?q=CS401",
         },
         {
           "@type": "ListItem",
           position: 5,
           name: "Engineering Mathematics & Calculus",
-          url: "https://campusloop.space/app/academics?subject=MA101",
+          url: "https://campusloop.space/academics?q=MA101",
         },
         {
           "@type": "ListItem",
           position: 6,
           name: "AKTU Quantum Series & Exam Banks",
-          url: "https://campusloop.space/app/academics?branch=Computer+Science",
+          url: "https://campusloop.space/academics?branch=Computer+Science",
         },
       ],
     },
@@ -138,7 +138,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         name: "How can I download engineering notes and PYQ papers for free on CampusLoop?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "All academic notes, previous year exam papers (PYQs), formula cheat sheets, and lab manuals on CampusLoop can be directly downloaded or previewed as PDFs for free with zero sign-in or login required.",
+          text: "Many public study resources can be opened without signing in. A guest download limit applies; signing in unlocks unlimited downloads and a personal study vault.",
         },
       },
       {
@@ -154,7 +154,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         name: "Are the study materials and question papers verified?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, study materials on CampusLoop undergo peer review and verified student upvoting to ensure syllabus alignment, accuracy, and examination relevance.",
+          text: "CampusLoop displays verification and community helpfulness signals where available, but these badges do not guarantee that every file is accurate or syllabus-aligned. Check the linked source or your course outline, and report broken or misleading materials.",
         },
       },
       {
@@ -182,7 +182,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         "@type": "ListItem",
         position: 2,
         name: "Academics",
-        item: "https://campusloop.space/app/academics",
+        item: "https://campusloop.space/academics",
       },
     ],
   };

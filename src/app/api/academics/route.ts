@@ -202,8 +202,11 @@ export async function GET(req: Request) {
               ]
             : [];
 
+      const sourceUrls = [item.fileUrl, item.driveUrl, ...(Array.isArray(rawAtts) ? rawAtts.map((attachment: any) => attachment?.url) : [])];
+      const hasPlaceholderSource = /academic-sample[.]pdf|campusloop-demo|placeholder|sample[.]pdf/i.test(sourceUrls.filter(Boolean).join(" "));
       return {
         ...item,
+        isVerified: Boolean(item.isVerified) && !hasPlaceholderSource,
         attachments,
         commentsCount: item.comments?.length || 0,
       };
@@ -223,12 +226,17 @@ export async function GET(req: Request) {
           institutionId: scope === "campus" && userInstitutionId ? userInstitutionId : undefined,
         });
         if (vMatches.length > 0) {
-          vectorItems = vMatches.map((vm) => ({
+          vectorItems = vMatches.map((vm) => {
+            const sourceUrls = [vm.resource?.fileUrl, vm.resource?.driveUrl, ...(Array.isArray(vm.resource?.attachments) ? vm.resource.attachments.map((attachment: any) => attachment?.url) : [])];
+            const hasPlaceholderSource = /academic-sample[.]pdf|campusloop-demo|placeholder|sample[.]pdf/i.test(sourceUrls.filter(Boolean).join(" "));
+            return {
             ...vm.resource,
+            isVerified: Boolean(vm.resource?.isVerified) && !hasPlaceholderSource,
             isSemanticMatch: true,
             semanticScore: vm.score,
             commentsCount: 0,
-          }));
+          };
+          });
         }
       } catch (err) {
         console.warn("Error running vector search in GET academics:", err);
@@ -378,7 +386,7 @@ export async function POST(req: Request) {
         downvotesCount: 0,
         downloadsCount: 0,
         viewsCount: 1,
-        isVerified: true,
+        isVerified: profile.role === "ADMIN" && body.isVerified === true,
       })
       .returning();
 

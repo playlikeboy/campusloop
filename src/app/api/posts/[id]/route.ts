@@ -91,11 +91,19 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
+    if (post.status !== "PUBLISHED") {
+      const isAuthor = viewerProfile && post.authorId === viewerProfile.id;
+      const isStaff = viewerProfile && (viewerProfile.role === "MODERATOR" || viewerProfile.role === "ADMIN");
+      if (!isAuthor && !isStaff) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
+    }
+
     // Calculated vote aggregates (NEVER return raw votes rows)
-    const postVotes = await db.query.votes.findMany({
+    const postVotes = (await db.query.votes.findMany({
       where: eq(votes.postId, id),
       columns: { value: true, userId: true },
-    });
+    })) || [];
 
     let upvotesCount = 0;
     let downvotesCount = 0;

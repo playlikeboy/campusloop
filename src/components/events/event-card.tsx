@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Check, Trophy, Users } from "lucide-react";
+import { BriefcaseBusiness, CalendarDays, Check, Dumbbell, GraduationCap, MessageSquareText, Palette, Rocket, Sparkles, Trophy, Users, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -55,6 +55,97 @@ export function isEventClosed(event: EventItem, nowMs = Date.now()) {
   return false;
 }
 
+
+function categoryArtwork(eventType: string) {
+  const type = String(eventType || "").toUpperCase();
+  if (["INTERNSHIP", "JOB"].includes(type)) {
+    return { gradient: "from-sky-700 via-blue-600 to-indigo-400", kicker: "CAREER GROWTH", Icon: BriefcaseBusiness };
+  }
+  if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) {
+    return { gradient: "from-amber-500 via-orange-500 to-pink-500", kicker: "FUND YOUR FUTURE", Icon: GraduationCap };
+  }
+  if (type === "HACKATHON") {
+    return { gradient: "from-violet-700 via-indigo-500 to-cyan-400", kicker: "BUILD · SHIP · WIN", Icon: Rocket };
+  }
+  if (["COMPETITION", "CONTEST"].includes(type)) {
+    return { gradient: "from-orange-600 via-rose-500 to-amber-400", kicker: "SHOW WHAT YOU CAN DO", Icon: Trophy };
+  }
+  if (type === "WORKSHOP") {
+    return { gradient: "from-cyan-700 via-teal-500 to-emerald-400", kicker: "LEARN BY DOING", Icon: Wrench };
+  }
+  if (type === "SEMINAR") {
+    return { gradient: "from-blue-700 via-indigo-500 to-violet-400", kicker: "IDEAS & INSIGHTS", Icon: MessageSquareText };
+  }
+  if (type === "MEETUP") {
+    return { gradient: "from-teal-700 via-cyan-500 to-blue-400", kicker: "MEET YOUR PEOPLE", Icon: Users };
+  }
+  if (["CULTURAL", "FEST"].includes(type)) {
+    return { gradient: "from-fuchsia-700 via-pink-500 to-rose-400", kicker: "CAMPUS CULTURE", Icon: Palette };
+  }
+  if (type === "SPORTS") {
+    return { gradient: "from-lime-700 via-green-500 to-emerald-400", kicker: "PLAY TO WIN", Icon: Dumbbell };
+  }
+  return { gradient: "from-slate-800 via-slate-700 to-indigo-500", kicker: "YOUR NEXT OPPORTUNITY", Icon: Sparkles };
+}
+
+function safePosterUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "https:") return null;
+    // The older catalog has generic Unsplash stock photos, not event posters.
+    if (parsed.hostname.toLowerCase() === "images.unsplash.com") return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+function EventArtwork({ event, variant }: { event: EventItem; variant: "row" | "grid" }) {
+  const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null);
+
+  const posterUrl = safePosterUrl(event.bannerUrl);
+  const hasPoster = Boolean(posterUrl && failedPosterUrl !== posterUrl);
+  const { gradient, kicker, Icon } = categoryArtwork(event.eventType);
+
+  return (
+    <div className={"relative size-full overflow-hidden bg-gradient-to-br " + gradient}>
+      {!hasPoster && (
+        <>
+          <div className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full border border-white/15 bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-20 -left-10 size-44 rounded-full bg-black/10 blur-2xl" />
+          <div className={"relative flex h-full flex-col justify-between p-4 " + (variant === "row" ? "items-center justify-center p-1.5" : "")}>
+            <span className={"text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 " + (variant === "row" ? "hidden" : "")}>
+              {kicker}
+            </span>
+            <div className={"flex items-center justify-between gap-3 " + (variant === "row" ? "justify-center" : "")}>
+              <Icon className={"text-white/90 drop-shadow-sm " + (variant === "row" ? "size-7" : "size-12")} strokeWidth={1.5} />
+              {variant === "grid" && <Sparkles className="size-5 text-white/70" strokeWidth={1.5} />}
+            </div>
+            {variant === "grid" && (
+              <h3 className="line-clamp-2 max-w-[92%] text-base font-semibold tracking-tight text-white drop-shadow-sm">
+                {event.title}
+              </h3>
+            )}
+          </div>
+        </>
+      )}
+      {hasPoster && (
+        <img
+          src={posterUrl!}
+          alt={event.title + " poster"}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setFailedPosterUrl(posterUrl)}
+          className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+        />
+      )}
+      {hasPoster && <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-black/5" />}
+    </div>
+  );
+}
+
 function eventDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Date TBA";
@@ -73,7 +164,6 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   const live = !closed && !Number.isNaN(start.getTime()) && start <= now && now <= end;
   const restricted = Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
   const modeLabel = event.mode === "ONLINE" ? "Online" : event.mode === "HYBRID" ? "Hybrid" : "On campus";
-  const banner = event.bannerUrl || "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=900&auto=format&fit=crop&q=80";
 
   async function handleQuickRegister() {
     if (isRegistered || isMutating || closed || event.participationType === "TEAM") return;
@@ -116,7 +206,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
       <article className="overflow-hidden rounded-2xl bg-card transition-colors hover:bg-muted/20">
         <Link href={href} className="group block">
           <div className="relative aspect-[16/9] overflow-hidden bg-muted/40">
-            <img src={banner} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
+            <EventArtwork event={event} variant="grid" />
             <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white">{event.eventType.toLowerCase().replace(/_/g, " ")}</span>
             {live && <span className="absolute right-3 top-3 rounded-full bg-rose-500 px-2.5 py-1 text-[10px] font-bold text-white">Live</span>}
           </div>
@@ -147,7 +237,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   return (
     <article className="flex gap-3 rounded-2xl bg-card p-3 transition-colors hover:bg-muted/20 sm:items-center sm:gap-4 sm:p-3.5">
       <Link href={href} className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-muted/40 sm:size-24">
-        <img src={banner} alt="" loading="lazy" className="size-full object-cover" />
+        <EventArtwork event={event} variant="row" />
         {live && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[9px] font-bold text-white">LIVE</span>}
       </Link>
       <div className="min-w-0 flex-1">

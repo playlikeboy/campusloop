@@ -245,6 +245,7 @@ const MCP_EVENT_TOOLS = [
       type: "object",
       properties: {
         idOrSlug: { type: "string", description: "Event ID or slug to update" },
+        bannerUrl: { type: "string", description: "Public HTTPS poster/banner image URL" },
         title: { type: "string", description: "New title" },
         description: { type: "string", description: "New description" },
         tagline: { type: "string", description: "New tagline" },
@@ -467,6 +468,7 @@ const CAMPUSLOOP_EVENTS_OPENAPI_SPEC = {
                 required: ["idOrSlug"],
                 properties: {
                   idOrSlug: { type: "string", description: "Event ID or slug" },
+                  bannerUrl: { type: "string", description: "Public HTTPS poster/banner image URL" },
                   title: { type: "string" },
                   description: { type: "string" },
                   tagline: { type: "string" },
@@ -1147,6 +1149,22 @@ async function handleMcpJsonRpcRequest({
           if (args.registrationDeadline) updates.registrationDeadline = new Date(args.registrationDeadline);
           if (args.prizesDescription) updates.prizesDescription = args.prizesDescription;
           if (args.status) updates.status = args.status;
+          if (args.bannerUrl !== undefined) {
+            const rawBannerUrl = String(args.bannerUrl || "").trim();
+            if (!rawBannerUrl) {
+              updates.bannerUrl = null;
+            } else {
+              try {
+                const parsedBannerUrl = new URL(rawBannerUrl);
+                if (parsedBannerUrl.protocol !== "https:" || !parsedBannerUrl.hostname) {
+                  throw new Error("bannerUrl must be a public HTTPS image URL");
+                }
+                updates.bannerUrl = parsedBannerUrl.toString();
+              } catch {
+                throw new Error("bannerUrl must be a valid public HTTPS image URL");
+              }
+            }
+          }
 
           const [updated] = await db.update(events).set(updates).where(eq(events.id, existing.id)).returning();
           toolOutput = formatEventOutput(updated);
