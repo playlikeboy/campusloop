@@ -55,10 +55,10 @@ async function cleanup() {
   `;
   console.log(`- Deleted ${deletedArticles.length} demo articles`);
 
-  // 3. Delete demo user profiles
+  // 3. Delete demo/loop author profiles
   const deletedProfiles = await sql`
     DELETE FROM user_profiles
-    WHERE username LIKE 'demo_%' AND is_seeded = TRUE
+    WHERE (username LIKE 'loop_%' OR username LIKE 'demo_%') AND is_seeded = TRUE
     RETURNING id, username
   `;
   console.log(`- Deleted ${deletedProfiles.length} demo author profiles`);
