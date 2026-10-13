@@ -92,14 +92,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
   // Avatar URL
   const avatar = getAvatarUrl(item.uploader?.avatarUrl, item.uploader?.username);
 
-  // Helpfulness reliability calculation
+  // Report community usefulness only when votes exist; never invent a score.
   const totalVotes = upvotes + downvotes;
-  const reliability =
-    totalVotes > 0
-      ? Math.round((upvotes / totalVotes) * 100)
-      : item.isVerified
-        ? 98
-        : 95;
+  const reliability = totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : null;
 
   // Comments query
   const { data: commentsData, mutate: mutateComments } = useSWR<{ comments: any[] }>(
@@ -356,7 +351,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer select-none",
+        "group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer",
         "border-b border-border/25 hover:bg-muted/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
@@ -478,7 +473,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
           </div>
         )}
 
-        {/* ── 5. Quality & Verification: ✓ Verified · 98% helpful ── */}
+        {/* ── 5. Quality & Community Feedback ── */}
         <div className="flex items-center gap-2 flex-wrap pt-0.5 text-[11px]">
           {item.isVerified && (
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-500 dark:text-emerald-400">
@@ -486,10 +481,17 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
               <span>Verified</span>
             </span>
           )}
-          {item.isVerified && <span className="text-muted-foreground/40">·</span>}
-          <span className="inline-flex items-center gap-1 font-medium text-muted-foreground">
-            <span>{reliability}% helpful</span>
-          </span>
+          {reliability !== null && (
+            <>
+              {item.isVerified && <span className="text-muted-foreground/40">·</span>}
+              <span className="inline-flex items-center gap-1 font-medium text-muted-foreground">
+                <span>{reliability}% found helpful</span>
+              </span>
+            </>
+          )}
+          {reliability === null && !item.isVerified && (
+            <span className="font-medium text-muted-foreground">Awaiting community feedback</span>
+          )}
         </div>
 
         {/* ── 6. Footer Actions: [↑ 76 ↓] [💬 4] ... [Save] [View →] ── */}
