@@ -74,8 +74,8 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
   const activeKey = keys.find((k) => k.id === selectedKeyId) || keys[0];
   const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
 
-  const getMcpHttpUrl = useCallback((keyToken: string) => `${origin}/api/mcp?key=${keyToken}`, [origin]);
-  const getMcpSseUrl = useCallback((keyToken: string) => `${origin}/api/mcp/sse?key=${keyToken}`, [origin]);
+  const getMcpHttpUrl = useCallback(() => `${origin}/api/mcp`, [origin]);
+  const getMcpSseUrl = useCallback(() => `${origin}/api/mcp/sse`, [origin]);
 
   const categories = [
     "ALL",
@@ -185,8 +185,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
 
   // ── IDE Snippet Generators ──
   const activeToken = activeKey?.key || "cl_mcp_YOUR_KEY_TOKEN";
-  const httpEndpoint = getMcpHttpUrl(activeToken);
-  const sseEndpoint = getMcpSseUrl(activeToken);
+  const httpEndpoint = getMcpHttpUrl();
+  const sseEndpoint = getMcpSseUrl();
+  const authorizationHeader = `Bearer ${activeToken}`;
 
   const ideSnippets: Record<string, string> = {
     cursor: JSON.stringify(
@@ -194,6 +195,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
         mcpServers: {
           campusloop: {
             url: httpEndpoint,
+            headers: { Authorization: authorizationHeader },
           },
         },
       },
@@ -205,7 +207,13 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
         mcpServers: {
           campusloop: {
             command: "npx",
-            args: ["-y", "mcp-remote", sseEndpoint],
+            args: [
+              "-y",
+              "mcp-remote",
+              sseEndpoint,
+              "--header",
+              `Authorization: Bearer ${activeToken}`,
+            ],
           },
         },
       },
@@ -217,6 +225,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
         mcpServers: {
           campusloop: {
             serverUrl: httpEndpoint,
+            headers: { Authorization: authorizationHeader },
           },
         },
       },
@@ -229,14 +238,16 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
           campusloop: {
             url: sseEndpoint,
             transport: "sse",
+            headers: { Authorization: authorizationHeader },
           },
         },
       },
       null,
       2
     ),
-    curl: `curl -X POST "${httpEndpoint}" \\
-  -H "Content-Type: application/json" \\
+    curl: `curl -X POST "${httpEndpoint}" \\\
+  -H "Authorization: Bearer ${activeToken}" \\\
+  -H "Content-Type: application/json" \\\
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -377,7 +388,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
             <div>
               <h2 className="text-sm font-black text-foreground">Your MCP API Keys</h2>
               <p className="text-xs text-muted-foreground">
-                Manage personal keys and select which key is used for IDE config generation below.
+                Manage personal keys and select a key for the setup snippets below. Credentials are sent in Authorization headers, never endpoint URLs.
               </p>
             </div>
           </div>

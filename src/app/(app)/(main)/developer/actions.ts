@@ -47,7 +47,7 @@ export async function createMcpKey(name?: string) {
   }
 
   const generatedKey = `cl_mcp_${randomUUID().replace(/-/g, "")}`;
-  const keyName = name?.trim() || `IDE Key #${existingCount.length + 1}`;
+  const keyName = (typeof name === "string" ? name.trim() : "").slice(0, 80) || `IDE Key #${existingCount.length + 1}`;
 
   const [newKey] = await db
     .insert(userMcpKeys)
@@ -133,14 +133,42 @@ export async function deleteMcpKey(keyId: string) {
 export async function testExecuteMcpTool(keyString: string, toolName: string, args: Record<string, unknown>) {
   const startTime = Date.now();
   try {
-    const context = await authenticateMcpKey(keyString, "CampusLoop Playground");
+    const user = await hexclaveServerApp.getUser();
+    if (!user) throw new Error("Not authenticated");
+    if (typeof keyString !== "string" || !keyString.trim()) {
+      throw new Error("Select one of your MCP keys first");
+    }
+    if (typeof toolName !== "string" || !toolName.trim() || toolName.length > 160) {
+      throw new Error("Choose a valid MCP tool");
+    }
+    if (!args || typeof args !== "object" || Array.isArray(args)) {
+      throw new Error("Tool arguments must be a JSON object");
+    }
+
+    const db = getDb();
+    const profile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+    });
+    if (!profile) throw new Error("Student profile not found");
+
+    const ownedKey = await db.query.userMcpKeys.findFirst({
+      where: and(
+        eq(userMcpKeys.userId, profile.id),
+        eq(userMcpKeys.key, keyString.trim())
+      ),
+    });
+    if (!ownedKey || !ownedKey.isActive) {
+      throw new Error("Choose an active key owned by your account");
+    }
+
+    const context = await authenticateMcpKey(ownedKey.key, "CampusLoop Playground");
     const response = await handleMcpJsonRpc(
       {
         jsonrpc: "2.0",
         id: "playground-test",
         method: "tools/call",
         params: {
-          name: toolName,
+          name: toolName.trim(),
           arguments: args,
         },
       },
@@ -153,12 +181,12 @@ export async function testExecuteMcpTool(keyString: string, toolName: string, ar
       latencyMs,
       response,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     const latencyMs = Date.now() - startTime;
     return {
       success: false,
       latencyMs,
-      error: err?.message || "Execution error",
+      error: err instanceof Error ? err.message : "Execution error",
     };
   }
 }
