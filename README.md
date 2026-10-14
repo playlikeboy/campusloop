@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://campusloop.space"><strong>🌐 Live App (campusloop.space)</strong></a> •
   <a href="https://campusloop.space/demo"><strong>🔑 Demo Access (/demo)</strong></a> •
+  <a href="https://www.producthunt.com/products/campusloop"><strong>🚀 Product Hunt</strong></a> •
   <a href="docs/PROJECT_BRIEF.md"><strong>📑 Project Brief & Viral Playbook</strong></a> •
   <a href="docs/ARCHITECTURE.md"><strong>🏛️ System Architecture</strong></a> •
   <a href="https://campusloop.space/overview"><strong>📊 Strategic Overview</strong></a> •
@@ -343,6 +344,7 @@ bun run deploy
 ## 🔗 Resources & Statutory Links
 
 - 🌐 **Official Website**: [https://campusloop.space](https://campusloop.space)
+- 🚀 **Product Hunt**: [https://www.producthunt.com/products/campusloop](https://www.producthunt.com/products/campusloop)
 - 🏛️ **System Architecture**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 📊 **Strategic Overview**: [https://campusloop.space/overview](https://campusloop.space/overview)
 - ⚡ **Investor Pitch Deck**: [https://campusloop.space/pitch](https://campusloop.space/pitch)
