@@ -122,3 +122,13 @@ Acceptance criteria:
 - Filters, search, pagination, all actions, and all visible links work at narrow mobile widths.
 - No fake metrics, seeded fake players, dead controls, or unsupported claims appear in production.
 ~~~ 
+
+## Product patterns researched
+
+- **Solo-player entry:** Challengermode's Team Finder and Free Agent patterns help individual players join teams before tournament registration: https://support.challengermode.com/en/start-here/i-m-solo-how-do-i-join-a-team
+- **Communities around events:** Challengermode Spaces combine communities, discussion, and tournament/league organization: https://support.challengermode.com/en/spaces/spaces
+- **Connected social competition:** Nakama documents groups, chat, parties, notifications, tournaments, and leaderboards as related platform capabilities: https://github.com/heroiclabs/nakama
+- **Fair competition lifecycle:** tournament eligibility, join requirements, attempts, schedules, and score rules should be server-enforced: https://heroiclabs.com/docs/nakama/concepts/tournaments/
+- **Skill-aware progression:** build seasonal and friend/skill-segmented rankings rather than a single lifetime leaderboard dominated by established players: https://heroiclabs.com/docs/nakama/concepts/leaderboards/
+
+These are product-design references, not dependencies or integrations currently wired into CampusLoop.
