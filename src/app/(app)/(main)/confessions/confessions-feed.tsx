@@ -151,7 +151,7 @@ export function ConfessionsFeed() {
     profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 py-0 sm:py-3">
+    <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 pt-0 pb-0 sm:pt-0 sm:pb-3 sm:-mt-6 lg:mt-0">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* ─── Main Confessions Column (8 cols on lg) ─── */}
         <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 bg-transparent sm:bg-card/25 sm:rounded-2xl sm:border sm:border-border/30 overflow-hidden shadow-2xs">
