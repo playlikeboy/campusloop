@@ -199,7 +199,10 @@ export async function GET(req: NextRequest) {
       }
 
       if (tab === "gaming") {
-        const conditions: any[] = [];
+        if (!profile.institutionId) {
+          return NextResponse.json({ error: "Choose your college to find campus gaming lobbies." }, { status: 403 });
+        }
+        const conditions: any[] = [eq(gamingLobbies.institutionId, profile.institutionId)];
         const rawStatus = (searchParams.get("status") || "OPEN").toUpperCase();
         const allowedStatuses = ["OPEN", "IN_GAME", "FULL", "COMPLETED", "ALL"];
         const statusFilter = allowedStatuses.includes(rawStatus) ? rawStatus : "OPEN";

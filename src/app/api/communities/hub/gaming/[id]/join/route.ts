@@ -27,17 +27,18 @@ async function getCurrentProfile() {
     where: eq(userProfiles.userId, user.id),
   });
   if (!profile) return { error: NextResponse.json({ error: "Profile not found" }, { status: 404 }) };
-  if (!profile.institutionId) {
+  const institutionId = profile.institutionId;
+  if (!institutionId) {
     return { error: NextResponse.json({ error: "A college profile is required." }, { status: 403 }) };
   }
-  return { db, profile };
+  return { db, profile, institutionId };
 }
 
 export async function POST(_request: Request, context: RouteContext) {
   try {
     const current = await getCurrentProfile();
     if ("error" in current) return current.error;
-    const { db, profile } = current;
+    const { db, profile, institutionId } = current;
     const { id } = await context.params;
 
     const [item] = await db
@@ -60,7 +61,7 @@ export async function POST(_request: Request, context: RouteContext) {
       .where(
         and(
           eq(gamingLobbies.id, id),
-          eq(gamingLobbies.institutionId, profile.institutionId),
+          eq(gamingLobbies.institutionId, institutionId),
           eq(gamingLobbies.status, "OPEN"),
           lt(gamingLobbies.slotsFilled, gamingLobbies.slotsTotal),
           sql`NOT EXISTS (
@@ -75,7 +76,7 @@ export async function POST(_request: Request, context: RouteContext) {
     if (item) return NextResponse.json({ success: true, joined: true, item });
 
     const existing = await db.query.gamingLobbies.findFirst({
-      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, profile.institutionId)),
+      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, institutionId)),
     });
     if (!existing) return NextResponse.json({ error: "Lobby not found in your campus." }, { status: 404 });
     if (hasPlayer(existing.players, profile.id)) {
@@ -98,11 +99,11 @@ export async function DELETE(_request: Request, context: RouteContext) {
   try {
     const current = await getCurrentProfile();
     if ("error" in current) return current.error;
-    const { db, profile } = current;
+    const { db, profile, institutionId } = current;
     const { id } = await context.params;
 
     const existing = await db.query.gamingLobbies.findFirst({
-      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, profile.institutionId)),
+      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, institutionId)),
     });
     if (!existing) return NextResponse.json({ error: "Lobby not found in your campus." }, { status: 404 });
     if (existing.hostId === profile.id) {
@@ -127,7 +128,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
       .where(
         and(
           eq(gamingLobbies.id, id),
-          eq(gamingLobbies.institutionId, profile.institutionId),
+          eq(gamingLobbies.institutionId, institutionId),
           eq(gamingLobbies.status, "OPEN"),
           sql`EXISTS (
             SELECT 1
@@ -140,7 +141,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
     if (item) return NextResponse.json({ success: true, joined: false, item });
     const latest = await db.query.gamingLobbies.findFirst({
-      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, profile.institutionId)),
+      where: and(eq(gamingLobbies.id, id), eq(gamingLobbies.institutionId, institutionId)),
     });
     return NextResponse.json({ success: true, joined: false, item: latest ?? existing });
   } catch (error) {
