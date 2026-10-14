@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { AcademicCard } from "@/components/communities/academic-card";
 import { GamingLobbyCard } from "@/components/communities/gaming-lobby-card";
+import { GamingHubHero } from "@/components/communities/gaming-hub-hero";
 import { HousingCard } from "@/components/communities/housing-card";
 import { LostFoundCard } from "@/components/communities/lost-found-card";
 import { MarketplaceCard } from "@/components/communities/marketplace-card";
@@ -85,8 +86,8 @@ const HUB_META: Record<DedicatedHubType, {
     icon: Gamepad2,
     actionLabel: "Create Lobby",
     createHref: "/gaming/new",
-    badgeColor: "bg-purple-500/15 text-purple-500",
-    gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
+    badgeColor: "bg-primary/10 text-primary",
+    gradient: "from-primary/15 via-coral/5 to-transparent",
   },
   rideshare: {
     title: "Ride Share Hub",
@@ -166,7 +167,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
     return "/api/communities/feed?" + params.toString();
   }, [hubType, page, urlSearch]);
 
-  const { data, error, isLoading } = useSWR<FeedResponse>(feedUrl, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<FeedResponse>(feedUrl, fetcher, {
     keepPreviousData: true,
     revalidateOnFocus: false,
   });
@@ -193,7 +194,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl bg-background pb-28 text-foreground">
+    <main className={cn("mx-auto min-h-screen w-full bg-background pb-28 text-foreground", hubType === "gaming" ? "max-w-4xl" : "max-w-3xl")}>
       <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5 sm:py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -226,7 +227,10 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
         </div>
       </header>
 
-      <section className="relative overflow-hidden px-3 pb-4 sm:px-5">
+      {hubType === "gaming" ? (
+        <GamingHubHero search={search} onSearchChange={setSearch} />
+      ) : (
+        <section className="relative overflow-hidden px-3 pb-4 sm:px-5">
         <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b", meta.gradient)} />
         <div className="relative space-y-3 rounded-[28px] bg-card/65 p-4 shadow-sm sm:p-5">
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{meta.description}</p>
@@ -243,17 +247,38 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
           </div>
         </div>
       </section>
+      )}
 
       <section className="space-y-4 px-3 sm:px-5">
+        {hubType === "gaming" ? (
+          <div className="flex items-end justify-between gap-3 px-1">
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-foreground">Open lobbies</h2>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Jump into a match or start one of your own.</p>
+            </div>
+            {data ? (
+              <span className="shrink-0 rounded-full bg-muted/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                {data.total} {data.total === 1 ? "lobby" : "lobbies"}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
         {isLoading && !data ? (
           <div className="flex min-h-48 items-center justify-center gap-2 text-sm font-semibold text-muted-foreground">
             <Loader2 className="size-4 animate-spin text-primary" />
             Loading listings...
           </div>
         ) : error ? (
-          <div className="rounded-[28px] bg-muted/25 px-6 py-16 text-center shadow-2xs">
-            <h2 className="text-base font-black">Couldn't load this hub</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Refresh the page and try again.</p>
+          <div className="rounded-[28px] bg-muted/25 px-6 py-16 text-center shadow-2xs" role="alert">
+            <h2 className="text-base font-black">{hubType === "gaming" ? "Lobbies aren’t loading right now" : "Couldn’t load this hub"}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Check your connection and try again.</p>
+            <button
+              type="button"
+              onClick={() => void mutate()}
+              className="mt-5 inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              Try again
+            </button>
           </div>
         ) : items.length > 0 ? (
           <>
@@ -267,6 +292,39 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
               </p>
             ) : null}
           </>
+        ) : hubType === "gaming" ? (
+          <div className="rounded-[28px] bg-[var(--surface)] px-5 py-12 text-center shadow-2xs ring-1 ring-border/60 sm:px-8">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Gamepad2 className="size-7" aria-hidden="true" />
+            </div>
+            <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Your next match starts here</p>
+            <h2 className="mt-2 text-lg font-black tracking-tight text-foreground">
+              {urlSearch ? "No lobbies match that search yet" : "Be the first to open a lobby"}
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              {urlSearch
+                ? "Try another game or clear your search to see all open lobbies."
+                : "Set the game, invite your campus, and get the next match going."}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href={meta.createHref}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-extrabold text-primary-foreground shadow-sm transition hover:opacity-90 active:scale-95"
+              >
+                <Plus className="size-3.5" />
+                Create a lobby
+              </Link>
+              {urlSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="inline-flex min-h-10 items-center rounded-full border border-border/70 bg-background px-4 text-xs font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  Clear search
+                </button>
+              ) : null}
+            </div>
+          </div>
         ) : (
           <div className="rounded-[28px] bg-muted/25 px-6 py-16 text-center shadow-2xs">
             <div className="mx-auto flex size-14 items-center justify-center rounded-3xl bg-card text-primary shadow-sm">
