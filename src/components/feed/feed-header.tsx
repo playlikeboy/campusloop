@@ -63,12 +63,12 @@ export function FeedHeader({
               type="button"
               onClick={() => onScopeChange("CAMPUS")}
               className={cn(
-                "flex h-6.5 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium transition-all cursor-pointer",
+                "flex h-10 sm:h-6.5 items-center gap-1 rounded-full px-2.5 text-xs sm:text-[11px] font-medium transition-all cursor-pointer",
                 scope === "CAMPUS" ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs" : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               aria-pressed={scope === "CAMPUS"}
             >
-              <School className="size-2.5 shrink-0 text-[var(--primary)]" />
+              <School className="size-3.5 sm:size-2.5 shrink-0 text-[var(--primary)]" />
               <span className="max-w-[100px] truncate">
                 {institutionSlug
                   ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
@@ -79,12 +79,12 @@ export function FeedHeader({
               type="button"
               onClick={() => onScopeChange("GLOBAL")}
               className={cn(
-                "flex h-6.5 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium transition-all cursor-pointer",
+                "flex h-10 sm:h-6.5 items-center gap-1 rounded-full px-2.5 text-xs sm:text-[11px] font-medium transition-all cursor-pointer",
                 scope === "GLOBAL" ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs" : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               )}
               aria-pressed={scope === "GLOBAL"}
             >
-              <Globe className="size-2.5 shrink-0 text-emerald-500" />
+              <Globe className="size-3.5 sm:size-2.5 shrink-0 text-emerald-500" />
               <span>All India</span>
             </button>
           </div>
@@ -103,7 +103,7 @@ export function FeedHeader({
                   aria-selected={isCurrent}
                   onClick={() => onSortChange(item.id)}
                   className={cn(
-                    "flex h-6.5 shrink-0 items-center rounded-full px-2.5 text-xs transition-colors cursor-pointer select-none",
+                    "flex h-10 sm:h-6.5 shrink-0 items-center rounded-full px-2.5 text-xs transition-colors cursor-pointer select-none",
                     isCurrent
                       ? "bg-[var(--primary-soft)] text-[var(--primary)] font-semibold border border-[var(--primary-soft-border)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] font-medium"
@@ -118,7 +118,7 @@ export function FeedHeader({
             <Link
               href="/confessions"
               role="tab"
-              className="flex h-6.5 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium transition-colors"
+              className="flex h-10 sm:h-6.5 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium transition-colors"
             >
               <span>Confessions</span>
               <Flame className="size-3 text-purple-400" />
@@ -159,14 +159,14 @@ export function FeedHeader({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Who can post</span>
-            <div className="flex rounded-lg border border-border/40 bg-muted/50 p-0.5 text-[10px] font-bold">
+            <div className="flex rounded-lg border border-border/40 bg-muted/50 p-0.5 text-[11px] sm:text-[10px] font-bold">
               {VISIBILITY_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => onVisibilityChange(option.id)}
                   className={cn(
-                    "flex-1 rounded-md py-1.5 transition-colors",
+                    "flex-1 min-h-9 sm:min-h-0 rounded-md py-2 sm:py-1.5 transition-colors",
                     visibility === option.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
                   )}
                 >
@@ -178,14 +178,14 @@ export function FeedHeader({
 
           <div className="space-y-1.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category</span>
-            <div className="flex rounded-lg border border-border/40 bg-muted/50 p-0.5 text-[10px] font-bold">
+            <div className="flex rounded-lg border border-border/40 bg-muted/50 p-0.5 text-[11px] sm:text-[10px] font-bold">
               {CATEGORY_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => onTypeChange(option.id)}
                   className={cn(
-                    "flex-1 rounded-md py-1.5 transition-colors",
+                    "flex-1 min-h-9 sm:min-h-0 rounded-md py-2 sm:py-1.5 transition-colors",
                     type === option.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
                   )}
                 >
@@ -205,7 +205,7 @@ export function FeedHeader({
                 type="button"
                 onClick={() => onSortChange(item.id)}
                 className={cn(
-                  "shrink-0 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold",
+                  "min-h-10 sm:min-h-0 shrink-0 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] font-semibold",
                   sort === item.id ? "bg-primary/10 text-primary" : "bg-muted/50 text-muted-foreground"
                 )}
               >

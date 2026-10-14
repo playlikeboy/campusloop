@@ -211,13 +211,14 @@ export function CollegeHubClient({
 
       {/* ─── Clean Navigation Underline / Pill Tabs ─── */}
       <div className="sticky top-12 lg:top-0 z-20 -mx-3 sm:-mx-4 px-3 sm:px-4 py-2 bg-background/85 backdrop-blur-xl border-b border-border/20">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+        <div role="tablist" aria-label="College sections" className="flex items-center gap-2 overflow-x-auto scrollbar-none">
           {/* Tab 1: Campus Feed */}
           <button
             type="button"
             onClick={() => setActiveTab("feed")}
+            aria-pressed={activeTab === "feed"}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "feed"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -238,8 +239,9 @@ export function CollegeHubClient({
           <button
             type="button"
             onClick={() => setActiveTab("academics")}
+            aria-pressed={activeTab === "academics"}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "academics"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -265,8 +267,9 @@ export function CollegeHubClient({
           <button
             type="button"
             onClick={() => setActiveTab("students")}
+            aria-pressed={activeTab === "students"}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "students"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -279,8 +282,9 @@ export function CollegeHubClient({
           <button
             type="button"
             onClick={() => setActiveTab("clubs")}
+            aria-pressed={activeTab === "clubs"}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "clubs"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -293,8 +297,9 @@ export function CollegeHubClient({
           <button
             type="button"
             onClick={() => setActiveTab("info")}
+            aria-pressed={activeTab === "info"}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "info"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -311,19 +316,19 @@ export function CollegeHubClient({
           {/* Universal In-College Search & Filter Bar */}
           <div className="space-y-2.5">
             <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder={`Search discussions, confessions & polls in ${shortName}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all shadow-2xs"
+                className="w-full h-11 pl-10 pr-12 rounded-full border border-border/50 bg-card text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/15 transition-all shadow-2xs"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex min-h-9 items-center justify-center rounded-full px-2 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                 >
                   Clear
                 </button>
@@ -331,93 +336,34 @@ export function CollegeHubClient({
             </div>
 
             {/* Category Filter Pills & Sort */}
-            <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("ALL")}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
-                    categoryFilter === "ALL"
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div role="group" aria-label="Filter campus posts by type" className="flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <button type="button" onClick={() => setCategoryFilter("ALL")} aria-pressed={categoryFilter === "ALL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "ALL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   All ({posts.length})
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("CONFESSION")}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
-                    categoryFilter === "CONFESSION"
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+                <button type="button" onClick={() => setCategoryFilter("CONFESSION")} aria-pressed={categoryFilter === "CONFESSION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "CONFESSION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Confessions
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("QUESTION")}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
-                    categoryFilter === "QUESTION"
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+                <button type="button" onClick={() => setCategoryFilter("QUESTION")} aria-pressed={categoryFilter === "QUESTION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "QUESTION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Questions
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("POLL")}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
-                    categoryFilter === "POLL"
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+                <button type="button" onClick={() => setCategoryFilter("POLL")} aria-pressed={categoryFilter === "POLL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "POLL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Polls
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("EVENT")}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
-                    categoryFilter === "EVENT"
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+                <button type="button" onClick={() => setCategoryFilter("EVENT")} aria-pressed={categoryFilter === "EVENT"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "EVENT" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Events
                 </button>
               </div>
 
-              {/* Sort Dropdown / Toggle */}
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex justify-end sm:shrink-0">
                 <button
                   type="button"
-                  onClick={() =>
-                    setSortOrder(
-                      sortOrder === "LATEST"
-                        ? "TOP_VOTED"
-                        : sortOrder === "TOP_VOTED"
-                          ? "MOST_DISCUSSED"
-                          : "LATEST"
-                    )
-                  }
-                  className="px-3 py-1 rounded-full border border-border/80 bg-card text-[11px] font-bold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  onClick={() => setSortOrder(sortOrder === "LATEST" ? "TOP_VOTED" : sortOrder === "TOP_VOTED" ? "MOST_DISCUSSED" : "LATEST")}
+                  aria-label={`Sort posts: ${sortOrder === "LATEST" ? "Latest" : sortOrder === "TOP_VOTED" ? "Top Voted" : "Most Discussed"}`}
+                  className="inline-flex min-h-10 items-center gap-1 rounded-full border border-border/80 bg-card px-3 text-xs font-bold text-foreground shadow-2xs transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 >
-                  <ArrowUpDown className="size-3 text-primary" />
-                  <span>
-                    {sortOrder === "LATEST"
-                      ? "Latest"
-                      : sortOrder === "TOP_VOTED"
-                        ? "Top Voted"
-                        : "Most Discussed"}
-                  </span>
+                  <ArrowUpDown className="size-3.5 text-primary" />
+                  <span>{sortOrder === "LATEST" ? "Latest" : sortOrder === "TOP_VOTED" ? "Top Voted" : "Most Discussed"}</span>
                 </button>
               </div>
             </div>
@@ -442,20 +388,20 @@ export function CollegeHubClient({
           )}
 
           {/* Quick Post Prompt Bar */}
-          <div className="rounded-3xl bg-card p-4 flex items-center justify-between gap-3 shadow-2xs border border-border/40">
+          <div className="rounded-3xl bg-card p-4 flex flex-col items-stretch justify-between gap-3 shadow-2xs border border-border/40 sm:flex-row sm:items-center">
             <p className="text-xs font-bold text-foreground">
               Have something on your mind about {shortName}?
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/post/new?college=${college.slug}&tag=AskSeniors`}
-                className="px-3.5 py-1.5 rounded-full border border-border/70 bg-card text-xs font-bold text-foreground hover:bg-muted transition-colors"
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-border/70 bg-card px-3.5 text-xs font-bold text-foreground transition-colors hover:bg-muted"
               >
                 Ask Seniors
               </Link>
               <Link
                 href={`/post/new?college=${college.slug}`}
-                className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/95 cursor-pointer shrink-0"
               >
                 <Plus className="size-3.5" />
                 <span>New Post</span>

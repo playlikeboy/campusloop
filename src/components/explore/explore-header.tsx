@@ -43,7 +43,7 @@ export function ExploreHeader({
             type="button"
             onClick={() => onScopeChange("CAMPUS")}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
+              "flex min-h-10 sm:min-h-0 items-center gap-1.5 px-3 py-2 sm:py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               scope === "CAMPUS"
                 ? "bg-background text-foreground shadow-xs border border-border/60"
@@ -58,7 +58,7 @@ export function ExploreHeader({
             type="button"
             onClick={() => onScopeChange("INDIA")}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
+              "flex min-h-10 sm:min-h-0 items-center gap-1.5 px-3 py-2 sm:py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               scope === "INDIA" || scope === "GLOBAL"
                 ? "bg-background text-foreground shadow-xs border border-border/60"
