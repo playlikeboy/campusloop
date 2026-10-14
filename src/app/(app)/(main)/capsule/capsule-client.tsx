@@ -17,7 +17,7 @@ interface CapsuleClientProps {
 }
 
 export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps) {
-  const { data, mutate } = useSWR<{ capsules: any[] }>("/api/capsules", fetcher, {
+  const { data, mutate, error } = useSWR<{ capsules: any[] }>("/api/capsules", fetcher, {
     fallbackData: { capsules: initialCapsules },
   });
 
@@ -97,11 +97,30 @@ export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps
             Bury predictions & letters for your future campus self.
           </h2>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Every contribution is cryptographically sealed until the target date. When the timer strikes zero,
-            the vault erupts in an interactive campus museum wall.
+            Entries stay hidden from other students in CampusLoop until the target date, then become part of
+            a shared campus memory wall. Only add something you are comfortable revealing at unlock time.
           </p>
         </div>
       </div>
+
+      {error ? (
+        <div role="alert" className="mx-4 flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <History className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-foreground">Capsules couldn’t refresh</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Showing the last available list where possible. Try again to fetch the latest entries and unlock states.
+            </p>
+            <button
+              type="button"
+              onClick={() => void mutate()}
+              className="mt-3 inline-flex min-h-9 items-center justify-center rounded-xl bg-background px-3 text-xs font-bold text-foreground ring-1 ring-border transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {/* Capsules Stream */}
       <div className="px-4 space-y-4">

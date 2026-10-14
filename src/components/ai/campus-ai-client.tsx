@@ -210,7 +210,7 @@ export function CampusAiClient() {
         }),
       });
 
-      const data = (await response.json()) as {
+      const data = (await response.json().catch(() => ({}))) as {
         answer?: string;
         sources?: AiSource[];
         suggestedActions?: Array<{ label: string; action: string; payload?: Record<string, unknown> }>;
@@ -218,6 +218,9 @@ export function CampusAiClient() {
         messageId?: string;
         error?: string;
       };
+      if (!response.ok) {
+        throw new Error(data.error || "Campus AI is temporarily unavailable. Try again in a moment.");
+      }
 
       if (data.conversationId) {
         setConversationId(data.conversationId);

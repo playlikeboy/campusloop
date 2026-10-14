@@ -67,7 +67,7 @@ export function CapsuleBuryModal({
 
       sounds.archive();
       haptics.success();
-      toast.success("Memory sealed in the Time Capsule!");
+      toast.success("Memory saved to the Time Capsule.");
       onEntryBuried?.(entry);
       onClose();
     } catch (err: unknown) {
@@ -95,7 +95,7 @@ export function CapsuleBuryModal({
               </div>
               <h3 className="text-base font-black text-foreground line-clamp-1">{capsuleTitle}</h3>
               <p className="text-xs text-muted-foreground font-medium">
-                Sealed until unlock date. No one on campus can read this until the vault opens!
+                Hidden from other students until the target date. Avoid including details you would not want shared when it opens.
               </p>
             </div>
             <button
@@ -145,6 +145,7 @@ export function CapsuleBuryModal({
               <input
                 type="text"
                 value={title}
+                maxLength={120}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={
                   entryType === "PREDICTION"
@@ -164,6 +165,7 @@ export function CapsuleBuryModal({
               </label>
               <textarea
                 value={content}
+                maxLength={5000}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write honestly. What do you hope will happen? What will you miss most? What were you feeling right at this moment in college?"
                 rows={4}
@@ -253,7 +255,7 @@ export function CapsuleBuryModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" />
-                    <span>Sealing Memory...</span>
+                    <span>Saving memory...</span>
                   </>
                 ) : (
                   <>
