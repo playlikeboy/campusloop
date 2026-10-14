@@ -48,7 +48,15 @@ import { communities, communityMembers, communityWebhooks } from "./communities"
 import { secretCrushes, swipes } from "./dating";
 import { eventRegistrations, events } from "./events";
 import { externalMedia, externalPosts } from "./external-content";
-import { gamingLobbies } from "./gaming";
+import {
+  gamerProfiles,
+  gamingLobbies,
+  gamingLobbyMembers,
+  gamingProgression,
+  gamingTournamentEntries,
+  gamingTournamentMatches,
+  gamingTournaments,
+} from "./gaming";
 import { housingListings } from "./housing";
 import { institutionDomains, institutions } from "./institutions";
 import { lostAndFoundItems } from "./lost-and-found";
@@ -436,13 +444,96 @@ export const marketplaceItemsRelations = relations(marketplaceItems, ({ one }) =
   }),
 }));
 
-export const gamingLobbiesRelations = relations(gamingLobbies, ({ one }) => ({
+export const gamingLobbiesRelations = relations(gamingLobbies, ({ one, many }) => ({
   host: one(userProfiles, {
     fields: [gamingLobbies.hostId],
     references: [userProfiles.id],
   }),
   institution: one(institutions, {
     fields: [gamingLobbies.institutionId],
+    references: [institutions.id],
+  }),
+  members: many(gamingLobbyMembers),
+}));
+
+export const gamingLobbyMembersRelations = relations(gamingLobbyMembers, ({ one }) => ({
+  lobby: one(gamingLobbies, {
+    fields: [gamingLobbyMembers.lobbyId],
+    references: [gamingLobbies.id],
+  }),
+  user: one(userProfiles, {
+    fields: [gamingLobbyMembers.userId],
+    references: [userProfiles.id],
+  }),
+}));
+
+export const gamerProfilesRelations = relations(gamerProfiles, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [gamerProfiles.userId],
+    references: [userProfiles.id],
+  }),
+  institution: one(institutions, {
+    fields: [gamerProfiles.institutionId],
+    references: [institutions.id],
+  }),
+}));
+
+export const gamingTournamentsRelations = relations(gamingTournaments, ({ one, many }) => ({
+  organizer: one(userProfiles, {
+    fields: [gamingTournaments.organizerId],
+    references: [userProfiles.id],
+  }),
+  institution: one(institutions, {
+    fields: [gamingTournaments.institutionId],
+    references: [institutions.id],
+  }),
+  entries: many(gamingTournamentEntries),
+  matches: many(gamingTournamentMatches),
+}));
+
+export const gamingTournamentEntriesRelations = relations(
+  gamingTournamentEntries,
+  ({ one, many }) => ({
+    tournament: one(gamingTournaments, {
+      fields: [gamingTournamentEntries.tournamentId],
+      references: [gamingTournaments.id],
+    }),
+    captain: one(userProfiles, {
+      fields: [gamingTournamentEntries.captainId],
+      references: [userProfiles.id],
+    }),
+  })
+);
+
+export const gamingTournamentMatchesRelations = relations(gamingTournamentMatches, ({ one }) => ({
+  tournament: one(gamingTournaments, {
+    fields: [gamingTournamentMatches.tournamentId],
+    references: [gamingTournaments.id],
+  }),
+  entry1: one(gamingTournamentEntries, {
+    fields: [gamingTournamentMatches.entry1Id],
+    references: [gamingTournamentEntries.id],
+    relationName: "match_entry_1",
+  }),
+  entry2: one(gamingTournamentEntries, {
+    fields: [gamingTournamentMatches.entry2Id],
+    references: [gamingTournamentEntries.id],
+    relationName: "match_entry_2",
+  }),
+  winner: one(gamingTournamentEntries, {
+    fields: [gamingTournamentMatches.winnerId],
+    references: [gamingTournamentEntries.id],
+    relationName: "match_winner",
+  }),
+}));
+
+export const gamingProgressionRelations = relations(gamingProgression, ({ one }) => ({
+  user: one(userProfiles, {
+    fields: [gamingProgression.userId],
+    references: [userProfiles.id],
+  }),
+  institution: one(institutions, {
+    fields: [gamingProgression.institutionId],
     references: [institutions.id],
   }),
 }));

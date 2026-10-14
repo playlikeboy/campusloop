@@ -1,6 +1,21 @@
 "use client";
 
-import { Clock, Copy, ExternalLink, Gamepad2, Share2, ShieldCheck, Sword, Users } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Copy,
+  ExternalLink,
+  Gamepad2,
+  Loader2,
+  MessageSquare,
+  Play,
+  Share2,
+  ShieldAlert,
+  ShieldCheck,
+  Sword,
+  Users,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSWRConfig } from "swr";
@@ -21,26 +36,47 @@ interface GamingLobbyCardProps {
       points?: number | null;
     };
     institution?: { id: string; name: string; slug: string } | null;
+    members?: Array<{
+      id: string;
+      userId: string;
+      role?: string | null;
+      gamerTag?: string | null;
+      user?: {
+        id: string;
+        username: string;
+        displayName: string;
+        avatarUrl?: string | null;
+      };
+    }>;
+    isJoined?: boolean;
+    isHost?: boolean;
   };
   currentUserId?: string;
   highlighted?: boolean;
+  onRefresh?: () => void;
 }
 
-function hasPlayer(players: string | null | undefined, userId?: string) {
-  if (!players || !userId) return false;
-  try {
-    const members = JSON.parse(players) as Array<{ userId?: string }>;
-    return Array.isArray(members) && members.some((member) => member?.userId === userId);
-  } catch {
-    return false;
-  }
-}
+export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRefresh }: GamingLobbyCardProps) {
+  // Determine if current user is member from item or parsed players
+  const initialIsJoined = (() => {
+    if (item.isJoined !== undefined) return item.isJoined;
+    if (!currentUserId) return false;
+    if (item.hostId === currentUserId) return true;
+    if (item.members && item.members.some((m) => m.userId === currentUserId)) return true;
+    try {
+      const players = item.players ? JSON.parse(item.players) : [];
+      return players.some((p: any) => p.userId === currentUserId);
+    } catch {
+      return false;
+    }
+  })();
 
-export function GamingLobbyCard({ item, currentUserId, highlighted = false }: GamingLobbyCardProps) {
-  const [joined, setJoined] = useState(() => hasPlayer(item.players, currentUserId));
+  const isHost = currentUserId ? item.hostId === currentUserId || item.isHost : false;
+  const [joined, setJoined] = useState(initialIsJoined);
   const [slotsFilled, setSlotsFilled] = useState(item.slotsFilled);
-  const [isPending, setIsPending] = useState(false);
-  const { mutate: mutateCache } = useSWRConfig();
+  const [status, setStatus] = useState(item.status);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+>>>>>>> 63816f25 (feat(gaming): build full campus gaming ecosystem with lobbies, tournaments, LFT teammates, and progression)
 
   const avatar = getAvatarUrl(item.host.avatarUrl, item.host.username);
   const isHost = currentUserId === item.hostId;
@@ -66,6 +102,25 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
     setJoined(hasPlayer(item.players, currentUserId));
     setSlotsFilled(item.slotsFilled);
   }, [item.players, item.slotsFilled, currentUserId]);
+
+  // Parse roster players for visual chips
+  const rosterPlayers: any[] = (() => {
+    if (item.members && item.members.length > 0) {
+      return item.members.map((m) => ({
+        userId: m.userId,
+        username: m.user?.username || "player",
+        displayName: m.user?.displayName || "Player",
+        avatarUrl: m.user?.avatarUrl,
+        role: m.role || "Member",
+        gamerTag: m.gamerTag,
+      }));
+    }
+    try {
+      return item.players ? JSON.parse(item.players) : [];
+    } catch {
+      return [];
+    }
+  })();
 
   function getGameColor(game: string) {
     switch (game.toLowerCase()) {
@@ -110,32 +165,106 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
   }
 
   async function handleJoinLobby() {
-    if (isHost || isPending) return;
-    const nextJoined = !joined;
-    setIsPending(true);
+    if (isSubmitting) return;
+
+    if (!currentUserId) {
+      toast.error("Please sign in to join gaming lobbies");
+      return;
+    }
+
+    if (joined) {
+      if (isHost) {
+        toast.info("As host, you can start, complete, or cancel the lobby below.");
+        return;
+      }
+
+      setIsSubmitting(true);
+      sounds.tap();
+      haptics.light();
+
+      try {
+        const res = await fetch(`/api/gaming/lobbies/${item.id}/leave`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const data = (await res.json()) as any;
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to leave lobby");
+        }
+
+        setJoined(false);
+        setSlotsFilled(data.slotsFilled);
+        setStatus(data.status);
+        toast.info("Left squad lobby");
+        onRefresh?.();
+      } catch (err: any) {
+        toast.error(err.message || "Could not leave lobby");
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      if (isFull) {
+        toast.error("Lobby is currently full!");
+        return;
+      }
+
+      setIsSubmitting(true);
+      sounds.match();
+      haptics.match();
+
+      try {
+        const res = await fetch(`/api/gaming/lobbies/${item.id}/join`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "Squad Player" }),
+        });
+
+        const data = (await res.json()) as any;
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to join lobby");
+        }
+
+        setJoined(true);
+        setSlotsFilled(data.slotsFilled);
+        setStatus(data.status);
+        toast.success("Joined squad! Coordinate via voice or CampusLoop chat.");
+        onRefresh?.();
+      } catch (err: any) {
+        toast.error(err.message || "Could not join lobby");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  }
+
+  async function handleHostAction(nextStatus: "IN_GAME" | "COMPLETED" | "CANCELLED") {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     sounds.tap();
     haptics.light();
 
     try {
-      const response = await fetch(
-        "/api/communities/hub/gaming/" + encodeURIComponent(item.id) + "/join",
-        { method: nextJoined ? "POST" : "DELETE" }
-      );
-      const result = (await response.json().catch(() => ({}))) as {
-        error?: string;
-        item?: { slotsFilled?: number };
-      };
-      if (!response.ok) throw new Error(result.error || "Could not update this lobby.");
+      const res = await fetch(`/api/gaming/lobbies/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
 
-      setJoined(nextJoined);
-      if (typeof result.item?.slotsFilled === "number") setSlotsFilled(result.item.slotsFilled);
-      void mutateCache((key) => typeof key === "string" && key.includes("tab=gaming"));
-      toast.success(nextJoined ? "Joined lobby" : "Left lobby");
-      if (nextJoined) sounds.match();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not update this lobby. Try again.");
+      const data = (await res.json()) as any;
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update lobby");
+      }
+
+      setStatus(nextStatus);
+      if (nextStatus === "IN_GAME") toast.success("Match marked as in progress!");
+      else if (nextStatus === "COMPLETED") toast.success("Lobby marked completed!");
+      else if (nextStatus === "CANCELLED") toast.info("Lobby cancelled.");
+      onRefresh?.();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update status");
     } finally {
-      setIsPending(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -145,7 +274,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
     haptics.light();
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = baseUrl + "/gaming?id=" + encodeURIComponent(item.id);
+    const shareUrl = `${baseUrl}/gaming?id=${encodeURIComponent(item.id)}`;
 
     if (navigator.share) {
       navigator
@@ -165,8 +294,8 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
     <div
       id={"gaming-lobby-" + item.id}
       className={cn(
-        "scroll-mt-24 p-4 border-b border-border/20 transition-colors select-none",
-        highlighted ? "rounded-2xl bg-primary/5 ring-2 ring-primary/40" : "hover:bg-muted/8"
+        "rounded-2xl border border-border/70 bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/90 shadow-2xs scroll-mt-24",
+        highlighted ? "ring-2 ring-primary/40 bg-primary/5" : ""
       )}
     >
       {/* Header */}
@@ -186,7 +315,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
               >
                 {item.host.displayName}
               </Link>
-              {(item.host.points || 0) >= 150 && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
+              {(item.host.points || 0) >= 150 && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
               <span className="text-[11px] text-muted-foreground truncate">@{item.host.username}</span>
               <span className="text-[10px] text-muted-foreground/60">·</span>
               <span className="text-[11px] text-muted-foreground/80 shrink-0">
@@ -201,7 +330,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
           </div>
         </div>
 
-        {/* Game Title Badge & Share Button */}
+        {/* Game Title Badge & Status Badge & Share Button */}
         <div className="flex items-center gap-1.5 shrink-0">
           <span
             className={cn(
@@ -213,11 +342,29 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
             <span>{item.gameName}</span>
           </span>
 
+          {status !== "OPEN" && (
+            <span
+              className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                status === "FULL"
+                  ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
+                  : status === "IN_GAME"
+                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                    : status === "COMPLETED"
+                      ? "bg-muted text-muted-foreground border-border"
+                      : "bg-rose-500/10 text-rose-500 border-rose-500/30"
+              )}
+            >
+              {status === "IN_GAME" ? "In Match" : status}
+            </span>
+          )}
+
           <button
             type="button"
             onClick={handleShare}
             className="size-7 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title="Share or Copy Link"
+            aria-label="Share lobby link"
           >
             <Share2 className="size-3.5" />
           </button>
@@ -235,7 +382,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
       {/* Details Bar (Mode, Rank, Schedule, GamerTag) */}
       <div className="flex flex-wrap items-center gap-2 pt-3">
         <div className="flex items-center gap-1 text-[11px] font-bold text-foreground/80 px-2.5 py-1 rounded-xl bg-muted/40 border border-border/40">
-          <Sword className="size-3 text-purple-500 shrink-0" />
+          <Sword className="size-3 text-primary shrink-0" />
           <span>{item.mode}</span>
         </div>
 
@@ -265,6 +412,25 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
         )}
       </div>
 
+      {/* Roster Squad Members Preview */}
+      {rosterPlayers.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-1">
+            Squad:
+          </span>
+          {rosterPlayers.map((p, idx) => (
+            <span
+              key={p.userId || idx}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/35 text-[11px] font-medium text-foreground border border-border/40"
+            >
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span>{p.displayName || p.username}</span>
+              {p.role && <span className="text-[9px] text-muted-foreground">({p.role})</span>}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Slots Progress Bar */}
       <div className="mt-3.5 space-y-1.5 p-3 rounded-2xl bg-muted/20 border border-border/30">
         <div className="flex items-center justify-between text-xs">
@@ -280,7 +446,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
           <div
             className={cn(
               "h-full rounded-full transition-all duration-500",
-              isFull ? "bg-rose-500" : "bg-purple-500"
+              isFull ? "bg-amber-500" : "bg-primary"
             )}
             style={{ width: `${Math.min(100, (slotsFilled / item.slotsTotal) * 100)}%` }}
           />
@@ -288,36 +454,102 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/15 mt-3">
-        <button
-          type="button"
-          onClick={() => void handleJoinLobby()}
-          disabled={isPending || isHost || (isFull && !joined) || (joined && !canLeave)}
-          aria-busy={isPending}
-          className={cn(
-            "flex min-h-9 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-black transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70",
-            isHost || joined
-              ? "bg-muted text-foreground hover:bg-muted/80"
-              : isFull
-                ? "bg-muted text-muted-foreground"
-                : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/15 mt-3">
+        <div className="flex items-center gap-2">
+          {/* Main Join / Leave Button */}
+          {status !== "COMPLETED" && status !== "CANCELLED" && (
+            <button
+              type="button"
+              disabled={isSubmitting || (isFull && !joined)}
+              onClick={handleJoinLobby}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-60",
+                joined
+                  ? isHost
+                    ? "bg-primary/10 text-primary border border-primary/20"
+                    : "bg-muted text-foreground hover:bg-muted/80 border border-border"
+                  : isFull
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
+              {isSubmitting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Gamepad2 className="size-3.5" />
+              )}
+              <span>
+                {joined
+                  ? isHost
+                    ? "Host (You)"
+                    : "Leave Squad"
+                  : isFull
+                    ? "Squad Full"
+                    : "Join Squad"}
+              </span>
+            </button>
           )}
-        >
-          <Gamepad2 className="size-3.5" />
-          <span>{actionLabel}</span>
-        </button>
 
-        {item.discordOrVoiceUrl && (
-          <a
-            href={item.discordOrVoiceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Host Controls */}
+          {isHost && status === "OPEN" && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleHostAction("IN_GAME")}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all cursor-pointer"
+            >
+              <Play className="size-3" />
+              <span>Start Match</span>
+            </button>
+          )}
+
+          {isHost && status === "IN_GAME" && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleHostAction("COMPLETED")}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-500/10 text-sky-500 hover:bg-sky-500/20 border border-sky-500/30 transition-all cursor-pointer"
+            >
+              <CheckCircle2 className="size-3" />
+              <span>Complete</span>
+            </button>
+          )}
+
+          {isHost && status !== "CANCELLED" && status !== "COMPLETED" && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleHostAction("CANCELLED")}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-rose-500 transition-all cursor-pointer"
+            >
+              <XCircle className="size-3" />
+              <span>Cancel</span>
+            </button>
+          )}
+        </div>
+
+        {/* External Voice / Discord Link & CampusLoop Chat */}
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/chat?userId=${item.host.id}`}
             className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
           >
-            <span>Voice / Discord</span>
-            <ExternalLink className="size-3" />
-          </a>
-        )}
+            <MessageSquare className="size-3" />
+            <span>Chat Host</span>
+          </Link>
+
+          {item.discordOrVoiceUrl && (
+            <a
+              href={item.discordOrVoiceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span>Voice</span>
+              <ExternalLink className="size-3" />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

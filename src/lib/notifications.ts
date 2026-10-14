@@ -26,7 +26,11 @@ export type NotificationType =
   | "STORY_REPLY"
   | "MESSAGE"
   | "NEW_POST"
-  | "EVENT_REGISTRATION";
+  | "EVENT_REGISTRATION"
+  | "GAMING_LOBBY_JOIN"
+  | "GAMING_LOBBY_FULL"
+  | "GAMING_MATCH_READY"
+  | "TOURNAMENT_UPDATE";
 
 export interface CreateNotificationParams {
   userId: string;

@@ -82,3 +82,13 @@ This document maps out the core feature roadmap, architectural milestones, and d
 - [x] **Unsplash Student Portraits:** Curated, respectable college student portrait photo sets replacing cartoon Dicebear avatars across all database profiles.
 - [x] **Circular PFP Indicator:** Sleek circular profile picture rendered directly before candidate names on full-screen cards.
 - [x] **Fluid Swipe Mechanics:** Double-increment fix, isolated card keys (`key={top.id}`), velocity-based releases (`velocity.x > 400`), and GPU image preloading.
+
+---
+
+## Phase 11: Full CampusLoop Gaming Ecosystem (/gaming)
+- [x] **Normalized Membership & Atomic Concurrency:** `gaming_lobby_members` with database-enforced unique constraints, conditional atomic slot acquisition, host controls (Start Match, Complete, Cancel), and instant real-time join/leave.
+- [x] **Gamer Profiles & Teammate Discovery (LFT):** Custom gamer cards (`gamer_profiles`), game-specific tags, skill bands, platforms (PC, Mobile, Console), availability, voice preferences, and privacy controls.
+- [x] **Campus Tournaments & Interactive Brackets:** `gaming_tournaments`, `gaming_tournament_entries`, and `gaming_tournament_matches` supporting single-elimination bracket generation, score reporting, mutual result confirmation, dispute resolution, and automated championship bracket progression.
+- [x] **Progression & Fair-Play Reputation:** Seasonal leaderboards (`gaming_progression`), Loop Points rewards (+50 LP for tournament championship, +25 LP for runner-up), and campus rankings.
+- [x] **Native Social Gaming Layer:** Live gaming clips & highlights feed, squad coordination via CampusLoop Chat (`/chat?userId=...`), and dedicated push/in-app notifications (`GAMING_LOBBY_JOIN`, `GAMING_LOBBY_FULL`, `GAMING_MATCH_READY`, `TOURNAMENT_UPDATE`).
+

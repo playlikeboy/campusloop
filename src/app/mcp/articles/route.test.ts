@@ -1,7 +1,7 @@
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 import { GET, OPTIONS, POST } from "@/app/mcp/articles/route";
 import { GET as getOpenApi } from "@/app/mcp/articles/openapi.json/route";
