@@ -49,6 +49,39 @@ export function validateDisplayName(name: string | null | undefined): Validation
     return { isValid: false, error: "Name contains repetitive formatting or spaces." };
   }
 
+  // Rule: None can name "tech" (or platform-reserved handles) as their name
+  const lower = trimmed.toLowerCase();
+  const words = lower.split(/[\s'.-]+/).filter(Boolean);
+
+  if (
+    lower === "tech" ||
+    words.includes("tech") ||
+    lower.includes("loop_tech") ||
+    lower.includes("campusloop tech")
+  ) {
+    return {
+      isValid: false,
+      error: "The name 'tech' is reserved and cannot be used as your name.",
+    };
+  }
+
+  const RESERVED_DISPLAY_NAMES = new Set([
+    "admin",
+    "administrator",
+    "campusloop",
+    "moderator",
+    "official",
+    "support",
+    "system",
+  ]);
+
+  if (RESERVED_DISPLAY_NAMES.has(lower)) {
+    return {
+      isValid: false,
+      error: `The name '${trimmed}' is reserved and cannot be used as your name.`,
+    };
+  }
+
   return { isValid: true };
 }
 
@@ -57,6 +90,7 @@ export function validateDisplayName(name: string | null | undefined): Validation
  * Requirements:
  * - 3-30 characters
  * - Lowercase alphanumeric and underscores only
+ * - Cannot claim reserved platform or desk handles like 'tech'
  */
 export function validateUsername(username: string | null | undefined): ValidationResult {
   if (!username || typeof username !== "string") {
@@ -77,6 +111,19 @@ export function validateUsername(username: string | null | undefined): Validatio
     return {
       isValid: false,
       error: "Username can only contain lowercase letters, numbers, and underscores.",
+    };
+  }
+
+  // Rule: None can name "tech" as their handle / username
+  if (
+    trimmed === "tech" ||
+    trimmed === "loop_tech" ||
+    trimmed === "campusloop_tech" ||
+    trimmed === "tech_desk"
+  ) {
+    return {
+      isValid: false,
+      error: "The username 'tech' is reserved and cannot be claimed.",
     };
   }
 
