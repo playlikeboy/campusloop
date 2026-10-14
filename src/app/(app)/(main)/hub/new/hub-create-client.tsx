@@ -160,7 +160,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
   const [rankTier, setRankTier] = useState("");
   const [gamerTag, setGamerTag] = useState("");
   const [slotsTotal, setSlotsTotal] = useState("5");
-  const [scheduledAt, setScheduledAt] = useState("Tonight 10:30 PM");
+  const [scheduledAt, setScheduledAt] = useState("");
 
   // Ride Share
   const [origin, setOrigin] = useState("Campus Main Gate");
