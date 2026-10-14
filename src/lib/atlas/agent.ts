@@ -28,6 +28,25 @@ export interface AtlasResponse {
   groqQuery: string;
 }
 
+
+const CAMPUS_TIME_ZONE = "Asia/Kolkata";
+
+function formatCampusDateTime(value: string | Date, options: Intl.DateTimeFormatOptions) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "Schedule not listed";
+  return date.toLocaleString("en-IN", { timeZone: CAMPUS_TIME_ZONE, ...options });
+}
+
+function getCampusHour(date: Date) {
+  if (!Number.isFinite(date.getTime())) return -1;
+  const hour = new Intl.DateTimeFormat("en-IN", {
+    timeZone: CAMPUS_TIME_ZONE,
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date).find((part) => part.type === "hour")?.value;
+  return Number(hour ?? -1);
+}
+
 export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> {
   const prompt = userPrompt.toLowerCase().trim();
 
@@ -37,57 +56,6 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     querySanity<any[]>(allClubsQuery),
     querySanity<any[]>(allAnnouncementsWithRelationsQuery),
   ]);
-
-  // LEVEL 6: Conflict Detection Query
-  if (
-    prompt.includes("conflict") ||
-    prompt.includes("5 pm") ||
-    prompt.includes("different time") ||
-    (prompt.includes("why") && (prompt.includes("5") || prompt.includes("6")))
-  ) {
-    const conflict = {
-      issue: "Discrepancy in Frontend Workshop Start Time",
-      claimA: {
-        source: "Sanity Document: announcement-flyer-frontend-workshop (Club Flyer / Discord Bulletin)",
-        claim: "Workshop starts at 5:00 PM for informal networking and VS Code setup.",
-      },
-      claimB: {
-        source: "Sanity Document: announcement-official-frontend-workshop (Official College Notice)",
-        claim: "Workshop officially scheduled at 6:30 PM in Main Lecture Hall.",
-      },
-      resolution:
-        "Atlas surfaces both conflicting claims: the official presentation begins at 6:30 PM, but the host club opens the room at 5:00 PM for pre-workshop dev environment setup.",
-    };
-
-    return {
-      query: userPrompt,
-      level: 6,
-      summary: `Atlas detected a source-backed schedule discrepancy across 2 Sanity documents:\n\n• **Club Flyer / Discord**: Mentions 5:00 PM (informal setup & snacks).\n• **Official Dean's Notice**: Confirms the keynote starts at 6:30 PM in Main Lecture Hall.\n\nRather than hallucinating certainty, Atlas flags this transparently so you know you can arrive at 5:00 PM if you need installation help, or 6:30 PM for the main session.`,
-      matchedEvents: events.filter((e) => e._id === "event-frontend-workshop"),
-      matchedClubs: clubs.filter((c) => c._id === "club-web-dev"),
-      excludedEvents: [],
-      evidence: {
-        matchedConstraints: ["Cross-source conflict analysis", "Multi-document provenance check"],
-        excludedReasons: [],
-        sources: [
-          {
-            title: "Official Schedule Confirmation: Frontend Workshop",
-            type: "announcement",
-            id: "announcement-official-frontend-workshop",
-            detail: "Claimed: Friday at 6:30 PM (Main Lecture Hall)",
-          },
-          {
-            title: "Club Flyer: Web Dev Early Setup & Networking",
-            type: "announcement",
-            id: "announcement-flyer-frontend-workshop",
-            detail: "Claimed: Friday at 5:00 PM (Informal Setup)",
-          },
-        ],
-        conflicts: [conflict],
-      },
-      groqQuery: allAnnouncementsWithRelationsQuery,
-    };
-  }
 
   // LEVEL 1: Simple Club Retrieval
   if (
@@ -167,12 +135,13 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
 
     // 1. Time constraint (> 18:00 UTC/local)
     const startDate = new Date(event.startAt);
-    const hour = startDate.getUTCHours();
-    // In our seed, 18:30 is 18.5, 19:00 is 19, 16:00 is 16
-    if (wantsAfter6PM && hour < 18) {
-      reasons.push(
-        `Starts at ${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}, which is before 6:00 PM`
-      );
+    const hour = getCampusHour(startDate);
+    if (wantsAfter6PM) {
+      if (!Number.isFinite(startDate.getTime())) {
+        reasons.push("Start time is missing or invalid, so Atlas cannot verify that it starts after 6:00 PM");
+      } else if (hour < 18) {
+        reasons.push(`Starts at ${formatCampusDateTime(startDate, { hour: "2-digit", minute: "2-digit" })}, which is before 6:00 PM`);
+      }
     }
 
     // 2. Competitive programming filter
@@ -233,7 +202,7 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
       title: e.title,
       type: "event",
       id: e._id,
-      detail: `${new Date(e.startAt).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" })} • ${e.venue?.name || "Campus"}`,
+      detail: `${formatCampusDateTime(e.startAt, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} • ${e.venue?.name || "Venue not listed"}`,
     },
     {
       title: e.organizer?.name || "Organizer",
