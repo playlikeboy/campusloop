@@ -64,7 +64,12 @@ export async function POST(req: Request) {
       "startups", "relationships", "latenight", "life", "surprise",
     ]);
     const interests = Array.isArray(body.interests)
-      ? [...new Set(body.interests.filter((value): value is string => typeof value === "string" && allowedInterests.has(value))].slice(0, 3)
+      ? [...new Set(
+          body.interests.filter(
+            (value): value is string =>
+              typeof value === "string" && allowedInterests.has(value)
+          )
+        )].slice(0, 3)
       : [];
     const year = typeof body.year === "string" ? body.year.trim().slice(0, 20) || null : null;
     const department = typeof body.department === "string" ? body.department.trim().slice(0, 80) || null : null;

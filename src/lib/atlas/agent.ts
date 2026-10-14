@@ -1,9 +1,5 @@
 import { querySanity } from "../sanity/client";
-import {
-  allAnnouncementsWithRelationsQuery,
-  allClubsQuery,
-  allEventsWithRelationsQuery,
-} from "../sanity/queries";
+import { allClubsQuery, allEventsWithRelationsQuery } from "../sanity/queries";
 
 export interface AtlasEvidenceItem {
   matchedConstraints: string[];
@@ -51,10 +47,9 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
   const prompt = userPrompt.toLowerCase().trim();
 
   // Fetch live or seeded content from Sanity Content Lake
-  const [events, clubs, announcements] = await Promise.all([
+  const [events, clubs] = await Promise.all([
     querySanity<any[]>(allEventsWithRelationsQuery),
     querySanity<any[]>(allClubsQuery),
-    querySanity<any[]>(allAnnouncementsWithRelationsQuery),
   ]);
 
   // LEVEL 1: Simple Club Retrieval
@@ -70,7 +65,7 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     return {
       query: userPrompt,
       level: 1,
-      summary: `Found ${clubs.length} verified student organizations on campus: ${clubs.map((c) => c.name).join(", ")}.`,
+      summary: `Found ${clubs.length} clubs in the campus directory: ${clubs.map((c) => c.name).join(", ")}.`,
       matchedEvents: [],
       matchedClubs: clubs,
       excludedEvents: [],
@@ -225,13 +220,13 @@ export async function runAtlasAgent(userPrompt: string): Promise<AtlasResponse> 
     } satisfying your constraints:\n\n${matchedEvents
       .map(
         (e, idx) =>
-          `${idx + 1}. **${e.title}**\n   • **Time:** ${new Date(e.startAt).toLocaleDateString([], {
+          `${idx + 1}. **${e.title}**\n   • **Time:** ${formatCampusDateTime(e.startAt, {
             weekday: "long",
+            day: "numeric",
+            month: "short",
             hour: "2-digit",
             minute: "2-digit",
-          })}\n   • **Host:** ${e.organizer?.name} (${e.venue?.name}, ${e.venue?.building})\n   • **Skills:** ${e.skills?.join(
-            ", "
-          )}\n   • **Eligibility:** Beginner-friendly • No club membership required`
+          })}\n   • **Host:** ${e.organizer?.name || "Organizer not listed"} (${[e.venue?.name, e.venue?.building].filter(Boolean).join(", ") || "Venue not listed"})\n   • **Skills:** ${e.skills?.join(", ") || "Not listed"}\n   • **Eligibility:** ${e.beginnerFriendly ? "Beginner-friendly" : "Beginner status not listed"} • ${e.requiresMembership ? "Membership required" : "No club membership required"}`
       )
       .join("\n\n")}`;
 
