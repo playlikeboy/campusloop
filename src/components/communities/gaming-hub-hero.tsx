@@ -9,10 +9,10 @@ interface GamingHubHeroProps {
 }
 
 const GAME_SEARCHES = [
-  { label: "Valorant", icon: Crosshair },
-  { label: "BGMI", icon: Gamepad2 },
-  { label: "Chess", icon: Brain },
-  { label: "EA FC", icon: Trophy },
+  { label: "Valorant", query: "Valorant", icon: Crosshair },
+  { label: "BGMI", query: "BGMI", icon: Gamepad2 },
+  { label: "Chess", query: "Chess", icon: Brain },
+  { label: "EA FC", query: "FIFA", icon: Trophy },
 ];
 
 export function GamingHubHero({ search, onSearchChange }: GamingHubHeroProps) {
@@ -129,15 +129,15 @@ export function GamingHubHero({ search, onSearchChange }: GamingHubHeroProps) {
                 <Gamepad2 className="size-4 shrink-0" aria-hidden="true" />
                 <span>All lobbies</span>
               </button>
-              {GAME_SEARCHES.map(({ label, icon: Icon }) => {
-                const active = activeSearch === label.toLowerCase();
+              {GAME_SEARCHES.map(({ label, query, icon: Icon }) => {
+                const active = activeSearch === query.toLowerCase();
 
                 return (
                   <button
                     key={label}
                     type="button"
                     aria-pressed={active}
-                    onClick={() => onSearchChange(active ? "" : label)}
+                    onClick={() => onSearchChange(active ? "" : query)}
                     className={cn(
                       "flex min-h-10 items-center gap-2 rounded-xl border px-3 text-left text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                       active
