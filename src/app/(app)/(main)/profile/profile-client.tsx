@@ -469,7 +469,7 @@ export function ProfileClientView({
         onChange={handlePfpFileSelected}
       />
 
-      <main className="mx-auto min-h-screen w-full max-w-5xl lg:max-w-6xl">
+      <main className="mx-auto -mt-4 min-h-screen w-full max-w-5xl sm:-mt-6 lg:mt-0 lg:max-w-6xl">
         {/* ─── Profile Cover Banner (Cinematic Full-Bleed Canvas with Ambient Glow) ─── */}
         <div className="relative h-44 sm:h-60 lg:h-72 w-full bg-[#16181C] overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-sm">
           {currentBannerUrl ? (
@@ -917,7 +917,7 @@ export function ProfileClientView({
             ))}
 
             {posts.length === 0 && (
-              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
+              <div className="text-center py-8 sm:py-12 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-primary">
                   <Flame className="size-6" />
                 </div>
@@ -990,7 +990,7 @@ export function ProfileClientView({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
+              <div className="text-center py-8 sm:py-12 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-primary">
                   <BookOpen className="size-6" />
                 </div>
@@ -1079,7 +1079,7 @@ export function ProfileClientView({
 
             {/* Empty State */}
             {!isLoadingAcademics && userPlaylists.length === 0 && userResources.length === 0 && (
-              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
+              <div className="text-center py-8 sm:py-12 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
                   <FolderPlus className="size-6" />
                 </div>
@@ -1298,7 +1298,7 @@ export function ProfileClientView({
                 </div>
               ))
             ) : (
-              <div className="text-center py-10 sm:py-16 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
+              <div className="text-center py-8 sm:py-12 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
                 <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-muted-foreground">
                   <Archive className="size-6" />
                 </div>
