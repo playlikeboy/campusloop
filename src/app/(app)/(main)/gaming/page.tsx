@@ -6,7 +6,7 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 export const metadata: Metadata = {
   title: "Gaming Arena | Campus Esports",
   description: "Find college teammates, scrim lobbies, and host Valorant, BGMI, and Chess duels.",
-  alternates: { canonical: "https://campusloop.space/app/gaming" },
+  alternates: { canonical: "https://campusloop.space/gaming" },
 };
 
 export default async function GamingArenaPage() {
