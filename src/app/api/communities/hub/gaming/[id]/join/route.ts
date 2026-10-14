@@ -83,11 +83,11 @@ export async function POST(_request: Request, context: RouteContext) {
     if (hasPlayer(existing.players, profile.id)) {
       return NextResponse.json({ success: true, joined: true, item: existing });
     }
+    if (existing.status === "FULL" || existing.slotsFilled >= existing.slotsTotal) {
+      return NextResponse.json({ error: "This lobby is full. Try another open squad." }, { status: 409 });
+    }
     if (existing.status !== "OPEN") {
       return NextResponse.json({ error: "This lobby is no longer open." }, { status: 409 });
-    }
-    if (existing.slotsFilled >= existing.slotsTotal) {
-      return NextResponse.json({ error: "This lobby is full. Try another open squad." }, { status: 409 });
     }
     return NextResponse.json({ error: "Could not join this lobby. Refresh and try again." }, { status: 409 });
   } catch (error) {
