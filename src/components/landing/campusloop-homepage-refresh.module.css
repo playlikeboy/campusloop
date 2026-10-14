@@ -19,7 +19,9 @@
 .navLinks { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2.5vw, 34px); }
 .navLinks a { color: #405564; font-size: 13px; font-weight: 650; transition: color .18s ease; }
 .navLinks a:hover { color: #247ca4; }
+.mobileNav { display: none; }
 .button { min-height: 46px; padding: 0 19px; border: 1px solid transparent; border-radius: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-size: 13px; font-weight: 800; line-height: 1.2; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+.mobileJoinBar { display: none; }
 .button:hover { transform: translateY(-1px); }
 .navButton { min-height: 42px; white-space: nowrap; background: #e7f4fb; border-color: #d5eaf5; color: #245b76; }
 .navButton:hover { background: #d6edf8; }
@@ -31,8 +33,8 @@
 .hero h1 span { color: #3285a8; }
 .heroDescription { max-width: 485px; margin: 24px 0 0; color: #4e6271; font-size: 17px; line-height: 1.72; }
 .heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 11px; margin-top: 28px; }
-.primaryButton { background: #9bcbdd; color: #173746; box-shadow: 0 7px 16px rgba(37,128,167,.12); }
-.primaryButton:hover { background: #8fc3d6; box-shadow: 0 10px 22px rgba(37,128,167,.16); }
+.primaryButton { background: #2f7fa2; color: #fff; box-shadow: 0 7px 16px rgba(37,128,167,.18); }
+.primaryButton:hover { background: #246b89; box-shadow: 0 10px 22px rgba(37,128,167,.23); }
 .secondaryButton { background: #fff; border-color: #dce7ee; color: #294657; }
 .secondaryButton:hover { background: #f4f9fc; }
 .trustNote { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 22px; color: #5c7180; font-size: 11px; font-weight: 700; }
@@ -116,8 +118,8 @@
 .finalCta .eyebrow { margin-bottom: 11px; }
 .finalCta h2 { margin: 0; color: #172f40; font-family: var(--font-display),var(--font-body),system-ui,sans-serif; font-size: clamp(30px,3.5vw,43px); line-height: 1.08; letter-spacing: -.045em; font-weight: 800; }
 .finalCta p:not(.eyebrow) { margin: 12px 0 19px; color: #5e7788; font-size: 13px; }
-.ctaButton { color: #173746; background: #9bcbdd; }
-.ctaButton:hover { background: #8fc3d6; }
+.ctaButton { color: #fff; background: #2f7fa2; }
+.ctaButton:hover { background: #246b89; }
 .ctaMark { width: 76px; height: 76px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 24px; background: #fff; color: #2d86aa; box-shadow: 0 5px 18px rgba(34,97,130,.08); }
 .footer { padding: 34px max(32px,calc((100% - 1256px)/2)) 23px; border-top: 1px solid #e7eef3; display: grid; grid-template-columns: minmax(220px,1.7fr) repeat(3,minmax(100px,.75fr)); gap: 34px; }
 .footerBrand > p { margin: 13px 0 0; color: #738694; font-size: 11px; }
@@ -138,6 +140,10 @@
 }
 @media (max-width: 820px) {
  .header { min-height: 76px; } .navLinks { display: none; }
+ .mobileNav { display: flex; align-items: center; gap: 8px; width: calc(100% - 40px); margin: 0 auto; padding: 12px 0 2px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+ .mobileNav::-webkit-scrollbar { display: none; }
+ .mobileNav a { flex: 0 0 auto; min-height: 36px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid #dfeaf1; border-radius: 999px; background: #f7fbfe; color: #3a5667; font-size: 12px; font-weight: 750; white-space: nowrap; }
+ .mobileNav a:first-child { border-color: #cfe7f2; background: #e8f5fb; color: #246b89; }
  .hero { grid-template-columns: 1fr; padding-top: 40px; } .heroCopy { max-width: 650px; }
  .heroArtwork { height: clamp(300px,58vw,430px); }
  .proofbar { justify-content: flex-start; flex-wrap: wrap; gap: 14px 22px; }
@@ -152,6 +158,7 @@
 @media (max-width: 560px) {
  .page { padding: 0; } .canvas { border-radius: 0; border-left: 0; border-right: 0; }
  .header { width: calc(100% - 32px); min-height: 68px; }
+ .mobileNav { width: calc(100% - 32px); padding-top: 10px; padding-bottom: 0; }
  .brandMark { width: 37px; height: 37px; border-radius: 12px; } .brandName { font-size: 17px; }
  .brandName small { font-size: 7px; } .navButton { min-height: 39px; padding: 0 11px; gap: 5px; font-size: 11px; }
  .hero, .features { width: calc(100% - 36px); } .hero { padding: 40px 0 34px; gap: 26px; }
@@ -180,6 +187,12 @@
  .ctaMark { width: 48px; height: 48px; border-radius: 15px; } .ctaMark svg { width: 24px; }
  .footer { grid-template-columns: 1fr 1fr; gap: 28px 20px; padding: 28px 18px 20px; }
  .footerBrand { grid-column: 1 / -1; } .footerBottom { flex-direction: column; gap: 7px; }
+ .footer { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+ .mobileJoinBar { position: fixed; z-index: 30; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(211, 228, 238, .92); background: rgba(255,255,255,.95); color: #203a4b; box-shadow: 0 -8px 32px rgba(22,54,76,.10); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+ .mobileJoinCopy { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+ .mobileJoinCopy strong { color: #1f3a4b; font-size: 11px; font-weight: 900; line-height: 1.3; }
+ .mobileJoinCopy small { color: #6b7f8c; font-size: 10px; line-height: 1.3; }
+ .mobileJoinAction { min-height: 42px; padding: 0 13px; display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px; border-radius: 12px; background: #2f7fa2; color: #fff; font-size: 12px; font-weight: 850; white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
  .button, .navLinks a, .quickLinks > a { transition: none; } .button:hover { transform: none; }
