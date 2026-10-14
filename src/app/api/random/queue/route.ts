@@ -50,11 +50,24 @@ export async function POST(req: Request) {
       });
     }
 
-    const body = (await req.json().catch(() => ({}))) as Record<string, any>;
+    const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Invalid matchmaking request" }, { status: 400 });
+    }
+
+    if (body.mode !== undefined && body.mode !== "MY_CAMPUS" && body.mode !== "ANY_CAMPUS") {
+      return NextResponse.json({ error: "Choose a valid matching scope" }, { status: 400 });
+    }
     const mode = body.mode === "ANY_CAMPUS" ? "ANY_CAMPUS" : "MY_CAMPUS";
-    const interests = Array.isArray(body.interests) ? body.interests.slice(0, 3) : [];
-    const year = body.year || null;
-    const department = body.department || null;
+    const allowedInterests = new Set([
+      "fun", "tech", "study", "gaming", "music", "sports", "movies",
+      "startups", "relationships", "latenight", "life", "surprise",
+    ]);
+    const interests = Array.isArray(body.interests)
+      ? [...new Set(body.interests.filter((value): value is string => typeof value === "string" && allowedInterests.has(value))].slice(0, 3)
+      : [];
+    const year = typeof body.year === "string" ? body.year.trim().slice(0, 20) || null : null;
+    const department = typeof body.department === "string" ? body.department.trim().slice(0, 80) || null : null;
 
     // 1. Fetch user's blocked IDs to never pair with them
     const userBlocks = await db.query.blocks.findMany({
