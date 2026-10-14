@@ -276,31 +276,30 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-2.5">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="mb-2.5 flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2.5 sm:flex-1">
           <Link href={`/@${item.host.username}`} className="shrink-0">
             <Avatar className="size-9 rounded-full border border-border/50">
               <AvatarImage src={avatar} />
               <AvatarFallback className="text-xs font-bold">{item.host.displayName[0] || "U"}</AvatarFallback>
             </Avatar>
           </Link>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 leading-none">
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 items-center gap-1.5 leading-tight">
               <Link
-                href={`/@${item.host.username}`}
-                className="text-xs font-bold text-foreground hover:underline truncate"
+                href={`}/@${item.host.username}`}
+                title={item.host.displayName}
+                className="min-w-0 truncate text-xs font-bold text-foreground hover:underline"
               >
                 {item.host.displayName}
               </Link>
-              {(item.host.points || 0) >= 150 && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
-              <span className="text-[11px] text-muted-foreground truncate">@{item.host.username}</span>
-              <span className="text-[10px] text-muted-foreground/60">·</span>
-              <span className="text-[11px] text-muted-foreground/80 shrink-0">
-                {formatTimeAgo(item.createdAt)}
-              </span>
+              {(item.host.points || 0) >= 150 && <ShieldCheck className="size-3.5 shrink-0 text-primary" />}
             </div>
+            <p className="mt-0.5 truncate text-[10px] text-muted-foreground/80">
+              @{item.host.username} · {formatTimeAgo(item.createdAt)}
+            </p>
             {item.institution && (
-              <p className="text-[10px] text-muted-foreground font-medium truncate mt-0.5">
+              <p className="mt-0.5 truncate text-[10px] font-medium text-muted-foreground">
                 {item.institution.name.split(",")[0]}
               </p>
             )}
@@ -308,7 +307,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
         </div>
 
         {/* Game Title Badge & Status Badge & Share Button */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
           <span
             className={cn(
               "px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider border shadow-2xs flex items-center gap-1",
