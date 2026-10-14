@@ -202,24 +202,29 @@ export async function GET(req: NextRequest) {
         if (!profile.institutionId) {
           return NextResponse.json({ error: "Choose your college to find campus gaming lobbies." }, { status: 403 });
         }
+        const sharedLobbyId = searchParams.get("id");
         const conditions: any[] = [eq(gamingLobbies.institutionId, profile.institutionId)];
-        const rawStatus = (searchParams.get("status") || "OPEN").toUpperCase();
-        const allowedStatuses = ["OPEN", "IN_GAME", "FULL", "COMPLETED", "ALL"];
-        const statusFilter = allowedStatuses.includes(rawStatus) ? rawStatus : "OPEN";
-        if (statusFilter !== "ALL") conditions.push(eq(gamingLobbies.status, statusFilter));
+        if (sharedLobbyId) {
+          conditions.push(eq(gamingLobbies.id, sharedLobbyId));
+        } else {
+          const rawStatus = (searchParams.get("status") || "OPEN").toUpperCase();
+          const allowedStatuses = ["OPEN", "IN_GAME", "FULL", "COMPLETED", "ALL"];
+          const statusFilter = allowedStatuses.includes(rawStatus) ? rawStatus : "OPEN";
+          if (statusFilter !== "ALL") conditions.push(eq(gamingLobbies.status, statusFilter));
 
-        const modeFilter = (searchParams.get("mode") || "all").toLowerCase();
-        if (modeFilter === "competitive") {
-          conditions.push(or(ilike(gamingLobbies.mode, "%competitive%"), ilike(gamingLobbies.mode, "%ranked%")));
-        } else if (modeFilter === "casual") {
-          conditions.push(ilike(gamingLobbies.mode, "%casual%"));
-        } else if (modeFilter === "scrim") {
-          conditions.push(ilike(gamingLobbies.mode, "%scrim%"));
-        } else if (modeFilter === "tournament") {
-          conditions.push(ilike(gamingLobbies.mode, "%tournament%"));
+          const modeFilter = (searchParams.get("mode") || "all").toLowerCase();
+          if (modeFilter === "competitive") {
+            conditions.push(or(ilike(gamingLobbies.mode, "%competitive%"), ilike(gamingLobbies.mode, "%ranked%")));
+          } else if (modeFilter === "casual") {
+            conditions.push(ilike(gamingLobbies.mode, "%casual%"));
+          } else if (modeFilter === "scrim") {
+            conditions.push(ilike(gamingLobbies.mode, "%scrim%"));
+          } else if (modeFilter === "tournament") {
+            conditions.push(ilike(gamingLobbies.mode, "%tournament%"));
+          }
         }
 
-        if (q) {
+        if (q && !sharedLobbyId) {
           conditions.push(
             or(
               ilike(gamingLobbies.gameName, q),

@@ -23,6 +23,7 @@ interface GamingLobbyCardProps {
     institution?: { id: string; name: string; slug: string } | null;
   };
   currentUserId?: string;
+  highlighted?: boolean;
 }
 
 function hasPlayer(players: string | null | undefined, userId?: string) {
@@ -35,7 +36,7 @@ function hasPlayer(players: string | null | undefined, userId?: string) {
   }
 }
 
-export function GamingLobbyCard({ item, currentUserId }: GamingLobbyCardProps) {
+export function GamingLobbyCard({ item, currentUserId, highlighted = false }: GamingLobbyCardProps) {
   const [joined, setJoined] = useState(() => hasPlayer(item.players, currentUserId));
   const [slotsFilled, setSlotsFilled] = useState(item.slotsFilled);
   const [isPending, setIsPending] = useState(false);
@@ -145,7 +146,13 @@ export function GamingLobbyCard({ item, currentUserId }: GamingLobbyCardProps) {
   }
 
   return (
-    <div className="p-4 border-b border-border/20 hover:bg-muted/8 transition-colors select-none">
+    <div
+      id={"gaming-lobby-" + item.id}
+      className={cn(
+        "scroll-mt-24 p-4 border-b border-border/20 transition-colors select-none",
+        highlighted ? "rounded-2xl bg-primary/5 ring-2 ring-primary/40" : "hover:bg-muted/8"
+      )}
+    >
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2.5 min-w-0">

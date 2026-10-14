@@ -10,7 +10,7 @@ Make /gaming the default home for campus gaming: discover a match, recruit a squ
 - Search aliases that correctly map the “EA FC” shortcut to the existing FIFA / EA Sports FC game values.
 - An editable lobby format and squad size in the create flow.
 - Persistent lobby join/leave actions stored server-side, scoped to the same campus, with database-level checks for capacity and duplicate membership.
-- Correct share links back to /gaming instead of a stale /app/gaming path.
+- Correct share links back to /gaming and deep-link directly to the selected campus lobby, including full/completed records that should not appear in the open feed.
 - Clear loading, full-lobby, host, error, and joined states; no invented tournament counts, active players, ranks, or match results.
 
 ## North-star journey
