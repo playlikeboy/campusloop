@@ -103,7 +103,7 @@ export function FollowListClient({
         <div className="flex items-center gap-3 px-4 py-3">
           <Link
             href={`/@${username}`}
-            className="flex size-8 items-center justify-center rounded-full hover:bg-muted transition-colors"
+            className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted transition-colors"
             aria-label="Back to profile"
           >
             <ArrowLeft className="size-4" />
