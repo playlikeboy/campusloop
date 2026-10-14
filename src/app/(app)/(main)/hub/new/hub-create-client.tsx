@@ -5,6 +5,7 @@ import {
   BookOpen,
   Camera,
   Car,
+  Crosshair,
   FileText,
   FlaskConical,
   Gamepad2,
@@ -13,6 +14,8 @@ import {
   PackageSearch,
   Send,
   ShoppingBag,
+  Swords,
+  Trophy,
   X,
   Zap,
 } from "lucide-react";
@@ -102,6 +105,13 @@ const GAME_OPTIONS: ComboboxOption[] = [
   { value: "Dota 2", label: "Dota 2" },
   { value: "FIFA", label: "EA Sports FC / FIFA" },
   { value: "Chess", label: "Chess.com" },
+];
+
+const GAMING_MODE_OPTIONS = [
+  { value: "5v5 Competitive", label: "Competitive", description: "Ranked team play", icon: Crosshair },
+  { value: "Casual", label: "Casual", description: "Play for fun", icon: Gamepad2 },
+  { value: "Scrim", label: "Scrims", description: "Practice with squads", icon: Swords },
+  { value: "Tournament", label: "Campus cup", description: "Organized matches", icon: Trophy },
 ];
 
 const HUB_BRANCH_OPTIONS: ComboboxOption[] = [
@@ -526,39 +536,85 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
         )}
 
         {hubType === "gaming" && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Game Name</label>
-              <SearchableCombobox
-                options={GAME_OPTIONS}
-                value={gameName}
-                onChange={(val) => setGameName(val)}
-                placeholder="Select game title..."
-                searchPlaceholder="Search games (Valorant, CS2, BGMI)..."
-                clearable={false}
-              />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Play format</label>
+                <span className="text-[11px] text-muted-foreground">Pick what you’re organizing</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {GAMING_MODE_OPTIONS.map(({ value, label, description, icon: Icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={mode === value}
+                    onClick={() => {
+                      setMode(value);
+                      sounds.tap();
+                      haptics.light();
+                    }}
+                    className={cn(
+                      "flex min-h-[86px] flex-col items-start gap-1.5 rounded-2xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                      mode === value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/60 bg-muted/15 text-foreground hover:bg-muted/40"
+                    )}
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                    <span className="text-xs font-extrabold">{label}</span>
+                    <span className="text-[10px] leading-snug text-muted-foreground">{description}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Gamer Tag / ID</label>
-              <input
-                type="text"
-                value={gamerTag}
-                onChange={(e) => setGamerTag(e.target.value)}
-                placeholder="e.g. Shaswat#IND"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Scheduled Time</label>
-              <input
-                type="text"
-                value={scheduledAt}
-                onChange={(e) => setScheduledAt(e.target.value)}
-                placeholder="e.g. Tonight 11:00 PM"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground">Game</label>
+                <SearchableCombobox
+                  options={GAME_OPTIONS}
+                  value={gameName}
+                  onChange={(val) => setGameName(val)}
+                  placeholder="Select a game..."
+                  searchPlaceholder="Search Valorant, CS2, BGMI..."
+                  clearable={false}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground">Squad size</label>
+                <input
+                  type="number"
+                  required
+                  min={2}
+                  max={20}
+                  value={slotsTotal}
+                  onChange={(event) => setSlotsTotal(event.target.value)}
+                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                  aria-describedby="gaming-squad-size-help"
+                />
+                <p id="gaming-squad-size-help" className="text-[10px] leading-snug text-muted-foreground">Includes you as the host.</p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground">Gamer tag / ID</label>
+                <input
+                  type="text"
+                  value={gamerTag}
+                  onChange={(event) => setGamerTag(event.target.value)}
+                  placeholder="e.g. Player#123"
+                  autoComplete="off"
+                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground">Scheduled time</label>
+                <input
+                  type="text"
+                  value={scheduledAt}
+                  onChange={(event) => setScheduledAt(event.target.value)}
+                  placeholder="e.g. Tonight 10:30 PM"
+                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                />
+              </div>
             </div>
           </div>
         )}

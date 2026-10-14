@@ -19,6 +19,7 @@ import useSWR from "swr";
 import { AcademicCard } from "@/components/communities/academic-card";
 import { GamingLobbyCard } from "@/components/communities/gaming-lobby-card";
 import { GamingHubHero } from "@/components/communities/gaming-hub-hero";
+import { GamingDiscoveryFilters } from "@/components/communities/gaming-discovery-filters";
 import { HousingCard } from "@/components/communities/housing-card";
 import { LostFoundCard } from "@/components/communities/lost-found-card";
 import { MarketplaceCard } from "@/components/communities/marketplace-card";
@@ -129,6 +130,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
   const searchParams = useSearchParams();
 
   const urlSearch = searchParams.get("q") || "";
+  const selectedMode = searchParams.get("mode") || "all";
   const rawPage = Number.parseInt(searchParams.get("page") || "1", 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
   const [search, setSearch] = useState(urlSearch);
@@ -164,8 +166,12 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
       limit: "12",
     });
     if (urlSearch) params.set("q", urlSearch);
+    if (hubType === "gaming") {
+      params.set("status", "OPEN");
+      if (selectedMode !== "all") params.set("mode", selectedMode);
+    }
     return "/api/communities/feed?" + params.toString();
-  }, [hubType, page, urlSearch]);
+  }, [hubType, page, selectedMode, urlSearch]);
 
   const { data, error, isLoading, mutate } = useSWR<FeedResponse>(feedUrl, fetcher, {
     keepPreviousData: true,
@@ -248,6 +254,19 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
         </div>
       </section>
       )}
+
+      {hubType === "gaming" ? (
+        <GamingDiscoveryFilters
+          activeMode={selectedMode}
+          onModeChange={(mode) =>
+            updateUrl((params) => {
+              if (mode === "all") params.delete("mode");
+              else params.set("mode", mode);
+              params.set("page", "1");
+            })
+          }
+        />
+      ) : null}
 
       <section className="space-y-4 px-3 sm:px-5">
         {hubType === "gaming" ? (

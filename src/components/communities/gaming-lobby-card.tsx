@@ -2,7 +2,8 @@
 
 import { Clock, Copy, ExternalLink, Gamepad2, Share2, ShieldCheck, Sword, Users } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { GamingLobby } from "@/db/schema";
@@ -24,12 +25,30 @@ interface GamingLobbyCardProps {
   currentUserId?: string;
 }
 
-export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
-  const [joined, setJoined] = useState(false);
+function hasPlayer(players: string | null | undefined, userId?: string) {
+  if (!players || !userId) return false;
+  try {
+    const members = JSON.parse(players) as Array<{ userId?: string }>;
+    return Array.isArray(members) && members.some((member) => member?.userId === userId);
+  } catch {
+    return false;
+  }
+}
+
+export function GamingLobbyCard({ item, currentUserId }: GamingLobbyCardProps) {
+  const [joined, setJoined] = useState(() => hasPlayer(item.players, currentUserId));
   const [slotsFilled, setSlotsFilled] = useState(item.slotsFilled);
+  const [isPending, setIsPending] = useState(false);
+  const { mutate: mutateCache } = useSWRConfig();
 
   const avatar = getAvatarUrl(item.host.avatarUrl, item.host.username);
-  const isFull = slotsFilled >= item.slotsTotal;
+  const isHost = currentUserId === item.hostId;
+  const isFull = slotsFilled >= item.slotsTotal || item.status !== "OPEN";
+
+  useEffect(() => {
+    setJoined(hasPlayer(item.players, currentUserId));
+    setSlotsFilled(item.slotsFilled);
+  }, [item.players, item.slotsFilled, currentUserId]);
 
   function getGameColor(game: string) {
     switch (game.toLowerCase()) {
@@ -73,23 +92,33 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
     toast.success(`Copied Riot/Gamer ID: ${item.gamerTag}`);
   }
 
-  function handleJoinLobby() {
-    if (joined) {
-      sounds.tap();
-      haptics.light();
-      setJoined(false);
-      setSlotsFilled((prev) => Math.max(1, prev - 1));
-      toast.info("Left lobby");
-    } else {
-      if (isFull) {
-        toast.error("Lobby is currently full!");
-        return;
-      }
-      sounds.match();
-      haptics.match();
-      setJoined(true);
-      setSlotsFilled((prev) => prev + 1);
-      toast.success("Joined lobby! Reach out to the host on Discord/voice");
+  async function handleJoinLobby() {
+    if (isHost || isPending) return;
+    const nextJoined = !joined;
+    setIsPending(true);
+    sounds.tap();
+    haptics.light();
+
+    try {
+      const response = await fetch(
+        "/api/communities/hub/gaming/" + encodeURIComponent(item.id) + "/join",
+        { method: nextJoined ? "POST" : "DELETE" }
+      );
+      const result = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        item?: { slotsFilled?: number };
+      };
+      if (!response.ok) throw new Error(result.error || "Could not update this lobby.");
+
+      setJoined(nextJoined);
+      if (typeof result.item?.slotsFilled === "number") setSlotsFilled(result.item.slotsFilled);
+      void mutateCache((key) => typeof key === "string" && key.includes("tab=gaming"));
+      toast.success(nextJoined ? "Joined lobby" : "Left lobby");
+      if (nextJoined) sounds.match();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update this lobby. Try again.");
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -99,7 +128,7 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
     haptics.light();
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-    const shareUrl = `${baseUrl}/app/gaming?id=${item.id}`;
+    const shareUrl = baseUrl + "/gaming?id=" + encodeURIComponent(item.id);
 
     if (navigator.share) {
       navigator
@@ -239,18 +268,22 @@ export function GamingLobbyCard({ item }: GamingLobbyCardProps) {
       <div className="flex items-center justify-between pt-3 border-t border-border/15 mt-3">
         <button
           type="button"
-          onClick={handleJoinLobby}
+          onClick={() => void handleJoinLobby()}
+          disabled={isPending || isHost || (isFull && !joined)}
+          aria-busy={isPending}
           className={cn(
-            "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95",
-            joined
+            "flex min-h-9 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-black transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70",
+            isHost || joined
               ? "bg-muted text-foreground hover:bg-muted/80"
               : isFull
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-purple-500 text-white hover:bg-purple-600 shadow-purple-500/20"
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
           )}
         >
           <Gamepad2 className="size-3.5" />
-          <span>{joined ? "Leave Lobby" : isFull ? "Lobby Full" : "Join Lobby"}</span>
+          <span>
+            {isHost ? "You’re hosting" : isPending ? "Updating…" : joined ? "Leave lobby" : isFull ? "Lobby full" : "Join lobby"}
+          </span>
         </button>
 
         {item.discordOrVoiceUrl && (
