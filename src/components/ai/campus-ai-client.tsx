@@ -300,7 +300,7 @@ export function CampusAiClient() {
                     window.speechSynthesis.cancel();
                   }
                 }}
-                className="size-8 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                className="size-11 sm:size-8 shrink-0 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
                 title={voiceVolumeEnabled ? "Mute Speech" : "Unmute Speech"}
               >
                 {voiceVolumeEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
@@ -309,7 +309,7 @@ export function CampusAiClient() {
               <button
                 type="button"
                 onClick={toggleLiveTalking}
-                className="size-8 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                className="size-11 sm:size-8 shrink-0 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
