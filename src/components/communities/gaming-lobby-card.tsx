@@ -76,32 +76,9 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
   const [slotsFilled, setSlotsFilled] = useState(item.slotsFilled);
   const [status, setStatus] = useState(item.status);
   const [isSubmitting, setIsSubmitting] = useState(false);
->>>>>>> 63816f25 (feat(gaming): build full campus gaming ecosystem with lobbies, tournaments, LFT teammates, and progression)
 
   const avatar = getAvatarUrl(item.host.avatarUrl, item.host.username);
-  const isHost = currentUserId === item.hostId;
-  const canLeave = item.status === "OPEN" || item.status === "FULL";
-  const isFull = slotsFilled >= item.slotsTotal || item.status !== "OPEN";
-  const actionLabel = isHost
-    ? "You’re hosting"
-    : isPending
-      ? "Updating…"
-      : joined && !canLeave
-        ? item.status === "IN_GAME" ? "Match in progress" : "Match completed"
-        : joined
-          ? "Leave lobby"
-          : item.status === "IN_GAME"
-            ? "Match in progress"
-            : item.status === "COMPLETED"
-              ? "Match completed"
-              : isFull
-                ? "Lobby full"
-                : "Join lobby";
-
-  useEffect(() => {
-    setJoined(hasPlayer(item.players, currentUserId));
-    setSlotsFilled(item.slotsFilled);
-  }, [item.players, item.slotsFilled, currentUserId]);
+  const isFull = slotsFilled >= item.slotsTotal || status !== "OPEN";
 
   // Parse roster players for visual chips
   const rosterPlayers: any[] = (() => {
