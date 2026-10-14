@@ -204,7 +204,7 @@ export function CommunitiesIndexClient({
     featuredCommunities.length > 0;
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl bg-background px-3 pb-28 text-foreground sm:px-5 lg:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-7xl bg-background px-4 pb-28 text-foreground sm:px-5 lg:px-8">
       {/* ─── Hero Section ─── */}
       <section className="pt-2 sm:pt-4 pb-4 border-b border-border/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-2">
@@ -221,7 +221,7 @@ export function CommunitiesIndexClient({
             <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-foreground">
               Student Communities
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
+            <p className="mt-1 text-sm text-muted-foreground max-w-2xl leading-relaxed">
               Discover official college societies, coding squads, gaming clans, placement study circles,
               and interest groups across 1,350+ campuses.
             </p>
@@ -230,7 +230,7 @@ export function CommunitiesIndexClient({
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/communities/new"
-              className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition hover:opacity-90 active:scale-95"
+              className="inline-flex h-11 sm:h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-sm sm:text-xs font-bold text-primary-foreground shadow-xs transition hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Plus className="size-3.5" />
               <span>Create Community</span>
@@ -240,7 +240,7 @@ export function CommunitiesIndexClient({
 
         {/* ─── Segmented Tabs & Sort Row ─── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3">
-          <div className="inline-flex rounded-full bg-muted/50 p-1 border border-border/40 shrink-0">
+          <div className="grid w-full grid-cols-3 rounded-full bg-muted/50 p-1 border border-border/40 sm:inline-flex sm:w-auto sm:grid-cols-none">
             {TABS.map((tab) => {
               const active = activeTab === tab.id;
               const Icon = tab.icon;
@@ -248,16 +248,19 @@ export function CommunitiesIndexClient({
                 <button
                   key={tab.id}
                   type="button"
+                  aria-label={tab.label}
+                  aria-pressed={active}
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "flex items-center gap-1.5 h-8 rounded-full px-3.5 sm:px-4 text-xs font-semibold transition-all cursor-pointer",
+                    "flex min-w-0 items-center justify-center gap-1.5 h-9 sm:h-8 rounded-full px-1.5 sm:px-4 text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     active
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <Icon className="size-3.5" />
-                  <span>{tab.label}</span>
+                  <span className="sm:hidden">{tab.id === "explore" ? "Explore" : tab.id === "feed" ? "Discuss" : "My Hubs"}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                   {tab.id === "my_communities" && myCommunityCount > 0 ? (
                     <span className="ml-0.5 inline-flex size-4 items-center justify-center rounded-full bg-primary/15 text-[10px] font-black text-primary">
                       {myCommunityCount}
@@ -269,22 +272,25 @@ export function CommunitiesIndexClient({
           </div>
 
           {activeTab === "explore" && (
-            <div className="flex items-center justify-between sm:justify-end gap-2 text-xs text-muted-foreground">
+            <div className="flex w-full items-center justify-between gap-2 text-xs text-muted-foreground sm:w-auto sm:justify-end">
               <span className="text-[11px] font-medium hidden sm:inline">Sort:</span>
-              <div className="inline-flex rounded-full bg-muted/40 p-0.5 border border-border/40">
+              <div className="grid w-full grid-cols-3 rounded-full bg-muted/40 p-0.5 border border-border/40 sm:inline-flex sm:w-auto sm:grid-cols-none">
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.id}
                     type="button"
+                    aria-label={`Sort by ${opt.label}`}
+                    aria-pressed={currentSort === opt.id}
                     onClick={() => handleSortChange(opt.id)}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer",
+                      "min-w-0 px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-medium transition cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
                       currentSort === opt.id
                         ? "bg-background text-foreground font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    {opt.label}
+                    <span className="sm:hidden">{opt.id === "trending" ? "Trending" : opt.id === "newest" ? "Recent" : "A–Z"}</span>
+                    <span className="hidden sm:inline">{opt.label}</span>
                   </button>
                 ))}
               </div>
@@ -295,7 +301,7 @@ export function CommunitiesIndexClient({
 
       {/* ─── TAB: EXPLORE HUBS ─── */}
       {activeTab === "explore" && (
-        <div className="space-y-6 pt-4 sm:pt-6">
+        <div className="space-y-5 sm:space-y-6 pt-4 sm:pt-6">
           {/* Search Bar & Categories */}
           <section className="space-y-3">
             <div className="relative">
@@ -304,15 +310,15 @@ export function CommunitiesIndexClient({
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search coding clubs, gaming rooms, societies, flatmate groups..."
-                className="h-11 sm:h-12 w-full rounded-2xl bg-card pl-11 pr-12 text-xs sm:text-sm font-medium outline-none border border-border/60 transition placeholder:text-muted-foreground/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 shadow-2xs"
+                placeholder="Search communities, clubs, and interests..."
+                className="h-12 w-full rounded-2xl bg-card pl-11 pr-12 text-sm font-medium outline-none border border-border/60 transition placeholder:text-muted-foreground/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 shadow-2xs"
                 aria-label="Search communities"
               />
               {search ? (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
+                  className="absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                   aria-label="Clear search"
                 >
                   <X className="size-3.5" />
@@ -321,40 +327,48 @@ export function CommunitiesIndexClient({
             </div>
 
             {/* Category Filter Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
-              {CATEGORY_DEFINITIONS.map((def) => {
-                const selected = selectedCategory === def.id;
-                const Icon = def.icon;
-                const count = categoryCounts[def.id] || 0;
-                return (
-                  <button
-                    key={def.id}
-                    type="button"
-                    onClick={() => handleCategoryChange(def.id)}
-                    className={cn(
-                      "flex items-center gap-1.5 shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
-                      selected
-                        ? "bg-foreground text-background shadow-xs font-bold"
-                        : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
-                    )}
-                  >
-                    <Icon className="size-3.5" />
-                    <span>{def.label}</span>
-                    {count > 0 && (
-                      <span
-                        className={cn(
-                          "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
-                          selected
-                            ? "bg-background/20 text-background"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            <div className="relative -mx-1">
+              <div role="group" aria-label="Filter communities by category" className="flex snap-x snap-mandatory items-center gap-2 overflow-x-auto pb-1 scrollbar-none px-1 pr-10">
+                {CATEGORY_DEFINITIONS.map((def) => {
+                  const selected = selectedCategory === def.id;
+                  const Icon = def.icon;
+                  const count = categoryCounts[def.id] || 0;
+                  return (
+                    <button
+                      key={def.id}
+                      type="button"
+                      onClick={() => handleCategoryChange(def.id)}
+                      aria-pressed={selected}
+                      className={cn(
+                        "flex h-10 snap-start items-center gap-1.5 shrink-0 rounded-full px-3 text-xs font-semibold transition active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        selected
+                          ? "bg-foreground text-background shadow-xs font-bold"
+                          : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
+                      )}
+                    >
+                      <Icon className="size-3.5" />
+                      <span>{def.label}</span>
+                      {count > 0 && (
+                        <span
+                          className={cn(
+                            "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
+                            selected
+                              ? "bg-background/20 text-background"
+                              : "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 flex items-center bg-gradient-to-l from-background via-background/90 to-transparent pl-7 pr-1 sm:hidden">
+                <span className="flex size-7 items-center justify-center rounded-full border border-border/60 bg-card/90 text-muted-foreground shadow-sm">
+                  <ArrowRight className="size-3.5" />
+                </span>
+              </div>
             </div>
           </section>
 
@@ -639,7 +653,7 @@ function SpotlightCommunityCard({
               c/{community.name}
             </h3>
             <p className="text-[11px] text-muted-foreground">
-              {memberCount} students · {postCount} discussions
+              {memberCount} {memberCount === 1 ? "student" : "students"} · {postCount} {postCount === 1 ? "discussion" : "discussions"}
             </p>
           </div>
         </Link>
