@@ -10,6 +10,7 @@ import {
   Heart,
   Home,
   MessageSquare,
+  MoreHorizontal,
   Plus,
   Search,
   Settings,
@@ -52,6 +53,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { href: "/campus", label: "Campus", icon: Building2 },
   { href: "/chat", label: "Messages", icon: MessageSquare },
   { href: "/notifications", label: "Notifications", icon: Bell },
+  { href: "/more", label: "More", icon: MoreHorizontal },
 ];
 
 function isItemActive(pathname: string, href: string) {
@@ -215,7 +217,7 @@ export function DesktopSidebar({
         </button>
       </div>
 
-      {/* ── Primary Navigation Links (Max 6 + Profile) ── */}
+      {/* ── Primary Navigation Links ── */}
       <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto no-scrollbar">
         {NAV_ITEMS.map((item) => {
           const active = isItemActive(pathname, item.href);
