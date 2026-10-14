@@ -31,6 +31,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Time capsule not found" }, { status: 404 });
     }
 
+    // Capsules are campus-scoped: never allow a student to contribute to another institution's vault.
+    if (!profile.institutionId || capsule.institutionId !== profile.institutionId) {
+      return NextResponse.json({ error: "Time capsule not found" }, { status: 404 });
+    }
+
     if (capsule.isUnlocked || new Date(capsule.targetUnlockDate) <= new Date()) {
       return NextResponse.json(
         { error: "This capsule has already unlocked and is sealed from new entries" },
@@ -38,17 +43,44 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       );
     }
 
-    const body = (await req.json().catch(() => ({}))) as {
-      title?: string;
-      content?: string;
-      entryType?: string;
-      mediaUrl?: string;
-      isAnonymous?: boolean;
-      pseudonym?: string;
-    };
+    const body = (await req.json().catch(() => null)) as {
+      title?: unknown;
+      content?: unknown;
+      entryType?: unknown;
+      mediaUrl?: unknown;
+      isAnonymous?: unknown;
+      pseudonym?: unknown;
+    } | null;
 
-    if (!body.title || !body.content) {
+    const title = typeof body?.title === "string" ? body.title.trim() : "";
+    const content = typeof body?.content === "string" ? body.content.trim() : "";
+    const entryType = typeof body?.entryType === "string" ? body.entryType : "LETTER";
+    const mediaUrl = typeof body?.mediaUrl === "string" ? body.mediaUrl.trim() : "";
+    const isAnonymous = body?.isAnonymous === true;
+    const pseudonym = typeof body?.pseudonym === "string" ? body.pseudonym.trim() : "";
+
+    if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required to bury a memory" }, { status: 400 });
+    }
+    if (title.length > 120) {
+      return NextResponse.json({ error: "Memory titles must be 120 characters or fewer" }, { status: 400 });
+    }
+    if (content.length > 5000) {
+      return NextResponse.json({ error: "Memory content must be 5,000 characters or fewer" }, { status: 400 });
+    }
+    if (!new Set(["LETTER", "PREDICTION", "PHOTO", "AUDIO"]).has(entryType)) {
+      return NextResponse.json({ error: "Choose a valid memory type" }, { status: 400 });
+    }
+    if (pseudonym.length > 40) {
+      return NextResponse.json({ error: "Pseudonyms must be 40 characters or fewer" }, { status: 400 });
+    }
+    if (mediaUrl) {
+      try {
+        const parsedMediaUrl = new URL(mediaUrl);
+        if (parsedMediaUrl.protocol !== "https:") throw new Error("HTTPS required");
+      } catch {
+        return NextResponse.json({ error: "Media must use a valid HTTPS URL" }, { status: 400 });
+      }
     }
 
     const [entry] = await db
@@ -56,12 +88,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .values({
         capsuleId: capsule.id,
         authorId: profile.id,
-        title: body.title.trim(),
-        content: body.content.trim(),
-        entryType: body.entryType || "LETTER",
-        mediaUrl: body.mediaUrl || null,
-        isAnonymous: !!body.isAnonymous,
-        pseudonym: body.isAnonymous ? body.pseudonym || "anonymous_student" : null,
+        title,
+        content,
+        entryType,
+        mediaUrl: mediaUrl || null,
+        isAnonymous,
+        pseudonym: isAnonymous ? (pseudonym || "anonymous_student") : null,
       })
       .returning();
 

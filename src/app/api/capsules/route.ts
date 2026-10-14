@@ -93,21 +93,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Institution required" }, { status: 400 });
     }
 
-    const body = (await req.json().catch(() => ({}))) as {
-      title?: string;
-      description?: string;
-      targetUnlockDate?: string;
-      category?: string;
-      coverImage?: string;
-    };
+    const body = (await req.json().catch(() => null)) as {
+      title?: unknown;
+      description?: unknown;
+      targetUnlockDate?: unknown;
+      category?: unknown;
+      coverImage?: unknown;
+    } | null;
 
-    if (!body.title || !body.targetUnlockDate) {
+    const title = typeof body?.title === "string" ? body.title.trim() : "";
+    const description = typeof body?.description === "string" ? body.description.trim() : "";
+    const rawUnlockDate = typeof body?.targetUnlockDate === "string" ? body.targetUnlockDate : "";
+    const category = typeof body?.category === "string" ? body.category : "CONVOCATION";
+    const coverImage = typeof body?.coverImage === "string" ? body.coverImage.trim() : "";
+
+    if (!title || !rawUnlockDate) {
       return NextResponse.json({ error: "Title and target unlock date are required" }, { status: 400 });
     }
+    if (title.length > 120) {
+      return NextResponse.json({ error: "Capsule titles must be 120 characters or fewer" }, { status: 400 });
+    }
+    if (description.length > 600) {
+      return NextResponse.json({ error: "Descriptions must be 600 characters or fewer" }, { status: 400 });
+    }
 
-    const unlockDate = new Date(body.targetUnlockDate);
-    if (isNaN(unlockDate.getTime())) {
+    const allowedCategories = new Set(["CONVOCATION", "BATCH_MEMORIES", "PREDICTIONS", "FEST", "HOSTEL"]);
+    if (!allowedCategories.has(category)) {
+      return NextResponse.json({ error: "Choose a valid capsule category" }, { status: 400 });
+    }
+
+    const unlockDate = new Date(rawUnlockDate);
+    if (!Number.isFinite(unlockDate.getTime())) {
       return NextResponse.json({ error: "Invalid target unlock date" }, { status: 400 });
+    }
+    if (unlockDate.getTime() <= Date.now()) {
+      return NextResponse.json({ error: "Choose an unlock date in the future" }, { status: 400 });
+    }
+
+    if (coverImage) {
+      try {
+        const parsedImageUrl = new URL(coverImage);
+        if (parsedImageUrl.protocol !== "https:") throw new Error("HTTPS required");
+      } catch {
+        return NextResponse.json({ error: "Cover images must use a valid HTTPS URL" }, { status: 400 });
+      }
     }
 
     const [capsule] = await db
@@ -115,12 +144,12 @@ export async function POST(req: NextRequest) {
       .values({
         institutionId: profile.institutionId,
         creatorId: profile.id,
-        title: body.title.trim(),
-        description: body.description?.trim() || null,
+        title,
+        description: description || null,
         targetUnlockDate: unlockDate,
-        category: body.category || "CONVOCATION",
+        category,
         coverImage:
-          body.coverImage ||
+          coverImage ||
           "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80",
       })
       .returning();
