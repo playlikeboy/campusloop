@@ -98,26 +98,69 @@ export async function POST(req: NextRequest) {
       }
 
       case "gaming": {
+        const title = typeof data.title === "string" ? data.title.trim() : "";
+        if (!title || title.length > 140) {
+          return NextResponse.json({ error: "Lobby title must be between 1 and 140 characters." }, { status: 400 });
+        }
+
+        const allowedModes = ["5v5 Competitive", "Casual", "Scrim", "Tournament"];
+        if (typeof data.mode !== "string" || !allowedModes.includes(data.mode)) {
+          return NextResponse.json({ error: "Choose a valid match format." }, { status: 400 });
+        }
+
+        const allowedGames = ["Valorant", "BGMI", "CS2", "Dota 2", "FIFA", "Chess"];
+        const gameName = typeof data.gameName === "string" ? data.gameName : "Valorant";
+        if (!allowedGames.includes(gameName)) {
+          return NextResponse.json({ error: "Choose a supported game." }, { status: 400 });
+        }
+
+        const parsedSlots = Number.parseInt(String(data.slotsTotal ?? 5), 10);
+        if (!Number.isInteger(parsedSlots) || parsedSlots < 2 || parsedSlots > 20) {
+          return NextResponse.json({ error: "Squad size must be between 2 and 20 players." }, { status: 400 });
+        }
+
+        const description = typeof data.description === "string" ? data.description.trim() : "";
+        if (description.length > 1600) {
+          return NextResponse.json({ error: "Description must be 1,600 characters or fewer." }, { status: 400 });
+        }
+
+        const gamerTag = typeof data.gamerTag === "string" ? data.gamerTag.trim().slice(0, 80) : "";
+        const scheduledAt = typeof data.scheduledAt === "string" ? data.scheduledAt.trim().slice(0, 120) : "";
+        let discordOrVoiceUrl: string | null = null;
+        if (typeof data.discordOrVoiceUrl === "string" && data.discordOrVoiceUrl.trim()) {
+          try {
+            const parsedUrl = new URL(data.discordOrVoiceUrl.trim());
+            if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+              throw new Error("Unsupported link protocol");
+            }
+            discordOrVoiceUrl = parsedUrl.toString();
+          } catch {
+            return NextResponse.json({ error: "Enter a valid HTTP or HTTPS voice invite link." }, { status: 400 });
+          }
+        }
+
         const [lobby] = await db
           .insert(gamingLobbies)
           .values({
             institutionId,
             hostId: profile.id,
-            gameName: data.gameName || "Valorant",
-            title: data.title,
-            description: data.description || "",
-            mode: data.mode || "5v5",
-            rankTier: data.rankTier || null,
-            gamerTag: data.gamerTag || profile.username,
-            slotsTotal: Math.max(2, parseInt(data.slotsTotal, 10) || 5),
+            gameName,
+            title,
+            description,
+            mode: data.mode,
+            rankTier: typeof data.rankTier === "string" ? data.rankTier.trim().slice(0, 80) || null : null,
+            gamerTag: gamerTag || profile.username,
+            slotsTotal: parsedSlots,
             slotsFilled: 1,
-            discordOrVoiceUrl: data.discordOrVoiceUrl || null,
-            scheduledAt: data.scheduledAt || "Now",
+            discordOrVoiceUrl,
+            scheduledAt: scheduledAt || "Now",
             players: JSON.stringify([
               {
                 userId: profile.id,
                 username: profile.username,
                 displayName: profile.displayName,
+                avatarUrl: profile.avatarUrl ?? null,
+                gamerTag: gamerTag || profile.username,
                 role: "Host",
               },
             ]),
