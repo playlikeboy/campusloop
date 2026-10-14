@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
             slotsTotal: parsedSlots,
             slotsFilled: 1,
             discordOrVoiceUrl,
-            scheduledAt: scheduledAt || "Now",
+            scheduledAt: scheduledAt || null,
             players: JSON.stringify([
               {
                 userId: profile.id,

@@ -1,4 +1,4 @@
-import { and, eq, lt, sql } from "drizzle-orm";
+import { and, eq, lt, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { gamingLobbies, userProfiles } from "@/db/schema";
@@ -56,6 +56,7 @@ export async function POST(_request: Request, context: RouteContext) {
           ))
         )::text`,
         slotsFilled: sql`${gamingLobbies.slotsFilled} + 1`,
+        status: sql`CASE WHEN ${gamingLobbies.slotsFilled} + 1 >= ${gamingLobbies.slotsTotal} THEN 'FULL' ELSE ${gamingLobbies.status} END`,
         updatedAt: new Date(),
       })
       .where(
@@ -123,13 +124,14 @@ export async function DELETE(_request: Request, context: RouteContext) {
           WHERE entry.value->>'userId' <> ${profile.id}
         )`,
         slotsFilled: sql`GREATEST(1, ${gamingLobbies.slotsFilled} - 1)`,
+        status: sql`CASE WHEN ${gamingLobbies.status} = 'FULL' THEN 'OPEN' ELSE ${gamingLobbies.status} END`,
         updatedAt: new Date(),
       })
       .where(
         and(
           eq(gamingLobbies.id, id),
           eq(gamingLobbies.institutionId, institutionId),
-          eq(gamingLobbies.status, "OPEN"),
+          or(eq(gamingLobbies.status, "OPEN"), eq(gamingLobbies.status, "FULL")),
           sql`EXISTS (
             SELECT 1
             FROM jsonb_array_elements(COALESCE(NULLIF(${gamingLobbies.players}, ''), '[]')::jsonb) AS entry(value)

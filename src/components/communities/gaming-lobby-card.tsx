@@ -44,7 +44,23 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
 
   const avatar = getAvatarUrl(item.host.avatarUrl, item.host.username);
   const isHost = currentUserId === item.hostId;
+  const canLeave = item.status === "OPEN" || item.status === "FULL";
   const isFull = slotsFilled >= item.slotsTotal || item.status !== "OPEN";
+  const actionLabel = isHost
+    ? "You’re hosting"
+    : isPending
+      ? "Updating…"
+      : joined && !canLeave
+        ? item.status === "IN_GAME" ? "Match in progress" : "Match completed"
+        : joined
+          ? "Leave lobby"
+          : item.status === "IN_GAME"
+            ? "Match in progress"
+            : item.status === "COMPLETED"
+              ? "Match completed"
+              : isFull
+                ? "Lobby full"
+                : "Join lobby";
 
   useEffect(() => {
     setJoined(hasPlayer(item.players, currentUserId));
@@ -276,7 +292,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
         <button
           type="button"
           onClick={() => void handleJoinLobby()}
-          disabled={isPending || isHost || (isFull && !joined)}
+          disabled={isPending || isHost || (isFull && !joined) || (joined && !canLeave)}
           aria-busy={isPending}
           className={cn(
             "flex min-h-9 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-black transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70",
@@ -288,9 +304,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false }: Ga
           )}
         >
           <Gamepad2 className="size-3.5" />
-          <span>
-            {isHost ? "You’re hosting" : isPending ? "Updating…" : joined ? "Leave lobby" : isFull ? "Lobby full" : "Join lobby"}
-          </span>
+          <span>{actionLabel}</span>
         </button>
 
         {item.discordOrVoiceUrl && (

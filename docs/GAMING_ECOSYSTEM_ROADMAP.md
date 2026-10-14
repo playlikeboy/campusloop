@@ -6,7 +6,7 @@ Make /gaming the default home for campus gaming: discover a match, recruit a squ
 
 ## What this implementation establishes
 
-- A real gaming-mode filter for open, persisted lobby records: all open lobbies, competitive, casual, scrims, and campus cups.
+- A real gaming-mode filter for same-campus open lobbies: all open lobbies, competitive, casual, scrims, and tournament-lobby listings. Full lobbies are excluded from discovery until a seat opens.
 - Search aliases that correctly map the “EA FC” shortcut to the existing FIFA / EA Sports FC game values.
 - An editable lobby format and squad size in the create flow.
 - Persistent lobby join/leave actions stored server-side, scoped to the same campus, with database-level checks for capacity and duplicate membership.

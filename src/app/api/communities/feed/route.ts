@@ -211,6 +211,9 @@ export async function GET(req: NextRequest) {
           const allowedStatuses = ["OPEN", "IN_GAME", "FULL", "COMPLETED", "ALL"];
           const statusFilter = allowedStatuses.includes(rawStatus) ? rawStatus : "OPEN";
           if (statusFilter !== "ALL") conditions.push(eq(gamingLobbies.status, statusFilter));
+          if (statusFilter === "OPEN") {
+            conditions.push(lt(gamingLobbies.slotsFilled, gamingLobbies.slotsTotal));
+          }
 
           const modeFilter = (searchParams.get("mode") || "all").toLowerCase();
           if (modeFilter === "competitive") {
