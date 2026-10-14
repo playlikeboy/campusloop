@@ -48,6 +48,11 @@ export function ConfessionsFeed() {
   const rawSort = searchParams.get("sort") || "latest";
   const [currentSort, setCurrentSort] = useState<string>(rawSort);
   const [randomSeed, setRandomSeed] = useState<number>(0);
+
+  // Keep the selected sort in sync with browser back/forward navigation.
+  useEffect(() => {
+    setCurrentSort(rawSort);
+  }, [rawSort]);
   const [isRotating, setIsRotating] = useState(false);
 
   // Active hashtag filter
@@ -225,6 +230,7 @@ export function ConfessionsFeed() {
                   <button
                     key={s.id}
                     type="button"
+                    aria-pressed={currentSort === s.id}
                     onClick={() => handleSortChange(s.id)}
                     className={cn(
                       "h-7 px-3 rounded-full text-xs transition-all cursor-pointer select-none shrink-0",

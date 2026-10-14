@@ -39,7 +39,7 @@ export function SavedClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useScrollIsolation<HTMLElement>();
 
-  const { data, isLoading, mutate } = useSWR<SavedApiResponse>("/api/posts/saved", fetcher, {
+  const { data, isLoading, mutate, error } = useSWR<SavedApiResponse>("/api/posts/saved", fetcher, {
     revalidateOnFocus: true,
   });
 
@@ -94,7 +94,8 @@ export function SavedClient() {
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="Search saved posts"
                   placeholder="Search your saved posts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -109,6 +110,7 @@ export function SavedClient() {
                     <button
                       key={cat.id}
                       type="button"
+                      aria-pressed={isActive}
                       onClick={() => setSelectedCategory(cat.id)}
                       className={cn(
                         "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer",
@@ -127,7 +129,21 @@ export function SavedClient() {
 
           {/* Posts List */}
           <div className="space-y-4 pt-3 px-4">
-            {isLoading ? (
+            {error ? (
+              <div role="alert" className="rounded-2xl border border-destructive/25 bg-destructive/5 p-5 text-center">
+                <h3 className="text-sm font-bold text-foreground">Saved posts couldn’t load</h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Your bookmarks are safe. Check your connection and try loading them again.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void mutate()}
+                  className="mt-3 inline-flex min-h-9 items-center justify-center rounded-xl bg-background px-4 text-xs font-bold text-foreground ring-1 ring-border transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : isLoading ? (
               <FeedSkeleton />
             ) : filteredPosts.length > 0 ? (
               filteredPosts.map((post) => <FeedCard key={post.id} post={{ ...post, isSaved: true }} />)
@@ -148,6 +164,18 @@ export function SavedClient() {
                       : "Tap the bookmark icon on any post across the campus feed to archive hostel guides, placement advice, and study materials for later."}
                   </p>
                 </div>
+                {(searchQuery || selectedCategory !== "ALL") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("ALL");
+                    }}
+                    className="inline-flex min-h-9 items-center justify-center rounded-xl border border-border/60 px-4 text-xs font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    Clear search and filters
+                  </button>
+                )}
                 {!searchQuery && selectedCategory === "ALL" && (
                   <Link
                     href="/explore"
