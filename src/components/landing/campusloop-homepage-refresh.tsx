@@ -37,6 +37,13 @@ export function CampusLoopHomepageRefresh() {
           </Link>
         </header>
 
+        <nav className={styles.mobileNav} aria-label="Explore CampusLoop">
+          <Link href="#features">What’s inside</Link>
+          <Link href="/academics">Academic Vault</Link>
+          <Link href="/communities">Communities</Link>
+          <Link href="/feeds">Campus feed</Link>
+        </nav>
+
         <main id="main-landing-content">
           <section className={styles.hero} aria-labelledby="hero-title">
             <div className={styles.heroCopy}>
@@ -196,6 +203,16 @@ export function CampusLoopHomepageRefresh() {
           <div className={styles.footerBottom}><span>© {new Date().getFullYear()} CampusLoop</span><span>Made for campus life in India.</span></div>
         </footer>
       </div>
+
+      <Link href="/sign-up" className={styles.mobileJoinBar} aria-label="Join CampusLoop for free">
+        <span className={styles.mobileJoinCopy}>
+          <strong>College life, connected.</strong>
+          <small>Free to join · use your college email</small>
+        </span>
+        <span className={styles.mobileJoinAction}>
+          Join free <ArrowRight size={16} aria-hidden="true" />
+        </span>
+      </Link>
     </div>
   );
 }
