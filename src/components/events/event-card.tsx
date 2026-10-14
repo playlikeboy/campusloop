@@ -188,15 +188,15 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   }
 
   const action = closed ? (
-    <span className="inline-flex h-8 items-center rounded-full bg-muted px-3 text-xs font-semibold text-muted-foreground">Closed</span>
+    <span className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-muted px-3 text-xs font-semibold text-muted-foreground">Closed</span>
   ) : isRegistered ? (
-    <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+    <span className="inline-flex min-h-10 sm:min-h-8 items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
       <Check className="size-3.5" /> Joined
     </span>
   ) : event.participationType === "TEAM" ? (
-    <Link href={href} className="inline-flex h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:opacity-90">Team details</Link>
+    <Link href={href} className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:opacity-90">Team details</Link>
   ) : (
-    <button type="button" onClick={() => void handleQuickRegister()} disabled={isMutating} className="inline-flex h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
+    <button type="button" onClick={() => void handleQuickRegister()} disabled={isMutating} className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
       {isMutating ? "Joining…" : "RSVP"}
     </button>
   );
