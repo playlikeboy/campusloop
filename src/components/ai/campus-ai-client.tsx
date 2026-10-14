@@ -168,16 +168,20 @@ export function CampusAiClient() {
   }
 
   async function handleFeedback(messageId: string, rating: "helpful" | "unhelpful") {
+    const previousRating = messages.find((item) => item.id === messageId)?.feedback;
     setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, feedback: rating } : m)));
     try {
-      await fetch("/api/ai/feedback", {
+      const response = await fetch("/api/ai/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messageId, rating }),
       });
+      const data = (await response.json().catch(() => ({}))) as { success?: boolean; error?: string };
+      if (!response.ok || !data.success) throw new Error(data.error || "Feedback could not be saved");
       toast.success(rating === "helpful" ? "Thanks for the feedback!" : "Feedback recorded.");
     } catch {
-      // Ignored
+      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, feedback: previousRating } : m)));
+      toast.error("Feedback wasn’t saved. Please try again.");
     }
   }
 
@@ -559,6 +563,7 @@ export function CampusAiClient() {
 
             <textarea
               value={message}
+              maxLength={2000}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {

@@ -180,15 +180,18 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
         }),
       });
 
-      const data = (await res.json()) as any;
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Could not enter the matching queue. Try again.");
+      }
       if (data.status === "MATCHED" && data.sessionId) {
         sounds.ting();
         haptics.success();
         setActiveSessionId(data.sessionId);
         setViewState("ACTIVE");
       }
-    } catch {
-      toast.error("Could not enter matching queue. Try again.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not enter matching queue. Try again.");
       setViewState("CONFIGURING");
     }
   }
@@ -819,6 +822,8 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <input
             type="text"
             value={inputText}
+            maxLength={1000}
+            aria-label="Send an anonymous message"
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type a safe anonymous message..."
             className="flex-1 h-11 rounded-2xl bg-muted/40 border border-border/60 px-4 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/60"

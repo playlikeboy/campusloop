@@ -2,10 +2,10 @@
  * Realtime Safety & PII Sanitizer for CampusLoop Random Loop
  */
 
-const PHONE_REGEX = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\b\d{10}\b/g;
-const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-const INSTA_HANDLE_REGEX = /(?:^|\s)@([a-zA-Z0-9._]{3,30})/g;
-const EXTERNAL_URL_REGEX = /\b(?:https?:\/\/|www\.)\S+\b/gi;
+const PHONE_REGEX = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\b\d{10}\b/;
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const INSTA_HANDLE_REGEX = /(?:^|\s)@([a-zA-Z0-9._]{3,30})/;
+const EXTERNAL_URL_REGEX = /\b(?:https?:\/\/|www\.)\S+\b/i;
 
 export interface SafetyCheckResult {
   allowed: boolean;
@@ -15,9 +15,21 @@ export interface SafetyCheckResult {
 }
 
 export function sanitizeRandomLoopMessage(text: string): SafetyCheckResult {
+  if (typeof text !== "string") {
+    return { allowed: false, sanitizedBody: "", warning: "Message must be plain text." };
+  }
+
   const trimmed = text.trim();
   if (!trimmed) {
     return { allowed: false, sanitizedBody: "", warning: "Message cannot be empty." };
+  }
+
+  if (trimmed.length > 1000) {
+    return {
+      allowed: false,
+      sanitizedBody: trimmed,
+      warning: "Messages must be 1,000 characters or fewer.",
+    };
   }
 
   // Check for Phone numbers
@@ -26,7 +38,7 @@ export function sanitizeRandomLoopMessage(text: string): SafetyCheckResult {
       allowed: false,
       sanitizedBody: trimmed,
       piiDetected: true,
-      warning: "🛡️ Phone numbers are not allowed. Please keep all conversations safe inside CampusLoop.",
+      warning: "Phone numbers are not allowed. Please keep conversations safe inside CampusLoop.",
     };
   }
 
@@ -36,7 +48,7 @@ export function sanitizeRandomLoopMessage(text: string): SafetyCheckResult {
       allowed: false,
       sanitizedBody: trimmed,
       piiDetected: true,
-      warning: "🛡️ Sharing email addresses is restricted in Random Loop for your safety.",
+      warning: "Sharing email addresses is restricted in Random Loop for your safety.",
     };
   }
 
@@ -46,7 +58,7 @@ export function sanitizeRandomLoopMessage(text: string): SafetyCheckResult {
       allowed: false,
       sanitizedBody: trimmed,
       piiDetected: true,
-      warning: "🛡️ External links are blocked in Random Loop to prevent phishing and spam.",
+      warning: "External links are blocked in Random Loop to prevent phishing and spam.",
     };
   }
 

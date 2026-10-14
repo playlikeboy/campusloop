@@ -28,8 +28,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json()) as ChatRequestBody;
-    const userPrompt = body.message?.trim();
+    const body = (await req.json().catch(() => null)) as ChatRequestBody | null;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Invalid chat request" }, { status: 400 });
+    }
+    const userPrompt = typeof body.message === "string" ? body.message.trim() : "";
 
     if (!userPrompt) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -41,6 +44,14 @@ export async function POST(req: Request) {
         { error: "Message exceeds maximum allowed length of 2,000 characters." },
         { status: 400 }
       );
+    }
+
+    const allowedModes: AiMode[] = ["campus", "study", "search", "create", "random_loop", "personal"];
+    if (body.mode !== undefined && !allowedModes.includes(body.mode as AiMode)) {
+      return NextResponse.json({ error: "Choose a valid Campus AI mode" }, { status: 400 });
+    }
+    if (body.conversationId !== undefined && (typeof body.conversationId !== "string" || body.conversationId.length > 120)) {
+      return NextResponse.json({ error: "Invalid conversation ID" }, { status: 400 });
     }
 
     const db = getDb();
@@ -58,7 +69,7 @@ export async function POST(req: Request) {
 
     // 1. Resolve or Create Conversation
     let conversationId = body.conversationId;
-    const mode = body.mode || "campus";
+    const mode: AiMode = body.mode || "campus";
 
     if (conversationId) {
       const existingConv = await db.query.aiConversations.findFirst({
@@ -97,9 +108,9 @@ export async function POST(req: Request) {
       userId: profile.id,
       institutionId: isViewer ? null : profile.institutionId,
       mode,
-      route: body.context?.route,
-      entityType: body.context?.entityType,
-      entityId: body.context?.entityId,
+      route: typeof body.context?.route === "string" ? body.context.route.slice(0, 200) : undefined,
+      entityType: typeof body.context?.entityType === "string" ? body.context.entityType.slice(0, 100) : undefined,
+      entityId: typeof body.context?.entityId === "string" ? body.context.entityId.slice(0, 160) : undefined,
     };
 
     // 4. Select & Execute Authorized Tools
@@ -165,11 +176,12 @@ export async function POST(req: Request) {
     console.error("Campus AI Chat Error:", error);
     return NextResponse.json(
       {
+        error: "Campus AI is temporarily unavailable. Try again in a moment.",
         answer: "Campus AI is temporarily unavailable. Try again in a moment.",
         sources: [],
         suggestedActions: [],
       },
-      { status: 200 } // Return graceful degraded response with 200 so UI displays friendly message
+      { status: 503 }
     );
   }
 }
