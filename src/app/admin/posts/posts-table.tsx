@@ -19,9 +19,9 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import { type RevealedIdentity, revealAnonymousAuthor } from "../anonymity-actions";
-import {
-  deletePost,
+import {  deletePost,
   restoreAllSeededPosts,
+  toggleGlobalShowSeededPosts,
   toggleHidePost,
   togglePostSeededStatus,
   unlistAllSeededPosts,
@@ -81,6 +81,7 @@ interface PostsTableProps {
   activeOrigin: PostOriginFilter;
   realCount: number;
   seededCount: number;
+  initialShowSeededPosts?: boolean;
 }
 
 const statusBadgeTone: Record<string, string> = {
@@ -100,6 +101,7 @@ export function PostsTable({
   activeOrigin,
   realCount,
   seededCount,
+  initialShowSeededPosts = true,
 }: PostsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -110,6 +112,8 @@ export function PostsTable({
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
   const [showUnlistConfirm, setShowUnlistConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [showSeededPosts, setShowSeededPosts] = useState(initialShowSeededPosts);
+  const [isTogglingSeededVisibility, setIsTogglingSeededVisibility] = useState(false);
 
   function pushParams(mutate: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams.toString());
@@ -170,6 +174,25 @@ export function PostsTable({
     }
   }
 
+  async function handleToggleGlobalVisibility(nextVal: boolean) {
+    setIsTogglingSeededVisibility(true);
+    try {
+      setShowSeededPosts(nextVal);
+      await toggleGlobalShowSeededPosts(nextVal);
+      toast.success(
+        nextVal
+          ? "All seeded posts are now ACTIVE and listed across website!"
+          : "All seeded posts are now UNLISTED and hidden from feeds!"
+      );
+      router.refresh();
+    } catch {
+      setShowSeededPosts(!nextVal);
+      toast.error("Failed to update seeded visibility toggle");
+    } finally {
+      setIsTogglingSeededVisibility(false);
+    }
+  }
+
   async function confirmReveal() {
     if (!revealPostId) return;
     const postId = revealPostId;
@@ -217,7 +240,40 @@ export function PostsTable({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {/* Master Toggle Switch */}
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-primary/20 bg-primary/5">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                <span
+                  className={`inline-block size-2 rounded-full ${
+                    showSeededPosts ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
+                  }`}
+                />
+                Show Seeded Posts on Website
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {showSeededPosts ? "Currently visible on feeds & discover" : "Currently hidden & unlisted"}
+              </span>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showSeededPosts}
+              disabled={isTogglingSeededVisibility}
+              onClick={() => handleToggleGlobalVisibility(!showSeededPosts)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                showSeededPosts ? "bg-primary" : "bg-muted"
+              } ${isTogglingSeededVisibility ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                  showSeededPosts ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => setShowUnlistConfirm(true)}
@@ -225,7 +281,7 @@ export function PostsTable({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
           >
             <EyeOff className="size-3.5" />
-            <span>Unlist All Seeded</span>
+            <span>Unlist All</span>
           </button>
 
           <button
@@ -235,7 +291,7 @@ export function PostsTable({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
           >
             <RotateCcw className="size-3.5" />
-            <span>Restore Seeded</span>
+            <span>Publish All</span>
           </button>
         </div>
       </div>

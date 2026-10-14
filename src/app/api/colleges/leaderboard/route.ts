@@ -2,6 +2,7 @@ import { and, desc, eq, ilike, ne, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { institutions, posts, userProfiles } from "@/db/schema";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,8 @@ export async function GET(request: Request) {
 
     const rankingScore = sql`count(distinct ${userProfiles.id}) * 120 + count(distinct ${posts.id}) * 45 + (case when ${institutions.nirfRank} is not null then (101 - least(${institutions.nirfRank}, 100)) * 10 else 0 end)`;
 
+    const showSeeded = await getShowSeededPosts();
+
     const rows = await db
       .select({
         id: institutions.id,
@@ -60,8 +63,21 @@ export async function GET(request: Request) {
         score: sql<number>`${rankingScore}::int`,
       })
       .from(institutions)
-      .leftJoin(userProfiles, and(eq(userProfiles.institutionId, institutions.id), eq(userProfiles.isSeeded, false)))
-      .leftJoin(posts, and(eq(posts.institutionId, institutions.id), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)))
+      .leftJoin(
+        userProfiles,
+        and(
+          eq(userProfiles.institutionId, institutions.id),
+          showSeeded ? undefined : eq(userProfiles.isSeeded, false)
+        )
+      )
+      .leftJoin(
+        posts,
+        and(
+          eq(posts.institutionId, institutions.id),
+          eq(posts.status, "PUBLISHED"),
+          showSeeded ? undefined : eq(posts.isSeeded, false)
+        )
+      )
       .where(whereClause)
       .groupBy(institutions.id)
       .orderBy(desc(rankingScore))

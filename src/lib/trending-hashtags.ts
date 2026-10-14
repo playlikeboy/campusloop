@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export interface TrendingHashtag {
   tag: string;
@@ -62,8 +63,12 @@ async function getAggregatedDbHashtags(): Promise<
 
   try {
     const db = getDb();
+    const showSeeded = await getShowSeededPosts();
     const recentPosts = await db.query.posts.findMany({
-      where: and(eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)),
+      where: and(
+        eq(posts.status, "PUBLISHED"),
+        showSeeded ? undefined : eq(posts.isSeeded, false)
+      ),
       orderBy: [desc(posts.createdAt)],
       limit: 300,
       columns: {

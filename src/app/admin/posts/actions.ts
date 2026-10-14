@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { contentStatusEnum } from "@/db/schema";
 import { moderationActions, posts } from "@/db/schema";
+import { getShowSeededPosts, setShowSeededPosts } from "@/lib/platform-config";
 
 import type { Db } from "../_lib/db-context";
 import { getAdminDb, requireAdminProfile } from "../_lib/guard";
@@ -46,20 +47,44 @@ export async function toggleHidePost(postId: string) {
 
 export async function unlistAllSeededPosts() {
   const db = await getAdminDb();
+  await setShowSeededPosts(false);
   const res = await db.update(posts).set({ status: "HIDDEN" }).where(eq(posts.isSeeded, true));
 
   await logAction(db, "UNLIST_ALL_SEEDED_POSTS", "BULK");
   revalidatePath("/admin/posts");
+  revalidatePath("/feeds");
   return { success: true };
 }
 
 export async function restoreAllSeededPosts() {
   const db = await getAdminDb();
+  await setShowSeededPosts(true);
   await db.update(posts).set({ status: "PUBLISHED" }).where(eq(posts.isSeeded, true));
 
   await logAction(db, "RESTORE_ALL_SEEDED_POSTS", "BULK");
   revalidatePath("/admin/posts");
+  revalidatePath("/feeds");
   return { success: true };
+}
+
+export async function toggleGlobalShowSeededPosts(enabled: boolean) {
+  const db = await getAdminDb();
+  await setShowSeededPosts(enabled);
+  if (enabled) {
+    await db.update(posts).set({ status: "PUBLISHED" }).where(eq(posts.isSeeded, true));
+    await logAction(db, "ENABLE_SHOW_SEEDED_POSTS", "GLOBAL");
+  } else {
+    await db.update(posts).set({ status: "HIDDEN" }).where(eq(posts.isSeeded, true));
+    await logAction(db, "DISABLE_SHOW_SEEDED_POSTS", "GLOBAL");
+  }
+  revalidatePath("/admin/posts");
+  revalidatePath("/admin/settings");
+  revalidatePath("/feeds");
+  return { success: true, enabled };
+}
+
+export async function getGlobalShowSeededPosts() {
+  return await getShowSeededPosts();
 }
 
 export async function togglePostSeededStatus(postId: string, isSeeded: boolean) {

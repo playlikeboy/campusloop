@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { cleanSnippet, formatTimeAgo } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +54,11 @@ export async function GET(req: Request) {
     }
 
     // Determine query conditions based on scope
-    const conditions = [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
+    const showSeeded = await getShowSeededPosts();
+    const conditions = [
+      eq(posts.status, "PUBLISHED"),
+      ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
+    ];
     if (requestedScope === "CAMPUS" && userInstitutionId) {
       conditions.push(eq(posts.institutionId, userInstitutionId));
     }

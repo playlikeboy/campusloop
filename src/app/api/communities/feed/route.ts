@@ -12,6 +12,7 @@ import {
   userProfiles,
 } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export const dynamic = "force-dynamic";
 
@@ -48,9 +49,14 @@ export async function GET(req: NextRequest) {
     if (pageValue !== null && tab !== "all") {
       const page = getPage(pageValue);
       const offset = (page - 1) * limit;
+      const showSeeded = await getShowSeededPosts();
 
       if (tab === "discussions") {
-        const conditions: any[] = [isNotNull(posts.communityId), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
+        const conditions: any[] = [
+          isNotNull(posts.communityId),
+          eq(posts.status, "PUBLISHED"),
+          ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
+        ];
         if (q) conditions.push(or(ilike(posts.title, q), ilike(posts.body, q)));
         const where = and(...conditions);
         const [{ value: totalValue }] = await db.select({ value: count(posts.id) }).from(posts).where(where);
@@ -425,7 +431,12 @@ export async function GET(req: NextRequest) {
     };
 
     if (tab === "all" || tab === "discussions") {
-      const postConditions = [isNotNull(posts.communityId), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
+      const showSeeded = await getShowSeededPosts();
+      const postConditions = [
+        isNotNull(posts.communityId),
+        eq(posts.status, "PUBLISHED"),
+        ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
+      ];
       if (cursorDate) postConditions.push(lt(posts.createdAt, cursorDate));
       const communityPosts = await db.query.posts.findMany({
         where: and(...postConditions),
