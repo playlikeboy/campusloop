@@ -6,7 +6,7 @@ const MODE_FILTERS = [
   { value: "competitive", label: "Competitive", detail: "Ranked team play", icon: Crosshair },
   { value: "casual", label: "Casual", detail: "Low-pressure games", icon: Users },
   { value: "scrim", label: "Scrims", detail: "Practice with a team", icon: Swords },
-  { value: "tournament", label: "Campus cups", detail: "Organized matches", icon: Trophy },
+  { value: "tournament", label: "Tournament lobbies", detail: "Organized match listings", icon: Trophy },
 ] as const;
 
 interface GamingDiscoveryFiltersProps {

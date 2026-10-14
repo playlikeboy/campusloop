@@ -111,7 +111,7 @@ const GAMING_MODE_OPTIONS = [
   { value: "5v5 Competitive", label: "Competitive", description: "Ranked team play", icon: Crosshair },
   { value: "Casual", label: "Casual", description: "Play for fun", icon: Gamepad2 },
   { value: "Scrim", label: "Scrims", description: "Practice with squads", icon: Swords },
-  { value: "Tournament", label: "Campus cup", description: "Organized matches", icon: Trophy },
+  { value: "Tournament", label: "Tournament lobby", description: "Coordinate an organized match", icon: Trophy },
 ];
 
 const HUB_BRANCH_OPTIONS: ComboboxOption[] = [

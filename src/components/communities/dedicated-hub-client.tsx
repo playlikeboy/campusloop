@@ -131,6 +131,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
 
   const urlSearch = searchParams.get("q") || "";
   const selectedMode = searchParams.get("mode") || "all";
+  const selectedLobbyId = searchParams.get("id") || "";
   const rawPage = Number.parseInt(searchParams.get("page") || "1", 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
   const [search, setSearch] = useState(urlSearch);
@@ -152,12 +153,13 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
       updateUrl((params) => {
         if (next) params.set("q", next);
         else params.delete("q");
+        if (hubType === "gaming") params.delete("id");
         params.set("page", "1");
       });
     }, 350);
 
     return () => window.clearTimeout(timer);
-  }, [search, updateUrl, urlSearch]);
+  }, [hubType, search, updateUrl, urlSearch]);
 
   const feedUrl = useMemo(() => {
     const params = new URLSearchParams({
@@ -165,13 +167,17 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
       page: String(page),
       limit: "12",
     });
-    if (urlSearch) params.set("q", urlSearch);
-    if (hubType === "gaming") {
-      params.set("status", "OPEN");
-      if (selectedMode !== "all") params.set("mode", selectedMode);
+    if (hubType === "gaming" && selectedLobbyId) {
+      params.set("id", selectedLobbyId);
+    } else {
+      if (urlSearch) params.set("q", urlSearch);
+      if (hubType === "gaming") {
+        params.set("status", "OPEN");
+        if (selectedMode !== "all") params.set("mode", selectedMode);
+      }
     }
     return "/api/communities/feed?" + params.toString();
-  }, [hubType, page, selectedMode, urlSearch]);
+  }, [hubType, page, selectedLobbyId, selectedMode, urlSearch]);
 
   const { data, error, isLoading, mutate } = useSWR<FeedResponse>(feedUrl, fetcher, {
     keepPreviousData: true,
@@ -180,6 +186,14 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
 
   const items = data?.items || [];
 
+  useEffect(() => {
+    if (hubType !== "gaming" || !selectedLobbyId || !items.length) return;
+    const target = document.getElementById("gaming-lobby-" + selectedLobbyId);
+    if (!target) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  }, [hubType, items.length, selectedLobbyId]);
+
   function renderItem(item: any) {
     switch (item.itemType) {
       case "LOST_FOUND":
@@ -187,7 +201,14 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
       case "MARKETPLACE":
         return <MarketplaceCard key={item.id} item={item.data} currentUserId={profileId} />;
       case "GAMING":
-        return <GamingLobbyCard key={item.id} item={item.data} currentUserId={profileId} />;
+        return (
+          <GamingLobbyCard
+            key={item.id}
+            item={item.data}
+            currentUserId={profileId}
+            highlighted={hubType === "gaming" && selectedLobbyId === item.data.id}
+          />
+        );
       case "RIDESHARE":
         return <RideshareCard key={item.id} item={item.data} currentUserId={profileId} />;
       case "HOUSING":
@@ -262,6 +283,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
             updateUrl((params) => {
               if (mode === "all") params.delete("mode");
               else params.set("mode", mode);
+              params.delete("id");
               params.set("page", "1");
             })
           }
@@ -272,8 +294,12 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
         {hubType === "gaming" ? (
           <div className="flex items-end justify-between gap-3 px-1">
             <div>
-              <h2 className="text-lg font-black tracking-tight text-foreground">Open lobbies</h2>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Jump into a match or start one of your own.</p>
+              <h2 className="text-lg font-black tracking-tight text-foreground">
+                {selectedLobbyId ? "Shared lobby" : "Open lobbies"}
+              </h2>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {selectedLobbyId ? "This link opens the specific lobby shared with you." : "Jump into a match or start one of your own."}
+              </p>
             </div>
             {data ? (
               <span className="shrink-0 rounded-full bg-muted/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground">

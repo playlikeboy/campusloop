@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: "Choose a supported game." }, { status: 400 });
         }
 
-        const parsedSlots = Number.parseInt(String(data.slotsTotal ?? 5), 10);
+        const parsedSlots = Number(data.slotsTotal ?? 5);
         if (!Number.isInteger(parsedSlots) || parsedSlots < 2 || parsedSlots > 20) {
           return NextResponse.json({ error: "Squad size must be between 2 and 20 players." }, { status: 400 });
         }
