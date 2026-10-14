@@ -24,8 +24,8 @@ export function PageHeader({
       )}
       {...props}
     >
-      <div className="space-y-1">
-        <h1 className="font-heading font-bold text-2xl sm:text-3xl tracking-tight text-[var(--text)]">
+      <div className="min-w-0 space-y-1">
+        <h1 className="break-words font-heading font-bold text-2xl sm:text-3xl tracking-tight text-[var(--text)]">
           {title}
         </h1>
         {description && (
@@ -36,7 +36,7 @@ export function PageHeader({
       </div>
 
       {(primaryAction || secondaryActions) && (
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex w-full flex-wrap items-center gap-2.5 sm:w-auto sm:shrink-0">
           {secondaryActions}
           {primaryAction}
         </div>

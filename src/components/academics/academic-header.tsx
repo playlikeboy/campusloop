@@ -34,7 +34,7 @@ export function AcademicHeader({
               </span>
             )}
           </div>
-          <p className="hidden sm:block text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
+          <p className="block text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
             Notes, PYQs, and curated study playlists—organized around your campus and semester.
           </p>
         </div>
@@ -109,6 +109,45 @@ export function AcademicHeader({
             <Upload className="size-4" />
           </Link>
         </div>
+      </div>
+
+      <div role="group" aria-label="Academic resource scope" className="grid grid-cols-2 gap-2 sm:hidden">
+        <button
+          type="button"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+            onScopeChange("campus");
+          }}
+          aria-pressed={scope === "campus"}
+          className={cn(
+            "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors",
+            scope === "campus"
+              ? "border-[var(--primary)] bg-[var(--surface)] text-[var(--text)]"
+              : "border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-secondary)]"
+          )}
+        >
+          <School className="size-4 text-[var(--primary)]" />
+          <span className="truncate">My campus</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+            onScopeChange("global");
+          }}
+          aria-pressed={scope === "global"}
+          className={cn(
+            "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors",
+            scope === "global"
+              ? "border-[var(--primary)] bg-[var(--surface)] text-[var(--text)]"
+              : "border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-secondary)]"
+          )}
+        >
+          <Globe className="size-4 text-emerald-500" />
+          <span>All India</span>
+        </button>
       </div>
     </header>
   );
