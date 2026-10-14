@@ -6,14 +6,32 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
+  Bookmark,
+  Bot,
+  Building2,
+  Cake,
+  Calendar,
+  Car,
   Compass,
+  Gamepad2,
   Globe,
   GraduationCap,
   Heart,
+  Hourglass,
+  LockKeyhole,
+  Map,
   MapPin,
+  MessageCircle,
+  Newspaper,
+  Search,
   ShieldCheck,
+  ShoppingBag,
   Sparkles,
+  Store,
+  Terminal,
+  UserRound,
   Users,
+  Wrench,
 } from "lucide-react";
 import { CleanFooter } from "@/components/landing/clean-footer";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
@@ -21,58 +39,183 @@ import { LegalNav } from "@/components/marketing/legal-nav";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
-const PILLARS = [
+const FEATURES = [
   {
     icon: Users,
-    title: "100% Verified Students",
-    tag: "Real Peers",
-    description:
-      "Every single profile is verified via institutional .ac.in or .edu address. No bots, recruiters, or commercial spam.",
+    title: "Campus Feed & Social",
+    tag: "Connect",
+    description: "Share posts, stories and reels, discover campus conversations, explore hashtags and find new people.",
+    href: "/feeds",
   },
   {
-    icon: Globe,
-    title: "Campus Grounded",
-    tag: "Hostel Radar",
-    description:
-      "Built around physical university grounds, hostel gates, canteens, and local batch culture across India.",
-  },
-  {
-    icon: Heart,
-    title: "Authentic Expression",
-    tag: "Safe & Candid",
-    description:
-      "Share genuine confessions, seek advice, or make friends with cryptographic anonymity protecting your identity.",
-  },
-  {
-    icon: BookOpen,
+    icon: GraduationCap,
     title: "Academic Vault",
-    tag: "Free Study Notes",
-    description:
-      "Access peer-uploaded semester notes, handwritten lecture summaries, lab manuals, and 5-year solved PYQs.",
+    tag: "Study",
+    description: "Browse and share notes, previous-year questions, syllabi, playlists and study resources.",
+    href: "/academics",
   },
   {
     icon: Sparkles,
-    title: "Student Communities",
-    tag: "Clubs & Fests",
-    description:
-      "Discover campus fests, technical societies, hackathon teams, and cultural groups in one unified hub.",
+    title: "Communities & Clubs",
+    tag: "Belong",
+    description: "Discover student clubs, technical societies, interest groups and communities around campus.",
+    href: "/communities",
   },
   {
-    icon: Compass,
-    title: "Pan-India Radar",
-    tag: "1,350+ Hubs",
-    description:
-      "Switch between your local campus timeline and the national radar across every accredited college in India.",
+    icon: Calendar,
+    title: "Events, Fests & Hackathons",
+    tag: "Join in",
+    description: "Explore campus events, workshops, fests and hackathons, and follow event details and registrations.",
+    href: "/events",
+  },
+  {
+    icon: Gamepad2,
+    title: "Gaming & Esports Arena",
+    tag: "Squad up",
+    description: "Open gaming lobbies, find teammates, plan scrims, build gamer cards, join tournaments and view brackets and leaderboards.",
+    href: "/gaming",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Campus Marketplace",
+    tag: "Everyday",
+    description: "Find campus services for food, water, laundry, supermarket essentials, rentals and orders.",
+    href: "/marketplace",
+  },
+  {
+    icon: Store,
+    title: "Student Buy & Sell",
+    tag: "Exchange",
+    description: "Post and discover student-to-student listings for things worth passing on to another batchmate.",
+    href: "/buy-and-sell",
+  },
+  {
+    icon: Building2,
+    title: "Housing & Flatmates",
+    tag: "Find a place",
+    description: "Explore housing, flatmate and nearby living options through a campus-focused hub.",
+    href: "/housing",
+  },
+  {
+    icon: Car,
+    title: "Rideshare & Carpools",
+    tag: "Get there",
+    description: "Coordinate shared rides for daily commutes, railway stations, airport trips and campus travel.",
+    href: "/rideshare",
+  },
+  {
+    icon: Search,
+    title: "Lost & Found",
+    tag: "Recover",
+    description: "Post a lost item or browse reports to help return misplaced IDs, keys, gadgets and essentials.",
+    href: "/lost-and-found",
+  },
+  {
+    icon: MessageCircle,
+    title: "Campus Confessions",
+    tag: "Speak freely",
+    description: "Share campus thoughts, stories and questions through the dedicated confessions space.",
+    href: "/confessions",
+  },
+  {
+    icon: LockKeyhole,
+    title: "Secret Crush Vault",
+    tag: "Connections",
+    description: "A dedicated space for private-interest signals and discovering mutual campus connections.",
+    href: "/crush",
+  },
+  {
+    icon: Heart,
+    title: "Random Loop",
+    tag: "Meet someone",
+    description: "Start a spontaneous conversation and meet another student beyond your usual circles.",
+    href: "/random",
+  },
+  {
+    icon: Bot,
+    title: "Campus AI Assistant",
+    tag: "Ask & explore",
+    description: "Get help exploring CampusLoop, thinking through study plans and finding campus information.",
+    href: "/ai",
+  },
+  {
+    icon: Map,
+    title: "CampusLoop Atlas",
+    tag: "Discover",
+    description: "Explore college hubs and navigate the wider CampusLoop network.",
+    href: "/atlas",
+  },
+  {
+    icon: Globe,
+    title: "Colleges Directory",
+    tag: "Find your hub",
+    description: "Browse college pages and discover the community connected to your institution.",
+    href: "/colleges",
+  },
+  {
+    icon: Newspaper,
+    title: "Articles & Roadmaps",
+    tag: "Read & grow",
+    description: "Explore articles, tutorials, interview preparation and student learning roadmaps.",
+    href: "/articles",
+  },
+  {
+    icon: MessageCircle,
+    title: "Chat & Direct Messages",
+    tag: "Keep in touch",
+    description: "Continue campus conversations in direct chats with other students.",
+    href: "/chat",
+  },
+  {
+    icon: Cake,
+    title: "Campus Birthdays",
+    tag: "Celebrate",
+    description: "Keep up with classmates' birthdays and celebrate your campus community.",
+    href: "/birthdays",
+  },
+  {
+    icon: Hourglass,
+    title: "Time Capsule",
+    tag: "Keep memories",
+    description: "Save batch memories for future milestones and moments worth revisiting.",
+    href: "/capsule",
+  },
+  {
+    icon: Bookmark,
+    title: "Saved Posts & Resources",
+    tag: "Come back later",
+    description: "Keep useful posts and resources together so you can find them again.",
+    href: "/saved",
+  },
+  {
+    icon: UserRound,
+    title: "Profiles & Campus Streaks",
+    tag: "Your space",
+    description: "Manage your student profile and keep track of your ongoing CampusLoop activity.",
+    href: "/profile",
+  },
+  {
+    icon: Wrench,
+    title: "Student Utilities",
+    tag: "Handy tools",
+    description: "Find practical tools and small utilities designed to help with student life.",
+    href: "/utilities",
+  },
+  {
+    icon: Terminal,
+    title: "Developer & MCP Hub",
+    tag: "Build with it",
+    description: "Explore developer tools and connect compatible AI clients through the CampusLoop MCP hub.",
+    href: "/developer",
   },
 ];
 
-const STATS = [
-  { value: "1,350+", label: "College Hubs", sub: "Indexed across 28 states" },
-  { value: "43.3M", label: "Indian Students", sub: "Higher-education community" },
-  { value: "100%", label: "Verified Only", sub: "Institutional domain gate" },
-  { value: "0", label: "Ad Trackers", sub: "Zero behavioral data selling" },
+const HIGHLIGHTS = [
+  { value: "Connect", label: "Campus Social", sub: "Posts, stories, reels and chat" },
+  { value: "Learn", label: "Study Resources", sub: "Notes, PYQs and roadmaps" },
+  { value: "Play", label: "Gaming & Esports", sub: "Squads, lobbies and tournaments" },
+  { value: "Live", label: "Everyday Campus", sub: "Events, rides and local services" },
 ];
-
 export function AboutClient() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -88,7 +231,7 @@ export function AboutClient() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground select-none">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <MinimalLandingNavbar />
       <LegalNav />
 
@@ -98,7 +241,7 @@ export function AboutClient() {
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary shadow-xs">
               <ShieldCheck className="size-4 text-[#16a34a]" />
-              <span>Founded at BIT Mesra • 100% Student Verified</span>
+              <span>Born at BIT Mesra • Built around student life</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
@@ -108,9 +251,9 @@ export function AboutClient() {
             </h1>
 
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              CampusLoop is the verified digital campus network connecting 43.3 million students across
-              1,350+ Indian colleges. We replace cluttered WhatsApp groups and unverified forums with a
-              safe, beautiful, and authentic college home.
+              CampusLoop brings student conversations, study resources, clubs, events, gaming and
+              everyday campus services into one connected place. Find your people, discover what's
+              happening, and make more of campus life.
             </p>
           </div>
 
@@ -152,28 +295,27 @@ export function AboutClient() {
                   Where authentic college friendships take shape.
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  No influencers, no corporate ad trackers, no external toxicity. Just you and your
-                  verified batchmates sharing inside jokes, exam prep, semester survival tips, and hostel
-                  stories.
+                  A home for students to share campus updates, study together, coordinate plans, and
+                  find the people and communities that make college life better.
                 </p>
                 <div className="pt-2 flex flex-wrap gap-2">
                   <span className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-[#16a34a]">
-                    Verified .ac.in / .edu Only
+                    Student Communities
                   </span>
                   <span className="rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-500">
-                    Hostel Radar
+                    Campus-first
                   </span>
                   <span className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500">
-                    Cryptographic Anon
+                    Gaming & Esports
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Voxel Stats Bar */}
+          {/* CampusLoop at a glance */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {STATS.map((stat) => (
+            {HIGHLIGHTS.map((stat) => (
               <div
                 key={stat.label}
                 className="rounded-3xl border border-border/70 bg-card/80 p-5 sm:p-6 text-center shadow-xs transition-all hover:border-primary/40 hover:-translate-y-1"
@@ -212,40 +354,46 @@ export function AboutClient() {
             <div className="text-center max-w-xl mx-auto space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                 <Sparkles className="size-3.5" />
-                <span>Core Philosophy</span>
+                <span>CampusLoop Features</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                What drives CampusLoop
+                One campus. Every part of student life.
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Six foundational principles guiding every line of code we ship.
+                Explore the spaces and tools that bring student conversations, study, gaming, events and everyday campus needs together.
               </p>
             </div>
 
-            <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {PILLARS.map((pillar) => {
-                const Icon = pillar.icon;
+            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.map((feature) => {
+                const Icon = feature.icon;
                 return (
-                  <div
-                    key={pillar.title}
-                    className="group relative rounded-3xl border border-border/70 bg-card/85 p-6 shadow-2xs transition-all duration-200 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-lg"
+                  <Link
+                    key={feature.title}
+                    href={feature.href}
+                    onClick={() => {
+                      sounds.tap();
+                      haptics.light();
+                    }}
+                    className="group flex h-full min-w-0 flex-col rounded-3xl border border-border/70 bg-card/85 p-4 shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg sm:p-5"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
                         <Icon className="size-5" />
                       </div>
                       <span className="rounded-full border border-border/70 bg-muted/40 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
-                        {pillar.tag}
+                        {feature.tag}
                       </span>
                     </div>
 
-                    <h3 className="mt-4 text-sm sm:text-base font-extrabold text-foreground">
-                      {pillar.title}
+                    <h3 className="mt-3 flex items-start justify-between gap-2 text-sm font-extrabold text-foreground sm:text-base">
+                      <span>{feature.title}</span>
+                      <ArrowRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                     </h3>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                      {pillar.description}
+                    <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">
+                      {feature.description}
                     </p>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

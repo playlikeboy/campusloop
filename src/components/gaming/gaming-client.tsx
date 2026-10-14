@@ -262,8 +262,8 @@ export function GamingClient({ profileId }: GamingClientProps) {
     <main className="mx-auto min-h-screen w-full max-w-4xl bg-background pb-28 text-foreground">
       {/* ─── Top Header & Campus Radius Switcher ─── */}
       <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5 sm:py-4 border-b border-border/20">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full min-w-0 items-center gap-2.5 sm:flex-1">
             <Link
               href="/communities"
               className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
@@ -286,7 +286,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 sm:flex sm:w-auto sm:shrink-0">
             {/* Campus Scope Switcher */}
             <button
               type="button"
@@ -295,10 +295,10 @@ export function GamingClient({ profileId }: GamingClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 text-xs font-bold text-foreground transition hover:bg-muted"
+              className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-full border border-border/70 bg-card px-2 text-xs font-bold text-foreground transition hover:bg-muted sm:px-3"
             >
               <Globe className="size-3 text-primary" />
-              <span>{scope === "campus" ? "My Campus" : "All India"}</span>
+              <span className="truncate">{scope === "campus" ? "My Campus" : "All India"}</span>
             </button>
 
             {/* Edit Gamer Card */}
@@ -309,7 +309,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 text-xs font-bold text-primary transition hover:bg-primary/20"
+              className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-2 text-xs font-bold text-primary transition hover:bg-primary/20 sm:px-3"
             >
               <Shield className="size-3" />
               <span className="hidden sm:inline">My Gamer Card</span>
@@ -325,7 +325,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                   sounds.tap();
                   haptics.light();
                 }}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-black text-primary-foreground shadow-xs transition hover:bg-primary/90 active:scale-95"
+                className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs transition hover:bg-primary/90 active:scale-95 sm:px-3.5"
               >
                 <Trophy className="size-3.5" />
                 <span>Host Cup</span>
@@ -333,7 +333,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
             ) : (
               <Link
                 href="/gaming/new"
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-black text-primary-foreground shadow-xs transition hover:bg-primary/90 active:scale-95"
+                className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-3 text-xs font-black text-primary-foreground shadow-xs transition hover:bg-primary/90 active:scale-95 sm:px-3.5"
               >
                 <Plus className="size-3.5" />
                 <span>Open Lobby</span>
