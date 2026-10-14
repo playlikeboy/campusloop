@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import { posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { formatApiFeedPosts } from "@/lib/feed";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { qdrant } from "@/lib/qdrant/client";
 import { COLLECTIONS } from "@/lib/qdrant/collections";
 import { generateEmbedding } from "@/lib/qdrant/embeddings";
@@ -26,6 +27,7 @@ export async function getRelatedPosts(
 ): Promise<RelatedPostItem[]> {
   const limit = options.limit ?? 4;
   const db = getDb();
+  const showSeeded = await getShowSeededPosts();
 
   // 1. Fetch current post details from Postgres
   const basePost = await db.query.posts.findFirst({
@@ -68,7 +70,7 @@ export async function getRelatedPosts(
         where: and(
           inArray(posts.id, pointIds),
           eq(posts.status, "PUBLISHED"),
-          eq(posts.isSeeded, false),
+          showSeeded ? undefined : eq(posts.isSeeded, false),
           basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined
         ),
         with: {
@@ -137,7 +139,7 @@ export async function getRelatedPosts(
     const baseConditions = [
       ne(posts.id, targetPostId),
       eq(posts.status, "PUBLISHED"),
-      eq(posts.isSeeded, false),
+      showSeeded ? undefined : eq(posts.isSeeded, false),
       basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined,
     ].filter(Boolean);
 

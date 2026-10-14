@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { academicResources, institutions, posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { getCachedAuthUser, getCachedInstitution, getCachedUserProfile } from "@/lib/server-cache";
 
 interface PageProps {
@@ -94,13 +95,15 @@ export default async function MainCollegePage({ params }: PageProps) {
     notFound();
   }
 
+  const showSeeded = await getShowSeededPosts();
+
   // Fetch posts, competitor campuses, and academic resources in parallel for optimal TTFB
   const [collegePosts, rawRelatedColleges, collegeAcademics] = await Promise.all([
     db.query.posts.findMany({
       where: and(
         eq(posts.institutionId, college.id),
         eq(posts.status, "PUBLISHED"),
-        eq(posts.isSeeded, false)
+        showSeeded ? undefined : eq(posts.isSeeded, false)
       ),
       orderBy: [desc(posts.createdAt)],
       limit: 30,
@@ -170,7 +173,7 @@ export default async function MainCollegePage({ params }: PageProps) {
 
   // Extract enrolled student profiles
   const students = (college.profiles || [])
-    .filter((p) => !p.isSeeded)
+    .filter((p) => (showSeeded ? true : !p.isSeeded))
     .map((p) => ({
     id: p.id,
     username: p.username,

@@ -2,6 +2,7 @@ import { and, count, desc, eq, ilike, type SQL } from "drizzle-orm";
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { posts } from "@/db/schema";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { PostsTable } from "./posts-table";
@@ -59,7 +60,7 @@ export default async function AdminPostsPage({ searchParams }: PageProps) {
   if (origin === "seeded") conditions.push(eq(posts.isSeeded, true));
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [[totals], [realStats], [seededStats], list] = await Promise.all([
+  const [[totals], [realStats], [seededStats], list, isSeededVisible] = await Promise.all([
     db.select({ total: count() }).from(posts).where(whereClause),
     db
       .select({
@@ -83,6 +84,7 @@ export default async function AdminPostsPage({ searchParams }: PageProps) {
         author: true,
       },
     }),
+    getShowSeededPosts(),
   ]);
 
   const totalCount = totals?.total || 0;
@@ -112,6 +114,7 @@ export default async function AdminPostsPage({ searchParams }: PageProps) {
         activeOrigin={origin}
         realCount={realStats?.totalReal || 0}
         seededCount={seededStats?.totalSeeded || 0}
+        initialShowSeededPosts={isSeededVisible}
       />
     </div>
   );

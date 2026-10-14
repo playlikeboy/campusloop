@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts, normalizeApiFeedSort, resolveFeedPage } from "@/lib/feed";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,11 @@ export async function GET(req: Request) {
     }
 
     const isViewer = institutionId ? await isViewerProfile({ institutionId }) : false;
-    const conditions: SQL[] = [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)];
+    const showSeeded = await getShowSeededPosts();
+    const conditions: SQL[] = [eq(posts.status, "PUBLISHED")];
+    if (!showSeeded) {
+      conditions.push(eq(posts.isSeeded, false));
+    }
 
     if (beforeParam) {
       const beforeDate = new Date(beforeParam);

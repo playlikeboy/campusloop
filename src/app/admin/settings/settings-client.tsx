@@ -1,15 +1,25 @@
 "use client";
 
 import {
+  Bot,
   Lock,
   Save,
   ShieldAlert,
+  Sparkles,
   Webhook,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { toggleGlobalShowSeededPosts } from "../posts/actions";
 
-export function SettingsClient() {
+interface SettingsClientProps {
+  initialShowSeededPosts?: boolean;
+}
+
+export function SettingsClient({ initialShowSeededPosts = true }: SettingsClientProps) {
+  const [showSeededPosts, setShowSeededPosts] = useState(initialShowSeededPosts);
+  const [isTogglingSeeded, setIsTogglingSeeded] = useState(false);
+
   const [toxicityThreshold, setToxicityThreshold] = useState(70);
   const [autoQuarantineThreshold, setAutoQuarantineThreshold] = useState(3);
   const [requireIdentityJustification, setRequireIdentityJustification] = useState(true);
@@ -28,6 +38,24 @@ export function SettingsClient() {
 
   const [isSaving, setIsSaving] = useState(false);
 
+  async function handleToggleSeeded(nextVal: boolean) {
+    setIsTogglingSeeded(true);
+    try {
+      setShowSeededPosts(nextVal);
+      await toggleGlobalShowSeededPosts(nextVal);
+      toast.success(
+        nextVal
+          ? "All seeded posts are now ACTIVE and visible across website!"
+          : "All seeded posts are now UNLISTED and hidden from public feeds!"
+      );
+    } catch {
+      setShowSeededPosts(!nextVal);
+      toast.error("Failed to update seeded visibility toggle");
+    } finally {
+      setIsTogglingSeeded(false);
+    }
+  }
+
   async function handleSave() {
     setIsSaving(true);
     await new Promise((r) => setTimeout(r, 600));
@@ -37,6 +65,59 @@ export function SettingsClient() {
 
   return (
     <div className="space-y-6">
+      {/* ─── Seeded Feeds & Global Visibility Control ─── */}
+      <section className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Bot className="size-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground">
+                Seeded Content &amp; Campus Visibility Control
+              </h2>
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  showSeededPosts
+                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                    : "bg-muted text-muted-foreground border border-border"
+                }`}
+              >
+                <span
+                  className={`size-1.5 rounded-full ${
+                    showSeededPosts ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
+                  }`}
+                />
+                {showSeededPosts ? "ACTIVE & LISTED" : "UNLISTED & HIDDEN"}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-2xl">
+              Controls whether seeded bot posts and profiles are visible on the public feed, discover timeline, college hubs, search, and trends. When turned ON, all 1,750+ seeded posts are published and listed. When turned OFF, they are unlisted so students only see authentic peer interactions.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-xs font-semibold text-foreground">
+              {showSeededPosts ? "Show Seeded Posts" : "Hide Seeded Posts"}
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showSeededPosts}
+              disabled={isTogglingSeeded}
+              onClick={() => handleToggleSeeded(!showSeededPosts)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                showSeededPosts ? "bg-primary" : "bg-muted"
+              } ${isTogglingSeeded ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                  showSeededPosts ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Safety & Content Moderation Policies ─── */}
       <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs space-y-4">
         <div className="flex items-center gap-2">

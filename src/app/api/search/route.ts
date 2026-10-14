@@ -15,6 +15,7 @@ import {
 } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts } from "@/lib/feed";
+import { getShowSeededPosts } from "@/lib/platform-config";
 import { detectSearchIntent } from "@/lib/search/intent";
 import type {
   SearchCategoryFilter,
@@ -81,6 +82,7 @@ export async function GET(request: Request) {
     // Determine entity limits based on whether query asks for ALL or a specific entity
     const isAll = type === "ALL";
     const entityLimit = isAll ? 5 : limitParam;
+    const showSeeded = await getShowSeededPosts();
 
     // Parallel fetch across entities
     const shouldFetchPeople = isAll || type === "PEOPLE";
@@ -107,7 +109,7 @@ export async function GET(request: Request) {
       shouldFetchPeople
         ? db.query.userProfiles.findMany({
             where: and(
-              eq(userProfiles.isSeeded, false),
+              showSeeded ? undefined : eq(userProfiles.isSeeded, false),
               or(
                 ilike(userProfiles.username, searchPattern),
                 ilike(userProfiles.displayName, searchPattern),
@@ -125,7 +127,7 @@ export async function GET(request: Request) {
         ? db.query.posts.findMany({
             where: and(
               eq(posts.status, "PUBLISHED"),
-              eq(posts.isSeeded, false),
+              showSeeded ? undefined : eq(posts.isSeeded, false),
               scope === "CAMPUS" && userInstitutionId ? eq(posts.institutionId, userInstitutionId) : undefined,
               or(ilike(posts.body, searchPattern), ilike(posts.title, searchPattern))
             ),

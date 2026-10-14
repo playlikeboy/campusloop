@@ -6,6 +6,7 @@ import { swipes, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { rankDatingCandidates, resolveGenderPreference } from "@/lib/dating";
 import { getViewerInstitutionId, rejectViewerWrite } from "@/lib/viewer";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export const dynamic = "force-dynamic";
 
@@ -70,10 +71,11 @@ export async function GET(req: Request) {
     const likedMeIds = new Set(likedMeRows.map((s) => s.id));
 
     const viewerInstitutionId = await getViewerInstitutionId();
+    const showSeeded = await getShowSeededPosts();
     const conditions: (SQL | undefined)[] = [
       ne(userProfiles.id, profile.id), // Exclude self
       eq(userProfiles.status, "ACTIVE"), // Only active students
-      eq(userProfiles.isSeeded, false), // Exclude seeded synthetic profiles
+      ...(showSeeded ? [] : [eq(userProfiles.isSeeded, false)]), // Conditionally filter synthetic profiles
       ne(userProfiles.institutionId, viewerInstitutionId), // Never surface viewer accounts
       sql`lower(coalesce(${userProfiles.datingPreferences}->>'isEnabled', 'true')) <> 'false'`, // Only users who haven't paused/opted-out
       swipedIds.length > 0 ? notInArray(userProfiles.id, swipedIds) : undefined,

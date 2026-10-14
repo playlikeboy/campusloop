@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export const dynamic = "force-dynamic";
 
@@ -67,10 +68,17 @@ export async function GET(request: Request, { params }: RouteProps) {
       ? (comm.members || []).find((m) => m.userId === currentProfileId)
       : null;
 
+    const showSeeded = await getShowSeededPosts();
     const postsCountRows = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(posts)
-      .where(and(eq(posts.communityId, comm.id), eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)));
+      .where(
+        and(
+          eq(posts.communityId, comm.id),
+          eq(posts.status, "PUBLISHED"),
+          showSeeded ? undefined : eq(posts.isSeeded, false)
+        )
+      );
     const postsCount = postsCountRows[0]?.count ?? 0;
 
     return NextResponse.json({

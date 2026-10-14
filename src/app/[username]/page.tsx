@@ -43,6 +43,7 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import type { ExternalPostInfo, FeedPost } from "@/hooks/use-feed";
 import { getFollowCounts, getFollowState } from "@/lib/follows";
 import { extractMediaAttachments } from "@/lib/media-attachments";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 interface VanityProfileProps {
   params: Promise<{ username: string }>;
@@ -139,7 +140,9 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     },
   });
 
-  if (!profile) {
+  const showSeeded = await getShowSeededPosts();
+
+  if (!profile || (!showSeeded && profile.isSeeded)) {
     notFound();
   }
 
@@ -164,7 +167,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
     where: and(
       or(eq(posts.authorId, profile.id), eq(posts.authorId, profile.userId)),
       eq(posts.status, "PUBLISHED"),
-      eq(posts.isSeeded, false),
+      showSeeded ? undefined : eq(posts.isSeeded, false),
       eq(posts.isAnonymous, false)
     ),
     orderBy: [desc(posts.createdAt)],

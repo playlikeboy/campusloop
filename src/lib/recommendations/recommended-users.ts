@@ -7,6 +7,7 @@ import { COLLECTIONS } from "@/lib/qdrant/collections";
 import { generateEmbedding } from "@/lib/qdrant/embeddings";
 import type { ProfileVectorPayload } from "@/lib/qdrant/types";
 import { getViewerInstitutionId } from "@/lib/viewer";
+import { getShowSeededPosts } from "@/lib/platform-config";
 
 export interface RecommendedUser {
   id: string;
@@ -109,10 +110,11 @@ export async function getRecommendedUsers(
   }
 
   // 3. Query un-followed active candidate students from Postgres
+  const showSeeded = await getShowSeededPosts();
   const conditions: (SQL | undefined)[] = [
     ne(userProfiles.id, viewer.id),
     eq(userProfiles.status, "ACTIVE"),
-    eq(userProfiles.isSeeded, false),
+    ...(showSeeded ? [] : [eq(userProfiles.isSeeded, false)]),
     ne(userProfiles.institutionId, viewerInstitutionId),
   ];
 
