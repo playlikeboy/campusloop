@@ -308,7 +308,7 @@ export function MessengerView({
                     window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
                   }
                 }}
-                className="flex size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+                className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
                 aria-label="Open navigation menu"
                 title="All Hubs & Navigation"
               >
@@ -316,7 +316,7 @@ export function MessengerView({
               </button>
               <Link
                 href="/feeds"
-                className="size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="size-11 sm:size-8 shrink-0 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 title="Back to Campus Feed"
               >
                 <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
