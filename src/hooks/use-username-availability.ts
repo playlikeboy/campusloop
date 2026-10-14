@@ -53,6 +53,16 @@ export function useUsernameAvailability(
       return;
     }
 
+    if (
+      candidate === "tech" ||
+      candidate === "loop_tech" ||
+      candidate === "campusloop_tech" ||
+      candidate === "tech_desk"
+    ) {
+      setStatus({ state: "invalid", reason: "The handle 'tech' is reserved." });
+      return;
+    }
+
     setStatus({ state: "checking" });
 
     const requestId = ++latestRequest.current;
