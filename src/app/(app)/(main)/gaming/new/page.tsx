@@ -6,7 +6,7 @@ import { HubCreateClient } from "../../hub/new/hub-create-client";
 export const metadata: Metadata = {
   title: "Host Gaming Lobby",
   description: "Create a match lobby, recruit teammates, or challenge rivals on campus.",
-  alternates: { canonical: "https://campusloop.space/app/gaming/new" },
+  alternates: { canonical: "https://campusloop.space/gaming/new" },
 };
 
 export default async function NewGamingPage() {

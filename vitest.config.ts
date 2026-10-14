@@ -1,5 +1,8 @@
 import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
+import { loadLocalEnv } from "./src/lib/load-env";
+
+loadLocalEnv();
 
 export default defineConfig({
 	test: {

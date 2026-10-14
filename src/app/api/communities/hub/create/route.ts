@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import {
   academicResources,
   gamingLobbies,
+  gamingLobbyMembers,
   housingListings,
   lostAndFoundItems,
   marketplaceItems,
@@ -166,6 +167,17 @@ export async function POST(req: NextRequest) {
             ]),
           })
           .returning();
+
+        await db
+          .insert(gamingLobbyMembers)
+          .values({
+            lobbyId: lobby.id,
+            userId: profile.id,
+            role: "Host",
+            gamerTag: data.gamerTag || profile.username,
+          })
+          .onConflictDoNothing();
+
         return NextResponse.json({ success: true, item: lobby });
       }
 

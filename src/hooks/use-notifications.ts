@@ -41,7 +41,11 @@ export interface NotificationItem {
     | "FRIEND"
     | "MESSAGE"
     | "NEW_POST"
-    | "EVENT_REGISTRATION";
+    | "EVENT_REGISTRATION"
+    | "GAMING_LOBBY_JOIN"
+    | "GAMING_LOBBY_FULL"
+    | "GAMING_MATCH_READY"
+    | "TOURNAMENT_UPDATE";
   actorId: string;
   referenceId: string | null;
   previewText: string | null;

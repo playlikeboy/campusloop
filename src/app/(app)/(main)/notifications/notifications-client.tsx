@@ -5,6 +5,7 @@ import {
   Bell,
   Compass,
   Eraser,
+  Gamepad2,
   Heart,
   Lock,
   MessageCircle,
@@ -203,6 +204,38 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           actionText: "— your spot is confirmed",
           href: n.referenceId ? `/events/${n.referenceId}` : "/events",
           actionLabel: "View event",
+        };
+      case "GAMING_LOBBY_JOIN":
+        return {
+          icon: <Gamepad2 className="size-3.5 text-purple-500 stroke-2" />,
+          badgeBg: "bg-purple-500/15 border-purple-500/30 text-purple-500",
+          actionText: "joined your gaming squad lobby",
+          href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
+          actionLabel: "View lobby",
+        };
+      case "GAMING_LOBBY_FULL":
+        return {
+          icon: <Gamepad2 className="size-3.5 text-emerald-500 stroke-2" />,
+          badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
+          actionText: "— your squad lobby is full! Time to play",
+          href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
+          actionLabel: "Launch match",
+        };
+      case "GAMING_MATCH_READY":
+        return {
+          icon: <Trophy className="size-3.5 text-amber-500 stroke-2" />,
+          badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
+          actionText: "— tournament bracket match is ready",
+          href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
+          actionLabel: "View match",
+        };
+      case "TOURNAMENT_UPDATE":
+        return {
+          icon: <Trophy className="size-3.5 text-sky-500 stroke-2" />,
+          badgeBg: "bg-sky-500/15 border-sky-500/30 text-sky-500",
+          actionText: "tournament status updated",
+          href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
+          actionLabel: "View tournament",
         };
       default:
         return {
