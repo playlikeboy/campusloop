@@ -1,3 +1,9 @@
+import {
+  activityRecencyMultiplier,
+  bayesianRate,
+  reciprocalScore,
+} from "@/lib/recommendations/scoring-primitives";
+
 /**
  * Campus Match compatibility engine.
  *
@@ -20,6 +26,15 @@ export interface CompatibilityProfile {
   photos?: string[] | null;
   points?: number | null;
   institution?: { state?: string | null } | null;
+  lastSeenAt?: Date | string | null;
+}
+
+/** Swipe history aggregates for one candidate, from both sides of the market. */
+export interface CandidateMarketStats {
+  likesGiven: number;
+  swipesGiven: number;
+  likesReceived: number;
+  swipesReceived: number;
 }
 
 export interface CompatibilityResult {
@@ -39,6 +54,52 @@ export interface ScoredCandidate<T = CompatibilityProfile> {
   score: number;
   sharedInterests: string[];
   likedYou: boolean;
+  /** Internal ordering score (reciprocal x fairness x activity); not shown to users. */
+  rankScore: number;
+}
+
+/**
+ * P(candidate likes a typical profile), Bayesian-smoothed toward a 35% prior so
+ * a candidate with 2 swipes isn't treated as a certainty either way.
+ */
+export function estimateLikeBackRate(stats?: CandidateMarketStats): number {
+  if (!stats) return 0.35;
+  return bayesianRate(stats.likesGiven, stats.swipesGiven, 0.35, 10);
+}
+
+/**
+ * Attention-economy fairness (the problem Hinge's Gale-Shapley "Most Compatible"
+ * and Tinder's post-Elo system both address): a few very liked profiles soak up
+ * most impressions and then can't reply to everyone. Under-seen profiles get a
+ * cold-start lift; heavily liked ones are gently damped.
+ */
+export function attentionFairnessMultiplier(stats?: CandidateMarketStats): number {
+  if (!stats || stats.swipesReceived < 10) return 1.12;
+  const inboundRate = bayesianRate(stats.likesReceived, stats.swipesReceived, 0.35, 10);
+  if (inboundRate > 0.7 && stats.likesReceived > 40) return 0.88;
+  if (inboundRate < 0.15) return 1.06;
+  return 1.0;
+}
+
+/**
+ * Reciprocal ranking score (RECON, Pizzato et al.): harmonic mean of my predicted
+ * interest and their predicted interest, so a deck isn't full of people who
+ * will never swipe back.
+ */
+export function computeReciprocalRank(
+  compatibility: number,
+  opts: { likedMe: boolean; stats?: CandidateMarketStats; lastSeenAt?: Date | string | null; now?: number }
+): number {
+  const pMine = Math.min(1, Math.max(0.01, compatibility / 100));
+  // Compatibility features are mostly symmetric, so they also lift P(they like me).
+  const pTheirs = opts.likedMe
+    ? 1
+    : Math.min(0.99, estimateLikeBackRate(opts.stats) * (0.5 + compatibility / 100));
+  return (
+    reciprocalScore(pMine, pTheirs) *
+    attentionFairnessMultiplier(opts.stats) *
+    activityRecencyMultiplier(opts.lastSeenAt, opts.now)
+  );
 }
 
 /** Stable small hash with optional session seed to prevent deck repetition */
@@ -140,6 +201,7 @@ export function rankDatingCandidates<T extends CompatibilityProfile>(
   opts: {
     likedMeIds: Set<string>;
     vectorScoreMap?: Map<string, number>;
+    marketStats?: Map<string, CandidateMarketStats>;
     sessionSeed?: number;
     sort?: string;
     limit?: number;
@@ -158,6 +220,11 @@ export function rankDatingCandidates<T extends CompatibilityProfile>(
       score,
       sharedInterests,
       likedYou: isLiked,
+      rankScore: computeReciprocalRank(score, {
+        likedMe: isLiked,
+        stats: opts.marketStats?.get(cand.id),
+        lastSeenAt: cand.lastSeenAt,
+      }),
     };
   });
 
@@ -185,8 +252,11 @@ export function rankDatingCandidates<T extends CompatibilityProfile>(
     }
   }
 
-  // Sort standard candidates by compatibility score
-  standardList.sort((a, b) => b.score - a.score);
+  // Most recently active reciprocal likes first: they turn into live chats.
+  reciprocalList.sort((a, b) => b.rankScore - a.rankScore);
+
+  // Sort standard candidates by two-sided reciprocal rank, not one-sided compatibility
+  standardList.sort((a, b) => b.rankScore - a.rankScore);
 
   // Split standard list into Top Affinity (65%) and Fresh Exploratory (35%)
   const topCutoff = Math.ceil(standardList.length * 0.65);
@@ -231,4 +301,20 @@ export function resolveGenderPreference(
   if (myGender === "MALE") return "FEMALE";
   if (myGender === "FEMALE") return "MALE";
   return "ALL";
+}
+
+/**
+ * Two-sided preference check: I want their gender AND they want mine.
+ * Without this, a deck can be full of people who will never be shown me back.
+ */
+export function isMutualGenderMatch(
+  me: { gender?: string | null; preferredGender: "MALE" | "FEMALE" | "ALL" },
+  cand: { gender?: string | null; datingPreferences?: { gender?: string | null } | null }
+): boolean {
+  if (me.preferredGender !== "ALL" && cand.gender !== me.preferredGender) return false;
+  const theirPref = resolveGenderPreference(
+    cand.gender,
+    cand.datingPreferences?.gender === "DEFAULT" ? null : cand.datingPreferences?.gender
+  );
+  return theirPref === "ALL" || theirPref === me.gender;
 }

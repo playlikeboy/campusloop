@@ -132,4 +132,25 @@ In addition to relational gravity formulas, CampusLoop executes dense semantic v
 | **Feed Orchestration** | Java/Scala Home Mixer & Rust rewrites | AppView Skeletons | Next.js 16 App Router on Cloudflare Workers |
 
 ---
+
+## 7. Personalisation Layer (Oct 2026)
+
+Shared primitives live in `src/lib/recommendations/scoring-primitives.ts`.
+
+| Surface | Algorithm | Source |
+| :--- | :--- | :--- |
+| `/feeds` For You | Viewer type affinity (30-day engagement share per post type, up to +40) | SimClusters, reduced to post types |
+| `/feeds` For You | Engaged-author multiplier ×1.30 for authors the viewer keeps upvoting/replying to | RealGraph-lite (`viewer-affinity.ts`) |
+| `/feeds` For You | Fresh-post exploration prior for posts < 3h old | Optimism under uncertainty (bandits) |
+| `/feeds` all sorts | Two-way block filtering at the visibility stage | X visibility-filtering |
+| `/academics` | Wilson lower bound on view → upvote/download conversion | Evan Miller / Reddit "best" |
+| `/academics` | Item-item collaborative filtering ("saved by students like you") | Amazon item-to-item CF |
+| `/academics` | Exam-season boost for PYQ / cheat sheets / modules | Indian semester calendar |
+| `/dating` | Reciprocal rank = harmonic mean of P(I like them) and P(they like me) | RECON (Pizzato et al. 2010) |
+| `/dating` | Attention fairness: lift under-seen profiles, damp saturated ones | Hinge / post-Elo Tinder |
+| `/dating` | Mutual gender-preference filter, two-way blocks, activity recency | — |
+
+Viewer affinity is cached in Redis for 10 minutes (`feed:affinity:<profileId>`) and falls back to an empty profile on any failure, so the feed stays on the plain Phoenix score.
+
+---
 *Created for CampusLoop Engineering & AI Research — 2026.*
