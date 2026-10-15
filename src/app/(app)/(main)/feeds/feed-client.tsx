@@ -1,22 +1,16 @@
 "use client";
 
-import { Flame, Zap } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import useSWR from "swr";
 import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
 import { FeedHeader } from "@/components/feed/feed-header";
+import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedCard } from "@/components/ui/feed-card";
 import {
-  InlineArticlesWidget,
   InlineCommunitiesWidget,
-  InlineDatingWidget,
   InlineHashtagsWidget,
-  InlineReferralWidget,
 } from "@/components/ui/inline-feed-widgets";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
@@ -25,12 +19,7 @@ import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
 import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
-import { fetcher } from "@/lib/api";
-import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
-import type { TrendingHashtag } from "@/lib/trending-hashtags";
-import { cn, getCollegeShortName } from "@/lib/utils";
+import { getCollegeShortName } from "@/lib/utils";
 
 export function FeedClient({ forcedType }: { forcedType?: string }) {
   const router = useRouter();
@@ -137,6 +126,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     isReachingEnd,
     isError,
     setSize,
+    mutate,
     refresh,
   } = useFeed(scope, type, sort, visibility);
 
@@ -159,95 +149,6 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
   const { stories, mutate: mutateStories, isLoading: storiesLoading } = useStories();
 
-  const { data: trendingData } = useSWR<{ trending: TrendingHashtag[] }>(
-    "/api/hashtags/trending?limit=8",
-    fetcher,
-    { dedupingInterval: 30000 }
-  );
-  const trendingTags = trendingData?.trending || [];
-
-  const [quickText, setQuickText] = useState("");
-  const [isQuickPosting, setIsQuickPosting] = useState(false);
-
-  async function handleQuickPost(e: React.FormEvent) {
-    e.preventDefault();
-    const text = quickText.trim();
-    if (!text || isQuickPosting) return;
-
-    setIsQuickPosting(true);
-    setQuickText("");
-    try {
-      sessionStorage.removeItem("campusloop_draft_post");
-    } catch {}
-
-    const tempId = `temp_${Date.now()}`;
-    const optimisticPost: FeedPost = {
-      id: tempId,
-      authorId: profile?.id || "temp_author",
-      institutionId: profile?.institutionId || "inst_global",
-      body: text,
-      type: "NORMAL",
-      scope,
-      isAnonymous: false,
-      pseudonym: null,
-      title: null,
-      status: "PUBLISHED",
-      riskScore: 0,
-      isEdited: false,
-      isSeeded: false,
-      repostOfId: null,
-      repostComment: null,
-      communityId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      votesCount: 0,
-
-      commentsCount: 0,
-      userVote: 0,
-      author: profile as unknown as FeedPost["author"],
-      institution: (profile?.institution || {
-        id: profile?.institutionId || "inst_global",
-        name: "Campus",
-      }) as unknown as FeedPost["institution"],
-    };
-
-    sounds.ting();
-    haptics.success();
-    optimisticAddPost(optimisticPost);
-    toast.success("Post published!");
-
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body: text,
-          type: "NORMAL",
-          scope,
-          isAnonymous: false,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish post");
-      }
-
-      const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
-      confirmOptimisticPost(tempId, {
-        ...optimisticPost,
-        id: serverPost.id,
-        createdAt: new Date(serverPost.createdAt || Date.now()),
-      });
-    } catch (err: unknown) {
-      console.error("Quick post failed:", err);
-      revertOptimisticPost(tempId);
-      toast.error(err instanceof Error ? err.message : "Failed to publish post.");
-    } finally {
-      setIsQuickPosting(false);
-    }
-  }
-
   // Infinite scroll trigger ref and observer with 600px prefetch rootMargin
   const [loadMoreRef, setLoadMoreRef] = useState<HTMLDivElement | null>(null);
 
@@ -267,38 +168,20 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     return () => observer.disconnect();
   }, [loadMoreRef, isReachingEnd, isLoadingMore, isError, setSize]);
 
+  const storyUsers = (stories || [])
+    .filter((s) => s?.user)
+    .map((s) => ({
+      id: s.user.id,
+      displayName: s.user.displayName,
+      username: s.user.username,
+      avatarUrl: s.user.avatarUrl,
+      stories: s.stories,
+    }));
+
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-start pb-28">
-        <main className="lg:col-span-8 flex flex-col min-h-screen bg-background text-foreground rounded-none sm:rounded-2xl border-0 sm:border border-border/30 overflow-hidden shadow-none sm:shadow-xs pb-20 sm:pb-8">
-          {/* ─── 1. Campus Vibes & Stories Rail (Top of Feed) ─── */}
-          <section className="w-full min-w-0 bg-card/15" aria-label="Campus vibes and stories">
-            {storiesLoading ? (
-              <div className="flex h-[106px] w-full items-center gap-3.5 px-4 py-2 overflow-x-auto border-b border-border/30 bg-card/20 no-scrollbar">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex flex-col items-center gap-1.5 shrink-0">
-                    <div className="h-14 w-14 rounded-full bg-muted/65 shimmer-effect" />
-                    <div className="h-2.5 w-10 bg-muted/65 rounded shimmer-effect" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <StoryRing
-                users={(stories || [])
-                  .filter((s) => s?.user)
-                  .map((s) => ({
-                    id: s.user.id,
-                    displayName: s.user.displayName,
-                    username: s.user.username,
-                    avatarUrl: s.user.avatarUrl,
-                    stories: s.stories,
-                  }))}
-                mutateStories={mutateStories}
-              />
-            )}
-          </section>
-
-          {/* ─── 2. Sticky Feed Filter Header (Location Scope + Sub-tabs + Filter Trigger) ─── */}
+      <div className="mx-auto flex w-full max-w-[1020px] items-start justify-center gap-8 pb-28">
+        <main className="flex min-h-screen w-full max-w-[640px] min-w-0 flex-col bg-background text-foreground sm:border-x border-border/40 pb-20 sm:pb-8">
           <FeedHeader
             scope={scope}
             onScopeChange={handleScopeChange}
@@ -317,173 +200,63 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             isRefreshing={isValidating}
           />
 
-          {/* ─── 3. Desktop Quick Composer (Hidden on mobile where bottom docked FAB is sole CTA) ─── */}
-          <form onSubmit={handleQuickPost} className="hidden md:block border-b border-border/30 px-4 py-3 bg-card/30">
-            <div className="flex gap-3 items-start">
-              <Avatar className="size-10 rounded-full border border-border/40 shrink-0 mt-0.5">
-                <AvatarImage src={profile?.avatarUrl || ""} />
-                <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
-                  {profile?.displayName?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
+          {/* Stories only take space when someone has actually posted one. */}
+          {!storiesLoading && storyUsers.length > 0 && (
+            <section className="w-full min-w-0" aria-label="Stories">
+              <StoryRing users={storyUsers} mutateStories={mutateStories} />
+            </section>
+          )}
 
-              <div className="flex-1 min-w-0 flex flex-col gap-2">
-                {/* Row 1: Textarea + Always-visible Post Button */}
-                <div className="flex items-start gap-2 w-full min-w-0">
-                  <textarea
-                    rows={quickText ? 2 : 1}
-                    placeholder="What is happening on campus?!"
-                    value={quickText}
-                    onChange={(e) => setQuickText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                        e.preventDefault();
-                        handleQuickPost(e);
-                      }
-                    }}
-                    className="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-muted-foreground/70 font-normal outline-none focus:outline-none focus-visible:outline-none focus:ring-0 resize-none pt-1.5 border-0 shadow-none"
-                  />
+          <FeedQuickComposer profile={profile} scope={scope} />
 
-                  <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-                    <button
-                      type={quickText.trim() ? "submit" : "button"}
-                      onClick={(e) => {
-                        if (!quickText.trim()) {
-                          e.preventDefault();
-                          router.push("/post/new");
-                        }
-                      }}
-                      disabled={isQuickPosting}
-                      className={cn(
-                        "px-4 py-1.5 rounded-full text-xs font-black transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0",
-                        quickText.trim()
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/25 shadow-sm"
-                          : "bg-muted hover:bg-muted/80 text-foreground"
-                      )}
-                      title={quickText.trim() ? "Post now" : "Create a post"}
-                    >
-                      {isQuickPosting ? (
-                        <>
-                          <span className="size-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                          <span>Posting...</span>
-                        </>
-                      ) : (
-                        "Post"
-                      )}
-                    </button>
-                  </div>
-                </div>
+          <CampusBroadcastBanner scope={scope} institutionId={profile?.institutionId} />
 
-                {/* Row 2: Sub-toolbar shown when user has started typing */}
-                {quickText && (
-                  <div className="space-y-2 pt-1 border-t border-border/20 w-full min-w-0">
-                    {trendingTags.length > 0 && (
-                      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
-                        <span className="text-[10px] font-black text-muted-foreground uppercase shrink-0 flex items-center gap-0.5">
-                          <Flame className="size-2.5 text-primary" />
-                        </span>
-                        {trendingTags.slice(0, 6).map((t) => (
-                          <button
-                            key={t.tag}
-                            type="button"
-                            onClick={() => setQuickText((prev) => `${prev.trim()} ${t.tag} `)}
-                            className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 shrink-0 cursor-pointer transition-colors"
-                          >
-                            {t.tag}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between gap-2 pt-0.5 w-full min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (quickText.trim()) {
-                            try {
-                              sessionStorage.setItem("campusloop_draft_post", quickText.trim());
-                            } catch {}
-                          }
-                          router.push(
-                            quickText.trim()
-                              ? `/post/new?text=${encodeURIComponent(quickText.trim())}`
-                              : "/post/new"
-                          );
-                        }}
-                        className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors min-w-0 truncate text-left"
-                      >
-                        <span className="truncate">Open full editor (poll, photos, confession)</span>
-                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shrink-0">
-                          <Zap className="size-2.5" />
-                          <span>Draft saved</span>
-                        </span>
-                      </button>
-                      <span className="text-[11px] text-muted-foreground/80 font-mono font-medium shrink-0">
-                        {quickText.length}/2000
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </form>
-
-          {/* ─── High-Priority Official Campus & Global Broadcast Banner ─── */}
-          <CampusBroadcastBanner
-            scope={scope}
-            institutionId={profile?.institutionId}
-          />
-
-          {/* ─── Main Feed Stream (Twitter-Style Flat Timeline) ─── */}
           <div className="flex flex-col">
             {feedLoading && (!feed || feed.length === 0) ? (
               <FeedSkeleton />
             ) : isError && (!feed || feed.length === 0) ? (
               <FeedErrorState onRetry={() => refresh()} />
-            ) : displayedPosts && displayedPosts.length > 0 ? (
+            ) : displayedPosts.length > 0 ? (
               <>
                 {displayedPosts.map((post, idx) => (
                   <div key={post.id}>
                     <div ref={trackImpression} data-feed-post-id={post.id}>
                       <FeedCard post={post} currentUserId={profile?.id} />
                     </div>
-                    {idx === 2 && (
-                      <div className="p-3 border-b border-border/30 bg-muted/10">
-                        <InlineCommunitiesWidget />
-                      </div>
-                    )}
-                    {idx === 3 && (
-                      <div className="border-b border-border/30 bg-muted/10">
+                    {/* Few, well-spaced discovery slots; the desktop sidebar already covers follows and tags. */}
+                    {idx === 4 && (
+                      <div className="border-b border-border/40 lg:hidden">
                         <FeedRecommendedUsers />
                       </div>
                     )}
-                    {idx === 4 && (
-                      <div className="p-3 border-b border-border/30 bg-muted/10">
-                        <InlineArticlesWidget />
+                    {idx === 11 && (
+                      <div className="border-b border-border/40 p-4">
+                        <InlineCommunitiesWidget />
                       </div>
                     )}
-                    {idx === 6 && (
-                      <div className="p-3 border-b border-border/30 bg-muted/10">
-                        <InlineDatingWidget />
-                      </div>
-                    )}
-                    {idx === 10 && (
-                      <div className="p-3 border-b border-border/30 bg-muted/10">
+                    {idx === 19 && (
+                      <div className="border-b border-border/40 p-4 lg:hidden">
                         <InlineHashtagsWidget />
-                      </div>
-                    )}
-                    {idx === 14 && (
-                      <div className="p-3 border-b border-border/30 bg-muted/10">
-                        <InlineReferralWidget />
                       </div>
                     )}
                   </div>
                 ))}
 
-                {/* Load more trigger anchor */}
                 {!isReachingEnd && (
                   <div ref={setLoadMoreRef} className="w-full">
-                    <FeedLoadingMoreSkeleton />
+                    {isError ? (
+                      <div className="flex justify-center py-6">
+                        <button
+                          type="button"
+                          onClick={() => mutate()}
+                          className="rounded-full px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 cursor-pointer"
+                        >
+                          Couldn&apos;t load more. Tap to retry
+                        </button>
+                      </div>
+                    ) : (
+                      <FeedLoadingMoreSkeleton />
+                    )}
                   </div>
                 )}
 
@@ -495,10 +268,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
           </div>
         </main>
 
-        {/* ─── Desktop Context Sidebar (4 cols on lg, hidden on mobile) ─── */}
-        <div className="hidden lg:block lg:col-span-4 min-w-0">
+        <aside className="hidden w-[340px] shrink-0 lg:block">
           <RightSidebar />
-        </div>
+        </aside>
       </div>
 
       <ScrollToTop />

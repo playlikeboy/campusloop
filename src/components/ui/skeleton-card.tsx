@@ -19,7 +19,7 @@ export function StoryRingSkeleton() {
 
 function SinglePostSkeleton({ hasMedia }: { hasMedia?: boolean }) {
   return (
-    <div className="border-b border-border/30 px-4 py-3.5 flex gap-3 select-none">
+    <div className="border-b border-border/40 px-4 py-3.5 sm:px-5 flex gap-3 select-none">
       {/* Left Avatar */}
       <Skeleton className="size-10 rounded-full shrink-0" />
 
@@ -36,8 +36,6 @@ function SinglePostSkeleton({ hasMedia }: { hasMedia?: boolean }) {
           <Skeleton className="size-4 rounded-full" />
         </div>
 
-        {/* Minimal HR divider */}
-        <hr className="border-t border-border/20 my-1.5" />
 
         {/* Text body lines */}
         <div className="space-y-2 pt-0.5">
