@@ -9,6 +9,7 @@ import {
   Store,
   Truck,
   Wallet,
+  Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 import { useMarketplaceCart } from "@/hooks/use-marketplace-cart";
 import { haptics } from "@/lib/haptics";
 import { getCampusDeliveryLocations, isBitMesraCampus } from "@/lib/marketplace/locations";
+import { payWithRazorpay } from "@/lib/payments/razorpay-checkout";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +42,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
   const [roomNumber, setRoomNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [customerNote, setCustomerNote] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"COD" | "UPI">("COD");
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "UPI" | "RAZORPAY">("COD");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Autofill delivery address and phone from previous checkout session
@@ -157,9 +159,22 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
         throw new Error(errorData?.error || "Failed to place order");
       }
 
-      const data = (await res.json()) as { primaryOrderId: string };
-      toast.success("Order Placed Successfully!", { id: "checkout" });
+      const data = (await res.json()) as { primaryOrderId: string; orderIds: string[] };
       clearCart();
+
+      if (paymentMethod === "RAZORPAY") {
+        toast.loading("Opening secure payment...", { id: "checkout" });
+        const result = await payWithRazorpay(data.orderIds, { contact: phone.trim() });
+        if (result.status === "paid") {
+          toast.success("Payment successful. Order placed!", { id: "checkout" });
+        } else if (result.status === "dismissed") {
+          toast.info("Payment not completed. You can pay from the order page.", { id: "checkout" });
+        } else {
+          toast.error(result.message, { id: "checkout" });
+        }
+      } else {
+        toast.success("Order Placed Successfully!", { id: "checkout" });
+      }
       router.push(`/marketplace/order/${data.primaryOrderId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Checkout failed. Please try again.", {
@@ -394,6 +409,35 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
           <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
             3. Payment Method
           </label>
+          <button
+            type="button"
+            onClick={() => {
+              sounds.tap();
+              haptics.light();
+              setPaymentMethod("RAZORPAY");
+            }}
+            aria-pressed={paymentMethod === "RAZORPAY"}
+            className={cn(
+              "flex w-full items-center gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+              paymentMethod === "RAZORPAY"
+                ? "bg-foreground text-background border-foreground shadow-xs"
+                : "bg-muted/40 text-foreground border-border/40 hover:bg-muted/60"
+            )}
+          >
+            <Zap className="size-4 shrink-0" />
+            <span className="flex-1">
+              <span className="block text-xs font-black">Pay Online Now</span>
+              <span
+                className={cn(
+                  "block text-[11px] font-medium",
+                  paymentMethod === "RAZORPAY" ? "text-background/80" : "text-muted-foreground"
+                )}
+              >
+                UPI, cards, netbanking · Secured by Razorpay
+              </span>
+            </span>
+            <ShieldCheck className="size-4 shrink-0" />
+          </button>
           <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
@@ -464,12 +508,14 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
             {isSubmitting ? (
               <>
                 <Loader2 className="size-4.5 animate-spin" />
-                <span>Confirming Order...</span>
+                <span>{paymentMethod === "RAZORPAY" ? "Processing Payment..." : "Confirming Order..."}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="size-4.5" />
-                <span>Place Order · ₹{grandTotal.toLocaleString("en-IN")}</span>
+                <span>
+                  {paymentMethod === "RAZORPAY" ? "Pay" : "Place Order"} · ₹{grandTotal.toLocaleString("en-IN")}
+                </span>
               </>
             )}
           </button>

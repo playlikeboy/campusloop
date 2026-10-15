@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, MapPin, Phone, Store } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import { OrderPayNow } from "@/components/marketplace/order-pay-now";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { cn, formatTimeAgo } from "@/lib/utils";
@@ -32,7 +33,7 @@ const PICKUP_STEPS = [
 export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
   const router = useRouter();
 
-  const { data, isLoading } = useSWR<{ order: any }>(
+  const { data, isLoading, mutate } = useSWR<{ order: any }>(
     `/api/marketplace/orders/${orderId}`,
     fetcher,
     { refreshInterval: 5000 } // Auto refresh every 5s for live tracking
@@ -103,6 +104,15 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
       </header>
 
       <div className="p-4 space-y-4">
+        {order.status === "PAYMENT_PENDING" && order.paymentStatus !== "PAID" && (
+          <OrderPayNow
+            orderId={order.id}
+            total={order.total}
+            phone={order.deliveryAddress?.phone}
+            onPaid={() => mutate()}
+          />
+        )}
+
         {/* ─── Order Status Card ─── */}
         <div
           className={cn(
@@ -246,7 +256,10 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
               <span className="text-foreground font-bold">₹{order.deliveryFee.toLocaleString("en-IN")}</span>
             </div>
             <div className="pt-1.5 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
-              <span>Total ({order.paymentMethod})</span>
+              <span>
+                Total ({order.paymentMethod === "RAZORPAY" ? "Online" : order.paymentMethod}
+                {order.paymentStatus === "PAID" ? " · Paid" : ""})
+              </span>
               <span className="text-base text-emerald-500">₹{order.total.toLocaleString("en-IN")}</span>
             </div>
           </div>
