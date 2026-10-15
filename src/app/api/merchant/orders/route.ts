@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { marketplaceOrders } from "@/db/schema";
@@ -17,7 +17,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const statusTab = searchParams.get("status") || "all";
 
-    const conditions: any[] = [eq(marketplaceOrders.merchantId, merchant.id)];
+    // Unpaid online orders aren't real orders yet; stores see them once Razorpay confirms.
+    const visibleToMerchant = ne(marketplaceOrders.status, "PAYMENT_PENDING");
+    const conditions: any[] = [eq(marketplaceOrders.merchantId, merchant.id), visibleToMerchant];
 
     if (statusTab === "new") {
       conditions.push(eq(marketplaceOrders.status, "PLACED"));
@@ -47,7 +49,7 @@ export async function GET(req: Request) {
           status: marketplaceOrders.status,
         })
         .from(marketplaceOrders)
-        .where(eq(marketplaceOrders.merchantId, merchant.id)),
+        .where(and(eq(marketplaceOrders.merchantId, merchant.id), visibleToMerchant)),
     ]);
 
     const counts = {
