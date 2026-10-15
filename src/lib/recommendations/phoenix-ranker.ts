@@ -181,6 +181,31 @@ export function getPhoenixValueScoreSql(
         )}) and ${posts.isAnonymous} = false then 1.30 else 1.00 end)`
       : sql<number>`1.00`;
 
+  // Implicit negative feedback: types the viewer scrolls past more than average lose up to 30.
+  const skipEntries = Object.entries(affinity?.typeSkipPenalty ?? {}).filter(
+    ([type, penalty]) => /^[A-Z_]+$/.test(type) && Number.isFinite(penalty) && penalty > 0
+  );
+  const typeSkipPenaltySql =
+    skipEntries.length > 0
+      ? sql<number>`(case ${sql.join(
+          skipEntries.map(
+            ([type, penalty]) =>
+              sql`when ${posts.type} = ${type} then ${sql.raw((Math.min(1, penalty) * 30).toFixed(2))}`
+          ),
+          sql` `
+        )} else 0.0 end)`
+      : sql<number>`0.0`;
+
+  // Authors the viewer keeps scrolling past are damped, never hidden.
+  const skippedAuthors = (affinity?.skippedAuthorIds ?? []).filter((id) => /^[a-zA-Z0-9_-]+$/.test(id));
+  const skippedAuthorMultiplierSql =
+    skippedAuthors.length > 0
+      ? sql<number>`(case when ${posts.authorId} in (${sql.join(
+          skippedAuthors.map((id) => sql`${id}`),
+          sql`, `
+        )}) and ${posts.isAnonymous} = false then 0.70 else 1.00 end)`
+      : sql<number>`1.00`;
+
   // Fresh-post exploration (Thompson-style optimism under uncertainty): posts under
   // 3 hours old have almost no engagement data yet, so give them a decaying prior
   // instead of letting early leaders lock in the top slots.
@@ -209,9 +234,10 @@ export function getPhoenixValueScoreSql(
 
   return sql<number>`(
     (
-      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql} + ${typeAffinitySql} + ${freshExplorationSql})
+      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql} + ${typeAffinitySql} + ${freshExplorationSql} - ${typeSkipPenaltySql})
       * ${networkAffinitySql}
       * ${engagedAuthorMultiplierSql}
+      * ${skippedAuthorMultiplierSql}
     )
     + ${seenPenaltySql}
     + ${alreadyVotedPenaltySql}

@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { follows, stories, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getRankingVariant } from "@/lib/recommendations/experiments";
+import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { rankAndFilterStories } from "@/lib/stories-ranker";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -34,10 +36,13 @@ export async function GET() {
       },
     });
 
-    // 2. Fetch users followed by viewer
-    const userFollows = await db.query.follows.findMany({
-      where: eq(follows.followerId, profile.id),
-    });
+    // 2. Fetch users followed by viewer, plus learned closeness and blocks
+    const [userFollows, affinity] = await Promise.all([
+      db.query.follows.findMany({
+        where: eq(follows.followerId, profile.id),
+      }),
+      getViewerAffinity(profile.id),
+    ]);
 
     const followingIds = userFollows.map((f) => f.followingId);
     const friendIds = userFollows.filter((f) => f.isMutual).map((f) => f.followingId);
@@ -48,6 +53,8 @@ export async function GET() {
       activeStories,
       followingIds,
       friendIds,
+      engagedAuthorIds: getRankingVariant(profile.id) === "personalized" ? affinity.engagedAuthorIds : [],
+      blockedUserIds: affinity.blockedUserIds,
     });
 
     return NextResponse.json(rankedResult);

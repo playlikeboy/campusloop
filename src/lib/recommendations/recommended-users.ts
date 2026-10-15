@@ -1,4 +1,4 @@
-import { and, eq, ne, notInArray, type SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, notInArray, type SQL, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { follows, userProfiles } from "@/db/schema";
 import { sharedInterestsBetween } from "@/lib/dating";
@@ -6,6 +6,7 @@ import { qdrant } from "@/lib/qdrant/client";
 import { COLLECTIONS } from "@/lib/qdrant/collections";
 import { generateEmbedding } from "@/lib/qdrant/embeddings";
 import type { ProfileVectorPayload } from "@/lib/qdrant/types";
+import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { getViewerInstitutionId } from "@/lib/viewer";
 import { getShowSeededPosts } from "@/lib/platform-config";
 
@@ -49,8 +50,16 @@ export function formatBranchShort(branch: string): string {
  * Recommends student profiles tailored to the viewer using:
  * 1. Qdrant Cloud Vector embeddings (semantic vibe similarity from bio & interests).
  * 2. Relational signals (shared campus, mutual academic branch, shared interests).
- * 3. 100% resilient fallback to active campus/global students when vector DB is unreachable.
+ * 3. Triadic closure ("People You May Know"): mutual connections via followed users.
+ * 4. Implicit interest: authors the viewer upvotes/replies to but doesn't follow yet.
+ * 5. 100% resilient fallback to active campus/global students when vector DB is unreachable.
  */
+
+/** Score bonus for N mutual connections: diminishing returns, capped at +30. */
+export function mutualConnectionBonus(mutualCount: number): number {
+  if (mutualCount <= 0) return 0;
+  return Math.min(30, Math.round(10 * Math.log2(1 + mutualCount)));
+}
 export async function getRecommendedUsers(
   viewerId: string,
   options: {
@@ -73,7 +82,33 @@ export async function getRecommendedUsers(
   if (!viewer) return [];
 
   const followedIds = new Set(existingFollows.map((f) => f.followingId));
-  const excludedIds = [viewer.id, ...Array.from(followedIds)];
+  const affinity = await getViewerAffinity(viewer.id);
+  const excludedIds = [viewer.id, ...Array.from(followedIds), ...affinity.blockedUserIds];
+  const engagedNotFollowed = affinity.engagedAuthorIds.filter(
+    (id) => !followedIds.has(id) && !excludedIds.includes(id)
+  );
+
+  // Friends-of-friends: people followed by the people I follow, counted by distinct connector.
+  const mutualCounts = new Map<string, number>();
+  if (followedIds.size > 0) {
+    try {
+      const fof = await db
+        .select({ id: follows.followingId, n: sql<number>`count(distinct ${follows.followerId})::int` })
+        .from(follows)
+        .where(
+          and(
+            inArray(follows.followerId, Array.from(followedIds).slice(0, 300)),
+            notInArray(follows.followingId, excludedIds)
+          )
+        )
+        .groupBy(follows.followingId)
+        .orderBy(desc(sql`count(distinct ${follows.followerId})`))
+        .limit(40);
+      for (const row of fof) mutualCounts.set(row.id, Number(row.n));
+    } catch (err) {
+      console.warn("[Recommended Users] friends-of-friends lookup failed:", err);
+    }
+  }
   const viewerInstitutionId = await getViewerInstitutionId();
 
   const vectorScoreMap = new Map<string, number>();
@@ -126,14 +161,27 @@ export async function getRecommendedUsers(
     conditions.push(eq(userProfiles.institutionId, viewer.institutionId));
   }
 
-  const candidateRows = await db.query.userProfiles.findMany({
-    where: and(...conditions.filter((c): c is SQL => c !== undefined)),
-    orderBy: (table, { desc }) => [desc(table.updatedAt), desc(table.points)],
-    limit: 60,
-    with: {
-      institution: true,
-    },
-  });
+  const baseWhere = and(...conditions.filter((c): c is SQL => c !== undefined));
+  // Graph and implicit-interest candidates are fetched explicitly so they aren't
+  // lost behind the "recently updated" window of the general pool.
+  const graphIds = [...new Set([...mutualCounts.keys(), ...engagedNotFollowed])];
+  const [generalRows, graphRows] = await Promise.all([
+    db.query.userProfiles.findMany({
+      where: baseWhere,
+      orderBy: (table, { desc }) => [desc(table.updatedAt), desc(table.points)],
+      limit: 60,
+      with: { institution: true },
+    }),
+    graphIds.length > 0
+      ? db.query.userProfiles.findMany({
+          where: and(baseWhere, inArray(userProfiles.id, graphIds)),
+          limit: 60,
+          with: { institution: true },
+        })
+      : Promise.resolve([]),
+  ]);
+  const candidateRows = [...new Map([...graphRows, ...generalRows].map((r) => [r.id, r])).values()];
+  const engagedSet = new Set(engagedNotFollowed);
 
   if (candidateRows.length === 0) {
     return [];
@@ -166,11 +214,22 @@ export async function getRecommendedUsers(
       score += 5;
     }
 
+    const mutuals = mutualCounts.get(cand.id) || 0;
+    score += mutualConnectionBonus(mutuals);
+
+    // You already upvote/reply to them: the strongest follow predictor we have.
+    const engaged = engagedSet.has(cand.id);
+    if (engaged) score += 25;
+
     const clampedScore = Math.max(35, Math.min(99, score));
 
     // Determine intuitive match reason badge
     let matchReason = "Active";
-    if (vectorSim && vectorSim >= 0.5) {
+    if (engaged) {
+      matchReason = "You Engage";
+    } else if (mutuals >= 2) {
+      matchReason = `${mutuals} Mutuals`;
+    } else if (vectorSim && vectorSim >= 0.5) {
       matchReason = `${clampedScore}% Match`;
     } else if (sameCampus) {
       matchReason = "Same Campus";

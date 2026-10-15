@@ -27,6 +27,31 @@ export interface RankStoriesInput {
   }>;
   followingIds: string[];
   friendIds: string[]; // Mutual follows
+  /** Authors the viewer engages with most, strongest first (viewer-affinity). */
+  engagedAuthorIds?: string[];
+  /** Blocked in either direction; never shown. */
+  blockedUserIds?: string[];
+  now?: number;
+}
+
+/**
+ * Closeness score for a followed author's story tray slot, in the spirit of
+ * Instagram's story ordering (predicted interest, not pure recency):
+ * mutual follow +2, engagement rank up to +3, freshness up to +1.
+ */
+export function storyClosenessScore(opts: {
+  isFriend: boolean;
+  engagedRank: number; // -1 if not engaged
+  engagedCount: number;
+  latestStoryAt: number;
+  now: number;
+}): number {
+  const friend = opts.isFriend ? 2 : 0;
+  const engaged =
+    opts.engagedRank >= 0 && opts.engagedCount > 0 ? 3 * (1 - opts.engagedRank / opts.engagedCount) : 0;
+  const ageHours = Math.max(0, (opts.now - opts.latestStoryAt) / 3_600_000);
+  const freshness = Math.max(0, 1 - ageHours / 24);
+  return friend + engaged + freshness;
 }
 
 /**
@@ -41,6 +66,10 @@ export interface RankStoriesInput {
  */
 export function rankAndFilterStories(input: RankStoriesInput): RankedStoryGroup[] {
   const { viewerProfileId, activeStories, followingIds, friendIds } = input;
+  const now = input.now ?? Date.now();
+  const engagedIds = input.engagedAuthorIds ?? [];
+  const engagedRank = new Map(engagedIds.map((id, idx) => [id, idx]));
+  const blockedSet = new Set(input.blockedUserIds ?? []);
 
   const followingSet = new Set(followingIds);
   const friendSet = new Set(friendIds);
@@ -54,8 +83,8 @@ export function rankAndFilterStories(input: RankStoriesInput): RankedStoryGroup[
     const isSelf = story.userId === viewerProfileId;
     const isFollowing = followingSet.has(story.userId);
 
-    // Rule: ONLY show stories of self or followings
-    if (!isSelf && !isFollowing) {
+    // Rule: ONLY show stories of self or followings, never blocked users
+    if ((!isSelf && !isFollowing) || blockedSet.has(story.userId)) {
       continue;
     }
 
@@ -97,22 +126,21 @@ export function rankAndFilterStories(input: RankStoriesInput): RankedStoryGroup[
     });
   }
 
-  // Sort groups by priority:
-  // 1. Viewer self first
-  // 2. Friends (mutual follows) with newest stories first
-  // 3. Followings with newest stories first
+  // Self first, then by closeness (mutual follow, engagement, freshness).
+  // Unseen-before-seen is applied client-side, where seen state lives.
+  const scoreOf = (g: RankedStoryGroup) =>
+    storyClosenessScore({
+      isFriend: g.isFriend,
+      engagedRank: engagedRank.get(g.user.id) ?? -1,
+      engagedCount: engagedIds.length,
+      latestStoryAt: Math.max(...g.stories.map((s) => new Date(s.createdAt).getTime())),
+      now,
+    });
+  const scores = new Map(groups.map((g) => [g, scoreOf(g)]));
   groups.sort((a, b) => {
     if (a.isSelf) return -1;
     if (b.isSelf) return 1;
-
-    if (a.isFriend && !b.isFriend) return -1;
-    if (!a.isFriend && b.isFriend) return 1;
-
-    // Both friends or both general followings: sort by newest story timestamp
-    const aLatest = Math.max(...a.stories.map((s) => new Date(s.createdAt).getTime()));
-    const bLatest = Math.max(...b.stories.map((s) => new Date(s.createdAt).getTime()));
-
-    return bLatest - aLatest;
+    return (scores.get(b) ?? 0) - (scores.get(a) ?? 0);
   });
 
   return groups;
