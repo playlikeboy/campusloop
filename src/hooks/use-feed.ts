@@ -87,12 +87,26 @@ export type FeedPost = Post & {
   socialContext?: FeedSocialContext | null;
 };
 
+// Without a deadline a stalled request kept SWR in `isLoading` forever, so the
+// feed showed skeletons indefinitely instead of the retryable error state.
+const FEED_FETCH_TIMEOUT_MS = 15_000;
+
 const feedFetcher = async <T>(url: string): Promise<T> => {
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error("Failed to fetch feed");
-  return res.json() as Promise<T>;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FEED_FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error("Failed to fetch feed");
+    return (await res.json()) as T;
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error("Feed took too long to load");
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 const PAGE_LIMIT = 20;
@@ -166,6 +180,8 @@ export function useFeed(
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       dedupingInterval: 5000,
+      errorRetryCount: 2,
+      errorRetryInterval: 2000,
       // The cached pages stay on screen while the refresh runs, so returning to
       // the feed never flashes a skeleton over content we already have.
       keepPreviousData: true,
