@@ -1,4 +1,4 @@
-import { integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { conversations } from "./chat";
 import { createdAt, id, updatedAt } from "./common";
 import { userProfiles } from "./users";
@@ -68,7 +68,11 @@ export const userBehaviorEvents = pgTable("user_behavior_events", {
   weight: integer("weight").default(1).notNull(),
 
   createdAt,
-});
+}, (table) => [
+  // Per-viewer ranking reads ("my last 14 days of feed impressions") and experiment rollups.
+  index("user_behavior_events_user_type_created_idx").on(table.userId, table.eventType, table.createdAt),
+  index("user_behavior_events_type_created_idx").on(table.eventType, table.createdAt),
+]);
 
 export type CallSession = typeof callSessions.$inferSelect;
 export type NewCallSession = typeof callSessions.$inferInsert;

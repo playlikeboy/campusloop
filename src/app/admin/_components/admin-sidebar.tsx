@@ -7,6 +7,7 @@ import {
   BookOpen,
   ChevronRight,
   FileText,
+  FlaskConical,
   Ghost,
   LayoutDashboard,
   Link2,
@@ -77,6 +78,7 @@ export const ADMIN_NAV_SECTIONS = [
     items: [
       { href: "/admin/system", label: "System Health Matrix", icon: Server },
       { href: "/admin/analytics", label: "Analytics & Pulse", icon: Activity },
+      { href: "/admin/experiments", label: "Ranking Experiments", icon: FlaskConical },
       { href: "/admin/audit", label: "Audit Log Trail", icon: ScrollText },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ],

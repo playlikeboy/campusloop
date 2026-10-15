@@ -37,7 +37,12 @@ export function StoryRing({ users }: StoryRingProps) {
   const router = useRouter();
 
   const myStoryGroup = users.find((u) => u.id === profile?.id);
-  const otherUsers = users.filter((u) => u.id !== profile?.id);
+  // Unseen trays first (stable sort keeps the server's closeness order within each half).
+  const otherUsers = users
+    .filter((u) => u.id !== profile?.id)
+    .map((u, idx) => ({ u, idx, seen: u.stories.every((st) => isStorySeen(st.id)) }))
+    .sort((a, b) => Number(a.seen) - Number(b.seen) || a.idx - b.idx)
+    .map(({ u }) => u);
 
   function isStorySeen(storyId: string) {
     if (typeof window === "undefined") return false;
@@ -113,6 +118,8 @@ export function StoryRing({ users }: StoryRingProps) {
 
         const allSeen = userGroup.stories.every((s) => isStorySeen(s.id));
         const timeAgo = formatTimeAgo(firstStory.createdAt);
+        // Resume at the first story not yet watched.
+        const startStory = userGroup.stories.find((s) => !isStorySeen(s.id)) ?? firstStory;
 
         return (
           <StoryAvatarItem
@@ -122,7 +129,7 @@ export function StoryRing({ users }: StoryRingProps) {
             subtitle={timeAgo}
             isFriend={userGroup.isFriend}
             hasUnseen={!allSeen}
-            onClick={() => handleOpenStory(firstStory.id)}
+            onClick={() => handleOpenStory(startStory.id)}
           />
         );
       })}

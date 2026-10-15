@@ -150,7 +150,17 @@ Shared primitives live in `src/lib/recommendations/scoring-primitives.ts`.
 | `/dating` | Attention fairness: lift under-seen profiles, damp saturated ones | Hinge / post-Elo Tinder |
 | `/dating` | Mutual gender-preference filter, two-way blocks, activity recency | — |
 
-Viewer affinity is cached in Redis for 10 minutes (`feed:affinity:<profileId>`) and falls back to an empty profile on any failure, so the feed stays on the plain Phoenix score.
+| `/feeds` For You | Skip learning: post types and authors scrolled past in under 1.2s without a vote are penalised | Implicit negative feedback (TikTok quick-swipe, X "not interested") |
+| Stories tray | Closeness ranking (mutual follow, engagement rank, freshness) + unseen-first + resume at first unwatched story | Instagram story ordering |
+| Suggested follows | Friends-of-friends with log-scaled mutual bonus, authors you engage with but don't follow, block exclusion | Triadic closure / "People You May Know" |
+
+### Impressions & experiment
+
+- `useFeedImpressions` (`src/hooks/use-feed-impressions.ts`) measures time each post is at least 50% on screen and batches it to `POST /api/feed/impressions`, stored as `POST_DWELL` rows in `user_behavior_events` (indexed by `drizzle/manual/0004_behavior_events_indexes.sql`). Anonymous post authors are never recorded.
+- Experiment `ranking-v2` (`src/lib/recommendations/experiments.ts`) splits students 50/50 by a hash of their profile id. Control ranks with the Phoenix baseline (blocks still apply); personalized adds learned post types, engaged/skipped authors, skip penalties and story closeness.
+- Readout at `/admin/experiments`: skip rate, long-read rate, dwell, votes and comments per student per arm, with two-proportion z-scores.
+
+Viewer affinity is cached in Redis for 10 minutes (`feed:affinity:v2:<profileId>`) and falls back to an empty profile on any failure, so the feed stays on the plain Phoenix score.
 
 ---
 *Created for CampusLoop Engineering & AI Research — 2026.*

@@ -5,7 +5,8 @@ import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts, normalizeApiFeedSort, resolveFeedPage } from "@/lib/feed";
 import { getShowSeededPosts } from "@/lib/platform-config";
-import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
+import { getRankingVariant } from "@/lib/recommendations/experiments";
+import { EMPTY_AFFINITY, getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -191,7 +192,11 @@ export async function GET(req: Request) {
       seenIds: uniqueSeenIds,
       viewerProfileId: profileId,
       seed,
-      affinity,
+      // Control arm keeps safety filtering but ranks without learned preferences.
+      affinity:
+        getRankingVariant(profileId) === "personalized"
+          ? affinity
+          : { ...EMPTY_AFFINITY, blockedUserIds: affinity.blockedUserIds },
     });
     const feed = await formatApiFeedPosts(rawFeed, profileId);
     return NextResponse.json(feed);

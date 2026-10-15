@@ -7,6 +7,7 @@ const RATE_LIMIT_WINDOW_SECONDS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 120;
 const RATE_LIMIT_EXEMPT_PREFIXES = [
   "/api/behavior/track",
+  "/api/feed/impressions",
   "/api/presence",
   "/api/notifications/unread-count",
 ];

@@ -23,6 +23,7 @@ import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { FeedLoadingMoreSkeleton, FeedSkeleton } from "@/components/ui/skeleton-card";
 import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
+import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
@@ -45,6 +46,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   const [sort, setSortState] = useState<string>(sortParam);
   const [visibility, setVisibility] = useState<string>("all");
   const { profile } = useProfile();
+  const trackImpression = useFeedImpressions(Boolean(profile?.id), sort);
 
   useEffect(() => {
     if (forcedType) {
@@ -442,7 +444,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
               <>
                 {displayedPosts.map((post, idx) => (
                   <div key={post.id}>
-                    <FeedCard post={post} currentUserId={profile?.id} />
+                    <div ref={trackImpression} data-feed-post-id={post.id}>
+                      <FeedCard post={post} currentUserId={profile?.id} />
+                    </div>
                     {idx === 2 && (
                       <div className="p-3 border-b border-border/30 bg-muted/10">
                         <InlineCommunitiesWidget />
