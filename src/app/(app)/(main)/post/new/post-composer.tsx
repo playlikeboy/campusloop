@@ -17,7 +17,6 @@ import {
   Mic,
   School,
   Smile,
-  Sparkles,
   Type,
   Users,
   VenetianMask,
@@ -35,6 +34,7 @@ import { DocumentCard } from "@/components/media/document-card";
 import { VideoPlayer } from "@/components/media/video-player";
 import { VoiceRecorderModal } from "@/components/media/voice-recorder-modal";
 import { CommunityFeedSelector } from "@/components/post/community-feed-selector";
+import { ComposerOverflowMenu } from "@/components/post/composer-overflow-menu";
 import { PollOptionsEditor } from "@/components/post/poll-options-editor";
 import { PostComposerToolbar } from "@/components/post/post-composer-toolbar";
 import { AnimateImage, AnimateZap } from "@/components/ui/animated-icon";
@@ -69,6 +69,9 @@ const POST_TYPES: { id: PostType; label: string; icon: React.ElementType; accent
   { id: "QUESTION", label: "Question", icon: HelpCircle, accent: "text-orange-500" },
   { id: "CONFESSION", label: "Confession", icon: Lock, accent: "text-pink-500" },
 ];
+
+// Shown directly in the action bar; everything else lives under "More".
+const PRIMARY_ACTION_IDS = ["photo", "video", "gif", "anon"];
 
 interface PostComposerProps {
   communityId?: string;
@@ -698,7 +701,7 @@ export function PostComposer({
       id: "photo",
       label: "Photo",
       icon: AnimateImage,
-      color: "text-emerald-500 hover:bg-emerald-500/10",
+      color: "text-primary hover:bg-primary/10",
       onClick: openFilePicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
@@ -707,7 +710,7 @@ export function PostComposer({
       id: "video",
       label: "Video Clip",
       icon: Video,
-      color: "text-sky-500 hover:bg-sky-500/10",
+      color: "text-primary hover:bg-primary/10",
       onClick: openVideoPicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
@@ -716,7 +719,7 @@ export function PostComposer({
       id: "voice",
       label: "Voice Memo",
       icon: Mic,
-      color: "text-rose-500 hover:bg-rose-500/10",
+      color: "text-primary hover:bg-primary/10",
       onClick: () => setShowVoiceRecorder(true),
       disabled: isUploadingMedia,
     },
@@ -724,7 +727,7 @@ export function PostComposer({
       id: "document",
       label: "Notes / PDF",
       icon: FileText,
-      color: "text-indigo-500 hover:bg-indigo-500/10",
+      color: "text-primary hover:bg-primary/10",
       onClick: openDocPicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
@@ -740,7 +743,7 @@ export function PostComposer({
       id: "sticker",
       label: "Sticker",
       icon: Smile,
-      color: "text-amber-500 hover:bg-amber-500/10",
+      color: "text-primary hover:bg-primary/10",
       onClick: () => setShowStickerPicker(true),
     },
     {
@@ -771,6 +774,8 @@ export function PostComposer({
         ]
       : []),
   ];
+  const primaryActions = mediaActions.filter((action) => PRIMARY_ACTION_IDS.includes(action.id));
+  const overflowActions = mediaActions.filter((action) => !PRIMARY_ACTION_IDS.includes(action.id));
 
   function handleAddStory() {
     if (isUploadingMedia || uploadedImages.some((url) => url.startsWith("blob:"))) {
@@ -853,7 +858,7 @@ export function PostComposer({
             {isModal ? <X className="size-4.5" /> : <ArrowLeft className="size-4.5" />}
           </button>
 
-          <p className="flex-1 text-center text-sm font-black tracking-tight text-foreground truncate">
+          <p className="flex-1 text-center text-[15px] font-semibold text-foreground truncate">
             {lockedCommunityName
               ? `Post to c/${lockedCommunityName}`
               : selectedCommunityObj
@@ -870,30 +875,14 @@ export function PostComposer({
           </p>
 
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-extrabold text-primary shadow-2xs">
-              <Zap className="size-3" /> +5 LP
-            </span>
-
-            <button
-              type="button"
-              onClick={handleAddStory}
-              disabled={isUploadingMedia}
-              aria-label="Add story with this post content"
-              title="Add Story"
-              className="flex h-8.5 items-center justify-center gap-1.5 rounded-full bg-primary/10 px-2.5 text-primary text-xs font-bold transition-colors hover:bg-primary/15 cursor-pointer disabled:opacity-50"
-            >
-              <Sparkles className="size-3.5" />
-              <span>Story</span>
-            </button>
-
             <button
               type="submit"
               disabled={!canPost}
               className={cn(
-                "flex h-8.5 min-w-[70px] items-center justify-center gap-1.5 rounded-full px-4 text-xs font-black transition-all cursor-pointer active:scale-95 shadow-xs",
+                "flex h-9 min-w-[76px] items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-opacity cursor-pointer active:scale-95",
                 canPost
-                  ? "bg-primary text-primary-foreground hover:opacity-90"
-                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  ? "bg-foreground text-background hover:opacity-90"
+                  : "bg-foreground text-background opacity-40 cursor-not-allowed"
               )}
             >
               {isLoading ? (
@@ -906,7 +895,7 @@ export function PostComposer({
         </div>
 
         {/* ─── Post type segmented chips ─── */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 px-4 py-2.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 pt-3">
           {POST_TYPES.filter((t) => allowAnonymous || t.id !== "CONFESSION").map((t) => {
             const active = postType === t.id;
             return (
@@ -915,13 +904,13 @@ export function PostComposer({
                 type="button"
                 onClick={() => selectPostType(t.id)}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition-all cursor-pointer active:scale-95",
+                  "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition-colors cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                   active
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <t.icon className={cn("size-3.5", active ? "" : t.accent)} />
+                <t.icon className="size-3.5" />
                 {t.label}
               </button>
             );
@@ -943,7 +932,7 @@ export function PostComposer({
           </Avatar>
 
           <div className="min-w-0 flex-1 pt-0.5">
-            <p className="truncate text-sm font-black text-foreground">
+            <p className="truncate text-[15px] font-semibold text-foreground">
               {anonActive
                 ? profile?.anonymousUsername
                   ? `@${profile.anonymousUsername}`
@@ -962,7 +951,7 @@ export function PostComposer({
                     <button
                       type="button"
                       onClick={() => setShowAudienceMenu((s) => !s)}
-                      className="flex items-center gap-1 rounded-full border border-primary/25 bg-primary/5 px-2.5 py-1 text-[11px] font-black text-primary transition-colors hover:bg-primary/10 cursor-pointer"
+                      className="flex h-7 items-center gap-1 rounded-full border border-border/70 px-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/5 cursor-pointer"
                     >
                       {scope === "GLOBAL" ? <Globe className="size-3" /> : <School className="size-3" />}
                       {scope === "GLOBAL" ? "All Colleges" : "My College"}
@@ -1176,23 +1165,7 @@ export function PostComposer({
 
         {/* ─── Live Link & Media Embed Previews ─── */}
         {visibleEmbeds.length > 0 && (
-          <div className="mx-4 mb-3 rounded-2xl border border-primary/20 bg-muted/25 p-3.5 shadow-2xs">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/30">
-              <div className="flex items-center gap-1.5 text-xs font-black text-foreground">
-                <Sparkles className="size-3.5 text-primary" />
-                <span>Live Link & Media Embed Previews</span>
-                <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-black text-primary">
-                  {visibleEmbeds.length}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDismissedUrls(visibleEmbeds.map((e) => e.rawUrl))}
-                className="text-[11px] font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-              >
-                Dismiss all
-              </button>
-            </div>
+          <div className="mx-4 mb-3">
             <PostEmbedRenderer
               embeds={visibleEmbeds}
               limit={4}
@@ -1225,20 +1198,18 @@ export function PostComposer({
         )}
 
         {/* ─── Trending tags ─── */}
-        {trendingTags.length > 0 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-t border-border/25 px-4 py-2.5">
-            <span className="mr-0.5 flex shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-              <Flame className="size-3 text-primary" /> Trending
-            </span>
-            {trendingTags.map((item) => (
+        {charCount > 0 && trendingTags.length > 0 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 py-2">
+            <Flame className="size-3.5 shrink-0 text-muted-foreground" aria-label="Trending tags" />
+            {trendingTags.slice(0, 6).map((item) => (
               <button
                 key={item.tag}
                 type="button"
                 onClick={() => insertTag(item.tag)}
                 title={`${item.category} (${item.formattedCount})`}
-                className="inline-flex shrink-0 cursor-pointer select-none items-center gap-0.5 rounded-full border border-border/40 bg-muted/40 px-2.5 py-1 text-xs font-bold text-foreground transition-all hover:border-primary/50 hover:bg-muted active:scale-95"
+                className="inline-flex h-7 shrink-0 cursor-pointer select-none items-center rounded-full px-2.5 text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 active:scale-95"
               >
-                <span className="font-black text-primary">#</span>
+                <span>#</span>
                 <span>{item.tag.replace(/^#/, "")}</span>
               </button>
             ))}
@@ -1269,8 +1240,8 @@ export function PostComposer({
 
         {/* ─── Sticky bottom action bar (Twitter style) ─── */}
         <div className="sticky bottom-0 z-20 flex items-center justify-between gap-1 border-t border-border/30 bg-background/90 px-3 py-2 backdrop-blur-xl">
-          <div className="flex items-center gap-1">
-            {mediaActions.map((action) => (
+          <div className="flex items-center gap-0.5">
+            {primaryActions.map((action) => (
               <button
                 key={action.id}
                 type="button"
@@ -1290,6 +1261,7 @@ export function PostComposer({
                 )}
               </button>
             ))}
+            <ComposerOverflowMenu actions={overflowActions} onAddStory={handleAddStory} />
           </div>
 
           <div className="flex items-center gap-2">

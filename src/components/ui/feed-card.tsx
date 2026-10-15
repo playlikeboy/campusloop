@@ -328,12 +328,12 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onDoubleClick={handleDoubleTap}
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className={cn(
-        "w-full max-w-full min-w-0 border-b sm:border border-[var(--border)] bg-[var(--surface)] sm:rounded-[var(--r-lg)] p-4 sm:p-5 mb-0 sm:mb-3 mx-0 relative cursor-pointer transition-all select-none overflow-x-clip",
-        isBroadcast && broadcastPriority === "URGENT" && "border-rose-500/40 bg-rose-500/5",
-        isBroadcast && broadcastPriority === "WARNING" && "border-amber-500/40 bg-amber-500/5",
-        isBroadcast && broadcastPriority === "INFO" && "border-blue-500/40 bg-blue-500/5",
-        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "border-[var(--primary)]/40 bg-[var(--primary-soft)]",
-        !isBroadcast && "hover:border-[var(--border-strong)]"
+        "relative w-full max-w-full min-w-0 border-b border-border/40 px-4 pt-3 pb-1.5 sm:px-5 cursor-pointer transition-colors select-none overflow-x-clip",
+        isBroadcast && broadcastPriority === "URGENT" && "bg-rose-500/5",
+        isBroadcast && broadcastPriority === "WARNING" && "bg-amber-500/5",
+        isBroadcast && broadcastPriority === "INFO" && "bg-blue-500/5",
+        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "bg-[var(--primary-soft)]",
+        !isBroadcast && "hover:bg-muted/25"
       )}
     >
       {/* High-Priority Official Campus & Global Broadcast Banner Header */}
@@ -481,8 +481,10 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           onShare={handleSharePost}
         />
 
-        {/* 2. CONTENT BODY: Placed directly below the author header taking 100% full width */}
-        <div className="w-full min-w-0 space-y-1.5 pt-0.5 pb-0.5">
+        {/* Body sits under the name column on wider screens (avatar 40px + 12px gap). */}
+        <div className="w-full min-w-0 sm:pl-13">
+        {/* 2. CONTENT BODY */}
+        <div className="w-full min-w-0 space-y-1.5 pt-1.5 pb-0.5">
           {post.title && (
             <h3
               className={cn(
@@ -646,6 +648,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               </>
             );
           })()}
+        </div>
         </div>
 
       {/* Post Likes Modal (Facebook-style who liked list) */}
