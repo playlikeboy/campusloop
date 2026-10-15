@@ -183,9 +183,8 @@ export async function GET(req: Request) {
       }
     }
 
-    const rawFeed = await resolveFeedPage({
+    const pageOptions = {
       conditions,
-      sort,
       limit,
       offset,
       userInstitutionId: scope === "GLOBAL" ? null : institutionId,
@@ -197,6 +196,13 @@ export async function GET(req: Request) {
         getRankingVariant(profileId) === "personalized"
           ? affinity
           : { ...EMPTY_AFFINITY, blockedUserIds: affinity.blockedUserIds },
+    };
+    // Ranking is an enhancement: if a scored sort fails, serve the
+    // chronological feed rather than an empty timeline.
+    const rawFeed = await resolveFeedPage({ ...pageOptions, sort }).catch((error) => {
+      if (sort === "latest") throw error;
+      console.error(`Ranked feed (${sort}) failed, falling back to latest:`, error);
+      return resolveFeedPage({ ...pageOptions, sort: "latest" });
     });
     const feed = await formatApiFeedPosts(rawFeed, profileId);
     return NextResponse.json(feed);

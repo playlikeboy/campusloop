@@ -408,6 +408,38 @@ export function getFeedOrderBy(
 type HydratedFeedPost = Awaited<ReturnType<typeof resolveFeedPage>>[number];
 
 /**
+ * Ranked sorts evaluate several correlated subqueries per row, so scoring the
+ * whole posts table made For You / Trending take 4-10s and time out on cold
+ * workers. They now rank a bounded pool of the newest matching posts, plus any
+ * editorially boosted posts so promotion still works on older content.
+ */
+const RANKED_CANDIDATE_POOL = 400;
+
+async function narrowToCandidatePool(
+  options: { conditions: SQL[]; sort: ApiFeedSort; limit: number; offset: number },
+  boosts: ActiveBoost[]
+): Promise<SQL | undefined> {
+  const base = and(...options.conditions);
+  if (options.sort === "latest" || options.sort === "random") return base;
+
+  const poolSize = Math.max(RANKED_CANDIDATE_POOL, options.offset + options.limit * 4);
+  const recent = await getDb()
+    .select({ id: posts.id })
+    .from(posts)
+    .where(base)
+    .orderBy(desc(posts.createdAt))
+    .limit(poolSize);
+
+  const boostedPostIds = boosts
+    .filter((boost) => boost.targetType === "POST" && /^[a-zA-Z0-9_-]+$/.test(boost.targetId))
+    .map((boost) => boost.targetId);
+  const candidateIds = [...recent.map((row) => row.id), ...boostedPostIds];
+  if (candidateIds.length === 0) return undefined;
+
+  return and(base, inArray(posts.id, Array.from(new Set(candidateIds))));
+}
+
+/**
  * Two-phase feed resolution: select the page's post IDs with full SQL
  * ordering flexibility (aggregates, time decay, seen post demotion),
  * then hydrate relations via the relational query builder and restore order in JS.
@@ -437,6 +469,9 @@ export async function resolveFeedPage(options: {
     options.viewerInstitutionId ?? options.userInstitutionId
   );
 
+  const where = await narrowToCandidatePool(options, boosts);
+  if (!where) return [];
+
   const idRows = await db
     .select({
       id: posts.id,
@@ -444,7 +479,7 @@ export async function resolveFeedPage(options: {
       voteScore: voteScoreSql,
     })
     .from(posts)
-    .where(and(...options.conditions))
+    .where(where)
     .orderBy(
       ...getFeedOrderBy(
         options.sort,
@@ -495,7 +530,11 @@ export async function resolveFeedPage(options: {
           avatarUrl: true,
         },
       },
-      votes: true,
+      // Totals come from the id query's aggregates; only the viewer's own vote
+      // is needed here, so popular posts don't drag every vote row along.
+      votes: options.viewerProfileId
+        ? { where: eq(votes.userId, options.viewerProfileId) }
+        : { where: sql`false` },
       comments: {
         where: eq(comments.status, "PUBLISHED"),
         orderBy: [desc(comments.createdAt)],
