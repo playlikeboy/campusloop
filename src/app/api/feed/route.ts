@@ -5,6 +5,7 @@ import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts, normalizeApiFeedSort, resolveFeedPage } from "@/lib/feed";
 import { getShowSeededPosts } from "@/lib/platform-config";
+import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -55,9 +56,22 @@ export async function GET(req: Request) {
       }
     }
 
-    const isViewer = institutionId ? await isViewerProfile({ institutionId }) : false;
-    const showSeeded = await getShowSeededPosts();
+    const [isViewer, showSeeded, affinity] = await Promise.all([
+      institutionId ? isViewerProfile({ institutionId }) : Promise.resolve(false),
+      getShowSeededPosts(),
+      getViewerAffinity(profileId),
+    ]);
     const conditions: SQL[] = [eq(posts.status, "PUBLISHED")];
+
+    // Blocks are a visibility rule, not a ranking signal: either direction removes the author.
+    if (affinity.blockedUserIds.length > 0) {
+      conditions.push(
+        sql`(${posts.authorId} is null or ${posts.authorId} not in (${sql.join(
+          affinity.blockedUserIds.map((id) => sql`${id}`),
+          sql`, `
+        )}))`
+      );
+    }
     if (!showSeeded) {
       conditions.push(eq(posts.isSeeded, false));
     }
@@ -177,6 +191,7 @@ export async function GET(req: Request) {
       seenIds: uniqueSeenIds,
       viewerProfileId: profileId,
       seed,
+      affinity,
     });
     const feed = await formatApiFeedPosts(rawFeed, profileId);
     return NextResponse.json(feed);

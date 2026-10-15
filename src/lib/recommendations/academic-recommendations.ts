@@ -1,10 +1,11 @@
-import { and, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, ne, notInArray, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { academicResources, academicResourceVotes, savedAcademicResources } from "@/db/schema";
 import { qdrant } from "@/lib/qdrant/client";
 import { COLLECTIONS } from "@/lib/qdrant/collections";
 import { generateEmbedding } from "@/lib/qdrant/embeddings";
 import type { AcademicResourceVectorPayload } from "@/lib/qdrant/types";
+import { examSeasonBoost, wilsonLowerBound } from "@/lib/recommendations/scoring-primitives";
 import { getUserAffinityInterests } from "@/lib/user-behavior";
 
 export interface SimilarAcademicResourceItem {
@@ -649,6 +650,7 @@ export async function getPersonalizedAcademicFeed(options: PersonalizedAcademicF
   const engagedSubjectCodes = new Set<string>();
   const corequisiteCodes = new Set<string>();
   const preferredResourceTypes = new Map<string, number>();
+  const coSavedCounts = new Map<string, number>();
   let affinityTags: string[] = [];
 
   if (userId) {
@@ -672,6 +674,41 @@ export async function getPersonalizedAcademicFeed(options: PersonalizedAcademicF
             },
           },
         });
+
+        // Item-item collaborative filtering (Amazon 2003 / "people who saved X also saved Y"):
+        // resources co-saved by students who share at least one save with this viewer.
+        const mySavedIds = savedList.map((s) => s.resourceId).filter(Boolean);
+        if (mySavedIds.length > 0) {
+          try {
+            const neighbours = db
+              .select({ profileId: savedAcademicResources.profileId })
+              .from(savedAcademicResources)
+              .where(
+                and(
+                  inArray(savedAcademicResources.resourceId, mySavedIds),
+                  ne(savedAcademicResources.profileId, profile.id)
+                )
+              );
+            const coSaved = await db
+              .select({
+                resourceId: savedAcademicResources.resourceId,
+                n: sql<number>`count(distinct ${savedAcademicResources.profileId})::int`,
+              })
+              .from(savedAcademicResources)
+              .where(
+                and(
+                  inArray(savedAcademicResources.profileId, neighbours),
+                  notInArray(savedAcademicResources.resourceId, mySavedIds)
+                )
+              )
+              .groupBy(savedAcademicResources.resourceId)
+              .orderBy(desc(sql`count(distinct ${savedAcademicResources.profileId})`))
+              .limit(60);
+            for (const row of coSaved) coSavedCounts.set(row.resourceId, Number(row.n));
+          } catch (err) {
+            console.warn("Co-saved academic lookup failed:", err);
+          }
+        }
 
         for (const s of savedList) {
           if (s.resource?.resourceType) {
@@ -858,10 +895,27 @@ export async function getPersonalizedAcademicFeed(options: PersonalizedAcademicF
       if (!recommendationReason) recommendationReason = "Corequisite / Prerequisite Match";
     }
 
-    // E. Engagement Quality Factor (Upvotes, Downloads, Views, Verified)
+    // Co-saved by similar students (collaborative filtering)
+    const coSaves = coSavedCounts.get(item.id) || 0;
+    if (coSaves > 0) {
+      score += Math.min(36, 12 + coSaves * 6);
+      if (!recommendationReason) recommendationReason = "Saved by Students Like You";
+    }
+
+    // Exam-season context: PYQs and revision sheets matter more as exams approach
+    const examBoost = examSeasonBoost(item.resourceType);
+    if (examBoost > 0) {
+      score += examBoost;
+      if (!recommendationReason && examBoost >= 25) recommendationReason = "Exam Season Essential";
+    }
+
+    // E. Engagement Quality Factor: Wilson lower bound on view -> useful-action
+    // conversion, so 3 upvotes from 3 views can't outrank 80 from 200.
+    const usefulActions = (item.upvotesCount || 0) + (item.downloadsCount || 0);
+    const exposures = Math.max(item.viewsCount || 0, usefulActions);
     const qualityScore = Math.min(
       45,
-      (item.upvotesCount || 0) * 3 + (item.downloadsCount || 0) * 2 + (item.viewsCount || 0) * 0.1
+      wilsonLowerBound(usefulActions, exposures) * 60 + Math.log2(1 + usefulActions) * 4
     );
     score += qualityScore;
     if (item.isVerified) {
@@ -887,9 +941,9 @@ export async function getPersonalizedAcademicFeed(options: PersonalizedAcademicF
     }
 
     if (!recommendationReason) {
-      if (item.upvotesCount > 5) recommendationReason = "Trending Among Students 🔥";
-      else if (item.resourceType === "PYQ") recommendationReason = "Exam Prep PYQ 📑";
-      else recommendationReason = "Campus Study Resource 📝";
+      if (item.upvotesCount > 5) recommendationReason = "Trending Among Students";
+      else if (item.resourceType === "PYQ") recommendationReason = "Exam Prep PYQ";
+      else recommendationReason = "Campus Study Resource";
     }
 
     return {

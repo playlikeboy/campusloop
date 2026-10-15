@@ -22,6 +22,7 @@ import {
 import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { applyAuthorDiversityReranking } from "@/lib/recommendations/diversity-reranker";
 import { getPhoenixValueScoreSql } from "@/lib/recommendations/phoenix-ranker";
+import type { ViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { RANKING_WEIGHTS } from "@/lib/recommendations/ranking-constants";
 import { getAddictiveReelsScoreSql } from "@/lib/reels/algorithm";
 
@@ -298,9 +299,10 @@ function getViralScoreSql(viewerProfileId?: string | null) {
 function getForYouScoreSql(
   userInstitutionId?: string | null,
   seenIds?: string[],
-  viewerProfileId?: string | null
+  viewerProfileId?: string | null,
+  affinity?: ViewerAffinity | null
 ) {
-  return getPhoenixValueScoreSql(viewerProfileId, userInstitutionId, seenIds);
+  return getPhoenixValueScoreSql(viewerProfileId, userInstitutionId, seenIds, affinity);
 }
 
 export function normalizeApiFeedSort(value?: string | null): ApiFeedSort {
@@ -328,7 +330,8 @@ export function getFeedOrderBy(
   seenIds?: string[],
   viewerProfileId?: string | null,
   boosts: ActiveBoost[] = [],
-  seed?: number
+  seed?: number,
+  affinity?: ViewerAffinity | null
 ) {
   const orderClauses: (SQL | ReturnType<typeof desc> | ReturnType<typeof asc>)[] = [];
 
@@ -390,7 +393,7 @@ export function getFeedOrderBy(
       orderClauses.push(seed === undefined ? sql`random()` : sql`hashtextextended(${posts.id}, ${seed})`);
       return orderClauses;
     case "for_you": {
-      const forYouScore = getForYouScoreSql(userInstitutionId, seenIds, viewerProfileId);
+      const forYouScore = getForYouScoreSql(userInstitutionId, seenIds, viewerProfileId, affinity);
       orderClauses.push(desc(weighted(forYouScore)));
       break;
     }
@@ -421,6 +424,8 @@ export async function resolveFeedPage(options: {
   seed?: number;
   /** Viewer's campus, for narrowing INSTITUTION-scoped editorial boosts. */
   viewerInstitutionId?: string | null;
+  /** Learned viewer preferences for the For You ranker. */
+  affinity?: ViewerAffinity | null;
 }) {
   const db = getDb();
 
@@ -447,7 +452,8 @@ export async function resolveFeedPage(options: {
         options.seenIds,
         options.viewerProfileId,
         boosts,
-        options.seed
+        options.seed,
+        options.affinity
       )
     )
     .limit(options.limit)

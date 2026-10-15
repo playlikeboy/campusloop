@@ -2,6 +2,7 @@ import { and, eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { blocks, randomReports, randomSessions, userProfiles } from "@/db/schema";
+import { invalidateViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 export const dynamic = "force-dynamic";
@@ -90,6 +91,7 @@ export async function POST(req: Request, { params }: RouteParams) {
           blockedUserId: partnerId,
         })
         .onConflictDoNothing();
+      await Promise.all([invalidateViewerAffinity(profile.id), invalidateViewerAffinity(partnerId)]);
 
       await db
         .update(randomSessions)

@@ -1,5 +1,6 @@
 import { sql, type SQL } from "drizzle-orm";
 import { comments, follows, posts, reports, votes } from "@/db/schema";
+import type { ViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 
 /**
  * 🐦 Phoenix Multi-Action Ranking & Explicit Value Function
@@ -94,7 +95,8 @@ export function computePhoenixValueScore(
 export function getPhoenixValueScoreSql(
   viewerProfileId?: string | null,
   userInstitutionId?: string | null,
-  seenIds?: string[]
+  seenIds?: string[],
+  affinity?: ViewerAffinity | null
 ): SQL<number> {
   const hoursSinceSql = sql<number>`(extract(epoch from (now() - ${posts.createdAt})) / 3600.0)`;
 
@@ -154,6 +156,36 @@ export function getPhoenixValueScoreSql(
     else 0.0 
   end)`;
 
+  // Learned topic affinity: the viewer's 30-day engagement share per post type
+  // (0..1) scaled to at most +40, so a viewer who mostly replies to polls sees more polls.
+  const typeEntries = Object.entries(affinity?.typeAffinity ?? {}).filter(
+    ([type, share]) => /^[A-Z_]+$/.test(type) && Number.isFinite(share) && share > 0
+  );
+  const typeAffinitySql =
+    typeEntries.length > 0
+      ? sql<number>`(case ${sql.join(
+          typeEntries.map(
+            ([type, share]) => sql`when ${posts.type} = ${type} then ${sql.raw((share * 40).toFixed(2))}`
+          ),
+          sql` `
+        )} else 0.0 end)`
+      : sql<number>`0.0`;
+
+  // RealGraph-lite: authors the viewer repeatedly engages with, followed or not.
+  const engagedAuthors = (affinity?.engagedAuthorIds ?? []).filter((id) => /^[a-zA-Z0-9_-]+$/.test(id));
+  const engagedAuthorMultiplierSql =
+    engagedAuthors.length > 0
+      ? sql<number>`(case when ${posts.authorId} in (${sql.join(
+          engagedAuthors.map((id) => sql`${id}`),
+          sql`, `
+        )}) and ${posts.isAnonymous} = false then 1.30 else 1.00 end)`
+      : sql<number>`1.00`;
+
+  // Fresh-post exploration (Thompson-style optimism under uncertainty): posts under
+  // 3 hours old have almost no engagement data yet, so give them a decaying prior
+  // instead of letting early leaders lock in the top slots.
+  const freshExplorationSql = sql<number>`(case when ${hoursSinceSql} < 3 then (3 - ${hoursSinceSql}) * 6.0 else 0.0 end)`;
+
   // Penalties: Already seen (-160), already voted (-55), own post (-25)
   const safeSeenIds = (seenIds || [])
     .slice(0, 100)
@@ -177,8 +209,9 @@ export function getPhoenixValueScoreSql(
 
   return sql<number>`(
     (
-      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql})
+      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql} + ${typeAffinitySql} + ${freshExplorationSql})
       * ${networkAffinitySql}
+      * ${engagedAuthorMultiplierSql}
     )
     + ${seenPenaltySql}
     + ${alreadyVotedPenaltySql}
