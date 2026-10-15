@@ -6,6 +6,7 @@ import { qdrant } from "@/lib/qdrant/client";
 import { COLLECTIONS } from "@/lib/qdrant/collections";
 import { generateEmbedding } from "@/lib/qdrant/embeddings";
 import type { ProfileVectorPayload } from "@/lib/qdrant/types";
+import { distanceBucketLabel, getPointsFor, haversineKm } from "@/lib/geo/location";
 import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { getViewerInstitutionId } from "@/lib/viewer";
 import { getShowSeededPosts } from "@/lib/platform-config";
@@ -183,6 +184,14 @@ export async function getRecommendedUsers(
   const candidateRows = [...new Map([...graphRows, ...generalRows].map((r) => [r.id, r])).values()];
   const engagedSet = new Set(engagedNotFollowed);
 
+  // Geo proximity (server-side only; never returned as coordinates)
+  const points = await getPointsFor([viewer.id, ...candidateRows.map((c) => c.id)]);
+  const viewerPoint = points.get(viewer.id);
+  const distanceKm = (id: string) => {
+    const p = points.get(id);
+    return viewerPoint && p ? haversineKm(viewerPoint, p) : null;
+  };
+
   if (candidateRows.length === 0) {
     return [];
   }
@@ -221,6 +230,11 @@ export async function getRecommendedUsers(
     const engaged = engagedSet.has(cand.id);
     if (engaged) score += 25;
 
+    const km = distanceKm(cand.id);
+    const nearby = km !== null && km < 25 && !sameCampus;
+    if (km !== null && km < 5) score += 12;
+    else if (nearby) score += 8;
+
     const clampedScore = Math.max(35, Math.min(99, score));
 
     // Determine intuitive match reason badge
@@ -229,6 +243,8 @@ export async function getRecommendedUsers(
       matchReason = "You Engage";
     } else if (mutuals >= 2) {
       matchReason = `${mutuals} Mutuals`;
+    } else if (nearby) {
+      matchReason = distanceBucketLabel(km) ?? "Nearby";
     } else if (vectorSim && vectorSim >= 0.5) {
       matchReason = `${clampedScore}% Match`;
     } else if (sameCampus) {

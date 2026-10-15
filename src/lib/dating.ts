@@ -1,3 +1,4 @@
+import { proximityMultiplier } from "@/lib/geo/distance";
 import {
   activityRecencyMultiplier,
   bayesianRate,
@@ -88,7 +89,13 @@ export function attentionFairnessMultiplier(stats?: CandidateMarketStats): numbe
  */
 export function computeReciprocalRank(
   compatibility: number,
-  opts: { likedMe: boolean; stats?: CandidateMarketStats; lastSeenAt?: Date | string | null; now?: number }
+  opts: {
+    likedMe: boolean;
+    stats?: CandidateMarketStats;
+    lastSeenAt?: Date | string | null;
+    distanceKm?: number | null;
+    now?: number;
+  }
 ): number {
   const pMine = Math.min(1, Math.max(0.01, compatibility / 100));
   // Compatibility features are mostly symmetric, so they also lift P(they like me).
@@ -98,7 +105,8 @@ export function computeReciprocalRank(
   return (
     reciprocalScore(pMine, pTheirs) *
     attentionFairnessMultiplier(opts.stats) *
-    activityRecencyMultiplier(opts.lastSeenAt, opts.now)
+    activityRecencyMultiplier(opts.lastSeenAt, opts.now) *
+    proximityMultiplier(opts.distanceKm)
   );
 }
 
@@ -202,6 +210,7 @@ export function rankDatingCandidates<T extends CompatibilityProfile>(
     likedMeIds: Set<string>;
     vectorScoreMap?: Map<string, number>;
     marketStats?: Map<string, CandidateMarketStats>;
+    distanceKmMap?: Map<string, number>;
     sessionSeed?: number;
     sort?: string;
     limit?: number;
@@ -224,6 +233,7 @@ export function rankDatingCandidates<T extends CompatibilityProfile>(
         likedMe: isLiked,
         stats: opts.marketStats?.get(cand.id),
         lastSeenAt: cand.lastSeenAt,
+        distanceKm: opts.distanceKmMap?.get(cand.id),
       }),
     };
   });

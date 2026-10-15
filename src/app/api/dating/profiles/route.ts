@@ -10,6 +10,7 @@ import {
   rankDatingCandidates,
   resolveGenderPreference,
 } from "@/lib/dating";
+import { distanceBucketLabel, getPointsFor, haversineKm } from "@/lib/geo/location";
 import { getViewerInstitutionId, rejectViewerWrite } from "@/lib/viewer";
 import { getShowSeededPosts } from "@/lib/platform-config";
 
@@ -198,12 +199,23 @@ export async function GET(req: Request) {
       };
     });
 
+    // Distance from me to each candidate, server-side only; clients get a bucket label.
+    const distanceKmMap = new Map<string, number>();
+    const points = await getPointsFor([profile.id, ...candidateIds]);
+    const myPoint = points.get(profile.id);
+    if (myPoint) {
+      for (const [id, pt] of points) {
+        if (id !== profile.id) distanceKmMap.set(id, haversineKm(myPoint, pt));
+      }
+    }
+
     // Dynamic session seed rotates exploration every 20 minutes so repeat visits explore new students
     const sessionSeed = Math.floor(Date.now() / (1000 * 60 * 20));
 
     const ranked = rankDatingCandidates(profile, processedCandidates, {
       likedMeIds,
       marketStats,
+      distanceKmMap,
       sessionSeed,
       sort,
       limit: 25,
@@ -227,6 +239,7 @@ export async function GET(req: Request) {
       compatibilityScore: score,
       sharedInterests,
       likedYou,
+      distanceLabel: distanceBucketLabel(distanceKmMap.get(candidate.id)),
     }));
 
     // Likes still waiting for an answer (they liked me, I haven't swiped back)
