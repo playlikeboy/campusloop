@@ -5,6 +5,7 @@ import { marketplaceOrderItems, marketplaceOrders, merchants, products, userProf
 import { hexclaveServerApp } from "@/hexclave/server";
 import { withUniqueOrderNumber } from "@/lib/marketplace/order-number";
 import { type CartItemInput, type FulfillmentType, priceMerchantOrder } from "@/lib/marketplace/pricing";
+import { releaseExpiredPaymentHolds } from "@/lib/payments/expire-holds";
 import { getRedis } from "@/lib/redis";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -238,6 +239,9 @@ export async function POST(req: Request) {
         ...result.order,
       });
     }
+
+    // Free stock held by abandoned online payments before reserving new stock.
+    await releaseExpiredPaymentHolds();
 
     // ── Phase 2: Atomic Stock Reservation ──
     //

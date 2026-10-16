@@ -15,6 +15,19 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
+function rssDocument(items: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CampusLoop Articles</title>
+    <link>${ARTICLES_CANONICAL_HOST}/articles</link>
+    <description>${escapeXml(ARTICLES_SUBTITLE)}</description>
+    <language>en-in</language>
+    <atom:link href="${ARTICLES_CANONICAL_HOST}/articles/feed.xml" rel="self" type="application/rss+xml" />${items}
+  </channel>
+</rss>`;
+}
+
 export async function GET() {
   try {
     const db = getDb();
@@ -23,8 +36,7 @@ export async function GET() {
       orderBy: [desc(articles.publishedAt)],
       limit: 30,
       with: {
-        author: true,
-        institution: true,
+        author: { columns: { displayName: true, username: true } },
       },
     });
 
@@ -49,16 +61,7 @@ export async function GET() {
     </item>`;
     }
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>CampusLoop Articles</title>
-    <link>${ARTICLES_CANONICAL_HOST}/articles</link>
-    <description>${escapeXml(ARTICLES_SUBTITLE)}</description>
-    <language>en-in</language>
-    <atom:link href="${ARTICLES_CANONICAL_HOST}/articles/feed.xml" rel="self" type="application/rss+xml" />${items}
-  </channel>
-</rss>`;
+    const xml = rssDocument(items);
 
     return new NextResponse(xml, {
       headers: {
@@ -68,8 +71,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Articles RSS feed error:", error);
-    return new NextResponse('<rss version="2.0"><channel></channel></rss>', {
-      headers: { "Content-Type": "application/xml; charset=utf-8" },
+    // Still a valid feed, so readers keep the subscription instead of erroring.
+    return new NextResponse(rssDocument(""), {
+      headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=300" },
     });
   }
 }

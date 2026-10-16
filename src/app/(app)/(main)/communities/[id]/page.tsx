@@ -16,11 +16,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const comm = await getCachedCommunity(id);
 
-  if (!comm) {
-    return {
-      title: "Community Sub-Hub",
-    };
-  }
+  // 404 here so the status is set before streaming starts.
+  if (!comm) notFound();
 
   const title = `c/${comm.name} Sub-Hub | CampusLoop`;
   const description =

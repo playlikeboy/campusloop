@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { marketplaceOrders, marketplacePayments } from "@/db/schema";
+import { reviveExpiredPaidOrders } from "./expire-holds";
 
 /**
  * Razorpay integration for marketplace orders.
@@ -126,6 +127,7 @@ export async function markRazorpayOrderPaid(
 
   const orderIds = payment.orderIds ?? [];
   if (orderIds.length > 0) {
+    await reviveExpiredPaidOrders(orderIds);
     await db
       .update(marketplaceOrders)
       .set({ paymentStatus: "PAID" })
