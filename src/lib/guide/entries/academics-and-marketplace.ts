@@ -148,6 +148,10 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     faq: [
       { q: "What if I paid but the page closed?", a: "The payment is still confirmed automatically through Razorpay's webhook." },
       { q: "When does the store see my order?", a: "Only after payment succeeds." },
+      {
+        q: "What if I never finish paying?",
+        a: "Unpaid online orders are cancelled after 30 minutes and the items go back on sale. If a payment still arrives later, the order is restored automatically.",
+      },
     ],
     related: ["campus-marketplace", "merchant-portal"],
     keywords: ["UPI payment", "Razorpay", "online order"],

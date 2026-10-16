@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { marketplaceOrders, marketplacePayments, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { releaseExpiredPaymentHolds } from "@/lib/payments/expire-holds";
 import { createRazorpayOrder, getRazorpayKeyId, isRazorpayConfigured } from "@/lib/payments/razorpay";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
     }
 
     const db = getDb();
+    await releaseExpiredPaymentHolds();
     const profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
       columns: { id: true, displayName: true },

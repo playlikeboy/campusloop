@@ -1,12 +1,27 @@
 import type { Story, UserProfile } from "@/db/schema";
 
+/**
+ * Public author fields only. Story authors are sent to every follower's browser,
+ * so the full profile row (date of birth, dating preferences, email-derived
+ * fields) must never ride along.
+ */
+export type StoryAuthor = Pick<UserProfile, "id" | "username" | "displayName" | "avatarUrl" | "onboardingCompleted">;
+
+export const STORY_AUTHOR_COLUMNS = {
+  id: true,
+  username: true,
+  displayName: true,
+  avatarUrl: true,
+  onboardingCompleted: true,
+} as const;
+
 export type StoryPayload = Pick<
   Story,
   "id" | "mediaUrl" | "text" | "backgroundColor" | "createdAt" | "expiresAt"
 >;
 
 export interface RankedStoryGroup {
-  user: UserProfile;
+  user: StoryAuthor;
   stories: StoryPayload[];
   isSelf: boolean;
   isFriend: boolean;
@@ -23,7 +38,7 @@ export interface RankStoriesInput {
     backgroundColor: string | null;
     createdAt: Date;
     expiresAt: Date;
-    user?: UserProfile | null;
+    user?: StoryAuthor | null;
   }>;
   followingIds: string[];
   friendIds: string[]; // Mutual follows
@@ -75,7 +90,7 @@ export function rankAndFilterStories(input: RankStoriesInput): RankedStoryGroup[
   const friendSet = new Set(friendIds);
 
   // Map to group stories by user
-  const userMap = new Map<string, { user: UserProfile; stories: StoryPayload[] }>();
+  const userMap = new Map<string, { user: StoryAuthor; stories: StoryPayload[] }>();
 
   for (const story of activeStories) {
     if (!story.user) continue;

@@ -14,7 +14,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const g = getGuide(slug);
-  if (!g) return { title: "Not found" };
+  if (!g) notFound();
   const url = `${SITE_URL}/guide/${g.slug}`;
   return {
     title: `${g.title}: how to use it and why — CampusLoop Guide`,

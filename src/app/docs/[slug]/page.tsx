@@ -8,6 +8,8 @@ import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketin
 import { hexclaveServerApp } from "@/hexclave/server";
 import { DOCS_FEATURES, getDocsFeature, getDocsSlugs } from "@/lib/docs-features";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getDocsSlugs().map((slug) => ({ slug }));
 }
@@ -15,7 +17,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const feature = getDocsFeature(slug);
-  if (!feature) return { title: "Not found" };
+  if (!feature) notFound();
   const url = `https://campusloop.space/docs/${feature.slug}`;
   return {
     title: `${feature.title} — How It Works (Engineering Teardown)`,

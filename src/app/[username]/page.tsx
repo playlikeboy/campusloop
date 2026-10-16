@@ -60,15 +60,22 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
   const resolved = await params;
   const rawUsername = decodeURIComponent(resolved.username);
 
-  const username = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
+  // Redirect and 404 are decided here, not in the page: metadata resolves before
+  // streaming starts, so this is the last point a real status code can be sent.
+  if (!rawUsername.startsWith("@")) redirect(`/@${rawUsername}`);
+  const username = rawUsername.slice(1);
   const db = getDb();
-  const profile = await db.query.userProfiles.findFirst({
-    where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
-    ),
-    with: { institution: true },
-  });
+  const [profile, showSeeded] = await Promise.all([
+    db.query.userProfiles.findFirst({
+      where: or(
+        eq(userProfiles.username, username),
+        sql`lower(${userProfiles.username}) = lower(${username})`
+      ),
+      with: { institution: true },
+    }),
+    getShowSeededPosts(),
+  ]);
+  if (!profile || (!showSeeded && profile.isSeeded)) notFound();
 
   const title = profile ? `${profile.displayName} (@${username})` : `@${username}`;
   const description = profile?.bio
