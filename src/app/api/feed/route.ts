@@ -8,6 +8,7 @@ import { getShowSeededPosts } from "@/lib/platform-config";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
 import { EMPTY_AFFINITY, getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { IsolateCache } from "@/lib/isolate-cache";
+import { getRedis } from "@/lib/redis";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -29,15 +30,9 @@ const RANKED_BUDGET_MS = 5000;
 /** Logged-out responses are identical for everyone, so they are edge-cached briefly. */
 const ANON_EDGE_TTL_SECONDS = 30;
 
-function edgeCache(): Cache | null {
-  try {
-    return typeof caches !== "undefined" && "default" in caches
-      ? ((caches as unknown as { default: Cache }).default ?? null)
-      : null;
-  } catch {
-    return null;
-  }
-}
+// Redis rather than the Cache API: with Smart Placement, requests run in many
+// colos and the Cache API is per-colo, so it almost never hit.
+const anonMemo = new IsolateCache<string>(ANON_EDGE_TTL_SECONDS * 1000, 200);
 
 export async function GET(req: Request) {
   const started = performance.now();
@@ -63,14 +58,22 @@ export async function GET(req: Request) {
       !url.searchParams.get("seenIds") &&
       !url.searchParams.get("excludeIds") &&
       !req.headers.get("x-seen-ids");
-    const cache = isCacheableAnon ? edgeCache() : null;
-    const cacheKey = cache ? new Request(url.toString(), { method: "GET" }) : null;
-    if (cache && cacheKey) {
-      const hit = await cache.match(cacheKey).catch(() => undefined);
-      if (hit) {
-        const res = new Response(hit.body, hit);
-        res.headers.set("X-Feed-Cache", "HIT");
-        return res;
+    const anonKey = isCacheableAnon ? `feed:anon:v1:${url.search}` : null;
+    if (anonKey) {
+      let body = anonMemo.get(anonKey);
+      if (!body) {
+        body = (await getRedis()?.get<string>(anonKey).catch(() => null)) ?? undefined;
+        if (body && typeof body !== "string") body = JSON.stringify(body);
+        if (body) anonMemo.set(anonKey, body);
+      }
+      if (body) {
+        return new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, s-maxage=${ANON_EDGE_TTL_SECONDS}`,
+            "X-Feed-Cache": "HIT",
+          },
+        });
       }
     }
 
@@ -295,10 +298,14 @@ export async function GET(req: Request) {
 
     const response = NextResponse.json(feed);
     response.headers.set("Server-Timing", marks.join(", "));
-    if (cache && cacheKey) {
+    if (anonKey) {
       response.headers.set("Cache-Control", `public, s-maxage=${ANON_EDGE_TTL_SECONDS}`);
       response.headers.set("X-Feed-Cache", "MISS");
-      await cache.put(cacheKey, response.clone()).catch(() => {});
+      const body = JSON.stringify(feed);
+      anonMemo.set(anonKey, body);
+      await getRedis()
+        ?.set(anonKey, body, { ex: ANON_EDGE_TTL_SECONDS })
+        .catch(() => {});
     } else {
       response.headers.set("Cache-Control", "private, no-store");
     }
