@@ -23,6 +23,9 @@ type FeedProfile = {
 // `visibility` explicitly, so a 60s isolate cache is safe and saves a round trip.
 const profileCache = new IsolateCache<FeedProfile | null>(60_000);
 
+/** Ranked sorts that take longer than this fall back to the chronological feed. */
+const RANKED_BUDGET_MS = 5000;
+
 /** Logged-out responses are identical for everyone, so they are edge-cached briefly. */
 const ANON_EDGE_TTL_SECONDS = 30;
 
@@ -268,9 +271,20 @@ export async function GET(req: Request) {
     // Ranking is an enhancement: if a scored sort fails, serve the
     // chronological feed rather than an empty timeline.
     const tRank = performance.now();
-    const rawFeed = await resolveFeedPage({ ...pageOptions, sort }).catch((error) => {
+    // A ranked sort gets a time budget; past it, the chronological query answers instead.
+    const ranked =
+      sort === "latest"
+        ? resolveFeedPage({ ...pageOptions, sort })
+        : Promise.race([
+            resolveFeedPage({ ...pageOptions, sort }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error(`ranked feed exceeded ${RANKED_BUDGET_MS}ms`)), RANKED_BUDGET_MS)
+            ),
+          ]);
+    const rawFeed = await ranked.catch((error) => {
       if (sort === "latest") throw error;
       console.error(`Ranked feed (${sort}) failed, falling back to latest:`, error);
+      marks.push("fallback;desc=latest");
       return resolveFeedPage({ ...pageOptions, sort: "latest" });
     });
     mark("rank", tRank);
