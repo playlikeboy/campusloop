@@ -99,20 +99,43 @@ const memo = new IsolateCache<ViewerAffinity>(5 * 60 * 1000);
 // Concurrent requests for the same viewer share one computation.
 const inflight = new Map<string, Promise<ViewerAffinity>>();
 
+/** Personalisation must never hold the feed hostage: past this, rank without it. */
+const AFFINITY_BUDGET_MS = 1200;
+/** A computation older than this is presumed hung and is not shared any more. */
+const INFLIGHT_MAX_AGE_MS = 15_000;
+const inflightStarted = new Map<string, number>();
+
 export async function getViewerAffinity(viewerProfileId?: string | null): Promise<ViewerAffinity> {
   if (!viewerProfileId) return EMPTY_AFFINITY;
   const hit = memo.get(viewerProfileId);
   if (hit) return hit;
-  const pending = inflight.get(viewerProfileId);
-  if (pending) return pending;
-  const p = computeViewerAffinity(viewerProfileId)
-    .then((a) => {
-      memo.set(viewerProfileId, a);
-      return a;
-    })
-    .finally(() => inflight.delete(viewerProfileId));
-  inflight.set(viewerProfileId, p);
-  return p;
+
+  let p = inflight.get(viewerProfileId);
+  const age = Date.now() - (inflightStarted.get(viewerProfileId) ?? 0);
+  if (!p || age > INFLIGHT_MAX_AGE_MS) {
+    p = computeViewerAffinity(viewerProfileId)
+      .then((a) => {
+        memo.set(viewerProfileId, a);
+        return a;
+      })
+      .finally(() => {
+        inflight.delete(viewerProfileId);
+        inflightStarted.delete(viewerProfileId);
+      });
+    inflight.set(viewerProfileId, p);
+    inflightStarted.set(viewerProfileId, Date.now());
+  }
+
+  // On timeout the computation keeps running and fills the memo for the next request.
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<ViewerAffinity>((resolve) => {
+    timer = setTimeout(() => resolve(EMPTY_AFFINITY), AFFINITY_BUDGET_MS);
+  });
+  try {
+    return await Promise.race([p, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function computeViewerAffinity(viewerProfileId: string): Promise<ViewerAffinity> {
