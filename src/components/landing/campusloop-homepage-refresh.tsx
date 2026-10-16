@@ -28,6 +28,7 @@ export function CampusLoopHomepageRefresh() {
           <Link href="#features">What’s inside</Link>
           <Link href="#streaks">Streaks</Link>
           <Link href="/colleges">Colleges</Link>
+          <Link href="/guide">Guide</Link>
           <Link href="#faq">FAQ</Link>
         </nav>
         <div className={styles.headerActions}>
