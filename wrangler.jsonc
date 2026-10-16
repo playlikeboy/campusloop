@@ -61,7 +61,9 @@
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
 	 */
-	// "placement": {  "mode": "smart" }
+	// Run next to Neon (us-east-2) instead of the visitor's edge: the feed makes several
+	// sequential DB round trips, and each one from an Indian edge costs ~250ms.
+	"placement": { "mode": "smart" },
 	/**
 	 * Bindings
 	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including

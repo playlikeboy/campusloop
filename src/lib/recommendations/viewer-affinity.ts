@@ -2,6 +2,7 @@ import { and, desc, eq, gt, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { blocks, comments, posts, userBehaviorEvents, userProfiles, votes } from "@/db/schema";
 import { getLocation, getNearbyInstitutionIds, isValidPoint } from "@/lib/geo/location";
+import { IsolateCache } from "@/lib/isolate-cache";
 import { getRedis } from "@/lib/redis";
 import { bayesianRate } from "@/lib/recommendations/scoring-primitives";
 
@@ -93,8 +94,28 @@ export function normalizeTypeCounts(counts: Record<string, number>): Record<stri
   return out;
 }
 
+// First layer above Redis: skips the network entirely for repeat requests in the same isolate.
+const memo = new IsolateCache<ViewerAffinity>(5 * 60 * 1000);
+// Concurrent requests for the same viewer share one computation.
+const inflight = new Map<string, Promise<ViewerAffinity>>();
+
 export async function getViewerAffinity(viewerProfileId?: string | null): Promise<ViewerAffinity> {
   if (!viewerProfileId) return EMPTY_AFFINITY;
+  const hit = memo.get(viewerProfileId);
+  if (hit) return hit;
+  const pending = inflight.get(viewerProfileId);
+  if (pending) return pending;
+  const p = computeViewerAffinity(viewerProfileId)
+    .then((a) => {
+      memo.set(viewerProfileId, a);
+      return a;
+    })
+    .finally(() => inflight.delete(viewerProfileId));
+  inflight.set(viewerProfileId, p);
+  return p;
+}
+
+async function computeViewerAffinity(viewerProfileId: string): Promise<ViewerAffinity> {
   const cacheKey = `feed:affinity:v3:${viewerProfileId}`;
 
   try {
@@ -262,6 +283,7 @@ export async function getViewerAffinity(viewerProfileId?: string | null): Promis
 
 /** Drop the cached profile, e.g. right after the viewer blocks someone. */
 export async function invalidateViewerAffinity(viewerProfileId: string): Promise<void> {
+  memo.delete(viewerProfileId);
   try {
     await getRedis()?.del(`feed:affinity:v3:${viewerProfileId}`);
   } catch {
