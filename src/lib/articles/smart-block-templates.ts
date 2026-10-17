@@ -71,6 +71,11 @@ export const SMART_BLOCK_TEMPLATES: Record<SmartBlockType, { title: string; desc
       2
     ),
   },
+  embed: {
+    title: "Embed",
+    description: "YouTube, X, Reddit, CodePen, Figma, Docs, Maps and 25+ more.",
+    body: "caption: Harvard CS50 Week 0, starting at the binary demo\nstart: 12:30\nhttps://www.youtube.com/watch?v=3LPJfIKxwWc",
+  },
   faq: {
     title: "FAQ",
     description: "Expandable questions and answers.",

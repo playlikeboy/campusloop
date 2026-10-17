@@ -14,6 +14,7 @@ import {
   TimelineView,
 } from "./content-blocks";
 import { ChartBlockView, TableBlockView } from "./data-blocks";
+import { EmbedBlockView } from "./embed-block";
 
 /**
  * Renders one smart block. Invalid blocks never break the article: they show
@@ -57,6 +58,8 @@ export function SmartBlock({ type, body }: { type: string; body: string }) {
       return <QuizView block={b} raw={body} />;
     case "faq":
       return <FaqView block={b} raw={body} />;
+    case "embed":
+      return <EmbedBlockView block={b} />;
   }
 }
 

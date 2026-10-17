@@ -17,6 +17,7 @@ import {
   Image as ImageIcon,
   Italic,
   BarChart3,
+  Clapperboard,
   Calculator,
   CalendarClock,
   Gauge,
@@ -81,6 +82,7 @@ const SMART_ICONS: Record<SmartBlockType, React.ComponentType<{ className?: stri
   calculator: Calculator,
   quiz: HelpCircle,
   faq: MessagesSquare,
+  embed: Clapperboard,
 };
 
 // Preserve images properly in Turndown
@@ -846,7 +848,7 @@ export function NovelMarkdownEditor({
               <Sparkles className="size-3" />
               <span>Live Student Article Preview</span>
             </div>
-            <MarkdownContent content={rawMarkdown} />
+            <MarkdownContent content={rawMarkdown} autoEmbed />
           </div>
         )}
 

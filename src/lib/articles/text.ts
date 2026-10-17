@@ -19,7 +19,7 @@ export function articlePlainText(content: string): string {
 export function calculateReadingTime(content: string): number {
   const words = articlePlainText(content).split(/\s+/).filter(Boolean).length;
   // Each interactive block takes roughly half a minute to read or use.
-  const blocks = (content.match(/^```(chart|table|comparison|timeline|steps|stats|calculator|quiz|faq)\s*$/gm) ?? []).length;
+  const blocks = (content.match(/^```(chart|table|comparison|timeline|steps|stats|calculator|quiz|faq|embed)\s*$/gm) ?? []).length;
   return Math.max(1, Math.ceil(words / 200 + blocks * 0.5));
 }
 

@@ -542,7 +542,7 @@ export function ArticleEditorClient({
           )}
 
           <div className="prose dark:prose-invert max-w-none text-foreground text-[18px] leading-[1.8] pt-4 font-normal">
-            <MarkdownContent content={content || "*Start writing to preview article body...*"} />
+            <MarkdownContent content={content || "*Start writing to preview article body...*"} autoEmbed />
           </div>
 
           {tags.length > 0 && (
