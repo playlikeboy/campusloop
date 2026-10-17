@@ -5,6 +5,8 @@ import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
 import { rejectViewerWrite } from "@/lib/viewer";
+import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
+import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
 
 export const dynamic = "force-dynamic";
 
@@ -17,20 +19,6 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function calculateReadingTime(content: string): number {
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
-
-function createExcerpt(content: string): string {
-  const plainText = content
-    .replace(/<[^>]*>/g, "")
-    .replace(/#+\s+/g, "")
-    .replace(/[*_~`]/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .trim();
-  return plainText.slice(0, 160) + (plainText.length > 160 ? "..." : "");
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -262,8 +250,10 @@ export async function POST(req: NextRequest) {
       finalSlug = `${baseSlug}-${collisionCount}`;
     }
 
-    const readingTime = calculateReadingTime(content);
-    const excerpt = createExcerpt(content);
+    // Plain Markdown tables and Note/Tip quotes become smart blocks.
+    const finalContent = smartifyMarkdown(String(content)).markdown;
+    const readingTime = calculateReadingTime(finalContent);
+    const excerpt = createExcerpt(finalContent);
     const articleId = `art_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     const newArticle = {
@@ -271,7 +261,7 @@ export async function POST(req: NextRequest) {
       slug: finalSlug,
       title: title.trim(),
       subtitle: subtitle?.trim() || null,
-      content,
+      content: finalContent,
       excerpt,
       coverImageUrl: coverImageUrl?.trim() || null,
       authorId: profile.id,

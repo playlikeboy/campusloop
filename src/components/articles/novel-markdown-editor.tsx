@@ -16,6 +16,15 @@ import {
   Heading3,
   Image as ImageIcon,
   Italic,
+  BarChart3,
+  Calculator,
+  CalendarClock,
+  Gauge,
+  HelpCircle,
+  Lightbulb,
+  ListChecks,
+  MessagesSquare,
+  Table2,
   List,
   ListOrdered,
   Loader2,
@@ -32,6 +41,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import TurndownService from "turndown";
 import { MarkdownContent } from "@/components/common/markdown-content";
+import { looksLikeMarkdown, markdownToEditorHtml } from "@/lib/articles/markdown-to-editor-html";
+import { SMART_BLOCK_TEMPLATES } from "@/lib/articles/smart-block-templates";
+import { type SmartBlockType, smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { haptics } from "@/lib/haptics";
 import { uploadImageToImgBB } from "@/lib/upload";
 import { cn } from "@/lib/utils";
@@ -41,6 +53,35 @@ const turndown = new TurndownService({
   codeBlockStyle: "fenced",
   bulletListMarker: "-",
 });
+
+// HTML tables (e.g. copied from ChatGPT) become ```table smart blocks: the editor
+// has no table node, and a fenced block survives every round trip.
+turndown.addRule("tableToSmartBlock", {
+  filter: "table",
+  replacement: (_content, node) => {
+    const rows = Array.from((node as HTMLTableElement).querySelectorAll("tr")).map((tr) =>
+      Array.from(tr.querySelectorAll("th,td")).map((c) => (c.textContent || "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim())
+    );
+    if (rows.length === 0) return "";
+    const width = Math.max(...rows.map((r) => r.length));
+    const line = (r: string[]) => `| ${Array.from({ length: width }, (_, i) => r[i] ?? "").join(" | ")} |`;
+    const body = [line(rows[0]), `| ${Array(width).fill("---").join(" | ")} |`, ...rows.slice(1).map(line)];
+    return `\n\n\`\`\`table\n${body.join("\n")}\n\`\`\`\n\n`;
+  },
+});
+
+const SMART_ICONS: Record<SmartBlockType, React.ComponentType<{ className?: string }>> = {
+  chart: BarChart3,
+  table: Table2,
+  comparison: Columns2,
+  timeline: CalendarClock,
+  steps: ListChecks,
+  callout: Lightbulb,
+  stats: Gauge,
+  calculator: Calculator,
+  quiz: HelpCircle,
+  faq: MessagesSquare,
+};
 
 // Preserve images properly in Turndown
 turndown.addRule("imageRule", {
@@ -65,7 +106,7 @@ interface SlashCommandItem {
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
-  category: "Basic" | "Media & Code";
+  category: "Basic" | "Media & Code" | "Smart blocks";
   action: (editor: any) => void;
 }
 
@@ -88,6 +129,8 @@ export function NovelMarkdownEditor({
   const [copied, setCopied] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Set after useEditor so paste handling can insert converted content.
+  const editorRef = useRef<ReturnType<typeof useEditor>>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
   // Initialize TipTap
@@ -113,7 +156,7 @@ export function NovelMarkdownEditor({
         allowBase64: true,
       }),
     ],
-    content: initialContent ? convertMarkdownToHtml(initialContent) : "",
+    content: initialContent ? markdownToEditorHtml(initialContent) : "",
     editorProps: {
       attributes: {
         class:
@@ -129,6 +172,28 @@ export function NovelMarkdownEditor({
             handleDirectUpload(file);
             return true;
           }
+        }
+
+        // Rich answers pasted from ChatGPT (or any Markdown): selecting and copying
+        // gives HTML; the Copy button gives raw Markdown. Both are converted, and
+        // tables and Note/Tip quotes become smart blocks.
+        const html = event.clipboardData?.getData("text/html") || "";
+        const text = event.clipboardData?.getData("text/plain") || "";
+        let pastedMarkdown: string | null = null;
+        if (html && /<(table|h[1-6]|pre|ol|ul|blockquote)\b/i.test(html)) pastedMarkdown = turndown.turndown(html);
+        else if (looksLikeMarkdown(text)) pastedMarkdown = text;
+        const ed = editorRef.current;
+        if (pastedMarkdown && ed) {
+          event.preventDefault();
+          const { markdown } = smartifyMarkdown(pastedMarkdown);
+          ed.chain().focus().insertContent(markdownToEditorHtml(markdown)).run();
+          const smartCount = (markdown.match(/^```(chart|table|comparison|timeline|steps|callout|stats|calculator|quiz|faq)\s*$/gm) ?? []).length;
+          toast.success(
+            smartCount > 0
+              ? `Pasted with formatting. ${smartCount} smart block${smartCount === 1 ? "" : "s"} created.`
+              : "Pasted with formatting."
+          );
+          return true;
         }
         return false;
       },
@@ -167,6 +232,7 @@ export function NovelMarkdownEditor({
       }
     },
   });
+  editorRef.current = editor;
 
   // Handle direct image uploads from drag/drop/paste
   async function handleDirectUpload(file: File) {
@@ -333,6 +399,21 @@ export function NovelMarkdownEditor({
         category: "Media & Code",
         action: () => fileInputRef.current?.click(),
       },
+      ...(Object.entries(SMART_BLOCK_TEMPLATES) as [SmartBlockType, (typeof SMART_BLOCK_TEMPLATES)[SmartBlockType]][]).map(
+        ([type, tpl]): SlashCommandItem => ({
+          id: `smart-${type}`,
+          title: tpl.title,
+          description: tpl.description,
+          icon: SMART_ICONS[type],
+          category: "Smart blocks",
+          action: (ed) =>
+            ed
+              .chain()
+              .focus()
+              .insertContent({ type: "codeBlock", attrs: { language: type }, content: [{ type: "text", text: tpl.body }] })
+              .run(),
+        })
+      ),
     ],
     []
   );
@@ -367,7 +448,7 @@ export function NovelMarkdownEditor({
     setRawMarkdown(val);
     onChange(val);
     if (editor) {
-      editor.commands.setContent(convertMarkdownToHtml(val), { emitUpdate: false });
+      editor.commands.setContent(markdownToEditorHtml(val), { emitUpdate: false });
     }
   }
 
@@ -796,70 +877,9 @@ export function NovelMarkdownEditor({
           <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-muted-foreground border border-border/40">
             /
           </kbd>
-          <span>for slash commands</span>
+          <span>for slash commands and smart blocks. Paste from ChatGPT keeps tables and formatting.</span>
         </div>
       </div>
     </div>
   );
-}
-
-/**
- * Basic markdown to HTML converter for initializing TipTap
- */
-function convertMarkdownToHtml(markdown: string): string {
-  if (!markdown) return "";
-
-  return markdown
-    .split("\n\n")
-    .map((paragraph) => {
-      const trimmed = paragraph.trim();
-      if (!trimmed) return "";
-
-      // Headings
-      if (trimmed.startsWith("### ")) {
-        return `<h3>${trimmed.slice(4)}</h3>`;
-      }
-      if (trimmed.startsWith("## ")) {
-        return `<h2>${trimmed.slice(3)}</h2>`;
-      }
-      if (trimmed.startsWith("# ")) {
-        return `<h1>${trimmed.slice(2)}</h1>`;
-      }
-
-      // Blockquotes
-      if (trimmed.startsWith("> ")) {
-        return `<blockquote><p>${trimmed.slice(2)}</p></blockquote>`;
-      }
-
-      // Images
-      const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
-      if (imgMatch) {
-        return `<img src="${imgMatch[2]}" alt="${imgMatch[1]}" />`;
-      }
-
-      // Horizontal rules
-      if (trimmed === "---" || trimmed === "***") {
-        return "<hr />";
-      }
-
-      // Code blocks
-      if (trimmed.startsWith("```") && trimmed.endsWith("```")) {
-        const codeLines = trimmed.slice(3, -3).split("\n");
-        const code = codeLines.slice(1).join("\n") || codeLines[0];
-        return `<pre><code>${code}</code></pre>`;
-      }
-
-      // Bullet lists
-      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-        const items = trimmed
-          .split("\n")
-          .map((line) => `<li>${line.replace(/^[-*]\s+/, "")}</li>`)
-          .join("");
-        return `<ul>${items}</ul>`;
-      }
-
-      // Standard paragraphs
-      return `<p>${trimmed.replace(/\n/g, "<br />")}</p>`;
-    })
-    .join("");
 }
