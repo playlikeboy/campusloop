@@ -95,6 +95,7 @@ export function ArticleReaderClient({
   const isOwner = currentProfile?.id === article.authorId || currentProfile?.role === "ADMIN";
   const catMeta = getCategoryMeta(article.category);
   const authorName = article.author?.displayName || "Student Writer";
+  const authorUsername = article.author?.username || "student";
   const isViewerHub =
     article.institution?.slug === "viewer-hub" ||
     article.author?.institution?.slug === "viewer-hub" ||
