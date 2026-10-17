@@ -282,14 +282,14 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
       ]);
 
       return (
-        <div className="relative min-h-screen bg-background">
+        <div className="relative min-h-screen bg-background lg:flex">
           <Navigation
             profile={currentProfile}
             collegeName={college?.name ?? "Your College"}
             isAdmin={currentProfile.role === "ADMIN"}
           />
 
-          <div className="min-h-screen max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="min-h-screen min-w-0 flex-1 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
             <main className="w-full min-w-0 pb-24 md:pb-8">
               <Suspense
                 fallback={
