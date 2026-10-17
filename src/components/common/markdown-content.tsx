@@ -1,14 +1,26 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type React from "react";
+import { isSmartBlockType } from "@/lib/articles/smart-blocks";
 import { cn } from "@/lib/utils";
 import { CodeBlock } from "./code-block";
+
+// Smart blocks (charts, calculators...) load as their own chunk so plain posts
+// and event descriptions never pay for chart code.
+const SmartBlock = dynamic(() => import("@/components/articles/smart-blocks/smart-block"), {
+  loading: () => <div className="my-6 h-40 animate-pulse rounded-2xl bg-muted/50" aria-hidden />,
+});
 
 /**
  * CampusLoop Markdown Renderer
  *
  * Renders a markdown string to React elements — never to raw HTML — so a post,
  * article or event description can never inject markup into the page.
+ *
+ * Smart blocks: fences tagged chart/table/comparison/timeline/steps/callout/
+ * stats/calculator/quiz/faq render as interactive components (see
+ * src/lib/articles/smart-blocks.ts).
  *
  * Supported blocks: `#`/`##`/`###` headings, `>` quotes, fenced code, bullet and
  * numbered lists, `---` rules, standalone images, and GFM-style tables.
@@ -346,6 +358,10 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
         index++;
       }
       index++; // consume the closing fence
+      if (isSmartBlockType(language)) {
+        blocks.push(<SmartBlock key={key++} type={language.toLowerCase()} body={body.join("\n")} />);
+        continue;
+      }
       blocks.push(
         <CodeBlock
           key={key++}

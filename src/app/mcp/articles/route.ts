@@ -15,6 +15,9 @@ import {
   userProfiles,
 } from "@/db/schema";
 import { ARTICLE_CATEGORIES, ARTICLE_CATEGORY_LIST, getCategoryMeta } from "@/constants/articles";
+import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
+import { SMART_BLOCKS_SPEC, smartifyMarkdown, validateSmartBlocks } from "@/lib/articles/smart-blocks";
+import { SMART_BLOCK_TEMPLATES } from "@/lib/articles/smart-block-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -36,20 +39,6 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function calculateReadingTime(content: string): number {
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
-
-function createExcerpt(content: string): string {
-  const plainText = content
-    .replace(/<[^>]*>/g, "")
-    .replace(/#+\s+/g, "")
-    .replace(/[*_~`]/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .trim();
-  return plainText.slice(0, 160) + (plainText.length > 160 ? "..." : "");
-}
 
 /**
  * Authenticates whether the request includes the valid MCP API key.
@@ -252,13 +241,26 @@ const MCP_ARTICLE_TOOLS = [
   },
   {
     name: "create_article",
-    description: "Create and publish a student article or technical tutorial with markdown content, cover image, category, and links.",
+    description:
+      "Create and publish a student article or technical tutorial with markdown content, cover image, category, and links. " +
+      "Supports smart blocks (Intelligent UI): fenced code blocks tagged chart, table, comparison, timeline, steps, callout, stats, calculator, quiz or faq render as interactive components. " +
+      "Pasted ChatGPT Markdown is upgraded automatically (tables -> sortable/chartable tables, Note/Tip quotes -> callouts). Call get_smart_blocks_spec for the exact formats. " +
+      "The response includes smartBlockWarnings for any block that could not be parsed.",
     inputSchema: {
       type: "object",
       required: ["title", "content"],
       properties: {
         title: { type: "string", description: "Article title" },
-        content: { type: "string", description: "Full article body (Markdown or HTML)" },
+        content: {
+          type: "string",
+          description:
+            "Full article body in Markdown. May include smart blocks, e.g. ```chart\ntype: bar\ntitle: ...\nsource: ...\nlabel, value\nA, 10\n``` (see get_smart_blocks_spec).",
+        },
+        smartify: {
+          type: "boolean",
+          default: true,
+          description: "Upgrade plain Markdown (e.g. copied from ChatGPT) into smart blocks: tables and Note/Tip/Warning quotes.",
+        },
         slug: { type: "string", description: "Custom URL slug (auto-generated if omitted)" },
         subtitle: { type: "string", description: "Secondary headline or subtitle" },
         excerpt: { type: "string", description: "Short summary (auto-generated if omitted)" },
@@ -288,7 +290,7 @@ const MCP_ARTICLE_TOOLS = [
   },
   {
     name: "update_article",
-    description: "Update fields on an existing article by id or slug.",
+    description: "Update fields on an existing article by id or slug. Content supports smart blocks (see get_smart_blocks_spec); response includes smartBlockWarnings.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -297,7 +299,8 @@ const MCP_ARTICLE_TOOLS = [
         title: { type: "string" },
         subtitle: { type: "string" },
         excerpt: { type: "string" },
-        content: { type: "string" },
+        content: { type: "string", description: "Markdown body; smart blocks supported" },
+        smartify: { type: "boolean", default: true, description: "Upgrade pasted Markdown tables/quotes into smart blocks" },
         category: { type: "string" },
         tags: { type: "array", items: { type: "string" } },
         coverImageUrl: { type: "string" },
@@ -799,7 +802,27 @@ const MCP_ARTICLE_TOOLS = [
     },
   },
 
-  // 7. Platform Statistics & Metadata
+  // 7. Intelligent UI: smart blocks
+  {
+    name: "get_smart_blocks_spec",
+    description:
+      "Get the smart blocks format (CampusLoop's Intelligent UI for articles): charts, sortable tables, comparisons, timelines, checklists, callouts, key stats, calculators, quizzes and FAQs, with a ready-to-use example for each.",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "validate_article_content",
+    description: "Check Markdown before publishing: returns the smartified content and any smart block parse errors with line numbers.",
+    inputSchema: {
+      type: "object",
+      required: ["content"],
+      properties: {
+        content: { type: "string" },
+        smartify: { type: "boolean", default: true },
+      },
+    },
+  },
+
+  // 8. Platform Statistics & Metadata
   {
     name: "get_articles_metadata",
     description: "Get platform article statistics, category distribution, total reads, and draft counts.",
@@ -1426,6 +1449,30 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         }, { headers: CORS_HEADERS });
       }
 
+      if (toolName === "get_smart_blocks_spec") {
+        const examples = Object.fromEntries(
+          Object.entries(SMART_BLOCK_TEMPLATES).map(([type, t]) => [type, `\`\`\`${type}\n${t.body}\n\`\`\``])
+        );
+        return NextResponse.json({
+          jsonrpc: "2.0",
+          id,
+          result: { content: [{ type: "text", text: JSON.stringify({ spec: SMART_BLOCKS_SPEC, examples }, null, 2) }] },
+        }, { headers: CORS_HEADERS });
+      }
+
+      if (toolName === "validate_article_content") {
+        const raw = String(args.content || "");
+        const content = args.smartify === false ? raw : smartifyMarkdown(raw).markdown;
+        const problems = validateSmartBlocks(content);
+        return NextResponse.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify({ valid: problems.length === 0, problems, content }, null, 2) }],
+          },
+        }, { headers: CORS_HEADERS });
+      }
+
       if (toolName === "get_articles_metadata") {
         const all = await db.query.articles.findMany({
           columns: { id: true, category: true, status: true, viewsCount: true, upvotesCount: true, isDemo: true },
@@ -1478,8 +1525,10 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
 
       if (toolName === "create_article") {
         const title = String(args.title || "").trim();
-        const content = String(args.content || "").trim();
-        if (!title || !content) throw new Error("title and content are required");
+        const rawContent = String(args.content || "").trim();
+        if (!title || !rawContent) throw new Error("title and content are required");
+        const content = args.smartify === false ? rawContent : smartifyMarkdown(rawContent).markdown;
+        const smartBlockWarnings = validateSmartBlocks(content);
 
         const resolved = await resolveAuthorAndInstitution(db, args.authorId, args.institutionId);
         if (!resolved.authorId) throw new Error("No valid author profile is configured");
@@ -1541,7 +1590,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         return NextResponse.json({
           jsonrpc: "2.0",
           id,
-          result: { content: [{ type: "text", text: JSON.stringify({ success: true, article: formatArticle(full || created) }, null, 2) }] },
+          result: { content: [{ type: "text", text: JSON.stringify({ success: true, article: formatArticle(full || created), smartBlockWarnings }, null, 2) }] },
         }, { headers: CORS_HEADERS });
       }
 
@@ -1556,9 +1605,12 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         if (typeof args.title === "string") updates.title = args.title.trim();
         if (typeof args.subtitle === "string") updates.subtitle = args.subtitle.trim() || null;
         if (typeof args.excerpt === "string") updates.excerpt = args.excerpt.trim();
+        let smartBlockWarnings: ReturnType<typeof validateSmartBlocks> = [];
         if (typeof args.content === "string") {
-          updates.content = args.content.trim();
-          updates.readingTimeMinutes = calculateReadingTime(args.content);
+          const raw = args.content.trim();
+          updates.content = args.smartify === false ? raw : smartifyMarkdown(raw).markdown;
+          smartBlockWarnings = validateSmartBlocks(updates.content as string);
+          updates.readingTimeMinutes = calculateReadingTime(updates.content as string);
         }
         if (typeof args.category === "string") updates.category = args.category.toUpperCase().replace(/-/g, "_");
         if (Array.isArray(args.tags)) updates.tags = args.tags.map((t: string) => String(t).trim().toLowerCase()).filter(Boolean);
@@ -1579,7 +1631,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         return NextResponse.json({
           jsonrpc: "2.0",
           id,
-          result: { content: [{ type: "text", text: JSON.stringify({ success: true, article: formatArticle(full || updated) }, null, 2) }] },
+          result: { content: [{ type: "text", text: JSON.stringify({ success: true, article: formatArticle(full || updated), smartBlockWarnings }, null, 2) }] },
         }, { headers: CORS_HEADERS });
       }
 
