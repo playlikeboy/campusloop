@@ -59,23 +59,24 @@ interface VanityProfileProps {
 export async function generateMetadata({ params }: VanityProfileProps): Promise<Metadata> {
   const resolved = await params;
   const rawUsername = decodeURIComponent(resolved.username);
+  const candidateUsername = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
 
-  // Redirect and 404 are decided here, not in the page: metadata resolves before
-  // streaming starts, so this is the last point a real status code can be sent.
-  if (!rawUsername.startsWith("@")) redirect(`/@${rawUsername}`);
-  const username = rawUsername.slice(1);
   const db = getDb();
   const [profile, showSeeded] = await Promise.all([
     db.query.userProfiles.findFirst({
       where: or(
-        eq(userProfiles.username, username),
-        sql`lower(${userProfiles.username}) = lower(${username})`
+        eq(userProfiles.username, candidateUsername),
+        sql`lower(${userProfiles.username}) = lower(${candidateUsername})`
       ),
       with: { institution: true },
     }),
     getShowSeededPosts(),
   ]);
   if (!profile || (!showSeeded && profile.isSeeded)) notFound();
+
+  // Redirect to canonical /@username only if this is a verified student/user profile
+  if (!rawUsername.startsWith("@")) redirect(`/@${candidateUsername}`);
+  const username = candidateUsername;
 
   const title = profile ? `${profile.displayName} (@${username})` : `@${username}`;
   const description = profile?.bio
@@ -119,13 +120,8 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
 export default async function VanityProfilePage({ params, searchParams }: VanityProfileProps) {
   const resolved = await params;
   const rawUsername = decodeURIComponent(resolved.username);
+  const candidateUsername = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
 
-  // If URL parameter does not start with @, redirect cleanly to @username
-  if (!rawUsername.startsWith("@")) {
-    redirect(`/@${rawUsername}`);
-  }
-
-  const username = rawUsername.slice(1);
   const search = searchParams ? await searchParams : undefined;
   const isViewerMode =
     search?.mode === "viewer" ||
@@ -139,8 +135,8 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   // Look up profile by username (case-insensitive fallback)
   const profile = await db.query.userProfiles.findFirst({
     where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
+      eq(userProfiles.username, candidateUsername),
+      sql`lower(${userProfiles.username}) = lower(${candidateUsername})`
     ),
     with: {
       institution: true,
@@ -152,6 +148,13 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   if (!profile || (!showSeeded && profile.isSeeded)) {
     notFound();
   }
+
+  // If URL parameter did not start with @, redirect cleanly to @username now that user exists
+  if (!rawUsername.startsWith("@")) {
+    redirect(`/@${candidateUsername}`);
+  }
+
+  const username = candidateUsername;
 
   // Route an authenticated owner to the canonical interactive profile before loading public activity.
   // This prevents the vanity URL from rendering the public profile shell for its signed-in owner.
