@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-labelledby="title desc">
+<title id="title">How REA works</title><desc id="desc">An AI agent asks REA through MCP to use Hopper, Ghidra, IDA, a JavaScript analyser and a browser. The tools return evidence, which REA reports to the agent as findings.</desc>
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1 1 L10 6 L1 11" fill="none" stroke="#171717" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></marker><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8 L8 0" stroke="#777" stroke-width=".8" opacity=".35"/></pattern></defs>
+<rect width="1536" height="1024" rx="40" fill="#fff"/>
+<g font-family="Georgia,serif" fill="#111" stroke="#171717" stroke-linecap="round" stroke-linejoin="round">
+<text x="768" y="82" text-anchor="middle" font-size="62" font-weight="bold">HOW REA WORKS</text><path d="M405 98 H1131" stroke-width="3"/>
+<!-- mascot -->
+<g transform="translate(420 123)" stroke-width="5" fill="#f28b70"><path d="M20 18 H43 V0 H98 V18 H118 V91 H100 V119 H79 V102 H56 V119 H36 V91 H20 Z"/><rect x="47" y="35" width="12" height="18" fill="#111"/><rect x="82" y="35" width="12" height="18" fill="#111"/><path d="M118 60 L150 48 L143 79 L119 88" fill="#fff"/><path d="M15 127 l-20 8 M26 132 l-22 10 M108 132 l24 8" fill="none" stroke="#888" stroke-width="2"/></g>
+<!-- agent -->
+<rect x="620" y="130" width="300" height="118" rx="25" fill="#fff" stroke-width="4"/><rect x="620" y="130" width="300" height="118" rx="25" fill="url(#hatch)" stroke="none"/><text x="770" y="204" text-anchor="middle" font-size="54" font-weight="bold" stroke="none">Agent</text>
+<path d="M770 249 V345" fill="none" stroke-width="4" marker-end="url(#arrow)"/><text x="798" y="302" font-size="25" stroke="none" font-weight="bold">ASKS</text>
+<!-- REA -->
+<rect x="520" y="350" width="500" height="120" rx="24" fill="#fff" stroke-width="4"/><rect x="520" y="350" width="500" height="120" rx="24" fill="url(#hatch)" stroke="none"/><text x="735" y="432" text-anchor="middle" font-size="66" font-weight="bold" stroke="none">REA</text><rect x="825" y="383" width="135" height="58" rx="12" fill="#fff" stroke-width="3"/><text x="892" y="421" text-anchor="middle" font-size="30" font-weight="bold" stroke="none">MCP</text>
+<!-- tools -->
+<g fill="#fff" stroke-width="3.5">
+<rect x="85" y="565" width="250" height="170" rx="22"/><rect x="380" y="565" width="250" height="170" rx="22"/><rect x="675" y="565" width="250" height="170" rx="22"/><rect x="970" y="565" width="250" height="170" rx="22"/><rect x="1265" y="565" width="190" height="170" rx="22"/>
+</g>
+<g fill="url(#hatch)" stroke="none"><rect x="85" y="565" width="250" height="170" rx="22"/><rect x="380" y="565" width="250" height="170" rx="22"/><rect x="675" y="565" width="250" height="170" rx="22"/><rect x="970" y="565" width="250" height="170" rx="22"/><rect x="1265" y="565" width="190" height="170" rx="22"/></g>
+<!-- branching arrows -->
+<g fill="none" stroke-width="4" marker-end="url(#arrow)"><path d="M600 471 C530 520 210 495 210 558"/><path d="M650 471 C625 520 505 515 505 558"/><path d="M770 471 V558"/><path d="M890 471 C915 520 1095 515 1095 558"/><path d="M940 471 C1040 520 1360 495 1360 558"/></g>
+<!-- icons -->
+<g fill="none" stroke-width="5"><circle cx="210" cy="625" r="28"/><path d="M190 646 L165 672" stroke-width="10"/><rect x="465" y="600" width="80" height="58" rx="8"/><path d="M480 590 V600 M505 590 V600 M530 590 V600 M480 658 V670 M505 658 V670 M530 658 V670 M452 615 H465 M452 635 H465 M545 615 H558 M545 635 H558"/><path d="M740 662 L770 606 L812 662 M740 662 H812"/><circle cx="740" cy="662" r="9" fill="#f4a261"/><circle cx="770" cy="606" r="9" fill="#f4a261"/><circle cx="812" cy="662" r="9" fill="#f4a261"/><path d="M1035 600 H1080 L1100 620 V670 H1035 Z M1080 600 V620 H1100 M1048 635 H1085 M1048 650 H1085 M1048 665 H1070"/><circle cx="1360" cy="630" r="36"/><path d="M1324 630 H1396 M1360 594 C1338 615 1338 645 1360 666 M1360 594 C1382 615 1382 645 1360 666 M1360 594 V666"/></g>
+<g text-anchor="middle" font-size="30" font-weight="bold" stroke="none"><text x="210" y="714">Hopper</text><text x="505" y="714">Ghidra</text><text x="800" y="714">IDA</text><text x="1095" y="714" font-size="26">JS analyser</text><text x="1360" y="714">Browser</text></g>
+<!-- evidence -->
+<g fill="none" stroke-width="4" marker-end="url(#arrow)"><path d="M210 736 C210 785 430 785 550 830"/><path d="M505 736 C505 785 610 790 650 830"/><path d="M800 736 V830"/><path d="M1095 736 C1095 785 990 790 950 830"/><path d="M1360 736 C1360 785 1120 785 1050 830"/></g>
+<rect x="500" y="830" width="560" height="135" rx="25" fill="#e8f3d9" stroke-width="4"/><rect x="500" y="830" width="560" height="135" rx="25" fill="url(#hatch)" stroke="none"/>
+<g transform="translate(550 850)" stroke-width="3" fill="#fff"><path d="M20 20 H94 L110 38 V86 H20 Z"/><path d="M36 6 H108 L122 23 V72" fill="none"/><path d="M36 35 H82 M36 48 H88 M36 61 H75" fill="none"/><path d="M8 45 H92 L105 63 L85 96 H20 Z" fill="#f4c66a"/></g><text x="850" y="912" text-anchor="middle" font-size="52" font-weight="bold" stroke="none">Evidence</text>
+<!-- return findings -->
+<path d="M1062 895 H1320 Q1380 895 1380 835 V190 Q1380 174 1360 174 H930" fill="none" stroke-width="4" marker-end="url(#arrow)"/><text x="1395" y="455" font-size="25" font-weight="bold" stroke="none" transform="rotate(-90 1395 455)">FINDINGS</text>
+</g></svg>
