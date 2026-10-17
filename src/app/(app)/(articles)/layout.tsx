@@ -56,13 +56,12 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
       {/* ─── Editorial Navigation Bar ─── */}
       <EditorialHeader profile={profile} />
 
-      {/* ─── Viewer Mode Banner ─── */}
+      {/* ─── Community / Viewer Mode Banner ─── */}
       {viewerMode && (
         <div className="sticky top-14 z-40 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-xs font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
           <Eye className="size-3.5 text-amber-500 shrink-0" />
           <span>
-            You&apos;re browsing in <strong>Viewer Mode</strong> — connect your campus email to publish
-            articles and earn LP.
+            Browsing as <strong>Community Member</strong> — you can read, upvote, and publish articles. Connect your college email anytime to unlock verified student badges and campus feed access.
           </span>
         </div>
       )}

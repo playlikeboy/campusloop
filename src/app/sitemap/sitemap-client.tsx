@@ -36,7 +36,7 @@ const PRIMARY_BRANCHES: SitemapNode[] = [
     children: [
       { label: "Lecture Notes", href: "/academics" },
       { label: "5-Year PYQs", href: "/academics" },
-      { label: "Upload Material", href: "/academics/upload" },
+      { label: "Upload Material", href: "/academics/study-material/upload" },
     ],
   },
   {

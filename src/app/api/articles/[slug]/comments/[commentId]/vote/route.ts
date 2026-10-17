@@ -5,7 +5,6 @@ import { articleComments, articleCommentVotes, articles, userProfiles } from "@/
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -31,9 +30,6 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
-
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const article = await db.query.articles.findFirst({
       where: or(

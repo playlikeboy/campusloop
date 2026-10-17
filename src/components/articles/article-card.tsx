@@ -55,10 +55,13 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
 
   const catMeta = getCategoryMeta(article.category);
   const authorName = article.author?.displayName || "Student Writer";
-  const authorUsername = article.author?.username || "student";
-  const isVerified = (article.author?.points || 0) >= 150;
-  const collegeShort =
-    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
+  const rawCollege =
+    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "";
+  const isViewerHub =
+    article.institution?.name?.toLowerCase().includes("viewer hub") ||
+    article.author?.institution?.name?.toLowerCase().includes("viewer hub");
+  const collegeShort = isViewerHub ? "Community" : rawCollege || "Campus";
+  const isVerified = (article.author?.points || 0) >= 150 && !isViewerHub;
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {

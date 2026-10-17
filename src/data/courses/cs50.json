@@ -1,0 +1,843 @@
+{
+  "fetchedAt": "2026-10-17T14:36:27.870Z",
+  "license": "CC BY-NC-SA 4.0",
+  "courses": [
+    {
+      "key": "cs50x",
+      "site": "https://cs50.harvard.edu/x/2025/",
+      "playlist": "PLhQjrBD2T383q7Vn8QnTsVgSvyLpsqL_R",
+      "category": "Computer Science",
+      "level": "BEGINNER",
+      "tags": [
+        "c",
+        "python",
+        "sql",
+        "algorithms",
+        "web"
+      ],
+      "title": "CS50x 2025",
+      "description": "This is CS50, Harvard University’s introduction to the intellectual enterprises of computer science and the art of programming, for concentrators and...",
+      "playlistId": "PLhQjrBD2T383q7Vn8QnTsVgSvyLpsqL_R",
+      "lectures": [
+        {
+          "title": "CS50x 2025 - Introduction",
+          "videoId": "h6lqxDwUmJQ",
+          "durationSec": 104
+        },
+        {
+          "title": "CS50x 2025 - Lecture 0 - Scratch",
+          "videoId": "2WtPyqwTLKM",
+          "durationSec": 7136
+        },
+        {
+          "title": "CS50x 2025 - Lecture 1 - C",
+          "videoId": "89cbCbWrM4U",
+          "durationSec": 9271
+        },
+        {
+          "title": "CS50x 2025 - Lecture 2 - Arrays",
+          "videoId": "Y8qnryVy5sQ",
+          "durationSec": 7818
+        },
+        {
+          "title": "CS50x 2025 - Lecture 3 - Algorithms",
+          "videoId": "iCx3zwK8Ms8",
+          "durationSec": 7595
+        },
+        {
+          "title": "CS50x 2025 - Lecture 4 - Memory",
+          "videoId": "kcRdFGbzR1I",
+          "durationSec": 8791
+        },
+        {
+          "title": "CS50x 2025 - Lecture 5 - Data Structures",
+          "videoId": "aV8LlSmd1E8",
+          "durationSec": 7418
+        },
+        {
+          "title": "CS50x 2025 - Lecture 6 - Python",
+          "videoId": "0eNc5lJfZFM",
+          "durationSec": 7861
+        },
+        {
+          "title": "CS50x 2025 - Artificial Intelligence",
+          "videoId": "1HuD2ryeOLg",
+          "durationSec": 3361
+        },
+        {
+          "title": "CS50x 2025 - Lecture 7 - SQL",
+          "videoId": "ZA25WHO62ZA",
+          "durationSec": 9468
+        },
+        {
+          "title": "CS50x 2025 - Lecture 8 - HTML, CSS, JavaScript",
+          "videoId": "xiWUL3M9D8c",
+          "durationSec": 11643
+        },
+        {
+          "title": "CS50x 2025 - Lecture 9 - Flask",
+          "videoId": "1r-dFbPQ7Z8",
+          "durationSec": 11025
+        },
+        {
+          "title": "CS50x 2025 - Lecture 10 - The End",
+          "videoId": "WGEy-Bu5Hos",
+          "durationSec": 3448
+        }
+      ]
+    },
+    {
+      "key": "cs50p",
+      "site": "https://cs50.harvard.edu/python/",
+      "category": "Programming",
+      "level": "BEGINNER",
+      "tags": [
+        "python"
+      ],
+      "title": "CS50's Introduction to Programming with Python",
+      "description": "An introduction to programming using a language called Python. Learn how to read and write code as well as how to test and “debug” it. Designed for students...",
+      "playlistId": "PLhQjrBD2T3817j24-GogXmWqO5Q5vYy0V",
+      "lectures": [
+        {
+          "title": "CS50P - Introduction",
+          "videoId": "OvKCESUCWII",
+          "durationSec": 257
+        },
+        {
+          "title": "CS50P - Lecture 0 - Functions, Variables",
+          "videoId": "JP7ITIXGpHk",
+          "durationSec": 6338
+        },
+        {
+          "title": "CS50P - Lecture 1 - Conditionals",
+          "videoId": "_b6NgY_pMdw",
+          "durationSec": 3368
+        },
+        {
+          "title": "CS50P - Lecture 2 - Loops",
+          "videoId": "-7xg8pGcP6w",
+          "durationSec": 4847
+        },
+        {
+          "title": "CS50P - Lecture 3 - Exceptions",
+          "videoId": "LW7g1169v7w",
+          "durationSec": 2676
+        },
+        {
+          "title": "CS50P - Lecture 4 - Libraries",
+          "videoId": "MztLZWibctI",
+          "durationSec": 4649
+        },
+        {
+          "title": "CS50P - Lecture 5 - Unit Tests",
+          "videoId": "tIrcxwLqzjQ",
+          "durationSec": 3054
+        },
+        {
+          "title": "CS50P - Lecture 6 - File I/O",
+          "videoId": "KD-Yoel6EVQ",
+          "durationSec": 5545
+        },
+        {
+          "title": "CS50P - Lecture 7 - Regular Expressions",
+          "videoId": "hy3sd9MOAcc",
+          "durationSec": 7500
+        },
+        {
+          "title": "CS50P - Lecture 8 - Object-Oriented Programming",
+          "videoId": "e4fwY9ZsxPw",
+          "durationSec": 10062
+        },
+        {
+          "title": "CS50P - Lecture 9 - Et Cetera",
+          "videoId": "6pgodt1mezg",
+          "durationSec": 8944
+        }
+      ]
+    },
+    {
+      "key": "cs50w",
+      "site": "https://cs50.harvard.edu/web/",
+      "category": "Web Development",
+      "level": "INTERMEDIATE",
+      "tags": [
+        "django",
+        "javascript",
+        "react",
+        "web"
+      ],
+      "title": "CS50's Web Programming with Python and JavaScript",
+      "description": "This course picks up where CS50x leaves off, diving more deeply into the design and implementation of web apps with Python, JavaScript, and SQL using...",
+      "playlistId": "PLhQjrBD2T380xvFSUmToMMzERZ3qB5Ueu",
+      "lectures": [
+        {
+          "title": "CS50W - Introduction",
+          "videoId": "Nn7EX3zkGUo",
+          "durationSec": 133
+        },
+        {
+          "title": "CS50W - Lecture 0 - HTML and CSS",
+          "videoId": "zFZrkCIc2Oc",
+          "durationSec": 7412
+        },
+        {
+          "title": "CS50W - Lecture 1 - Git",
+          "videoId": "NcoBAfJ6l2Q",
+          "durationSec": 3196
+        },
+        {
+          "title": "CS50W - Lecture 2 - Python",
+          "videoId": "EOLPQdVj5Ac",
+          "durationSec": 4062
+        },
+        {
+          "title": "CS50W - Lecture 3 - Django",
+          "videoId": "w8q0C-C1js4",
+          "durationSec": 5945
+        },
+        {
+          "title": "CS50W - Lecture 4 - SQL, Models and Migrations",
+          "videoId": "YzP164YANAU",
+          "durationSec": 6847
+        },
+        {
+          "title": "CS50W - Lecture 5 - JavaScript",
+          "videoId": "x5trGVMKTdY",
+          "durationSec": 6686
+        },
+        {
+          "title": "CS50W - Lecture 6 - User Interfaces",
+          "videoId": "jrBhi8wbzPw",
+          "durationSec": 6015
+        },
+        {
+          "title": "CS50W - Lecture 7 - Testing and CI/CD",
+          "videoId": "WbRDkJ4lPdY",
+          "durationSec": 5639
+        },
+        {
+          "title": "CS50W - Lecture 8 - Scalability and Security",
+          "videoId": "6PWTxRGh_dk",
+          "durationSec": 5266
+        }
+      ]
+    },
+    {
+      "key": "cs50ai",
+      "site": "https://cs50.harvard.edu/ai/",
+      "category": "Artificial Intelligence",
+      "level": "INTERMEDIATE",
+      "tags": [
+        "ai",
+        "machine-learning",
+        "python"
+      ],
+      "title": "CS50's Introduction to Artificial Intelligence with Python",
+      "description": "This course explores the concepts and algorithms at the foundation of modern artificial intelligence, diving into the ideas that give rise to technologies...",
+      "playlistId": "PLhQjrBD2T381PopUTYtMSstgk-hsTGkVm",
+      "lectures": [
+        {
+          "title": "Introduction - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "gR8QvFmNuLE",
+          "durationSec": 113
+        },
+        {
+          "title": "Search - Lecture 0 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "WbzNRTTrX0g",
+          "durationSec": 6570
+        },
+        {
+          "title": "Knowledge - Lecture 1 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "HWQLez87vqM",
+          "durationSec": 6464
+        },
+        {
+          "title": "Uncertainty - Lecture 2 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "D8RRq3TbtHU",
+          "durationSec": 6870
+        },
+        {
+          "title": "Optimization - Lecture 3 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "qK46ET1xk2A",
+          "durationSec": 6285
+        },
+        {
+          "title": "Learning - Lecture 4 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "-g0iJjnO2_w",
+          "durationSec": 6349
+        },
+        {
+          "title": "Neural Networks - Lecture 5 - CS50's Introduction to Artificial Intelligence with Python 2020",
+          "videoId": "J1QD9hLDEDY",
+          "durationSec": 6080
+        },
+        {
+          "title": "Language - Lecture 6 - CS50's Introduction to Artificial Intelligence with Python 2023",
+          "videoId": "QAZc9xsQNjQ",
+          "durationSec": 3922
+        }
+      ]
+    },
+    {
+      "key": "cs50sql",
+      "site": "https://cs50.harvard.edu/sql/",
+      "category": "Databases",
+      "level": "BEGINNER",
+      "tags": [
+        "sql",
+        "databases",
+        "sqlite",
+        "postgresql"
+      ],
+      "title": "CS50's Introduction to Databases with SQL",
+      "description": "This is CS50’s introduction to databases using a language called SQL. Learn how to create, read, update, and delete data with relational databases, which...",
+      "playlistId": "PLhQjrBD2T382v1MBjNOhPu9SiJ1fsD4C0",
+      "lectures": [
+        {
+          "title": "CS50 SQL - Introduction",
+          "videoId": "wdzA1Z8tKek",
+          "durationSec": 106
+        },
+        {
+          "title": "CS50 SQL - Lecture 0 - Querying",
+          "videoId": "vHYeChEf2lA",
+          "durationSec": 4754
+        },
+        {
+          "title": "CS50 SQL - Lecture 1 - Relating",
+          "videoId": "_2t18Hy9Z0Y",
+          "durationSec": 6100
+        },
+        {
+          "title": "CS50 SQL - Lecture 2 - Designing",
+          "videoId": "QzRW6bfv3Fo",
+          "durationSec": 4884
+        },
+        {
+          "title": "CS50 SQL - Lecture 3 - Writing",
+          "videoId": "BD08USRd2M8",
+          "durationSec": 6190
+        },
+        {
+          "title": "CS50 SQL - Lecture 4 - Viewing",
+          "videoId": "jZwGVuA8PMI",
+          "durationSec": 4946
+        },
+        {
+          "title": "CS50 SQL - Lecture 5 - Optimizing",
+          "videoId": "qa5-mKVSQHQ",
+          "durationSec": 5333
+        },
+        {
+          "title": "CS50 SQL - Lecture 6 - Scaling",
+          "videoId": "jXbXGkgT2Xg",
+          "durationSec": 7769
+        }
+      ]
+    },
+    {
+      "key": "cs50cyber",
+      "site": "https://cs50.harvard.edu/cybersecurity/",
+      "category": "Cybersecurity",
+      "level": "BEGINNER",
+      "tags": [
+        "security",
+        "privacy"
+      ],
+      "title": "CS50's Introduction to Cybersecurity",
+      "description": "An introduction to cybersecurity for technical and non-technical audiences alike. Learn how to secure your accounts, data, systems, and software against...",
+      "playlistId": "PLhQjrBD2T383Cqo5I1oRrbC1EKRAKGKUE",
+      "lectures": [
+        {
+          "title": "CS50 Cybersecurity - Introduction",
+          "videoId": "kmJlnUfMd7I",
+          "durationSec": 142
+        },
+        {
+          "title": "CS50 Cybersecurity - Lecture 0 - Securing Accounts",
+          "videoId": "kUovJpWqEMk",
+          "durationSec": 4387
+        },
+        {
+          "title": "CS50 Cybersecurity - Lecture 1 - Securing Data",
+          "videoId": "X3DVaMnl5n8",
+          "durationSec": 6922
+        },
+        {
+          "title": "CS50 Cybersecurity - Lecture 2 - Securing Systems",
+          "videoId": "9phdZjF8qOk",
+          "durationSec": 4629
+        },
+        {
+          "title": "CS50 Cybersecurity - Lecture 3 - Securing Software",
+          "videoId": "5rsKrTh3fAo",
+          "durationSec": 7047
+        },
+        {
+          "title": "CS50 Cybersecurity - Lecture 4 - Preserving Privacy",
+          "videoId": "6IeqJtudKnk",
+          "durationSec": 4693
+        }
+      ]
+    },
+    {
+      "key": "cs50r",
+      "site": "https://cs50.harvard.edu/r/",
+      "category": "Data Science",
+      "level": "BEGINNER",
+      "tags": [
+        "r",
+        "statistics",
+        "data"
+      ],
+      "title": "CS50's Introduction to Programming with R",
+      "description": "An introduction to programming using a language called R, a popular language for statistical computing and graphics in data science and other domains. Learn...",
+      "playlistId": "PLhQjrBD2T382yfNp_-xzX244d-O9W6YmD",
+      "lectures": [
+        {
+          "title": "CS50R - Introduction",
+          "videoId": "DR7hGCOdaRM",
+          "durationSec": 102
+        },
+        {
+          "title": "CS50R - Lecture 1 - Representing Data",
+          "videoId": "QkqotQEwvxc",
+          "durationSec": 5962
+        },
+        {
+          "title": "CS50R - Lecture 2 - Transforming Data",
+          "videoId": "zBS0Vnq6JcA",
+          "durationSec": 5905
+        },
+        {
+          "title": "CS50R - Lecture 3 - Applying Functions",
+          "videoId": "i0h8vp3A9j8",
+          "durationSec": 4299
+        },
+        {
+          "title": "CS50R - Lecture 4 - Tidying Data",
+          "videoId": "wIPyom1ozW0",
+          "durationSec": 4334
+        },
+        {
+          "title": "CS50R - Lecture 5 - Visualizing Data",
+          "videoId": "ej187bgCIPw",
+          "durationSec": 4532
+        },
+        {
+          "title": "CS50R - Lecture 6 - Testing Programs",
+          "videoId": "T4SktHZ17IU",
+          "durationSec": 3448
+        },
+        {
+          "title": "CS50R - Lecture 7 - Packaging Programs",
+          "videoId": "0q6jwG4ZPYc",
+          "durationSec": 3105
+        }
+      ]
+    },
+    {
+      "key": "cs50scratch",
+      "site": "https://cs50.harvard.edu/scratch/",
+      "category": "Programming",
+      "level": "BEGINNER",
+      "tags": [
+        "scratch",
+        "first-steps"
+      ],
+      "title": "CS50's Introduction to Programming with Scratch",
+      "description": "An introduction to programming using Scratch, a visual programming language via which aspiring programmers can write code by dragging and dropping graphical...",
+      "playlistId": "PLhQjrBD2T382zj9BoaP-7Nu7w9t_QDZx5",
+      "lectures": [
+        {
+          "title": "Introduction - CS50's Introduction to Programming with Scratch",
+          "videoId": "SDsFt2d5Hbw",
+          "durationSec": 102
+        },
+        {
+          "title": "Sprites - Lecture 1 - CS50's Introduction to Programming with Scratch",
+          "videoId": "3pIdX9__-OI",
+          "durationSec": 1424
+        },
+        {
+          "title": "Functions - Lecture 2 - CS50's Introduction to Programming with Scratch",
+          "videoId": "M5ngdlBeUrM",
+          "durationSec": 2023
+        },
+        {
+          "title": "Events - Lecture 3 - CS50's Introduction to Programming with Scratch",
+          "videoId": "7P4QR2o3pME",
+          "durationSec": 1787
+        },
+        {
+          "title": "Values - Lecture 4 - CS50's Introduction to Programming with Scratch",
+          "videoId": "4psGe3sOAwo",
+          "durationSec": 1830
+        },
+        {
+          "title": "Conditions - Lecture 5 - CS50's Introduction to Programming with Scratch",
+          "videoId": "0GLECNrj_T4",
+          "durationSec": 1689
+        },
+        {
+          "title": "Loops - Lecture 6 - CS50's Introduction to Programming with Scratch",
+          "videoId": "LTlVuFgBXSE",
+          "durationSec": 1652
+        },
+        {
+          "title": "Variables - Lecture 7 - CS50's Introduction to Programming with Scratch",
+          "videoId": "PWdijfqVvqs",
+          "durationSec": 1922
+        },
+        {
+          "title": "Abstraction - Lecture 8 - CS50's Introduction to Programming with Scratch",
+          "videoId": "D1WjtbQj8sM",
+          "durationSec": 1477
+        },
+        {
+          "title": "Building from Scratch - Lecture 9 - CS50's Introduction to Programming with Scratch",
+          "videoId": "cTAE_e9A65U",
+          "durationSec": 2038
+        }
+      ]
+    },
+    {
+      "key": "cs50t",
+      "site": "https://cs50.harvard.edu/technology/",
+      "category": "Computer Science",
+      "level": "BEGINNER",
+      "tags": [
+        "technology",
+        "internet",
+        "hardware"
+      ],
+      "title": "CS50's Understanding Technology",
+      "description": "This course is for students who don’t (yet) consider themselves computer persons. Designed for students who work with technology every day but don’t...",
+      "playlistId": "PLhQjrBD2T382p8amnvUp1rws1p7n7gJ2p",
+      "lectures": [
+        {
+          "title": "Hardware - CS50's Understanding Technology 2017",
+          "videoId": "6mbFO0ZLMW8",
+          "durationSec": 3544
+        },
+        {
+          "title": "Internet - CS50's Understanding Technology 2017",
+          "videoId": "n_KghQP86Sw",
+          "durationSec": 3110
+        },
+        {
+          "title": "Multimedia - CS50's Understanding Technology 2017",
+          "videoId": "kccUxGDsMAQ",
+          "durationSec": 2348
+        },
+        {
+          "title": "Security - CS50's Understanding Technology 2017",
+          "videoId": "QQmFyybzon0",
+          "durationSec": 4002
+        },
+        {
+          "title": "Web Development - CS50's Understanding Technology 2017",
+          "videoId": "U6hkOAnFJxM",
+          "durationSec": 4187
+        },
+        {
+          "title": "Programming - CS50's Understanding Technology 2017",
+          "videoId": "qDbsiVWA2Ag",
+          "durationSec": 4124
+        }
+      ]
+    },
+    {
+      "key": "cs50b",
+      "site": "https://cs50.harvard.edu/business/",
+      "category": "Business",
+      "level": "BEGINNER",
+      "tags": [
+        "business",
+        "technology"
+      ],
+      "title": "CS50's Computer Science for Business",
+      "description": "This course is a variant of CS50x designed especially for employees and employers. Whereas CS50x takes a bottom-up approach, emphasizing mastery of...",
+      "playlistId": "PLhQjrBD2T381d32c80DEQZOR-IWcINyP8",
+      "lectures": [
+        {
+          "title": "CS50 for Business - Introduction",
+          "videoId": "tT9VMlXRkwE",
+          "durationSec": 96
+        },
+        {
+          "title": "CS50 for Business - Lecture 0 - Interpreting Information",
+          "videoId": "pWPHa4FL264",
+          "durationSec": 4024
+        },
+        {
+          "title": "CS50 for Business - Lecture 1 - Analyzing Algorithms",
+          "videoId": "fFzWME39Mag",
+          "durationSec": 4890
+        },
+        {
+          "title": "CS50 for Business - Lecture 2 - Designing Data Structures",
+          "videoId": "-kKf1U6KuGk",
+          "durationSec": 4794
+        },
+        {
+          "title": "CS50 for Business - Lecture 3 - Practicing Programming",
+          "videoId": "_UE0BW-2dYk",
+          "durationSec": 10334
+        },
+        {
+          "title": "CS50 for Business - Lecture 4 - Approaching Artificial Intelligence",
+          "videoId": "pFq5szYIWQk",
+          "durationSec": 2971
+        },
+        {
+          "title": "CS50 for Business - Lecture 5 - Implementing the Internet",
+          "videoId": "pjDtNVZXRHo",
+          "durationSec": 4621
+        },
+        {
+          "title": "CS50 for Business - Lecture 6 - Weaving the Web",
+          "videoId": "O3jwILfJXkY",
+          "durationSec": 7273
+        },
+        {
+          "title": "CS50 for Business - Lecture 7 - Deploying Databases",
+          "videoId": "OZE2t3-M0ps",
+          "durationSec": 5563
+        },
+        {
+          "title": "CS50 for Business - Lecture 8 - Securing Systems",
+          "videoId": "9KoYnFuHYL8",
+          "durationSec": 3760
+        }
+      ]
+    },
+    {
+      "key": "cs50law",
+      "site": "https://cs50.harvard.edu/law/",
+      "category": "Law & Policy",
+      "level": "BEGINNER",
+      "tags": [
+        "law",
+        "technology"
+      ],
+      "title": "CS50's Computer Science for Lawyers",
+      "description": "This course is a variant of CS50x designed especially for lawyers (and law students). Whereas CS50 itself takes a bottom-up approach, emphasizing mastery of...",
+      "playlistId": "PLhQjrBD2T380CIOjHCjIAugO3ryncp6IW",
+      "lectures": [
+        {
+          "title": "Introduction - Computer Science for Lawyers",
+          "videoId": "nrB1aMKgjvU",
+          "durationSec": 90
+        },
+        {
+          "title": "Computational Thinking - CS50 for Lawyers 2019",
+          "videoId": "0OpqkCs871o",
+          "durationSec": 3290
+        },
+        {
+          "title": "Programming Languages - CS50 for Lawyers 2019",
+          "videoId": "KCYiwhBel9U",
+          "durationSec": 5129
+        },
+        {
+          "title": "Algorithms, Data Structures- CS50 for Lawyers 2019",
+          "videoId": "FnPn6RH-75M",
+          "durationSec": 4687
+        },
+        {
+          "title": "Cryptography - CS50 for Lawyers 2019",
+          "videoId": "G9jJ9ge7UeE",
+          "durationSec": 5255
+        },
+        {
+          "title": "Cybersecurity - CS50 for Lawyers 2019",
+          "videoId": "3CjkDQUu3Ow",
+          "durationSec": 3932
+        },
+        {
+          "title": "Internet Technologies, Cloud Computing - CS50 for Lawyers 2019",
+          "videoId": "1bOQnBINfNs",
+          "durationSec": 4461
+        },
+        {
+          "title": "Web Development - CS50 for Lawyers 2019",
+          "videoId": "VFxdfTQSCXo",
+          "durationSec": 4983
+        },
+        {
+          "title": "Database Design - CS50 for Lawyers 2019",
+          "videoId": "7Jlbmg6b2UI",
+          "durationSec": 4240
+        },
+        {
+          "title": "Cybersecurity, continued - CS50 for Lawyers 2019",
+          "videoId": "KrCMU9hhD54",
+          "durationSec": 5497
+        },
+        {
+          "title": "Challenges at the Intersection of Law and Technology - CS50 for Lawyers 2019",
+          "videoId": "a9mzwAljhnE",
+          "durationSec": 5705
+        }
+      ]
+    },
+    {
+      "key": "cs50g",
+      "site": "https://cs50.harvard.edu/games/",
+      "category": "Game Development",
+      "level": "INTERMEDIATE",
+      "tags": [
+        "games",
+        "lua",
+        "unity"
+      ],
+      "title": "CS50's Introduction to 2D Game Development",
+      "description": "This course picks up where CS50x leaves off, focusing on the development of two-dimensional (2D) interactive games. Students explore the design and...",
+      "playlistId": "PLhQjrBD2T380FZyaKIkZYuZWe2B1UHilA",
+      "lectures": [
+        {
+          "title": "Pong",
+          "videoId": "1MUurr34pkk",
+          "durationSec": 69
+        },
+        {
+          "title": "Flappy Bird",
+          "videoId": "XtjzdjLCwak",
+          "durationSec": 62
+        },
+        {
+          "title": "Breakout",
+          "videoId": "QQm50ZCrEVU",
+          "durationSec": 66
+        },
+        {
+          "title": "Match 3",
+          "videoId": "nAchwPVPqL4",
+          "durationSec": 115
+        },
+        {
+          "title": "Super Mario Bros",
+          "videoId": "cnQ5FeSA0Fs",
+          "durationSec": 57
+        },
+        {
+          "title": "Legend of Zelda",
+          "videoId": "eW6MRHAIPME",
+          "durationSec": 104
+        },
+        {
+          "title": "Angry Birds",
+          "videoId": "rbkyCfv6SFI",
+          "durationSec": 55
+        },
+        {
+          "title": "Pokémon",
+          "videoId": "E8QML69Zww0",
+          "durationSec": 93
+        },
+        {
+          "title": "Helicopter Game 3D",
+          "videoId": "tNS4Z-7Fmkc",
+          "durationSec": 52
+        },
+        {
+          "title": "Dreadhalls",
+          "videoId": "y4u-gqSGKoI",
+          "durationSec": 38
+        },
+        {
+          "title": "Portal",
+          "videoId": "1jaXtLn2ab8",
+          "durationSec": 37
+        }
+      ]
+    },
+    {
+      "key": "cs50m",
+      "site": "https://cs50.harvard.edu/mobile/",
+      "category": "Mobile Development",
+      "level": "INTERMEDIATE",
+      "tags": [
+        "react-native",
+        "javascript",
+        "mobile"
+      ],
+      "title": "CS50's Mobile App Development with React Native",
+      "description": "This course picks up where CS50x leaves off, transitioning from web development to mobile app development with React Native, a popular open-source framework...",
+      "playlistId": "PLhQjrBD2T382gdfveyad09Ierl_3Jh_wR",
+      "lectures": [
+        {
+          "title": "Teaser - CS50's Mobile App Development with React Native 2018",
+          "videoId": "_P7wHN_kOv4",
+          "durationSec": 52
+        },
+        {
+          "title": "Overview, JavaScript - Lecture 0 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "X52b-8y2Hf4",
+          "durationSec": 5230
+        },
+        {
+          "title": "JavaScript, ES6 - Lecture 1 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "3Ay2lS6tm4M",
+          "durationSec": 6466
+        },
+        {
+          "title": "React, Props, State - Lecture 2 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "7O43VDOlQ_o",
+          "durationSec": 5849
+        },
+        {
+          "title": "React Native - Lecture 3 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "Gk6RF5k3C2M",
+          "durationSec": 5887
+        },
+        {
+          "title": "Lists, User Input - Lecture 4 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "-E1tQPQSAxc",
+          "durationSec": 6294
+        },
+        {
+          "title": "User Input, Debugging - Lecture 5 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "sv71JMZEpYY",
+          "durationSec": 5587
+        },
+        {
+          "title": "Navigation - Lecture 6 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "QHorNUuEXc0",
+          "durationSec": 5145
+        },
+        {
+          "title": "Data - Lecture 7 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "jWwOTg35COs",
+          "durationSec": 5973
+        },
+        {
+          "title": "Expo Components - Lecture 8 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "01FuE1RnajY",
+          "durationSec": 6416
+        },
+        {
+          "title": "Redux - Lecture 9 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "_zT8K6R_P7I",
+          "durationSec": 6543
+        },
+        {
+          "title": "Async Redux, Tools - Lecture 10 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "T0elp5K9lLg",
+          "durationSec": 6358
+        },
+        {
+          "title": "Performance - Lecture 11 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "39W5Llg2orM",
+          "durationSec": 6239
+        },
+        {
+          "title": "Deploying, Testing - Lecture 12 - CS50's Mobile App Development with React Native 2018",
+          "videoId": "VUV00jJ45nU",
+          "durationSec": 6018
+        }
+      ]
+    }
+  ]
+}

@@ -25,7 +25,7 @@ export async function GET() {
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://campusloop.space/academics/sources</loc>
+    <loc>https://campusloop.space/academics/study-material/sources</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`;
@@ -35,7 +35,7 @@ export async function GET() {
         const lastMod = (item.updatedAt || item.createdAt || new Date()).toISOString().split("T")[0];
         return `
   <url>
-    <loc>https://campusloop.space/academics/${item.id}</loc>
+    <loc>https://campusloop.space/academics/study-material/${item.id}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

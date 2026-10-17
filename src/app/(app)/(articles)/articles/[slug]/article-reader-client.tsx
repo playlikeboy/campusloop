@@ -95,10 +95,15 @@ export function ArticleReaderClient({
   const isOwner = currentProfile?.id === article.authorId || currentProfile?.role === "ADMIN";
   const catMeta = getCategoryMeta(article.category);
   const authorName = article.author?.displayName || "Student Writer";
-  const authorUsername = article.author?.username || "student";
-  const isVerified = (article.author?.points || 0) >= 150;
-  const collegeName =
-    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
+  const isViewerHub =
+    article.institution?.slug === "viewer-hub" ||
+    article.author?.institution?.slug === "viewer-hub" ||
+    Boolean(article.institution?.name?.toLowerCase().includes("viewer hub")) ||
+    Boolean(article.author?.institution?.name?.toLowerCase().includes("viewer hub"));
+  const isVerified = (article.author?.points || 0) >= 150 && !isViewerHub;
+  const rawCollege =
+    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0];
+  const collegeName = isViewerHub ? "Community" : rawCollege || "Campus";
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {

@@ -111,7 +111,7 @@ export function AcademicEmptyState({
         )}
 
         <Link
-          href="/academics/upload"
+          href="/academics/study-material/upload"
           onClick={() => sounds.tap()}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
         >

@@ -730,7 +730,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                       {userPlaylists.map((pl) => (
                         <Link
                           key={pl.id}
-                          href={`/academics/playlists/${pl.slug}`}
+                          href={`/academics/study-material/playlists/${pl.slug}`}
                           className="p-3.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group shadow-2xs"
                         >
                           <div className="space-y-1.5 min-w-0">
@@ -766,7 +766,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                       {userAcademicResources.map((res) => (
                         <Link
                           key={res.id}
-                          href={`/academics/${res.id}`}
+                          href={`/academics/study-material/${res.id}`}
                           className="flex items-center justify-between p-3.5 hover:bg-muted/30 transition-colors gap-3"
                         >
                           <div className="min-w-0 flex-1 space-y-1">

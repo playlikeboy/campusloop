@@ -356,7 +356,7 @@ export async function GET(request: Request) {
       title: res.title,
       subtitle: `${res.subjectCode}: ${res.subjectName} · ${res.resourceType}`,
       description: res.description || undefined,
-      href: `/academics/${res.id}`,
+      href: `/academics/study-material/${res.id}`,
       metadata: {
         branch: res.branch,
         semester: String(res.semester),

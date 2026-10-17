@@ -224,7 +224,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           This stack might have been deleted or set to private.
         </p>
         <Link
-          href="/academics"
+          href="/academics/study-material"
           className="px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 shadow-md cursor-pointer transition-all"
         >
           Back to Academics
@@ -246,7 +246,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <Link
-            href="/academics"
+            href="/academics/study-material"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/15 transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-3.5" />
@@ -484,7 +484,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                   </div>
 
                   <Link
-                    href={`/academics/${currentItem.resource.id}`}
+                    href={`/academics/study-material/${currentItem.resource.id}`}
                     target="_blank"
                     className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors shrink-0"
                     title="Open standalone document page"
@@ -545,7 +545,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             Add notes, PYQs, and cheat sheets from the academics vault to populate this stack.
           </p>
           <Link
-            href="/academics"
+            href="/academics/study-material"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 shadow-md cursor-pointer transition-all"
           >
             <Plus className="size-4" />

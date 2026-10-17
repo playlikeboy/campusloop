@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
 
@@ -116,23 +116,58 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Sorting clauses
-    let orderByClause: any[] = [desc(articles.publishedAt)];
+    const viewerId = await getViewerInstitutionId().catch(() => VIEWER_INSTITUTION_SLUG);
+
+    // Algorithmic tier: 1 for verified college student articles, 0 for non-college/gmail/viewer users
+    const verifiedTierSql = sql`CASE 
+      WHEN ${articles.institutionId} IS NOT NULL 
+       AND ${articles.institutionId} != ${viewerId} 
+       AND ${articles.institutionId} != ${VIEWER_INSTITUTION_SLUG} 
+      THEN 1 
+      ELSE 0 
+    END`;
+
+    // Sorting clauses with verified student prioritization
+    let orderByClause: any[] = [sql`${verifiedTierSql} DESC`, desc(articles.publishedAt)];
     if (sort === "popular") {
-      orderByClause = [desc(articles.upvotesCount), desc(articles.viewsCount)];
+      orderByClause = [
+        sql`${verifiedTierSql} DESC`,
+        desc(articles.upvotesCount),
+        desc(articles.viewsCount),
+      ];
     } else if (sort === "trending" || feed === "trending") {
       // Deterministic time-decayed trending score: upvotes + views with recency weight
+      // Verified college student articles receive full 1.0x weight; non-college articles receive 0.5x weight in velocity
+      const verifiedWeight = sql`CASE 
+        WHEN ${articles.institutionId} IS NOT NULL 
+         AND ${articles.institutionId} != ${viewerId} 
+         AND ${articles.institutionId} != ${VIEWER_INSTITUTION_SLUG} 
+        THEN 1.0 
+        ELSE 0.5 
+      END`;
       orderByClause = [
-        sql`(${articles.upvotesCount} * 4 + ${articles.viewsCount}) / POWER(EXTRACT(EPOCH FROM (NOW() - COALESCE(${articles.publishedAt}, ${articles.createdAt}))) / 3600 + 2, 1.4) DESC`,
+        sql`(${articles.upvotesCount} * 4 + ${articles.viewsCount}) * ${verifiedWeight} / POWER(EXTRACT(EPOCH FROM (NOW() - COALESCE(${articles.publishedAt}, ${articles.createdAt}))) / 3600 + 2, 1.4) DESC`,
         desc(articles.publishedAt),
       ];
-    } else if (feed === "for_you" && currentProfile?.institutionId) {
-      // Personalization: prioritize articles from the same campus, then high engagement and recency
-      orderByClause = [
-        sql`CASE WHEN ${articles.institutionId} = ${currentProfile.institutionId} THEN 1 ELSE 0 END DESC`,
-        desc(articles.upvotesCount),
-        desc(articles.publishedAt),
-      ];
+    } else if (feed === "for_you") {
+      if (currentProfile?.institutionId && currentProfile.institutionId !== viewerId && currentProfile.institutionId !== VIEWER_INSTITUTION_SLUG) {
+        // Personalization: prioritize articles from the user's campus first, then other verified colleges, then non-college
+        orderByClause = [
+          sql`CASE 
+            WHEN ${articles.institutionId} = ${currentProfile.institutionId} THEN 2
+            WHEN ${articles.institutionId} IS NOT NULL AND ${articles.institutionId} != ${viewerId} AND ${articles.institutionId} != ${VIEWER_INSTITUTION_SLUG} THEN 1
+            ELSE 0
+          END DESC`,
+          desc(articles.upvotesCount),
+          desc(articles.publishedAt),
+        ];
+      } else {
+        orderByClause = [
+          sql`${verifiedTierSql} DESC`,
+          desc(articles.upvotesCount),
+          desc(articles.publishedAt),
+        ];
+      }
     }
 
     const articleList = await db.query.articles.findMany({
@@ -212,10 +247,6 @@ export async function POST(req: NextRequest) {
     if (!profile) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
-
-    // Server-side Viewer Mode protection
-    const blocked = await rejectViewerWrite(profile);
-    if (blocked) return blocked;
 
     const body = (await req.json()) as Record<string, any>;
     const {

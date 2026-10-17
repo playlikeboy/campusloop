@@ -4,7 +4,6 @@ import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
-import { rejectViewerWrite } from "@/lib/viewer";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
 
@@ -103,9 +102,6 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
     if (!currentProfile) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
-
-    const blocked = await rejectViewerWrite(currentProfile);
-    if (blocked) return blocked;
 
     const article = await db.query.articles.findFirst({
       where: or(eq(articles.slug, slug), eq(articles.id, slug)),

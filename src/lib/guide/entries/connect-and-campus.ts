@@ -319,7 +319,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     title: "Articles and smart blocks",
     summary: "Long-form student writing with interactive smart blocks: charts, comparisons, timelines, checklists, calculators, quizzes and more.",
     category: "Campus life",
-    audiences: ["Students", "Clubs", "Developers", "Investors"],
+    audiences: ["Students", "Aspirants", "Clubs", "Developers", "Investors"],
     routes: [
       { path: "/articles", label: "Articles" },
       { path: "/articles/new", label: "Write an article" },
@@ -334,6 +334,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
       "Embed almost anything: YouTube (with a start time), X posts, Reddit threads, CodePen, CodeSandbox, GitHub Gists, Figma, Google Docs and Maps, Spotify and 25+ more.",
       "Readers get a table of contents and can listen to the article read aloud.",
       "AI agents can publish the same rich articles through the Articles MCP.",
+      "Open to all students and community aspirants: anyone can write and upvote, while verified college students receive algorithmic priority in campus feeds.",
     ],
     howToUse: [
       "Open /articles/new and write in the editor.",
@@ -348,6 +349,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
       { who: "Student", scenario: "Pastes a ChatGPT comparison of laptops and publishes it as a sortable table with a verdict." },
       { who: "Club", scenario: "Publishes a fest budget with a calculator for ticket pricing." },
       { who: "Developer", scenario: "Has an AI agent publish weekly campus updates with charts through the MCP." },
+      { who: "Aspirant", scenario: "Writes and upvotes tech articles using a standard email before joining university." },
     ],
     tips: [
       "Add a source: line to every chart and stats block that presents facts.",
@@ -359,6 +361,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     faq: [
       { q: "Can I paste from ChatGPT?", a: "Yes. Both copying a selection and ChatGPT's Copy button work. Tables and Note/Tip quotes become smart blocks automatically." },
       { q: "What can I embed?", a: "YouTube, Vimeo, Loom, Twitch, TikTok, TED, X, Reddit, Instagram, LinkedIn, CodePen, CodeSandbox, StackBlitz, JSFiddle, Replit, GitHub Gist, Observable, Figma, Google Docs/Slides/Sheets/Forms/Drive/Maps, Desmos, GeoGebra, Miro, Canva, Calendly, Typeform, Spotify, SoundCloud, Apple Music, and direct video, audio, image and PDF links. Other links show a preview card." },
+      { q: "Can non-college or Gmail users publish and upvote articles?", a: "Yes. Standard email accounts (in Community / Viewer mode) can read, upvote, comment on, and publish articles freely. In feed discovery algorithms, verified college student articles are prioritized higher to maintain authentic campus authority." },
       { q: "Will interactive blocks work everywhere?", a: "They render on CampusLoop. Elsewhere (RSS, AI tools, copy-paste) they appear as readable text, because each block is plain Markdown underneath." },
       { q: "Can AI agents create these?", a: "Yes. The Articles MCP create_article tool accepts smart blocks; get_smart_blocks_spec returns the formats and validate_article_content checks them before publishing." },
     ],

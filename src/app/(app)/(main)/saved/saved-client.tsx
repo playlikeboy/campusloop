@@ -229,7 +229,7 @@ export function SavedClient() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Dedicated Vaults</h3>
             <div className="flex flex-col gap-2 pt-1">
               <Link
-                href="/academics/saved"
+                href="/academics/study-material/saved"
                 className="flex items-center justify-between p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground transition-all"
               >
                 <span>Academic Notes & PYQs Vault</span>

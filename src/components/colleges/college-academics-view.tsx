@@ -103,7 +103,7 @@ export function CollegeAcademicsView({
 
         <div className="flex items-center gap-2">
           <Link
-            href={`/academics/upload?college=${collegeSlug}`}
+            href={`/academics/study-material/upload?college=${collegeSlug}`}
             className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all flex items-center gap-1.5 shrink-0 shadow-xs"
           >
             <Plus className="size-3.5" />
@@ -315,7 +315,7 @@ export function CollegeAcademicsView({
               Be the first to upload lecture notes or past year question papers and earn 50 LP Loop Points!
             </p>
             <Link
-              href={`/academics/upload?college=${collegeSlug}`}
+              href={`/academics/study-material/upload?college=${collegeSlug}`}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all"
             >
               <Plus className="size-3.5" />

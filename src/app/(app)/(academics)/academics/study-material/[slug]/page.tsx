@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: AcademicSlugPageProps): Promi
   }
 
   const canonicalSlug = slug || (resource as any).slug || slugifyAcademicResource(resource) || resource.id;
-  const canonicalUrl = `https://campusloop.space/app/academics/${canonicalSlug}`;
+  const canonicalUrl = `https://campusloop.space/academics/study-material/${canonicalSlug}`;
   const title = `${resource.title} (${resource.subjectCode}) | Free PDF Download & PYQ | CampusLoop`;
   const description =
     resource.description ||
@@ -123,7 +123,7 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
   }
 
   const canonicalSlug = slug || (resource as any).slug || slugifyAcademicResource(resource) || resource.id;
-  const canonicalUrl = `https://campusloop.space/app/academics/${canonicalSlug}`;
+  const canonicalUrl = `https://campusloop.space/academics/study-material/${canonicalSlug}`;
 
   // Schema.org structured data for Google LearningResource rich snippets
   const learningResourceJsonLd = {
