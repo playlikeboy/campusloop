@@ -5,7 +5,6 @@ import { ArticleEditorClient } from "@/app/(app)/(articles)/articles/new/article
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { isViewerProfile } from "@/lib/viewer";
 
 interface ArticleEditPageProps {
   params: Promise<{ slug: string }>;
@@ -29,11 +28,6 @@ export default async function ArticleEditPage({ params }: ArticleEditPageProps) 
 
   if (!profile) {
     redirect("/onboarding");
-  }
-
-  const isViewer = await isViewerProfile(profile);
-  if (isViewer) {
-    redirect("/articles");
   }
 
   const article = await db.query.articles.findFirst({

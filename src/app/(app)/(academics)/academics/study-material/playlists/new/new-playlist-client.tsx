@@ -164,7 +164,7 @@ export function NewPlaylistClient() {
       sounds.pop();
       haptics.success();
       toast.success("Study Playlist published successfully!");
-      router.push(`/academics/playlists/${data.playlist.slug || data.playlist.id}`);
+      router.push(`/academics/study-material/playlists/${data.playlist.slug || data.playlist.id}`);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "Failed to publish playlist";
       toast.error(errorMsg);
@@ -178,7 +178,7 @@ export function NewPlaylistClient() {
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
         <div className="flex items-center gap-2.5">
           <Link
-            href="/academics"
+            href="/academics/study-material"
             className="flex size-8.5 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-4" />
@@ -456,7 +456,7 @@ export function NewPlaylistClient() {
         {/* ─── Submit Bar ─── */}
         <div className="flex items-center justify-between pt-2">
           <Link
-            href="/academics"
+            href="/academics/study-material"
             className="text-xs font-semibold text-muted-foreground hover:text-foreground"
           >
             Cancel

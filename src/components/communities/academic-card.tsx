@@ -106,7 +106,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
   // Card click navigation
   function handleCardClick() {
     sounds.tap();
-    router.push(`/academics/${item.id}`);
+    router.push(`/academics/study-material/${item.id}`);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -257,7 +257,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
     if (targetUrl) {
       window.open(targetUrl, "_blank", "noopener,noreferrer");
     } else {
-      router.push(`/academics/${item.id}`);
+      router.push(`/academics/study-material/${item.id}`);
     }
 
     try {

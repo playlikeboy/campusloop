@@ -11,7 +11,7 @@ interface DeckAcademicDropCardProps {
 }
 
 export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
-  const previewUrl = resource.slug ? `/academics/${resource.slug}` : `/academics`;
+  const previewUrl = resource.slug ? `/academics/study-material/${resource.slug}` : `/academics`;
 
   function handleDownload() {
     const downloadCheck = checkAndRecordDownload(false);

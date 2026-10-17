@@ -177,7 +177,7 @@ export function SavedMaterialsClient() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <Link
-              href="/academics"
+              href="/academics/study-material"
               className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
@@ -402,7 +402,7 @@ export function SavedMaterialsClient() {
                       />
 
                       <Link
-                        href={`/academics/${item.id}`}
+                        href={`/academics/study-material/${item.id}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-foreground text-background hover:opacity-90 transition-opacity cursor-pointer shrink-0"
                       >
                         <span>Study</span>
@@ -428,7 +428,7 @@ export function SavedMaterialsClient() {
             </p>
           </div>
           <Link
-            href="/academics"
+            href="/academics/study-material"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground font-black text-xs hover:bg-primary/90 transition-colors shadow-xs"
           >
             <span>Explore Academic Vault</span>

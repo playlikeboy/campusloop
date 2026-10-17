@@ -24,12 +24,12 @@ export const metadata: Metadata = {
     "Free PDF Download Zero Login",
     "Semester Exam Preparation",
   ],
-  alternates: { canonical: "https://campusloop.space/academics" },
+  alternates: { canonical: "https://campusloop.space/academics/study-material" },
   openGraph: {
     title: "Academic Notes, PYQs & Cheat Sheets | CampusLoop Study Vault",
     description:
       "Discover course notes, previous-year questions, formula sheets and lab manuals from campus contributors and public education sources.",
-    url: "https://campusloop.space/academics",
+    url: "https://campusloop.space/academics/study-material",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -72,7 +72,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
 
   const resolvedParams = searchParams ? await searchParams : undefined;
   if (resolvedParams?.id) {
-    redirect(`/academics/${resolvedParams.id}`);
+    redirect(`/academics/study-material/${resolvedParams.id}`);
   }
 
   // Schema.org Structured Data for Google & Bing SERP
@@ -82,7 +82,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
     name: "CampusLoop Academic Study Vault & PYQs",
     description:
       "A searchable collection of college notes, previous-year questions, formula sheets and lab manuals from campus contributors and public education sources.",
-    url: "https://campusloop.space/academics",
+    url: "https://campusloop.space/academics/study-material",
     inLanguage: "en-IN",
     mainEntity: {
       "@type": "ItemList",
@@ -93,37 +93,37 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
           "@type": "ListItem",
           position: 1,
           name: "Data Structures & Algorithms (DSA)",
-          url: "https://campusloop.space/academics?q=CS201",
+          url: "https://campusloop.space/academics/study-material?q=CS201",
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Operating Systems (OS)",
-          url: "https://campusloop.space/academics?q=CS303",
+          url: "https://campusloop.space/academics/study-material?q=CS303",
         },
         {
           "@type": "ListItem",
           position: 3,
           name: "Database Management Systems (DBMS)",
-          url: "https://campusloop.space/academics?q=CS302",
+          url: "https://campusloop.space/academics/study-material?q=CS302",
         },
         {
           "@type": "ListItem",
           position: 4,
           name: "Computer Networks (CN)",
-          url: "https://campusloop.space/academics?q=CS401",
+          url: "https://campusloop.space/academics/study-material?q=CS401",
         },
         {
           "@type": "ListItem",
           position: 5,
           name: "Engineering Mathematics & Calculus",
-          url: "https://campusloop.space/academics?q=MA101",
+          url: "https://campusloop.space/academics/study-material?q=MA101",
         },
         {
           "@type": "ListItem",
           position: 6,
           name: "AKTU Quantum Series & Exam Banks",
-          url: "https://campusloop.space/academics?branch=Computer+Science",
+          url: "https://campusloop.space/academics/study-material?branch=Computer+Science",
         },
       ],
     },
@@ -182,7 +182,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         "@type": "ListItem",
         position: 2,
         name: "Academics",
-        item: "https://campusloop.space/academics",
+        item: "https://campusloop.space/academics/study-material",
       },
     ],
   };

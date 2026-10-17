@@ -445,7 +445,7 @@ export function UploadAcademicClient() {
         sounds.pop();
         haptics.success();
         toast.success("Study resource published with all attachments! +20 Loop Points earned");
-        router.push(`/academics/${json.item?.id || ""}`);
+        router.push(`/academics/study-material/${json.item?.id || ""}`);
       } else {
         toast.error(json.error || "Failed to publish academic resource");
         setIsSubmitting(false);
@@ -474,7 +474,7 @@ export function UploadAcademicClient() {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <Link
-              href="/academics"
+              href="/academics/study-material"
               className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />

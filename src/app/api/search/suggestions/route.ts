@@ -150,7 +150,7 @@ export async function GET(request: Request) {
         type: "academic",
         title: `${a.subjectCode ? `${a.subjectCode}: ` : ""}${a.title}`,
         subtitle: a.subjectName || "Academics",
-        href: `/academics/search?q=${encodeURIComponent(a.subjectCode || a.title)}`,
+        href: `/academics/study-material/search?q=${encodeURIComponent(a.subjectCode || a.title)}`,
       });
     }
 

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
-const HIDE_ON_ROUTES = ["/chat", "/stories/new", "/story/", "/post/", "/academics/upload"];
+const HIDE_ON_ROUTES = ["/chat", "/stories/new", "/story/", "/post/", "/academics/study-material/upload"];
 
 export function MobileFloatingCreateButton({ isViewer }: { isViewer?: boolean }) {
   const pathname = usePathname() || "/feeds";

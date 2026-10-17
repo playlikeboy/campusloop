@@ -133,6 +133,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        // Academics moved under /academics/study-material (Oct 2026); /academics is now the hub.
+        source: "/academics/:path((?!study-material).+)",
+        destination: "/academics/study-material/:path",
+        permanent: true,
+      },
+      {
         source: "/c/:id",
         destination: "/communities/:id",
         permanent: true,

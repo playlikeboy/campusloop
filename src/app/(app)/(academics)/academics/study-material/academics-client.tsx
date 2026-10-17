@@ -314,7 +314,7 @@ export function AcademicsClient({
       {/* Guest conversion banner if not signed in */}
       {!profileId && (
         <div className="pt-3">
-          <AcademicAuthBenefitsCard returnTo="/academics" dismissible={true} />
+          <AcademicAuthBenefitsCard returnTo="/academics/study-material" dismissible={true} />
         </div>
       )}
 
@@ -450,7 +450,7 @@ export function AcademicsClient({
                   <p className="text-xs text-muted-foreground">Curated notes, PYQs, and exam bundles</p>
                 </div>
                 <Link
-                  href="/academics/playlists/new"
+                  href="/academics/study-material/playlists/new"
                   onClick={() => sounds.tap()}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
                 >
@@ -546,7 +546,7 @@ export function AcademicsClient({
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         actionReason="UPLOAD"
-        returnTo="/academics"
+        returnTo="/academics/study-material"
       />
 
       {/* Student Academic Focus & Enrolled Courses Customizer Modal */}
