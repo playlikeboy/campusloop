@@ -55,6 +55,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
 
   const catMeta = getCategoryMeta(article.category);
   const authorName = article.author?.displayName || "Student Writer";
+  const authorUsername = article.author?.username || "student";
   const rawCollege =
     article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "";
   const isViewerHub =
