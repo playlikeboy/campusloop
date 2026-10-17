@@ -16,6 +16,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticleCommentsSection } from "@/components/articles/article-comments-section";
+import { ArticleListenButton } from "@/components/articles/article-listen-button";
+import { ArticleToc } from "@/components/articles/article-toc";
 import { ReadingProgress } from "@/components/articles/reading-progress";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -350,9 +352,16 @@ export function ArticleReaderClient({
           </div>
         )}
 
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <ArticleListenButton title={article.title} content={article.content} />
+          </div>
+          <ArticleToc content={article.content} />
+        </div>
+
         {/* ─── Long-Form Markdown Content Body (Zero select-none) ─── */}
         <div className="pt-2 text-foreground font-normal leading-[1.8] text-[17px] sm:text-[19px]">
-          <MarkdownContent content={article.content} />
+          <MarkdownContent content={article.content} autoEmbed />
         </div>
 
         {/* ─── Tags Strip ─── */}

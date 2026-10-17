@@ -331,12 +331,15 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
       "Paste an answer from ChatGPT and keep its structure: tables become sortable, chartable tables and Note or Tip quotes become callouts.",
       "Add a chart, comparison, timeline, checklist, key stats, calculator, quiz or FAQ from the slash menu.",
       "Every chart and stat can show its source, so readers know where numbers come from.",
+      "Embed almost anything: YouTube (with a start time), X posts, Reddit threads, CodePen, CodeSandbox, GitHub Gists, Figma, Google Docs and Maps, Spotify and 25+ more.",
+      "Readers get a table of contents and can listen to the article read aloud.",
       "AI agents can publish the same rich articles through the Articles MCP.",
     ],
     howToUse: [
       "Open /articles/new and write in the editor.",
       "Type / and pick a smart block (Chart, Smart table, Comparison, Timeline, Steps, Callout, Key numbers, Calculator, Quiz, FAQ). It inserts a working example; edit the text inside it.",
       "To bring in a ChatGPT answer, copy it (select and copy, or use ChatGPT's Copy button) and paste into the editor. Headings, lists, code and tables are kept, and smart blocks are created automatically.",
+      "To embed, paste a supported link on its own line, or use the Embed block for captions, a video start time or a gallery of several links.",
       "Use the preview to see blocks rendered. A block with a mistake shows the raw text and the reason, so nothing breaks.",
       "Add a cover, category and tags, then publish. Readers can switch charts between bar, line, area and pie, view the data table, tick off steps, and copy any block as Markdown.",
     ],
@@ -355,6 +358,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
       "Interactive, structured articles are more useful, more shareable and better for search than plain text, and the same format is open to AI agents through MCP, making CampusLoop a destination for AI-assisted student publishing.",
     faq: [
       { q: "Can I paste from ChatGPT?", a: "Yes. Both copying a selection and ChatGPT's Copy button work. Tables and Note/Tip quotes become smart blocks automatically." },
+      { q: "What can I embed?", a: "YouTube, Vimeo, Loom, Twitch, TikTok, TED, X, Reddit, Instagram, LinkedIn, CodePen, CodeSandbox, StackBlitz, JSFiddle, Replit, GitHub Gist, Observable, Figma, Google Docs/Slides/Sheets/Forms/Drive/Maps, Desmos, GeoGebra, Miro, Canva, Calendly, Typeform, Spotify, SoundCloud, Apple Music, and direct video, audio, image and PDF links. Other links show a preview card." },
       { q: "Will interactive blocks work everywhere?", a: "They render on CampusLoop. Elsewhere (RSS, AI tools, copy-paste) they appear as readable text, because each block is plain Markdown underneath." },
       { q: "Can AI agents create these?", a: "Yes. The Articles MCP create_article tool accepts smart blocks; get_smart_blocks_spec returns the formats and validate_article_content checks them before publishing." },
     ],

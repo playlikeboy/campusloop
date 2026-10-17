@@ -21,6 +21,8 @@
  * share one parser and one validator.
  */
 
+import { parseStart } from "./article-embeds";
+
 export const SMART_BLOCK_TYPES = [
   "chart",
   "table",
@@ -32,6 +34,7 @@ export const SMART_BLOCK_TYPES = [
   "calculator",
   "quiz",
   "faq",
+  "embed",
 ] as const;
 
 export type SmartBlockType = (typeof SMART_BLOCK_TYPES)[number];
@@ -104,6 +107,14 @@ export interface FaqBlock {
   items: { q: string; a: string }[];
 }
 
+export interface EmbedBlock {
+  kind: "embed";
+  urls: string[];
+  caption?: string;
+  start?: number;
+  height?: number;
+}
+
 export type SmartBlock =
   | ChartBlock
   | TableBlock
@@ -114,11 +125,12 @@ export type SmartBlock =
   | StatsBlock
   | CalculatorBlock
   | QuizBlock
-  | FaqBlock;
+  | FaqBlock
+  | EmbedBlock;
 
 export type ParseResult = { ok: true; block: SmartBlock } | { ok: false; error: string };
 
-const HEADER_KEYS = new Set(["type", "title", "unit", "source", "tone", "verdict", "note"]);
+const HEADER_KEYS = new Set(["type", "title", "unit", "source", "tone", "verdict", "note", "caption", "start", "height"]);
 
 /** Leading `key: value` lines (known keys only) and the remaining body lines. */
 function splitHeader(body: string): { meta: Record<string, string>; lines: string[] } {
@@ -384,6 +396,25 @@ function parseFaq(body: string): ParseResult {
   return { ok: true, block: { kind: "faq", title: meta.title, items: valid } };
 }
 
+function parseEmbed(body: string): ParseResult {
+  const { meta, lines } = splitHeader(body);
+  const urls = lines.map((l) => l.trim().replace(/^url\s*:\s*/i, "")).filter((l) => /^https?:\/\/\S+$/.test(l));
+  if (urls.length === 0) return { ok: false, error: "embed needs at least one https:// link, one per line" };
+  if (urls.length > 12) return { ok: false, error: "embed supports up to 12 links per block" };
+  const start = parseStart(meta.start);
+  const height = meta.height ? Number(meta.height) : undefined;
+  return {
+    ok: true,
+    block: {
+      kind: "embed",
+      urls,
+      caption: meta.caption ?? meta.title,
+      start,
+      height: height && height >= 120 && height <= 1200 ? height : undefined,
+    },
+  };
+}
+
 const PARSERS: Record<SmartBlockType, (body: string) => ParseResult> = {
   chart: parseChart,
   table: parseTable,
@@ -395,6 +426,7 @@ const PARSERS: Record<SmartBlockType, (body: string) => ParseResult> = {
   calculator: parseCalculator,
   quiz: parseQuiz,
   faq: parseFaq,
+  embed: parseEmbed,
 };
 
 export function parseSmartBlock(type: string, body: string): ParseResult {
@@ -494,6 +526,12 @@ calculator JSON only: {"title":"","inputs":[{"id":"rent","label":"Monthly rent",
           Formulas: + - * / % ^ ( ) and min max round floor ceil abs sqrt pow log exp, using input ids.
 quiz      JSON: {"question":"","options":["",""],"answer":0,"explanation":""}  (answer = 0-based index)
 faq       Lines "Q: question" then "A: answer".
+embed     One link per line (up to 12; several become a gallery). Optional caption:, start: 1:30 (video start), height: 500.
+          Supported: YouTube (incl. Shorts, playlists), Vimeo, Loom, Dailymotion, Twitch, TikTok, TED, X/Twitter, Reddit,
+          Instagram, LinkedIn, CodePen, CodeSandbox, StackBlitz, JSFiddle, Replit, GitHub Gist, Observable, Figma,
+          Google Docs/Slides/Sheets/Forms/Drive/Maps, Desmos, GeoGebra, Miro, Canva, Calendly, Typeform, Spotify,
+          SoundCloud, Apple Music, MP4/MP3/images/PDF. Any other link shows a preview card.
+          Shortcut: a supported link alone on its own line embeds automatically.
 
 Pasted ChatGPT Markdown is upgraded automatically: tables become table blocks, "> Note/Tip/Warning" quotes become callouts.
 Always include a source: line on charts and stats that present facts.`;
