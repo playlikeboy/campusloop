@@ -1,8 +1,9 @@
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import type { Institution, UserProfile } from "@/db/schema";
 import { institutionDomains, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getCandidateParentDomains } from "@/lib/institutions";
 
 /**
  * Campus upgrade: turning a Campus Preview account into a verified student.
@@ -72,10 +73,20 @@ export async function checkCampusUpgradeEligibility(rawEmail: string): Promise<U
   }
 
   // A domain is only proof of enrolment if we have explicitly whitelisted it.
-  const domainMatch = await db.query.institutionDomains.findFirst({
+  let domainMatch = await db.query.institutionDomains.findFirst({
     where: eq(institutionDomains.domain, domain),
     with: { institution: true },
   });
+
+  if (!domainMatch) {
+    const candidateParents = getCandidateParentDomains(domain);
+    if (candidateParents.length > 0) {
+      domainMatch = await db.query.institutionDomains.findFirst({
+        where: inArray(institutionDomains.domain, candidateParents),
+        with: { institution: true },
+      });
+    }
+  }
 
   if (!domainMatch?.institution) {
     return {

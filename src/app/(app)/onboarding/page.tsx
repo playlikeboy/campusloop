@@ -6,6 +6,7 @@ import { SignOutButton } from "@/components/ui/sign-out-button";
 import { getDb } from "@/db";
 import { institutionDomains, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { findWhitelistedDomain } from "@/lib/institutions";
 import { OnboardingForm } from "./onboarding-form";
 
 export const metadata: Metadata = {
@@ -35,9 +36,10 @@ export default async function OnboardingPage() {
   const rawEmailUser = email.split("@")[0] || "";
   const emailDomain = email.split("@")[1]?.toLowerCase() || "";
   const whitelistedDomain = emailDomain
-    ? await db.query.institutionDomains.findFirst({
+    ? (await findWhitelistedDomain(emailDomain)) ||
+      (await db.query.institutionDomains.findFirst({
         where: eq(institutionDomains.domain, emailDomain),
-      })
+      }))
     : null;
   // Mirrors the server action: an unverified college address is treated as
   // Campus Preview, so the form asks aspirant questions rather than pretending

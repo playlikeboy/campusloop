@@ -1,7 +1,13 @@
-import { asc, eq, or } from "drizzle-orm";
+import { asc, eq, inArray, or } from "drizzle-orm";
 
 import { getDb } from "@/db";
 import { institutionDomains, institutions } from "@/db/schema";
+import {
+  getCandidateParentDomains,
+  VERIFIED_STUDENT_EMAIL_DOMAINS,
+} from "./student-email-domains";
+
+export { getCandidateParentDomains, VERIFIED_STUDENT_EMAIL_DOMAINS };
 
 export type InstitutionOption = {
   id: string;
@@ -39,11 +45,24 @@ export async function listInstitutionOptions(): Promise<InstitutionOption[]> {
     .orderBy(asc(institutions.name));
 }
 
+/**
+ * Finds an institution by exact domain match, or hierarchically via parent subdomain.
+ * E.g., "kgpian.iitkgp.ac.in" -> IIT Kharagpur
+ *       "smail.iitm.ac.in" -> IIT Madras
+ *       "vitstudent.ac.in" -> VIT Vellore
+ *       "learner.manipal.edu" -> Manipal Academy of Higher Education
+ *       "pilani.bits-pilani.ac.in" -> BITS Pilani
+ */
 export async function findInstitutionByDomain(domain: string): Promise<InstitutionOption | null> {
   try {
     const db = getDb();
     if (!db || typeof db.select !== "function") return null;
-    const [match] = await db
+
+    const cleanDomain = (domain || "").trim().toLowerCase().replace(/^@/, "");
+    if (!cleanDomain) return null;
+
+    // 1. Exact match in institution_domains table (fast indexed query)
+    const [exactMatch] = await db
       .select({
         id: institutions.id,
         name: institutions.name,
@@ -55,11 +74,116 @@ export async function findInstitutionByDomain(domain: string): Promise<Instituti
       })
       .from(institutionDomains)
       .innerJoin(institutions, eq(institutionDomains.institutionId, institutions.id))
-      .where(eq(institutionDomains.domain, domain))
+      .where(eq(institutionDomains.domain, cleanDomain))
       .limit(1);
 
-    return match ?? null;
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    // 2. Hierarchical subdomain match (e.g., student.cse.iitkgp.ac.in -> iitkgp.ac.in)
+    const candidateParents = getCandidateParentDomains(cleanDomain);
+    if (candidateParents.length > 0) {
+      const [parentMatch] = await db
+        .select({
+          id: institutions.id,
+          name: institutions.name,
+          slug: institutions.slug,
+          state: institutions.state,
+          district: institutions.district,
+          website: institutions.website,
+          websiteDomain: institutions.websiteDomain,
+        })
+        .from(institutionDomains)
+        .innerJoin(institutions, eq(institutionDomains.institutionId, institutions.id))
+        .where(inArray(institutionDomains.domain, candidateParents))
+        .limit(1);
+
+      if (parentMatch) {
+        return parentMatch;
+      }
+    }
+
+    // 3. Fallback: match directly on websiteDomain
+    const [websiteMatch] = await db
+      .select({
+        id: institutions.id,
+        name: institutions.name,
+        slug: institutions.slug,
+        state: institutions.state,
+        district: institutions.district,
+        website: institutions.website,
+        websiteDomain: institutions.websiteDomain,
+      })
+      .from(institutions)
+      .where(eq(institutions.websiteDomain, cleanDomain))
+      .limit(1);
+
+    if (websiteMatch) {
+      return websiteMatch;
+    }
+
+    if (candidateParents.length > 0) {
+      const [parentWebsiteMatch] = await db
+        .select({
+          id: institutions.id,
+          name: institutions.name,
+          slug: institutions.slug,
+          state: institutions.state,
+          district: institutions.district,
+          website: institutions.website,
+          websiteDomain: institutions.websiteDomain,
+        })
+        .from(institutions)
+        .where(inArray(institutions.websiteDomain, candidateParents))
+        .limit(1);
+
+      if (parentWebsiteMatch) {
+        return parentWebsiteMatch;
+      }
+    }
+
+    return null;
   } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Shared helper to find a whitelisted domain row with its associated institution.
+ * Supports exact domain matching and hierarchical subdomain matching.
+ */
+export async function findWhitelistedDomain(domain: string) {
+  try {
+    const db = getDb();
+    if (!db || !db.query?.institutionDomains) return null;
+
+    const cleanDomain = (domain || "").trim().toLowerCase().replace(/^@/, "");
+    if (!cleanDomain) return null;
+
+    // 1. Exact match
+    const exact = await db.query.institutionDomains.findFirst({
+      where: eq(institutionDomains.domain, cleanDomain),
+      with: { institution: true },
+    });
+    if (exact?.institution) {
+      return exact;
+    }
+
+    // 2. Subdomain parent match
+    const candidateParents = getCandidateParentDomains(cleanDomain);
+    if (candidateParents.length > 0) {
+      const parent = await db.query.institutionDomains.findFirst({
+        where: inArray(institutionDomains.domain, candidateParents),
+        with: { institution: true },
+      });
+      if (parent?.institution) {
+        return parent;
+      }
+    }
+
+    return null;
+  } catch {
     return null;
   }
 }
@@ -85,15 +209,23 @@ export async function getInstitutionAllowedDomains(collegeIdOrSlug: string): Pro
       return { institution: null, domains: [] };
     }
 
-  const domainSet = new Set<string>();
-  if (inst.domains) {
-    for (const d of inst.domains) {
-      if (d.domain) domainSet.add(d.domain.toLowerCase().trim());
+    const domainSet = new Set<string>();
+    if (inst.domains) {
+      for (const d of inst.domains) {
+        if (d.domain) domainSet.add(d.domain.toLowerCase().trim());
+      }
     }
-  }
-  if (inst.websiteDomain) {
-    domainSet.add(inst.websiteDomain.toLowerCase().trim());
-  }
+    if (inst.websiteDomain) {
+      domainSet.add(inst.websiteDomain.toLowerCase().trim());
+    }
+
+    // Also include verified student email domains from curate list if available
+    const curated = VERIFIED_STUDENT_EMAIL_DOMAINS[inst.slug.toLowerCase()];
+    if (curated) {
+      for (const d of curated) {
+        domainSet.add(d.toLowerCase().trim());
+      }
+    }
 
     return {
       institution: {
@@ -157,7 +289,11 @@ export async function validateEmailDomainForInstitution(
   if (collegeIdOrSlug) {
     const { institution, domains } = await getInstitutionAllowedDomains(collegeIdOrSlug);
     if (institution) {
-      const isAllowed = domains.some((d) => d.toLowerCase() === normalizedDomain);
+      const isAllowed = domains.some((d) => {
+        const lowerD = d.toLowerCase().trim();
+        return lowerD === normalizedDomain || normalizedDomain.endsWith("." + lowerD);
+      });
+
       if (!isAllowed && domains.length > 0) {
         return {
           valid: false,

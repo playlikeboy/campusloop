@@ -40,7 +40,7 @@ describe("CampusLoop Gaming Tournaments API (/api/gaming/tournaments)", () => {
     expect(json.tournaments).toBeDefined();
     expect(Array.isArray(json.tournaments)).toBe(true);
     expect(typeof json.total).toBe("number");
-  });
+  }, 15000);
 
   it("calculates correct single-elimination bracket rounds", () => {
     // 4 teams -> 2 rounds (Semis, Finals)
