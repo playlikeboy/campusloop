@@ -128,7 +128,7 @@ export function AcademicContextRail({
             <span>Study Playlists</span>
           </div>
           <Link
-            href="/academics/playlists/new"
+            href="/academics/study-material/playlists/new"
             onClick={() => sounds.tap()}
             className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
           >
@@ -149,7 +149,7 @@ export function AcademicContextRail({
             playlists.slice(0, 2).map((playlist) => (
               <Link
                 key={playlist.id}
-                href={`/academics/playlists/${playlist.slug || playlist.id}`}
+                href={`/academics/study-material/playlists/${playlist.slug || playlist.id}`}
                 onClick={() => sounds.tap()}
                 className="group block rounded-xl border border-border/30 bg-muted/20 p-2.5 transition-colors hover:border-primary/25 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
@@ -171,7 +171,7 @@ export function AcademicContextRail({
                 No public playlists yet. Bundle notes and PYQs into a study stack.
               </p>
               <Link
-                href="/academics/playlists/new"
+                href="/academics/study-material/playlists/new"
                 onClick={() => sounds.tap()}
                 className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
               >

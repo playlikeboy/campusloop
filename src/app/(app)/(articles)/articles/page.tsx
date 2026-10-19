@@ -1,10 +1,11 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { ArticlesHubClient } from "./articles-hub-client";
 
 export const metadata: Metadata = {
@@ -62,9 +63,18 @@ export default async function ArticlesPage() {
   let initialArticles: any[] = [];
 
   try {
+    const viewerId = await getViewerInstitutionId().catch(() => VIEWER_INSTITUTION_SLUG);
+    const verifiedTierSql = sql`CASE 
+      WHEN ${articles.institutionId} IS NOT NULL 
+       AND ${articles.institutionId} != ${viewerId} 
+       AND ${articles.institutionId} != ${VIEWER_INSTITUTION_SLUG} 
+      THEN 1 
+      ELSE 0 
+    END`;
+
     initialArticles = await db.query.articles.findMany({
       where: eq(articles.status, "PUBLISHED"),
-      orderBy: [desc(articles.publishedAt)],
+      orderBy: [sql`${verifiedTierSql} DESC`, desc(articles.publishedAt)],
       limit: 12,
       columns: { content: false },
       with: {

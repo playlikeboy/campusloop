@@ -107,6 +107,18 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
   - **Iconography**: Icons must be drawn from `lucide-react` or custom SVGs in uniform stroke and weight. Zero raw emojis in UI.
   - **Complete States**: Every component and view must handle hover, focus, disabled, loading, empty, and error states gracefully.
 
+### 15. Product Guide & Docs Sync Rule (MANDATORY on every feature change)
+- **Single source of truth**: `src/lib/guide/entries/*.ts` (types in `src/lib/guide/types.ts`). One entry = one public page at `/guide/[slug]`, one block in `/llms.txt` + `/llms-full.txt`, and one sitemap URL. All are generated; never hand-edit generated output.
+- **Whenever you add, change, rename, or remove a feature or user-facing page, update the guide in the same change**:
+  - New feature → add a `GuideEntry` (summary, purpose, whyUse, howToUse steps, useCases, privacy, investorAngle, faq, related, routes, keywords) in the right category file, with `updated` set to today.
+  - Changed behaviour, UI flow, ranking, privacy, pricing or routes → edit the affected entries' steps/FAQ/privacy and bump `updated`.
+  - Removed feature → delete its entry and any `related` references.
+  - Product-level changes (positioning, revenue, moats, stack) → update `PRODUCT_OVERVIEW` / `INVESTOR_POINTS` in `src/lib/guide/index.ts`.
+  - Engineering deep dives stay in `src/lib/docs-features.ts` (`/docs/[slug]`); link them via `essaySlug`.
+- **Audiences**: write for students (how/why), investors (purpose/value), and AI models (literal, complete). Plain language, no raw emojis, no unverifiable claims.
+- **Guardrail**: `src/lib/guide/guide.test.ts` fails on missing sections, broken `related`/`essaySlug` links, or `routes` that don't exist under `src/app`. Run `bun run test src/lib/guide` before committing.
+- Public entry points: landing nav "Guide", landing footer "Learn", marketing footer "Resources", `/investors`, `/llms.txt`, `/llms-full.txt`.
+
 ---
 
 ## 📁 Workspace Directory Sitemap

@@ -59,16 +59,24 @@ interface VanityProfileProps {
 export async function generateMetadata({ params }: VanityProfileProps): Promise<Metadata> {
   const resolved = await params;
   const rawUsername = decodeURIComponent(resolved.username);
+  const candidateUsername = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
 
-  const username = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
   const db = getDb();
-  const profile = await db.query.userProfiles.findFirst({
-    where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
-    ),
-    with: { institution: true },
-  });
+  const [profile, showSeeded] = await Promise.all([
+    db.query.userProfiles.findFirst({
+      where: or(
+        eq(userProfiles.username, candidateUsername),
+        sql`lower(${userProfiles.username}) = lower(${candidateUsername})`
+      ),
+      with: { institution: true },
+    }),
+    getShowSeededPosts(),
+  ]);
+  if (!profile || (!showSeeded && profile.isSeeded)) notFound();
+
+  // Redirect to canonical /@username only if this is a verified student/user profile
+  if (!rawUsername.startsWith("@")) redirect(`/@${candidateUsername}`);
+  const username = candidateUsername;
 
   const title = profile ? `${profile.displayName} (@${username})` : `@${username}`;
   const description = profile?.bio
@@ -112,13 +120,8 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
 export default async function VanityProfilePage({ params, searchParams }: VanityProfileProps) {
   const resolved = await params;
   const rawUsername = decodeURIComponent(resolved.username);
+  const candidateUsername = rawUsername.startsWith("@") ? rawUsername.slice(1) : rawUsername;
 
-  // If URL parameter does not start with @, redirect cleanly to @username
-  if (!rawUsername.startsWith("@")) {
-    redirect(`/@${rawUsername}`);
-  }
-
-  const username = rawUsername.slice(1);
   const search = searchParams ? await searchParams : undefined;
   const isViewerMode =
     search?.mode === "viewer" ||
@@ -132,8 +135,8 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   // Look up profile by username (case-insensitive fallback)
   const profile = await db.query.userProfiles.findFirst({
     where: or(
-      eq(userProfiles.username, username),
-      sql`lower(${userProfiles.username}) = lower(${username})`
+      eq(userProfiles.username, candidateUsername),
+      sql`lower(${userProfiles.username}) = lower(${candidateUsername})`
     ),
     with: {
       institution: true,
@@ -145,6 +148,13 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   if (!profile || (!showSeeded && profile.isSeeded)) {
     notFound();
   }
+
+  // If URL parameter did not start with @, redirect cleanly to @username now that user exists
+  if (!rawUsername.startsWith("@")) {
+    redirect(`/@${candidateUsername}`);
+  }
+
+  const username = candidateUsername;
 
   // Route an authenticated owner to the canonical interactive profile before loading public activity.
   // This prevents the vanity URL from rendering the public profile shell for its signed-in owner.
@@ -275,14 +285,14 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
       ]);
 
       return (
-        <div className="relative min-h-screen bg-background">
+        <div className="relative min-h-screen bg-background lg:flex">
           <Navigation
             profile={currentProfile}
             collegeName={college?.name ?? "Your College"}
             isAdmin={currentProfile.role === "ADMIN"}
           />
 
-          <div className="min-h-screen max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="min-h-screen min-w-0 flex-1 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
             <main className="w-full min-w-0 pb-24 md:pb-8">
               <Suspense
                 fallback={
@@ -723,7 +733,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                       {userPlaylists.map((pl) => (
                         <Link
                           key={pl.id}
-                          href={`/academics/playlists/${pl.slug}`}
+                          href={`/academics/study-material/playlists/${pl.slug}`}
                           className="p-3.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group shadow-2xs"
                         >
                           <div className="space-y-1.5 min-w-0">
@@ -759,7 +769,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                       {userAcademicResources.map((res) => (
                         <Link
                           key={res.id}
-                          href={`/academics/${res.id}`}
+                          href={`/academics/study-material/${res.id}`}
                           className="flex items-center justify-between p-3.5 hover:bg-muted/30 transition-colors gap-3"
                         >
                           <div className="min-w-0 flex-1 space-y-1">

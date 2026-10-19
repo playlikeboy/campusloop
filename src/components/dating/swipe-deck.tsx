@@ -4,6 +4,7 @@ import {
   GraduationCap,
   Heart,
   HeartHandshakeIcon,
+  MapPin,
   RotateCcw,
   School,
   ShieldCheck,
@@ -33,6 +34,8 @@ export type Candidate = {
   compatibilityScore: number;
   sharedInterests: string[];
   likedYou?: boolean;
+  /** Coarse bucket ("Within 5 km") from the server; never coordinates. */
+  distanceLabel?: string | null;
   institution?: { name: string; slug?: string | null; state?: string | null } | null;
 };
 
@@ -204,6 +207,12 @@ function TopCard({
                 <span className="inline-flex items-center gap-1 truncate rounded-md bg-black/30 px-2 py-0.5 backdrop-blur-xs border border-white/10">
                   <School className="size-3.5 text-white/70 shrink-0" />
                   {candidate.institution.name.split(",")[0]}
+                </span>
+              )}
+              {candidate.distanceLabel && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-black/30 px-2 py-0.5 backdrop-blur-xs border border-white/10 text-white/80">
+                  <MapPin className="size-3.5 shrink-0" />
+                  {candidate.distanceLabel}
                 </span>
               )}
               {(candidate.course || candidate.branch) && (

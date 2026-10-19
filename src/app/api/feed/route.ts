@@ -7,17 +7,74 @@ import { formatApiFeedPosts, normalizeApiFeedSort, resolveFeedPage } from "@/lib
 import { getShowSeededPosts } from "@/lib/platform-config";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
 import { EMPTY_AFFINITY, getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
+import { IsolateCache } from "@/lib/isolate-cache";
+import { getRedis } from "@/lib/redis";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
+type FeedProfile = {
+  id: string;
+  institutionId: string | null;
+  feedVisibility: string | null;
+  targetInstitutionIds: string[];
+};
+
+// Profile fields the feed needs change rarely; the anonymity toggle also sends
+// `visibility` explicitly, so a 60s isolate cache is safe and saves a round trip.
+const profileCache = new IsolateCache<FeedProfile | null>(60_000);
+
+/** Ranked sorts that take longer than this fall back to the chronological feed. */
+const RANKED_BUDGET_MS = 5000;
+
+/** Logged-out responses are identical for everyone, so they are edge-cached briefly. */
+const ANON_EDGE_TTL_SECONDS = 30;
+
+// Redis rather than the Cache API: with Smart Placement, requests run in many
+// colos and the Cache API is per-colo, so it almost never hit.
+const anonMemo = new IsolateCache<string>(ANON_EDGE_TTL_SECONDS * 1000, 200);
+
 export async function GET(req: Request) {
+  const started = performance.now();
+  const marks: string[] = [];
+  const mark = (name: string, since: number) => marks.push(`${name};dur=${Math.round(performance.now() - since)}`);
+
   try {
+    // Independent of the viewer: start it alongside auth.
+    const showSeededPromise = getShowSeededPosts();
+
     let user = null;
+    const tAuth = performance.now();
     try {
       user = await hexclaveServerApp.getUser();
     } catch {
       // Unauthenticated or public viewer
+    }
+    mark("auth", tAuth);
+
+    const url = new URL(req.url);
+    const isCacheableAnon =
+      !user &&
+      !url.searchParams.get("seenIds") &&
+      !url.searchParams.get("excludeIds") &&
+      !req.headers.get("x-seen-ids");
+    const anonKey = isCacheableAnon ? `feed:anon:v1:${url.search}` : null;
+    if (anonKey) {
+      let body = anonMemo.get(anonKey);
+      if (!body) {
+        body = (await getRedis()?.get<string>(anonKey).catch(() => null)) ?? undefined;
+        if (body && typeof body !== "string") body = JSON.stringify(body);
+        if (body) anonMemo.set(anonKey, body);
+      }
+      if (body) {
+        return new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, s-maxage=${ANON_EDGE_TTL_SECONDS}`,
+            "X-Feed-Cache": "HIT",
+          },
+        });
+      }
     }
 
     const { searchParams } = new URL(req.url);
@@ -46,9 +103,24 @@ export async function GET(req: Request) {
     let targetInstitutionIds: string[] = [];
 
     if (user) {
-      const profile = await db.query.userProfiles.findFirst({
-        where: eq(userProfiles.userId, user.id),
-      });
+      const tProfile = performance.now();
+      let profile = profileCache.get(user.id);
+      if (profile === undefined) {
+        const row = await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, user.id),
+          columns: { id: true, institutionId: true, feedVisibility: true, targetInstitutionIds: true },
+        });
+        profile = row
+          ? {
+              id: row.id,
+              institutionId: row.institutionId,
+              feedVisibility: row.feedVisibility,
+              targetInstitutionIds: (row.targetInstitutionIds as string[]) || [],
+            }
+          : null;
+        profileCache.set(user.id, profile);
+      }
+      mark("profile", tProfile);
       if (profile) {
         profileId = profile.id;
         institutionId = profile.institutionId;
@@ -57,11 +129,13 @@ export async function GET(req: Request) {
       }
     }
 
+    const tCtx = performance.now();
     const [isViewer, showSeeded, affinity] = await Promise.all([
       institutionId ? isViewerProfile({ institutionId }) : Promise.resolve(false),
-      getShowSeededPosts(),
+      showSeededPromise,
       getViewerAffinity(profileId),
     ]);
+    mark("context", tCtx);
     const conditions: SQL[] = [eq(posts.status, "PUBLISHED")];
 
     // Blocks are a visibility rule, not a ranking signal: either direction removes the author.
@@ -199,13 +273,43 @@ export async function GET(req: Request) {
     };
     // Ranking is an enhancement: if a scored sort fails, serve the
     // chronological feed rather than an empty timeline.
-    const rawFeed = await resolveFeedPage({ ...pageOptions, sort }).catch((error) => {
+    const tRank = performance.now();
+    // A ranked sort gets a time budget; past it, the chronological query answers instead.
+    const ranked =
+      sort === "latest"
+        ? resolveFeedPage({ ...pageOptions, sort })
+        : Promise.race([
+            resolveFeedPage({ ...pageOptions, sort }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error(`ranked feed exceeded ${RANKED_BUDGET_MS}ms`)), RANKED_BUDGET_MS)
+            ),
+          ]);
+    const rawFeed = await ranked.catch((error) => {
       if (sort === "latest") throw error;
       console.error(`Ranked feed (${sort}) failed, falling back to latest:`, error);
+      marks.push("fallback;desc=latest");
       return resolveFeedPage({ ...pageOptions, sort: "latest" });
     });
+    mark("rank", tRank);
+    const tFormat = performance.now();
     const feed = await formatApiFeedPosts(rawFeed, profileId);
-    return NextResponse.json(feed);
+    mark("format", tFormat);
+    mark("total", started);
+
+    const response = NextResponse.json(feed);
+    response.headers.set("Server-Timing", marks.join(", "));
+    if (anonKey) {
+      response.headers.set("Cache-Control", `public, s-maxage=${ANON_EDGE_TTL_SECONDS}`);
+      response.headers.set("X-Feed-Cache", "MISS");
+      const body = JSON.stringify(feed);
+      anonMemo.set(anonKey, body);
+      await getRedis()
+        ?.set(anonKey, body, { ex: ANON_EDGE_TTL_SECONDS })
+        .catch(() => {});
+    } else {
+      response.headers.set("Cache-Control", "private, no-store");
+    }
+    return response;
   } catch (error) {
     console.error("Error fetching feed:", error);
     return NextResponse.json({ error: "Failed to fetch feed" }, { status: 500 });

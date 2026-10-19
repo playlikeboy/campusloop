@@ -5,6 +5,7 @@ import { marketplaceOrderItems, marketplaceOrders, merchants, products, userProf
 import { hexclaveServerApp } from "@/hexclave/server";
 import { withUniqueOrderNumber } from "@/lib/marketplace/order-number";
 import { type CartItemInput, type FulfillmentType, priceMerchantOrder } from "@/lib/marketplace/pricing";
+import { releaseExpiredPaymentHolds } from "@/lib/payments/expire-holds";
 import { getRedis } from "@/lib/redis";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -18,7 +19,7 @@ interface CheckoutPayload {
     merchantId: string;
     fulfillmentType: FulfillmentType;
     customerNote?: string;
-    paymentMethod?: "COD" | "UPI" | "CAMPUS_PAY";
+    paymentMethod?: "COD" | "UPI" | "CAMPUS_PAY" | "RAZORPAY";
     items: CartItemInput[];
   }>;
   deliveryAddress: {
@@ -158,7 +159,7 @@ export async function POST(req: Request) {
       merchantId: string;
       categorySlug: string;
       fulfillmentType: FulfillmentType;
-      paymentMethod: "COD" | "UPI" | "CAMPUS_PAY";
+      paymentMethod: "COD" | "UPI" | "CAMPUS_PAY" | "RAZORPAY";
       customerNote: string | null;
       dbProducts: any[];
       lines: Array<{
@@ -228,12 +229,19 @@ export async function POST(req: Request) {
         merchantId: merchant.id,
         categorySlug: merchant.categorySlug,
         fulfillmentType: basket.fulfillmentType,
-        paymentMethod: basket.paymentMethod ?? "COD",
+        paymentMethod: (["COD", "UPI", "CAMPUS_PAY", "RAZORPAY"] as const).includes(
+          basket.paymentMethod as "COD"
+        )
+          ? (basket.paymentMethod as "COD" | "UPI" | "CAMPUS_PAY" | "RAZORPAY")
+          : "COD",
         customerNote: basket.customerNote?.trim() || null,
         dbProducts,
         ...result.order,
       });
     }
+
+    // Free stock held by abandoned online payments before reserving new stock.
+    await releaseExpiredPaymentHolds();
 
     // ── Phase 2: Atomic Stock Reservation ──
     //
@@ -319,7 +327,8 @@ export async function POST(req: Request) {
               institutionId: profile.institutionId,
               categorySlug: basket.categorySlug,
               fulfillmentType: basket.fulfillmentType,
-              status: "PLACED",
+              // Online orders stay hidden from the store until Razorpay confirms payment.
+              status: basket.paymentMethod === "RAZORPAY" ? "PAYMENT_PENDING" : "PLACED",
               subtotal: basket.subtotal,
               deliveryFee: basket.deliveryFee,
               discount: 0,

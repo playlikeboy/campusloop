@@ -71,10 +71,10 @@ export function AdminHeader({
           <button
             type="button"
             onClick={onOpenMobileDrawer}
-            className="md:hidden flex size-8 items-center justify-center rounded-lg bg-muted/50 border border-border/40 text-foreground hover:bg-muted transition-colors cursor-pointer active:scale-95 shrink-0"
-            aria-label="Open mobile navigation drawer"
+            className="md:hidden -ml-1 flex size-10 items-center justify-center rounded-full text-foreground hover:bg-muted transition-colors cursor-pointer active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label="Open admin menu"
           >
-            <Menu className="size-4" />
+            <Menu className="size-5" />
           </button>
 
           {/* Desktop collapse toggle */}

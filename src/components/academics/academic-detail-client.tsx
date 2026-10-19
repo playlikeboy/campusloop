@@ -56,7 +56,7 @@ export function AcademicDetailClient({
 }: AcademicDetailClientProps) {
   const [resource] = useState(initialResource);
   const effectivePageUrl =
-    canonicalUrl || `https://campusloop.space/academics/${initialResource.slug || initialResource.id}`;
+    canonicalUrl || `https://campusloop.space/academics/study-material/${initialResource.slug || initialResource.id}`;
   const [upvotes, setUpvotes] = useState(initialResource.upvotesCount || 0);
   const [downvotes, setDownvotes] = useState(initialResource.downvotesCount || 0);
   const [downloads, setDownloads] = useState(initialResource.downloadsCount || 0);
@@ -813,7 +813,7 @@ export function AcademicDetailClient({
           <SimilarResourcesWidget resourceId={resource.id} subjectCode={resource.subjectCode} />
 
           {/* Guest Student Auth Benefits */}
-          {!currentUserId && <AcademicAuthBenefitsCard returnTo={`/academics/${resource.id}`} />}
+          {!currentUserId && <AcademicAuthBenefitsCard returnTo={`/academics/study-material/${resource.id}`} />}
         </aside>
       </div>
 
@@ -830,7 +830,7 @@ export function AcademicDetailClient({
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         actionReason={authModalReason}
-        returnTo={`/academics/${resource.id}`}
+        returnTo={`/academics/study-material/${resource.id}`}
       />
     </div>
   );

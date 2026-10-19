@@ -14,6 +14,8 @@ export default function robots(): MetadataRoute.Robots {
         "/post/",
         "/academics",
         "/academics/",
+        "/courses",
+        "/courses/",
         "/articles",
         "/articles/",
         "/communities",

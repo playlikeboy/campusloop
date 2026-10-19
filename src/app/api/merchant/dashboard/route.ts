@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { marketplaceOrders, products } from "@/db/schema";
@@ -17,7 +17,7 @@ export async function GET() {
 
     // Fetch all orders for this merchant
     const allMerchantOrders = await db.query.marketplaceOrders.findMany({
-      where: eq(marketplaceOrders.merchantId, merchant.id),
+      where: and(eq(marketplaceOrders.merchantId, merchant.id), ne(marketplaceOrders.status, "PAYMENT_PENDING")),
       orderBy: [desc(marketplaceOrders.createdAt)],
       with: {
         student: {

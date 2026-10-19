@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminHeader } from "./admin-header";
+import { AdminMobileDrawer } from "./admin-mobile-drawer";
 import { AdminSidebar } from "./admin-sidebar";
 
 interface AdminShellProps {
@@ -23,6 +24,7 @@ export function AdminShell({
 }: AdminShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const closeMobileDrawer = useCallback(() => setIsMobileDrawerOpen(false), []);
 
   // Auto-collapse sidebar on smaller tablet screens
   useEffect(() => {
@@ -38,18 +40,6 @@ export function AdminShell({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // Lock body scroll when mobile drawer is open
-  useEffect(() => {
-    if (isMobileDrawerOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileDrawerOpen]);
 
   return (
     <div className="relative min-h-screen bg-background flex text-foreground antialiased selection:bg-primary/20">
@@ -73,23 +63,13 @@ export function AdminShell({
         </main>
       </div>
 
-      {/* Mobile Slide-Over Drawer */}
-      {isMobileDrawerOpen && (
-        <div
-          className="fixed inset-0 z-50 md:hidden bg-background/80 backdrop-blur-sm animate-in fade-in duration-150"
-          onClick={() => setIsMobileDrawerOpen(false)}
-        >
-          <div
-            className="w-[82%] max-w-xs h-full bg-card shadow-2xl border-r border-border animate-in slide-in-from-left duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <AdminSidebar
-              isMobileDrawer
-              onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Mobile Slide-Over Drawer (scroll lock, Escape and focus handled by DrawerPanel) */}
+      <AdminMobileDrawer
+        open={isMobileDrawerOpen}
+        onClose={closeMobileDrawer}
+        adminName={adminProfile?.displayName}
+        pendingReviewCount={pendingReviewCount}
+      />
     </div>
   );
 }

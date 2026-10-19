@@ -105,7 +105,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
           {/* Right: Search, Guest CTAs & Theme Toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
-              href="/academics/search"
+              href="/academics/study-material/search"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
               title="Search Vault"
             >

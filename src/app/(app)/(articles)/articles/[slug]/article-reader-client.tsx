@@ -16,6 +16,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticleCommentsSection } from "@/components/articles/article-comments-section";
+import { ArticleListenButton } from "@/components/articles/article-listen-button";
+import { ArticleToc } from "@/components/articles/article-toc";
 import { ReadingProgress } from "@/components/articles/reading-progress";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -94,9 +96,15 @@ export function ArticleReaderClient({
   const catMeta = getCategoryMeta(article.category);
   const authorName = article.author?.displayName || "Student Writer";
   const authorUsername = article.author?.username || "student";
-  const isVerified = (article.author?.points || 0) >= 150;
-  const collegeName =
-    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "Campus";
+  const isViewerHub =
+    article.institution?.slug === "viewer-hub" ||
+    article.author?.institution?.slug === "viewer-hub" ||
+    Boolean(article.institution?.name?.toLowerCase().includes("viewer hub")) ||
+    Boolean(article.author?.institution?.name?.toLowerCase().includes("viewer hub"));
+  const isVerified = (article.author?.points || 0) >= 150 && !isViewerHub;
+  const rawCollege =
+    article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0];
+  const collegeName = isViewerHub ? "Community" : rawCollege || "Campus";
 
   const formattedDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
@@ -350,9 +358,16 @@ export function ArticleReaderClient({
           </div>
         )}
 
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <ArticleListenButton title={article.title} content={article.content} />
+          </div>
+          <ArticleToc content={article.content} />
+        </div>
+
         {/* ─── Long-Form Markdown Content Body (Zero select-none) ─── */}
         <div className="pt-2 text-foreground font-normal leading-[1.8] text-[17px] sm:text-[19px]">
-          <MarkdownContent content={article.content} />
+          <MarkdownContent content={article.content} autoEmbed />
         </div>
 
         {/* ─── Tags Strip ─── */}

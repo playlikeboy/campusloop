@@ -1,11 +1,11 @@
-import { eq, gt } from "drizzle-orm";
+import { and, eq, gt, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { follows, stories, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
 import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
-import { rankAndFilterStories } from "@/lib/stories-ranker";
+import { rankAndFilterStories, STORY_AUTHOR_COLUMNS } from "@/lib/stories-ranker";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -28,21 +28,22 @@ export async function GET() {
 
     const now = new Date();
 
-    // 1. Fetch active stories within 24h
-    const activeStories = await db.query.stories.findMany({
-      where: gt(stories.expiresAt, now),
-      with: {
-        user: true,
-      },
-    });
-
-    // 2. Fetch users followed by viewer, plus learned closeness and blocks
+    // 1. Who the viewer follows, plus learned closeness and blocks
     const [userFollows, affinity] = await Promise.all([
       db.query.follows.findMany({
         where: eq(follows.followerId, profile.id),
       }),
       getViewerAffinity(profile.id),
     ]);
+
+    // 2. Active stories from self and followings only, with public author fields
+    const authorIds = [profile.id, ...userFollows.map((f) => f.followingId)];
+    const activeStories = await db.query.stories.findMany({
+      where: and(gt(stories.expiresAt, now), inArray(stories.userId, authorIds)),
+      with: {
+        user: { columns: STORY_AUTHOR_COLUMNS },
+      },
+    });
 
     const followingIds = userFollows.map((f) => f.followingId);
     const friendIds = userFollows.filter((f) => f.isMutual).map((f) => f.followingId);

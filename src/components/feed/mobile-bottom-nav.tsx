@@ -20,7 +20,7 @@ const HIDE_GLOBAL_MOBILE_NAV = [
   "/stories/new",
   "/story/",
   "/post/",
-  "/academics/upload",
+  "/academics/study-material/upload",
 ];
 
 function isMobileFlow(pathname: string) {

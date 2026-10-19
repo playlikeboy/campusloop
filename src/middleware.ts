@@ -8,6 +8,7 @@ const RATE_LIMIT_MAX_REQUESTS = 120;
 const RATE_LIMIT_EXEMPT_PREFIXES = [
   "/api/behavior/track",
   "/api/feed/impressions",
+  "/api/webhooks/",
   "/api/presence",
   "/api/notifications/unread-count",
 ];

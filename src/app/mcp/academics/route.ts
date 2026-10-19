@@ -864,7 +864,7 @@ export async function POST(req: Request) {
           with: { institution: { columns: { id: true, name: true, slug: true } }, creator: { columns: { username: true, displayName: true } } },
         });
         return NextResponse.json(
-          { success: true, duplicate: true, message: "Matching playlist already exists; nothing was created.", playlist: formatPlaylist(full || samePlaylist), publicUrl: "https://campusloop.space/academics/playlists/" + samePlaylist.slug },
+          { success: true, duplicate: true, message: "Matching playlist already exists; nothing was created.", playlist: formatPlaylist(full || samePlaylist), publicUrl: "https://campusloop.space/academics/study-material/playlists/" + samePlaylist.slug },
           { status: 200, headers: CORS_HEADERS }
         );
       }
@@ -932,7 +932,7 @@ export async function POST(req: Request) {
           success: true,
           message: `Academic Playlist '${title}' created successfully!`,
           playlist: formatPlaylist(newPlaylist),
-          publicUrl: `https://campusloop.space/academics/playlists/${newPlaylist.slug}`,
+          publicUrl: `https://campusloop.space/academics/study-material/playlists/${newPlaylist.slug}`,
         },
         { status: 201, headers: CORS_HEADERS }
       );
@@ -1005,7 +1005,7 @@ export async function POST(req: Request) {
     }
     if (duplicate) {
       const full = await db.query.academicResources.findFirst({ where: eq(academicResources.id, duplicate.id), with: { institution: { columns: { id: true, name: true, slug: true } }, uploader: { columns: { username: true, displayName: true } } } });
-      return NextResponse.json({ success: true, duplicate: true, message: "Matching resource already exists; nothing was inserted.", resource: formatResource(full || duplicate), publicUrl: "https://campusloop.space/academics/" + duplicate.id }, { status: 200, headers: CORS_HEADERS });
+      return NextResponse.json({ success: true, duplicate: true, message: "Matching resource already exists; nothing was inserted.", resource: formatResource(full || duplicate), publicUrl: "https://campusloop.space/academics/study-material/" + duplicate.id }, { status: 200, headers: CORS_HEADERS });
     }
 
     const { uploaderId, institutionId } = await resolveUploaderAndInstitution(
@@ -1050,7 +1050,7 @@ export async function POST(req: Request) {
         success: true,
         message: `Academic resource '${title}' created successfully!`,
         resource: formatResource(newResource),
-        publicUrl: "https://campusloop.space/academics/" + newResource.id,
+        publicUrl: "https://campusloop.space/academics/study-material/" + newResource.id,
       },
       { status: 201, headers: CORS_HEADERS }
     );
@@ -1691,7 +1691,7 @@ function formatResource(res: any) {
     isVerified: Boolean(res.isVerified) && !isPlaceholderAcademicResource(res),
     institution: res.institution ? { id: res.institution.id, name: res.institution.name, slug: res.institution.slug } : null,
     uploader: res.uploader ? { username: res.uploader.username, displayName: res.uploader.displayName } : null,
-    publicUrl: "https://campusloop.space/academics/" + res.id,
+    publicUrl: "https://campusloop.space/academics/study-material/" + res.id,
     createdAt: res.createdAt,
     updatedAt: res.updatedAt,
   };
@@ -1725,7 +1725,7 @@ function formatPlaylist(pl: any) {
           resource: item.resource ? formatResource(item.resource) : null,
         }))
       : undefined,
-    publicUrl: `https://campusloop.space/academics/playlists/${pl.slug}`,
+    publicUrl: `https://campusloop.space/academics/study-material/playlists/${pl.slug}`,
     createdAt: pl.createdAt,
     updatedAt: pl.updatedAt,
   };
