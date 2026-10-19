@@ -4,29 +4,39 @@ import {
   Ban,
   BookOpen,
   BriefcaseBusiness,
+  Check,
+  Coffee,
+  Copy,
   ExternalLink,
   EyeOff,
   FileDown,
-  Presentation,
+  FileText,
   Flame,
+  GraduationCap,
   Heart,
   HeartHandshake,
+  Image as ImageIcon,
   Layers,
+  Lock,
   Megaphone,
   MessagesSquare,
+  Presentation,
+  Rocket,
   ShieldCheck,
+  Shirt,
   ShoppingBag,
+  Sparkles,
   Split,
   Store,
   Ticket,
   TrendingUp,
   Trophy,
+  Users,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-
-const PITCH_DECK_PDF_URL = process.env.NEXT_PUBLIC_PITCH_DECK_PDF_URL;
+import { toast } from "sonner";
 import { Reveal } from "@/components/landing/reveal";
 import {
   CTABand,
@@ -37,6 +47,8 @@ import {
   SectionHeading,
   StatCard,
 } from "@/components/marketing/system";
+
+const PITCH_DECK_PDF_URL = process.env.NEXT_PUBLIC_PITCH_DECK_PDF_URL || "/pitch.pdf";
 
 const PAIN_POINTS = [
   {
@@ -138,9 +150,25 @@ const ROADMAP = [
 export function PitchClient() {
   const [dau, setDau] = useState(100000);
   const [arpu, setArpu] = useState(3.5);
+  const [copiedDeckLink, setCopiedDeckLink] = useState(false);
 
   const revenue = dau * arpu;
   const valuation = revenue * 8;
+
+  const handleCopyDeckLink = async () => {
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/pitch.pdf`
+        : "https://campusloop.space/pitch.pdf";
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedDeckLink(true);
+      toast.success("Copied link to pitch.pdf");
+      setTimeout(() => setCopiedDeckLink(false), 2000);
+    } catch {
+      toast.error("Unable to copy link");
+    }
+  };
 
   const fmtUsd = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(
@@ -181,47 +209,179 @@ export function PitchClient() {
             The verified social graph for <GradientText>43 million</GradientText> Indian students.
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            CampusLoop pulls every college's fragmented social life into one student-only network, gated by
+            CampusLoop pulls every college&apos;s fragmented social life into one student-only network, gated by
             the one credential no outsider has: a college email. Density per campus is the product — and the
             moat.
           </p>
-          <div className="flex flex-wrap gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
               href="/contact"
               className="inline-flex h-11 items-center gap-2 rounded-2xl bg-primary px-6 text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/95"
             >
               Talk to us
             </Link>
-            <Link
-              href="/overview"
-              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border px-6 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+            <a
+              href={PITCH_DECK_PDF_URL}
+              download="CampusLoop-Pitch-Deck.pdf"
+              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-5 text-sm font-bold text-primary transition-all hover:bg-primary/20 shadow-xs"
             >
-              <BookOpen className="size-4" /> Read the full brief
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap gap-3 pt-1">
+              <FileDown className="size-4" />
+              Download Deck (PDF)
+              <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                2.7 MB
+              </span>
+            </a>
+            <button
+              type="button"
+              onClick={handleCopyDeckLink}
+              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              title="Copy direct link to pitch.pdf"
+            >
+              {copiedDeckLink ? (
+                <>
+                  <Check className="size-4 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400">Copied Link</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="size-4 text-muted-foreground" />
+                  <span>Copy PDF Link</span>
+                </>
+              )}
+            </button>
             <a
               href="https://canva.link/zdg5k3nnw9ifaaa"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-5 text-sm font-bold text-primary transition-colors hover:bg-primary/15"
+              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
             >
-              <Presentation className="size-4" />
-              View pitch deck
-              <ExternalLink className="size-3.5" />
+              <Presentation className="size-4 text-muted-foreground" />
+              <span>Interactive Slides</span>
+              <ExternalLink className="size-3 text-muted-foreground" />
             </a>
-            {PITCH_DECK_PDF_URL ? (
+            <Link
+              href="/overview"
+              className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+            >
+              <BookOpen className="size-4" /> Strategic brief
+            </Link>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── Official Pitch Deck Presentation (PDF) ── */}
+      <Section id="deck" tone="muted">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeading
+            className="pb-0"
+            eyebrow="Seed investor presentation"
+            title={
+              <>
+                Official Pitch Deck <GradientText>(PDF &amp; Slides)</GradientText>
+              </>
+            }
+            lede="Review our complete deck covering campus network density, student moat, 1,350+ indexed college hubs, multi-stream monetization, and 2026 expansion."
+          />
+          <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+            <a
+              href={PITCH_DECK_PDF_URL}
+              download="CampusLoop-Pitch-Deck.pdf"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/95"
+            >
+              <FileDown className="size-3.5" />
+              Download PDF (2.7 MB)
+            </a>
+            <a
+              href={PITCH_DECK_PDF_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              <ExternalLink className="size-3.5 text-muted-foreground" />
+              Open Fullscreen
+            </a>
+            <button
+              type="button"
+              onClick={handleCopyDeckLink}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              {copiedDeckLink ? (
+                <>
+                  <Check className="size-3.5 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3.5 text-muted-foreground" />
+                  <span>Copy Link</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Embedded PDF Viewer Card */}
+        <div className="mt-8 overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm">
+          <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-4 py-3 sm:px-6">
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FileText className="size-4" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-bold text-foreground">pitch.pdf · CampusLoop Seed Deck</p>
+                <p className="text-[11px] text-muted-foreground">Original PDF · 2.7 MB · Complete 16 Slides</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
               <a
                 href={PITCH_DECK_PDF_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+                className="hidden text-xs font-bold text-primary hover:underline sm:inline-flex items-center gap-1"
               >
-                <FileDown className="size-4" />
+                Open in tab <ExternalLink className="size-3" />
+              </a>
+            </div>
+          </div>
+
+          {/* PDF Viewer Frame */}
+          <div className="relative aspect-16/10 min-h-[440px] w-full bg-muted/20 md:min-h-[640px]">
+            <iframe
+              src={`${PITCH_DECK_PDF_URL}#toolbar=1&navpanes=0&view=FitH`}
+              title="CampusLoop Seed Pitch Deck PDF"
+              className="h-full w-full border-0"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Footer Bar / Mobile fallback */}
+          <div className="flex flex-col gap-3 border-t border-border/60 bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <p className="text-xs text-muted-foreground">
+              Direct asset served from{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+                https://campusloop.space/pitch.pdf
+              </code>
+            </p>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://canva.link/zdg5k3nnw9ifaaa"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                <Presentation className="size-3.5" />
+                View on Canva
+                <ExternalLink className="size-3" />
+              </a>
+              <a
+                href={PITCH_DECK_PDF_URL}
+                download="CampusLoop-Pitch-Deck.pdf"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+              >
+                <FileDown className="size-3.5" />
                 Download PDF
               </a>
-            ) : null}
+            </div>
           </div>
         </div>
       </Section>
@@ -322,7 +482,7 @@ export function PitchClient() {
             <div className="space-y-4 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-primary bg-primary/15 px-3 py-1 rounded-full border border-primary/25">
-                  ✨ Flagship Feature · Match Mode
+                  <Sparkles className="size-3.5" /> Flagship Feature · Match Mode
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                   <ShieldCheck className="size-3" /> Safe &amp; Verified
@@ -341,37 +501,49 @@ export function PitchClient() {
               {/* Multipurpose Usage Dimensions */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">🎓 Campus Friends</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <GraduationCap className="size-3.5 text-primary" /> Campus Friends
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Batchmates, hostel buddies &amp; seniors.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-primary">💘 Soft Dating</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-primary">
+                    <Heart className="size-3.5 text-primary" /> Soft Dating
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Zero-embarrassment natural campus vibes.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">🤝 Peer Connects</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <HeartHandshake className="size-3.5 text-primary" /> Peer Connects
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Study groups, lab &amp; project partners.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">☕ Talk &amp; Chai</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <Coffee className="size-3.5 text-primary" /> Talk &amp; Chai
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Canteen banter &amp; evening conversations.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">🚀 Co-Founders</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <Rocket className="size-3.5 text-primary" /> Co-Founders
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Hackathons, builders &amp; creative minds.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">🔒 Intent-Hidden</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <Lock className="size-3.5 text-primary" /> Intent-Hidden
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Mutual reveal only when both students match.
                   </p>
@@ -383,7 +555,7 @@ export function PitchClient() {
               <div className="size-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mx-auto border border-primary/20">
                 <Heart className="size-6 fill-primary text-primary" />
               </div>
-              <p className="text-xs font-black text-foreground">Rahul ➔ Secret Crush ➔ Priya</p>
+              <p className="text-xs font-black text-foreground">Rahul &rarr; Secret Crush &rarr; Priya</p>
               <p className="text-[11px] text-muted-foreground">
                 Priya sees nothing. Later, Priya secretly adds Rahul...
               </p>
@@ -400,7 +572,7 @@ export function PitchClient() {
             <div className="space-y-4 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-500 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/25">
-                  🔥 Viral Campus Culture · Inside Jokes &amp; Memes
+                  <Flame className="size-3.5 text-amber-500" /> Viral Campus Culture · Inside Jokes &amp; Memes
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
                   Campus-Only Privacy
@@ -420,37 +592,49 @@ export function PitchClient() {
               {/* Meme Dimensions Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-amber-500">✨ Aura Points (+/-)</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-amber-500">
+                    <Sparkles className="size-3.5 text-amber-500" /> Aura Points (+/-)
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Tripping on canteen stairs or saving end-sem slides.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">👨‍🏫 Respectful Faculty Lore</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <GraduationCap className="size-3.5 text-amber-500" /> Faculty Lore
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Catchphrases, surprise quiz alerts &amp; legendary assignments.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">👕 Viral Tees &amp; Merch</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <Shirt className="size-3.5 text-amber-500" /> Viral Tees &amp; Merch
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Fest drip, department roasts &amp; hostel quotes.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">📸 Instagram Carousel</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <ImageIcon className="size-3.5 text-amber-500" /> Photo Dumps
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Multi-photo photo dumps with swipe indicators.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">☕ Canteen &amp; Mess Banter</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <Coffee className="size-3.5 text-amber-500" /> Canteen &amp; Mess Banter
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Sunday feast queues vs everyday dinner struggles.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card/80 p-3 border border-border/40 space-y-1">
-                  <p className="text-xs font-black text-foreground">🔒 Zero Outsider Judgment</p>
+                  <p className="flex items-center gap-1.5 text-xs font-black text-foreground">
+                    <ShieldCheck className="size-3.5 text-amber-500" /> Zero Outsiders
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Family &amp; recruiters can never see or scrape campus memes.
                   </p>
@@ -460,7 +644,7 @@ export function PitchClient() {
 
             <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-md max-w-sm w-full space-y-3 text-center self-center lg:self-start">
               <div className="size-12 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/20 font-black text-lg">
-                ⚡
+                <Zap className="size-6 text-amber-500" />
               </div>
               <p className="text-xs font-black text-foreground">
                 &ldquo;Popular senior dropped iced tea on dean&apos;s scooter&rdquo;
@@ -612,14 +796,23 @@ export function PitchClient() {
               Roadmap phases, market research, and continuous updates — structured and live on Notion.
             </p>
           </div>
-          <a
-            href="https://app.notion.com/p/Campusloop-3c4cd0ed0c2580b88ac4f1c2ae54961b"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-xs font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/95 active:scale-95"
-          >
-            Explore the docs <ExternalLink className="size-4" />
-          </a>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <a
+              href={PITCH_DECK_PDF_URL}
+              download="CampusLoop-Pitch-Deck.pdf"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-5 text-xs font-bold text-foreground transition-colors hover:bg-muted"
+            >
+              <FileDown className="size-4" /> Download PDF (2.7 MB)
+            </a>
+            <a
+              href="https://app.notion.com/p/Campusloop-3c4cd0ed0c2580b88ac4f1c2ae54961b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-xs font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/95 active:scale-95"
+            >
+              Explore the docs <ExternalLink className="size-4" />
+            </a>
+          </div>
         </div>
       </Section>
 
