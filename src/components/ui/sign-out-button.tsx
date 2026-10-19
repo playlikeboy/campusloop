@@ -25,6 +25,10 @@ export function SignOutButton({
     if (isSigningOut) return;
 
     setIsSigningOut(true);
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch {}
     window.location.href = "/logout";
   }
 

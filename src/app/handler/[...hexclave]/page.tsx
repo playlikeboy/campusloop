@@ -28,12 +28,30 @@ export default async function Handler({
       ? resolvedSearchParams.returnTo
       : undefined;
 
+  const hexclaveParts = resolvedParams?.hexclave || [];
+
+  // Intercept sign-out / logout paths to prevent Hexclave server-component sign-out crashes
+  if (
+    hexclaveParts.some((part) =>
+      ["sign-out", "signout", "logout", "log-out"].includes(part.toLowerCase())
+    )
+  ) {
+    const rawReturnTo =
+      typeof resolvedSearchParams?.returnTo === "string"
+        ? resolvedSearchParams.returnTo
+        : typeof resolvedSearchParams?.after_auth_return_to === "string"
+          ? resolvedSearchParams.after_auth_return_to
+          : undefined;
+    const cleanReturnTo = sanitizeReturnTo(rawReturnTo);
+    const qs = cleanReturnTo ? `?returnTo=${encodeURIComponent(cleanReturnTo)}` : "";
+    redirect(`/logout${qs}`);
+  }
+
   // Intercept self-referential auth loop parameters
   const afterAuthIsDirty = rawAfterAuth && !sanitizeReturnTo(rawAfterAuth);
   const returnToIsDirty = rawReturnTo && !sanitizeReturnTo(rawReturnTo);
 
   if (afterAuthIsDirty || returnToIsDirty) {
-    const hexclaveParts = resolvedParams?.hexclave || [];
     const targetPath = `/handler/${hexclaveParts.join("/")}`;
     const sp = new URLSearchParams();
 

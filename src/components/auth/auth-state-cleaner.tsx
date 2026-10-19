@@ -76,6 +76,29 @@ export function AuthStateCleaner() {
         window.history.replaceState(null, "", url.pathname + url.search + url.hash);
       }
     } catch {}
+
+    // 3. Purge client storage and cookies when returning from logout
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("logged_out") === "1") {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch {}
+
+        if (typeof document !== "undefined") {
+          const cookies = document.cookie.split(";");
+          for (const c of cookies) {
+            const eqPos = c.indexOf("=");
+            const name = eqPos > -1 ? c.substring(0, eqPos).trim() : c.trim();
+            if (name) {
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname};`;
+            }
+          }
+        }
+      }
+    } catch {}
   }, []);
 
   return null;
