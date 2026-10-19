@@ -11,6 +11,7 @@ import { buildWelcomeEmail } from "@/lib/email-templates";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 import { getViewerInstitutionId } from "@/lib/viewer";
+import { findWhitelistedDomain } from "@/lib/institutions";
 
 export async function completeOnboarding(formData: FormData) {
   const user = await hexclaveServerApp.getUser();
@@ -82,9 +83,11 @@ export async function completeOnboarding(formData: FormData) {
 
   const db = getDb();
 
-  const whitelistedDomain = await db.query.institutionDomains.findFirst({
-    where: eq(institutionDomains.domain, domain),
-  });
+  const whitelistedDomain =
+    (await findWhitelistedDomain(domain)) ||
+    (await db.query.institutionDomains.findFirst({
+      where: eq(institutionDomains.domain, domain),
+    }));
 
   // A college domain only grants campus access once the provider confirms the
   // student can actually read that inbox. Signing up with someone else's
