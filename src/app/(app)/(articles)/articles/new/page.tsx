@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { isViewerProfile } from "@/lib/viewer";
 import { ArticleEditorClient } from "./article-editor-client";
 
 export const metadata: Metadata = {
@@ -26,11 +25,6 @@ export default async function NewArticlePage() {
 
   if (!profile) {
     redirect("/onboarding");
-  }
-
-  const isViewer = await isViewerProfile(profile);
-  if (isViewer) {
-    redirect("/articles");
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, Calendar, Compass, FileText, HelpCircle, Info, Mail, MapPin, Network, Shield, Users } from "lucide-react";
+import { ArrowUpRight, BookOpen, Bot, Calendar, Compass, FileText, HelpCircle, Info, LineChart, Mail, MapPin, Network, Shield, Users } from "lucide-react";
 import { CleanFooter } from "@/components/landing/clean-footer";
 import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
 
@@ -36,7 +36,7 @@ const PRIMARY_BRANCHES: SitemapNode[] = [
     children: [
       { label: "Lecture Notes", href: "/academics" },
       { label: "5-Year PYQs", href: "/academics" },
-      { label: "Upload Material", href: "/academics/upload" },
+      { label: "Upload Material", href: "/academics/study-material/upload" },
     ],
   },
   {
@@ -82,6 +82,9 @@ const COMPANY_ROUTES = [
 ];
 
 const RESOURCE_ROUTES = [
+  { label: "Product Guide", href: "/guide", description: "Every feature: how to use it, why, and use cases", icon: BookOpen },
+  { label: "For Investors", href: "/investors", description: "Problem, product, moats, revenue and growth", icon: LineChart },
+  { label: "AI-readable overview", href: "/llms-full.txt", description: "The whole app as plain text for AI models", icon: Bot },
   { label: "Help & FAQs", href: "/help", description: "Answers to everyday student questions", icon: HelpCircle },
   { label: "Privacy Policy", href: "/privacy", description: "Data minimization and DPDP Act compliance", icon: FileText },
   { label: "Terms of Service", href: "/terms", description: "Student community acceptable use rules", icon: FileText },

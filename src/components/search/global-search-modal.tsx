@@ -296,7 +296,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                     <button
                       key={a.id}
                       type="button"
-                      onClick={() => navigateTo(`/academics/${a.id || ""}`)}
+                      onClick={() => navigateTo(`/academics/study-material/${a.id || ""}`)}
                       className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-all text-left cursor-pointer"
                     >
                       <div className="flex size-8 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">

@@ -1,14 +1,28 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type React from "react";
+import { isStandaloneEmbedLine, standaloneUrl } from "@/lib/articles/article-embeds";
+import { HeadingIds } from "@/lib/articles/headings";
+import { isSmartBlockType } from "@/lib/articles/smart-blocks";
 import { cn } from "@/lib/utils";
 import { CodeBlock } from "./code-block";
+
+// Smart blocks (charts, calculators...) load as their own chunk so plain posts
+// and event descriptions never pay for chart code.
+const SmartBlock = dynamic(() => import("@/components/articles/smart-blocks/smart-block"), {
+  loading: () => <div className="my-6 h-40 animate-pulse rounded-2xl bg-muted/50" aria-hidden />,
+});
 
 /**
  * CampusLoop Markdown Renderer
  *
  * Renders a markdown string to React elements — never to raw HTML — so a post,
  * article or event description can never inject markup into the page.
+ *
+ * Smart blocks: fences tagged chart/table/comparison/timeline/steps/callout/
+ * stats/calculator/quiz/faq render as interactive components (see
+ * src/lib/articles/smart-blocks.ts).
  *
  * Supported blocks: `#`/`##`/`###` headings, `>` quotes, fenced code, bullet and
  * numbered lists, `---` rules, standalone images, and GFM-style tables.
@@ -25,6 +39,8 @@ interface MarkdownContentProps {
   className?: string;
   /** Renders tighter spacing for compact surfaces such as event cards. */
   compact?: boolean;
+  /** Long-form only: a supported link alone on its own line becomes an embed. */
+  autoEmbed?: boolean;
 }
 
 type TableAlignment = "left" | "center" | "right";
@@ -280,10 +296,12 @@ function MarkdownTable({
   );
 }
 
-export function MarkdownContent({ content, className, compact = false }: MarkdownContentProps) {
+export function MarkdownContent({ content, className, compact = false, autoEmbed = false }: MarkdownContentProps) {
   if (!content?.trim()) return null;
 
   const blocks: React.ReactNode[] = [];
+  // Long-form pages get heading anchors for the table of contents.
+  const headingIds = autoEmbed ? new HeadingIds() : null;
   const lines = content.replace(/\r\n/g, "\n").split("\n");
 
   let index = 0;
@@ -346,6 +364,10 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
         index++;
       }
       index++; // consume the closing fence
+      if (isSmartBlockType(language)) {
+        blocks.push(<SmartBlock key={key++} type={language.toLowerCase()} body={body.join("\n")} />);
+        continue;
+      }
       blocks.push(
         <CodeBlock
           key={key++}
@@ -370,24 +392,22 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
       const level = heading[1].length;
       const text = heading[2];
       const inline = parseInline(text, `h${key}`);
+      const anchor = headingIds ? { id: headingIds.next(text), className: "scroll-mt-24" } : null;
       if (level === 1) {
         blocks.push(
-          <h2
-            key={key++}
-            className="border-b border-border/30 pb-2 pt-4 text-2xl font-black tracking-tight text-foreground md:text-3xl"
-          >
+          <h2 key={key++} id={anchor?.id} className={cn("border-b border-border/30 pb-2 pt-4 text-2xl font-black tracking-tight text-foreground md:text-3xl", anchor?.className)}>
             {inline}
           </h2>
         );
       } else if (level === 2) {
         blocks.push(
-          <h3 key={key++} className="pt-3 text-xl font-black tracking-tight text-foreground md:text-2xl">
+          <h3 key={key++} id={anchor?.id} className={cn("pt-3 text-xl font-black tracking-tight text-foreground md:text-2xl", anchor?.className)}>
             {inline}
           </h3>
         );
       } else {
         blocks.push(
-          <h4 key={key++} className="pt-2 text-lg font-bold text-foreground md:text-xl">
+          <h4 key={key++} id={anchor?.id} className={cn("pt-2 text-lg font-bold text-foreground md:text-xl", anchor?.className)}>
             {inline}
           </h4>
         );
@@ -469,6 +489,11 @@ export function MarkdownContent({ content, className, compact = false }: Markdow
       }
       paragraph.push(current);
       index++;
+    }
+
+    if (autoEmbed && paragraph.length === 1 && isStandaloneEmbedLine(paragraph[0])) {
+      blocks.push(<SmartBlock key={key++} type="embed" body={standaloneUrl(paragraph[0]) ?? paragraph[0]} />);
+      continue;
     }
 
     if (paragraph.length > 0) {

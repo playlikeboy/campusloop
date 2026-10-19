@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
-import { AcademicsClient } from "./academics-client";
+import { AcademicsClient } from "./study-material/academics-client";
 
 export const metadata: Metadata = {
   title: "Academic Notes, PYQs & Cheat Sheets | Free Engineering PDF Download | CampusLoop",
@@ -72,7 +72,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
 
   const resolvedParams = searchParams ? await searchParams : undefined;
   if (resolvedParams?.id) {
-    redirect(`/academics/${resolvedParams.id}`);
+    redirect(`/academics/study-material/${resolvedParams.id}`);
   }
 
   // Schema.org Structured Data for Google & Bing SERP

@@ -3,10 +3,13 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { releaseExpiredPaymentHolds } from "@/lib/payments/expire-holds";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
+  // Stock shown to shoppers should not include abandoned online-payment holds (throttled).
+  await releaseExpiredPaymentHolds();
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category"); // e.g. "food"

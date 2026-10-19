@@ -65,7 +65,7 @@ export function AcademicPlaylistCard({
   const [isStarring, setIsStarring] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const isCompact = variant === "compact";
-  const playlistHref = `/academics/playlists/${playlist.slug || playlist.id}`;
+  const playlistHref = `/academics/study-material/playlists/${playlist.slug || playlist.id}`;
   const categoryLabel = CATEGORY_LABELS[playlist.category] || "Study playlist";
   const gradient = playlist.coverGradient || "from-orange-500/80 via-rose-500/70 to-amber-400/80";
   const branchLabel = !playlist.branch || playlist.branch === "All" ? "All branches" : playlist.branch;

@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -87,6 +88,32 @@ export const userProfiles = pgTable(
     index("user_profiles_last_seen_idx").on(table.lastSeenAt),
     index("user_profiles_is_seeded_idx").on(table.isSeeded),
   ]
+);
+
+/**
+ * Last known location per student, kept out of user_profiles on purpose: many
+ * queries load whole profile rows (`with: { user: true }`), and coordinates must
+ * never ride along. Read only through src/lib/geo/location.ts.
+ * - IP: city-level from Cloudflare geo, refreshed automatically.
+ * - GPS: explicit browser opt-in, rounded to ~1 km before storage.
+ */
+export const userLocations = pgTable(
+  "user_locations",
+  {
+    profileId: text("profile_id")
+      .primaryKey()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    source: text("source").notNull(), // "IP" | "GPS"
+    country: text("country"),
+    region: text("region"),
+    city: text("city"),
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
+    accuracyM: integer("accuracy_m"),
+    gpsUpdatedAt: timestamp("gps_updated_at", { withTimezone: true }),
+    updatedAt,
+  },
+  (table) => [index("user_locations_lat_lng_idx").on(table.latitude, table.longitude)]
 );
 
 export const blocks = pgTable(

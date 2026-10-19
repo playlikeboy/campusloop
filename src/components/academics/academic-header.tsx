@@ -86,7 +86,7 @@ export function AcademicHeader({
 
           {/* "+ Upload Notes" CTA */}
           <Link
-            href="/academics/upload"
+            href="/academics/study-material/upload"
             onClick={() => {
               sounds.tap();
               haptics.success();
@@ -97,7 +97,7 @@ export function AcademicHeader({
             <span>Upload notes</span>
           </Link>
           <Link
-            href="/academics/upload"
+            href="/academics/study-material/upload"
             onClick={() => {
               sounds.tap();
               haptics.success();

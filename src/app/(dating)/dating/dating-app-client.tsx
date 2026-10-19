@@ -15,6 +15,7 @@ import { DatingCardSkeleton } from "@/components/dating/dating-card-skeleton";
 import { DatingMatchModal } from "@/components/dating/dating-match-modal";
 import { SecretCrushModal } from "@/components/dating/secret-crush-modal";
 import { type Candidate, SwipeActions, SwipeDeck } from "@/components/dating/swipe-deck";
+import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
 import { Button } from "@/components/ui/button";
 import { CuteCatSearch } from "@/components/ui/cute-illustrations";
 import { useProfile } from "@/hooks/use-profile";
@@ -258,6 +259,11 @@ export function DatingAppClient() {
           <DatingCardSkeleton />
         ) : remaining.length > 0 ? (
           <>
+            <LocationOptInCard
+              title="Find matches near you"
+              description="Nearby students rank higher. Matches only see a rough distance like Within 5 km, never your location."
+              className="mb-2"
+            />
             <div className="relative min-h-[min(56dvh,500px)] flex-1 py-1">
               <SwipeDeck candidates={remaining} onSwipe={handleSwipe} />
             </div>

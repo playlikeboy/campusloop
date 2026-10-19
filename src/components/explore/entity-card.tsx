@@ -135,7 +135,7 @@ export function AcademicPreviewCard({
 }) {
   return (
     <Link
-      href={`/academics/${resource.id}`}
+      href={`/academics/study-material/${resource.id}`}
       className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
     >
       <div className="size-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/20">

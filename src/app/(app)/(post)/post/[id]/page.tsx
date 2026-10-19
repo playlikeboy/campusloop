@@ -23,13 +23,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const { id } = await params;
   const post = await getCachedPostDetail(id);
 
-  if (!post || post.status === "DELETED") {
-    return {
-      title: "Post Not Found · CampusLoop",
-      description: "This post is no longer available on CampusLoop.",
-      robots: { index: false, follow: false },
-    };
-  }
+  // 404 here, not only in the page: metadata resolves before streaming starts,
+  // so this is the last point a real 404 status can be sent.
+  if (!post || post.status === "DELETED") notFound();
 
   const authorName = post.isAnonymous ? "Anonymous Student" : post.author?.displayName || "Student";
   const snippet =

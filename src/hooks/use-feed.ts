@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { feedPagesCache, feedSizeCache, getPendingFeedPosts } from "@/lib/feed-mutations";
@@ -111,6 +111,40 @@ const feedFetcher = async <T>(url: string): Promise<T> => {
 
 const PAGE_LIMIT = 20;
 
+/**
+ * Scroll-session snapshot, rounded up to the next 30s. Exact-millisecond values
+ * made every feed URL unique, so neither the edge cache nor SWR dedupe could hit.
+ */
+const SNAPSHOT_GRANULARITY_MS = 30_000;
+function snapshotNow(): string {
+  return new Date(Math.ceil(Date.now() / SNAPSHOT_GRANULARITY_MS) * SNAPSHOT_GRANULARITY_MS).toISOString();
+}
+
+/** First page of each feed persisted on the device, shown instantly on the next visit. */
+const PERSIST_PREFIX = "campusloop_feed_page1:";
+const PERSIST_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+function readPersistedFirstPage(cacheKey: string): FeedPost[][] | undefined {
+  try {
+    const raw = localStorage.getItem(PERSIST_PREFIX + cacheKey);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as { at: number; page: FeedPost[] };
+    if (!Array.isArray(parsed.page) || Date.now() - parsed.at > PERSIST_MAX_AGE_MS) return undefined;
+    return [parsed.page];
+  } catch {
+    return undefined;
+  }
+}
+
+function writePersistedFirstPage(cacheKey: string, page: FeedPost[] | undefined) {
+  if (!page || page.length === 0) return;
+  try {
+    localStorage.setItem(PERSIST_PREFIX + cacheKey, JSON.stringify({ at: Date.now(), page }));
+  } catch {
+    // Quota or blocked storage: the network path still works.
+  }
+}
+
 function hashStringToSeed(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -130,17 +164,25 @@ export function useFeed(
 ) {
   const cacheKey = `${scope}_${type || "ALL"}_${sort || "latest"}_${visibility || "all"}_${hashtag || ""}_${seed || ""}`;
   const initialSize = feedSizeCache.get(cacheKey) || 1;
-  const fallbackData = feedPagesCache.get(cacheKey);
+  // Loaded after mount (not during render) so server and client markup match on hydration.
+  const [persisted, setPersisted] = useState<{ key: string; pages: FeedPost[][] } | null>(null);
+  useEffect(() => {
+    if (feedPagesCache.has(cacheKey)) return;
+    const pages = readPersistedFirstPage(cacheKey);
+    if (pages) setPersisted({ key: cacheKey, pages });
+  }, [cacheKey]);
+  const fallbackData =
+    feedPagesCache.get(cacheKey) ?? (persisted?.key === cacheKey ? persisted.pages : undefined);
 
   // Freeze feed membership for the duration of a scroll session so new posts
   // cannot move items between pages while the user is reading.
   const snapshotKeyRef = useRef(cacheKey);
-  const snapshotAtRef = useRef(new Date().toISOString());
+  const snapshotAtRef = useRef(snapshotNow());
   const sessionSeedRef = useRef(seed ?? hashStringToSeed(cacheKey));
 
   if (snapshotKeyRef.current !== cacheKey) {
     snapshotKeyRef.current = cacheKey;
-    snapshotAtRef.current = new Date().toISOString();
+    snapshotAtRef.current = snapshotNow();
     sessionSeedRef.current = seed ?? hashStringToSeed(cacheKey);
   }
 
@@ -192,6 +234,7 @@ export function useFeed(
   useEffect(() => {
     if (data && data.length > 0) {
       feedPagesCache.set(cacheKey, data);
+      writePersistedFirstPage(cacheKey, data[0]);
     }
   }, [cacheKey, data]);
 
@@ -208,7 +251,7 @@ export function useFeed(
 
   const refresh = useCallback(async () => {
     feedSizeCache.set(cacheKey, 1);
-    snapshotAtRef.current = new Date().toISOString();
+    snapshotAtRef.current = snapshotNow();
     if (sort === "random") {
       sessionSeedRef.current = Math.floor(Math.random() * 2_147_483_647);
     }

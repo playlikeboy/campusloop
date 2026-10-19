@@ -206,6 +206,16 @@ export function getPhoenixValueScoreSql(
         )}) and ${posts.isAnonymous} = false then 0.70 else 1.00 end)`
       : sql<number>`1.00`;
 
+  // Geo proximity: posts from other campuses near the viewer (own campus already gets campusAffinityBonus).
+  const nearbyInstitutions = (affinity?.nearbyInstitutionIds ?? []).filter((id) => /^[a-zA-Z0-9_-]+$/.test(id));
+  const nearbyCampusBonusSql =
+    nearbyInstitutions.length > 0
+      ? sql<number>`(case when ${posts.institutionId} in (${sql.join(
+          nearbyInstitutions.map((id) => sql`${id}`),
+          sql`, `
+        )}) then 20.0 else 0.0 end)`
+      : sql<number>`0.0`;
+
   // Fresh-post exploration (Thompson-style optimism under uncertainty): posts under
   // 3 hours old have almost no engagement data yet, so give them a decaying prior
   // instead of letting early leaders lock in the top slots.
@@ -234,7 +244,7 @@ export function getPhoenixValueScoreSql(
 
   return sql<number>`(
     (
-      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql} + ${typeAffinitySql} + ${freshExplorationSql} - ${typeSkipPenaltySql})
+      (${timeDecayCurve} + ${actionValueSql} + ${campusAffinityBonus} + ${typeBonusSql} + ${newAuthorExplorationBoostSql} + ${typeAffinitySql} + ${freshExplorationSql} + ${nearbyCampusBonusSql} - ${typeSkipPenaltySql})
       * ${networkAffinitySql}
       * ${engagedAuthorMultiplierSql}
       * ${skippedAuthorMultiplierSql}

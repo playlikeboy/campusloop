@@ -45,7 +45,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       where: and(eq(marketplaceOrders.id, id), eq(marketplaceOrders.merchantId, merchant.id)),
     });
 
-    if (!order) {
+    if (!order || order.status === "PAYMENT_PENDING") {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 

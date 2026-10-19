@@ -7,6 +7,7 @@ import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
+import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
 import { FeedCard } from "@/components/ui/feed-card";
 import {
   InlineCommunitiesWidget,
@@ -224,6 +225,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                       <FeedCard post={post} currentUserId={profile?.id} />
                     </div>
                     {/* Few, well-spaced discovery slots; the desktop sidebar already covers follows and tags. */}
+                    {idx === 2 && (
+                      <LocationOptInCard enabled={Boolean(profile?.id)} className="mx-3 my-3" />
+                    )}
                     {idx === 4 && (
                       <div className="border-b border-border/40 lg:hidden">
                         <FeedRecommendedUsers />

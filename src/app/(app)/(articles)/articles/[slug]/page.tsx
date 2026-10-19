@@ -1,4 +1,4 @@
-import { and, desc, eq, or } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getFollowState } from "@/lib/follows";
+import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { ArticleReaderClient } from "./article-reader-client";
 
 interface ArticlePageProps {
@@ -139,13 +140,22 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   // Fetch related articles (same category or campus, excluding this article)
+  const viewerId = await getViewerInstitutionId().catch(() => VIEWER_INSTITUTION_SLUG);
+  const verifiedTierSql = sql`CASE 
+    WHEN ${articles.institutionId} IS NOT NULL 
+     AND ${articles.institutionId} != ${viewerId} 
+     AND ${articles.institutionId} != ${VIEWER_INSTITUTION_SLUG} 
+    THEN 1 
+    ELSE 0 
+  END`;
+
   const moreArticles = await db.query.articles.findMany({
     where: and(
       eq(articles.status, "PUBLISHED"),
       or(eq(articles.category, article.category), eq(articles.institutionId, article.institutionId || ""))
     ),
     limit: 6,
-    orderBy: [desc(articles.publishedAt)],
+    orderBy: [sql`${verifiedTierSql} DESC`, desc(articles.publishedAt)],
     with: {
       author: {
         with: { institution: true },

@@ -4,7 +4,8 @@ import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
+import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
 
 export const dynamic = "force-dynamic";
 
@@ -102,9 +103,6 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
 
-    const blocked = await rejectViewerWrite(currentProfile);
-    if (blocked) return blocked;
-
     const article = await db.query.articles.findFirst({
       where: or(eq(articles.slug, slug), eq(articles.id, slug)),
     });
@@ -120,16 +118,11 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
     const body = (await req.json()) as Record<string, any>;
     const { title, subtitle, content, coverImageUrl, category, tags, status } = body;
 
-    const targetContent = content !== undefined ? content : article.content;
-    const words = targetContent.trim().split(/\s+/).filter(Boolean).length;
-    const readingTime = Math.max(1, Math.ceil(words / 200));
-
-    const plainText = targetContent
-      .replace(/<[^>]*>/g, "")
-      .replace(/#+\s+/g, "")
-      .replace(/[*_~`]/g, "")
-      .trim();
-    const excerpt = plainText.slice(0, 160) + (plainText.length > 160 ? "..." : "");
+    // Plain Markdown tables and Note/Tip quotes become smart blocks (idempotent).
+    const nextContent = typeof content === "string" ? smartifyMarkdown(content).markdown : undefined;
+    const targetContent = nextContent !== undefined ? nextContent : article.content;
+    const readingTime = calculateReadingTime(targetContent);
+    const excerpt = createExcerpt(targetContent);
 
     const updateData: any = {
       updatedAt: new Date(),
@@ -139,7 +132,7 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
 
     if (title) updateData.title = title.trim();
     if (subtitle !== undefined) updateData.subtitle = subtitle?.trim() || null;
-    if (content !== undefined) updateData.content = content;
+    if (nextContent !== undefined) updateData.content = nextContent;
     if (coverImageUrl !== undefined) updateData.coverImageUrl = coverImageUrl?.trim() || null;
     if (category) updateData.category = category;
     if (tags && Array.isArray(tags)) updateData.tags = tags;

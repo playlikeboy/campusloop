@@ -1027,7 +1027,7 @@ export function ProfileClientView({
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Link
-                    href="/academics/playlists/new"
+                    href="/academics/study-material/playlists/new"
                     className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold border border-border/70 hover:bg-muted/50 text-foreground transition-colors cursor-pointer"
                   >
                     <FolderPlus className="size-3" />
@@ -1092,7 +1092,7 @@ export function ProfileClientView({
                 {isOwnProfile && (
                   <div className="pt-2 flex items-center justify-center gap-2">
                     <Link
-                      href="/academics/playlists/new"
+                      href="/academics/study-material/playlists/new"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-indigo-500/40 text-indigo-400 text-xs font-bold hover:bg-indigo-500/10 transition-colors shadow-xs cursor-pointer"
                     >
                       <FolderPlus className="size-3.5" />

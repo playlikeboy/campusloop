@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "./common";
 import { institutions } from "./institutions";
 import { userProfiles } from "./users";
@@ -179,6 +179,28 @@ export const marketplaceOrders = pgTable("marketplace_orders", {
   createdAt,
   updatedAt,
 });
+
+// ─── 6b. Online Payments (Razorpay) ───
+// One Razorpay order can pay for several merchant orders from one checkout.
+export const marketplacePayments = pgTable(
+  "marketplace_payments",
+  {
+    id: id(),
+    razorpayOrderId: text("razorpay_order_id").notNull().unique(),
+    razorpayPaymentId: text("razorpay_payment_id"),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    orderIds: jsonb("order_ids").$type<string[]>().notNull(),
+    amount: integer("amount").notNull(), // paise
+    currency: text("currency").default("INR").notNull(),
+    status: text("status").default("CREATED").notNull(), // "CREATED", "PAID", "FAILED"
+    failureReason: text("failure_reason"),
+    createdAt,
+    updatedAt,
+  },
+  (table) => [index("marketplace_payments_student_idx").on(table.studentId)]
+);
 
 // ─── 7. Order Items (Snapshot at Purchase Time) ───
 export const marketplaceOrderItems = pgTable("marketplace_order_items", {

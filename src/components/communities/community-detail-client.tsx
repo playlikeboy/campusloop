@@ -475,7 +475,7 @@ export function CommunityDetailClient({
                 <ArrowRight className="size-3" />
               </Link>
               <Link
-                href="/academics/upload"
+                href="/academics/study-material/upload"
                 className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition"
               >
                 <UploadCloud className="size-3" />

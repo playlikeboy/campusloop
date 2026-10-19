@@ -1,6 +1,8 @@
 import { and, desc, eq, gt, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { blocks, comments, posts, userBehaviorEvents, votes } from "@/db/schema";
+import { blocks, comments, posts, userBehaviorEvents, userProfiles, votes } from "@/db/schema";
+import { getLocation, getNearbyInstitutionIds, isValidPoint } from "@/lib/geo/location";
+import { IsolateCache } from "@/lib/isolate-cache";
 import { getRedis } from "@/lib/redis";
 import { bayesianRate } from "@/lib/recommendations/scoring-primitives";
 
@@ -28,6 +30,8 @@ export interface ViewerAffinity {
   typeSkipPenalty: Record<string, number>;
   /** Authors the viewer has repeatedly scrolled past. */
   skippedAuthorIds: string[];
+  /** Other campuses with students within ~40 km of the viewer, nearest first. */
+  nearbyInstitutionIds: string[];
   blockedUserIds: string[];
 }
 
@@ -36,6 +40,7 @@ export const EMPTY_AFFINITY: ViewerAffinity = {
   engagedAuthorIds: [],
   typeSkipPenalty: {},
   skippedAuthorIds: [],
+  nearbyInstitutionIds: [],
   blockedUserIds: [],
 };
 
@@ -89,9 +94,52 @@ export function normalizeTypeCounts(counts: Record<string, number>): Record<stri
   return out;
 }
 
+// First layer above Redis: skips the network entirely for repeat requests in the same isolate.
+const memo = new IsolateCache<ViewerAffinity>(5 * 60 * 1000);
+// Concurrent requests for the same viewer share one computation.
+const inflight = new Map<string, Promise<ViewerAffinity>>();
+
+/** Personalisation must never hold the feed hostage: past this, rank without it. */
+const AFFINITY_BUDGET_MS = 1200;
+/** A computation older than this is presumed hung and is not shared any more. */
+const INFLIGHT_MAX_AGE_MS = 15_000;
+const inflightStarted = new Map<string, number>();
+
 export async function getViewerAffinity(viewerProfileId?: string | null): Promise<ViewerAffinity> {
   if (!viewerProfileId) return EMPTY_AFFINITY;
-  const cacheKey = `feed:affinity:v2:${viewerProfileId}`;
+  const hit = memo.get(viewerProfileId);
+  if (hit) return hit;
+
+  let p = inflight.get(viewerProfileId);
+  const age = Date.now() - (inflightStarted.get(viewerProfileId) ?? 0);
+  if (!p || age > INFLIGHT_MAX_AGE_MS) {
+    p = computeViewerAffinity(viewerProfileId)
+      .then((a) => {
+        memo.set(viewerProfileId, a);
+        return a;
+      })
+      .finally(() => {
+        inflight.delete(viewerProfileId);
+        inflightStarted.delete(viewerProfileId);
+      });
+    inflight.set(viewerProfileId, p);
+    inflightStarted.set(viewerProfileId, Date.now());
+  }
+
+  // On timeout the computation keeps running and fills the memo for the next request.
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<ViewerAffinity>((resolve) => {
+    timer = setTimeout(() => resolve(EMPTY_AFFINITY), AFFINITY_BUDGET_MS);
+  });
+  try {
+    return await Promise.race([p, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function computeViewerAffinity(viewerProfileId: string): Promise<ViewerAffinity> {
+  const cacheKey = `feed:affinity:v3:${viewerProfileId}`;
 
   try {
     const cached = await getRedis()?.get<ViewerAffinity>(cacheKey);
@@ -116,6 +164,21 @@ export async function getViewerAffinity(viewerProfileId?: string | null): Promis
       eq(userBehaviorEvents.targetType, "POST"),
       gt(userBehaviorEvents.createdAt, sql`now() - interval '14 days'`)
     );
+
+    const nearbyPromise = (async () => {
+      const [loc, me] = await Promise.all([
+        getLocation(viewerProfileId),
+        db.query.userProfiles.findFirst({
+          where: eq(userProfiles.id, viewerProfileId),
+          columns: { institutionId: true },
+        }),
+      ]);
+      if (!loc || !isValidPoint(loc.latitude, loc.longitude)) return [];
+      return getNearbyInstitutionIds(
+        { latitude: loc.latitude as number, longitude: loc.longitude as number },
+        { excludeInstitutionId: me?.institutionId }
+      );
+    })().catch(() => [] as string[]);
 
     const [voteTypes, commentTypes, voteAuthors, commentAuthors, blockRows, skipTypes, skipAuthors] =
       await Promise.all([
@@ -221,6 +284,7 @@ export async function getViewerAffinity(viewerProfileId?: string | null): Promis
       engagedAuthorIds,
       typeSkipPenalty: computeTypeSkipPenalty(typeSkipStats),
       skippedAuthorIds: pickSkippedAuthors(authorSkipStats, new Set([...engagedAuthorIds, viewerProfileId])),
+      nearbyInstitutionIds: (await nearbyPromise).filter((id) => SAFE_ID.test(id)),
       blockedUserIds: [
         ...new Set(
           blockRows.map((b) => (b.blockerId === viewerProfileId ? b.blockedUserId : b.blockerId))
@@ -242,8 +306,9 @@ export async function getViewerAffinity(viewerProfileId?: string | null): Promis
 
 /** Drop the cached profile, e.g. right after the viewer blocks someone. */
 export async function invalidateViewerAffinity(viewerProfileId: string): Promise<void> {
+  memo.delete(viewerProfileId);
   try {
-    await getRedis()?.del(`feed:affinity:v2:${viewerProfileId}`);
+    await getRedis()?.del(`feed:affinity:v3:${viewerProfileId}`);
   } catch {
     // Non-fatal
   }
