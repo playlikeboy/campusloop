@@ -1,4 +1,4 @@
-import { ShieldAlertIcon } from "lucide-react";
+import { Eye, ShieldAlertIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -50,9 +50,10 @@ export default async function InvalidEmailPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/onboarding"
-            className="flex w-full items-center justify-center rounded-lg bg-primary h-10 px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/95 transition-colors cursor-pointer"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary h-10 px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/95 transition-colors cursor-pointer"
           >
-            Continue in Viewer Mode 👀
+            <Eye className="size-4" />
+            <span>Continue in Viewer Mode</span>
           </Link>
           <SignOutButton className="flex w-full items-center justify-center rounded-lg border border-border bg-background h-10 px-4 text-sm font-medium text-foreground shadow-sm hover:bg-muted transition-colors cursor-pointer">
             <span>Sign Out &amp; Use College Email</span>

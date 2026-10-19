@@ -8,3 +8,9 @@ export async function POST() {
   clearMerchantSessionCookie(res);
   return res;
 }
+
+export async function GET(req: Request) {
+  const res = NextResponse.redirect(new URL("/merchant-portal/login", req.url), 303);
+  clearMerchantSessionCookie(res);
+  return res;
+}
