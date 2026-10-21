@@ -109,6 +109,7 @@ async function playlistLectures(listId: string): Promise<Lecture[]> {
     const badges = deepFind(it, (k) => k === "thumbnailBadgeViewModel").map((b) => (b as { text?: string }).text ?? "");
     const durationSec = badges.map(toSeconds).find((n): n is number => n !== null);
     if (!title || !durationSec) continue; // upcoming or live: no duration yet
+    if (/\b(teaser|trailer)\b/i.test(title)) continue; // promos, not lectures
     if (!lectures.some((l) => l.videoId === it.contentId)) lectures.push({ title, videoId: it.contentId, durationSec });
   }
   return lectures;

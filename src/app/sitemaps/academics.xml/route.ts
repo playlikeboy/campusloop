@@ -1,7 +1,7 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { academicResources } from "@/db/schema";
+import { academicResources, courses } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +43,34 @@ export async function GET() {
       })
       .join("");
 
+    // Courses live alongside study material in the Academics section.
+    const courseRows = await db
+      .select({ slug: courses.slug, updatedAt: courses.updatedAt })
+      .from(courses)
+      .where(eq(courses.status, "PUBLISHED"))
+      .catch(() => []);
+    const courseUrls =
+      `
+  <url>
+    <loc>https://campusloop.space/courses</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>` +
+      courseRows
+        .map(
+          (c) => `
+  <url>
+    <loc>https://campusloop.space/courses/${c.slug}</loc>
+    <lastmod>${c.updatedAt.toISOString().split("T")[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+        )
+        .join("");
+
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${rootUrl}${urls}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${rootUrl}${courseUrls}${urls}
 </urlset>`;
 
     return new NextResponse(xml, {

@@ -12,6 +12,7 @@ import {
   Home,
   MessageSquare,
   PenSquare,
+  PlayCircle,
   School,
   Search,
   Settings,
@@ -57,6 +58,7 @@ const SECTIONS = [
     title: "Learn & Play",
     items: [
       { href: "/academics", label: "Academics", icon: GraduationCap },
+      { href: "/courses", label: "Courses", icon: PlayCircle },
       { href: "/articles", label: "Articles", icon: BookOpen },
       { href: "/gaming", label: "Gaming", icon: Gamepad2 },
     ],

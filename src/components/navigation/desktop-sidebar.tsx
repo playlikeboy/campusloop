@@ -12,6 +12,7 @@ import {
   Home,
   MessageSquare,
   MoreHorizontal,
+  PlayCircle,
   Plus,
   Search,
   Settings,
@@ -48,6 +49,7 @@ interface NavItemDef {
 const NAV_ITEMS: NavItemDef[] = [
   { href: "/feeds", label: "Home", icon: Home },
   { href: "/academics", label: "Academics", icon: GraduationCap },
+  { href: "/courses", label: "Courses", icon: PlayCircle },
   { href: "/matching", label: "Matching", icon: Heart },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/events", label: "Events", icon: Calendar },
