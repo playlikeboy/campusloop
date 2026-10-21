@@ -27,6 +27,7 @@ import { PublicShareButton } from "@/components/profile/public-share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getBranchIcon } from "@/constants";
 import { getDb } from "@/db";
 import { getCloutTier } from "@/lib/gamification";
@@ -348,7 +349,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   const points = profile.points || 0;
   const cloutTier = getCloutTier(points);
   const isOfficialDesk = profile.username.startsWith("loop_") || profile.role === "ADMIN";
-  const isVerified = isOfficialDesk || profile.role === "ADMIN" || profile.role === "MODERATOR" || points >= 50;
+  const isVerified = isOfficialDesk || profile.role === "ADMIN" || isCollegeVerifiedUser(profile);
 
   const cleanPostText = (body: string) =>
     body
@@ -941,10 +942,17 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   <p className="text-[10px] font-medium text-muted-foreground">Campus Posts</p>
                 </div>
               </div>
-              <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                <BadgeCheck className="size-3.5 text-[#1D9BF0] shrink-0" />
-                <span>Verified Student Network Member</span>
-              </div>
+              {isVerified ? (
+                <div className="text-[11px] text-[#1D9BF0] flex items-center gap-1.5 pt-0.5 font-medium">
+                  <BadgeCheck className="size-3.5 text-[#1D9BF0] fill-[#1D9BF0]/20 shrink-0" />
+                  <span>Verified College Student</span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                  <School className="size-3.5 text-muted-foreground shrink-0" />
+                  <span>Community Member</span>
+                </div>
+              )}
             </div>
 
             {/* Connect CTA Card */}

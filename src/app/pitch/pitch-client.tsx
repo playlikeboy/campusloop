@@ -133,7 +133,7 @@ const ROADMAP = [
   {
     phase: "Now",
     title: "Product live at campusloop.space",
-    body: "Feeds, confessions with identity escrow, polls, stories, matching, chat, communities, moderation console, and Campus Preview — read-only access that lets JEE/NEET aspirants follow their dream campuses years before admission, then upgrades the same account in place once their college email verifies. Deployed on Cloudflare's edge.",
+    body: "Feeds, confessions with identity escrow, polls, stories, matching, chat, communities, moderation console, and Campus Preview — read-only access that lets prospective students follow their dream campuses before admission, then upgrades the same account in place once their college email verifies. Deployed on Cloudflare's edge.",
   },
   {
     phase: "Next 2 quarters",

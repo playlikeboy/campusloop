@@ -6,22 +6,22 @@ import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navba
 import { hexclaveServerApp } from "@/hexclave/server";
 
 export const metadata: Metadata = {
-  title: "CampusLoop for Aspirants — Viewer Mode for JEE, NEET & CUET | CampusLoop",
+  title: "CampusLoop for Prospective Students — Campus Preview Mode | CampusLoop",
   description:
     "See what Indian college life is really like before picking a campus. Read-only access to authentic student discussions, hostel reviews, and senior advice at IITs, NITs, BITS, and top universities.",
   keywords: [
-    "JEE Aspirants college life",
-    "NEET Aspirants college reviews",
-    "CUET campus reviews",
+    "prospective student college life",
+    "authentic college reviews",
+    "campus culture reviews",
     "IIT confessions",
-    "BITS Pilani zero attendance truth",
+    "BITS Pilani campus culture",
     "hostel food reviews India",
   ],
   alternates: {
     canonical: "https://campusloop.space/aspirants",
   },
   openGraph: {
-    title: "CampusLoop for Aspirants — Viewer Mode for JEE, NEET & CUET",
+    title: "CampusLoop for Prospective Students — Campus Preview Mode",
     description:
       "Explore genuine campus culture and senior reviews before admission. Read-only access to 1,350+ verified college loops.",
     url: "https://campusloop.space/aspirants",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         url: "https://campusloop.space/opengraph-image.png",
         width: 1200,
         height: 630,
-        alt: "CampusLoop Aspirants Viewer Mode",
+        alt: "CampusLoop Prospective Student Viewer Mode",
       },
     ],
   },
@@ -49,7 +49,7 @@ export default async function AspirantsPage() {
         href="#aspirants-main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-primary focus:text-white focus:shadow-xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
       >
-        Skip to aspirants guide content
+        Skip to prospective student guide content
       </a>
 
       <MinimalLandingNavbar isAuthenticated={!!user} />
@@ -60,7 +60,7 @@ export default async function AspirantsPage() {
           <div className="text-center max-w-3xl mx-auto space-y-5">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-3.5 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
               <Eye className="size-3.5" />
-              Aspirant Viewer Mode
+              Campus Preview Mode
             </span>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
               See what college life is{" "}
@@ -69,27 +69,27 @@ export default async function AspirantsPage() {
               </span>{" "}
               before you get there.
               <span className="sr-only">
-                {" "}— CampusLoop Aspirants Viewer Mode: Authentic College Reviews, JEE Main &amp; Advanced, NEET, CUET Admissions &amp; Campus Culture in India
+                {" "}— CampusLoop Preview Mode: Authentic College Reviews, Admissions &amp; Campus Culture in India
               </span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Coaching brochures and marketing websites sell you glossy campus photos. CampusLoop gives JEE,
-              NEET, and CUET aspirants read-only window into candid student discussions, hostel food reality,
+              Coaching brochures and marketing websites sell you glossy campus photos. CampusLoop gives
+              prospective students a candid read-only window into student discussions, hostel food reality,
               and placement truths.
             </p>
 
-            {/* Semantic screen reader and crawler index of aspirant viewer features */}
-            <div className="sr-only" aria-label="Aspirants College Selection Guide">
-              <h2>CampusLoop Aspirant Viewer Mode — Authentic College Insights for JEE, NEET &amp; CUET Students</h2>
+            {/* Semantic screen reader and crawler index of prospective student viewer features */}
+            <div className="sr-only" aria-label="Prospective Student College Selection Guide">
+              <h2>CampusLoop Viewer Mode — Authentic College Insights for Prospective Students</h2>
               <p>
-                CampusLoop provides read-only viewer access for prospective engineering, medical, and degree college
-                aspirants preparing for JEE Main, JEE Advanced, NEET-UG, CUET, BITSAT, WBJEE, and COMEDK counseling.
+                CampusLoop provides read-only viewer access for prospective engineering, medical, management, and degree college
+                students exploring Indian campus life and admissions counseling.
               </p>
               <ul>
                 <li>Unfiltered hostel, mess food, and campus culture reviews straight from current students</li>
-                <li>Honest placement statistics, average packages, and active coding societies beyond glossy brochures</li>
-                <li>Attendance reality, professor teaching quality, and semester exam difficulty across 1,350+ Indian colleges</li>
-                <li>Zero spam: Instant account upgrade to full verified posting when you receive your college .ac.in email</li>
+                <li>Honest placement statistics, average packages, and active societies beyond glossy brochures</li>
+                <li>Attendance reality, professor teaching quality, and semester exam insights across 1,350+ Indian colleges</li>
+                <li>Zero spam: Instant account upgrade to full verified status when you receive your college .ac.in email</li>
               </ul>
             </div>
 

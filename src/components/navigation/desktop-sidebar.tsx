@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BadgeCheck,
   Bell,
   Building2,
   Calendar,
@@ -274,43 +275,45 @@ export function DesktopSidebar({
       {/* ── Footer / Primary Actions ── */}
       <div className="shrink-0 p-3 border-t border-[var(--border)] space-y-2">
         {/* + Post Button */}
-        {!isViewer && (
-          <Link
-            href="/post/new"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className={cn(
-              "w-full flex items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--primary)] hover:opacity-95 text-white text-xs font-medium transition-all active:scale-[0.98] cursor-pointer shadow-xs",
-              collapsed ? "p-2.5" : "py-2.5 px-3"
-            )}
-            title="Create Post"
-          >
-            <Plus className="size-4 shrink-0" />
-            {!collapsed && <span>New Post</span>}
-          </Link>
-        )}
+        <Link
+          href="/post/new"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+          }}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--primary)] hover:opacity-95 text-white text-xs font-medium transition-all active:scale-[0.98] cursor-pointer shadow-xs",
+            collapsed ? "p-2.5" : "py-2.5 px-3"
+          )}
+          title="Create Post"
+        >
+          <Plus className="size-4 shrink-0" />
+          {!collapsed && <span>New Post</span>}
+        </Link>
 
-        {/* Anonymity Switcher */}
+        {/* Anonymity & Verified Only Switcher */}
         <button
           type="button"
           onClick={toggleAnon}
           className={cn(
             "w-full flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-sunken)] hover:bg-[var(--surface)] text-xs transition-colors cursor-pointer",
             collapsed ? "justify-center p-2" : "px-3 py-2",
-            anonMode === "ALL" ? "text-[var(--primary)]" : "text-emerald-600 dark:text-emerald-400"
+            anonMode === "ALL" ? "text-[var(--primary)]" : "text-[#1D9BF0] font-semibold"
           )}
           title={
             anonMode === "ALL"
-              ? "Timeline: All Posts & Anon"
-              : "Timeline: Public Only"
+              ? "Timeline: All Posts & Anon (shows all posts from verified students & guests)"
+              : "Timeline: Verified Only (hides anonymous & Gmail posts)"
           }
         >
-          <VenetianMask className="size-4 shrink-0" />
+          {anonMode === "ALL" ? (
+            <VenetianMask className="size-4 shrink-0" />
+          ) : (
+            <BadgeCheck className="size-4 shrink-0 text-[#1D9BF0]" />
+          )}
           {!collapsed && (
             <span className="truncate text-left text-[11px] font-medium">
-              {anonMode === "ALL" ? "All Posts & Anon" : "Public Only"}
+              {anonMode === "ALL" ? "All Posts & Anon" : "Verified Only"}
             </span>
           )}
         </button>

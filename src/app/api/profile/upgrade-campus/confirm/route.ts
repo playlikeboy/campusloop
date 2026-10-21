@@ -77,6 +77,7 @@ export async function POST(req: Request) {
         institutionId: institution.id,
         role: "STUDENT",
         email,
+        isCollegeVerified: true,
         status: "ACTIVE",
       })
       .where(eq(userProfiles.id, profile.id));

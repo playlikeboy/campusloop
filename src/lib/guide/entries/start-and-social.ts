@@ -53,13 +53,13 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   },
   {
     slug: "aspirant-viewer-mode",
-    title: "Viewer Mode for aspirants",
-    summary: "Read-only access for JEE, NEET and CUET aspirants to see real campus life before choosing a college.",
+    title: "Viewer Mode for prospective students",
+    summary: "Read-only access for prospective students to see real campus life before choosing a college.",
     category: "Start here",
     audiences: ["Aspirants", "Investors"],
     routes: [{ path: "/aspirants", label: "Aspirants" }],
     purpose:
-      "Aspirants pick colleges on rankings and brochures. Viewer Mode lets them read authentic student discussions, hostel reviews and senior advice, without being able to post or message students.",
+      "Prospective students pick colleges on rankings and brochures. Viewer Mode lets them read authentic student discussions, hostel reviews and senior advice, without being able to post or message students.",
     whyUse: [
       "See what daily life, hostels and placements are actually like at the colleges you are considering.",
       "Compare several target campuses side by side.",
@@ -72,15 +72,15 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "When you join a college, sign up with your new college email for full access.",
     ],
     useCases: [
-      { who: "JEE aspirant", scenario: "Reads hostel and branch-change threads at three NITs before counselling." },
+      { who: "Prospective student", scenario: "Reads hostel and branch-change threads at three NITs before counselling." },
       { who: "Parent", scenario: "Checks campus safety discussions and mess reviews." },
     ],
     privacy: ["Viewers cannot post, comment, message, match or appear in recommendations."],
     investorAngle:
-      "Viewer Mode is a top-of-funnel acquisition channel: aspirants form the habit a year before they enrol, then convert to verified users on day one of college.",
+      "Viewer Mode is a top-of-funnel acquisition channel: prospective students form the habit before enrolling, then convert to verified users on day one of college.",
     faq: [{ q: "Can students see that I viewed their post?", a: "No. Viewers are read-only and invisible." }],
     related: ["getting-started", "colleges-directory", "campus-feed"],
-    keywords: ["JEE", "NEET", "CUET", "aspirants", "college reviews", "viewer mode"],
+    keywords: ["prospective students", "college reviews", "viewer mode", "campus preview"],
     updated: U,
   },
   {

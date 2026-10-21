@@ -152,6 +152,7 @@ export async function completeOnboarding(formData: FormData) {
         institutionId,
         referredById: referrerId,
         onboardingCompleted: true,
+        isCollegeVerified: isVerifiedCollegeEmail,
         role: "STUDENT",
         status: "ACTIVE",
       })
@@ -173,6 +174,7 @@ export async function completeOnboarding(formData: FormData) {
           interests,
           targetInstitutionIds,
           institutionId,
+          isCollegeVerified: isVerifiedCollegeEmail,
           onboardingCompleted: true,
         },
       });

@@ -20,6 +20,7 @@ import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
 import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getCollegeShortName } from "@/lib/utils";
 
 export function FeedClient({ forcedType }: { forcedType?: string }) {
@@ -138,8 +139,14 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
     for (const post of feed) {
       if (!post?.id || seen.has(post.id)) continue;
-      if (visibility === "public" && (post.isAnonymous || post.type === "CONFESSION")) {
-        continue;
+      // In Verified / Public Only mode, hide anonymous posts, confessions, AND posts from non-college-verified (Gmail) users
+      if (visibility === "public") {
+        if (post.isAnonymous || post.type === "CONFESSION") {
+          continue;
+        }
+        if (!post.author?.isCollegeVerified && !isCollegeVerifiedUser(post.author)) {
+          continue;
+        }
       }
       seen.add(post.id);
       uniquePosts.push(post);

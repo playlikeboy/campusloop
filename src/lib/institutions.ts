@@ -5,9 +5,14 @@ import { institutionDomains, institutions } from "@/db/schema";
 import {
   getCandidateParentDomains,
   VERIFIED_STUDENT_EMAIL_DOMAINS,
+  DOMAIN_TO_SLUG_MAP,
 } from "./student-email-domains";
 
-export { getCandidateParentDomains, VERIFIED_STUDENT_EMAIL_DOMAINS };
+export {
+  getCandidateParentDomains,
+  VERIFIED_STUDENT_EMAIL_DOMAINS,
+  DOMAIN_TO_SLUG_MAP,
+};
 
 export type InstitutionOption = {
   id: string;
@@ -143,6 +148,30 @@ export async function findInstitutionByDomain(domain: string): Promise<Instituti
       }
     }
 
+    // 5. Fallback: match via verified student email domain registry
+    const registeredSlug =
+      DOMAIN_TO_SLUG_MAP[cleanDomain] ||
+      candidateParents.map((p) => DOMAIN_TO_SLUG_MAP[p]).find(Boolean);
+    if (registeredSlug) {
+      const [registryMatch] = await db
+        .select({
+          id: institutions.id,
+          name: institutions.name,
+          slug: institutions.slug,
+          state: institutions.state,
+          district: institutions.district,
+          website: institutions.website,
+          websiteDomain: institutions.websiteDomain,
+        })
+        .from(institutions)
+        .where(eq(institutions.slug, registeredSlug))
+        .limit(1);
+
+      if (registryMatch) {
+        return registryMatch;
+      }
+    }
+
     return null;
   } catch (err) {
     return null;
@@ -179,6 +208,26 @@ export async function findWhitelistedDomain(domain: string) {
       });
       if (parent?.institution) {
         return parent;
+      }
+    }
+
+    // 3. Fallback: match via verified student email domain registry
+    const registeredSlug =
+      DOMAIN_TO_SLUG_MAP[cleanDomain] ||
+      candidateParents.map((p) => DOMAIN_TO_SLUG_MAP[p]).find(Boolean);
+    if (registeredSlug) {
+      const inst = await db.query.institutions.findFirst({
+        where: eq(institutions.slug, registeredSlug),
+      });
+      if (inst) {
+        return {
+          id: `domain_${cleanDomain}`,
+          institutionId: inst.id,
+          domain: cleanDomain,
+          domainType: "STUDENT_EMAIL",
+          verificationStatus: "ADMIN_VERIFIED",
+          institution: inst,
+        };
       }
     }
 

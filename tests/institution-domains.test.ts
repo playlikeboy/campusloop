@@ -97,7 +97,51 @@ describe("College Student Email Formats & Subdomain Resolution", () => {
       // IIIT Hyderabad with @students.iiit.ac.in
       const iiitRes = await validateEmailDomainForInstitution("student@students.iiit.ac.in", "iiit");
       expect(iiitRes.valid).toBe(true);
-    });
+
+      // Aligarh Muslim University with @myamu.ac.in
+      const amuRes = await validateEmailDomainForInstitution("student@myamu.ac.in", "amu");
+      expect(amuRes.valid).toBe(true);
+
+      // Chandigarh University with @cumail.in
+      const cuRes = await validateEmailDomainForInstitution("student@cumail.in", "cuchd");
+      expect(cuRes.valid).toBe(true);
+
+      // UPES Dehradun with @stu.upes.ac.in
+      const upesRes = await validateEmailDomainForInstitution("student@stu.upes.ac.in", "upes");
+      expect(upesRes.valid).toBe(true);
+
+      // Amrita Vishwa Vidyapeetham with @students.amrita.edu
+      const amritaRes = await validateEmailDomainForInstitution("student@students.amrita.edu", "amrita");
+      expect(amritaRes.valid).toBe(true);
+
+      // Anna University CEG with @ceg.annauniv.edu
+      const annaRes = await validateEmailDomainForInstitution("student@ceg.annauniv.edu", "annauniv");
+      expect(annaRes.valid).toBe(true);
+
+      // Jadavpur University with @jdvu.ac.in
+      const jdvuRes = await validateEmailDomainForInstitution("student@jdvu.ac.in", "jadavpuruniversity");
+      expect(jdvuRes.valid).toBe(true);
+
+      // PICT Pune with @pict.edu
+      const pictRes = await validateEmailDomainForInstitution("student@pict.edu", "pict");
+      expect(pictRes.valid).toBe(true);
+
+      // VIT Pune with @learner.vierp.in
+      const vitpuneRes = await validateEmailDomainForInstitution("student@learner.vierp.in", "vitpune");
+      expect(vitpuneRes.valid).toBe(true);
+
+      // DSCE Bengaluru with @dsce.edu.in
+      const dsceRes = await validateEmailDomainForInstitution("student@dsce.edu.in", "dsce");
+      expect(dsceRes.valid).toBe(true);
+
+      // MAIT Delhi with @mait.ac.in
+      const maitRes = await validateEmailDomainForInstitution("student@mait.ac.in", "mait");
+      expect(maitRes.valid).toBe(true);
+
+      // SSCBS Delhi with @sscbs.du.ac.in
+      const sscbsRes = await validateEmailDomainForInstitution("student@sscbs.du.ac.in", "sscbs");
+      expect(sscbsRes.valid).toBe(true);
+    }, 20000);
 
     it("rejects mismatched college email domains", async () => {
       // vitstudent.ac.in submitted for IIT Kharagpur
@@ -130,7 +174,23 @@ describe("College Student Email Formats & Subdomain Resolution", () => {
       const manipalInst = await findInstitutionByDomain("learner.manipal.edu");
       expect(manipalInst).not.toBeNull();
       expect(manipalInst?.slug).toBe("manipal");
-    });
+
+      const amuInst = await findInstitutionByDomain("myamu.ac.in");
+      expect(amuInst).not.toBeNull();
+      expect(amuInst?.slug).toBe("amu");
+
+      const cuInst = await findInstitutionByDomain("cumail.in");
+      expect(cuInst).not.toBeNull();
+      expect(cuInst?.slug).toBe("cuchd");
+
+      const upesInst = await findInstitutionByDomain("stu.upes.ac.in");
+      expect(upesInst).not.toBeNull();
+      expect(upesInst?.slug).toBe("upes");
+
+      const pictInst = await findInstitutionByDomain("pict.edu");
+      expect(pictInst).not.toBeNull();
+      expect(pictInst?.slug).toBe("pict");
+    }, 20000);
 
     it("resolves nested subdomains via parent domain hierarchy", async () => {
       const deptInst = await findInstitutionByDomain("dept.iitkgp.ac.in");

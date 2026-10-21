@@ -285,7 +285,7 @@ export const VIEWER_MODE_CONTENT = {
   headlineMain: "Not in college yet?",
   headlineSub: "Check out campus life before you join.",
   description:
-    "JEE, NEET, and CUET aspirants can read real, honest discussions from students at IITs, NITs, BITS, and top universities — without marketing spin or coaching ads.",
+    "Prospective students and campus explorers can read real, honest discussions from students at IITs, NITs, BITS, and top universities — without marketing spin or coaching ads.",
   steps: [
     {
       step: "01",
@@ -365,7 +365,7 @@ export const FAQ_CONTENT = {
     },
     {
       q: "What is Viewer Mode and who can use it?",
-      a: "Viewer Mode is made for school students and JEE/NEET/CUET aspirants who want to see what college life is really like before picking a campus. You can read public campus feeds and save threads. Posting and messaging unlock as soon as you get your official college email.",
+      a: "Viewer Mode is made for prospective students and campus explorers who want to see what college life is really like before picking a campus. You can read public campus feeds and save threads. Official college students with verified institutional emails unlock the blue tick, verified-only feeds, and campus matching.",
     },
     {
       q: "What if my college isn't listed yet?",

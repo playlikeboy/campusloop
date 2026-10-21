@@ -75,6 +75,7 @@ export const userProfiles = pgTable(
      */
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
     isSeeded: boolean("is_seeded").default(false).notNull(),
+    isCollegeVerified: boolean("is_college_verified").default(false).notNull(),
     createdAt,
     updatedAt,
   },
@@ -87,6 +88,7 @@ export const userProfiles = pgTable(
     index("user_profiles_branch_idx").on(table.branch),
     index("user_profiles_last_seen_idx").on(table.lastSeenAt),
     index("user_profiles_is_seeded_idx").on(table.isSeeded),
+    index("user_profiles_college_verified_idx").on(table.isCollegeVerified),
   ]
 );
 

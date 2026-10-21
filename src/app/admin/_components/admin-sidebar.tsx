@@ -11,6 +11,7 @@ import {
   Ghost,
   LayoutDashboard,
   Link2,
+  Mail,
   Megaphone,
   MessageSquare,
   Play,
@@ -53,6 +54,7 @@ export const ADMIN_NAV_SECTIONS = [
       { href: "/admin/colleges", label: "Campus Hubs", icon: School },
       { href: "/admin/feed", label: "Feed Curation", icon: TrendingUp },
       { href: "/admin/broadcasts", label: "Broadcasts", icon: Megaphone },
+      { href: "/admin/outreach", label: "Campus Outreach", icon: Mail },
     ],
   },
   {

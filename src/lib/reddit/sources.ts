@@ -16,13 +16,6 @@ export const REDDIT_SOURCES: SubredditSourceConfig[] = [
     defaultSort: "hot",
   },
   {
-    subreddit: "JEENEETards",
-    priority: 95,
-    enabled: true,
-    categories: ["aspirants", "jee", "neet", "meme", "stress", "college_prep"],
-    defaultSort: "hot",
-  },
-  {
     subreddit: "CollegeRant",
     priority: 85,
     enabled: true,

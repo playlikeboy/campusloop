@@ -30,10 +30,25 @@ const POPULAR_INTERESTS = [
   "Cinema & TV",
 ];
 
-/** What an aspirant is preparing for, in place of a degree and branch. */
-const TARGET_EXAMS = ["JEE Main", "JEE Advanced", "NEET", "CUET", "BITSAT", "CAT", "GATE", "Still deciding"];
+/** What a prospective student is interested in, in place of a degree and branch. */
+const PROSPECTIVE_FIELDS = [
+  "Engineering & Tech",
+  "Medical & Healthcare",
+  "Commerce & Management",
+  "Arts & Humanities",
+  "Law & Policy",
+  "Design & Media",
+  "Sciences",
+  "General / Exploring",
+];
 
-const ASPIRANT_STAGES = ["Class 11", "Class 12", "Drop year", "Awaiting results", "Just exploring"];
+const PROSPECTIVE_STAGES = [
+  "High School Senior",
+  "College Applicant",
+  "Gap Year Explorer",
+  "Prospective Student",
+  "General Visitor",
+];
 
 const MAX_DREAM_CAMPUSES = 5;
 
@@ -128,9 +143,9 @@ export function OnboardingForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Aspirant-only state
-  const [targetExam, setTargetExam] = useState("JEE Main");
-  const [aspirantStage, setAspirantStage] = useState("Class 12");
+  // Prospective student state
+  const [fieldOfInterest, setFieldOfInterest] = useState(PROSPECTIVE_FIELDS[0]);
+  const [prospectiveStage, setProspectiveStage] = useState(PROSPECTIVE_STAGES[0]);
   const [dreamCampusIds, setDreamCampusIds] = useState<string[]>([]);
   const [campusQuery, setCampusQuery] = useState("");
   const [debouncedCampusQuery, setDebouncedCampusQuery] = useState("");
@@ -247,11 +262,11 @@ export function OnboardingForm({
     formData.set("interests", JSON.stringify(interests));
 
     if (isViewer) {
-      // An aspirant has no degree or year yet: record what they are preparing
-      // for and which campuses they are aiming at instead.
-      formData.set("course", "Aspirant");
-      formData.set("branch", targetExam);
-      formData.set("aspirantStage", aspirantStage);
+      // Prospective student has no degree or year yet: record their interests
+      // and which campuses they are exploring instead.
+      formData.set("course", "Prospective");
+      formData.set("branch", fieldOfInterest);
+      formData.set("aspirantStage", prospectiveStage);
       formData.set("targetInstitutionIds", JSON.stringify(dreamCampusIds));
     } else {
       formData.set("course", course);
@@ -512,14 +527,14 @@ export function OnboardingForm({
         </div>
       </section>
 
-      {/* ─── Academics (student) or Preparation (aspirant) ─── */}
+      {/* ─── Academics (student) or Background (prospective) ─── */}
       {isViewer ? (
         <section className="space-y-5 border-t border-border/40 py-6">
           <div className="space-y-2">
-            <FieldLabel>Where are you right now?</FieldLabel>
+            <FieldLabel>Current stage</FieldLabel>
             <div className="flex flex-wrap gap-2">
-              {ASPIRANT_STAGES.map((stage) => (
-                <Pill key={stage} selected={aspirantStage === stage} onClick={() => setAspirantStage(stage)}>
+              {PROSPECTIVE_STAGES.map((stage) => (
+                <Pill key={stage} selected={prospectiveStage === stage} onClick={() => setProspectiveStage(stage)}>
                   {stage}
                 </Pill>
               ))}
@@ -527,11 +542,11 @@ export function OnboardingForm({
           </div>
 
           <div className="space-y-2">
-            <FieldLabel>Preparing for</FieldLabel>
+            <FieldLabel>Area of interest</FieldLabel>
             <div className="flex flex-wrap gap-2">
-              {TARGET_EXAMS.map((exam) => (
-                <Pill key={exam} selected={targetExam === exam} onClick={() => setTargetExam(exam)}>
-                  {exam}
+              {PROSPECTIVE_FIELDS.map((field) => (
+                <Pill key={field} selected={fieldOfInterest === field} onClick={() => setFieldOfInterest(field)}>
+                  {field}
                 </Pill>
               ))}
             </div>

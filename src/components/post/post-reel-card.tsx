@@ -28,6 +28,7 @@ import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useHlsVideo } from "@/hooks/use-hls-video";
 import { repostPost, voteOnPost } from "@/lib/api";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import type { UserCapability } from "@/lib/capabilities";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -946,7 +947,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                     {authorName}
                   </Link>
                 )}
-                {!post.isAnonymous && <BadgeCheck className="size-3.5 text-[#1D9BF0] shrink-0" />}
+                {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
+                  <BadgeCheck className="size-3.5 text-[#1D9BF0] fill-[#1D9BF0]/20 shrink-0" />
+                )}
               </div>
 
               {!post.isAnonymous && post.authorId && post.authorId !== currentUserId && (
@@ -1098,7 +1101,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   {authorName}
                 </Link>
               )}
-              {!post.isAnonymous && <BadgeCheck className="size-4 text-[#1D9BF0] shrink-0" />}
+              {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
+                <BadgeCheck className="size-4 text-[#1D9BF0] fill-[#1D9BF0]/20 shrink-0" />
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">

@@ -42,7 +42,7 @@ export default async function InvalidEmailPage() {
             </li>
             <li>
               Or continue in <strong className="text-foreground">Viewer Mode</strong> — browse campus feeds,
-              confessions, and polls read-only. Great for JEE/NEET aspirants exploring colleges!
+              confessions, and polls read-only. Great for prospective students exploring colleges!
             </li>
           </ul>
         </div>

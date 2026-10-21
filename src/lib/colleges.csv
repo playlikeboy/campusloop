@@ -8,7 +8,7 @@ U-1284,MOHAN BABU UNIVERSITY,Andhra Pradesh,Tirupati,www.mbu.asia,-,Rural,mbu
 U-0760,"INDIAN INSTITUTE OF INFORMATION TECHNOLOGY, SRI CITY",Andhra Pradesh,Chittoor,www.iiits.ac.in,2013,Rural,iiits
 U-1132,BHARTIYA ENGINEERING SCIENCE AND TECHNOLOGY INNOVATION UNIVERSITY,Andhra Pradesh,Ananthapuramu,www.bestiu.edu.in,2018,Rural,bestiu
 U-1389,Annamacharya University,Andhra Pradesh,Annamayya,www.annamacharyauniversity.edu.in,-,Rural,annamacharyauniversity
-U-1388,Aditya University,Andhra Pradesh,Kakinada,,-,Urban,adiuni
+U-1388,Aditya University,Andhra Pradesh,Kakinada,https://adityauniversity.in,-,Urban,adiuni
 U-1177,Dr YSR Architecture and Fine Arts University,Andhra Pradesh,Y.S.R.,www.ysrafu.ac.in,2020,Rural,ysrafu
 U-0944,INDIAN INSTITUTE OF PETROLEUM & ENERGY,Andhra Pradesh,Visakhapatnam,www.iipe.ac.in,2016,Urban,iipe
 U-0945,Vellore Institute of Technology - Andhra Pradesh,Andhra Pradesh,Guntur,www.vitap.ac.in,2017,Rural,vitap
@@ -23,7 +23,7 @@ U-0976,CENTRAL UNIVERSITY OF ANDHRA PRADESH,Andhra Pradesh,Ananthapuramu,cuap.ac
 U-1007,INDIAN INSTITUTE OF MANAGEMENT VISAKHAPATNAM,Andhra Pradesh,Visakhapatnam,www.iimv.ac.in,2015,Urban,iimv
 U-0009,"Dr.B.R.Ambedkar University, Etcherla",Andhra Pradesh,Srikakulam,www.brau.edu.in,1972,Rural,brau
 U-0827,"Indian Institute of Science Education & Research (IISER), Tirupati",Andhra Pradesh,Chittoor,www.iisertirupati.ac.in,2015,Rural,iisertirupati
-U-0998,DR. ABDUL HAQ URDU UNIVERSITY,Andhra Pradesh,Kurnool,www.ahuuk.ac.in ,2016,Urban,ahuuk
+U-0998,DR. ABDUL HAQ URDU UNIVERSITY,Andhra Pradesh,Kurnool,www.ahuuk.ac.in,2016,Urban,ahuuk
 U-0006,"Andhra University, Visakhapatnam",Andhra Pradesh,Visakhapatnam,www.andhrauniversity.edu.in,1926,Urban,andhrauniversity
 U-0003,"Acharya Nagarjuna University, Guntur",Andhra Pradesh,Guntur,www.anu.ac.in,1976,Rural,anu
 U-0001,Dr Y S R Horticulture University,Andhra Pradesh,West Godavari,drysrhu.ap.gov.in,2007,Rural,drysrhu
@@ -85,7 +85,7 @@ U-0815,ASSAM WOMENS UNIVERSITY,Assam,Jorhat,www.awu.ac.in,2014,Rural,awu
 U-0812,MAHAPURUSHA SRIMANTA SANKARADEVA VISWAVIDYALAYA,Assam,Nagaon,www.mssv.ac.in,2014,Rural,mssv
 U-0980,KRISHNAGURU ADHYATMIK VISVAVIDYALAYA,Assam,Barpeta,www.kav.ac.in,2017,Rural,kav
 U-0676,KUMAR BHASKAR VARMA SANSKRIT AND ANCIENT STUDIES UNIVERSITY,Assam,Nalbari,www.kbvsasun.ac.in,2011,Rural,kbvsasun
-U-0674,BODOLAND UNIVERSITY,Assam,Kokrajhar,buniv.edu.in						,2009,Rural,buniv
+U-0674,BODOLAND UNIVERSITY,Assam,Kokrajhar,buniv.edu.in,2009,Rural,buniv
 U-0795,"INDIAN INSTITUTE OF INFORMATION TECHNOLOGY, GUWAHATI",Assam,Kamrup Metro,www.iiitg.ac.in,2013,Urban,iiitg
 U-0675,COTTON UNIVERSITY,Assam,Kamrup Metro,www.cottonuniversity.ac.in,1901,Urban,cottonuniversity
 U-1316,NATIONAL INSTITUTE OF PHARMACEUTICAL EDUCATION AND RESEARCH GUWAHATI,Assam,Kamrup,niperguwahati.ac.in,-,Rural,niperguwahati
@@ -211,7 +211,7 @@ U-0099,Guru Gobind Singh Indraprastha University,Delhi,West,www.ipu.ac.in,1998,U
 U-0098,Delhi Technological University,Delhi,North West,www.dtu.ac.in,1941,Urban,dtu
 U-0114,National Institute of Educational Planning & Administration,Delhi,South,www.niepa.ac.in,1962,Urban,niepa
 U-0101,Indian Agricultural Research Institute (KRISHI PUSHA) New Delhi.,Delhi,New Delhi,www.iari.res.in,1905,Urban,iari
-U-1340,"INDIAN INSTITUTE OF MASS COMMUNICATION, NEW DELHI",Delhi,New Delhi,,-,,indinsof
+U-1340,"INDIAN INSTITUTE OF MASS COMMUNICATION, NEW DELHI",Delhi,New Delhi,https://iimc.gov.in,-,,indinsof
 U-1187,National Forensic Sciences University,Delhi,North West,nfsu.ac.in,1972,Urban,nfsu
 U-0622,National Institute of Technology Delhi,Delhi,North West,www.nitdelhi.ac.in,2010,Urban,nitdelhi
 U-0853,DELHI PHARMACEUTICAL SCIENCES AND RESEARCH UNIVERSITY,Delhi,South,www.dpsru.edu.in,2015,Urban,dpsru
@@ -369,7 +369,7 @@ U-1148,MAHARANA PRATAP HORTICULTURAL UNIVERSITY,Haryana,Karnal,mhu.ac.in,2016,Ru
 U-0641,"MAHARISHI MARKANDESHWAR UNIVERSITY, SADOPUR-AMBALA",Haryana,Ambala,www.mmambala.org,2010,Rural,mmambala
 U-0646,NIILM UNIVERSITY,Haryana,Kaithal,www.niilmuniversity.ac.in,2011,Rural,niilmuniversity
 U-0175,"J.C. BOSE UNIVERSITY OF SCIENCE AND TECHNOLOGY, YMCA, FARIDABAD",Haryana,Faridabad,www.jcboseust.ac.in,1967,Urban,jcboseust
-U-0722,"SRM UNIVERSITY, SONEPAT",Haryana,Sonipat,www.srmuniversity.ac.in ,2013,Urban,srmuniversity
+U-0722,"SRM UNIVERSITY, SONEPAT",Haryana,Sonipat,www.srmuniversity.ac.in,2013,Urban,srmuniversity
 U-0721,"JAGAN NATH UNIVERSITY, JHAJJAR",Haryana,Jhajjar,www.jagannathuniversityncr.ac.in,2013,Rural,jagannathuniversityncr
 U-0720,G.D. GOENKA UNIVERSITY,Haryana,Gurugram,www.gdgoenkauniversity.com,2013,Urban,gdgoenkauniversity
 U-0174,Pt. Bhagwat Dayal Sharma University of Health Sciences,Haryana,Rohtak,www.uhsr.ac.in,2008,Urban,uhsr
@@ -512,7 +512,7 @@ U-1290,CHAMARAJANAGARA UNIVERSITY,Karnataka,Chamarajanagara,cuc.karnataka.gov.in
 U-1294,AMITY UNIVERSITY,Karnataka,Bengaluru Rural,www.amity.edubengaluru,-,Rural,amity4
 U-1090,BENGALURU DR.B.R.AMBEDKAR SCHOOL OF ECONOMICS UNIVERSITY,Karnataka,Bengaluru Urban,www.base.ac.in,2017,Urban,base
 U-0250,"Yenepoya (deemed to be University), Mangalore",Karnataka,Dakshina Kannada,www.yenepoya.edu.in,1992,Rural,yenepoya
-U-0745,THE UNIVERSITY OF TRANS-DISCIPLINARY HEALTH SCIENCES AND TECHNOLOGY,Karnataka,Bengaluru Urban,,2013,Urban,theuniof
+U-0745,THE UNIVERSITY OF TRANS-DISCIPLINARY HEALTH SCIENCES AND TECHNOLOGY,Karnataka,Bengaluru Urban,https://tdu.edu.in,2013,Urban,theuniof
 U-0249,"Visvesvaraya Technological University, Belagavi",Karnataka,Belagavi,www.vtu.ac.in,1994,Rural,vtu
 U-0236,"National Institute of Mental Health & Neuro Sciences, Bangalore",Karnataka,Bengaluru Urban,www.nimhans.ac.in,1974,Urban,nimhans
 U-1089,INDIAN INSTITUTE OF INFORMATION TECHNOLOGY RAICHUR,Karnataka,Raichur,www.iiitr.ac.in,2019,Urban,iiitr
@@ -535,7 +535,7 @@ U-1337,St. Aloysius,Karnataka,Dakshina Kannada,staloysius.edu.in,-,Urban,staloys
 U-0927,Sharnbasva University,Karnataka,Kalaburagi,www.sharnbasvauniversity.edu.in,2017,Urban,sharnbasvauniversity
 U-0972,BENGALURU NORTH UNIVERSITY,Karnataka,Kolar,bnu.karnataka.gov.in,2017,Rural,bnu
 U-0971,ADICHUNCHANAGIRI UNIVERSITY,Karnataka,Mandya,www.acu.edu.in,2018,Rural,acu
-U-0918,Garden City University,Karnataka,Bengaluru Urban,www.gardencity.university ,2013,Urban,gardencity
+U-0918,Garden City University,Karnataka,Bengaluru Urban,www.gardencity.university,2013,Urban,gardencity
 U-0724,"M.S. RAMAIAH UNIVERSITY OF APPLIED SCIENCES, BANGALORE",Karnataka,Bengaluru Urban,www.msruas.ac.in,2013,Urban,msruas
 U-0603,"Vijayanagara Sri Krishnadevaraya University, Bellary",Karnataka,Ballari,www.vskub.ac.in,1995,Urban,vskub
 U-0899,"Indian Institute of Technology, Dharwad",Karnataka,Dharwad,www.iitdh.ac.in,2016,Urban,iitdh
@@ -635,7 +635,7 @@ U-1143,DR B R AMBEDKAR UNIVERSITY OF SOCIAL SCIENCES,Madhya Pradesh,Indore,braus
 U-1167,SRI AUROBINDO UNIVERSITY,Madhya Pradesh,Indore,www.sriaurobindounivesity.com,2020,Urban,sriaurobindounivesity
 U-0813,LNCT UNIVERSITY,Madhya Pradesh,Bhopal,www.lnctu.ac.in,2015,Urban,lnctu
 U-1012,INDIAN INSTITUTE OF MANAGEMENT INDORE,Madhya Pradesh,Indore,www.iimidr.ac.in,1996,Urban,iimidr
-U-1326,Amaltas University,Madhya Pradesh,Dewas,amaltasuniversity.in ,-,Rural,amaltasuniversity
+U-1326,Amaltas University,Madhya Pradesh,Dewas,amaltasuniversity.in,-,Rural,amaltasuniversity
 U-1023,MANSAROVAR GLOBAL UNIVERSITY,Madhya Pradesh,Sehore,www.mguindia.com,2018,Rural,mguindia
 U-1024,SHRI KRISHNA UNIVERSITY,Madhya Pradesh,Chhatarpur,www.skuindia.ac.in,2018,Rural,skuindia
 U-0291,"Vikram University, Ujjain",Madhya Pradesh,Ujjain,www.vikramuniv.net,1956,Urban,vikramuniv
@@ -691,7 +691,7 @@ U-0834,MEDI-CAPS UNIVERSITY,Madhya Pradesh,Indore,www.medicaps.ac.in,2015,Rural,
 U-0883,MANDSAUR UNIVERSITY,Madhya Pradesh,Mandsaur,www.meu.edu.in,2016,Urban,meu
 U-0877,Sandip University,Maharashtra,Nashik,www.sandipuniversity.edu.in,2015,Rural,sandipuniversity1
 U-0330,"Tata Institute of Fundamental Research, Mumbai",Maharashtra,Mumbai,www.tifr.res.in,1945,Urban,tifr
-U-1101,MGM UNIVERSITY,Maharashtra,Chhatrapati Sambhajinagar,www.mgmu.ac.in ,2019,Urban,mgmu
+U-1101,MGM UNIVERSITY,Maharashtra,Chhatrapati Sambhajinagar,www.mgmu.ac.in,2019,Urban,mgmu
 U-1151,Hyderabad (SIND) National Collegiate University,Maharashtra,Mumbai,www.hsncu.edu.in,2019,Urban,hsncu
 U-0891,"MIT Art, Design and Technology University, Pune",Maharashtra,Pune,www.mituniversity.ac.in,2015,Rural,mituniversity
 U-0915,"Maharashtra National Law University, Aurangabad",Maharashtra,Chhatrapati Sambhajinagar,mnlua.ac.in,2014,Urban,mnlua
@@ -766,7 +766,7 @@ U-1257,COEP Technological University,Maharashtra,Pune,www.coep.org.in,-,Urban,co
 U-1258,KARMAVEER BHAURAO PATIL UNIVERSITY,Maharashtra,Satara,www.unikbp.ac.in,-,Rural,unikbp
 U-1262,JSPM University,Maharashtra,Pune,www.jspmuni.ac.in,-,Urban,jspmuni
 U-1275,PIMPRI CHINCHWAD UNIVERSITY,Maharashtra,Pune,www.pcu.edu.in,-,Rural,pcu
-U-1278,UNIVERSAL Ai UNIVERSITY,Maharashtra,Raigad,,-,,uniaiuni
+U-1278,UNIVERSAL Ai UNIVERSITY,Maharashtra,Raigad,https://universalai.in,-,,uniaiuni
 U-1283,"INDIAN INSTITUTE OF MANAGEMENT,MUMBAI",Maharashtra,Mumbai,www.iimmumbai.ac.in,-,Urban,iimmumbai
 U-1085,"SOMAIYA VIDYAVIHAR UNIVERSITY, MUMBAI",Maharashtra,Mumbai,www.somaiya.edu,2019,Urban,somaiya
 U-1306,DES PUNE UNIVERSITY,Maharashtra,Pune,www.despu.edu.in,-,Urban,despu
@@ -775,11 +775,11 @@ U-1228,"NICMAR UNIVERSITY, PUNE",Maharashtra,Pune,www.nicmar.ac.inpune,-,Urban,n
 U-0326,"SMT. NATHIBAI DAMODAR THACKERSEY WOMEN'S UNIVERSITY, MUMBAI",Maharashtra,Mumbai Suburban,www.sndt.ac.in,1916,Urban,sndt
 U-1325,Laxminarayan Innovation Technological (LIT) University,Maharashtra,Nagpur,litu.edu.in,-,Urban,litu
 U-0319,"SHRI VILE PARLE KELAVANI MANDALS NARSEE MONJEE INSTITUTE OF MANAGEMENT STUDIES (DEEMED UNIVERSITY), MUMBAI (SVKMs NMIMS)",Maharashtra,Mumbai,www.nmims.edu,1981,Urban,nmims
-U-1336,Ramdeobaba University,Maharashtra,Nagpur,,-,Urban,ramuni
+U-1336,Ramdeobaba University,Maharashtra,Nagpur,https://rbunagpur.in,-,Urban,ramuni
 U-1355,Sanjivani University,Maharashtra,Ahmednagar,www.sanjivani.edu.in,-,Rural,sanjivani
 U-0295,Datta Meghe Institute of Higher Education & Research (Deemed to be University),Maharashtra,Nagpur,www.dmiher.edu.in,1990,Rural,dmiher
 U-1381,Dr. D.Y. Patil Dnyan Prasad University,Maharashtra,Pune,www.dypdpu.edu.in,-,Urban,dypdpu
-U-1387,Alard University,Maharashtra,Pune,,-,Urban,alauni
+U-1387,Alard University,Maharashtra,Pune,https://alarduniversity.edu.in,-,Urban,alauni
 U-1393,Indira University,Maharashtra,Pune,www.indirauniversity.edu.in,-,Urban,indirauniversity
 U-1400,SVKM NMIMS Global University,Maharashtra,Dhule,,-,Urban,svknmiglo
 U-1058,DHANAMANJURI UNIVERSITY,Manipur,Imphal West,dmu.ac.in,-,Urban,dmu
@@ -898,11 +898,11 @@ U-0660,GURU RAVIDAS AYURVED UNIVERSITY,Punjab,Hoshiarpur,www.graupunjab.org,2011
 U-0789,GNA UNIVERSITY,Punjab,Kapurthala,www.gnauniversity.edu.in,2014,Rural,gnauniversity
 U-1139,Shaheed Bhagat Singh State University,Punjab,Ferozepur,www.sbssu.ac.in,2021,Rural,sbssu
 U-1199,LAMRIN TECH SKILLS UNIVERSITY PUNJAB,Punjab,Shahid Bhagat Singh Nagar,ltsu.ac.in,2021,Rural,ltsu
-U-0736,ADESH UNIVERSITY,Punjab,Bathinda,www.adeshuniversity.ac.in ,2012,Rural,adeshuniversity
+U-0736,ADESH UNIVERSITY,Punjab,Bathinda,www.adeshuniversity.ac.in,2012,Rural,adeshuniversity
 U-0385,"Thapar Institute of Engineering and Technology, Patiala",Punjab,Patiala,www.thapar.edu,1956,Urban,thapar
 U-0747,CHANDIGARH UNIVERSITY,Punjab,S.A.S Nagar,www.cuchd.in,2012,Rural,cuchd
 U-1133,Sardar Beant Singh State University Gurdaspur,Punjab,Gurdaspur,www.sbssugsp.ac.in,2021,Rural,sbssugsp
-U-1394,National  Institute of Electronics and Information Technology NIELIT,Punjab,Rupnagar,,-,Rural,natinsof1
+U-1394,National  Institute of Electronics and Information Technology NIELIT,Punjab,Rupnagar,https://www.nielit.gov.in,-,Rural,natinsof1
 U-0386,"Rajiv Gandhi National University of Law, Punjab",Punjab,Patiala,www.rgnul.ac.in,2006,Rural,rgnul
 U-0900,SANT BABA BHAG SINGH UNIVERSITY,Punjab,Jalandhar,www.sbbsuniversity.ac.in,2015,Rural,sbbsuniversity
 U-1183,JAGAT GURU NANAK DEV PUNJAB STATE OPEN UNIVERSITY,Punjab,Patiala,www.psou.ac.in,2019,Urban,psou
@@ -1070,7 +1070,7 @@ U-0472,"Rajiv Gandhi National Instiute of Youth Development, Sriperumbudur",Tami
 U-0486,"Tamilnadu Physical Education and Sports University, Chennai",Tamil Nadu,Chengalpattu,wwww.tnpesu.org,2004,Rural,wwww
 U-0473,"S.R.M. Institute of Science & Technology, Chennai",Tamil Nadu,Chengalpattu,www.srmist.edu.in,1985,Rural,srmist
 U-0490,"Vellore Institute of Technology, Vellore",Tamil Nadu,Vellore,www.vit.ac.in,1984,Urban,vit
-U-0451,"Chettinad Academy of Research & Education, Kancheepuram",Tamil Nadu,Chengalpattu,www.care.edu.in ,2008,Rural,care
+U-0451,"Chettinad Academy of Research & Education, Kancheepuram",Tamil Nadu,Chengalpattu,www.care.edu.in,2008,Rural,care
 U-1232,JEPPIAR UNIVERSITY,Tamil Nadu,Chennai,jeppiaaruniversity.ac.in,-,Urban,jeppiaaruniversity
 U-0469,"Periyar Maniammai Institute of Science & Technology, Thanjavur",Tamil Nadu,Thanjavur,www.pmu.edu,1988,Rural,pmu
 U-0477,"Sri Chandrasekharendra Saraswathi Viswa Mahavidyalaya, Kancheepuram",Tamil Nadu,Kancheepuram,www.kanchiuniv.ac.in,1976,Rural,kanchiuniv
@@ -1079,13 +1079,13 @@ U-0445,B.S. Abdur Rahman Crescent Institute of Science & Technology,Tamil Nadu,C
 U-0491,"Vels Institute of Science, Technology and Advanced Studies, Chennai",Tamil Nadu,Chengalpattu,www.vistas.ac.in,1992,Urban,vistas
 U-0455,"Indian Institute of Information Technology, Design & Manufacturing, Kancheepuram",Tamil Nadu,Chengalpattu,www.iiitdm.ac.in,2007,Rural,iiitdm
 U-0492,"VINAYAKA MISSIONs RESEARCH FOUNDATION, SALEM",Tamil Nadu,Salem,www.vinayakamission.com,1982,Rural,vinayakamission
-U-1373,MNR University,Telangana,Sangareddy,,-,Urban,mnruni
+U-1373,MNR University,Telangana,Sangareddy,https://mnruniversity.edu.in,-,Urban,mnruni
 U-0017,"Jawaharlal Nehru Technological University, Hyderabad",Telangana,Hyderabad,www.jntuh.ac.in,1972,Urban,jntuh
 U-0028,"Palamuru University,  Mahabubnagar",Telangana,Mahabubnagar,www.palamuruuniversity.ac.in,2008,Rural,palamuruuniversity
 U-0784,PROFESSOR JAYASHANKAR TELANGANA AGRICULTURAL UNIVERSITY (PJTAU),Telangana,Hyderabad,pjtsau.edu.in,2014,Urban,pjtsau
 U-0007,"Dr. B. R. Ambedkar Open University, Hyderabad",Telangana,Hyderabad,www.braou.ac.in,1982,Urban,braou
 U-0012,"ICFAI Foundation for Higher Education, Hyderabad",Telangana,Hyderabad,www.ifheindia.org,1995,Urban,ifheindia
-U-1364,Guru Nanak University,Telangana,Hyderabad,,-,Urban,gurnanuni
+U-1364,Guru Nanak University,Telangana,Hyderabad,https://gnuindia.org,-,Urban,gurnanuni
 U-0014,"International Institute of Information Technology, Hyderabad",Telangana,Ranga Reddy,www.iiit.ac.in,1998,Urban,iiit
 U-1137,WOXSEN UNIVERSITY,Telangana,Sangareddy,woxsen.edu.in,2014,Rural,woxsen
 U-0040,"Telangana University, Nizamabad",Telangana,Nizamabad,www.telanganauniversity.ac.in,2006,Rural,telanganauniversity
@@ -1103,8 +1103,8 @@ U-0019,"Kakatiya University, Warangal",Telangana,Hanumakonda,www.kakatiya.ac.in,
 U-0868,P.V. NARSIMHA RAO TELANGANA VETERINARY UNIVERSITY,Telangana,Ranga Reddy,tsvu.nic.in,2014,Urban,tsvu
 U-0026,"Nizam Institute of Medical Sciences,  Hyderabad",Telangana,Hyderabad,www.nims.edu.in,1989,Urban,nims
 U-0869,"RAJIV GANDHI UNIVERSITY OF KNOWLEDGE TECHNOLOGIES, BASAR",Telangana,Nirmal,www.rgukt.ac.in,2008,Rural,rgukt1
-U-1366,Malla Reddy Vishwavidyapeeth,Telangana,MEDCHAL MALKAJGIRI,,-,Urban,malredvis
-U-1108,ALL INDIA INSTITUTE OF MEDICAL SCIENCE  BIBINAGAR,Telangana,YADADRI BHUVANAGIRI,www.aiimsbibinagar.edu.in						,2019,Rural,aiimsbibinagar
+U-1366,Malla Reddy Vishwavidyapeeth,Telangana,MEDCHAL MALKAJGIRI,https://www.mallareddyuniversity.ac.in,-,Urban,malredvis
+U-1108,ALL INDIA INSTITUTE OF MEDICAL SCIENCE  BIBINAGAR,Telangana,YADADRI BHUVANAGIRI,www.aiimsbibinagar.edu.in,2019,Rural,aiimsbibinagar
 U-0023,"Maulana Azad National Urdu University, Hyderabad",Telangana,Ranga Reddy,www.manuu.edu.in,1998,Urban,manuu
 U-0013,"Indian Institute of Technology, Hyderabad",Telangana,Medak,iith.ac.in,2008,Urban,iith
 U-0025,"National Institute of Technology, Warangal",Telangana,Warangal,nitw.ac.in,1959,Urban,nitw
@@ -1142,7 +1142,7 @@ U-0929,Bhagwant Global University,Uttarakhand,Pauri Garhwal,www.bgukotdwar.ac.in
 U-0557,"Hemwati Nandan Bahuguna Garhwal Univeristy, Srinagar, Garhwal",Uttarakhand,Pauri Garhwal,www.hnbgu.ac.in,1973,Urban,hnbgu
 U-0654,"UTTARAKHAND UNIVERSITY OF HORTICULTURE AND FORESTRY, BHARSAR",Uttarakhand,Pauri Garhwal,www.uuhf.ac.in,2011,Rural,uuhf
 U-1255,HARIDWAR UNIVERSITY,Uttarakhand,Haridwar,www.huroorkee.ac.in,-,Rural,huroorkee
-U-1335,DBS Global University,Uttarakhand,Dehradun,,-,Urban,dbsglouni
+U-1335,DBS Global University,Uttarakhand,Dehradun,https://dbsglobaluniversity.edu.in,-,Urban,dbsglouni
 U-1349,Maya Devi University,Uttarakhand,Dehradun,maya.edu.in,-,Rural,maya
 U-1207,SURAJMAL UNIVERSITY,Uttarakhand,Udam Singh Nagar,SMU.ac.in,-,Rural,smu1
 U-1237,HIMALAYIYA UNIVERSITY,Uttarakhand,Dehradun,www.himalayiyauniversity.in,-,Rural,himalayiyauniversity
@@ -1259,10 +1259,10 @@ U-1265,Maharaja Suhel Dev State University,Uttar Pradesh,Azamgarh,www.msdsu.ac.i
 U-1270,MAHAYOGI GURU GORAKHNATH AYUSH UNIVERSITY,Uttar Pradesh,Gorakhpur,www.mggaugkp.ac.in,-,Rural,mggaugkp
 U-1271,AGRAWAN HERITAGE UNIVERSITY,Uttar Pradesh,Agra,www.ahu.ac.in,-,Rural,ahu
 U-1272,SDGI GLOBAL UNIVERSITY,Uttar Pradesh,Ghaziabad,www.sgu.edu.in,-,Urban,sgu
-U-1273,K M KRISHNA MOHAN UNIVERSITY,Uttar Pradesh,Mathura,www.kmu.edu.in ,-,Urban,kmu
+U-1273,K M KRISHNA MOHAN UNIVERSITY,Uttar Pradesh,Mathura,www.kmu.edu.in,-,Urban,kmu
 U-0535,"Rajiv Gandhi Institute of Petroleum Technology, Amethi",Uttar Pradesh,Amethi,www.rgipt.ac.in,2007,Rural,rgipt
 U-1390,Vivek University,Uttar Pradesh,Bijnor,,-,Urban,vivuni
-U-0498,"Babasaheb Bhimrao Ambedkar University, Lucknow",Uttar Pradesh,Lucknow,www.bbau.ac.in ,1994,Urban,bbau
+U-0498,"Babasaheb Bhimrao Ambedkar University, Lucknow",Uttar Pradesh,Lucknow,www.bbau.ac.in,1994,Urban,bbau
 U-0530,"Motilal Nehru National Institute of Technology, Allahabad",Uttar Pradesh,Prayagraj,www.mnnit.ac.in,1961,Urban,mnnit
 U-0809,J S University,Uttar Pradesh,Firozabad,www.jsu.ac.in,2015,Rural,jsu
 U-0808,RAMA UNIVERSITY UTTAR PRADESH,Uttar Pradesh,Kanpur Nagar,www.ramauniversity.ac.in,2014,Rural,ramauniversity
@@ -1280,7 +1280,7 @@ U-1348,Varun Arjun University,Uttar Pradesh,Shahjahanpur,www.vau.edu.in,-,Rural,
 U-0898,Footwear Design and Development Institute,Uttar Pradesh,Gautam Buddha Nagar,www.fddiindia.com,1986,Urban,fddiindia
 U-0897,"Bareilly International University, Bareilly",Uttar Pradesh,Bareilly,www.biu.edu.in,2016,Urban,biu
 U-0890,"Bennett University, Greater Noida",Uttar Pradesh,Gautam Buddha Nagar,www.bennett.edu.in,2016,Urban,bennett
-U-1354,Future University,Uttar Pradesh,Bareilly,,-,Urban,futuni
+U-1354,Future University,Uttar Pradesh,Bareilly,https://futureuniversity.in,-,Urban,futuni
 U-1061,JANNAYAK CHANDRASHEKHAR UNIVERSITY BALLIA,Uttar Pradesh,Ballia,www.jncu.ac.in,2016,Rural,jncu
 U-0848,"SIDDHARTH UNIVERSITY, KAPILVASTU",Uttar Pradesh,Siddharthnagar,www.suksn.edu.in,2015,Rural,suksn
 U-0525,"Mahatama Jyotiba Phule Rohikhand University, Bareilly",Uttar Pradesh,Bareilly,www.mjpru.ac.in,1975,Urban,mjpru
@@ -1305,7 +1305,7 @@ U-0568,"Bidhan Chandra Krishi Vishwavidyalaya , Nadia",West Bengal,Nadia,www.bck
 U-0570,"Calcutta University, Kolkata",West Bengal,Kolkata,www.caluniv.ac.in,1857,Urban,caluniv
 U-0796,"INDIAN INSTITUTE OF INFORMATION TECHNOLOGY, KALYANI",West Bengal,Nadia,www.iiitkalyani.ac.in,2014,Urban,iiitkalyani
 U-1144,SADHU RAM CHAND MURMU UNIVERSITY OF JHARGRAM,West Bengal,Jhargram,www.srcmujhargram.ac.in,2018,Rural,srcmujhargram
-U-0575,"Jadavpur University, Kolkata",West Bengal,South 24 Parganas,jadavpuruniversity.in ,1905,Urban,jadavpuruniversity
+U-0575,"Jadavpur University, Kolkata",West Bengal,South 24 Parganas,jadavpuruniversity.in,1905,Urban,jadavpuruniversity
 U-0576,"Kalyani University, Kalyani",West Bengal,Nadia,www.klyuniv.ac.in,1960,Rural,klyuniv
 U-0582,"Ramakrishna Mission Vivekananda Educational  and Research Institute, Howrah",West Bengal,Howrah,www.rkmvu.ac.in,2005,Urban,rkmvu
 U-0768,DIAMOND HARBOUR WOMENS UNIVERSITY,West Bengal,South 24 Parganas,www.dhwu.ac.in,2012,Rural,dhwu
@@ -1381,3 +1381,62 @@ C-46133,"KIET Group of Institutions, Ghaziabad",Uttar Pradesh,Ghaziabad,www.kiet
 C-46134,"GL Bajaj Institute of Technology and Management, Greater Noida",Uttar Pradesh,Gautam Buddha Nagar,www.glbitm.org,2005,Urban,glbitm
 C-46135,"JSS Academy of Technical Education, Noida",Uttar Pradesh,Gautam Buddha Nagar,jssaten.ac.in,1998,Urban,jssaten
 C-43958,"Christian Medical College, Vellore",Tamil Nadu,Vellore,www.cmch-vellore.edu,1900,Urban,cmcvellore
+C-41984,"Pune Institute of Computer Technology, Pune",Maharashtra,Pune,pict.edu,1983,Urban,pict
+C-41983,"Vishwakarma Institute of Technology, Pune",Maharashtra,Pune,www.vit.edu,1983,Urban,vitpune
+C-41985,"Pimpri Chinchwad College of Engineering, Pune",Maharashtra,Pune,pccoepune.org,1999,Urban,pccoe
+C-41986,"MKSSS's Cummins College of Engineering for Women, Pune",Maharashtra,Pune,www.cumminscollege.in,1991,Urban,cumminscollege
+C-33830,"Dwarkadas J. Sanghvi College of Engineering, Mumbai",Maharashtra,Mumbai Suburban,www.djsce.ac.in,1994,Urban,djsce
+C-33831,"Thadomal Shahani Engineering College, Mumbai",Maharashtra,Mumbai Suburban,tsec.edu,1983,Urban,tsec
+C-33833,"Fr. Conceicao Rodrigues College of Engineering, Bandra, Mumbai",Maharashtra,Mumbai Suburban,frcrce.ac.in,1984,Urban,frcrce
+C-20928,"Dayananda Sagar College of Engineering, Bengaluru",Karnataka,Bengaluru Urban,www.dsce.edu.in,1979,Urban,dsce
+C-20929,"BMS Institute of Technology and Management, Bengaluru",Karnataka,Bengaluru Urban,bmsit.in,2002,Urban,bmsit
+C-20930,"Bangalore Institute of Technology, Bengaluru",Karnataka,Bengaluru Urban,bit-bangalore.edu.in,1979,Urban,bitbangalore
+C-20931,"Sir M. Visvesvaraya Institute of Technology, Bengaluru",Karnataka,Bengaluru Urban,www.sirmvit.edu,1986,Urban,sirmvit
+C-20932,"New Horizon College of Engineering, Bengaluru",Karnataka,Bengaluru Urban,newhorizonindia.edu,2001,Urban,nhce
+C-20933,"Nitte Meenakshi Institute of Technology, Bengaluru",Karnataka,Bengaluru Urban,www.nmit.ac.in,2001,Urban,nmit
+C-20934,"CMR Institute of Technology, Bengaluru",Karnataka,Bengaluru Urban,www.cmrit.ac.in,2000,Urban,cmrit
+C-20935,"Siddaganga Institute of Technology, Tumkur",Karnataka,Tumakuru,sit.ac.in,1963,Urban,sittumkur
+C-20936,"The National Institute of Engineering, Mysuru",Karnataka,Mysuru,nie.ac.in,1946,Urban,nie
+C-20938,"R.V. Institute of Technology and Management, Bengaluru",Karnataka,Bengaluru Urban,rvitm.edu.in,2019,Urban,rvitm
+C-25626,"Gokaraju Rangaraju Institute of Engineering and Technology, Hyderabad",Telangana,Hyderabad,www.griet.ac.in,1997,Urban,griet
+C-25627,"Keshav Memorial Institute of Technology, Hyderabad",Telangana,Hyderabad,www.kmit.in,2007,Urban,kmit
+C-25628,"CVR College of Engineering, Hyderabad",Telangana,Ibrahimpatnam,cvr.ac.in,2001,Urban,cvr
+C-25629,"Vardhaman College of Engineering, Hyderabad",Telangana,Hyderabad,vardhaman.org,1999,Urban,vardhaman
+C-25630,"B. V. Raju Institute of Technology, Narsapur",Telangana,Medak,bvrit.ac.in,1997,Rural,bvrit
+C-25631,"G. Narayanamma Institute of Technology and Science, Hyderabad",Telangana,Hyderabad,www.gnits.ac.in,1997,Urban,gnits
+C-32860,"Maharaja Agrasen Institute of Technology, Delhi",Delhi,North West,mait.ac.in,1999,Urban,mait
+C-32861,"Maharaja Surajmal Institute of Technology, Delhi",Delhi,West,www.msit.in,2001,Urban,msit
+C-32862,"Bharati Vidyapeeth's College of Engineering, New Delhi",Delhi,West,bvcoend.ac.in,1999,Urban,bvcoend
+C-6380,"Shaheed Sukhdev College of Business Studies, Delhi",Delhi,North West,sscbs.du.ac.in,1987,Urban,sscbs
+C-6381,"Kirori Mal College, Delhi",Delhi,North,kmc.du.ac.in,1954,Urban,kmc
+C-6382,"Ramjas College, Delhi",Delhi,North,ramjas.du.ac.in,1917,Urban,ramjas
+C-6383,"Sri Venkateswara College, Delhi",Delhi,South,www.svc.ac.in,1961,Urban,svc
+C-6384,"Faculty of Management Studies, University of Delhi",Delhi,North,fms.edu,1954,Urban,fms
+C-37014,"Coimbatore Institute of Technology, Coimbatore",Tamil Nadu,Coimbatore,www.cit.edu.in,1956,Urban,citcoimbatore
+C-37015,"Kumaraguru College of Technology, Coimbatore",Tamil Nadu,Coimbatore,www.kct.ac.in,1984,Urban,kct
+C-37016,"Thiagarajar College of Engineering, Madurai",Tamil Nadu,Madurai,www.tce.edu,1957,Urban,tce
+C-16539,"Sri Venkateswara College of Engineering, Sriperumbudur",Tamil Nadu,Kanchipuram,www.svce.ac.in,1985,Rural,svce
+C-16540,"Rajalakshmi Engineering College, Chennai",Tamil Nadu,Kanchipuram,rajalakshmi.edu.in,1997,Rural,rajalakshmi
+C-37017,"Bannari Amman Institute of Technology, Sathyamangalam",Tamil Nadu,Erode,bitsathy.ac.in,1996,Rural,bitsathy
+C-37018,"Kongu Engineering College, Erode",Tamil Nadu,Erode,kongu.ac.in,1984,Rural,kongu
+C-37019,"Government College of Technology, Coimbatore",Tamil Nadu,Coimbatore,gct.ac.in,1945,Urban,gct
+C-43615,"College of Engineering, Thiruvananthapuram",Kerala,Thiruvananthapuram,www.cet.ac.in,1939,Urban,cet
+C-43616,"Govt. Model Engineering College, Thrikkakara, Kochi",Kerala,Ernakulam,www.mec.ac.in,1989,Urban,mec
+C-43617,"Government Engineering College, Thrissur",Kerala,Thrissur,gectcr.ac.in,1957,Urban,gectcr
+C-43618,"TKM College of Engineering, Kollam",Kerala,Kollam,tkmce.ac.in,1958,Urban,tkmce
+C-43619,"Rajagiri School of Engineering & Technology, Kochi",Kerala,Ernakulam,www.rajagiritech.edu.in,2001,Urban,rajagiri
+C-43620,"Federal Institute of Science and Technology, Angamaly",Kerala,Ernakulam,fisat.ac.in,2002,Rural,fisat
+C-43621,"Mar Baselios College of Engineering and Technology, Thiruvananthapuram",Kerala,Thiruvananthapuram,mbcet.ac.in,2002,Urban,mbcet
+C-43622,"SCMS School of Engineering and Technology, Ernakulam",Kerala,Ernakulam,scmsgroup.org,2001,Rural,scms
+C-46136,"ABES Engineering College, Ghaziabad",Uttar Pradesh,Ghaziabad,www.abes.ac.in,2000,Urban,abes
+C-46137,"Galgotias College of Engineering and Technology, Greater Noida",Uttar Pradesh,Gautam Buddha Nagar,galgotiacollege.edu,2000,Urban,gcet
+C-6242,"Techno Main Salt Lake, Kolkata",West Bengal,Kolkata,www.ticollege.ac.in,2001,Urban,tmsl
+C-6243,"Kalyani Government Engineering College, Nadia",West Bengal,Nadia,www.kgec.edu.in,1995,Urban,kgec
+C-6244,"Haldia Institute of Technology, Haldia",West Bengal,Purba Medinipur,hithaldia.ac.in,1996,Urban,hithaldia
+C-6385,"Maulana Azad Medical College, New Delhi",Delhi,Central,mamc.ac.in,1958,Urban,mamc
+C-6386,"Vardhman Mahavir Medical College & Safdarjung Hospital, New Delhi",Delhi,South,vmmc-sjh.nic.in,2001,Urban,vmmc
+C-20937,"Bangalore Medical College and Research Institute, Bengaluru",Karnataka,Bengaluru Urban,bmcri.edu.in,1955,Urban,bmcri
+C-33832,"Seth G.S. Medical College and KEM Hospital, Mumbai",Maharashtra,Mumbai,www.kem.edu,1926,Urban,kem
+C-14820,"Birla Vishvakarma Mahavidyalaya, Anand",Gujarat,Anand,bvmengineering.ac.in,1948,Urban,bvm
+C-14821,"L.D. College of Engineering, Ahmedabad",Gujarat,Ahmedabad,ldce.ac.in,1948,Urban,ldce
+C-14823,"Vishwakarma Government Engineering College, Chandkheda",Gujarat,Gandhinagar,vgecg.ac.in,1994,Urban,vgec

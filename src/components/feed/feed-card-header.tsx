@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import type { FeedPost } from "@/hooks/use-feed";
 import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
@@ -133,7 +134,9 @@ export function FeedCardHeader({
         : null;
 
   const isVerified = Boolean(
-    !isBotPost && !post.isAnonymous && ((post.author?.points || 0) >= 150 || post.author?.role === "ADMIN")
+    !isBotPost &&
+      !post.isAnonymous &&
+      (post.author?.isCollegeVerified || isCollegeVerifiedUser(post.author))
   );
 
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
