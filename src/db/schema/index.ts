@@ -7,6 +7,7 @@ export * from "./chat";
 export * from "./commercial-marketplace";
 export * from "./common";
 export * from "./communities";
+export * from "./courses";
 export * from "./dating";
 export * from "./events";
 export * from "./external-content";

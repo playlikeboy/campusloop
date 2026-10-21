@@ -2,6 +2,7 @@ import { ArrowLeft, Eye, GraduationCap, Search, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
+import { AcademicsSwitch } from "@/components/courses/academics-switch";
 import { Navigation } from "@/components/ui/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
@@ -56,6 +57,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
                 </span>
               </div>
             )}
+            <AcademicsSwitch />
             {children}
             <FirstVisitNotificationPrompt />
           </main>
@@ -131,7 +133,8 @@ export default async function AcademicsLayout({ children }: { children: React.Re
 
       {/* Main Content Area */}
       <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-0 py-2 sm:px-6 sm:py-4">
-        {children}
+        <AcademicsSwitch />
+            {children}
       </main>
 
       {/* Bottom Sticky Guest Perk Callout on Mobile */}

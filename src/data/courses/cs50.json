@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-17T14:36:27.870Z",
+  "fetchedAt": "2026-10-21T17:54:47.220Z",
   "license": "CC BY-NC-SA 4.0",
   "courses": [
     {
@@ -685,6 +685,7 @@
     {
       "key": "cs50g",
       "site": "https://cs50.harvard.edu/games/",
+      "fromWeeks": true,
       "category": "Game Development",
       "level": "INTERMEDIATE",
       "tags": [
@@ -697,59 +698,44 @@
       "playlistId": "PLhQjrBD2T380FZyaKIkZYuZWe2B1UHilA",
       "lectures": [
         {
-          "title": "Pong",
-          "videoId": "1MUurr34pkk",
-          "durationSec": 69
+          "title": "CS50 2D - Lecture 0 - Pong",
+          "videoId": "MY2y3dDwgMk",
+          "durationSec": 9217
         },
         {
-          "title": "Flappy Bird",
-          "videoId": "XtjzdjLCwak",
-          "durationSec": 62
+          "title": "CS50 2D - Lecture 1 - Flappy Bird",
+          "videoId": "2rboPz0plD8",
+          "durationSec": 7269
         },
         {
-          "title": "Breakout",
-          "videoId": "QQm50ZCrEVU",
-          "durationSec": 66
+          "title": "CS50 2D - Lecture 2 - Breakout",
+          "videoId": "TgZBoMRKSzk",
+          "durationSec": 8572
         },
         {
-          "title": "Match 3",
-          "videoId": "nAchwPVPqL4",
-          "durationSec": 115
+          "title": "CS50 2D - Lecture 3 - Match 3",
+          "videoId": "Qxh0KheWftU",
+          "durationSec": 6899
         },
         {
-          "title": "Super Mario Bros",
-          "videoId": "cnQ5FeSA0Fs",
-          "durationSec": 57
+          "title": "CS50 2D - Lecture 4 - Super Mario Bros.",
+          "videoId": "wjzaqNwZrPM",
+          "durationSec": 5909
         },
         {
-          "title": "Legend of Zelda",
-          "videoId": "eW6MRHAIPME",
-          "durationSec": 104
+          "title": "CS50 2D - Lecture 5 - Legend of Zelda",
+          "videoId": "iwjilbptPFM",
+          "durationSec": 7503
         },
         {
-          "title": "Angry Birds",
-          "videoId": "rbkyCfv6SFI",
-          "durationSec": 55
+          "title": "CS50 2D - Lecture 6 - Angry Birds",
+          "videoId": "Wh5cDuJFHz8",
+          "durationSec": 4559
         },
         {
-          "title": "Pokémon",
-          "videoId": "E8QML69Zww0",
-          "durationSec": 93
-        },
-        {
-          "title": "Helicopter Game 3D",
-          "videoId": "tNS4Z-7Fmkc",
-          "durationSec": 52
-        },
-        {
-          "title": "Dreadhalls",
-          "videoId": "y4u-gqSGKoI",
-          "durationSec": 38
-        },
-        {
-          "title": "Portal",
-          "videoId": "1jaXtLn2ab8",
-          "durationSec": 37
+          "title": "CS50 2D - Lecture 7 - Pokémon",
+          "videoId": "pdBhw2QirRI",
+          "durationSec": 5402
         }
       ]
     },
