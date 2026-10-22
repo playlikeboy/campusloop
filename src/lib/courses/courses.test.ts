@@ -17,10 +17,18 @@ describe("course formatting", () => {
     expect(slugifyCourse("DSA in 8 Weeks: Placements!")).toBe("dsa-in-8-weeks-placements");
   });
 
-  it("parses lecture video links", () => {
+  it("parses lecture video links across platforms", () => {
     expect(parseVideoUrl("https://youtu.be/2WtPyqwTLKM?t=30")).toEqual({ provider: "youtube", ref: "2WtPyqwTLKM" });
     expect(parseVideoUrl("https://www.youtube.com/watch?v=2WtPyqwTLKM")).toEqual({ provider: "youtube", ref: "2WtPyqwTLKM" });
     expect(parseVideoUrl("https://vimeo.com/76979871")).toEqual({ provider: "vimeo", ref: "76979871" });
+    expect(parseVideoUrl("https://www.dailymotion.com/video/xbqeulm")).toEqual({ provider: "dailymotion", ref: "xbqeulm" });
+    expect(parseVideoUrl("https://dai.ly/x7s8a9")).toEqual({ provider: "dailymotion", ref: "x7s8a9" });
+    expect(parseVideoUrl("https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs/view")).toEqual({
+      provider: "drive",
+      ref: "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs",
+    });
+    expect(parseVideoUrl("https://archive.org/download/MIT15.S12F18/MIT15_S12F18_lec01_300k.mp4")?.provider).toBe("file");
+    expect(parseVideoUrl("https://archive.org/details/MIT15.S12F18")?.provider).toBe("archiveorg");
     expect(parseVideoUrl("https://cdn.example.com/lecture.mp4")?.provider).toBe("file");
     expect(parseVideoUrl("javascript:alert(1)")).toBeNull();
     expect(parseVideoUrl("https://example.com/page")).toBeNull();
@@ -270,5 +278,33 @@ describe("course personalisation", () => {
 
   it("collapses typed-out search prefixes", () => {
     expect(collapsePrefixes(["dbms", "dbm", "db", "python"])).toEqual(["dbms", "python"]);
+  });
+});
+
+describe("playlist importer", async () => {
+  const { detectPlatform, inferCourseCategory, importMultiLinks } = await import("./playlist-importer");
+
+  it("detects platforms from playlist URLs", () => {
+    expect(detectPlatform("https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv")).toBe("youtube");
+    expect(detectPlatform("https://www.dailymotion.com/playlist/xdy3oa")).toBe("dailymotion");
+    expect(detectPlatform("https://archive.org/details/MIT15.S12F18")).toBe("archiveorg");
+    expect(detectPlatform("https://drive.google.com/drive/folders/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs")).toBe("drive");
+  });
+
+  it("infers categories based on subject keywords", () => {
+    expect(inferCourseCategory("DSA Masterclass: Leetcode and Algorithms")).toBe("Computer Science");
+    expect(inferCourseCategory("Differential Equations & Linear Algebra")).toBe("Mathematics");
+    expect(inferCourseCategory("Signals and Systems Lecture Series")).toBe("Electronics & Communication");
+    expect(inferCourseCategory("Financial Accounting & Balance Sheet")).toBe("Finance & Accounting");
+    expect(inferCourseCategory("Random unknown title")).toBe("General");
+  });
+
+  it("imports multiple links into a course curriculum", () => {
+    const raw = `https://youtu.be/2WtPyqwTLKM\nhttps://vimeo.com/76979871\nhttps://www.dailymotion.com/video/xbqeulm`;
+    const res = importMultiLinks(raw);
+    expect(res.itemCount).toBe(3);
+    expect(res.sections[0].lectures.length).toBe(3);
+    expect(res.sections[0].lectures[0].videoUrl).toBe("https://youtu.be/2WtPyqwTLKM");
+    expect(res.sections[0].lectures[2].videoUrl).toBe("https://www.dailymotion.com/video/xbqeulm");
   });
 });

@@ -10,6 +10,8 @@ import { type CourseInput, validateCourse } from "@/lib/courses/validate";
 import { cn } from "@/lib/utils";
 import { CurriculumEditor, type EditableSection, key } from "./curriculum-editor";
 import { ListInput } from "./list-input";
+import { PlaylistImporterCard } from "./playlist-importer-card";
+import type { ImportedPlaylistResult } from "@/lib/courses/playlist-importer";
 
 const DRAFT_KEY = "cl_course_builder_draft";
 const field = "w-full rounded-xl bg-muted/50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -91,6 +93,36 @@ export function CourseBuilder({ initial, slug }: { initial?: CourseInput; slug?:
     }
   }
 
+  function handleImportedCourse(imported: ImportedPlaylistResult) {
+    setS((prev) => ({
+      ...prev,
+      title: imported.title || prev.title,
+      subtitle: imported.subtitle || prev.subtitle,
+      description: imported.description || prev.description,
+      category: imported.category || prev.category,
+      level: imported.level || prev.level,
+      thumbnailUrl: imported.thumbnailUrl || prev.thumbnailUrl,
+      instructorName: imported.instructorName || prev.instructorName,
+      outcomes: imported.outcomes.length ? imported.outcomes : prev.outcomes,
+      requirements: imported.requirements.length ? imported.requirements : prev.requirements,
+      tags: imported.tags.length ? imported.tags : prev.tags,
+      sections: imported.sections.map((sec) => ({
+        key: key(),
+        title: sec.title,
+        lectures: sec.lectures.map((lec) => ({
+          key: key(),
+          title: lec.title,
+          kind: lec.kind,
+          videoUrl: lec.videoUrl,
+          durationMin: lec.durationMin || 0,
+          body: lec.body || "",
+          isPreview: Boolean(lec.isPreview),
+          attachments: lec.attachments || [],
+        })),
+      })),
+    }));
+  }
+
   return (
     <div className="px-4 pb-20 sm:px-0">
       <h1 className="text-3xl font-black tracking-tight text-foreground">{editing ? "Edit course" : "Create a course"}</h1>
@@ -98,6 +130,8 @@ export function CourseBuilder({ initial, slug }: { initial?: CourseInput; slug?:
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0 space-y-8">
+          <PlaylistImporterCard onImport={handleImportedCourse} disabled={busy !== null} />
+
           <section className="space-y-4 rounded-2xl bg-card/60 p-5 shadow-2xs">
             <h2 className="text-lg font-bold">Basics</h2>
             <label className="block text-sm font-semibold">Title

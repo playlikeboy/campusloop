@@ -89,7 +89,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
   {
     slug: "courses",
     title: "Courses",
-    summary: "Free video courses with progress tracking, notes, Q&A and certificates: Harvard CS50, MIT, Stanford, NPTEL, Y Combinator, and India's best teachers across CSE, ECE, Mechanical, Maths, Finance, Medicine, and Law. Anyone can create a course.",
+    summary: "Free video courses with progress tracking, notes, Q&A and certificates: Harvard CS50, MIT, Stanford, NPTEL, Y Combinator, and India's best teachers across CSE, ECE, Mechanical, Maths, Finance, Medicine, and Law. Supports one-click playlist import from YouTube, Dailymotion, Archive.org, and Google Drive.",
     category: "Academics",
     audiences: ["Students", "Clubs", "Investors"],
     routes: [
@@ -106,6 +106,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU, Caltech, NPTEL, Y Combinator Startup School, Harvard Justice, and DeepLearning.AI.",
       "Explore non-CS disciplines including Engineering Mathematics (Dr. Gajendra Purohit, Prof. Leonard), Electronics & Communication (ALL ABOUT ELECTRONICS, Engineering Funda), Mechanical (The Efficient Engineer), Finance & Accounting (Accounting Stuff), Economics (MRU), Medicine (Ninja Nerd), and Design (DesignCourse, Figma).",
       "Learn DBMS, OS, networks, DSA, OOP, web development and machine learning from popular Indian educators such as CodeWithHarry, CampusX, Gate Smashers, Neso Academy, Apna College, Striver, Jenny's Lectures and Chai aur Code, many in Hindi.",
+      "Quick playlist importer allows you to paste any YouTube playlist, Dailymotion playlist, Archive.org collection, or Google Drive folder and instantly populates the full course curriculum with video titles, descriptions, and durations ready for editing and publishing.",
       "Semantic search and academic domain isolation ensure that when you search computing subjects like DBMS or DSA, you get relevant CSE recommendations with zero unrelated business clutter.",
       "The player remembers where you stopped, marks lectures complete when you finish them, and plays the next one.",
       "Take private, timestamped notes and jump back to that moment with one tap.",
@@ -122,7 +123,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Watch. Progress saves automatically; lectures complete at 90% watched, or tick them yourself. Use the speed control, Previous/Next, and keyboard shortcuts (Space, arrows, N, P, M, [ and ?).",
       "Use the tabs under the video: Overview, Notes, Q&A for this lecture, Resources (slides, code, course site) and Reviews.",
       "Finish every lecture and tap Get certificate. Find all your courses, wishlist and certificates in My learning.",
-      "To teach, open /courses/new: add basics, outcomes, sections and lectures (paste a video link and it is detected), attachments and free previews, then publish once the checklist is complete.",
+      "To teach, open /courses/new: use Quick Import from Playlist (paste any YouTube, Dailymotion, Archive.org, or Google Drive link) to auto-fill the curriculum, or build manually. Edit titles, attach notes or problem sheets, and publish once the checklist is complete.",
       "New community courses are unlisted: they appear in the campus feed under Rising courses by students and work by direct link, but are not in the /courses catalog or search engines yet. The course page shows its creator progress toward listing: at least 3 lectures, 150 views, 10 learners, and a rating of 3.8 or more once it has 3 reviews. When every bar is met the course joins the catalog automatically.",
     ],
     useCases: [
@@ -144,6 +145,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     investorAngle:
       "Courses add a high-retention learning habit next to the Academic Vault, with structured progress data and certificates that bring students back for months. The creator tools let campus experts build a catalog that scales without content cost, and open a path to paid courses later.",
     faq: [
+      { q: "What platforms can I import playlists from?", a: "The quick importer directly supports YouTube playlists, Dailymotion playlists, Archive.org collections, and Google Drive folders (shared as public view). You can also paste multiple video links across different platforms." },
       { q: "What fields and disciplines are covered?", a: "Courses span Computer Science & Programming, Engineering (ECE, EEE, Mechanical, Civil, Chemical), Mathematics, Sciences (Physics, Chemistry, Biology), Health (Medicine, Pharmacy, Nursing), Commerce & Finance, Economics, Management & MBA, Law & Policy, and Design." },
       { q: "How does semantic search work for courses?", a: "Academic domain clustering isolates search results: searching for computing subjects like DBMS, OS, or DSA returns verified Computer Science and Programming recommendations, strictly preventing cross-discipline clutter from business or other domains." },
       { q: "Are the courses free?", a: "Yes. All courses are free, including every CS50 lecture." },
@@ -156,7 +158,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { q: "Can a listed course be removed from the catalog?", a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed." },
     ],
     related: ["academic-vault", "study-playlists", "upload-notes"],
-    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Dr Gajendra Purohit", "Professor Leonard", "ALL ABOUT ELECTRONICS", "The Efficient Engineer", "Accounting Stuff", "Marginal Revolution University", "Ninja Nerd", "Y Combinator Startup School", "Hindi coding courses", "engineering mathematics", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
+    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Dr Gajendra Purohit", "Professor Leonard", "ALL ABOUT ELECTRONICS", "The Efficient Engineer", "Accounting Stuff", "Marginal Revolution University", "Ninja Nerd", "Y Combinator Startup School", "Hindi coding courses", "engineering mathematics", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses", "playlist importer", "youtube playlist import", "dailymotion import", "google drive course"],
     updated: "2026-10-22",
   },
   {

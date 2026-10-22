@@ -41,10 +41,28 @@ function LectureEditor({ l, onChange }: { l: EditableLecture; onChange: (l: Edit
       {l.kind !== "ARTICLE" && (
         <div className="flex gap-3">
           <div className="min-w-0 flex-1 space-y-2">
-            <input value={l.videoUrl ?? ""} onChange={(e) => onChange({ ...l, videoUrl: e.target.value })} placeholder={l.kind === "VIDEO" ? "YouTube, Vimeo or .mp4 link" : "https:// link to the resource"} className={cn(field, "h-10")} />
+            <input value={l.videoUrl ?? ""} onChange={(e) => onChange({ ...l, videoUrl: e.target.value })} placeholder={l.kind === "VIDEO" ? "YouTube, Dailymotion, Drive, Archive.org, Vimeo or .mp4 link" : "https:// link to the resource"} className={cn(field, "h-10")} />
             {l.kind === "VIDEO" && l.videoUrl && (
               <p className={cn("flex items-center gap-1 text-xs", video ? "text-primary" : "text-destructive")}>
-                {video ? <><CheckCircle2 className="size-3.5" aria-hidden />{video.provider === "file" ? "Video file" : video.provider === "youtube" ? "YouTube video" : "Vimeo video"} detected</> : "Not a supported video link yet"}
+                {video ? (
+                  <>
+                    <CheckCircle2 className="size-3.5" aria-hidden />
+                    {video.provider === "file"
+                      ? "Video file"
+                      : video.provider === "youtube"
+                        ? "YouTube video"
+                        : video.provider === "dailymotion"
+                          ? "Dailymotion video"
+                          : video.provider === "drive"
+                            ? "Google Drive video"
+                            : video.provider === "archiveorg"
+                              ? "Archive.org video"
+                              : "Vimeo video"}{" "}
+                    detected
+                  </>
+                ) : (
+                  "Not a supported video link yet"
+                )}
               </p>
             )}
           </div>

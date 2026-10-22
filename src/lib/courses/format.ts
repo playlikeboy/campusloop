@@ -94,9 +94,12 @@ export function slugifyCourse(title: string): string {
   );
 }
 
-export type VideoRef = { provider: "youtube" | "vimeo" | "file"; ref: string };
+export type VideoRef = {
+  provider: "youtube" | "vimeo" | "dailymotion" | "drive" | "archiveorg" | "file";
+  ref: string;
+};
 
-/** Accepts YouTube/Vimeo links or a direct .mp4/.webm URL. */
+/** Accepts YouTube, Vimeo, Dailymotion, Archive.org, Google Drive or direct video URLs. */
 export function parseVideoUrl(raw: string): VideoRef | null {
   let u: URL;
   try {
@@ -106,6 +109,8 @@ export function parseVideoUrl(raw: string): VideoRef | null {
   }
   if (u.protocol !== "https:" && u.protocol !== "http:") return null;
   const host = u.hostname.replace(/^www\.|^m\./, "");
+
+  // YouTube (youtu.be, youtube.com, youtube-nocookie.com)
   if (host === "youtu.be") {
     const id = u.pathname.slice(1, 12);
     return /^[A-Za-z0-9_-]{11}$/.test(id) ? { provider: "youtube", ref: id } : null;
@@ -114,16 +119,54 @@ export function parseVideoUrl(raw: string): VideoRef | null {
     const id = u.searchParams.get("v") ?? u.pathname.match(/^\/(?:embed|shorts|live)\/([A-Za-z0-9_-]{11})/)?.[1];
     return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? { provider: "youtube", ref: id } : null;
   }
+
+  // Vimeo
   if (host === "vimeo.com" || host === "player.vimeo.com") {
     const id = u.pathname.match(/(\d{6,12})/)?.[1];
     return id ? { provider: "vimeo", ref: id } : null;
   }
-  if (/\.(mp4|webm|m4v|mov)$/i.test(u.pathname)) return { provider: "file", ref: u.toString() };
+
+  // Dailymotion (dailymotion.com, dai.ly)
+  if (host === "dai.ly") {
+    const id = u.pathname.slice(1).split("?")[0];
+    return /^[A-Za-z0-9]+$/.test(id) ? { provider: "dailymotion", ref: id } : null;
+  }
+  if (host === "dailymotion.com") {
+    const id = u.pathname.match(/\/(?:video|embed\/video)\/([A-Za-z0-9]+)/)?.[1];
+    return id && /^[A-Za-z0-9]+$/.test(id) ? { provider: "dailymotion", ref: id } : null;
+  }
+
+  // Google Drive (file preview/view)
+  if (host === "drive.google.com") {
+    const fileId = u.pathname.match(/\/file\/d\/([\w-]{20,80})/)?.[1] ?? u.searchParams.get("id");
+    return fileId && /^[\w-]{20,80}$/.test(fileId) ? { provider: "drive", ref: fileId } : null;
+  }
+
+  // Archive.org (direct video file download or item embed)
+  if (host === "archive.org") {
+    if (/\.(mp4|webm|m4v|mov|mkv)$/i.test(u.pathname)) {
+      return { provider: "file", ref: u.toString() };
+    }
+    const detailsId = u.pathname.match(/\/(?:details|embed)\/([^/?#]+)/)?.[1];
+    if (detailsId) return { provider: "archiveorg", ref: detailsId };
+  }
+
+  // Direct video file link
+  if (/\.(mp4|webm|m4v|mov|mkv)$/i.test(u.pathname)) return { provider: "file", ref: u.toString() };
   return null;
 }
 
 export function videoThumbnail(provider?: string | null, ref?: string | null): string | null {
-  return provider === "youtube" && ref ? `https://i.ytimg.com/vi/${ref}/hqdefault.jpg` : null;
+  if (!ref) return null;
+  if (provider === "youtube") return `https://i.ytimg.com/vi/${ref}/hqdefault.jpg`;
+  if (provider === "dailymotion") return `https://www.dailymotion.com/thumbnail/video/${ref}`;
+  if (provider === "drive") return `https://drive.google.com/thumbnail?id=${ref}&sz=w800`;
+  if (provider === "archiveorg") return `https://archive.org/services/img/${ref}`;
+  if (provider === "file" && ref.includes("archive.org/download/")) {
+    const m = ref.match(/archive\.org\/download\/([^/]+)/);
+    if (m) return `https://archive.org/services/img/${m[1]}`;
+  }
+  return null;
 }
 
 /** Who made an imported course, for attribution lines. Null for community courses. */

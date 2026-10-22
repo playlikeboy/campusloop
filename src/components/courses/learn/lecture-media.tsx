@@ -119,25 +119,51 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
           allowFullScreen
           className="absolute inset-0 h-full w-full border-0"
         />
-      ) : lecture.videoProvider === "file" && lecture.videoRef ? (
-        // biome-ignore lint/a11y/useMediaCaption: user-supplied lecture video; captions not available
-        <video
-          ref={fileRef}
-          src={lecture.videoRef}
-          controls
-          autoPlay
-          playsInline
-          className="absolute inset-0 h-full w-full"
-          onLoadedMetadata={(e) => {
-            if (startAt > 0) e.currentTarget.currentTime = startAt;
-          }}
-          onTimeUpdate={(e) => {
-            const v = e.currentTarget;
-            if (Math.floor(v.currentTime) % 5 === 0) onProgress(v.currentTime);
-            if (v.duration && v.currentTime / v.duration >= 0.9) onComplete();
-          }}
-          onEnded={handleEnded}
+      ) : lecture.videoProvider === "dailymotion" && lecture.videoRef ? (
+        <iframe
+          src={`https://geo.dailymotion.com/player.html?video=${lecture.videoRef}&autoplay=1`}
+          title={lecture.title}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full border-0"
         />
+      ) : lecture.videoProvider === "drive" && lecture.videoRef ? (
+        <iframe
+          src={`https://drive.google.com/file/d/${lecture.videoRef}/preview`}
+          title={lecture.title}
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      ) : (lecture.videoProvider === "archiveorg" || lecture.videoProvider === "file") && lecture.videoRef ? (
+        lecture.videoRef.startsWith("http") && !lecture.videoRef.includes("/embed/") ? (
+          // biome-ignore lint/a11y/useMediaCaption: user-supplied lecture video; captions not available
+          <video
+            ref={fileRef}
+            src={lecture.videoRef}
+            controls
+            autoPlay
+            playsInline
+            className="absolute inset-0 h-full w-full"
+            onLoadedMetadata={(e) => {
+              if (startAt > 0) e.currentTarget.currentTime = startAt;
+            }}
+            onTimeUpdate={(e) => {
+              const v = e.currentTarget;
+              if (Math.floor(v.currentTime) % 5 === 0) onProgress(v.currentTime);
+              if (v.duration && v.currentTime / v.duration >= 0.9) onComplete();
+            }}
+            onEnded={handleEnded}
+          />
+        ) : (
+          <iframe
+            src={lecture.videoRef.startsWith("http") ? lecture.videoRef : `https://archive.org/embed/${lecture.videoRef}`}
+            title={lecture.title}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            className="absolute inset-0 h-full w-full border-0"
+          />
+        )
       ) : (
         <p className="absolute inset-0 flex items-center justify-center text-sm text-white/70">This video is unavailable.</p>
       )}

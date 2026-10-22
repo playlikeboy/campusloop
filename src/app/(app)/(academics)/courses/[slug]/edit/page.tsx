@@ -11,6 +11,8 @@ export const metadata: Metadata = { title: "Edit course", robots: { index: false
 function lectureUrl(l: CourseLecture): string {
   if (l.videoProvider === "youtube" && l.videoRef) return `https://youtu.be/${l.videoRef}`;
   if (l.videoProvider === "vimeo" && l.videoRef) return `https://vimeo.com/${l.videoRef}`;
+  if (l.videoProvider === "dailymotion" && l.videoRef) return `https://www.dailymotion.com/video/${l.videoRef}`;
+  if (l.videoProvider === "drive" && l.videoRef) return `https://drive.google.com/file/d/${l.videoRef}/view`;
   return l.videoRef ?? "";
 }
 
