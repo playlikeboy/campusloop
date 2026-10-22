@@ -62,18 +62,39 @@ function describe(c: ImportedCourse, hours: number): string {
   return c.description.length >= 80 ? `${intro}\n\n${c.description}` : `${intro}\n\nTrack your progress lecture by lecture, keep timestamped notes, ask questions and earn a CampusLoop certificate when you finish.`;
 }
 
-async function uniqueSlug(id: string, title: string, provider: string): Promise<string> {
+/** Provider in the slug keeps generic titles readable: "c-programming-gate-smashers", not "c-programming-3". */
+function slugBase(title: string, provider: string): string {
+  const short = provider.replace(/\s*\(.*\)$/, "");
+  return slugifyCourse(title.toLowerCase().includes(short.toLowerCase()) ? title : `${title} ${short}`);
+}
+
+async function uniqueSlug(id: string, title: string, provider: string, keepExisting = true): Promise<string> {
   const [existing] = await sql`select slug from courses where id = ${id}`;
-  if (existing) return existing.slug as string;
-  const bases = [slugifyCourse(title), slugifyCourse(`${title} ${provider}`)];
+  if (existing && keepExisting) return existing.slug as string;
+  const bases = [slugBase(title, provider), slugifyCourse(title)];
   for (const base of bases) {
     for (let i = 0; i < 5; i++) {
       const slug = i === 0 ? base : `${base}-${i + 1}`;
       const [hit] = await sql`select id from courses where slug = ${slug}`;
+      if (hit?.id === id) return slug;
       if (!hit && !["new", "my", "category", "feed", "search", "edit"].includes(slug)) return slug;
     }
   }
   return `${bases[0]}-${id.slice(-6).toLowerCase()}`;
+}
+
+// --reslug: recompute slugs for imported courses only (before anyone has shared links), then exit.
+if (process.argv.includes("--reslug")) {
+  for (const c of courses) {
+    const id = `crs_yt_${c.playlistId}`;
+    await sql`update courses set slug = ${`tmp-${id.toLowerCase()}`} where id = ${id}`;
+  }
+  for (const c of courses) {
+    const id = `crs_yt_${c.playlistId}`;
+    await sql`update courses set slug = ${await uniqueSlug(id, cleanTitle(c.title, c.provider), c.provider, false)} where id = ${id}`;
+  }
+  console.log("reslugged", courses.length);
+  process.exit(0);
 }
 
 let n = 0;

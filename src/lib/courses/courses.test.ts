@@ -174,6 +174,7 @@ describe("imported courses", () => {
     expect(cleanTitle("Python for Beginners (Full Course) | #100DaysOfCode Programming Tutorial in Hindi", "CodeWithHarry")).toBe("Python for Beginners (Full Course)");
     expect(cleanTitle("Computer Sc - Data Structures and Algorithms", "NPTEL", /^(Computer Sc(ience)?)\s*-\s+/i)).toBe("Data Structures and Algorithms");
     expect(cleanTitle("Sigma Web Development Course 🗿", "CodeWithHarry")).toBe("Sigma Web Development Course");
+    expect(cleanTitle("Stanford CS224N Natural Language Processing with Deep Learning I Spring 2024 I Professor Christopher Manning", "Stanford Online")).toBe("Stanford CS224N Natural Language Processing with Deep Learning");
   });
 
   it("ranks curated sources above educators above community, without touching displayed ratings", () => {

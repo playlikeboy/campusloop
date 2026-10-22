@@ -81,6 +81,8 @@ export function cleanTitle(raw: string, provider: string, strip?: RegExp): strin
   let t = raw;
   if (strip) t = t.replace(strip, "");
   t = t.replace(/#\w+/g, "").replace(/\s*\|\s*\|/g, " |");
+  // Stanford writes "CS224N ... I Spring 2024 I Professor X": a capital I used as a separator.
+  t = t.replace(/\s+I\s+(?=(Spring|Fall|Autumn|Winter|Summer|(19|20)\d{2}|Prof|[A-Z][a-z]+ [A-Z][a-z]+))/g, " | ");
   // "DP Playlist | Interview Questions | Recursion | C++ | ..." keeps its first meaningful part.
   if (t.length > 50 && t.includes("|") && t.split("|")[0].trim().length >= 12) t = t.split("|")[0];
   return t
