@@ -237,4 +237,37 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     keywords: ["admin", "moderation tools"],
     updated: U,
   },
+  {
+    slug: "ecosystem-suite",
+    title: "CampusLoop Ecosystem and apps",
+    summary: "Discover purpose-built extensions, flagship apps like DSALoop and baby, AI copilots, and campus utilities.",
+    category: "Platform",
+    audiences: ["Students", "Developers", "Investors"],
+    routes: [{ path: "/ecosystem", label: "Ecosystem directory" }],
+    purpose: "Give deep, dedicated spaces for technical interview prep, mindful reflection, AI assistance, and campus utilities without cluttering the social feed.",
+    whyUse: [
+      "Access DSALoop for pattern-first DSA prep and 185+ company tracks.",
+      "Use baby with Kumo for private, streak-free AI journaling.",
+      "Explore developer MCP keys, campus living services, and gaming lobbies in one curated hub.",
+    ],
+    howToUse: [
+      "Open /ecosystem from the desktop sidebar or main menu.",
+      "Filter by category: Flagship Products, AI & Dev, Career & Prep, Campus Living, or Social.",
+      "Search any tool by name, topic, or feature.",
+      "Launch external suites like DSALoop and baby, or jump directly into native campus hubs.",
+    ],
+    useCases: [
+      { who: "Computer science student", scenario: "Uses DSALoop daily for Blind 75 prep and Campus AI for semester study roadmaps." },
+      { who: "Student", scenario: "Uses baby to journal feelings during stressful mid-terms with zero social noise." },
+    ],
+    privacy: ["Ecosystem directory respects verified identity and privacy settings. External products carry their own privacy architectures."],
+    investorAngle: "A multi-product ecosystem expands CampusLoop from a campus social network into essential student infrastructure across career, mental wellness, and daily campus living.",
+    faq: [
+      { q: "Are all ecosystem apps included?", a: "Yes, all native utilities and flagship apps are accessible for verified students." },
+      { q: "Can I connect my own AI agents?", a: "Yes, through the Developer & MCP Portal at /developer." },
+    ],
+    related: ["developer-mcp", "campus-ai-and-atlas", "getting-started"],
+    keywords: ["ecosystem", "DSALoop", "baby", "campus apps", "MCP", "AI copilot"],
+    updated: "2026-10-22",
+  },
 ];

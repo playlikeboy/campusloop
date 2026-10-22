@@ -59,6 +59,7 @@ const SECTIONS = [
     items: [
       { href: "/academics", label: "Academics", icon: GraduationCap },
       { href: "/courses", label: "Courses", icon: PlayCircle },
+      { href: "/ecosystem", label: "Ecosystem", icon: Sparkles },
       { href: "/articles", label: "Articles", icon: BookOpen },
       { href: "/gaming", label: "Gaming", icon: Gamepad2 },
     ],

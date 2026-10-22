@@ -1,14 +1,11 @@
 "use client";
 
 import {
-  ArrowUpRight,
   BadgeCheck,
   Bell,
-  Building2,
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Code2,
   GraduationCap,
   Heart,
   Home,
@@ -18,6 +15,7 @@ import {
   Plus,
   Search,
   Settings,
+  Sparkles,
   User,
   Users,
   VenetianMask,
@@ -52,10 +50,10 @@ const NAV_ITEMS: NavItemDef[] = [
   { href: "/feeds", label: "Home", icon: Home },
   { href: "/academics", label: "Academics", icon: GraduationCap },
   { href: "/courses", label: "Courses", icon: PlayCircle },
-  { href: "/matching", label: "Matching", icon: Heart },
   { href: "/communities", label: "Communities", icon: Users },
   { href: "/events", label: "Events", icon: Calendar },
-  { href: "/campus", label: "Campus", icon: Building2 },
+  { href: "/matching", label: "Matching", icon: Heart },
+  { href: "/ecosystem", label: "Ecosystem", icon: Sparkles },
   { href: "/chat", label: "Messages", icon: MessageSquare },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/more", label: "More", icon: MoreHorizontal },
@@ -66,18 +64,7 @@ function isItemActive(pathname: string, href: string) {
   if (href === "/academics") return pathname.startsWith("/academics");
   if (href === "/communities") return pathname.startsWith("/communities");
   if (href === "/events") return pathname.startsWith("/events");
-  if (href === "/campus") {
-    return (
-      pathname.startsWith("/campus") ||
-      pathname.startsWith("/living") ||
-      pathname.startsWith("/housing") ||
-      pathname.startsWith("/marketplace") ||
-      pathname.startsWith("/buy-and-sell") ||
-      pathname.startsWith("/lost-and-found") ||
-      pathname.startsWith("/rideshare") ||
-      pathname.startsWith("/atlas")
-    );
-  }
+  if (href === "/ecosystem") return pathname.startsWith("/ecosystem");
   if (href === "/chat") return pathname === "/chat" || pathname.startsWith("/chat/");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -274,46 +261,6 @@ export function DesktopSidebar({
             </Link>
           );
         })}
-
-        {/* ── Ecosystem Products (DSALoop & baby) ── */}
-        {!collapsed && (
-          <div className="pt-2">
-            <div className="border-t border-[var(--border)] pt-2.5 pb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-3">
-                Ecosystem
-              </span>
-              <div className="mt-1 space-y-0.5">
-                <a
-                  href="https://dsaloop.campusloop.space"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-between rounded-[var(--r-md)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] transition-colors cursor-pointer"
-                  title="DSALoop: Master DSA & System Design"
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Code2 className="size-3.5 text-emerald-500 shrink-0" />
-                    <span className="truncate">DSALoop</span>
-                  </span>
-                  <ArrowUpRight className="size-3 text-[var(--text-muted)] group-hover:text-[var(--text)] shrink-0" />
-                </a>
-
-                <a
-                  href="https://baby.campusloop.space"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-between rounded-[var(--r-md)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] transition-colors cursor-pointer"
-                  title="baby: A calm AI companion that remembers"
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Heart className="size-3.5 text-blue-500 shrink-0" />
-                    <span className="truncate">baby · AI Journal</span>
-                  </span>
-                  <ArrowUpRight className="size-3 text-[var(--text-muted)] group-hover:text-[var(--text)] shrink-0" />
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* ── Footer / Primary Actions ── */}
