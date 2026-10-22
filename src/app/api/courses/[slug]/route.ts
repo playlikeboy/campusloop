@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courses } from "@/db/schema";
+import { importPlaylist } from "@/lib/courses/playlist-importer";
 import { canEditCourse, currentProfile, getCourseDetail, getViewerState, requireProfile } from "@/lib/courses/server";
 import { validateCourse } from "@/lib/courses/validate";
 import { courseColumns, saveCurriculum } from "@/lib/courses/write";
@@ -9,6 +10,25 @@ import { courseColumns, saveCurriculum } from "@/lib/courses/write";
 export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ slug: string }> };
+
+export async function POST(req: Request, { params }: Ctx) {
+  const { slug } = await params;
+  if (slug === "import-playlist") {
+    const auth = await requireProfile();
+    if (auth.error) return auth.error;
+    try {
+      const body = (await req.json().catch(() => null)) as { url?: string } | null;
+      const url = body?.url?.trim();
+      if (!url) return NextResponse.json({ error: "Please provide a playlist or folder URL." }, { status: 400 });
+      const imported = await importPlaylist(url);
+      return NextResponse.json({ success: true, course: imported });
+    } catch (err) {
+      console.error("[POST /api/courses/[slug] import error]:", err);
+      return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to import playlist" }, { status: 400 });
+    }
+  }
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
+}
 
 export async function GET(_req: Request, { params }: Ctx) {
   const { slug } = await params;

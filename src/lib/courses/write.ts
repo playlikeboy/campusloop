@@ -8,7 +8,7 @@ import type { CourseInput } from "./validate";
 const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
 
 /** Slugs taken by /courses/* routes and /api/courses/* endpoints. */
-const RESERVED_SLUGS = new Set(["new", "my", "category", "feed", "search", "edit"]);
+const RESERVED_SLUGS = new Set(["new", "my", "category", "feed", "search", "edit", "import-playlist"]);
 
 /** Unique slug: "intro-to-dsa", then "intro-to-dsa-2", ... */
 export async function uniqueCourseSlug(title: string, ignoreId?: string): Promise<string> {

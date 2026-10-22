@@ -32,11 +32,18 @@ export function PlaylistImporterCard({ onImport, disabled }: PlaylistImporterCar
 
     setLoading(true);
     try {
-      const res = await fetch("/api/courses/import-playlist", {
+      let res = await fetch("/api/courses/import-playlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: trimmed }),
       });
+      if (res.status === 404 || res.status === 405) {
+        res = await fetch("/api/courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "import-playlist", url: trimmed }),
+        });
+      }
       const data = (await res.json()) as { success?: boolean; error?: string; course?: ImportedPlaylistResult };
       if (!res.ok || !data.success || !data.course) {
         throw new Error(data.error || "Failed to import playlist.");

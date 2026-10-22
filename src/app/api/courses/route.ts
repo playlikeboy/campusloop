@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courses } from "@/db/schema";
 import { CATALOG_PAGE_SIZE, parseCatalogParams } from "@/lib/courses/catalog-params";
+import { importPlaylist } from "@/lib/courses/playlist-importer";
 import { listCourses, requireProfile } from "@/lib/courses/server";
 import { validateCourse } from "@/lib/courses/validate";
 import { courseColumns, newId, saveCurriculum, uniqueCourseSlug } from "@/lib/courses/write";
@@ -29,12 +30,21 @@ export async function GET(req: Request) {
   }
 }
 
-/** Create a course (draft or published) with its full curriculum. */
+/** Create a course (draft or published) with its full curriculum, or import a playlist. */
 export async function POST(req: Request) {
   const auth = await requireProfile();
   if (auth.error) return auth.error;
   try {
-    const body = (await req.json().catch(() => null)) as { status?: string } | null;
+    const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+
+    // Handle Quick Import action
+    if (body?.action === "import-playlist") {
+      const url = typeof body?.url === "string" ? body.url.trim() : "";
+      if (!url) return NextResponse.json({ error: "Please provide a playlist or folder URL." }, { status: 400 });
+      const imported = await importPlaylist(url);
+      return NextResponse.json({ success: true, course: imported });
+    }
+
     const intent = body?.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
     const v = validateCourse(body, intent);
     if (!v.ok) return NextResponse.json({ error: v.errors[0], errors: v.errors }, { status: 400 });
