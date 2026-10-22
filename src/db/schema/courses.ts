@@ -21,7 +21,10 @@ export const courses = pgTable(
     instructorName: text("instructor_name").notNull(),
     instructorBio: text("instructor_bio"),
     creatorId: text("creator_id").references(() => userProfiles.id, { onDelete: "set null" }),
-    source: text("source").default("COMMUNITY").notNull(), // COMMUNITY | CS50
+    source: text("source").default("COMMUNITY").notNull(), // COMMUNITY | CS50 | UNIVERSITY | CREATOR
+    provider: text("provider"), // e.g. "MIT OpenCourseWare", "CodeWithHarry"; null for community courses
+    // Ranking head start by source trust (promotion.ts SOURCE_BOOST). Never shown as a rating.
+    rankBoost: real("rank_boost").default(0).notNull(),
     sourceUrl: text("source_url"),
     license: text("license"),
     outcomes: jsonb("outcomes").$type<string[]>().default([]).notNull(),

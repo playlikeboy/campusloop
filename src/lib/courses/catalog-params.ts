@@ -22,11 +22,13 @@ export type CatalogSort = keyof typeof SORTS;
 
 export const LEVELS = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced", all: "All levels" } as const;
 export const DURATIONS = { short: "Under 3 hours", medium: "3 to 10 hours", long: "10+ hours" } as const;
-export const SOURCES = { cs50: "Harvard CS50", community: "Community" } as const;
+export const SOURCES = { cs50: "Harvard CS50", university: "Universities", creator: "YouTube educators", community: "Community" } as const;
+export const LANGUAGES = { english: "English", hindi: "Hindi" } as const;
 
 export type CatalogLevel = keyof typeof LEVELS;
 export type CatalogDuration = keyof typeof DURATIONS;
 export type CatalogSource = keyof typeof SOURCES;
+export type CatalogLanguage = keyof typeof LANGUAGES;
 
 export interface CatalogParams {
   q: string;
@@ -34,6 +36,7 @@ export interface CatalogParams {
   level: CatalogLevel | null;
   duration: CatalogDuration | null;
   source: CatalogSource | null;
+  lang: CatalogLanguage | null;
   sort: CatalogSort;
   page: number;
 }
@@ -70,6 +73,7 @@ export function parseCatalogParams(raw: Raw, fixedCategory?: string | null): Cat
     level: oneOf(pick(raw, "level"), LEVELS),
     duration: oneOf(pick(raw, "duration"), DURATIONS),
     source: oneOf(pick(raw, "source"), SOURCES),
+    lang: oneOf(pick(raw, "lang"), LANGUAGES),
     sort: sort === "relevance" && !q ? "popular" : sort,
     page,
   };
@@ -77,7 +81,7 @@ export function parseCatalogParams(raw: Raw, fixedCategory?: string | null): Cat
 
 /** True when nothing narrows the catalog, so the browse home can render. */
 export function isBrowseHome(p: CatalogParams): boolean {
-  return !p.q && !p.category && !p.level && !p.duration && !p.source && p.sort === "popular" && p.page === 1;
+  return !p.q && !p.category && !p.level && !p.duration && !p.source && !p.lang && p.sort === "popular" && p.page === 1;
 }
 
 /**
@@ -94,6 +98,7 @@ export function catalogHref(p: CatalogParams, over: Partial<CatalogParams> = {})
   if (next.level) qs.set("level", next.level);
   if (next.duration) qs.set("duration", next.duration);
   if (next.source) qs.set("source", next.source);
+  if (next.lang) qs.set("lang", next.lang);
   if (next.sort !== (next.q ? "relevance" : "popular")) qs.set("sort", next.sort);
   if (next.page > 1) qs.set("page", String(next.page));
   const s = qs.toString();

@@ -70,3 +70,11 @@ Why a separate `(learn)` group: study must be distraction-free. The player rende
 - **Signals**: `view_count` (one per viewer per day, Redis-deduped, creator views ignored, via `POST /api/courses/[slug]/view`), `enroll_count`, `wishlist_count`, `completion_count`, ratings. `refreshCourseStats` and `recordCourseView` recompute `trend_score` (log-damped, 21-day half-life) and listing.
 - **Catalog URLs** (`src/lib/courses/catalog-params.ts`): `/courses` (browse rows + paginated list), `/courses?q=&level=&duration=&source=&sort=&page=`, `/courses/category/[slug]`. Invalid params are dropped; defaults are omitted for canonical URLs; `?category=` redirects to the topic path. Search pages are `noindex, follow`.
 - **Scale**: 20 results per page with numbered, crawlable pagination; browse rows cached per isolate for 60s; `courses_listed_idx (status, listed, trend_score)`.
+
+## University and YouTube educator courses (added 2026-10-22)
+
+- Sources: `scripts/courses/sources.ts` (MIT OCW, Stanford, CMU DB, Caltech, NPTEL, DeepLearning.AI, 3Blue1Brown, Karpathy as `UNIVERSITY`; CodeWithHarry, CampusX, Gate Smashers, Neso, Apna College, Striver, Jenny's Lectures, Chai aur Code and more as `CREATOR`).
+- Pipeline: `import-youtube.ts` reads each channel's Playlists tab, filters to CS/AI/maths course playlists, dedupes editions, fetches every playable, embeddable video (oEmbed-checked) into `scripts/courses/data/youtube.json`; `seed-youtube.ts` upserts it (sections of 10, first 2 lectures preview, `source_url` = original playlist).
+- Ranking: `courses.rank_boost` (CS50 1.0, university 0.9, creator 0.4, community 0) feeds the popular score and the Bayesian prior of the rating sort. Displayed stars are always real student ratings.
+- Attribution on course page, player and certificate via `attributionNote()` / `courseProvider()`.
+- How-to for agents: `.claude/skills/add-courses/SKILL.md`.

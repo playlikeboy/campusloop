@@ -21,6 +21,17 @@ export interface CourseSignals {
   createdAt: Date | string;
 }
 
+/**
+ * Ranking head start by source, stored as courses.rank_boost. Curated
+ * university courses lead; YouTube educators get a smaller boost until
+ * CampusLoop students' own enrolments and ratings move them up. It shifts
+ * ranking only and is never displayed as a rating.
+ */
+export const SOURCE_BOOST: Record<string, number> = { CS50: 1, UNIVERSITY: 0.9, CREATOR: 0.4, COMMUNITY: 0 };
+
+/** Prior star rating used when sorting by rating: 4.7 for CS50, about 4.0 for creators, 3.5 for community. */
+export const ratingPrior = (boost: number) => 3.5 + boost * 1.2;
+
 /** Thresholds a community course must meet to join the catalog. */
 export const PROMOTION = {
   minLectures: 3,

@@ -65,6 +65,27 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
   }
 
   if (lecture.kind === "LINK") {
+    const yt = lecture.videoRef?.match(/youtube\.com\/watch\?v=([\w-]{11})/)?.[1];
+    if (yt) {
+      // The video owner disabled embedding, so it plays on YouTube.
+      return (
+        <a
+          href={lecture.videoRef ?? "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onComplete}
+          className="group relative block aspect-video w-full overflow-hidden bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <img src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" className="h-full w-full object-cover opacity-60 transition-opacity group-hover:opacity-50" />
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-white">
+            <span className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-black">
+              Watch on YouTube <ExternalLink className="size-4" aria-hidden />
+            </span>
+            <span className="max-w-sm text-xs text-white/80">The creator only allows this lecture on YouTube. Opening it marks it complete here.</span>
+          </span>
+        </a>
+      );
+    }
     return (
       <div className="flex min-h-[40vh] items-center justify-center p-6">
         <div className="max-w-md rounded-2xl bg-card/70 p-6 text-center shadow-2xs">

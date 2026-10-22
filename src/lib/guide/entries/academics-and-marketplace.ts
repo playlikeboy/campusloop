@@ -89,7 +89,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
   {
     slug: "courses",
     title: "Courses",
-    summary: "Free video courses with progress tracking, notes, Q&A and certificates, including every Harvard CS50 lecture. Anyone can create a course.",
+    summary: "Free video courses with progress tracking, notes, Q&A and certificates: every Harvard CS50 lecture, MIT, Stanford, CMU and NPTEL courses, and India's best YouTube teachers. Anyone can create a course.",
     category: "Academics",
     audiences: ["Students", "Clubs", "Investors"],
     routes: [
@@ -103,6 +103,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Self-study usually means scattered YouTube tabs and no record of what you finished. Courses turn good free lectures into a structured path with progress, notes and a certificate, in a player built to be distraction-free.",
     whyUse: [
       "Watch all of Harvard's CS50 courses (CS50x, Python, Web, AI, SQL, Cybersecurity, R, Scratch, Technology, Business, Law, 2D Games, Mobile) for free.",
+      "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU's database course, Caltech, NPTEL (IITs and IISc) and DeepLearning.AI.",
+      "Learn DBMS, OS, networks, DSA, OOP, web development and machine learning from popular Indian educators such as CodeWithHarry, CampusX, Gate Smashers, Neso Academy, Apna College, Striver, Jenny's Lectures and Chai aur Code, many in Hindi.",
       "The player remembers where you stopped, marks lectures complete when you finish them, and plays the next one.",
       "Take private, timestamped notes and jump back to that moment with one tap.",
       "Earn a shareable certificate of completion and add it to LinkedIn.",
@@ -111,7 +113,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     ],
     howToUse: [
       "Open /courses (or Academics, then Courses). The home shows Continue learning, then rows for Most popular, Trending, Top rated, New and the biggest topics, then every course with page numbers.",
-      "Search from the bar (suggestions appear as you type) or tap a topic chip. Narrow results by topic, level, video duration and source, and sort by relevance, popularity, trending, rating, newest or shortest. On phones, filters open in a bottom sheet. Every search, filter, sort and page has its own URL (for example /courses/category/web-development?level=beginner&page=2), so you can bookmark or share it.",
+      "Search from the bar (suggestions appear as you type) or tap a topic chip. Narrow results by topic, level, video duration, language (English or Hindi) and source (Harvard CS50, universities, YouTube educators, community), and sort by relevance, popularity, trending, rating, newest or shortest. On phones, filters open in a bottom sheet. Every search, filter, sort and page has its own URL (for example /courses/category/web-development?level=beginner&page=2), so you can bookmark or share it.",
       "Open a course to see what you'll learn, the full curriculum with lecture lengths, the instructor and reviews. Free previews play without enrolling.",
       "Tap Enrol for free. The player opens in a focused view with no feed, chat or notifications.",
       "Watch. Progress saves automatically; lectures complete at 90% watched, or tick them yourself. Use the speed control, Previous/Next, and keyboard shortcuts (Space, arrows, N, P, M, [ and ?).",
@@ -140,13 +142,15 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     faq: [
       { q: "Are the courses free?", a: "Yes. All courses are free, including every CS50 lecture." },
       { q: "Is the CS50 content official?", a: "The lectures are CS50's own videos from its official YouTube channel, shared under CC BY-NC-SA 4.0. CampusLoop is not affiliated with Harvard." },
+      { q: "Where do the university and YouTube courses come from?", a: "Each one is a playlist from the creator's official YouTube channel, played with YouTube's own embedded player. The course page links to the original playlist, and CampusLoop is not affiliated with the creator. Videos that are private, deleted, too short or not embeddable are left out." },
+      { q: "How are courses ranked?", a: "Harvard CS50 and university courses get a head start in ranking, YouTube educators a smaller one, and student-made courses none. After that, CampusLoop students decide: enrolments, completions, wishlists and ratings move courses up or down. Star ratings shown are always real student ratings." },
       { q: "When do I get a certificate?", a: "When every lecture in the course is marked complete." },
       { q: "Can I edit my course after publishing?", a: "Yes. Edits keep learners' progress on lectures that still exist." },
       { q: "Why is my course not in /courses?", a: "Community courses start unlisted and are promoted by engagement. They show in campus feeds first; once a course has 3+ lectures, 150+ views, 10+ learners and a good rating, it is added to the catalog automatically. Views are counted once per viewer per day, and your own views do not count." },
       { q: "Can a listed course be removed from the catalog?", a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed." },
     ],
     related: ["academic-vault", "study-playlists", "upload-notes"],
-    keywords: ["free online courses", "CS50", "Harvard CS50 lectures", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
+    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Hindi coding courses", "Harvard CS50 lectures", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
     updated: "2026-10-22",
   },
   {

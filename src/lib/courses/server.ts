@@ -47,7 +47,7 @@ const DURATION_RANGE: Record<CatalogDuration, [number, number]> = {
  * Catalog search. Only catalog-listed courses by default: unlisted community
  * courses are discoverable through feeds until promoted (see promotion.ts).
  */
-export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean }) {
+export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean; sourceIn?: string[] }) {
   const db = getDb();
   const limit = Math.min(opts.limit ?? CATALOG_PAGE_SIZE, 60);
   const page = Math.max(1, opts.page ?? 1);
@@ -62,11 +62,15 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
   if (opts.category) where.push(eq(courses.category, opts.category));
   if (opts.level) where.push(eq(courses.level, opts.level.toUpperCase()));
   if (opts.source) where.push(eq(courses.source, opts.source.toUpperCase()));
+  if (opts.sourceIn?.length) where.push(inArray(courses.source, opts.sourceIn));
+  if (opts.lang) where.push(eq(courses.language, opts.lang === "hindi" ? "Hindi" : "English"));
   if (opts.duration) {
     const [lo, hi] = DURATION_RANGE[opts.duration];
     where.push(gte(courses.durationSec, lo), lt(courses.durationSec, hi));
   }
-  const popular = [desc(courses.isFeatured), desc(courses.enrollCount), desc(courses.trendScore), desc(courses.ratingCount)];
+  // Source trust (rank_boost) gives curated courses a head start; real enrolments and engagement take over as they grow.
+  const score = sql`${courses.rankBoost} * 4 + ln(1 + ${courses.enrollCount}) + ${courses.trendScore} * 0.5 + ln(1 + ${courses.ratingCount}) * 0.5`;
+  const popular = [desc(courses.isFeatured), desc(score), desc(courses.lecturesCount)];
   const order =
     opts.sort === "relevance" && q
       ? [
@@ -74,13 +78,13 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
           ...popular,
         ]
       : opts.sort === "rating"
-        ? [desc(sql`(${courses.ratingAvg} * ${courses.ratingCount} + 20) / (${courses.ratingCount} + 5)`), desc(courses.ratingCount)]
+        ? [desc(sql`(${courses.ratingAvg} * ${courses.ratingCount} + (3.5 + ${courses.rankBoost} * 1.2) * 5) / (${courses.ratingCount} + 5)`), desc(courses.ratingCount), desc(score)]
         : opts.sort === "newest"
           ? [desc(courses.createdAt)]
           : opts.sort === "shortest"
             ? [asc(courses.durationSec)]
             : opts.sort === "trending"
-              ? [desc(courses.trendScore), desc(courses.createdAt)]
+              ? [desc(sql`${courses.trendScore} + ${courses.rankBoost} * 0.5`), desc(courses.createdAt)]
               : popular;
   const [rows, [{ total }]] = await Promise.all([
     db
@@ -111,8 +115,10 @@ const browseCache = new IsolateCache<Awaited<ReturnType<typeof loadBrowseRows>>>
 
 async function loadBrowseRows() {
   const cats = await listCategoryCounts();
-  const [popular, rated, fresh, trending, ...byCategory] = await Promise.all([
+  const [popular, universities, hindi, rated, fresh, trending, ...byCategory] = await Promise.all([
     listCourses({ sort: "popular", limit: 12 }),
+    listCourses({ sort: "popular", limit: 12, sourceIn: ["CS50", "UNIVERSITY"] }),
+    listCourses({ sort: "popular", limit: 12, lang: "hindi" }),
     listCourses({ sort: "rating", limit: 12 }),
     listCourses({ sort: "newest", limit: 12 }),
     listCourses({ sort: "trending", limit: 12 }),
@@ -122,7 +128,9 @@ async function loadBrowseRows() {
     categories: cats,
     rows: [
       { key: "popular", title: "Most popular", courses: popular.courses },
+      { key: "universities", title: "From top universities", courses: universities.courses },
       { key: "trending", title: "Trending this week", courses: trending.courses },
+      { key: "hindi", title: "Learn in Hindi", courses: hindi.courses },
       { key: "rating", title: "Top rated", courses: rated.courses },
       { key: "newest", title: "New and noteworthy", courses: fresh.courses },
       ...cats.slice(0, 4).map((c, i) => ({ key: `cat:${c.category}`, title: c.category, category: c.category, courses: byCategory[i].courses })),

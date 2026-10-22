@@ -8,6 +8,7 @@ const DAY = 86_400_000;
 
 function badge(c: Course): string | null {
   if (c.source === "CS50") return "Harvard CS50";
+  if (c.source === "UNIVERSITY") return c.provider ?? "University";
   if (c.isFeatured) return "Staff pick";
   if (c.enrollCount >= 100) return "Popular";
   if (Date.now() - new Date(c.listedAt ?? c.createdAt).getTime() < 14 * DAY) return "New";

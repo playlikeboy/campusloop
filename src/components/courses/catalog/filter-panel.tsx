@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { type CatalogParams, catalogHref, DURATIONS, LEVELS, SOURCES } from "@/lib/courses/catalog-params";
+import { type CatalogParams, catalogHref, DURATIONS, LANGUAGES, LEVELS, SOURCES } from "@/lib/courses/catalog-params";
 import { cn } from "@/lib/utils";
 
 type Option = { label: string; href: string; active: boolean; count?: number };
@@ -36,7 +36,7 @@ function Group({ title, options }: { title: string; options: Option[] }) {
 
 /** Filter facets as plain links: work without JS, each state has its own URL. Clicking an active option clears it. */
 export function FilterPanel({ params, categories }: { params: CatalogParams; categories: { category: string; count: number }[] }) {
-  const toggle = <K extends "level" | "duration" | "source">(key: K, value: CatalogParams[K]) => ({
+  const toggle = <K extends "level" | "duration" | "source" | "lang">(key: K, value: CatalogParams[K]) => ({
     href: catalogHref(params, { [key]: params[key] === value ? null : value }),
     active: params[key] === value,
   });
@@ -53,6 +53,7 @@ export function FilterPanel({ params, categories }: { params: CatalogParams; cat
       />
       <Group title="Level" options={(Object.keys(LEVELS) as (keyof typeof LEVELS)[]).map((k) => ({ label: LEVELS[k], ...toggle("level", k) }))} />
       <Group title="Video duration" options={(Object.keys(DURATIONS) as (keyof typeof DURATIONS)[]).map((k) => ({ label: DURATIONS[k], ...toggle("duration", k) }))} />
+      <Group title="Language" options={(Object.keys(LANGUAGES) as (keyof typeof LANGUAGES)[]).map((k) => ({ label: LANGUAGES[k], ...toggle("lang", k) }))} />
       <Group title="Source" options={(Object.keys(SOURCES) as (keyof typeof SOURCES)[]).map((k) => ({ label: SOURCES[k], ...toggle("source", k) }))} />
     </div>
   );

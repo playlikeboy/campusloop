@@ -12,12 +12,12 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 
 const SITE = "https://campusloop.space";
 const DESCRIPTION =
-  "Watch full free courses including all of Harvard's CS50 lectures, track your progress lecture by lecture, take notes, ask questions and earn a certificate. Students can create and share their own courses too.";
+  "Watch full free courses from Harvard CS50, MIT, Stanford, NPTEL and top Indian educators like CodeWithHarry, Gate Smashers and Neso Academy, track your progress lecture by lecture, take notes, ask questions and earn a certificate. Students can create and share their own courses too.";
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const p = parseCatalogParams(await searchParams);
   const canonical = `${SITE}${catalogHref(p, { page: p.page })}`;
-  const title = p.q ? `${p.q} courses` : "Free Online Courses: CS50, Python, Web, AI and More";
+  const title = p.q ? `${p.q} courses` : "Free Online Courses: CS50, MIT, DBMS, DSA, Python, AI and More";
   return {
     title: p.page > 1 ? `${title} (page ${p.page})` : title,
     description: p.q ? `Free ${p.q} courses with progress tracking, notes, Q&A and certificates on CampusLoop.` : DESCRIPTION,

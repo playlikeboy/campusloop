@@ -2,7 +2,7 @@ import { Download, ExternalLink, Scale } from "lucide-react";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import type { Course, CourseLecture } from "@/db/schema";
 import type { CourseDetailResponse } from "@/hooks/use-courses";
-import { formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
+import { attributionNote, formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
 
 /** Overview tab: lecture notes plus a compact course summary. */
 export function LectureOverview({ data, lecture, index }: { data: CourseDetailResponse; lecture: CourseLecture; index: number }) {
@@ -26,9 +26,10 @@ export function LectureOverview({ data, lecture, index }: { data: CourseDetailRe
         {c.description && <div className="mt-2"><MarkdownContent content={c.description} /></div>}
         <p className="mt-3 text-sm text-foreground">Instructor: <span className="font-semibold">{c.instructorName}</span></p>
       </div>
-      {c.source === "CS50" && (
+      {attributionNote(c) && (
         <p className="flex gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
-          <Scale className="mt-0.5 size-4 shrink-0" aria-hidden /> Lecture by CS50 at Harvard University, licensed CC BY-NC-SA 4.0, embedded from CS50's official YouTube channel. CampusLoop is not affiliated with Harvard.
+          <Scale className="mt-0.5 size-4 shrink-0" aria-hidden /> {attributionNote(c)}
+          {c.sourceUrl && <> <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground underline">Original</a></>}
         </p>
       )}
     </div>

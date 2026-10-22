@@ -17,7 +17,7 @@ interface Props {
   all: { courses: Course[]; total: number; pages: number };
 }
 
-const ROW_HREF: Record<string, string> = { popular: "#all-courses", trending: "/courses?sort=trending", rating: "/courses?sort=rating", newest: "/courses?sort=newest" };
+const ROW_HREF: Record<string, string> = { universities: "/courses?source=university", hindi: "/courses?lang=hindi", popular: "#all-courses", trending: "/courses?sort=trending", rating: "/courses?sort=rating", newest: "/courses?sort=newest" };
 
 /** /courses home: search, topics, continue learning, curated rows, then the full paginated list. */
 export function CatalogBrowse({ params, rows, categories, all }: Props) {
@@ -27,7 +27,7 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-4xl">Learn anything, at your own pace</h1>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground sm:text-base">Free courses from Harvard's CS50 and from students like you. Track progress and earn a certificate.</p>
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground sm:text-base">Free courses from Harvard, MIT, Stanford, IITs and India's best teachers on YouTube. Track progress and earn a certificate.</p>
           </div>
           <div className="flex gap-2">
             <Link href="/courses/my" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-muted/70 px-4 text-sm font-semibold text-foreground hover:bg-muted">

@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { CertificateActions } from "@/components/courses/certificate-actions";
 import { getDb } from "@/db";
 import { courseCertificates, courses } from "@/db/schema";
-import { formatDuration } from "@/lib/courses/format";
+import { courseProvider, formatDuration } from "@/lib/courses/format";
 
 export const dynamic = "force-dynamic";
 
@@ -66,10 +66,10 @@ export default async function CertificatePage({ params }: Props) {
             <p className="mt-8 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck className="size-3.5 text-primary" aria-hidden /> Verify at {url.replace("https://", "")}
             </p>
-            {course.source === "CS50" && (
+            {courseProvider(course) && (
               <p className="mx-auto mt-4 max-w-lg text-[11px] leading-relaxed text-muted-foreground">
-                Course content by CS50 at Harvard University, licensed CC BY-NC-SA 4.0. This certificate is issued by CampusLoop for
-                completing the lectures and is not issued or endorsed by Harvard University or CS50.
+                Course content by {courseProvider(course)}{course.license ? `, licensed ${course.license}` : ""}. This certificate is issued by CampusLoop for
+                completing the lectures and is not issued or endorsed by {courseProvider(course)}.
               </p>
             )}
           </div>

@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import cs50 from "@/data/courses/cs50.json";
-import { formatClock, formatDuration, parseVideoUrl, slugifyCourse } from "./format";
+import { cleanTitle, dedupeEditions } from "../../../scripts/courses/import-youtube";
+import { attributionNote, courseProvider, formatClock, formatDuration, parseVideoUrl, slugifyCourse } from "./format";
 import { catalogHref, categoryFromSlug, categorySlug, isBrowseHome, pageWindow, parseCatalogParams } from "./catalog-params";
-import { bayesianRating, shouldBeListed, trendScore } from "./promotion";
+import { bayesianRating, ratingPrior, SOURCE_BOOST, shouldBeListed, trendScore } from "./promotion";
 import { validateCourse } from "./validate";
 
 describe("course formatting", () => {
@@ -150,5 +151,47 @@ describe("catalog URL state", () => {
     expect(pageWindow(1, 5)).toEqual([1, 2, 3, 4, 5]);
     expect(pageWindow(6, 12)).toEqual([1, "gap", 5, 6, 7, "gap", 12]);
     expect(pageWindow(2, 12)).toEqual([1, 2, 3, "gap", 12]);
+  });
+});
+
+describe("imported courses", () => {
+  it("keeps one edition per course code, newest first, Andrew Ng's CS229 winning", () => {
+    const lists = [
+      { title: "CMU Intro to Database Systems (15-445/645 - Fall 2023)", videoCount: 26 },
+      { title: "CMU Intro to Database Systems (15-445/645 - Fall 2025)", videoCount: 25 },
+      { title: "Stanford CS229: Machine Learning I Spring 2022", videoCount: 19 },
+      { title: "Stanford CS229: Machine Learning led by Andrew Ng | Autumn 2018", videoCount: 21 },
+      { title: "DBMS (Database Management system) Complete Playlist", videoCount: 140 },
+    ];
+    expect(dedupeEditions(lists).map((l) => l.title)).toEqual([
+      "CMU Intro to Database Systems (15-445/645 - Fall 2025)",
+      "Stanford CS229: Machine Learning led by Andrew Ng | Autumn 2018",
+      "DBMS (Database Management system) Complete Playlist",
+    ]);
+  });
+
+  it("cleans playlist titles", () => {
+    expect(cleanTitle("Python for Beginners (Full Course) | #100DaysOfCode Programming Tutorial in Hindi", "CodeWithHarry")).toBe("Python for Beginners (Full Course)");
+    expect(cleanTitle("Computer Sc - Data Structures and Algorithms", "NPTEL", /^(Computer Sc(ience)?)\s*-\s+/i)).toBe("Data Structures and Algorithms");
+    expect(cleanTitle("Sigma Web Development Course 🗿", "CodeWithHarry")).toBe("Sigma Web Development Course");
+  });
+
+  it("ranks curated sources above educators above community, without touching displayed ratings", () => {
+    expect(SOURCE_BOOST.CS50).toBeGreaterThan(SOURCE_BOOST.UNIVERSITY);
+    expect(SOURCE_BOOST.UNIVERSITY).toBeGreaterThan(SOURCE_BOOST.CREATOR);
+    expect(SOURCE_BOOST.CREATOR).toBeGreaterThan(SOURCE_BOOST.COMMUNITY);
+    expect(ratingPrior(SOURCE_BOOST.CS50)).toBeCloseTo(4.7);
+  });
+
+  it("attributes imported courses and not community ones", () => {
+    const yt = { source: "CREATOR", provider: "Gate Smashers", instructorName: "Gate Smashers", license: null };
+    expect(attributionNote(yt)).toContain("CampusLoop is not affiliated with Gate Smashers");
+    expect(attributionNote({ ...yt, source: "COMMUNITY" })).toBeNull();
+    expect(courseProvider({ source: "CS50", instructorName: "x" })).toBe("CS50 at Harvard University");
+  });
+
+  it("parses the language filter", () => {
+    expect(parseCatalogParams({ lang: "Hindi" }).lang).toBe("hindi");
+    expect(catalogHref(parseCatalogParams({ lang: "hindi", source: "creator" }))).toBe("/courses?source=creator&lang=hindi");
   });
 });

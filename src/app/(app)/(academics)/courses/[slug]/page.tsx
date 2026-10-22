@@ -8,7 +8,7 @@ import { CourseReviews } from "@/components/courses/course-reviews";
 import { CourseViewBeacon } from "@/components/courses/course-view-beacon";
 import { EnrollPanel } from "@/components/courses/enroll-panel";
 import { RatingStars } from "@/components/courses/rating-stars";
-import { formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
+import { attributionNote, formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
 import { canEditCourse, currentProfile, getCourseDetail, getViewerState } from "@/lib/courses/server";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +47,15 @@ export default async function CourseLandingPage({ params }: Props) {
     name: c.title,
     description: c.subtitle ?? c.description.slice(0, 300),
     url: `https://campusloop.space/courses/${c.slug}`,
-    provider: c.source === "CS50" ? { "@type": "Organization", name: "Harvard University (CS50)", sameAs: c.sourceUrl } : { "@type": "Organization", name: "CampusLoop", sameAs: "https://campusloop.space" },
+    provider:
+      c.source === "CS50"
+        ? { "@type": "Organization", name: "Harvard University (CS50)", sameAs: c.sourceUrl }
+        : c.provider
+          ? { "@type": "Organization", name: c.provider, ...(c.sourceUrl ? { sameAs: c.sourceUrl } : {}) }
+          : { "@type": "Organization", name: "CampusLoop", sameAs: "https://campusloop.space" },
     isAccessibleForFree: true,
     inLanguage: "en",
-    ...(c.license ? { license: "https://creativecommons.org/licenses/by-nc-sa/4.0/" } : {}),
+    ...(c.license?.includes("BY-NC-SA") ? { license: "https://creativecommons.org/licenses/by-nc-sa/4.0/" } : {}),
     ...(c.ratingCount > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: c.ratingAvg.toFixed(1), ratingCount: c.ratingCount } } : {}),
     hasCourseInstance: { "@type": "CourseInstance", courseMode: "online", courseWorkload: `PT${Math.round(c.durationSec / 3600)}H` },
     offers: { "@type": "Offer", price: 0, priceCurrency: "INR", category: "Free" },
@@ -72,7 +77,17 @@ export default async function CourseLandingPage({ params }: Props) {
               <span className="inline-flex items-center gap-1"><Signal className="size-4" aria-hidden />{LEVEL_LABEL[c.level]}</span>
               <span className="inline-flex items-center gap-1"><Globe className="size-4" aria-hidden />{c.language}</span>
             </div>
-            <p className="mt-2 text-sm text-foreground">Created by <span className="font-semibold">{d.creator?.displayName ?? c.instructorName}</span></p>
+            <p className="mt-2 text-sm text-foreground">
+              Created by <span className="font-semibold">{d.creator?.displayName ?? c.instructorName}</span>
+              {c.sourceUrl && c.source !== "COMMUNITY" && (
+                <>
+                  {" · "}
+                  <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+                    {c.source === "CS50" ? "Course site" : "Original playlist"}
+                  </a>
+                </>
+              )}
+            </p>
             {canEditCourse(c, profile) && <CourseListingStatus course={c} />}
 
             {c.thumbnailUrl && <img src={c.thumbnailUrl} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover lg:hidden" />}
@@ -115,10 +130,19 @@ export default async function CourseLandingPage({ params }: Props) {
               <h2 className="text-xl font-bold text-foreground">Instructor</h2>
               <p className="mt-2 font-semibold text-foreground">{c.instructorName}</p>
               {c.instructorBio && <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.instructorBio}</p>}
-              {c.source === "CS50" && (
+              {attributionNote(c) && (
                 <p className="mt-3 flex gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
                   <Scale className="mt-0.5 size-4 shrink-0" aria-hidden />
-                  Lectures by CS50 at Harvard University, shared under CC BY-NC-SA 4.0 and embedded from CS50's official YouTube channel. Notes, slides and problem sets are on <a href={c.sourceUrl ?? "https://cs50.harvard.edu"} className="font-semibold text-foreground underline" target="_blank" rel="noopener noreferrer">the course site</a>. CampusLoop is not affiliated with Harvard.
+                  <span>
+                    {attributionNote(c)}
+                    {c.source === "CS50" ? " Notes, slides and problem sets are on " : " "}
+                    {c.sourceUrl && (
+                      <a href={c.sourceUrl} className="font-semibold text-foreground underline" target="_blank" rel="noopener noreferrer">
+                        {c.source === "CS50" ? "the course site" : "Watch the original playlist"}
+                      </a>
+                    )}
+                    .
+                  </span>
                 </p>
               )}
             </section>

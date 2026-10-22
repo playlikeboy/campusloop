@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import Link from "next/link";
 import type { Course } from "@/db/schema";
-import { CATALOG_PAGE_SIZE, type CatalogParams, catalogHref, DURATIONS, LEVELS, SORTS, SOURCES } from "@/lib/courses/catalog-params";
+import { CATALOG_PAGE_SIZE, type CatalogParams, catalogHref, DURATIONS, LANGUAGES, LEVELS, SORTS, SOURCES } from "@/lib/courses/catalog-params";
 import { CategoryNav } from "./category-nav";
 import { CourseListItem } from "./course-list-item";
 import { FilterPanel } from "./filter-panel";
@@ -25,6 +25,7 @@ export function CatalogResults({ params, result, categories }: Props) {
     params.level && { label: LEVELS[params.level], href: catalogHref(params, { level: null }) },
     params.duration && { label: DURATIONS[params.duration], href: catalogHref(params, { duration: null }) },
     params.source && { label: SOURCES[params.source], href: catalogHref(params, { source: null }) },
+    params.lang && { label: LANGUAGES[params.lang], href: catalogHref(params, { lang: null }) },
   ].filter(Boolean) as { label: string; href: string }[];
   const sorts = (Object.keys(SORTS) as (keyof typeof SORTS)[])
     .filter((s) => s !== "relevance" || params.q)
@@ -57,7 +58,7 @@ export function CatalogResults({ params, result, categories }: Props) {
             </Link>
           ))}
           {chips.length > 1 && (
-            <Link href={catalogHref({ ...params, level: null, duration: null, source: null }, { category: params.q ? null : params.category })} scroll={false} className="inline-flex h-8 shrink-0 items-center px-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            <Link href={catalogHref({ ...params, level: null, duration: null, source: null, lang: null }, { category: params.q ? null : params.category })} scroll={false} className="inline-flex h-8 shrink-0 items-center px-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
               Clear all
             </Link>
           )}

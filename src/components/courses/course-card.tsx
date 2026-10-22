@@ -1,7 +1,7 @@
 import { Clock, GraduationCap, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import type { Course } from "@/db/schema";
-import { formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
+import { formatDuration, LEVEL_LABEL, sourceBadge } from "@/lib/courses/format";
 import { RatingStars } from "./rating-stars";
 
 /** Catalog card. Optional progress for "My learning". */
@@ -19,8 +19,8 @@ export function CourseCard({ course, progress, href }: { course: Course; progres
             <GraduationCap className="size-10" aria-hidden />
           </div>
         )}
-        {course.source === "CS50" && (
-          <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">CS50 · Harvard</span>
+        {sourceBadge(course) && (
+          <span className="absolute left-2 top-2 max-w-[85%] truncate rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">{sourceBadge(course)}</span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">

@@ -77,17 +77,17 @@ for (const c of data.courses) {
 
   await sql`
     insert into courses (id, slug, title, subtitle, description, category, level, language, thumbnail_url, instructor_name, instructor_bio,
-      creator_id, source, source_url, license, outcomes, requirements, tags, status, is_featured, listed, listed_at, lectures_count, duration_sec)
+      creator_id, source, source_url, license, outcomes, requirements, tags, status, is_featured, listed, listed_at, provider, rank_boost, lectures_count, duration_sec)
     values (${courseId}, ${slug}, ${title}, ${"Harvard's free CS50 lectures, taught by David J. Malan and team"}, ${c.description},
       ${c.category}, ${c.level}, 'English', ${`https://i.ytimg.com/vi/${c.lectures[Math.min(1, c.lectures.length - 1)].videoId}/hqdefault.jpg`},
       ${"David J. Malan and the CS50 team, Harvard University"},
       ${"CS50 is Harvard University's introduction to computer science and its family of open courses. Lectures are free to watch under a Creative Commons license."},
       null, 'CS50', ${c.site}, 'CC BY-NC-SA 4.0', ${JSON.stringify(OUTCOMES[c.key] ?? [])}::jsonb,
       ${JSON.stringify(["No prior experience required unless stated", "A computer with internet access"])}::jsonb, ${JSON.stringify(["cs50", "harvard", ...c.tags])}::jsonb,
-      'PUBLISHED', ${c.key === "cs50x" || c.key === "cs50p" || c.key === "cs50ai"}, true, now(), ${c.lectures.length}, ${durationSec})
+      'PUBLISHED', ${c.key === "cs50x" || c.key === "cs50p" || c.key === "cs50ai"}, true, now(), 'Harvard CS50', 1, ${c.lectures.length}, ${durationSec})
     on conflict (slug) do update set title = excluded.title, description = excluded.description, category = excluded.category,
       level = excluded.level, thumbnail_url = excluded.thumbnail_url, source_url = excluded.source_url, outcomes = excluded.outcomes,
-      tags = excluded.tags, lectures_count = excluded.lectures_count, duration_sec = excluded.duration_sec, status = 'PUBLISHED', listed = true, updated_at = now()`;
+      tags = excluded.tags, lectures_count = excluded.lectures_count, duration_sec = excluded.duration_sec, status = 'PUBLISHED', listed = true, provider = 'Harvard CS50', rank_boost = 1, updated_at = now()`;
 
   await sql`insert into course_sections (id, course_id, title, position) values (${sectionId}, ${courseId}, 'Lectures', 0)
     on conflict (id) do nothing`;

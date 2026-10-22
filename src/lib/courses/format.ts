@@ -26,6 +26,8 @@ export const COURSE_CATEGORIES = [
   "Mathematics",
   "Exam Prep",
   "Career Skills",
+  "System Design",
+  "DevOps & Cloud",
   "General",
 ] as const;
 
@@ -90,4 +92,26 @@ export function parseVideoUrl(raw: string): VideoRef | null {
 
 export function videoThumbnail(provider?: string | null, ref?: string | null): string | null {
   return provider === "youtube" && ref ? `https://i.ytimg.com/vi/${ref}/hqdefault.jpg` : null;
+}
+
+/** Who made an imported course, for attribution lines. Null for community courses. */
+export function courseProvider(c: { source: string; provider?: string | null; instructorName: string }): string | null {
+  if (c.source === "COMMUNITY") return null;
+  if (c.source === "CS50") return "CS50 at Harvard University";
+  return c.provider ?? c.instructorName;
+}
+
+/** Attribution shown on the course page and player for imported courses. */
+export function attributionNote(c: { source: string; provider?: string | null; instructorName: string; license?: string | null }): string | null {
+  const who = courseProvider(c);
+  if (!who) return null;
+  const org = c.source === "CS50" ? "Harvard" : who;
+  return `Lectures by ${who}${c.license ? `, licensed ${c.license}` : ""}, embedded with YouTube's player from ${c.source === "CS50" ? "CS50's" : "the creator's"} official channel. CampusLoop is not affiliated with ${org}.`;
+}
+
+/** Short badge label for catalog cards. */
+export function sourceBadge(c: { source: string; provider?: string | null }): string | null {
+  if (c.source === "CS50") return "CS50 · Harvard";
+  if (c.source === "UNIVERSITY") return c.provider ?? "University";
+  return null;
 }
