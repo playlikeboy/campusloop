@@ -19,6 +19,26 @@ const { courses } = JSON.parse(readFileSync("scripts/courses/data/youtube.json",
 const prune = process.argv.includes("--prune");
 const SECTION_SIZE = 10;
 
+async function withRetry<T>(fn: () => Promise<T>, retries = 4, delayMs = 1500): Promise<T> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt === retries) throw err;
+      const isSocketOrNet =
+        err instanceof Error &&
+        (err.message.includes("socket") ||
+          err.message.includes("ECONNRESET") ||
+          err.message.includes("fetch") ||
+          err.message.includes("closed unexpectedly"));
+      if (!isSocketOrNet) throw err;
+      console.warn(`[Neon retry] Attempt ${attempt} failed with socket error, retrying in ${delayMs * attempt}ms...`);
+      await new Promise((r) => setTimeout(r, delayMs * attempt));
+    }
+  }
+  throw new Error("Retry failed");
+}
+
 const bioOf = (key: string) => SOURCES.find((s) => s.key === key)?.bio ?? null;
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -111,7 +131,7 @@ for (const c of courses) {
   const sourceUrl = `https://www.youtube.com/playlist?list=${c.playlistId}`;
   const requirements = c.level === "BEGINNER" ? ["No prior experience required", "A computer or phone with internet access"] : ["Basic programming knowledge helps", "A computer or phone with internet access"];
 
-  await sql`
+  await withRetry(() => sql`
     insert into courses (id, slug, title, subtitle, description, category, level, language, thumbnail_url, instructor_name, instructor_bio,
       source, provider, rank_boost, source_url, license, outcomes, requirements, tags, status, listed, listed_at, lectures_count, duration_sec)
     values (${id}, ${slug}, ${c.title}, ${subtitle}, ${describe(c, hours)}, ${c.category}, ${c.level}, ${c.language}, ${thumb}, ${c.provider}, ${bioOf(c.source)},
@@ -122,7 +142,7 @@ for (const c of courses) {
       instructor_name = excluded.instructor_name, instructor_bio = excluded.instructor_bio, source = excluded.source,
       provider = excluded.provider, rank_boost = excluded.rank_boost, source_url = excluded.source_url, license = excluded.license,
       outcomes = excluded.outcomes, tags = excluded.tags, lectures_count = excluded.lectures_count, duration_sec = excluded.duration_sec,
-      status = 'PUBLISHED', listed = true, updated_at = now()`;
+      status = 'PUBLISHED', listed = true, updated_at = now()`);
 
   // Long playlists are split into sections of 10 so the curriculum reads like a course.
   const chunks = c.lectures.length > 15 ? Math.ceil(c.lectures.length / SECTION_SIZE) : 1;
@@ -130,10 +150,12 @@ for (const c of courses) {
   const sectionTitle = (i: number) =>
     chunks === 1 ? "Lectures" : `Part ${i + 1}: Lectures ${i * SECTION_SIZE + 1}–${Math.min((i + 1) * SECTION_SIZE, c.lectures.length)}`;
   const secValues = sectionIds.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(", ");
-  await sql.query(
-    `insert into course_sections (id, course_id, title, position) values ${secValues}
-     on conflict (id) do update set title = excluded.title, position = excluded.position`,
-    sectionIds.flatMap((sid, i) => [sid, id, sectionTitle(i), i])
+  await withRetry(() =>
+    sql.query(
+      `insert into course_sections (id, course_id, title, position) values ${secValues}
+       on conflict (id) do update set title = excluded.title, position = excluded.position`,
+      sectionIds.flatMap((sid, i) => [sid, id, sectionTitle(i), i])
+    )
   );
 
   const rows = c.lectures.map((l, i) => [
@@ -156,27 +178,29 @@ for (const c of courses) {
     const batch = rows.slice(start, start + 400);
     // ($1, ..., $11, $12::jsonb), one group per lecture; attachments is the last column.
     const values = batch.map((_, r) => `(${Array.from({ length: W }, (_, k) => `$${r * W + k + 1}${k === W - 1 ? "::jsonb" : ""}`).join(", ")})`).join(", ");
-    await sql.query(
-      `insert into course_lectures (id, course_id, section_id, title, position, kind, video_provider, video_ref, duration_sec, is_preview, body, attachments)
-       values ${values}
-       on conflict (id) do update set section_id = excluded.section_id, title = excluded.title, position = excluded.position,
-         kind = excluded.kind, video_provider = excluded.video_provider, video_ref = excluded.video_ref, body = excluded.body,
-         duration_sec = excluded.duration_sec, is_preview = excluded.is_preview, attachments = excluded.attachments, updated_at = now()`,
-      batch.flat()
+    await withRetry(() =>
+      sql.query(
+        `insert into course_lectures (id, course_id, section_id, title, position, kind, video_provider, video_ref, duration_sec, is_preview, body, attachments)
+         values ${values}
+         on conflict (id) do update set section_id = excluded.section_id, title = excluded.title, position = excluded.position,
+           kind = excluded.kind, video_provider = excluded.video_provider, video_ref = excluded.video_ref, body = excluded.body,
+           duration_sec = excluded.duration_sec, is_preview = excluded.is_preview, attachments = excluded.attachments, updated_at = now()`,
+        batch.flat()
+      )
     );
   }
   const keep = rows.map((r) => r[0] as string);
-  await sql`delete from course_lectures where course_id = ${id} and not (id = any(${keep}))`;
-  await sql`delete from course_sections where course_id = ${id} and not (id = any(${sectionIds}))`;
+  await withRetry(() => sql`delete from course_lectures where course_id = ${id} and not (id = any(${keep}))`);
+  await withRetry(() => sql`delete from course_sections where course_id = ${id} and not (id = any(${sectionIds}))`);
   n++;
   if (n % 25 === 0) console.log(`seeded ${n}/${courses.length}`);
 }
 
 if (prune) {
   const ids = courses.map((c) => `crs_yt_${c.playlistId}`);
-  const gone = await sql`update courses set status = 'DRAFT', listed = false where id like 'crs_yt_%' and not (id = any(${ids})) returning slug`;
+  const gone = await withRetry(() => sql`update courses set status = 'DRAFT', listed = false where id like 'crs_yt_%' and not (id = any(${ids})) returning slug`);
   console.log(`unpublished ${gone.length} courses no longer in the import`);
 }
 
-const [{ total, lectures }] = await sql`select count(*)::int total, coalesce(sum(lectures_count), 0)::int lectures from courses where id like 'crs_yt_%' and status = 'PUBLISHED'`;
+const [{ total, lectures }] = await withRetry(() => sql`select count(*)::int total, coalesce(sum(lectures_count), 0)::int lectures from courses where id like 'crs_yt_%' and status = 'PUBLISHED'`);
 console.log(`done: ${n} seeded; ${total} imported courses live with ${lectures} lectures`);
