@@ -126,6 +126,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string; ext
     links: [
       { href: "/guide", label: "Product Guide" },
       { href: "/investors", label: "For Investors" },
+      { href: "/developers", label: "Login with CampusLoop" },
       { href: "/docs", label: "Engineering Docs" },
       { href: "/help", label: "Help & FAQs" },
       { href: "/privacy", label: "Privacy Policy" },

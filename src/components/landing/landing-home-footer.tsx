@@ -7,7 +7,7 @@ const COLUMNS = [
   { title: "Explore", links: [["/courses", "Free courses"], ["/feeds", "Campus feed"], ["/academics", "Academic Vault"], ["/communities", "Communities"]] },
   { title: "Ecosystem", links: [["https://dsaloop.campusloop.space", "DSALoop (DSA & System Design)"], ["https://baby.campusloop.space", "baby (AI Journal)"], ["https://baby.campusloop.space/about", "About baby"]] },
   { title: "Your campus", links: [["/colleges", "College directory"], ["/college-request", "Request a hub"], ["/dating", "Campus Match"]] },
-  { title: "Learn", links: [["/guide", "Product guide"], ["/investors", "For investors"], ["/docs", "Engineering docs"], ["/help", "Help & FAQs"]] },
+  { title: "Learn", links: [["/guide", "Product guide"], ["/investors", "For investors"], ["/developers", "Login with CampusLoop"], ["/docs", "Engineering docs"], ["/help", "Help & FAQs"]] },
   { title: "About", links: [["/about", "About CampusLoop"], ["/safety", "Student safety"], ["/contact", "Contact"]] },
 ] as const;
 

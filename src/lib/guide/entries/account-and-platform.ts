@@ -223,6 +223,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       { path: "/oauth/authorize", label: "Sign-in and consent screen" },
       { path: "/settings/connected-apps", label: "Connected apps" },
       { path: "/developer/apps/new", label: "Register an app (developers)" },
+      { path: "/developers", label: "Developer documentation" },
     ],
     purpose:
       "Student discounts, campus tools, hackathons and ecosystem apps all need to know \"is this person a real student?\". Login with CampusLoop answers that in one click, without the student uploading an ID card again, and without the site getting more than it needs.",
@@ -255,7 +256,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     faq: [
       { q: "What does an app learn about me?", a: "Only what the consent screen lists. By default: your name, username, photo and whether you're a verified student." },
       { q: "Can an app post or message as me?", a: "No. Login with CampusLoop only shares profile information; it gives no posting or messaging access." },
-      { q: "Is it a standard I can use as a developer?", a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it." },
+      { q: "Is it a standard I can use as a developer?", a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it. Docs, quickstarts, the JS SDK (https://campusloop.space/sdk/v1/campusloop.js) and official buttons are at /developers." },
     ],
     related: ["developer-mcp", "verification-and-safety", "ecosystem-suite"],
     keywords: ["login with campusloop", "sign in with campusloop", "student verification api", "verified student login", "OpenID Connect", "OAuth"],
