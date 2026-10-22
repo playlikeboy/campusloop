@@ -17,6 +17,7 @@ import {
 import { IsolateCache } from "@/lib/isolate-cache";
 import { getRedis } from "@/lib/redis";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { trackUserBehavior } from "@/lib/user-behavior";
 import { CATALOG_PAGE_SIZE, type CatalogDuration, type CatalogParams } from "./catalog-params";
 import { shouldBeListed, trendScore } from "./promotion";
 
@@ -319,6 +320,18 @@ export async function listMyLearning(profileId: string) {
 
 export async function findPublishedCourse(slug: string) {
   return getDb().query.courses.findFirst({ where: and(eq(courses.slug, slug), eq(courses.status, "PUBLISHED")) });
+}
+
+/** Feeds course interest into the student's personalisation signals (Redis affinity + behaviour log). Never throws. */
+export async function trackCourseInterest(profileId: string, course: Course, kind: "COURSE_VIEW" | "COURSE_ENROLL") {
+  await trackUserBehavior({
+    userId: profileId,
+    eventType: kind,
+    targetType: "COURSE",
+    targetId: course.id,
+    metadata: { interests: [course.category, ...course.tags.slice(0, 3)] },
+    weight: kind === "COURSE_ENROLL" ? 3 : 1,
+  }).catch(() => {});
 }
 
 /** Enrol if not already (idempotent). Returns the enrolment row. */

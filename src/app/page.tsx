@@ -1,7 +1,8 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { CampusLoopHomepageRefresh } from "@/components/landing/campusloop-homepage-refresh";
+import { CampusLoopHomepageRefresh, LANDING_FAQS } from "@/components/landing/campusloop-homepage-refresh";
+import { getBrowseRows } from "@/lib/courses/server";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { hexclaveServerApp } from "@/hexclave/server";
 
@@ -9,22 +10,23 @@ const SITE_URL = "https://campusloop.space";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "CampusLoop — Your Campus. Your People.",
-  description: "Meet verified classmates, find free study notes and solved PYQs, discover student communities, and keep up with campus life in one place.",
+  title: { absolute: "CampusLoop: Free Courses, Notes, PYQs and Your College Community" },
+  description:
+    "Free courses from Harvard CS50, MIT, NPTEL and top Indian teachers, peer notes and solved PYQs, and a verified-students-only campus feed for 1,400+ Indian colleges. Join free with your college email.",
   applicationName: "CampusLoop",
   authors: [{ name: "CampusLoop Team", url: SITE_URL + "/about" }],
-  keywords: ["CampusLoop", "verified student network", "college community India", "academic notes", "college PYQs", "campus match", "college clubs", "student discussions"],
+  keywords: ["CampusLoop", "free online courses", "free courses with certificate", "CS50", "NPTEL courses", "DBMS course", "DSA course in Hindi", "college notes", "college PYQs", "verified student network", "college community India", "campus match", "college clubs"],
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   alternates: { canonical: "/", types: { "application/rss+xml": "/feed.xml" } },
   openGraph: {
-    title: "CampusLoop — Your Campus. Your People.",
-    description: "A student-only space for campus conversations, free study resources, communities, and new connections.",
+    title: "CampusLoop: All of college. One app.",
+    description: "Free courses from Harvard, MIT and India's best teachers, notes and PYQs, and a verified-students-only campus feed.",
     url: SITE_URL, siteName: "CampusLoop", locale: "en_IN", type: "website",
     images: [{ url: SITE_URL + "/campusloop/marketing/voxel/social-preview.webp", width: 1200, height: 630, alt: "CampusLoop — a connected home for college life" }],
   },
   twitter: {
-    card: "summary_large_image", title: "CampusLoop — Your Campus. Your People.",
-    description: "Campus conversations, free study resources, and student communities in one place.",
+    card: "summary_large_image", title: "CampusLoop: All of college. One app.",
+    description: "Free courses, notes and PYQs, and your verified campus community in one place.",
     creator: "@mycampusloop", images: [SITE_URL + "/campusloop/marketing/voxel/social-preview.webp"],
   },
 };
@@ -32,6 +34,11 @@ export const metadata: Metadata = {
 export default async function LandingPage() {
   const user = await hexclaveServerApp.getUser();
   if (user) redirect("/feeds");
+
+  // Real catalog picks for the courses section; the page still renders if the catalog is unreachable.
+  const browse = await getBrowseRows().catch(() => null);
+  const showcase = browse?.rows.find((r) => r.key === "universities")?.courses ?? browse?.rows[0]?.courses ?? [];
+  const courseTotal = browse?.categories.reduce((a, c) => a + c.count, 0) ?? 0;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -52,16 +59,16 @@ export default async function LandingPage() {
       {
         "@type": "WebApplication", "@id": SITE_URL + "/#software", name: "CampusLoop", url: SITE_URL,
         applicationCategory: "SocialNetworkingApplication", operatingSystem: "Web",
-        description: "A student-only campus network with peer conversations, academic notes, student communities, college hubs, and campus match.",
+        description: "A student-only campus network with free video courses and certificates, academic notes and PYQs, peer conversations, student communities, college hubs and campus match.",
         offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
       },
       {
+        "@type": "ItemList", "@id": SITE_URL + "/#courses", name: "Free courses on CampusLoop",
+        itemListElement: showcase.slice(0, 8).map((c, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE_URL}/courses/${c.slug}`, name: c.title })),
+      },
+      {
         "@type": "FAQPage", "@id": SITE_URL + "/#faq",
-        mainEntity: [
-          { "@type": "Question", name: "Who can join CampusLoop?", acceptedAnswer: { "@type": "Answer", text: "CampusLoop is for college students. Sign up with your institutional email or use the supported student-ID verification flow." } },
-          { "@type": "Question", name: "Is the Academic Vault free?", acceptedAnswer: { "@type": "Answer", text: "Students can browse and access available peer-shared notes and previous-year question papers without a paywall." } },
-          { "@type": "Question", name: "What if my college isn’t listed?", acceptedAnswer: { "@type": "Answer", text: "Visit the college directory to check existing hubs or request a hub for your institution." } },
-        ],
+        mainEntity: LANDING_FAQS.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
       },
     ],
   };
@@ -73,7 +80,7 @@ export default async function LandingPage() {
       <a href="#main-landing-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-primary focus:px-4 focus:py-3 focus:font-bold focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring">
         Skip to main content
       </a>
-      <CampusLoopHomepageRefresh />
+      <CampusLoopHomepageRefresh courses={showcase} courseTotal={courseTotal} />
     </>
   );
 }

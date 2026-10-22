@@ -4,7 +4,8 @@ import { CatalogBrowse } from "@/components/courses/catalog/catalog-browse";
 import { CatalogResults } from "@/components/courses/catalog/catalog-results";
 import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
 import { catalogHref, isBrowseHome, parseCatalogParams } from "@/lib/courses/catalog-params";
-import { getBrowseRows, listCategoryCounts, listCourses } from "@/lib/courses/server";
+import { currentProfile, getBrowseRows, listCategoryCounts, listCourses } from "@/lib/courses/server";
+import { rememberSearch } from "@/lib/search-history";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,9 @@ export default async function CoursesPage({ searchParams }: Props) {
     );
   }
 
-  const [result, categories] = await Promise.all([listCourses(params), listCategoryCounts()]);
+  const [result, categories, profile] = await Promise.all([listCourses(params), listCategoryCounts(), params.q ? currentProfile() : null]);
+  // Searches personalise the feed's course slot (src/lib/courses/recommend.ts).
+  if (profile && params.q) await rememberSearch(profile.id, params.q);
   if (params.page > result.pages) redirect(catalogHref(params, { page: result.pages }));
   return (
     <>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, findPublishedCourse, recordCourseView } from "@/lib/courses/server";
+import { currentProfile, findPublishedCourse, recordCourseView, trackCourseInterest } from "@/lib/courses/server";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   const profile = await currentProfile();
   // Creators viewing their own course do not count.
   if (profile && profile.id === course.creatorId) return NextResponse.json({ ok: true });
+  if (profile) await trackCourseInterest(profile.id, course, "COURSE_VIEW");
   const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anon";
   await recordCourseView(course.id, profile ? `u:${profile.id}` : `ip:${await hashIp(ip)}`);
   return NextResponse.json({ ok: true });

@@ -11,6 +11,7 @@ export const LEVEL_LABEL: Record<string, string> = {
 };
 
 export const COURSE_CATEGORIES = [
+  // Computing
   "Computer Science",
   "Programming",
   "Web Development",
@@ -19,15 +20,46 @@ export const COURSE_CATEGORIES = [
   "Data Science",
   "Databases",
   "Cybersecurity",
-  "Game Development",
-  "Design",
-  "Business",
-  "Law & Policy",
-  "Mathematics",
-  "Exam Prep",
-  "Career Skills",
   "System Design",
   "DevOps & Cloud",
+  "Game Development",
+  // Engineering
+  "Electronics & Communication",
+  "Electrical Engineering",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Chemical Engineering",
+  "Biotechnology",
+  // Sciences and maths
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  // Health
+  "Medicine",
+  "Pharmacy",
+  "Nursing & Allied Health",
+  // Business and commerce
+  "Business",
+  "Finance & Accounting",
+  "Economics",
+  "Marketing",
+  "Entrepreneurship",
+  // Law, humanities and social sciences
+  "Law & Policy",
+  "Psychology",
+  "Humanities",
+  "Social Sciences",
+  "Languages",
+  // Creative
+  "Design",
+  "Architecture",
+  "Media & Communication",
+  "Music & Arts",
+  // Career
+  "Exam Prep",
+  "Career Skills",
+  "Personal Development",
   "General",
 ] as const;
 

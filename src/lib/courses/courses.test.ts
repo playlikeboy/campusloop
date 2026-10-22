@@ -3,6 +3,8 @@ import cs50 from "@/data/courses/cs50.json";
 import { cleanTitle, dedupeEditions } from "../../../scripts/courses/import-youtube";
 import { attributionNote, courseProvider, formatClock, formatDuration, parseVideoUrl, slugifyCourse } from "./format";
 import { catalogHref, categoryFromSlug, categorySlug, isBrowseHome, pageWindow, parseCatalogParams } from "./catalog-params";
+import { collapsePrefixes } from "../search-history";
+import { buildSignals, fieldCategories, rankDiverse, type ScorableCourse, slotTitle } from "./recommend-signals";
 import { bayesianRating, ratingPrior, SOURCE_BOOST, shouldBeListed, trendScore } from "./promotion";
 import { validateCourse } from "./validate";
 
@@ -194,5 +196,51 @@ describe("imported courses", () => {
   it("parses the language filter", () => {
     expect(parseCatalogParams({ lang: "Hindi" }).lang).toBe("hindi");
     expect(catalogHref(parseCatalogParams({ lang: "hindi", source: "creator" }))).toBe("/courses?source=creator&lang=hindi");
+  });
+});
+
+describe("course personalisation", () => {
+  const course = (id: string, over: Partial<ScorableCourse> = {}): ScorableCourse => ({
+    id,
+    title: "Course",
+    subtitle: null,
+    category: "General",
+    tags: [],
+    provider: id,
+    rankBoost: 0.4,
+    enrollCount: 0,
+    trendScore: 0,
+    ...over,
+  });
+
+  it("maps degrees and branches to fields beyond computing", () => {
+    expect(fieldCategories("Mechanical Engineering")).toContain("Mechanical Engineering");
+    expect(fieldCategories("BBA LLB")).toEqual(expect.arrayContaining(["Business", "Law & Policy"]));
+    expect(fieldCategories("MBBS")).toContain("Medicine");
+    expect(fieldCategories("B.Com")).toContain("Finance & Accounting");
+  });
+
+  it("puts the latest search ahead of branch and explains why", () => {
+    const s = buildSignals({ branch: "CSE", searches: ["dbms normalization", "python"] });
+    const ranked = rankDiverse(
+      [course("py", { title: "Python for beginners", category: "Programming" }), course("db", { title: "DBMS complete playlist", category: "Databases", tags: ["dbms"] }), course("law", { title: "Contract law", category: "Law & Policy" })],
+      s,
+      3
+    );
+    expect(ranked[0].id).toBe("db");
+    expect(ranked.at(-1)?.id).toBe("law");
+    expect(slotTitle(s)).toBe('Because you searched "dbms normalization"');
+  });
+
+  it("skips enrolled courses and caps one provider", () => {
+    const s = buildSignals({ branch: "CSE", enrolled: [{ id: "a", category: "Programming", tags: [] }] });
+    const pool = ["a", "b", "c", "d"].map((id) => course(id, { category: "Programming", provider: "Same" }));
+    const ranked = rankDiverse(pool, s, 4);
+    expect(ranked.map((c) => c.id)).not.toContain("a");
+    expect(ranked.length).toBe(2);
+  });
+
+  it("collapses typed-out search prefixes", () => {
+    expect(collapsePrefixes(["dbms", "dbm", "db", "python"])).toEqual(["dbms", "python"]);
   });
 });

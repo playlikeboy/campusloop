@@ -110,6 +110,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Earn a shareable certificate of completion and add it to LinkedIn.",
       "Seniors and clubs can publish their own courses from YouTube, Vimeo or video files, articles and links.",
       "The catalog only lists courses that learners have vouched for, so what you find there is worth your time.",
+      "Your feed suggests courses for you, based on your branch and degree, interests, recent searches and the courses you view or take.",
     ],
     howToUse: [
       "Open /courses (or Academics, then Courses). The home shows Continue learning, then rows for Most popular, Trending, Top rated, New and the biggest topics, then every course with page numbers.",
@@ -135,6 +136,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     privacy: [
       "Notes are private. Questions, answers and reviews show your name to other learners.",
       "Certificates have a public link so they can be verified. CS50 certificates are issued by CampusLoop for completing the lectures; they are not issued or endorsed by Harvard.",
+      "Course suggestions in your feed use your profile branch and degree, interests, your last searches (kept for 30 days) and the courses you view or enrol in. Nothing about this is shown to other students.",
       "Course page views are counted to decide catalog listing. Signed-out views are counted with a one-way hash of the network address, kept for a day only to avoid double counting.",
     ],
     investorAngle:

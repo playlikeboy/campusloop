@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Heart, MessageCircle, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Heart, MessageCircle, Newspaper, ShieldCheck, ShoppingBag, Users } from "lucide-react";
+import type { Course } from "@/db/schema";
+import { LandingCoursesSection } from "./landing-courses-section";
 import { LandingCollegeSearch } from "./landing-college-search";
 import { LandingFeedPreview } from "./landing-feed-preview";
 import { LandingStreakSection } from "./landing-streak-section";
@@ -11,20 +13,26 @@ const QUICK_LINKS = [
   { href: "/feeds", icon: MessageCircle, title: "Campus feed", body: "Confessions, polls, and what’s happening today" },
   { href: "/dating", icon: Heart, title: "Campus Match", body: "Meet verified students, on your terms" },
   { href: "/colleges", icon: GraduationCap, title: "College hubs", body: "Your campus space, plus every other one" },
+  { href: "/articles", icon: Newspaper, title: "Articles", body: "Guides and stories by students, with interactive charts and quizzes" },
+  { href: "/marketplace", icon: ShoppingBag, title: "Campus marketplace", body: "Food, laundry, water and more from shops near your campus" },
+  { href: "/courses/my", icon: BookOpen, title: "My learning", body: "Pick up any course exactly where you stopped" },
 ];
 
-const FAQS = [
+export const LANDING_FAQS = [
+  ["Are the courses really free?", "Yes. Every course is free to watch, including Harvard CS50, MIT, Stanford and NPTEL courses and playlists from educators like CodeWithHarry and Gate Smashers. Sign in to save progress and earn a certificate."],
+  ["Do I get a certificate?", "Yes. Finish every lecture of a course and you get a CampusLoop certificate with a public link you can add to LinkedIn. It is issued by CampusLoop, not by the university or creator."],
   ["Who can join CampusLoop?", "CampusLoop is for college students. Sign up with your institutional email or use the supported student-ID verification flow."],
   ["Is the Academic Vault free?", "Students can browse and access available peer-shared notes and previous-year question papers without a paywall."],
   ["What if my college isn’t listed?", "Search the college directory, and if your campus isn’t there yet, request a hub for your institution."],
 ];
 
-export function CampusLoopHomepageRefresh() {
+export function CampusLoopHomepageRefresh({ courses = [], courseTotal = 0 }: { courses?: Course[]; courseTotal?: number }) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <LandingBrand />
         <nav className={styles.navLinks} aria-label="Main navigation">
+          <Link href="/courses">Free courses</Link>
           <Link href="#features">What’s inside</Link>
           <Link href="#streaks">Streaks</Link>
           <Link href="/colleges">Colleges</Link>
@@ -40,28 +48,32 @@ export function CampusLoopHomepageRefresh() {
       <main id="main-landing-content">
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
-            <h1 id="hero-title">Your campus.<br /><span>Your people.</span></h1>
+            <h1 id="hero-title">All of college.<br /><span>One app.</span></h1>
             <p className={styles.heroDescription}>
-              Meet classmates, find free study notes, and keep up with campus life, all in one space that only verified students can enter.
+              Free courses from Harvard, MIT and India’s best teachers. Notes and PYQs for your exams. And a campus feed only verified students can enter. All free.
             </p>
             <div className={styles.heroActions}>
               <Link href="/sign-up" className={`${styles.button} ${styles.primaryButton}`}>
-                Join with your college email <ArrowRight size={18} aria-hidden="true" />
+                Join free with your college email <ArrowRight size={18} aria-hidden="true" />
               </Link>
+              <Link href="/courses" className={styles.textLink}>Start a free course <ArrowRight size={16} aria-hidden="true" /></Link>
             </div>
+            <ul className={styles.proofRow}>
+              <li><ShieldCheck size={17} aria-hidden="true" /> Verified students only</li>
+              <li><ShieldCheck size={17} aria-hidden="true" /> {courseTotal > 0 ? `${Math.floor(courseTotal / 50) * 50}+ free courses` : "Free courses"}</li>
+              <li><ShieldCheck size={17} aria-hidden="true" /> 1,400+ colleges</li>
+            </ul>
             <LandingCollegeSearch />
-            <p className={styles.trustNote}>
-              <ShieldCheck size={17} aria-hidden="true" />
-              Free to join. Verified students only.
-            </p>
           </div>
           <LandingFeedPreview />
         </section>
 
+        <LandingCoursesSection courses={courses} total={courseTotal} />
+
         <section className={styles.features} id="features" aria-labelledby="features-title">
           <div className={styles.sectionIntro}>
-            <h2 id="features-title">The useful bits of college life, finally in one place.</h2>
-            <p>No complicated tour. Start with what you came for.</p>
+            <h2 id="features-title">Replace ten apps and twenty group chats.</h2>
+            <p>Notes, people, clubs, food and gossip, in one place built only for students.</p>
           </div>
 
           <div className={styles.featureGrid}>
@@ -124,7 +136,7 @@ export function CampusLoopHomepageRefresh() {
             <p>The important things, without the fine-print maze.</p>
           </div>
           <div className={styles.faqList}>
-            {FAQS.map(([question, answer]) => (
+            {LANDING_FAQS.map(([question, answer]) => (
               <details key={question}><summary>{question}</summary><p>{answer}</p></details>
             ))}
           </div>
@@ -132,11 +144,11 @@ export function CampusLoopHomepageRefresh() {
 
         <section className={styles.finalCta} aria-labelledby="cta-title">
           <div className={styles.ctaCopy}>
-            <h2 id="cta-title">Make college feel a little more <span>connected.</span></h2>
-            <p>One account. Your college. Your people.</p>
+            <h2 id="cta-title">Your next four years, <span>sorted.</span></h2>
+            <p>Join with your college email. It’s free, and only verified students are in your feed.</p>
             <div className={styles.ctaActions}>
               <Link href="/sign-up" className={`${styles.button} ${styles.primaryButton}`}>Join CampusLoop <ArrowRight size={18} aria-hidden="true" /></Link>
-              <Link href="/colleges" className={styles.textLink}>Browse colleges first <ArrowRight size={16} aria-hidden="true" /></Link>
+              <Link href="/courses" className={styles.textLink}>Or start a free course first <ArrowRight size={16} aria-hidden="true" /></Link>
             </div>
           </div>
           <div className={styles.ctaArt} aria-hidden="true">
@@ -149,8 +161,8 @@ export function CampusLoopHomepageRefresh() {
 
       <Link href="/sign-up" className={styles.mobileJoinBar}>
         <span className={styles.mobileJoinCopy}>
-          <strong>Your campus is waiting.</strong>
-          <small>Free with your college email</small>
+          <strong>Free courses, notes and your campus</strong>
+          <small>Join free with your college email</small>
         </span>
         <span className={styles.mobileJoinAction}>Join free <ArrowRight size={16} aria-hidden="true" /></span>
       </Link>
