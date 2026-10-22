@@ -528,6 +528,8 @@ export async function importGoogleDrive(rawUrl: string): Promise<ImportedPlaylis
         method: "POST",
         headers: {
           "x-api-key": composioKey,
+          "x-consumer-api-key": composioKey,
+          Authorization: `Bearer ${composioKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ folderId, pageSize: 100 }),
