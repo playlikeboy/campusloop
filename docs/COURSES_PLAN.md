@@ -62,3 +62,11 @@ Why a separate `(learn)` group: study must be distraction-free. The player rende
 ## 7. Later
 
 - Transcripts (YouTube captions), quizzes and coding exercises between lectures, learning reminders, streak integration, instructor analytics, paid courses via Razorpay.
+
+## Catalog listing and discovery (added 2026-10-22)
+
+- **Unlisted by default.** Community courses publish with `listed = false`. They are reachable by link, shown in the feed's "Rising courses by students" slot (`/api/courses/feed`, after the 8th post), `noindex`, and excluded from the catalog, catalog API and sitemap.
+- **Promotion** (`src/lib/courses/promotion.ts`): a course joins the catalog once it has 3+ lectures, 150+ views, 10+ learners, and (with 3+ reviews) a Bayesian rating of 3.8+. Listing is sticky; it is only revoked if 10+ reviews pull the weighted rating under 3.2. CS50 and featured courses are always listed.
+- **Signals**: `view_count` (one per viewer per day, Redis-deduped, creator views ignored, via `POST /api/courses/[slug]/view`), `enroll_count`, `wishlist_count`, `completion_count`, ratings. `refreshCourseStats` and `recordCourseView` recompute `trend_score` (log-damped, 21-day half-life) and listing.
+- **Catalog URLs** (`src/lib/courses/catalog-params.ts`): `/courses` (browse rows + paginated list), `/courses?q=&level=&duration=&source=&sort=&page=`, `/courses/category/[slug]`. Invalid params are dropped; defaults are omitted for canonical URLs; `?category=` redirects to the topic path. Search pages are `noindex, follow`.
+- **Scale**: 20 results per page with numbered, crawlable pagination; browse rows cached per isolate for 60s; `courses_listed_idx (status, listed, trend_score)`.

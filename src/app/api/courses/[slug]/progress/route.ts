@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courseEnrollments, courseLectureProgress, courseLectures } from "@/db/schema";
-import { ensureEnrollment, findPublishedCourse, getViewerState, requireProfile } from "@/lib/courses/server";
+import { ensureEnrollment, findPublishedCourse, getViewerState, refreshCourseStats, requireProfile } from "@/lib/courses/server";
 
 export const dynamic = "force-dynamic";
 
@@ -63,5 +63,7 @@ export async function POST(req: Request, { params }: Ctx) {
     .update(courseEnrollments)
     .set({ completedAt: complete ? new Date() : null })
     .where(and(eq(courseEnrollments.courseId, course.id), eq(courseEnrollments.profileId, auth.profile.id)));
+  // Completions feed catalog promotion; position-only saves skip the recount.
+  if (typeof body?.completed === "boolean") await refreshCourseStats(course.id);
   return NextResponse.json({ ok: true, completedIds: state.completedIds, courseComplete: complete });
 }

@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courseWishlist } from "@/db/schema";
-import { findPublishedCourse, requireProfile } from "@/lib/courses/server";
+import { findPublishedCourse, refreshCourseStats, requireProfile } from "@/lib/courses/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ slug: 
   const existing = await db.query.courseWishlist.findFirst({ where });
   if (existing) {
     await db.delete(courseWishlist).where(where);
+    await refreshCourseStats(course.id);
     return NextResponse.json({ wishlisted: false });
   }
   await db.insert(courseWishlist).values({ courseId: course.id, profileId: auth.profile.id }).onConflictDoNothing();
+  await refreshCourseStats(course.id);
   return NextResponse.json({ wishlisted: true });
 }

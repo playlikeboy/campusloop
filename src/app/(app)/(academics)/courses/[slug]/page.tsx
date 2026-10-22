@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { CourseCurriculum } from "@/components/courses/course-curriculum";
+import { CourseListingStatus } from "@/components/courses/course-listing-status";
 import { CourseReviews } from "@/components/courses/course-reviews";
+import { CourseViewBeacon } from "@/components/courses/course-view-beacon";
 import { EnrollPanel } from "@/components/courses/enroll-panel";
 import { RatingStars } from "@/components/courses/rating-stars";
 import { formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
@@ -24,6 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: (c.subtitle ? `${c.subtitle}. ` : "") + c.description.slice(0, 220),
     keywords: [...c.tags, c.category, "free course", "certificate"],
     alternates: { canonical: url },
+    // Unlisted community courses are shareable by link but stay out of search until promoted.
+    robots: c.listed ? undefined : { index: false, follow: true },
     openGraph: { title: c.title, description: c.subtitle ?? c.description.slice(0, 200), url, siteName: "CampusLoop", type: "website", images: c.thumbnailUrl ? [{ url: c.thumbnailUrl }] : undefined },
     twitter: { card: "summary_large_image", title: c.title, images: c.thumbnailUrl ? [c.thumbnailUrl] : undefined },
   };
@@ -55,6 +59,7 @@ export default async function CourseLandingPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {c.status === "PUBLISHED" && <CourseViewBeacon slug={c.slug} />}
       <div className="px-4 pb-20 sm:px-0">
         <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
           <div className="min-w-0">
@@ -68,6 +73,7 @@ export default async function CourseLandingPage({ params }: Props) {
               <span className="inline-flex items-center gap-1"><Globe className="size-4" aria-hidden />{c.language}</span>
             </div>
             <p className="mt-2 text-sm text-foreground">Created by <span className="font-semibold">{d.creator?.displayName ?? c.instructorName}</span></p>
+            {canEditCourse(c, profile) && <CourseListingStatus course={c} />}
 
             {c.thumbnailUrl && <img src={c.thumbnailUrl} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover lg:hidden" />}
             <div className="mt-6 lg:hidden"><EnrollPanel slug={c.slug} /></div>

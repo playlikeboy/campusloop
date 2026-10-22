@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import cs50 from "@/data/courses/cs50.json";
 import { formatClock, formatDuration, parseVideoUrl, slugifyCourse } from "./format";
+import { catalogHref, categoryFromSlug, categorySlug, isBrowseHome, pageWindow, parseCatalogParams } from "./catalog-params";
+import { bayesianRating, shouldBeListed, trendScore } from "./promotion";
 import { validateCourse } from "./validate";
 
 describe("course formatting", () => {
@@ -71,5 +73,82 @@ describe("CS50 catalog data", () => {
         expect(l.durationSec, `${c.key}: ${l.title}`).toBeGreaterThan(60);
       }
     }
+  });
+});
+
+describe("catalog promotion", () => {
+  const base = {
+    source: "COMMUNITY",
+    isFeatured: false,
+    listed: false,
+    lecturesCount: 5,
+    viewCount: 0,
+    enrollCount: 0,
+    wishlistCount: 0,
+    completionCount: 0,
+    ratingAvg: 0,
+    ratingCount: 0,
+    createdAt: new Date(),
+  };
+
+  it("keeps new community courses unlisted", () => {
+    expect(shouldBeListed(base)).toBe(false);
+  });
+
+  it("always lists imported and featured courses", () => {
+    expect(shouldBeListed({ ...base, source: "CS50" })).toBe(true);
+    expect(shouldBeListed({ ...base, isFeatured: true })).toBe(true);
+  });
+
+  it("promotes once views, learners and lectures clear the bar", () => {
+    const hot = { ...base, viewCount: 200, enrollCount: 12 };
+    expect(shouldBeListed(hot)).toBe(true);
+    expect(shouldBeListed({ ...hot, lecturesCount: 2 })).toBe(false);
+  });
+
+  it("blocks promotion when reviews are poor", () => {
+    expect(shouldBeListed({ ...base, viewCount: 500, enrollCount: 40, ratingAvg: 2, ratingCount: 10 })).toBe(false);
+  });
+
+  it("delists only when a listed course is reviewed badly by many", () => {
+    const listed = { ...base, listed: true };
+    expect(shouldBeListed(listed)).toBe(true);
+    expect(shouldBeListed({ ...listed, ratingAvg: 1.5, ratingCount: 20 })).toBe(false);
+  });
+
+  it("ranks engagement higher and decays with age", () => {
+    const now = Date.now();
+    const quiet = trendScore({ ...base, viewCount: 10 }, now);
+    const busy = trendScore({ ...base, viewCount: 10, enrollCount: 20, completionCount: 5 }, now);
+    const old = trendScore({ ...base, viewCount: 10, enrollCount: 20, completionCount: 5, createdAt: new Date(now - 42 * 86_400_000) }, now);
+    expect(busy).toBeGreaterThan(quiet);
+    expect(old).toBeCloseTo(busy / 4, 3);
+  });
+
+  it("shrinks small-sample ratings toward 4", () => {
+    expect(bayesianRating(5, 1)).toBeLessThan(bayesianRating(4.7, 500));
+  });
+});
+
+describe("catalog URL state", () => {
+  it("parses and sanitises params", () => {
+    const p = parseCatalogParams({ q: " python ", level: "BEGINNER", duration: "forever", sort: "hack", page: "-3", category: "web-development" });
+    expect(p).toMatchObject({ q: "python", level: "beginner", duration: null, sort: "relevance", page: 1, category: "Web Development" });
+    expect(parseCatalogParams({ sort: "relevance" }).sort).toBe("popular");
+  });
+
+  it("builds canonical hrefs and resets page on filter change", () => {
+    const p = parseCatalogParams({ q: "sql", page: "3" });
+    expect(catalogHref(p, { page: 4 })).toBe("/courses?q=sql&page=4");
+    expect(catalogHref(p, { level: "advanced" })).toBe("/courses?q=sql&level=advanced");
+    expect(catalogHref(p, { q: "", category: "Law & Policy" })).toBe("/courses/category/law-and-policy");
+    expect(categoryFromSlug(categorySlug("Law & Policy"))).toBe("Law & Policy");
+    expect(isBrowseHome(parseCatalogParams({}))).toBe(true);
+  });
+
+  it("windows page numbers", () => {
+    expect(pageWindow(1, 5)).toEqual([1, 2, 3, 4, 5]);
+    expect(pageWindow(6, 12)).toEqual([1, "gap", 5, 6, 7, "gap", 12]);
+    expect(pageWindow(2, 12)).toEqual([1, 2, 3, "gap", 12]);
   });
 });

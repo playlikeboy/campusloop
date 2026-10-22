@@ -7,6 +7,9 @@ import type { CourseInput } from "./validate";
 
 const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
 
+/** Slugs taken by /courses/* routes and /api/courses/* endpoints. */
+const RESERVED_SLUGS = new Set(["new", "my", "category", "feed", "search", "edit"]);
+
 /** Unique slug: "intro-to-dsa", then "intro-to-dsa-2", ... */
 export async function uniqueCourseSlug(title: string, ignoreId?: string): Promise<string> {
   const db = getDb();
@@ -14,6 +17,7 @@ export async function uniqueCourseSlug(title: string, ignoreId?: string): Promis
   for (let i = 0; i < 50; i++) {
     const slug = i === 0 ? base : `${base}-${i + 1}`;
     const hit = await db.query.courses.findFirst({ where: eq(courses.slug, slug), columns: { id: true } });
+    if (RESERVED_SLUGS.has(slug)) continue;
     if (!hit || hit.id === ignoreId) return slug;
   }
   return `${base}-${Date.now().toString(36)}`;

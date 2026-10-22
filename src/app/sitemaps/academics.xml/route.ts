@@ -1,7 +1,8 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { academicResources, courses } from "@/db/schema";
+import { categorySlug } from "@/lib/courses/catalog-params";
 
 export const dynamic = "force-dynamic";
 
@@ -45,9 +46,9 @@ export async function GET() {
 
     // Courses live alongside study material in the Academics section.
     const courseRows = await db
-      .select({ slug: courses.slug, updatedAt: courses.updatedAt })
+      .select({ slug: courses.slug, updatedAt: courses.updatedAt, category: courses.category })
       .from(courses)
-      .where(eq(courses.status, "PUBLISHED"))
+      .where(and(eq(courses.status, "PUBLISHED"), eq(courses.listed, true)))
       .catch(() => []);
     const courseUrls =
       `
@@ -56,6 +57,16 @@ export async function GET() {
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>` +
+      [...new Set(courseRows.map((c) => c.category))]
+        .map(
+          (cat) => `
+  <url>
+    <loc>https://campusloop.space/courses/category/${categorySlug(cat)}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`
+        )
+        .join("") +
       courseRows
         .map(
           (c) => `

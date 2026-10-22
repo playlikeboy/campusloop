@@ -29,6 +29,14 @@ export const courses = pgTable(
     tags: jsonb("tags").$type<string[]>().default([]).notNull(),
     status: text("status").default("DRAFT").notNull(), // DRAFT | PUBLISHED
     isFeatured: boolean("is_featured").default(false).notNull(),
+    // Community courses start unlisted: shown in feeds, not the /courses catalog,
+    // until engagement promotes them (src/lib/courses/promotion.ts).
+    listed: boolean("listed").default(false).notNull(),
+    listedAt: timestamp("listed_at", { withTimezone: true }),
+    viewCount: integer("view_count").default(0).notNull(),
+    wishlistCount: integer("wishlist_count").default(0).notNull(),
+    completionCount: integer("completion_count").default(0).notNull(),
+    trendScore: real("trend_score").default(0).notNull(),
     lecturesCount: integer("lectures_count").default(0).notNull(),
     durationSec: integer("duration_sec").default(0).notNull(),
     enrollCount: integer("enroll_count").default(0).notNull(),
@@ -37,7 +45,11 @@ export const courses = pgTable(
     createdAt,
     updatedAt,
   },
-  (t) => [index("courses_status_idx").on(t.status, t.enrollCount), index("courses_creator_idx").on(t.creatorId)]
+  (t) => [
+    index("courses_status_idx").on(t.status, t.enrollCount),
+    index("courses_creator_idx").on(t.creatorId),
+    index("courses_listed_idx").on(t.status, t.listed, t.trendScore),
+  ]
 );
 
 export const courseSections = pgTable(

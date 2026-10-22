@@ -94,6 +94,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     audiences: ["Students", "Clubs", "Investors"],
     routes: [
       { path: "/courses", label: "Course catalog" },
+      { path: "/courses/category/[category]", label: "Courses by topic" },
       { path: "/courses/my", label: "My learning" },
       { path: "/courses/new", label: "Create a course" },
       { path: "/learn/[slug]", label: "Course player" },
@@ -106,15 +107,18 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Take private, timestamped notes and jump back to that moment with one tap.",
       "Earn a shareable certificate of completion and add it to LinkedIn.",
       "Seniors and clubs can publish their own courses from YouTube, Vimeo or video files, articles and links.",
+      "The catalog only lists courses that learners have vouched for, so what you find there is worth your time.",
     ],
     howToUse: [
-      "Open /courses (or Academics, then Courses). Search, or filter by category, level and source.",
+      "Open /courses (or Academics, then Courses). The home shows Continue learning, then rows for Most popular, Trending, Top rated, New and the biggest topics, then every course with page numbers.",
+      "Search from the bar (suggestions appear as you type) or tap a topic chip. Narrow results by topic, level, video duration and source, and sort by relevance, popularity, trending, rating, newest or shortest. On phones, filters open in a bottom sheet. Every search, filter, sort and page has its own URL (for example /courses/category/web-development?level=beginner&page=2), so you can bookmark or share it.",
       "Open a course to see what you'll learn, the full curriculum with lecture lengths, the instructor and reviews. Free previews play without enrolling.",
       "Tap Enrol for free. The player opens in a focused view with no feed, chat or notifications.",
       "Watch. Progress saves automatically; lectures complete at 90% watched, or tick them yourself. Use the speed control, Previous/Next, and keyboard shortcuts (Space, arrows, N, P, M, [ and ?).",
       "Use the tabs under the video: Overview, Notes, Q&A for this lecture, Resources (slides, code, course site) and Reviews.",
       "Finish every lecture and tap Get certificate. Find all your courses, wishlist and certificates in My learning.",
       "To teach, open /courses/new: add basics, outcomes, sections and lectures (paste a video link and it is detected), attachments and free previews, then publish once the checklist is complete.",
+      "New community courses are unlisted: they appear in the campus feed under Rising courses by students and work by direct link, but are not in the /courses catalog or search engines yet. The course page shows its creator progress toward listing: at least 3 lectures, 150 views, 10 learners, and a rating of 3.8 or more once it has 3 reviews. When every bar is met the course joins the catalog automatically.",
     ],
     useCases: [
       { who: "First-year student", scenario: "Works through CS50x over a semester, a lecture every few days, with notes on the tricky parts." },
@@ -129,6 +133,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     privacy: [
       "Notes are private. Questions, answers and reviews show your name to other learners.",
       "Certificates have a public link so they can be verified. CS50 certificates are issued by CampusLoop for completing the lectures; they are not issued or endorsed by Harvard.",
+      "Course page views are counted to decide catalog listing. Signed-out views are counted with a one-way hash of the network address, kept for a day only to avoid double counting.",
     ],
     investorAngle:
       "Courses add a high-retention learning habit next to the Academic Vault, with structured progress data and certificates that bring students back for months. The creator tools let campus experts build a catalog that scales without content cost, and open a path to paid courses later.",
@@ -137,9 +142,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { q: "Is the CS50 content official?", a: "The lectures are CS50's own videos from its official YouTube channel, shared under CC BY-NC-SA 4.0. CampusLoop is not affiliated with Harvard." },
       { q: "When do I get a certificate?", a: "When every lecture in the course is marked complete." },
       { q: "Can I edit my course after publishing?", a: "Yes. Edits keep learners' progress on lectures that still exist." },
+      { q: "Why is my course not in /courses?", a: "Community courses start unlisted and are promoted by engagement. They show in campus feeds first; once a course has 3+ lectures, 150+ views, 10+ learners and a good rating, it is added to the catalog automatically. Views are counted once per viewer per day, and your own views do not count." },
+      { q: "Can a listed course be removed from the catalog?", a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed." },
     ],
     related: ["academic-vault", "study-playlists", "upload-notes"],
-    keywords: ["free online courses", "CS50", "Harvard CS50 lectures", "course certificate", "learn programming free", "create a course"],
+    keywords: ["free online courses", "CS50", "Harvard CS50 lectures", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
     updated: "2026-10-22",
   },
   {

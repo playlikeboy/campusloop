@@ -1,43 +1,54 @@
 import type { Metadata } from "next";
-import { CatalogClient } from "@/components/courses/catalog-client";
-import { listCourses } from "@/lib/courses/server";
+import { permanentRedirect } from "next/navigation";
+import { CatalogBrowse } from "@/components/courses/catalog/catalog-browse";
+import { CatalogResults } from "@/components/courses/catalog/catalog-results";
+import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
+import { catalogHref, isBrowseHome, parseCatalogParams } from "@/lib/courses/catalog-params";
+import { getBrowseRows, listCategoryCounts, listCourses } from "@/lib/courses/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Free Online Courses: CS50, Python, Web, AI and More",
-  description:
-    "Watch full free courses including all of Harvard's CS50 lectures, track your progress lecture by lecture, take notes, ask questions and earn a certificate. Students can create and share their own courses too.",
-  alternates: { canonical: "https://campusloop.space/courses" },
-  openGraph: {
-    title: "Courses on CampusLoop",
-    description: "Free courses with progress tracking, notes, Q&A and certificates, including every Harvard CS50 lecture.",
-    url: "https://campusloop.space/courses",
-    siteName: "CampusLoop",
-    type: "website",
-  },
-};
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function CoursesPage() {
-  const [initial, all] = await Promise.all([
-    listCourses({ sort: "popular", limit: 24 }),
-    listCourses({ limit: 60 }),
-  ]);
-  const categories = [...new Set(all.courses.map((c) => c.category))];
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: initial.courses.map((c, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `https://campusloop.space/courses/${c.slug}`,
-      name: c.title,
-    })),
+const SITE = "https://campusloop.space";
+const DESCRIPTION =
+  "Watch full free courses including all of Harvard's CS50 lectures, track your progress lecture by lecture, take notes, ask questions and earn a certificate. Students can create and share their own courses too.";
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const p = parseCatalogParams(await searchParams);
+  const canonical = `${SITE}${catalogHref(p, { page: p.page })}`;
+  const title = p.q ? `${p.q} courses` : "Free Online Courses: CS50, Python, Web, AI and More";
+  return {
+    title: p.page > 1 ? `${title} (page ${p.page})` : title,
+    description: p.q ? `Free ${p.q} courses with progress tracking, notes, Q&A and certificates on CampusLoop.` : DESCRIPTION,
+    alternates: { canonical },
+    // Free-text search pages are thin duplicates of category pages; keep them out of the index.
+    robots: p.q ? { index: false, follow: true } : undefined,
+    openGraph: { title: "Courses on CampusLoop", description: "Free courses with progress tracking, notes, Q&A and certificates, including every Harvard CS50 lecture.", url: canonical, siteName: "CampusLoop", type: "website" },
   };
+}
+
+export default async function CoursesPage({ searchParams }: Props) {
+  const raw = await searchParams;
+  const params = parseCatalogParams(raw);
+  // Old ?category= links move to the topic's own URL.
+  if (params.category) permanentRedirect(catalogHref(params, { page: params.page }));
+
+  if (isBrowseHome(params)) {
+    const [{ rows, categories }, all] = await Promise.all([getBrowseRows(), listCourses({ ...params })]);
+    return (
+      <>
+        <ItemListJsonLd courses={all.courses} />
+        <CatalogBrowse params={params} rows={rows} categories={categories} all={all} />
+      </>
+    );
+  }
+
+  const [result, categories] = await Promise.all([listCourses(params), listCategoryCounts()]);
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <CatalogClient initial={{ ...initial, hasMore: initial.total > initial.courses.length }} categories={categories} />
+      <ItemListJsonLd courses={result.courses} />
+      <CatalogResults params={params} result={result} categories={categories} />
     </>
   );
 }

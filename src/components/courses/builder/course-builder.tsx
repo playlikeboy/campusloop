@@ -66,7 +66,11 @@ export function CourseBuilder({ initial, slug }: { initial?: CourseInput; slug?:
         ? await courseAction<{ slug: string }>(`/api/courses/${slug}`, payload, "PATCH")
         : await courseAction<{ slug: string }>("/api/courses", payload);
       if (!editing) localStorage.removeItem(DRAFT_KEY);
-      toast.success(status === "PUBLISHED" ? "Course published" : "Draft saved");
+      if (status === "PUBLISHED" && !editing) {
+        toast.success("Course published", { description: "It starts in campus feeds and joins the /courses catalog once learners engage." });
+      } else {
+        toast.success(status === "PUBLISHED" ? "Course published" : "Draft saved");
+      }
       router.push(`/courses/${r.slug}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save");

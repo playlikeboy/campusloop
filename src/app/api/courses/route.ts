@@ -1,28 +1,28 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courses } from "@/db/schema";
-import { type CourseSort, listCourses, requireProfile } from "@/lib/courses/server";
+import { CATALOG_PAGE_SIZE, parseCatalogParams } from "@/lib/courses/catalog-params";
+import { listCourses, requireProfile } from "@/lib/courses/server";
 import { validateCourse } from "@/lib/courses/validate";
 import { courseColumns, newId, saveCurriculum, uniqueCourseSlug } from "@/lib/courses/write";
 
 export const dynamic = "force-dynamic";
 
-/** Catalog search: ?q=&category=&level=&source=&sort=popular|rating|newest|shortest&page= */
+/**
+ * Catalog search. Same params as the /courses URL (see catalog-params.ts):
+ * ?q=&category=&level=&duration=&source=&sort=&page=&limit=
+ * Only catalog-listed courses are returned.
+ */
 export async function GET(req: Request) {
   try {
-    const p = new URL(req.url).searchParams;
-    const page = Math.max(1, Number(p.get("page")) || 1);
-    const limit = 24;
-    const result = await listCourses({
-      q: p.get("q") ?? undefined,
-      category: p.get("category") ?? undefined,
-      level: p.get("level") ?? undefined,
-      source: p.get("source") ?? undefined,
-      sort: (p.get("sort") as CourseSort) ?? "popular",
-      limit,
-      offset: (page - 1) * limit,
-    });
-    return NextResponse.json({ ...result, page, hasMore: page * limit < result.total });
+    const sp = new URL(req.url).searchParams;
+    const params = parseCatalogParams(sp);
+    const limit = Math.min(Math.max(Number(sp.get("limit")) || CATALOG_PAGE_SIZE, 1), 40);
+    const result = await listCourses({ ...params, limit });
+    return NextResponse.json(
+      { ...result, hasMore: result.page < result.pages },
+      { headers: { "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=300" } }
+    );
   } catch (error) {
     console.error("GET /api/courses error:", error);
     return NextResponse.json({ error: "Could not load courses" }, { status: 500 });
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         source: "COMMUNITY",
       });
     await saveCurriculum(id, v.value);
-    return NextResponse.json({ ok: true, slug }, { status: 201 });
+    return NextResponse.json({ ok: true, slug, listed: false }, { status: 201 });
   } catch (error) {
     console.error("POST /api/courses error:", error);
     return NextResponse.json({ error: "Could not save the course" }, { status: 500 });

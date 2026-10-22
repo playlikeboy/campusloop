@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
 import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
+import { FeedCourseSpotlight } from "@/components/feed/feed-course-spotlight";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
 import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
@@ -238,6 +239,11 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                     {idx === 4 && (
                       <div className="border-b border-border/40 lg:hidden">
                         <FeedRecommendedUsers />
+                      </div>
+                    )}
+                    {idx === 7 && (
+                      <div className="border-b border-border/40">
+                        <FeedCourseSpotlight />
                       </div>
                     )}
                     {idx === 11 && (
