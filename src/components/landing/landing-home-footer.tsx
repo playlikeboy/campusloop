@@ -14,7 +14,7 @@ export function LandingBrand() {
   return (
     <Link href="/" className={styles.brand} aria-label="CampusLoop home">
       <span className={styles.brandMark}>
-        <Image src="/campusloop/marketing/voxel/logo.png" alt="" width={34} height={34} />
+        <Image src="/logo.png" alt="CampusLoop" width={34} height={34} />
       </span>
       <span className={styles.brandName}>Campus<span>Loop</span></span>
     </Link>

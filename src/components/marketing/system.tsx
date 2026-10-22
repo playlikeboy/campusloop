@@ -47,8 +47,8 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
         <Link href="/" className="inline-flex items-center gap-2.5 group">
           <div className="relative size-8 sm:size-9 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3 drop-shadow-sm">
             <Image
-              src="/campusloop/marketing/voxel/logo.webp"
-              alt="CampusLoop Voxel Logo"
+              src="/logo.png"
+              alt="CampusLoop Logo"
               width={36}
               height={36}
               className="object-contain"
@@ -143,8 +143,8 @@ export function MarketingFooter() {
           <Link href="/" className="inline-flex items-center gap-2.5 group">
             <div className="relative size-8 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
               <Image
-                src="/campusloop/marketing/voxel/logo.webp"
-                alt="CampusLoop Voxel Logo"
+                src="/logo.png"
+                alt="CampusLoop Logo"
                 width={32}
                 height={32}
                 className="object-contain"

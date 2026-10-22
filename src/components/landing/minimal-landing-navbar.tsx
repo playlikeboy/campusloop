@@ -37,7 +37,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
         >
           <div className="relative size-7 sm:size-8 md:size-9 shrink-0 transition-all duration-300 group-hover:scale-105 group-hover:-rotate-3 drop-shadow-sm">
             <Image
-              src="/campusloop/marketing/voxel/logo.webp"
+              src="/logo.png"
               alt="CampusLoop logo"
               fill
               sizes="36px"
