@@ -37,8 +37,8 @@ export function PlaylistImporterCard({ onImport, disabled }: PlaylistImporterCar
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: trimmed }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      const data = (await res.json()) as { success?: boolean; error?: string; course?: ImportedPlaylistResult };
+      if (!res.ok || !data.success || !data.course) {
         throw new Error(data.error || "Failed to import playlist.");
       }
 
