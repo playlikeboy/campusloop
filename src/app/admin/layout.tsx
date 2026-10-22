@@ -1,8 +1,7 @@
-import { count, eq } from "drizzle-orm";
 import type { Metadata } from "next";
-import { posts } from "@/db/schema";
 import { AdminShell } from "./_components/admin-shell";
 import { resolveAdminSession } from "./_lib/guard";
+import { getInboxCounts } from "./_lib/inbox";
 
 export const metadata: Metadata = {
   title: {
@@ -19,12 +18,8 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { db, profile } = await resolveAdminSession();
 
-  const pendingReviewCount = await db
-    .select({ count: count() })
-    .from(posts)
-    .where(eq(posts.status, "PENDING_REVIEW"))
-    .then(([r]) => Number(r?.count ?? 0))
-    .catch(() => 0);
+  // Header badge: everything waiting in the inbox (held posts, reports, hub requests).
+  const pendingReviewCount = (await getInboxCounts(db)).total;
 
   return (
     <AdminShell

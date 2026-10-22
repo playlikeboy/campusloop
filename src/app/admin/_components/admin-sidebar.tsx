@@ -9,17 +9,15 @@ import {
   FileText,
   FlaskConical,
   Ghost,
-  LayoutDashboard,
+  Inbox,
+  KeyRound,
   Link2,
   Mail,
   Megaphone,
   MessageSquare,
-  Play,
-  RotateCw,
   School,
   ScrollText,
   Server,
-  Settings,
   Shield,
   ShieldAlert,
   ShoppingBag,
@@ -29,62 +27,67 @@ import {
   UtensilsCrossed,
   X,
   Zap,
-  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export const ADMIN_NAV_SECTIONS = [
+export interface AdminNavItem {
+  href: string;
+  label: string;
+  icon: typeof Inbox;
+  desc: string;
+  keywords?: string[];
+}
+
+/** Admin navigation: one source for the sidebar, mobile drawer and Cmd+K search. Real tools only. */
+export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
   {
-    title: "Operations & Safety",
+    title: "Requests",
     items: [
-      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/admin/review", label: "Review Queue", icon: ShieldAlert },
-      { href: "/admin/reports", label: "Reports", icon: ShieldAlert },
-      { href: "/admin/confessions", label: "Confessions", icon: Ghost },
-      { href: "/admin/academics", label: "Academics Vault", icon: BookOpen },
+      { href: "/admin", label: "Inbox", icon: Inbox, desc: "Everything waiting for a decision", keywords: ["dashboard", "pending", "requests", "todo"] },
+      { href: "/admin/review", label: "Review queue", icon: ShieldAlert, desc: "Posts held by the safety filter", keywords: ["moderation", "flagged"] },
+      { href: "/admin/reports", label: "Reports", icon: ShieldAlert, desc: "Content reported by students", keywords: ["abuse", "flags"] },
+      { href: "/admin/confessions", label: "Confessions", icon: Ghost, desc: "Anonymous posts and identity reveals", keywords: ["anonymous"] },
+      { href: "/admin/oauth-apps", label: "Developer apps", icon: KeyRound, desc: "Login with CampusLoop apps", keywords: ["oauth", "oidc", "login with campusloop", "clients"] },
     ],
   },
   {
-    title: "Content & Campus",
+    title: "People & campuses",
     items: [
-      { href: "/admin/posts", label: "Posts", icon: FileText },
-      { href: "/admin/comments", label: "Comments", icon: MessageSquare },
-      { href: "/admin/users", label: "Users", icon: Users },
-      { href: "/admin/colleges", label: "Campus Hubs", icon: School },
-      { href: "/admin/feed", label: "Feed Curation", icon: TrendingUp },
-      { href: "/admin/broadcasts", label: "Broadcasts", icon: Megaphone },
-      { href: "/admin/outreach", label: "Campus Outreach", icon: Mail },
+      { href: "/admin/users", label: "Users", icon: Users, desc: "Search, verify, suspend or ban accounts", keywords: ["students", "ban"] },
+      { href: "/admin/colleges", label: "Colleges", icon: School, desc: "Campus hubs and email domains", keywords: ["institutions", "hubs"] },
+      { href: "/admin/outreach", label: "Outreach", icon: Mail, desc: "College contacts and campaigns", keywords: ["email", "campaign"] },
+      { href: "/admin/broadcasts", label: "Broadcasts", icon: Megaphone, desc: "Banners shown on campus feeds", keywords: ["announcement"] },
     ],
   },
   {
-    title: "Ingestion & Automation",
+    title: "Content",
     items: [
-      { href: "/admin/composio", label: "Reddit Ingestion", icon: Zap },
-      { href: "/admin/jobs", label: "Background Jobs", icon: RotateCw },
-      { href: "/admin/links", label: "Short Links & Refs", icon: Link2 },
-      { href: "/admin/embeds", label: "Embeds Inspector", icon: Play },
-      { href: "/admin/oauth-apps", label: "Login with CampusLoop", icon: KeyRound },
+      { href: "/admin/posts", label: "Posts", icon: FileText, desc: "All posts across campuses" },
+      { href: "/admin/comments", label: "Comments", icon: MessageSquare, desc: "All comments" },
+      { href: "/admin/academics", label: "Study material", icon: BookOpen, desc: "Notes and PYQs in the Academic Vault", keywords: ["notes", "pyq", "vault"] },
+      { href: "/admin/feed", label: "Feed boosts", icon: TrendingUp, desc: "Pin and boost posts in feeds", keywords: ["curation", "pin"] },
+      { href: "/admin/composio", label: "Reddit import", icon: Zap, desc: "Import campus subreddit discussions", keywords: ["reddit", "ingestion", "composio"] },
+      { href: "/admin/links", label: "Short links", icon: Link2, desc: "campusloop.space/s/ links and referral clicks", keywords: ["referral", "utm"] },
     ],
   },
   {
     title: "Marketplace",
     items: [
-      { href: "/admin/marketplace", label: "Overview", icon: ShoppingBag },
-      { href: "/admin/marketplace/merchants", label: "Merchants", icon: Store },
-      { href: "/admin/marketplace/products", label: "Products", icon: UtensilsCrossed },
-      { href: "/admin/marketplace/rentals", label: "Bike Rentals", icon: Bike },
+      { href: "/admin/marketplace", label: "Overview", icon: ShoppingBag, desc: "Orders and revenue" },
+      { href: "/admin/marketplace/merchants", label: "Merchants", icon: Store, desc: "Campus shops" },
+      { href: "/admin/marketplace/products", label: "Products", icon: UtensilsCrossed, desc: "Menus and listings" },
+      { href: "/admin/marketplace/rentals", label: "Bike rentals", icon: Bike, desc: "Rental fleet" },
     ],
   },
   {
-    title: "Telemetry & Security",
+    title: "Insights",
     items: [
-      { href: "/admin/system", label: "System Health Matrix", icon: Server },
-      { href: "/admin/analytics", label: "Analytics & Pulse", icon: Activity },
-      { href: "/admin/experiments", label: "Ranking Experiments", icon: FlaskConical },
-      { href: "/admin/audit", label: "Audit Log Trail", icon: ScrollText },
-      { href: "/admin/settings", label: "Settings", icon: Settings },
+      { href: "/admin/analytics", label: "Analytics", icon: Activity, desc: "Growth and engagement", keywords: ["metrics", "dau"] },
+      { href: "/admin/experiments", label: "Experiments", icon: FlaskConical, desc: "Feed ranking A/B results", keywords: ["ab test", "ranking"] },
+      { href: "/admin/system", label: "System health", icon: Server, desc: "Database, cache and edge checks", keywords: ["status", "diagnostics"] },
+      { href: "/admin/audit", label: "Audit log", icon: ScrollText, desc: "Every admin action", keywords: ["history"] },
     ],
   },
 ];
@@ -177,7 +180,7 @@ export function AdminSidebar({
                       "flex items-center rounded-lg text-xs font-semibold transition-all group",
                       isCollapsed && !isMobileDrawer
                         ? "justify-center size-9 mx-auto"
-                        : "gap-2.5 px-2.5 py-1.8",
+                        : "gap-2.5 px-2.5 py-2",
                       active
                         ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/60"

@@ -90,12 +90,14 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 
 ### 13. Borderless Clean Design & Admin Console Architecture
 - **Borderless Aesthetic**: High-density timelines and exploration hubs (`/birthdays`, `/discover`, feed cards) avoid harsh bounding borders. Use subtle tonal backgrounds (`bg-card/60`), soft ambient shadows (`shadow-2xs`), and borderless pill switchers.
-- **Admin Operations Hub**: The Admin Console (`/admin`) is organized into dedicated operational domains:
-  - **Operations & Safety**: Dashboard, Review Queue, Reports, Academics Vault (`/admin/academics`).
-  - **Content & Campus**: Feed Curation, Posts, Comments, Users, Colleges, Campus Broadcasts (`/admin/broadcasts`).
-  - **Integrations & Studio**: Composio Hub (`/admin/composio` — Reddit sync, Cloudflare CDN edge controls, webhook alerts, exports), Embeds Inspector (`/admin/embeds`), Short Links & Refs.
-  - **Marketplace**: Overview, Merchants, Products, Rentals.
-  - **Telemetry & System**: Platform Analytics & Pulse (`/admin/analytics`), System Health Matrix (`/admin/system`), Audit Log (`/admin/audit`).
+- **Admin Operations Hub**: The Admin Console (`/admin`) lists real tools only. Navigation lives in `ADMIN_NAV_SECTIONS` (`src/app/admin/_components/admin-sidebar.tsx`), which also feeds the mobile drawer and Cmd+K search:
+  - **Requests**: Inbox (`/admin`: held posts, reports, college hub requests, developer apps), Review queue, Reports, Confessions, Developer apps (`/admin/oauth-apps`).
+  - **People & campuses**: Users, Colleges, Outreach, Broadcasts.
+  - **Content**: Posts, Comments, Study material, Feed boosts, Reddit import (`/admin/composio`), Short links.
+  - **Marketplace**: Overview, Merchants, Products, Bike rentals.
+  - **Insights**: Analytics, Experiments, System health, Audit log.
+  - Never add placeholder pages or hardcoded "healthy/99.9%" stats; every number shown must come from the database.
+- **Rate limits**: all public endpoint limits live in `src/lib/rate-limits.ts` and are enforced by `src/middleware.ts`. Add a rule there instead of limiting inside a route.
 
 ### 14. Impeccable Design Guidelines & Quality Floor (https://impeccable.style/#why)
 - **Eliminate AI Slop & Cookie-Cutter Layouts**: Never generate repetitive same-size 3-card rows, cheesy gradient-text hero metrics, or faux-brutalist zero-blur block shadows. Interfaces must feel custom-crafted, intentional, and production-grade.

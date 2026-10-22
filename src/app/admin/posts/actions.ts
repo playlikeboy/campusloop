@@ -78,7 +78,6 @@ export async function toggleGlobalShowSeededPosts(enabled: boolean) {
     await logAction(db, "DISABLE_SHOW_SEEDED_POSTS", "GLOBAL");
   }
   revalidatePath("/admin/posts");
-  revalidatePath("/admin/settings");
   revalidatePath("/feeds");
   return { success: true, enabled };
 }

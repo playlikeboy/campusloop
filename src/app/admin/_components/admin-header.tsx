@@ -142,9 +142,9 @@ export function AdminHeader({
 
           {/* Quick Review / Alerts Link */}
           <Link
-            href="/admin/review"
+            href="/admin"
             className="relative flex size-8 items-center justify-center rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-            title={`${pendingReviewCount} items in review queue`}
+            title={`${pendingReviewCount} items waiting in the inbox`}
           >
             <ShieldAlert className="size-4" />
             {pendingReviewCount > 0 && (
