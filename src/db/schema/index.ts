@@ -18,6 +18,7 @@ export * from "./institutions";
 export * from "./lost-and-found";
 export * from "./marketplace";
 export * from "./mcp";
+export * from "./oauth";
 export * from "./moderation";
 export * from "./notifications";
 export * from "./posts";

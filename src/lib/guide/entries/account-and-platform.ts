@@ -214,6 +214,48 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     updated: U,
   },
   {
+    slug: "login-with-campusloop",
+    title: "Login with CampusLoop",
+    summary: "A sign-in button other websites and CampusLoop's own apps can add, like Login with Google, that can also confirm you are a verified college student.",
+    category: "Platform",
+    audiences: ["Students", "Developers", "Investors"],
+    routes: [{ path: "/oauth/authorize", label: "Sign-in and consent screen" }],
+    purpose:
+      "Student discounts, campus tools, hackathons and ecosystem apps all need to know \"is this person a real student?\". Login with CampusLoop answers that in one click, without the student uploading an ID card again, and without the site getting more than it needs.",
+    whyUse: [
+      "Sign in to other apps with your CampusLoop account instead of making a new password.",
+      "Prove you're a verified student to unlock student-only offers, events and tools.",
+      "You choose what to share; most apps only see your name, photo and whether you're verified.",
+    ],
+    howToUse: [
+      "On a website, tap Login with CampusLoop.",
+      "Sign in to CampusLoop if you aren't already.",
+      "Read what the app wants (for example: your name and photo, and whether you're a verified student) and tap Allow, or Cancel.",
+      "You go back to the app, signed in. Next time it's one tap, because you've already agreed.",
+    ],
+    useCases: [
+      { who: "Student", scenario: "Signs in to DSALoop with CampusLoop and keeps one account across the ecosystem." },
+      { who: "Brand", scenario: "Gives a student discount only to people whose CampusLoop account is college-verified." },
+      { who: "Hackathon", scenario: "Restricts registration to verified students from participating colleges." },
+    ],
+    privacy: [
+      "Apps see only what you approve on the consent screen. Your college, branch and email need an extra review by CampusLoop before any app can even ask.",
+      "Each app gets a different anonymous ID for you, so two apps can't match you up. CampusLoop's own ecosystem apps share one ID.",
+      "Apps never see your password. Sign-in uses the OpenID Connect standard with PKCE.",
+      "Remove an app's access anytime; it is signed out on its next check.",
+    ],
+    investorAngle:
+      "Identity is a network effect: every site that adds Login with CampusLoop sends new students to sign up and makes CampusLoop the default verified-student identity in India, a position other providers do not hold.",
+    faq: [
+      { q: "What does an app learn about me?", a: "Only what the consent screen lists. By default: your name, username, photo and whether you're a verified student." },
+      { q: "Can an app post or message as me?", a: "No. Login with CampusLoop only shares profile information; it gives no posting or messaging access." },
+      { q: "Is it a standard I can use as a developer?", a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it." },
+    ],
+    related: ["developer-mcp", "verification-and-safety", "ecosystem-suite"],
+    keywords: ["login with campusloop", "sign in with campusloop", "student verification api", "verified student login", "OpenID Connect", "OAuth"],
+    updated: U,
+  },
+  {
     slug: "admin-console",
     title: "Admin console",
     summary: "Internal tools for the CampusLoop team: moderation, content, marketplace, analytics, experiments and system health.",
