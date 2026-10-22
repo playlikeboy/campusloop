@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Heart, MessageCircle, Newspaper, ShieldCheck, ShoppingBag, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Code2, GraduationCap, Heart, MessageCircle, Newspaper, ShieldCheck, ShoppingBag, Sparkles, Users } from "lucide-react";
 import type { Course } from "@/db/schema";
 import { LandingCoursesSection } from "./landing-courses-section";
 import { LandingCollegeSearch } from "./landing-college-search";
@@ -11,6 +11,8 @@ import styles from "./campusloop-homepage-refresh.module.css";
 
 const QUICK_LINKS = [
   { href: "/feeds", icon: MessageCircle, title: "Campus feed", body: "Confessions, polls, and what’s happening today" },
+  { href: "https://dsaloop.campusloop.space", icon: Code2, title: "DSALoop", body: "Coding interview patterns, 185+ company tracks & system design" },
+  { href: "https://baby.campusloop.space", icon: Sparkles, title: "baby · AI Journal", body: "A quiet sanctuary for your thoughts and gentle reflections" },
   { href: "/dating", icon: Heart, title: "Campus Match", body: "Meet verified students, on your terms" },
   { href: "/colleges", icon: GraduationCap, title: "College hubs", body: "Your campus space, plus every other one" },
   { href: "/articles", icon: Newspaper, title: "Articles", body: "Guides and stories by students, with interactive charts and quizzes" },
@@ -105,11 +107,19 @@ export function CampusLoopHomepageRefresh({ courses = [], courseTotal = 0 }: { c
           <ul className={styles.quickLinks}>
             {QUICK_LINKS.map(({ href, icon: Icon, title, body }) => (
               <li key={href}>
-                <Link href={href}>
-                  <span className={styles.quickIcon}><Icon size={18} aria-hidden="true" /></span>
-                  <span><strong>{title}</strong><small>{body}</small></span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </Link>
+                {href.startsWith("http") ? (
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    <span className={styles.quickIcon}><Icon size={18} aria-hidden="true" /></span>
+                    <span><strong>{title}</strong><small>{body}</small></span>
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </a>
+                ) : (
+                  <Link href={href}>
+                    <span className={styles.quickIcon}><Icon size={18} aria-hidden="true" /></span>
+                    <span><strong>{title}</strong><small>{body}</small></span>
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

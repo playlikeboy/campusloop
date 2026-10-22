@@ -8,9 +8,20 @@ const FOOTER_GROUPS = [
     links: [
       { label: "Campus Feed", href: "/feeds" },
       { label: "Academic Vault", href: "/academics" },
+      { label: "Campus Courses", href: "/courses" },
       { label: "Campus Match", href: "/dating" },
       { label: "1,350+ Colleges", href: "/colleges" },
       { label: "Clubs & Hubs", href: "/communities" },
+    ],
+  },
+  {
+    title: "Ecosystem",
+    links: [
+      { label: "DSALoop (DSA & System Design)", href: "https://dsaloop.campusloop.space" },
+      { label: "baby (Calm AI Journal)", href: "https://baby.campusloop.space" },
+      { label: "About baby", href: "https://baby.campusloop.space/about" },
+      { label: "Campus AI Assistant", href: "/ai" },
+      { label: "Developer & MCP Portal", href: "/developer" },
     ],
   },
   {
@@ -95,7 +106,7 @@ export function CleanFooter() {
           </div>
 
           {/* Grouped Link Columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {FOOTER_GROUPS.map((group) => (
               <div key={group.title}>
                 <p className="text-xs font-black uppercase tracking-wider text-foreground">
@@ -104,13 +115,25 @@ export function CleanFooter() {
                 <ul className="mt-3.5 space-y-2.5">
                   {group.links.map((link) => (
                     <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <span>{link.label}</span>
-                        <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
-                      </Link>
+                      {link.href.startsWith("http") ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <span>{link.label}</span>
+                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <span>{link.label}</span>
+                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>

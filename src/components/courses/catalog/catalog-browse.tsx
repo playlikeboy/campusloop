@@ -1,4 +1,4 @@
-import { BookMarked, Plus, Rocket } from "lucide-react";
+import { ArrowUpRight, BookMarked, Code2, Heart, Plus, Rocket, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { Course } from "@/db/schema";
 import { type CatalogParams, categorySlug } from "@/lib/courses/catalog-params";
@@ -60,6 +60,61 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
           </p>
         </div>
         <Link href="/courses/new" className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-foreground px-5 text-sm font-bold text-background hover:opacity-90">Create a course</Link>
+      </section>
+
+      {/* ─── CampusLoop Ecosystem Tools ─── */}
+      <section className="mx-4 mt-12 grid grid-cols-1 gap-4 sm:mx-0 sm:grid-cols-2">
+        <a
+          href="https://dsaloop.campusloop.space"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative flex flex-col justify-between rounded-2xl border border-emerald-500/20 bg-linear-to-br from-emerald-500/10 via-card to-card p-5 transition-all hover:border-emerald-500/40 hover:shadow-xs"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <Code2 className="size-3" />
+                <span>Placement &amp; Coding Prep</span>
+              </span>
+              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
+            </div>
+            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              DSALoop by CampusLoop
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              Master coding interviews with patterns, 185+ company-tagged problems (Blind 75, Grind 169) and a 28-chapter system design primer.
+            </p>
+          </div>
+          <span className="mt-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400 group-hover:underline">
+            Explore DSALoop &rarr;
+          </span>
+        </a>
+
+        <a
+          href="https://baby.campusloop.space"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative flex flex-col justify-between rounded-2xl border border-blue-500/20 bg-linear-to-br from-blue-500/10 via-card to-card p-5 transition-all hover:border-blue-500/40 hover:shadow-xs"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2.5 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                <Heart className="size-3" />
+                <span>Mindful AI Journal</span>
+              </span>
+              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+            </div>
+            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              baby · Calm Thoughts Companion
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              Exam stress or late-night reflections? Meet Kumo, a gentle AI journal that remembers. Private by default, no streaks, no noise.
+            </p>
+          </div>
+          <span className="mt-4 text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:underline">
+            Meet baby &amp; Kumo &rarr;
+          </span>
+        </a>
       </section>
 
       <section className="mt-12" aria-labelledby="all-courses">

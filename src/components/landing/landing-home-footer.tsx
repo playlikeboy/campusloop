@@ -5,6 +5,7 @@ import styles from "./campusloop-homepage-refresh.module.css";
 
 const COLUMNS = [
   { title: "Explore", links: [["/courses", "Free courses"], ["/feeds", "Campus feed"], ["/academics", "Academic Vault"], ["/communities", "Communities"]] },
+  { title: "Ecosystem", links: [["https://dsaloop.campusloop.space", "DSALoop (DSA & System Design)"], ["https://baby.campusloop.space", "baby (AI Journal)"], ["https://baby.campusloop.space/about", "About baby"]] },
   { title: "Your campus", links: [["/colleges", "College directory"], ["/college-request", "Request a hub"], ["/dating", "Campus Match"]] },
   { title: "Learn", links: [["/guide", "Product guide"], ["/investors", "For investors"], ["/docs", "Engineering docs"], ["/help", "Help & FAQs"]] },
   { title: "About", links: [["/about", "About CampusLoop"], ["/safety", "Student safety"], ["/contact", "Contact"]] },
@@ -42,7 +43,17 @@ export function LandingHomeFooter() {
       {COLUMNS.map((column) => (
         <nav key={column.title} className={styles.footerColumn} aria-label={column.title}>
           <strong>{column.title}</strong>
-          {column.links.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+          {column.links.map(([href, label]) =>
+            href.startsWith("http") ? (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer">
+                {label}
+              </a>
+            ) : (
+              <Link key={href} href={href}>
+                {label}
+              </Link>
+            )
+          )}
         </nav>
       ))}
       <div className={styles.footerBottom}>

@@ -312,4 +312,33 @@ export const MORE_HUB_SECTIONS: NavGroup[] = [
       },
     ],
   },
+  {
+    group: "CampusLoop Ecosystem",
+    items: [
+      {
+        icon: Terminal,
+        href: "https://dsaloop.campusloop.space",
+        label: "DSALoop (DSA & System Design)",
+        desc: "Master coding interviews with patterns, 185+ company tracks & 28-chapter system design primer",
+        badge: "PRODUCT",
+        badgeColor: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+      },
+      {
+        icon: AnimateHeart,
+        href: "https://baby.campusloop.space",
+        label: "baby (AI Journal)",
+        desc: "A calm sanctuary for your thoughts. Meet Kumo, a mindful journal & reflection companion",
+        badge: "PRODUCT",
+        badgeColor: "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+      },
+      {
+        icon: HelpCircle,
+        href: "https://baby.campusloop.space/about",
+        label: "About baby",
+        desc: "Meet Kumo and discover the story behind baby — private by default, no streaks, no noise",
+        badge: "ABOUT",
+        badgeColor: "bg-purple-500/15 text-purple-400 border border-purple-500/30",
+      },
+    ],
+  },
 ];

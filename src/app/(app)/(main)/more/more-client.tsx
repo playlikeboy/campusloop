@@ -5,6 +5,7 @@ import {
   Building2,
   ChevronDown,
   ChevronRight,
+  ExternalLink,
   Flame,
   FlaskConical,
   Shield,
@@ -35,6 +36,8 @@ function getCategoryIcon(groupName: string) {
       return Flame;
     case "Account & Trust":
       return Sliders;
+    case "CampusLoop Ecosystem":
+      return Sparkles;
     default:
       return Sparkles;
   }
@@ -51,6 +54,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
     "Campus Living & Utilities": false,
     "Social, Discovery & Fun": false,
     "Account & Trust": false,
+    "CampusLoop Ecosystem": true,
   });
 
   const toggleSection = (key: string) => {
@@ -264,12 +268,10 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                 <div className="rounded-2xl border border-border/40 bg-card/40 divide-y divide-border/20 overflow-hidden shadow-2xs animate-in fade-in slide-in-from-top-2 duration-200">
                   {section.items.map((item) => {
                     const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-muted/30 transition-colors group cursor-pointer"
-                      >
+                    const isExternal = item.href.startsWith("http");
+
+                    const content = (
+                      <>
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div className="flex size-9 items-center justify-center rounded-xl bg-muted/60 text-foreground group-hover:scale-105 transition-transform shrink-0">
                             <AnimatedIcon icon={Icon} animation="pop" size={18} />
@@ -297,7 +299,31 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                           </div>
                         </div>
 
-                        <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                        {isExternal ? (
+                          <ExternalLink className="size-4 text-muted-foreground/50 group-hover:text-foreground shrink-0 ml-2" />
+                        ) : (
+                          <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                        )}
+                      </>
+                    );
+
+                    return isExternal ? (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-muted/30 transition-colors group cursor-pointer"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-muted/30 transition-colors group cursor-pointer"
+                      >
+                        {content}
                       </Link>
                     );
                   })}

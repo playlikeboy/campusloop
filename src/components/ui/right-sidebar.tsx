@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Globe, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Trophy, Zap } from "lucide-react";
+import { ArrowUpRight, Clock, Code2, Globe, Heart, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Sparkles, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -380,6 +380,67 @@ export function RightSidebar({ className }: { className?: string } = {}) {
         </>
       )}
 
+      {/* ─── CampusLoop Ecosystem Products ─── */}
+      <section className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2.5 shadow-2xs">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Sparkles className="size-3 text-primary" />
+            <span>CampusLoop Suite</span>
+          </span>
+          <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+            Ecosystem
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          {/* DSALoop */}
+          <a
+            href="https://dsaloop.campusloop.space"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all cursor-pointer"
+          >
+            <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono font-black text-xs shrink-0">
+              <Code2 className="size-3.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  DSALoop
+                </span>
+                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                DSA patterns, 185+ company tracks &amp; system design
+              </p>
+            </div>
+          </a>
+
+          {/* baby */}
+          <a
+            href="https://baby.campusloop.space"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-blue-500/40 transition-all cursor-pointer"
+          >
+            <div className="flex size-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0">
+              <Heart className="size-3.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-bold text-foreground group-hover:text-blue-500 transition-colors">
+                  baby · AI Journal
+                </span>
+                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+              </div>
+              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                A calm companion &amp; mindful thoughts sanctuary
+              </p>
+            </div>
+          </a>
+        </div>
+      </section>
+
       <hr className="border-border/30 my-3" />
 
       {/* ─── Twitter Minimal Footer ─── */}
@@ -400,6 +461,24 @@ export function RightSidebar({ className }: { className?: string } = {}) {
           <Link href="/about" className="hover:underline">
             About
           </Link>
+          <span>·</span>
+          <a
+            href="https://dsaloop.campusloop.space"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline text-foreground"
+          >
+            DSALoop
+          </a>
+          <span>·</span>
+          <a
+            href="https://baby.campusloop.space"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline text-foreground"
+          >
+            baby
+          </a>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-0.5">
