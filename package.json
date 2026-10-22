@@ -15,7 +15,6 @@
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:seed": "bun run scripts/seed-colleges.ts",
-		"db:unlist-seeds": "bun run scripts/unlist-seeded-posts.ts",
 		"deploy": "opennextjs-cloudflare build && node scripts/deploy.mjs deploy",
 		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
