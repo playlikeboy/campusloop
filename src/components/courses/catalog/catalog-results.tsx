@@ -41,7 +41,7 @@ export function CatalogResults({ params, result, categories }: Props) {
       <div className="mt-6 px-4 sm:px-0">
         <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">{heading}</h1>
         <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
-          {result.total === 0 ? "No courses found" : `${from}–${from + result.courses.length - 1} of ${result.total.toLocaleString("en-IN")} course${result.total === 1 ? "" : "s"}`}
+          {result.courses.length === 0 ? "No courses found" : `${from}–${from + result.courses.length - 1} of ${result.total.toLocaleString("en-IN")} course${result.total === 1 ? "" : "s"}`}
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CatalogResults } from "@/components/courses/catalog/catalog-results";
 import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
 import { catalogHref, categoryFromSlug, parseCatalogParams } from "@/lib/courses/catalog-params";
@@ -33,6 +33,7 @@ export default async function CourseCategoryPage({ params, searchParams }: Props
   if (!category) notFound();
   const p = parseCatalogParams(await searchParams, category);
   const [result, categories] = await Promise.all([listCourses(p), listCategoryCounts()]);
+  if (p.page > result.pages) redirect(catalogHref(p, { page: result.pages }));
   return (
     <>
       <ItemListJsonLd courses={result.courses} />

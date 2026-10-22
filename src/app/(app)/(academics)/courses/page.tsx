@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
+import { permanentRedirect, redirect } from "next/navigation";
 import { CatalogBrowse } from "@/components/courses/catalog/catalog-browse";
 import { CatalogResults } from "@/components/courses/catalog/catalog-results";
 import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
@@ -45,6 +45,7 @@ export default async function CoursesPage({ searchParams }: Props) {
   }
 
   const [result, categories] = await Promise.all([listCourses(params), listCategoryCounts()]);
+  if (params.page > result.pages) redirect(catalogHref(params, { page: result.pages }));
   return (
     <>
       <ItemListJsonLd courses={result.courses} />
