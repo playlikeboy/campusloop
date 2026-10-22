@@ -2,8 +2,9 @@ import { desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DeveloperMcpClient } from "@/components/developer/developer-mcp-client";
+import { AppsSection } from "@/components/oauth/apps-section";
 import { getDb } from "@/db";
-import { userMcpKeys, userProfiles } from "@/db/schema";
+import { oauthClients, userMcpKeys, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 export const dynamic = "force-dynamic";
@@ -35,10 +36,16 @@ export default async function DeveloperPortalPage() {
 
   if (!profile) redirect("/onboarding");
 
-  const initialKeys = await db.query.userMcpKeys.findMany({
-    where: eq(userMcpKeys.userId, profile.id),
-    orderBy: [desc(userMcpKeys.createdAt)],
-  });
+  const [initialKeys, apps] = await Promise.all([
+    db.query.userMcpKeys.findMany({
+      where: eq(userMcpKeys.userId, profile.id),
+      orderBy: [desc(userMcpKeys.createdAt)],
+    }),
+    db.query.oauthClients.findMany({
+      where: eq(oauthClients.ownerProfileId, profile.id),
+      orderBy: [desc(oauthClients.createdAt)],
+    }),
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -57,6 +64,7 @@ export default async function DeveloperPortalPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-4xl mx-auto px-4 py-4">
+        <AppsSection apps={apps} />
         <DeveloperMcpClient
           initialKeys={initialKeys}
           studentUsername={profile.username}

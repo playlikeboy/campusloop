@@ -219,7 +219,11 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     summary: "A sign-in button other websites and CampusLoop's own apps can add, like Login with Google, that can also confirm you are a verified college student.",
     category: "Platform",
     audiences: ["Students", "Developers", "Investors"],
-    routes: [{ path: "/oauth/authorize", label: "Sign-in and consent screen" }],
+    routes: [
+      { path: "/oauth/authorize", label: "Sign-in and consent screen" },
+      { path: "/settings/connected-apps", label: "Connected apps" },
+      { path: "/developer/apps/new", label: "Register an app (developers)" },
+    ],
     purpose:
       "Student discounts, campus tools, hackathons and ecosystem apps all need to know \"is this person a real student?\". Login with CampusLoop answers that in one click, without the student uploading an ID card again, and without the site getting more than it needs.",
     whyUse: [
@@ -232,6 +236,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Sign in to CampusLoop if you aren't already.",
       "Read what the app wants (for example: your name and photo, and whether you're a verified student) and tap Allow, or Cancel.",
       "You go back to the app, signed in. Next time it's one tap, because you've already agreed.",
+      "To see or remove apps, open Settings, Connected apps.",
+      "Developers: open /developer, tap New app, add redirect URIs, and copy the client ID (and secret for server apps). Sign-in, name, photo and the verified-student check work immediately; college, branch or email access is reviewed by CampusLoop first.",
     ],
     useCases: [
       { who: "Student", scenario: "Signs in to DSALoop with CampusLoop and keeps one account across the ecosystem." },

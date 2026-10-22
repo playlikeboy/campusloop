@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { nextReviewStatus, validateAppInput } from "./app-input";
 import { errorRedirect, successRedirect } from "./authorize";
 import { claimsFor, pairwiseSub } from "./claims";
 import { discoveryDocument, SCOPES } from "./config";
@@ -96,5 +97,24 @@ describe("tokens and discovery", () => {
   it("builds redirects with state and issuer", () => {
     expect(successRedirect("https://a.com/cb?x=1", "c1", "s")).toBe("https://a.com/cb?x=1&code=c1&state=s&iss=https%3A%2F%2Fcampusloop.space");
     expect(errorRedirect("https://a.com/cb", "access_denied", "no", null)).toContain("error=access_denied");
+  });
+});
+
+describe("app registration input", () => {
+  const base = { name: "Hack Fest", redirectUris: "https://fest.example.com/cb\nhttp://localhost:3000/cb", type: "CONFIDENTIAL" };
+  it("normalises valid input", () => {
+    const r = validateAppInput(base);
+    expect(r.ok && r.value.redirectUris).toEqual(["https://fest.example.com/cb", "http://localhost:3000/cb"]);
+  });
+  it("rejects bad redirect URIs, impersonation and missing privacy policy", () => {
+    expect(validateAppInput({ ...base, redirectUris: "http://fest.example.com/cb" }).ok).toBe(false);
+    expect(validateAppInput({ ...base, name: "CampusLoop Pro" }).ok).toBe(false);
+    expect(validateAppInput({ ...base, sensitiveScopes: ["college"] }).ok).toBe(false);
+    expect(validateAppInput({ ...base, sensitiveScopes: ["college", "admin"], privacyUrl: "https://fest.example.com/privacy" })).toMatchObject({ ok: true, value: { sensitiveScopes: ["college"] } });
+  });
+  it("puts new sensitive scopes into review", () => {
+    expect(nextReviewStatus(["college"], [], "NONE")).toBe("PENDING");
+    expect(nextReviewStatus(["college"], ["college"], "PENDING")).toBe("APPROVED");
+    expect(nextReviewStatus([], [], "NONE")).toBe("NONE");
   });
 });

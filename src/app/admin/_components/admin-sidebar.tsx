@@ -29,6 +29,7 @@ import {
   UtensilsCrossed,
   X,
   Zap,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -64,6 +65,7 @@ export const ADMIN_NAV_SECTIONS = [
       { href: "/admin/jobs", label: "Background Jobs", icon: RotateCw },
       { href: "/admin/links", label: "Short Links & Refs", icon: Link2 },
       { href: "/admin/embeds", label: "Embeds Inspector", icon: Play },
+      { href: "/admin/oauth-apps", label: "Login with CampusLoop", icon: KeyRound },
     ],
   },
   {

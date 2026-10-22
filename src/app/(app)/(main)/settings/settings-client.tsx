@@ -25,6 +25,7 @@ import {
   Volume2,
   Wifi,
   Zap,
+  LogIn,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -1099,6 +1100,26 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     Connect Claude Desktop, Cursor, or AI agent sidecars.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary" />
+            </Link>
+
+            <Link
+              href="/settings/connected-apps"
+              className="flex items-center justify-between py-2.5 group hover:text-primary transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary transition-colors">
+                  <LogIn className="size-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Connected apps
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Sites you signed in to with CampusLoop. Remove access anytime.
                   </p>
                 </div>
               </div>
