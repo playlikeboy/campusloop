@@ -1,15 +1,16 @@
 import { and, desc, eq, ilike, inArray, or, type SQL, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { type Course, courseEnrollments, courses } from "@/db/schema";
+import { academicResources, type Course, courseEnrollments, courses, savedAcademicResources } from "@/db/schema";
 import { IsolateCache } from "@/lib/isolate-cache";
 import { recentSearches } from "@/lib/search-history";
 import { getRecentTargets, getUserAffinityInterests } from "@/lib/user-behavior";
-import { buildSignals, rankDiverse, type Signals, slotTitle } from "./recommend-signals";
+import { buildSignals, domainOf, rankDiverse, type Signals, slotTitle } from "./recommend-signals";
 import { listCourses, listFeedCourses } from "./server";
 
 /**
  * Personalised course picks for the feed slot. Signals: profile branch and
- * degree, profile interests, Redis interest affinity, recent searches,
+ * degree, academics vault context (/academics saved resources and semester),
+ * profile interests, Redis interest affinity, recent searches,
  * recently viewed courses and enrolments (see recommend-signals.ts).
  * Everything is best-effort: missing Redis or a cold profile falls back to
  * popular courses, and rising community courses are always mixed in so new
@@ -25,10 +26,13 @@ export interface CourseSlot {
 const popularScore = sql`${courses.rankBoost} * 4 + ln(1 + ${courses.enrollCount}) + ${courses.trendScore} * 0.5`;
 const cache = new IsolateCache<CourseSlot>(3 * 60_000, 500);
 
-/** Interleave rising community courses at positions 3 and 6. */
-function withRising(picks: Course[], rising: Course[], limit: number): Course[] {
-  const out = picks.filter((c) => !rising.some((r) => r.id === c.id)).slice(0, limit);
-  rising.slice(0, 2).forEach((r, i) => out.splice(Math.min(out.length, 2 + i * 3), 0, r));
+/** Interleave rising community courses at positions 3 and 6, respecting domain isolation. */
+function withRising(picks: Course[], rising: Course[], limit: number, targetDomain?: string): Course[] {
+  const eligibleRising = targetDomain && targetDomain !== "general" && targetDomain !== "career"
+    ? rising.filter((r) => domainOf(r.category) === targetDomain)
+    : rising;
+  const out = picks.filter((c) => !eligibleRising.some((r) => r.id === c.id)).slice(0, limit);
+  eligibleRising.slice(0, 2).forEach((r, i) => out.splice(Math.min(out.length, 2 + i * 3), 0, r));
   return out.slice(0, limit);
 }
 
@@ -48,7 +52,7 @@ async function candidates(s: Signals): Promise<Course[]> {
 }
 
 export async function courseSlotFor(
-  profile: { id: string; branch?: string | null; course?: string | null; interests?: string[] | null } | null,
+  profile: { id: string; branch?: string | null; course?: string | null; semester?: number | null; interests?: string[] | null } | null,
   limit = 8
 ): Promise<CourseSlot> {
   const rising = await listFeedCourses(3).catch(() => [] as Course[]);
@@ -60,7 +64,7 @@ export async function courseSlotFor(
   if (hit) return hit;
 
   const db = getDb();
-  const [searches, affinity, viewedIds, enrolledRows] = await Promise.all([
+  const [searches, affinity, viewedIds, enrolledRows, savedResources] = await Promise.all([
     recentSearches(profile.id, 8),
     getUserAffinityInterests(profile.id),
     getRecentTargets(profile.id, "COURSE_VIEW", 10),
@@ -70,15 +74,26 @@ export async function courseSlotFor(
       .innerJoin(courses, eq(courses.id, courseEnrollments.courseId))
       .where(eq(courseEnrollments.profileId, profile.id))
       .limit(50),
+    db
+      .select({ subjectName: academicResources.subjectName })
+      .from(savedAcademicResources)
+      .innerJoin(academicResources, eq(academicResources.id, savedAcademicResources.resourceId))
+      .where(eq(savedAcademicResources.profileId, profile.id))
+      .limit(6)
+      .catch(() => [] as { subjectName: string }[]),
   ]);
   const viewedRows = viewedIds.length
     ? await db.select({ id: courses.id, category: courses.category, tags: courses.tags }).from(courses).where(inArray(courses.id, viewedIds))
     : [];
   const viewed = viewedIds.map((id) => viewedRows.find((r) => r.id === id)).filter((r): r is NonNullable<typeof r> => Boolean(r));
 
+  const academicSubjects = savedResources.map((r) => r.subjectName).filter(Boolean);
+
   const signals = buildSignals({
     branch: profile.branch,
     course: profile.course,
+    semester: profile.semester,
+    academicSubjects,
     interests: profile.interests ?? [],
     affinity,
     searches,
@@ -94,7 +109,11 @@ export async function courseSlotFor(
     picks = popular.courses.filter((c) => !signals.exclude.has(c.id)).slice(0, limit);
     personalised = false;
   }
-  const slot = { title: personalised ? slotTitle(signals) : "Popular free courses", personalised, courses: withRising(picks, rising, limit) };
+  const slot = {
+    title: personalised ? slotTitle(signals) : "Popular free courses",
+    personalised,
+    courses: withRising(picks, rising, limit, signals.targetDomain),
+  };
   cache.set(profile.id, slot);
   return slot;
 }

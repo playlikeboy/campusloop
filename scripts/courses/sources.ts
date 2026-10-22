@@ -22,6 +22,7 @@ export interface CourseSource {
   kind: SourceKind;
   language: "English" | "Hindi";
   bio: string;
+  category?: string;
   include?: RegExp;
   exclude?: RegExp;
   maxCourses?: number;
@@ -36,15 +37,96 @@ export interface CourseSource {
 export const SOURCES: CourseSource[] = [
   // Universities and official course channels
   {
+    key: "harvard",
+    name: "Harvard University",
+    handle: "@harvard",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Harvard University public courses, including Michael Sandel's world-renowned Justice lecture series.",
+    category: "Law & Policy",
+    include: /(Justice with Michael Sandel)/i,
+    playlists: ["PL30C13C91CFFEFEA6"],
+    maxCourses: 1,
+  },
+  {
+    key: "mru",
+    name: "Marginal Revolution University",
+    handle: "@MarginalRevolutionUniversity",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Tyler Cowen and Alex Tabarrok's university-level microeconomics, macroeconomics, and trade lectures.",
+    category: "Economics",
+    maxCourses: 6,
+  },
+  {
+    key: "ycombinator",
+    name: "Y Combinator",
+    handle: "@ycombinator",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Y Combinator's Startup School: lectures on finding ideas, building products, and scaling startups.",
+    category: "Entrepreneurship",
+    include: /(Startup School|How to Start a Startup)/i,
+    maxCourses: 4,
+  },
+  {
+    key: "crashcourse",
+    name: "CrashCourse",
+    handle: "@crashcourse",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Fast-paced, high-yield university-level courses across psychology, economics, philosophy, and sociology.",
+    playlists: [
+      "PL8dPuuaLjXtPNZwz5_o_5uirJ8gQXnhEO", // Economics
+      "PL8dPuuaLjXtOPRKzVLY0jJY-uHOH9KVU6", // Psychology
+      "PL8dPuuaLjXtNgK6MZucdYldNkMybYIHKR", // Philosophy
+      "PL8dPuuaLjXtMBsfP-lP28IFvfkISqJofM", // Business Soft Skills
+      "PL8dPuuaLjXtMJ-AfB_7J1538YKWkZAnGA", // Sociology
+      "PL8dPuuaLjXtMsMTfmRomkVQG8AqrAmJFX", // European History
+    ],
+    maxCourses: 6,
+  },
+  {
+    key: "figma",
+    name: "Figma",
+    handle: "@Figma",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Official Figma design courses on UI/UX fundamentals, auto layout, and scalable design systems.",
+    category: "Design",
+    include: /(Figma for Beginners|Auto Layout|Design Systems)/i,
+    maxCourses: 4,
+  },
+  {
+    key: "profleonard",
+    name: "Professor Leonard",
+    handle: "@ProfessorLeonard",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Professor Leonard's university mathematics lectures: Calculus 1, 2, 3, and Differential Equations.",
+    category: "Mathematics",
+    playlists: [
+      "PLF797E961509B4EB5",
+      "PLDesaqWTN6EQ2J4vgsN1HyBeRADEh4Cw-",
+      "PLDesaqWTN6ESk16YRmzuJ8f6-rnuy0Ry7",
+    ],
+    maxCourses: 4,
+  },
+  {
     key: "mit",
     name: "MIT OpenCourseWare",
     handle: "@mitocw",
     kind: "UNIVERSITY",
     language: "English",
     bio: "MIT OpenCourseWare publishes materials from thousands of MIT courses, free for anyone, under Creative Commons.",
-    // Core CS, AI and maths courses only (MIT's channel also hosts electronics, physics, etc.).
-    include: /\b(6\.0001|6\.0002|6\.006|6\.042J?|6\.046J?|6\.034|6\.036|6\.390|6\.172|6\.004|6\.001|6\.858|6\.5660|6\.851|6\.7960|6\.S191|6\.041|6\.1200J?|6\.1210|6\.1220|6\.5060|18\.06|18\.01|18\.02|18\.03|18\.065|18\.404J?|6\.840J?|18\.650)\b/,
-    maxCourses: 30,
+    // Core CS, AI, maths, physics, chemistry, and economics courses.
+    include: /\b(6\.0001|6\.0002|6\.006|6\.042J?|6\.046J?|6\.034|6\.036|6\.390|6\.172|6\.004|6\.001|6\.858|6\.5660|6\.851|6\.7960|6\.S191|6\.041|6\.1200J?|6\.1210|6\.1220|6\.5060|18\.06|18\.01|18\.02|18\.03|18\.065|18\.404J?|6\.840J?|18\.650|8\.01|8\.02|14\.01|5\.111)\b/,
+    playlists: [
+      "PLyQSN7X0ro203puVhQsmCj9qhlFQ-As8e", // Physics 8.01
+      "PLUl4u3cNGP60V7HxLYRaJMbFzP77bzEjb", // Economics 14.01
+      "PLUl4u3cNGP63LOmB3_O0xbgZVZibxj4rb", // Chemistry 5.111
+    ],
+    maxCourses: 35,
     license: "CC BY-NC-SA 4.0",
   },
   {
@@ -133,11 +215,90 @@ export const SOURCES: CourseSource[] = [
     maxCourses: 25,
   },
 
-  // Indian educators
+  // Indian educators & specialized creators
+  {
+    key: "gajendrapurohit",
+    name: "Dr. Gajendra Purohit",
+    handle: "@DrGajendraPurohit",
+    kind: "CREATOR",
+    language: "Hindi",
+    bio: "Dr. Gajendra Purohit's complete engineering mathematics, calculus, linear algebra, and discrete maths series.",
+    category: "Mathematics",
+    playlists: [
+      "PLU6SqdYcYsfLPxjd-k-MaoG7qgRQ-2fKc",
+      "PLU6SqdYcYsfIuZVt20v-eNZBfFLENrM1F",
+      "PLU6SqdYcYsfJqbZvQECrwnlQrp4fg6isX",
+    ],
+    maxCourses: 4,
+  },
+  {
+    key: "allaboutelectronics",
+    name: "ALL ABOUT ELECTRONICS",
+    handle: "@ALLABOUTELECTRONICS",
+    kind: "CREATOR",
+    language: "English",
+    bio: "Visual, structured tutorials on operational amplifiers, digital electronics, analog circuits, and network theory.",
+    category: "Electronics & Communication",
+    exclude: /(Quiz|Members Only)/i,
+    maxCourses: 8,
+  },
+  {
+    key: "engineeringfunda",
+    name: "Engineering Funda",
+    handle: "@EngineeringFunda",
+    kind: "CREATOR",
+    language: "English",
+    bio: "Hitesh Dholakiya's university exam lectures on DSP, microprocessors, microcontrollers, VLSI, and communication systems.",
+    category: "Electronics & Communication",
+    maxCourses: 8,
+  },
+  {
+    key: "efficientengineer",
+    name: "The Efficient Engineer",
+    handle: "@TheEfficientEngineer",
+    kind: "CREATOR",
+    language: "English",
+    bio: "Engineering concepts animated: strength of materials, fluid mechanics, and thermodynamics.",
+    category: "Mechanical Engineering",
+    maxCourses: 6,
+  },
+  {
+    key: "accountingstuff",
+    name: "Accounting Stuff",
+    handle: "@AccountingStuff",
+    kind: "CREATOR",
+    language: "English",
+    bio: "James Hearle's beginner-to-advanced financial accounting, balance sheets, and bookkeeping courses.",
+    category: "Finance & Accounting",
+    exclude: /(Quiz|2 Minute)/i,
+    maxCourses: 6,
+  },
+  {
+    key: "ninjanerd",
+    name: "Ninja Nerd",
+    handle: "@NinjaNerdOfficial",
+    kind: "CREATOR",
+    language: "English",
+    bio: "Zach Murphy and team's in-depth clinical medicine, physiology, anatomy, and pathology lectures.",
+    category: "Medicine",
+    include: /(Physiology|Anatomy|Pharmacology|Pathology|Biochemistry|Microbiology)/i,
+    maxCourses: 8,
+  },
+  {
+    key: "designcourse",
+    name: "DesignCourse",
+    handle: "@DesignCourse",
+    kind: "CREATOR",
+    language: "English",
+    bio: "Gary Simon's UI/UX, Figma, typography, and design systems tutorials for modern web and mobile apps.",
+    category: "Design",
+    include: /(UI\/UX|Figma|Mobile App Design)/i,
+    maxCourses: 4,
+  },
   { key: "codewithharry", name: "CodeWithHarry", handle: "@CodeWithHarry", kind: "CREATOR", language: "Hindi", bio: "Haris Ali Khan's channel teaching programming and web development in Hindi to millions of students.", maxCourses: 20 },
   { key: "campusx", name: "CampusX", handle: "@campusx-official", kind: "CREATOR", language: "Hindi", bio: "Nitish Singh's in-depth data science, machine learning, deep learning and generative AI courses in Hindi.", maxCourses: 20 },
   { key: "gatesmashers", name: "Gate Smashers", handle: "@GateSmashers", kind: "CREATOR", language: "Hindi", bio: "Varun Singla's GATE and university exam lectures on DBMS, OS, networks, COA, TOC and more.", maxCourses: 20 },
-  { key: "neso", name: "Neso Academy", handle: "@nesoacademy", kind: "CREATOR", language: "English", bio: "Structured, chapter-wise lectures on computer science and electronics fundamentals.", exclude: /(VHDL|Network Theory|GATE Solved)/i, maxCourses: 25 },
+  { key: "neso", name: "Neso Academy", handle: "@nesoacademy", kind: "CREATOR", language: "English", bio: "Structured, chapter-wise lectures on computer science and electronics fundamentals.", exclude: /(GATE Solved)/i, maxCourses: 25 },
   { key: "apnacollege", name: "Apna College", handle: "@ApnaCollegeOfficial", kind: "CREATOR", language: "Hindi", bio: "Shradha Khapra and Aman Dhattarwal's beginner-friendly courses on programming, DSA and web development.", maxCourses: 12 },
   { key: "shradha", name: "Shradha Khapra", handle: "@shradhaKD", kind: "CREATOR", language: "Hindi", bio: "Coding courses for college students by Apna College co-founder Shradha Khapra.", maxCourses: 6 },
   { key: "jenny", name: "Jenny's Lectures CS IT", handle: "@JennyslecturesCSIT", kind: "CREATOR", language: "English", bio: "Jayanti Khatri Lamba's lectures on data structures, C, Java, DBMS, OS and more.", maxCourses: 15 },

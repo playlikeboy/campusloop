@@ -33,22 +33,61 @@ const OUT = "scripts/courses/data/youtube.json";
 
 /** First match wins, so specific topics come before broad ones. */
 const TOPICS: { category: string; re: RegExp; tags: string[] }[] = [
-  { category: "Web Development", re: /\b(web ?dev(elopment)?|full ?stack|mern|html)\b/i, tags: ["web"] },
-  { category: "Databases", re: /\b(dbms|database|sql|mysql|postgres|mongodb|normali[sz]ation)\b/i, tags: ["dbms", "sql"] },
-  { category: "System Design", re: /\b(system design|distributed systems?|low level design|lld|hld|microservices?)\b/i, tags: ["system-design"] },
-  { category: "Cybersecurity", re: /\b(cyber ?security|ethical hacking|cryptography|network security|information security)\b/i, tags: ["security"] },
-  { category: "Artificial Intelligence", re: /\b(machine learning|deep learning|neural networks?|artificial intelligence|\bai\b|nlp|natural language|computer vision|llms?|generative|gen ?ai|transformers?|reinforcement learning|rag|agents?|langchain|cs229|cs231n|cs224n|zero to hero|convolutional|sequence models)\b/i, tags: ["ai", "machine-learning"] },
-  { category: "Data Science", re: /\b(data science|data analy(sis|tics)|pandas|numpy|statistics|power ?bi|excel|tableau|matplotlib|probability)\b/i, tags: ["data-science"] },
-  { category: "Mobile Development", re: /\b(android|flutter|kotlin|react native|ios|swift)\b/i, tags: ["mobile"] },
-  { category: "Web Development", re: /\b(web ?dev(elopment)?|html|css|javascript|\bjs\b|react|next\.?js|node(\.?js)?|express|django|flask|tailwind|php|mern|frontend|backend|full ?stack|typescript|sanity|bootstrap|spring boot)\b/i, tags: ["web"] },
-  { category: "DevOps & Cloud", re: /\b(devops|docker|kubernetes|aws|azure|cloud computing|linux|git(hub)?|ci\/cd|vps|deployment)\b/i, tags: ["devops"] },
-  { category: "Mathematics", re: /\b(linear algebra|calculus|discrete math(ematics)?|differential equations|18\.\d+|mathematics|graph theory)\b/i, tags: ["math"] },
+  // Core Computing (High-priority CS topics)
   {
     category: "Computer Science",
-    re: /\b(data structures?|algorithms?|dsa|operating systems?|\bos\b|computer networks?|networking|\bcn\b|compiler|theory of computation|\btoc\b|automata|computer (organi[sz]ation|architecture)|\bcoa\b|software engineering|digital (logic|electronics)|dynamic programming|recursion|graphs?|trees?|binary search|leetcode|6\.\d{3,4}|cs ?\d{3}|computer science|oops?|object oriented)\b/i,
+    re: /\b(computer (organi[sz]ation|architecture)|\bcoa\b|data structures?|algorithms?|dsa|operating systems?|\bos\b|computer networks?|networking|\bcn\b|compiler|theory of computation|\btoc\b|automata|software engineering|dynamic programming|recursion|graphs?|trees?|binary search|leetcode|6\.\d{3,4}|cs ?\d{3}|computer science|oops?|object oriented)\b/i,
     tags: ["computer-science"],
   },
   { category: "Programming", re: /\b(python|java|c\+\+|c language|\bc programming|golang|\bgo\b|rust|programming|coding|c#|scala|r programming)\b/i, tags: ["programming"] },
+  { category: "Databases", re: /\b(dbms|database|sql|mysql|postgres|mongodb|rdbms|normali[sz]ation)\b/i, tags: ["dbms", "sql"] },
+  { category: "System Design", re: /\b(system design|distributed systems?|low level design|lld|hld|microservices?)\b/i, tags: ["system-design"] },
+  { category: "Cybersecurity", re: /\b(cyber ?security|ethical hacking|cryptography|network security|information security)\b/i, tags: ["security"] },
+  { category: "Artificial Intelligence", re: /\b(machine learning|deep learning|neural networks?|artificial intelligence|\bai\b|nlp|natural language|computer vision|llms?|generative|gen ?ai|transformers?|reinforcement learning|rag|agents?|langchain|cs229|cs231n|cs224n|zero to hero|convolutional|sequence models)\b/i, tags: ["ai", "machine-learning"] },
+  { category: "Data Science", re: /\b(data science|data analy(sis|tics)|pandas|numpy|statistics|power ?bi|excel|tableau|matplotlib)\b/i, tags: ["data-science"] },
+  { category: "Mobile Development", re: /\b(android|flutter|kotlin|react native|ios|swift)\b/i, tags: ["mobile"] },
+  { category: "Web Development", re: /\b(web ?dev(elopment)?|html|css|javascript|\bjs\b|react|next\.?js|node(\.?js)?|express|django|flask|tailwind|php|mern|frontend|backend|full ?stack|typescript|sanity|bootstrap|spring boot)\b/i, tags: ["web"] },
+  { category: "DevOps & Cloud", re: /\b(devops|docker|kubernetes|aws|azure|cloud computing|linux|git(hub)?|ci\/cd|vps|deployment)\b/i, tags: ["devops"] },
+
+  // Engineering Branches
+  { category: "Mechanical Engineering", re: /\b(thermodynamics|fluid mechanics|strength of materials|\bsom\b|theory of machines|machine design|heat transfer|manufacturing|engineering mechanics|ic engines?|refrigeration|finite element|\bfea\b|\bcad\b)\b/i, tags: ["mechanical", "engineering"] },
+  { category: "Civil Engineering", re: /\b(structural analysis|surveying|geotechnical|soil mechanics|\brcc\b|concrete|transportation engineering|hydrology|environmental engineering|estimation|highway engineering)\b/i, tags: ["civil", "engineering"] },
+  { category: "Electrical Engineering", re: /\b(electrical machines?|power systems?|control systems?|power electronics|network theory|circuit theory|circuit analysis|electrical measurements?|switchgear)\b/i, tags: ["electrical", "engineering"] },
+  { category: "Electronics & Communication", re: /\b(analog electronics|digital communication|signals and systems|vlsi|microprocessors?|microcontrollers?|embedded systems?|antenna|emft|electromagnetics|digital (logic|electronics)|op-?amps?|semiconductor|8085|8086)\b/i, tags: ["ece", "electronics"] },
+  { category: "Chemical Engineering", re: /\b(mass transfer|heat transfer operations|chemical reaction engineering|process control|unit operations|fluid flow|chemical engineering)\b/i, tags: ["chemical", "engineering"] },
+  { category: "Biotechnology", re: /\b(biotechnology|bioprocess|molecular biology|genetic engineering|immunology)\b/i, tags: ["biotech"] },
+
+  // Sciences & Mathematics
+  { category: "Mathematics", re: /\b(engineering mathematics|calculus|linear algebra|discrete math(ematics)?|differential equations|laplace|fourier|numerical methods|probability|statistics|complex variables|18\.\d+|mathematics|graph theory)\b/i, tags: ["math"] },
+  { category: "Physics", re: /\b(physics|electrodynamics|quantum (mechanics|physics)|classical mechanics|optics|thermal physics|modern physics|astrophysics|8\.0\d+)\b/i, tags: ["physics"] },
+  { category: "Chemistry", re: /\b(organic chemistry|inorganic chemistry|physical chemistry|biochemistry|general chemistry|5\.11\d+)\b/i, tags: ["chemistry"] },
+  { category: "Biology", re: /\b(cell biology|genetics|zoology|botany|ecology|7\.0\d+)\b/i, tags: ["biology"] },
+
+  // Health & Medicine
+  { category: "Medicine", re: /\b(anatomy|physiology|pathology|pharmacology|clinical medicine|surgery|neet ?pg|usmle|mbbs|histology|hematology|cardiology|neurology|embryology)\b/i, tags: ["medicine", "mbbs"] },
+  { category: "Pharmacy", re: /\b(pharmaceutics|pharmacognosy|pharmaceutical|b\.? ?pharm|d\.? ?pharm|medicinal chemistry)\b/i, tags: ["pharmacy"] },
+  { category: "Nursing & Allied Health", re: /\b(nursing|physiotherapy|paramedical|nclex|b\.?sc nursing)\b/i, tags: ["nursing"] },
+
+  // Business, Commerce & Economics
+  { category: "Finance & Accounting", re: /\b(accounting|accountancy|financial accounting|cost accounting|corporate finance|taxation|gst|income tax|auditing|ca foundation|ca inter|cfa|stock market|investing|balance sheet|financial statements|financial management)\b/i, tags: ["finance", "accounting"] },
+  { category: "Economics", re: /\b(economics|microeconomics|macroeconomics|econometrics|game theory|international trade|indian economy|14\.0\d+)\b/i, tags: ["economics"] },
+  { category: "Marketing", re: /\b(marketing|digital marketing|seo|branding|advertising|social media marketing|marketing management)\b/i, tags: ["marketing"] },
+  { category: "Business", re: /\b(principles of management|business studies|organi[sz]ational behaviou?r|human resource|\bhrm\b|operations management|supply chain|business law|\bmba\b|strategic management|business)\b/i, tags: ["business"] },
+  { category: "Entrepreneurship", re: /\b(startup school|startups?|entrepreneurship|founders?|venture capital|pitch deck)\b/i, tags: ["startups", "entrepreneurship"] },
+
+  // Humanities, Law & Social Sciences
+  { category: "Law & Policy", re: /\b(constitution(al)? law|contract law|criminal law|\bipc\b|\bbns\b|\bcrpc\b|\bcpc\b|jurisprudence|family law|\bclat\b|\bllb\b|judiciary|legal studies|justice)\b/i, tags: ["law"] },
+  { category: "Psychology", re: /\b(psychology|cognitive psychology|social psychology|developmental psychology|behaviou?ral science)\b/i, tags: ["psychology"] },
+  { category: "Humanities", re: /\b(history|world history|philosophy|literature|english literature|ethics|moral philosophy)\b/i, tags: ["humanities"] },
+  { category: "Social Sciences", re: /\b(sociology|political science|polity|geography|anthropology|public administration)\b/i, tags: ["social-sciences"] },
+
+  // Design, Architecture & Media
+  { category: "Design", re: /\b(ui ?\/? ?ux|ux design|graphic design|figma|typography|product design|wireframing|user experience|design systems?)\b/i, tags: ["design", "uiux"] },
+  { category: "Architecture", re: /\b(architecture|architectural|autocad|revit|sketchup|building construction)\b/i, tags: ["architecture"] },
+  { category: "Media & Communication", re: /\b(journalism|filmmaking|video editing|premiere pro|public speaking|communication skills)\b/i, tags: ["media"] },
+  { category: "Languages", re: /\b(english grammar|spoken english|ielts|toefl|german|french|japanese|spanish|korean)\b/i, tags: ["languages"] },
+  { category: "Career Skills", re: /\b(power ?bi|excel|resume|interview skills|soft skills|productivity|study skills)\b/i, tags: ["career"] },
+
   { category: "Exam Prep", re: /\b(gate|ugc net|semester exam)\b/i, tags: ["gate", "exam-prep"] },
 ];
 
@@ -57,18 +96,26 @@ const LANG_TAGS: [RegExp, string][] = [
   [/\bsql\b/i, "sql"], [/oops?|object oriented/i, "oop"], [/dsa|data structures/i, "dsa"], [/operating system|\bos\b/i, "os"],
   [/computer network/i, "computer-networks"], [/dbms|database/i, "dbms"], [/machine learning/i, "machine-learning"], [/deep learning/i, "deep-learning"],
   [/\bgate\b/i, "gate"], [/node/i, "nodejs"], [/django/i, "django"], [/dynamic programming/i, "dynamic-programming"],
+  [/calculus/i, "calculus"], [/linear algebra/i, "linear-algebra"], [/thermodynamics/i, "thermodynamics"], [/anatomy/i, "anatomy"],
+  [/physiology/i, "physiology"], [/accounting/i, "accounting"], [/economics/i, "economics"], [/figma/i, "figma"],
 ];
 
 /** Not courses: shorts, podcasts, vlogs, livestream dumps, news, motivation, interviews. */
 const NOT_A_COURSE =
   /(shorts|podcast|vlog|live ?streams?|livestream|motivation|interview experience|announcement|reaction|unboxing|meme|news|trailer|promo|webinar|q ?& ?a|ask me|career advice|myth|placement update|viral|tips|events?|guest|talks?\b|seminar|highlights|clips|playlist of playlists|all videos|uploads|mock interview|story|stories|giveaway|contest|hackathon|doubt|faq|chapter \d+|discussion|career|assignment|previous year|question papers?|mentorship|challenge)/i;
 
-function classify(title: string) {
+function classify(title: string, defaultCategory?: string) {
   const topic = TOPICS.find((t) => t.re.test(title));
-  if (!topic) return null;
-  const tags = new Set(topic.tags);
-  for (const [re, tag] of LANG_TAGS) if (re.test(title)) tags.add(tag);
-  return { category: topic.category, tags: [...tags].slice(0, 8) };
+  if (topic) {
+    const tags = new Set(topic.tags);
+    for (const [re, tag] of LANG_TAGS) if (re.test(title)) tags.add(tag);
+    return { category: topic.category, tags: [...tags].slice(0, 8) };
+  }
+  if (defaultCategory) {
+    const tag = defaultCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    return { category: defaultCategory, tags: [tag] };
+  }
+  return null;
 }
 
 function level(title: string): ImportedCourse["level"] {
@@ -128,9 +175,9 @@ function pickPlaylists(src: CourseSource, all: YtPlaylist[]): YtPlaylist[] {
     .filter((p) => !src.playlists?.includes(p.id))
     .filter((p) => p.videoCount >= min && p.videoCount <= 600)
     .filter((p) => !NOT_A_COURSE.test(p.title) && !src.exclude?.test(p.title))
-    .filter((p) => (src.include ? src.include.test(p.title) : true) && classify(p.title))
+    .filter((p) => (src.include ? src.include.test(p.title) : true) && classify(p.title, src.category))
     // Interview-question lists are courses only for DSA practice.
-    .filter((p) => !/interview/i.test(p.title) || classify(p.title)?.category === "Computer Science")
+    .filter((p) => !/interview/i.test(p.title) || classify(p.title, src.category)?.category === "Computer Science")
     // Full courses first: more lectures, capped so one 600-video dump does not always win.
     .sort((a, b) => Math.min(b.videoCount, 120) - Math.min(a.videoCount, 120));
   const extra = (src.playlists ?? []).filter((id) => !all.some((p) => p.id === id)).map((id) => ({ id, title: "", videoCount: 0 }));
@@ -168,7 +215,7 @@ async function importSource(src: CourseSource): Promise<ImportedCourse[]> {
     try {
       const pl = await playlistVideos(p.id, 600);
       const rawTitle = pl.title || p.title;
-      const meta = classify(rawTitle) ?? { category: "Computer Science", tags: ["computer-science"] };
+      const meta = classify(rawTitle, src.category) ?? { category: src.category ?? "Computer Science", tags: [src.category ? src.category.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "computer-science"] };
       // Shorts are not lectures.
       const long = pl.videos.filter((v) => v.durationSec >= 90);
       // Embeddable videos play in our player; ones whose owner disabled embedding stay as "Watch on YouTube" lectures.
@@ -209,7 +256,7 @@ async function dryRun(targets: CourseSource[]) {
   await pool(targets, 6, async (src) => {
     try {
       const picked = pickPlaylists(src, await channelPlaylists(src.handle, 500));
-      console.log(`\n${src.key} (${src.kind})\n${picked.map((p) => `  ${p.videoCount}\t${classify(p.title)?.category ?? "?"}\t${p.title}`).join("\n")}`);
+      console.log(`\n${src.key} (${src.kind})\n${picked.map((p) => `  ${p.videoCount}\t${classify(p.title, src.category)?.category ?? "?"}\t${p.title}`).join("\n")}`);
     } catch (err) {
       console.log(`\n${src.key} FAILED ${err instanceof Error ? err.message : err}`);
     }

@@ -12,7 +12,17 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const profile = await currentProfile();
-    const slot = await courseSlotFor(profile ? { id: profile.id, branch: profile.branch, course: profile.course, interests: profile.interests } : null);
+    const slot = await courseSlotFor(
+      profile
+        ? {
+            id: profile.id,
+            branch: profile.branch,
+            course: profile.course,
+            semester: profile.year ? profile.year * 2 : null,
+            interests: profile.interests,
+          }
+        : null
+    );
     return NextResponse.json(slot, {
       headers: { "Cache-Control": profile ? "private, max-age=120" : "public, max-age=60, s-maxage=120, stale-while-revalidate=600" },
     });

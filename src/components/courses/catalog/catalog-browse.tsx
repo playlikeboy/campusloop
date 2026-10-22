@@ -63,7 +63,17 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
       </section>
 
       {/* ─── CampusLoop Ecosystem Tools ─── */}
-      <section className="mx-4 mt-12 grid grid-cols-1 gap-4 sm:mx-0 sm:grid-cols-2">
+      <section className="mx-4 mt-12 sm:mx-0">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="size-4 text-primary" aria-hidden />
+            <h2 className="text-sm font-bold text-foreground">Featured Student Apps</h2>
+          </div>
+          <Link href="/ecosystem" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+            All Ecosystem Apps <ArrowUpRight className="size-3.5" aria-hidden />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <a
           href="https://dsaloop.campusloop.space"
           target="_blank"
@@ -115,6 +125,7 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
             Meet baby &amp; Kumo &rarr;
           </span>
         </a>
+        </div>
       </section>
 
       <section className="mt-12" aria-labelledby="all-courses">

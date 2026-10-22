@@ -1,5 +1,6 @@
-import { Check, Globe, Scale, Signal } from "lucide-react";
+import { ArrowLeft, Check, Globe, Scale, Signal } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { CourseCurriculum } from "@/components/courses/course-curriculum";
@@ -8,6 +9,7 @@ import { CourseReviews } from "@/components/courses/course-reviews";
 import { CourseViewBeacon } from "@/components/courses/course-view-beacon";
 import { EnrollPanel } from "@/components/courses/enroll-panel";
 import { RatingStars } from "@/components/courses/rating-stars";
+import { categorySlug } from "@/lib/courses/catalog-params";
 import { attributionNote, formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
 import { canEditCourse, currentProfile, getCourseDetail, getViewerState } from "@/lib/courses/server";
 
@@ -66,6 +68,26 @@ export default async function CourseLandingPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {c.status === "PUBLISHED" && <CourseViewBeacon slug={c.slug} />}
       <div className="px-4 pb-20 sm:px-0">
+        <nav aria-label="Course navigation" className="mb-6 flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 px-3.5 py-1.5 text-xs font-bold text-foreground transition-all hover:bg-muted hover:text-primary cursor-pointer"
+          >
+            <ArrowLeft className="size-3.5" aria-hidden />
+            <span>Courses</span>
+          </Link>
+          <span className="text-muted-foreground/40">/</span>
+          <Link
+            href={`/courses/category/${categorySlug(c.category)}`}
+            className="rounded-full px-2 py-1 text-xs hover:bg-muted/50 hover:text-foreground transition-colors"
+          >
+            {c.category}
+          </Link>
+          <span className="text-muted-foreground/40">/</span>
+          <span className="truncate max-w-[200px] text-foreground font-medium sm:max-w-md">
+            {c.title}
+          </span>
+        </nav>
         <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-primary">{c.category}</p>

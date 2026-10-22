@@ -87,7 +87,7 @@ export function PlayerShell({ data, lectureId, startAt }: { data: CourseDetailRe
     [completed, post]
   );
 
-  const go = useCallback((id?: string, t?: number) => id && router.push(`/learn/${slug}/${id}${t ? `?t=${t}` : ""}`), [router, slug]);
+  const go = useCallback((id?: string, t?: number) => id && router.replace(`/learn/${slug}/${id}${t ? `?t=${t}` : ""}`), [router, slug]);
 
   async function certificate() {
     setCertBusy(true);

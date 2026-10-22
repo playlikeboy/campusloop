@@ -80,7 +80,7 @@ export function CurriculumSidebar({ slug, sections, currentId, completed, onTogg
                           aria-label={`Mark "${l.title}" ${completed.has(l.id) ? "not complete" : "complete"}`}
                           className="mt-0.5 size-4 shrink-0 accent-[var(--primary)] cursor-pointer"
                         />
-                        <Link href={`/learn/${slug}/${l.id}`} aria-current={active ? "page" : undefined} className="min-w-0 flex-1">
+                        <Link replace href={`/learn/${slug}/${l.id}`} aria-current={active ? "page" : undefined} className="min-w-0 flex-1">
                           <p className={cn("text-sm leading-snug", active ? "font-semibold text-foreground" : "text-foreground/90")}>
                             {li + 1}. {l.title}
                           </p>

@@ -223,13 +223,41 @@ describe("course personalisation", () => {
   it("puts the latest search ahead of branch and explains why", () => {
     const s = buildSignals({ branch: "CSE", searches: ["dbms normalization", "python"] });
     const ranked = rankDiverse(
-      [course("py", { title: "Python for beginners", category: "Programming" }), course("db", { title: "DBMS complete playlist", category: "Databases", tags: ["dbms"] }), course("law", { title: "Contract law", category: "Law & Policy" })],
+      [
+        course("py", { title: "Python for beginners", category: "Programming" }),
+        course("db", { title: "DBMS complete playlist", category: "Databases", tags: ["dbms"] }),
+        course("law", { title: "Contract law", category: "Law & Policy" }),
+      ],
       s,
       3
     );
     expect(ranked[0].id).toBe("db");
-    expect(ranked.at(-1)?.id).toBe("law");
+    expect(ranked[1].id).toBe("py");
+    // Academic domain isolation ensures law is excluded from computing searches
+    expect(ranked.map((c) => c.id)).not.toContain("law");
     expect(slotTitle(s)).toBe('Because you searched "dbms normalization"');
+  });
+
+  it("isolates academic domains so DBMS search shows only computing recommendations and strictly excludes business", () => {
+    const s = buildSignals({ branch: "CSE", searches: ["DBMS"] });
+    expect(s.targetDomain).toBe("computing");
+    const pool = [
+      course("db", { title: "Database Management Systems", category: "Databases", tags: ["dbms", "sql"] }),
+      course("dsa", { title: "Data Structures & Algorithms", category: "Computer Science", tags: ["dsa"] }),
+      course("biz", { title: "Business Management & Operations", category: "Business", tags: ["management"] }),
+      course("fin", { title: "Financial Accounting & Reporting", category: "Finance & Accounting", tags: ["accounting"] }),
+    ];
+    const ranked = rankDiverse(pool, s, 4);
+    expect(ranked.map((c) => c.id)).toContain("db");
+    expect(ranked.map((c) => c.id)).toContain("dsa");
+    expect(ranked.map((c) => c.id)).not.toContain("biz");
+    expect(ranked.map((c) => c.id)).not.toContain("fin");
+  });
+
+  it("personalizes feed courses from student's syllabus and /academics saved resources", () => {
+    const s = buildSignals({ branch: "Computer Science", academicSubjects: ["Operating Systems", "Computer Networks"] });
+    expect(slotTitle(s)).toBe("Courses for your Operating Systems syllabus");
+    expect(s.targetDomain).toBe("computing");
   });
 
   it("skips enrolled courses and caps one provider", () => {

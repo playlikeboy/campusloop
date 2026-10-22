@@ -19,6 +19,7 @@ import { getRedis } from "@/lib/redis";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { trackUserBehavior } from "@/lib/user-behavior";
 import { CATALOG_PAGE_SIZE, type CatalogDuration, type CatalogParams } from "./catalog-params";
+import { fieldCategories } from "./recommend-signals";
 import { shouldBeListed, trendScore } from "./promotion";
 
 /** Server-only course queries shared by pages and API routes. */
@@ -55,9 +56,20 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
   const where: SQL[] = [eq(courses.status, "PUBLISHED")];
   if (opts.listedOnly !== false) where.push(eq(courses.listed, true));
   const q = opts.q?.trim();
+  const matchedCategories = q ? fieldCategories(q) : [];
   if (q) {
     const p = `%${q}%`;
-    const cond = or(ilike(courses.title, p), ilike(courses.subtitle, p), ilike(courses.description, p), ilike(courses.instructorName, p), sql`${courses.tags}::text ilike ${p}`);
+    const searchConds = [
+      ilike(courses.title, p),
+      ilike(courses.subtitle, p),
+      ilike(courses.description, p),
+      ilike(courses.instructorName, p),
+      sql`${courses.tags}::text ilike ${p}`,
+    ];
+    if (matchedCategories.length) {
+      searchConds.push(inArray(courses.category, matchedCategories));
+    }
+    const cond = or(...searchConds);
     if (cond) where.push(cond);
   }
   if (opts.category) where.push(eq(courses.category, opts.category));
@@ -75,7 +87,14 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
   const order =
     opts.sort === "relevance" && q
       ? [
-          sql`case when ${courses.title} ilike ${`${q}%`} then 0 when ${courses.title} ilike ${`%${q}%`} then 1 when ${courses.tags}::text ilike ${`%${q}%`} then 2 else 3 end`,
+          matchedCategories.length
+            ? sql`case
+                when ${courses.title} ilike ${`${q}%`} then 0
+                when ${courses.title} ilike ${`%${q}%`} then 1
+                when ${courses.tags}::text ilike ${`%${q}%`} then 2
+                when ${courses.category} in (${sql.join(matchedCategories.map((c) => sql`${c}`), sql`, `)}) then 3
+                else 4 end`
+            : sql`case when ${courses.title} ilike ${`${q}%`} then 0 when ${courses.title} ilike ${`%${q}%`} then 1 when ${courses.tags}::text ilike ${`%${q}%`} then 2 else 3 end`,
           ...popular,
         ]
       : opts.sort === "rating"

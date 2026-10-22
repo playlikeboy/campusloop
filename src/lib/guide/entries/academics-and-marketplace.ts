@@ -89,7 +89,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
   {
     slug: "courses",
     title: "Courses",
-    summary: "Free video courses with progress tracking, notes, Q&A and certificates: every Harvard CS50 lecture, MIT, Stanford, CMU and NPTEL courses, and India's best YouTube teachers. Anyone can create a course.",
+    summary: "Free video courses with progress tracking, notes, Q&A and certificates: Harvard CS50, MIT, Stanford, NPTEL, Y Combinator, and India's best teachers across CSE, ECE, Mechanical, Maths, Finance, Medicine, and Law. Anyone can create a course.",
     category: "Academics",
     audiences: ["Students", "Clubs", "Investors"],
     routes: [
@@ -103,14 +103,16 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Self-study usually means scattered YouTube tabs and no record of what you finished. Courses turn good free lectures into a structured path with progress, notes and a certificate, in a player built to be distraction-free.",
     whyUse: [
       "Watch all of Harvard's CS50 courses (CS50x, Python, Web, AI, SQL, Cybersecurity, R, Scratch, Technology, Business, Law, 2D Games, Mobile) for free.",
-      "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU's database course, Caltech, NPTEL (IITs and IISc) and DeepLearning.AI.",
+      "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU, Caltech, NPTEL, Y Combinator Startup School, Harvard Justice, and DeepLearning.AI.",
+      "Explore non-CS disciplines including Engineering Mathematics (Dr. Gajendra Purohit, Prof. Leonard), Electronics & Communication (ALL ABOUT ELECTRONICS, Engineering Funda), Mechanical (The Efficient Engineer), Finance & Accounting (Accounting Stuff), Economics (MRU), Medicine (Ninja Nerd), and Design (DesignCourse, Figma).",
       "Learn DBMS, OS, networks, DSA, OOP, web development and machine learning from popular Indian educators such as CodeWithHarry, CampusX, Gate Smashers, Neso Academy, Apna College, Striver, Jenny's Lectures and Chai aur Code, many in Hindi.",
+      "Semantic search and academic domain isolation ensure that when you search computing subjects like DBMS or DSA, you get relevant CSE recommendations with zero unrelated business clutter.",
       "The player remembers where you stopped, marks lectures complete when you finish them, and plays the next one.",
       "Take private, timestamped notes and jump back to that moment with one tap.",
       "Earn a shareable certificate of completion and add it to LinkedIn.",
       "Seniors and clubs can publish their own courses from YouTube, Vimeo or video files, articles and links.",
       "The catalog only lists courses that learners have vouched for, so what you find there is worth your time.",
-      "Your feed suggests courses for you, based on your branch and degree, interests, recent searches and the courses you view or take.",
+      "Your feed suggests courses for you, personalised to your syllabus subjects and saved resources from the Academics Vault, branch, recent searches, and learning history.",
     ],
     howToUse: [
       "Open /courses (or Academics, then Courses). The home shows Continue learning, then rows for Most popular, Trending, Top rated, New and the biggest topics, then every course with page numbers.",
@@ -142,6 +144,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     investorAngle:
       "Courses add a high-retention learning habit next to the Academic Vault, with structured progress data and certificates that bring students back for months. The creator tools let campus experts build a catalog that scales without content cost, and open a path to paid courses later.",
     faq: [
+      { q: "What fields and disciplines are covered?", a: "Courses span Computer Science & Programming, Engineering (ECE, EEE, Mechanical, Civil, Chemical), Mathematics, Sciences (Physics, Chemistry, Biology), Health (Medicine, Pharmacy, Nursing), Commerce & Finance, Economics, Management & MBA, Law & Policy, and Design." },
+      { q: "How does semantic search work for courses?", a: "Academic domain clustering isolates search results: searching for computing subjects like DBMS, OS, or DSA returns verified Computer Science and Programming recommendations, strictly preventing cross-discipline clutter from business or other domains." },
       { q: "Are the courses free?", a: "Yes. All courses are free, including every CS50 lecture." },
       { q: "Is the CS50 content official?", a: "The lectures are CS50's own videos from its official YouTube channel, shared under CC BY-NC-SA 4.0. CampusLoop is not affiliated with Harvard." },
       { q: "Where do the university and YouTube courses come from?", a: "Each one is a playlist from the creator's official YouTube channel, played with YouTube's own embedded player. The course page links to the original playlist, and CampusLoop is not affiliated with the creator. Videos that are private, deleted, too short or not embeddable are left out." },
@@ -152,7 +156,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { q: "Can a listed course be removed from the catalog?", a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed." },
     ],
     related: ["academic-vault", "study-playlists", "upload-notes"],
-    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Hindi coding courses", "Harvard CS50 lectures", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
+    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Dr Gajendra Purohit", "Professor Leonard", "ALL ABOUT ELECTRONICS", "The Efficient Engineer", "Accounting Stuff", "Marginal Revolution University", "Ninja Nerd", "Y Combinator Startup School", "Hindi coding courses", "engineering mathematics", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses"],
     updated: "2026-10-22",
   },
   {
