@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { nextReviewStatus, validateAppInput } from "./app-input";
+import { matchRateRule } from "../rate-limits";
+import { validateAppInput } from "./app-input";
 import { errorRedirect, successRedirect } from "./authorize";
 import { claimsFor, pairwiseSub } from "./claims";
 import { discoveryDocument, SCOPES } from "./config";
@@ -32,10 +33,10 @@ describe("redirect URIs", () => {
 
 describe("scopes", () => {
   const thirdParty = { approvedScopes: [], isFirstParty: false };
-  it("drops unknown and unapproved sensitive scopes", () => {
+  it("grants every known scope without review and drops unknown ones", () => {
     const r = resolveScopes("openid profile student college email bogus", thirdParty);
-    expect(r.granted).toEqual(["openid", "profile", "student"]);
-    expect(r.dropped).toEqual(expect.arrayContaining(["bogus", "college", "email"]));
+    expect(r.granted).toEqual(["openid", "profile", "student", "college", "email"]);
+    expect(r.dropped).toEqual(["bogus"]);
   });
   it("grants approved and first-party sensitive scopes", () => {
     expect(resolveScopes("openid college", { approvedScopes: ["college"], isFirstParty: false }).granted).toEqual(["openid", "college"]);
@@ -106,15 +107,21 @@ describe("app registration input", () => {
     const r = validateAppInput(base);
     expect(r.ok && r.value.redirectUris).toEqual(["https://fest.example.com/cb", "http://localhost:3000/cb"]);
   });
-  it("rejects bad redirect URIs, impersonation and missing privacy policy", () => {
+  it("rejects bad redirect URIs, impersonation and non-https links", () => {
     expect(validateAppInput({ ...base, redirectUris: "http://fest.example.com/cb" }).ok).toBe(false);
     expect(validateAppInput({ ...base, name: "CampusLoop Pro" }).ok).toBe(false);
-    expect(validateAppInput({ ...base, sensitiveScopes: ["college"] }).ok).toBe(false);
-    expect(validateAppInput({ ...base, sensitiveScopes: ["college", "admin"], privacyUrl: "https://fest.example.com/privacy" })).toMatchObject({ ok: true, value: { sensitiveScopes: ["college"] } });
+    expect(validateAppInput({ ...base, privacyUrl: "http://fest.example.com/privacy" }).ok).toBe(false);
   });
-  it("puts new sensitive scopes into review", () => {
-    expect(nextReviewStatus(["college"], [], "NONE")).toBe("PENDING");
-    expect(nextReviewStatus(["college"], ["college"], "PENDING")).toBe("APPROVED");
-    expect(nextReviewStatus([], [], "NONE")).toBe("NONE");
+});
+
+describe("rate limit rules", () => {
+  it("matches the most specific rule and skips exempt paths", () => {
+    expect(matchRateRule("/oauth/token", "POST")?.max).toBe(60);
+    expect(matchRateRule("/api/merchant/auth/login", "POST")?.max).toBe(10);
+    expect(matchRateRule("/api/feed", "GET")).toMatchObject({ store: "memory", methods: "READ" });
+    expect(matchRateRule("/api/posts", "POST")).toMatchObject({ store: "redis", methods: "WRITE" });
+    expect(matchRateRule("/api/webhooks/razorpay", "POST")).toBeNull();
+    expect(matchRateRule("/api/presence", "POST")).toBeNull();
+    expect(matchRateRule("/api/feed", "OPTIONS")).toBeNull();
   });
 });

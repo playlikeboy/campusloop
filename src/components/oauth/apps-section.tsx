@@ -1,12 +1,6 @@
-import { ChevronRight, Clock, LogIn, Plus, ShieldCheck, Users } from "lucide-react";
+import { ChevronRight, LogIn, Plus, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import type { OauthClient } from "@/db/schema";
-
-const REVIEW: Record<string, { label: string; tone: string }> = {
-  PENDING: { label: "Extra access in review", tone: "bg-amber-500/10 text-amber-700 dark:text-amber-300" },
-  APPROVED: { label: "Extra access approved", tone: "bg-primary/10 text-primary" },
-  REJECTED: { label: "Extra access declined", tone: "bg-destructive/10 text-destructive" },
-};
 
 /** Developer portal: the student's Login with CampusLoop apps. */
 export function AppsSection({ apps }: { apps: OauthClient[] }) {
@@ -35,7 +29,6 @@ export function AppsSection({ apps }: { apps: OauthClient[] }) {
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
                     <code className="font-mono">{a.id}</code>
                     <span className="inline-flex items-center gap-1"><Users className="size-3.5" aria-hidden />{a.usersCount} students</span>
-                    {REVIEW[a.reviewStatus] && <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-semibold ${REVIEW[a.reviewStatus].tone}`}><Clock className="size-3" aria-hidden />{REVIEW[a.reviewStatus].label}</span>}
                   </p>
                 </div>
                 <ChevronRight className="size-4 text-muted-foreground" aria-hidden />

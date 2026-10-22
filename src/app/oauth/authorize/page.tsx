@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { ConsentCard } from "@/components/oauth/consent-card";
 import { checkAuthorizeRequest, errorRedirect, successRedirect } from "@/lib/oauth/authorize";
 import { grantCovers } from "@/lib/oauth/policy";
-import { allow } from "@/lib/oauth/rate-limit";
 import { createCode, getActiveGrant, upsertGrant } from "@/lib/oauth/store";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
@@ -53,7 +52,6 @@ export default async function AuthorizePage({ searchParams }: Props) {
   if (!profile || !profile.onboardingCompleted) {
     return <Problem title="Finish setting up CampusLoop" message="Complete your CampusLoop profile first, then come back to this app and sign in again." />;
   }
-  if (!(await allow(`authorize:${profile.id}`, 30, 60))) return <Problem title="Slow down" message="Too many sign-in attempts. Wait a minute and try again." />;
 
   // Skip the screen when the student already agreed to these scopes (consent is asked once per app, ecosystem apps included).
   const grant = await getActiveGrant(check.client.id, profile.id);

@@ -230,7 +230,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     whyUse: [
       "Sign in to other apps with your CampusLoop account instead of making a new password.",
       "Prove you're a verified student to unlock student-only offers, events and tools.",
-      "You choose what to share; most apps only see your name, photo and whether you're verified.",
+      "You see exactly what an app asks for before you allow it, and can remove its access anytime.",
     ],
     howToUse: [
       "On a website, tap Login with CampusLoop.",
@@ -238,7 +238,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Read what the app wants (for example: your name and photo, and whether you're a verified student) and tap Allow, or Cancel.",
       "You go back to the app, signed in. Next time it's one tap, because you've already agreed.",
       "To see or remove apps, open Settings, Connected apps.",
-      "Developers: open /developer, tap New app, add redirect URIs, and copy the client ID (and secret for server apps). Sign-in, name, photo and the verified-student check work immediately; college, branch or email access is reviewed by CampusLoop first.",
+      "Developers: open /developer, tap New app, add redirect URIs, and copy the client ID (and secret for server apps). Every scope works immediately. Use Copy prompt to let an AI coding agent set it up, or follow /developers/SKILL.md.",
     ],
     useCases: [
       { who: "Student", scenario: "Signs in to DSALoop with CampusLoop and keeps one account across the ecosystem." },
@@ -246,7 +246,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       { who: "Hackathon", scenario: "Restricts registration to verified students from participating colleges." },
     ],
     privacy: [
-      "Apps see only what you approve on the consent screen. Your college, branch and email need an extra review by CampusLoop before any app can even ask.",
+      "Apps see only what you approve on the consent screen: at most your name, username, photo, email, college, branch, degree, year and verified-student status. Your phone number, birthday, gender, location, dating profile and anonymous posts are never shared with any app.",
       "Each app gets a different anonymous ID for you, so two apps can't match you up. CampusLoop's own ecosystem apps share one ID.",
       "Apps never see your password. Sign-in uses the OpenID Connect standard with PKCE.",
       "Remove an app's access anytime; it is signed out on its next check.",
@@ -254,12 +254,12 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     investorAngle:
       "Identity is a network effect: every site that adds Login with CampusLoop sends new students to sign up and makes CampusLoop the default verified-student identity in India, a position other providers do not hold.",
     faq: [
-      { q: "What does an app learn about me?", a: "Only what the consent screen lists. By default: your name, username, photo and whether you're a verified student." },
+      { q: "What does an app learn about me?", a: "Only what the consent screen lists, such as your name, photo, email, college and whether you're a verified student. Never your phone, birthday, gender, location or anonymous activity." },
       { q: "Can an app post or message as me?", a: "No. Login with CampusLoop only shares profile information; it gives no posting or messaging access." },
       { q: "Is it a standard I can use as a developer?", a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it. Docs, quickstarts, the JS SDK (https://campusloop.space/sdk/v1/campusloop.js) and official buttons are at /developers." },
     ],
     related: ["developer-mcp", "verification-and-safety", "ecosystem-suite"],
-    keywords: ["login with campusloop", "sign in with campusloop", "student verification api", "verified student login", "OpenID Connect", "OAuth"],
+    keywords: ["login with campusloop", "sign in with campusloop", "SKILL.md", "better auth", "AI agent setup", "student verification api", "verified student login", "OpenID Connect", "OAuth"],
     updated: U,
   },
   {

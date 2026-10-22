@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { OAuthError, oauthErrorResponse } from "@/lib/oauth/errors";
-import { allow, clientIp } from "@/lib/oauth/rate-limit";
 import { authenticateClient, exchangeCode, getActiveGrant, getClient, issueTokens, refreshTokens } from "@/lib/oauth/store";
 import { PREFLIGHT, readBody, tokenCorsHeaders } from "../cors";
 
@@ -17,7 +16,6 @@ export async function POST(req: Request) {
   let cors: Record<string, string> = {};
   try {
     cors = tokenCorsHeaders(origin, await getClient(body.get("client_id")));
-    if (!(await allow(`token:${clientIp(req)}`, 60, 60))) throw new OAuthError("slow_down", "Too many token requests", 429);
     const client = await authenticateClient(req.headers.get("authorization"), body);
     cors = tokenCorsHeaders(origin, client);
     const grantType = body.get("grant_type");

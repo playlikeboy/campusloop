@@ -4,14 +4,14 @@ import { and, count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { oauthClients } from "@/db/schema";
-import { nextReviewStatus, validateAppInput } from "@/lib/oauth/app-input";
+import { validateAppInput } from "@/lib/oauth/app-input";
+import { SUPPORTED_SCOPES } from "@/lib/oauth/config";
 import { newClientId, newClientSecret } from "@/lib/oauth/store";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 /** Developer portal actions for Login with CampusLoop apps. Owners only (admins manage apps in /admin/oauth-apps). */
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
-const BASE_SCOPES = ["openid", "profile", "student", "offline_access"];
 const MAX_APPS = 10;
 
 async function owner() {
@@ -50,8 +50,9 @@ export async function createOauthApp(raw: unknown): Promise<Result<{ clientId: s
       type: v.value.type,
       clientSecretHash: secret?.hash ?? null,
       secretLast4: secret?.last4 ?? null,
-      requestedScopes: [...BASE_SCOPES, ...v.value.sensitiveScopes],
-      reviewStatus: nextReviewStatus(v.value.sensitiveScopes, [], "NONE"),
+      // Every scope is available instantly; students still approve on the consent screen.
+      requestedScopes: SUPPORTED_SCOPES,
+      reviewStatus: "APPROVED",
     });
     revalidatePath("/developer");
     return { ok: true, clientId: id, secret: secret?.secret ?? null };
@@ -77,8 +78,6 @@ export async function updateOauthApp(id: string, raw: unknown): Promise<Result> 
         privacyUrl: v.value.privacyUrl || null,
         termsUrl: v.value.termsUrl || null,
         redirectUris: v.value.redirectUris,
-        requestedScopes: [...BASE_SCOPES, ...v.value.sensitiveScopes],
-        reviewStatus: nextReviewStatus(v.value.sensitiveScopes, app.approvedScopes, app.reviewStatus),
         updatedAt: new Date(),
       })
       .where(eq(oauthClients.id, app.id));

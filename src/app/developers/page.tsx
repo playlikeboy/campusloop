@@ -1,25 +1,31 @@
-import { ArrowRight, BadgeCheck, Fingerprint, MousePointerClick, ShieldCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, Bot, Fingerprint, MousePointerClick, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketing/system";
+import { AgentPromptButtons } from "@/components/oauth/agent-prompt-buttons";
 import { Quickstart } from "@/components/oauth/quickstart";
 import { ENDPOINTS, ISSUER, SCOPES } from "@/lib/oauth/config";
+import { RECIPES, SKILL_URL } from "@/lib/oauth/skill";
 
 const URL_ = "https://campusloop.space/developers";
 
 export const metadata: Metadata = {
-  title: "Login with CampusLoop: verified-student sign-in for your app",
+  title: { absolute: "Login with CampusLoop: Verified Student Sign-in (OIDC) for Developers" },
   description:
-    "Add a Login with CampusLoop button to your website or app. Standard OpenID Connect with PKCE: sign students in with one click and know whether they are verified college students in India.",
-  keywords: ["login with campusloop", "student verification API", "verified student login", "OpenID Connect provider India", "student discount verification", "OAuth student login"],
-  alternates: { canonical: URL_ },
+    "Add Login with CampusLoop to any app in minutes: one-click sign-in that tells you whether users are verified Indian college students. OpenID Connect with PKCE, guides for Better Auth, Auth.js, Express, Django, Flask, Spring, Rails, Laravel, Go, Expo and Flutter, plus an AI agent SKILL.md.",
+  keywords: [
+    "login with campusloop", "sign in with campusloop", "student verification API", "verified student login India", "OpenID Connect provider",
+    "OAuth 2.0 PKCE", "better auth generic oauth", "nextauth custom oidc provider", "student discount verification", "college email verification API", "SKILL.md",
+  ],
+  alternates: { canonical: URL_, types: { "text/markdown": "/developers/SKILL.md" } },
   openGraph: { title: "Login with CampusLoop for developers", description: "One-click sign-in that tells you who's a verified college student.", url: URL_, siteName: "CampusLoop", type: "website" },
+  twitter: { card: "summary_large_image", title: "Login with CampusLoop for developers", description: "Verified-student sign-in for any app. OIDC + PKCE, every major framework, and an AI agent skill." },
 };
 
 const WHY = [
   { icon: BadgeCheck, title: "Know who's a real student", body: "Every token says whether the person signed up with a verified college email. Gate student discounts, hackathons or campus-only features without collecting ID cards." },
   { icon: MousePointerClick, title: "One tap for students", body: "Students already have CampusLoop. No new password, no form, and after the first time no consent screen either." },
-  { icon: Fingerprint, title: "Private by default", body: "Apps get a per-app anonymous ID, plus only the scopes the student approves. College, branch and email need our review." },
+  { icon: Fingerprint, title: "Private by default", body: "Apps get a per-app anonymous ID and only the scopes the student approves. Phone, birthday, gender, location and anonymous identities are never shared." },
   { icon: ShieldCheck, title: "Standard and secure", body: "OpenID Connect with Authorization Code + PKCE, ES256-signed tokens and rotating refresh tokens. Any OIDC library works." },
 ];
 
@@ -27,7 +33,9 @@ const FAQ = [
   ["Is it free?", "Yes. Registering apps and signing students in is free."],
   ["Which libraries work?", "Anything that speaks OpenID Connect: Auth.js / NextAuth, Clerk and Supabase custom OIDC providers, Firebase OIDC, Passport, openid-client, Spring Security, Django allauth and more. Use the issuer URL and they discover everything."],
   ["How do I know someone is a verified student?", "Request the student scope and read the student_verified claim from the id_token or /oauth/userinfo. It is true only for accounts verified with a college email."],
-  ["Can I get the student's college or email?", "Yes, after review. Tick college, academic or email when registering, and add a privacy policy. Until approved, those scopes are simply left out of tokens."],
+  ["Can I get the student's college or email?", "Yes, instantly. Ask for the email, college and academic scopes; the student approves them once on the consent screen."],
+  ["Can an AI agent set this up for me?", "Yes. Open your app in the developer portal and use Copy prompt, or point your agent at https://campusloop.space/developers/SKILL.md. It adds the keys to .env, wires up your framework and pushes the code."],
+  ["Which redirect URI do I register?", "Each recipe lists its callback path, for example /api/auth/oauth2/callback/campusloop for Better Auth or /api/auth/callback/campusloop for Auth.js. Register it for every domain, plus http://localhost for development."],
   ["Why is sub different from the student's CampusLoop ID?", "Each app gets its own stable, anonymous subject so apps can't track students across sites. Store sub as the user key."],
   ["What if a student removes my app?", "Their refresh tokens stop working and /oauth/userinfo returns invalid_token. Treat that as signed out."],
 ] as const;
@@ -40,6 +48,10 @@ export default function DevelopersPage() {
     url: URL_,
     about: "OpenID Connect provider for verified college students in India",
     publisher: { "@type": "Organization", name: "CampusLoop", url: "https://campusloop.space" },
+    hasPart: [
+      { "@type": "WebPage", name: "Login with CampusLoop agent skill (SKILL.md)", url: SKILL_URL, encodingFormat: "text/markdown" },
+      { "@type": "WebAPI", name: "CampusLoop OpenID Connect provider", documentation: URL_, url: `${ISSUER}/.well-known/openid-configuration` },
+    ],
     mainEntity: { "@type": "FAQPage", mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
   };
 
@@ -85,6 +97,15 @@ export default function DevelopersPage() {
             </ul>
           </section>
 
+          <section aria-labelledby="agents" id="ai-agents" className="mt-16 scroll-mt-24 rounded-3xl bg-primary/5 p-6">
+            <h2 id="agents" className="flex items-center gap-2 text-2xl font-bold"><Bot className="size-6 text-primary" aria-hidden /> Set it up with an AI agent</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Give your coding agent (Claude Code, Cursor, Codex, Windsurf) the skill file. It detects your stack, adds the keys to <code className="font-mono text-foreground">.env</code>, wires up sign-in, and commits and pushes the code. For a prompt with your client ID, secret and redirect URIs already filled in, open your app in the <Link href="/developer" className="font-semibold text-primary hover:underline">developer portal</Link>.
+            </p>
+            <p className="mt-3 break-all font-mono text-sm"><a href="/developers/SKILL.md" className="font-semibold text-primary hover:underline">{SKILL_URL}</a></p>
+            <div className="mt-4"><AgentPromptButtons keys={{}} compact /></div>
+          </section>
+
           <section aria-labelledby="quickstart-title" id="quickstart" className="mt-16 scroll-mt-24">
             <h2 id="quickstart-title" className="text-2xl font-bold">Quickstart</h2>
             <ol className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
@@ -92,21 +113,25 @@ export default function DevelopersPage() {
               <li><strong className="text-foreground">2. Configure.</strong> Point your OIDC library at the issuer <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">{ISSUER}</code> with your client ID (and secret).</li>
               <li><strong className="text-foreground">3. Read the claims.</strong> Use <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">sub</code> as the user ID and <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">student_verified</code> to unlock student features.</li>
             </ol>
-            <div id="verify" className="mt-6 scroll-mt-24"><Quickstart /></div>
+            <nav aria-label="Frameworks" className="mt-6 flex flex-wrap gap-2">
+              {RECIPES.map((r) => (
+                <a key={r.id} href={`#${r.id}`} className="rounded-full bg-muted/60 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted">{r.title.split(" (")[0]}</a>
+              ))}
+            </nav>
+            <div className="mt-4"><Quickstart /></div>
           </section>
 
           <section aria-labelledby="scopes" className="mt-16">
             <h2 id="scopes" className="text-2xl font-bold">Scopes and claims</h2>
             <div className="mt-4 overflow-x-auto rounded-2xl bg-card/60 shadow-2xs">
               <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="p-3">Scope</th><th className="p-3">Claims</th><th className="p-3">What the student sees</th><th className="p-3">Review</th></tr></thead>
+                <thead className="text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="p-3">Scope</th><th className="p-3">Claims</th><th className="p-3">What the student sees</th></tr></thead>
                 <tbody>
                   {Object.entries(SCOPES).map(([s, info]) => (
                     <tr key={s} className="border-t border-border/40">
                       <td className="p-3 font-mono font-semibold">{s}</td>
                       <td className="p-3 font-mono text-xs">{info.claims.join(", ") || "refresh_token"}</td>
                       <td className="p-3 text-muted-foreground">{info.consent}</td>
-                      <td className="p-3">{info.needsReview ? "Required" : "No"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -117,7 +142,7 @@ export default function DevelopersPage() {
           <section aria-labelledby="endpoints" className="mt-16">
             <h2 id="endpoints" className="text-2xl font-bold">Endpoints</h2>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-[220px_1fr]">
-              {[["Discovery", `${ISSUER}/.well-known/openid-configuration`], ["Authorization", ENDPOINTS.authorization], ["Token", ENDPOINTS.token], ["UserInfo", ENDPOINTS.userinfo], ["JWKS", ENDPOINTS.jwks], ["Revocation", ENDPOINTS.revocation], ["JS SDK", `${ISSUER}/sdk/v1/campusloop.js`]].map(([k, v]) => (
+              {[["Agent skill", SKILL_URL], ["Discovery", `${ISSUER}/.well-known/openid-configuration`], ["Authorization", ENDPOINTS.authorization], ["Token", ENDPOINTS.token], ["UserInfo", ENDPOINTS.userinfo], ["JWKS", ENDPOINTS.jwks], ["Revocation", ENDPOINTS.revocation], ["JS SDK", `${ISSUER}/sdk/v1/campusloop.js`]].map(([k, v]) => (
                 <div key={k} className="contents"><dt className="font-semibold">{k}</dt><dd className="break-all font-mono text-xs text-muted-foreground sm:text-sm">{v}</dd></div>
               ))}
             </dl>

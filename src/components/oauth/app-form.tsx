@@ -8,19 +8,22 @@ import { toast } from "sonner";
 import { createOauthApp, updateOauthApp } from "@/app/(app)/(main)/developer/apps/actions";
 import type { AppInput } from "@/lib/oauth/app-input";
 import { cn } from "@/lib/utils";
+import { AgentPromptButtons } from "./agent-prompt-buttons";
 import { CopyField } from "./copy-field";
 
 const field = "mt-1 w-full rounded-xl bg-muted/50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
-const SENSITIVE = [
-  { v: "college", l: "College", d: "Which college the student attends", icon: School },
-  { v: "academic", l: "Branch, degree and year", d: "For course- or year-specific features", icon: GraduationCap },
-  { v: "email", l: "Email address", d: "Only if you must contact students", icon: Mail },
+const PREVIEW = [
+  { l: "Name, username and profile photo", icon: UserRound },
+  { l: "Verified-student status", icon: BadgeCheck },
+  { l: "College", icon: School },
+  { l: "Branch, degree and year", icon: GraduationCap },
+  { l: "Email address", icon: Mail },
 ];
 
 type Form = Omit<AppInput, "redirectUris"> & { redirectUris: string };
 
-const empty: Form = { name: "", description: "", homepageUrl: "", logoUrl: "", privacyUrl: "", termsUrl: "", type: "CONFIDENTIAL", redirectUris: "", sensitiveScopes: [] };
+const empty: Form = { name: "", description: "", homepageUrl: "", logoUrl: "", privacyUrl: "", termsUrl: "", type: "CONFIDENTIAL", redirectUris: "" };
 
 /** Register or edit a Login with CampusLoop app, with a live consent-screen preview. */
 export function AppForm({ appId, initial }: { appId?: string; initial?: AppInput }) {
@@ -57,6 +60,9 @@ export function AppForm({ appId, initial }: { appId?: string; initial?: AppInput
         <div className="mt-5 space-y-4">
           <CopyField label="Client ID" value={created.clientId} />
           {created.secret && <CopyField label="Client secret" value={created.secret} secret />}
+        </div>
+        <div className="mt-5">
+          <AgentPromptButtons keys={{ appName: f.name, clientId: created.clientId, clientSecret: created.secret, publicClient: !created.secret, redirectUris: f.redirectUris.split(/[\s,]+/).filter(Boolean) }} />
         </div>
         <Link href={`/developer/apps/${created.clientId}`} className="mt-6 inline-flex h-11 items-center rounded-2xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:opacity-90">
           Continue to setup guide
@@ -106,17 +112,6 @@ export function AppForm({ appId, initial }: { appId?: string; initial?: AppInput
           </label>
         </section>
 
-        <section className="space-y-3 rounded-3xl bg-card/60 p-5 shadow-2xs">
-          <h2 className="text-lg font-bold text-foreground">Extra access <span className="text-sm font-normal text-muted-foreground">(optional, needs review)</span></h2>
-          <p className="text-sm text-muted-foreground">Every app gets sign-in, name and photo, and the verified-student check instantly. Ask for more only if your app needs it.</p>
-          {SENSITIVE.map(({ v, l, d, icon: Icon }) => (
-            <label key={v} className="flex cursor-pointer items-start gap-3 rounded-2xl bg-muted/40 p-3 hover:bg-muted/60">
-              <input type="checkbox" checked={f.sensitiveScopes.includes(v)} onChange={(e) => set("sensitiveScopes", e.target.checked ? [...f.sensitiveScopes, v] : f.sensitiveScopes.filter((s) => s !== v))} className="mt-1 size-4 accent-[var(--primary)]" />
-              <Icon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              <span><span className="block text-sm font-semibold text-foreground">{l}</span><span className="block text-xs text-muted-foreground">{d}</span></span>
-            </label>
-          ))}
-        </section>
       </div>
 
       <aside>
@@ -128,12 +123,11 @@ export function AppForm({ appId, initial }: { appId?: string; initial?: AppInput
               <p className="min-w-0 truncate font-bold text-foreground">Sign in to {f.name || "your app"}</p>
             </div>
             <ul className="mt-3 space-y-2 text-sm text-foreground">
-              <li className="flex items-center gap-2"><UserRound className="size-4 text-primary" aria-hidden />Name and profile photo</li>
-              <li className="flex items-center gap-2"><BadgeCheck className="size-4 text-primary" aria-hidden />Verified student check</li>
-              {SENSITIVE.filter((s) => f.sensitiveScopes.includes(s.v)).map((s) => (
-                <li key={s.v} className="flex items-center gap-2"><s.icon className="size-4 text-primary" aria-hidden />{s.l}</li>
+              {PREVIEW.map((p) => (
+                <li key={p.l} className="flex items-center gap-2"><p.icon className="size-4 text-primary" aria-hidden />{p.l}</li>
               ))}
             </ul>
+            <p className="mt-3 text-xs text-muted-foreground">Students see only the scopes your app asks for, and approve them once.</p>
             {f.homepageUrl && <p className="mt-3 flex items-center gap-1 truncate text-xs text-muted-foreground"><Globe className="size-3.5" aria-hidden />{f.homepageUrl.replace(/^https?:\/\//, "")}</p>}
           </div>
           <button type="submit" disabled={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-60 cursor-pointer">

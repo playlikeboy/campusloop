@@ -1,4 +1,3 @@
-import { SENSITIVE_SCOPES } from "./config";
 import { isValidRedirectUri } from "./policy";
 
 /** Developer-portal app registration input, validated and normalised (client-safe, unit-tested). */
@@ -12,7 +11,6 @@ export interface AppInput {
   termsUrl: string;
   type: "CONFIDENTIAL" | "PUBLIC";
   redirectUris: string[];
-  sensitiveScopes: string[];
 }
 
 const httpsUrl = (v: string) => {
@@ -41,18 +39,8 @@ export function validateAppInput(raw: unknown): { ok: true; value: AppInput } | 
   const bad = redirectUris.find((u) => !isValidRedirectUri(u));
   if (bad) return { ok: false, error: `"${bad}" is not allowed. Use https://, http://localhost for development, or an app scheme like com.example.app:/callback.` };
 
-  const sensitiveScopes = (Array.isArray(r.sensitiveScopes) ? r.sensitiveScopes : []).map(String).filter((s) => SENSITIVE_SCOPES.includes(s));
-  if (sensitiveScopes.length && !urls.privacyUrl) return { ok: false, error: "A privacy policy link is required to request college, academic or email access." };
-
   return {
     ok: true,
-    value: { name, description: str("description", 300), ...urls, type: r.type === "PUBLIC" ? "PUBLIC" : "CONFIDENTIAL", redirectUris, sensitiveScopes: [...new Set(sensitiveScopes)] },
+    value: { name, description: str("description", 300), ...urls, type: r.type === "PUBLIC" ? "PUBLIC" : "CONFIDENTIAL", redirectUris },
   };
-}
-
-/** Review status after a scope request: new sensitive scopes beyond what's approved need review. */
-export function nextReviewStatus(requested: string[], approved: string[], current: string): string {
-  const needsReview = requested.some((s) => !approved.includes(s));
-  if (needsReview) return "PENDING";
-  return requested.length ? "APPROVED" : current === "REJECTED" ? "REJECTED" : "NONE";
 }

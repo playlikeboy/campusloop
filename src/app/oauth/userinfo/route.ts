@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { OAuthError, oauthErrorResponse } from "@/lib/oauth/errors";
-import { allow, clientIp } from "@/lib/oauth/rate-limit";
 import { userInfo } from "@/lib/oauth/store";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +12,6 @@ export function OPTIONS() {
 
 async function handle(req: Request) {
   try {
-    if (!(await allow(`userinfo:${clientIp(req)}`, 300, 60))) throw new OAuthError("slow_down", "Too many requests", 429);
     const token = req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
     if (!token) throw new OAuthError("invalid_token", "Missing bearer token", 401);
     return NextResponse.json(await userInfo(token), { headers: { ...CORS, "Cache-Control": "no-store" } });

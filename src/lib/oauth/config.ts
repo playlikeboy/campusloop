@@ -13,7 +13,12 @@ export interface ScopeInfo {
   /** Shown on the consent screen: "<App> wants to ..." */
   consent: string;
   claims: string[];
-  /** Sensitive scopes work only after an admin approves them for the app. */
+  /**
+   * Scopes needing admin approval per app. Currently none: every scope is
+   * available to every app, and the student still approves on the consent
+   * screen. Private data (phone, date of birth, gender, location, dating or
+   * anonymous identity) is never exposed through any scope.
+   */
   needsReview: boolean;
 }
 
@@ -21,9 +26,9 @@ export const SCOPES: Record<string, ScopeInfo> = {
   openid: { consent: "Sign you in with your CampusLoop account", claims: ["sub"], needsReview: false },
   profile: { consent: "See your name, username and profile photo", claims: ["name", "preferred_username", "picture", "profile"], needsReview: false },
   student: { consent: "Confirm whether you're a verified college student", claims: ["student_verified", "verification_method"], needsReview: false },
-  college: { consent: "See which college you study at", claims: ["college"], needsReview: true },
-  academic: { consent: "See your branch, degree and year", claims: ["branch", "degree", "year"], needsReview: true },
-  email: { consent: "See your email address", claims: ["email"], needsReview: true },
+  college: { consent: "See which college you study at", claims: ["college"], needsReview: false },
+  academic: { consent: "See your branch, degree and year", claims: ["branch", "degree", "year"], needsReview: false },
+  email: { consent: "See your email address", claims: ["email"], needsReview: false },
   offline_access: { consent: "Stay signed in when you're not using it", claims: [], needsReview: false },
 };
 

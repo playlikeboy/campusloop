@@ -5,10 +5,25 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteOauthApp, rotateOauthSecret } from "@/app/(app)/(main)/developer/apps/actions";
+import { AgentPromptButtons } from "./agent-prompt-buttons";
 import { CopyField } from "./copy-field";
 
 /** Client ID, secret rotation (shown once) and delete for an app the developer owns. */
-export function AppCredentials({ id, type, secretLast4, isFirstParty }: { id: string; type: string; secretLast4: string | null; isFirstParty: boolean }) {
+export function AppCredentials({
+  id,
+  type,
+  secretLast4,
+  isFirstParty,
+  appName,
+  redirectUris,
+}: {
+  id: string;
+  type: string;
+  secretLast4: string | null;
+  isFirstParty: boolean;
+  appName: string;
+  redirectUris: string[];
+}) {
   const router = useRouter();
   const [secret, setSecret] = useState<string | null>(null);
   const [busy, setBusy] = useState<"rotate" | "delete" | null>(null);
@@ -55,6 +70,7 @@ export function AppCredentials({ id, type, secretLast4, isFirstParty }: { id: st
       ) : (
         <p className="text-sm text-muted-foreground">Browser and mobile apps have no secret. Always send a PKCE code_challenge.</p>
       )}
+      <AgentPromptButtons keys={{ appName, clientId: id, clientSecret: secret, redirectUris, publicClient: type !== "CONFIDENTIAL" }} />
       {!isFirstParty && (
         <button type="button" onClick={remove} disabled={busy !== null} className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60 cursor-pointer">
           {busy === "delete" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />} Delete app
