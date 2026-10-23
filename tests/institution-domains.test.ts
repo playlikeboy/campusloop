@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 import {
   getCandidateParentDomains,
   VERIFIED_STUDENT_EMAIL_DOMAINS,
+  INSTITUTION_EMAIL_FORMATS,
+  getInstitutionEmailFormat,
   findInstitutionByDomain,
   getInstitutionAllowedDomains,
   validateEmailDomainForInstitution,
@@ -68,6 +70,43 @@ describe("College Student Email Formats & Subdomain Resolution", () => {
       expect(VERIFIED_STUDENT_EMAIL_DOMAINS.nitk).toContain("nitk.edu.in");
       expect(VERIFIED_STUDENT_EMAIL_DOMAINS.nitw).toContain("student.nitw.ac.in");
       expect(VERIFIED_STUDENT_EMAIL_DOMAINS.vnit).toContain("students.vnit.ac.in");
+
+      // IIT (ISM) Dhanbad department subdomains
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("cse.iitism.ac.in");
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("mech.iitism.ac.in");
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("cve.iitism.ac.in");
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("pe.iitism.ac.in");
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("ee.iitism.ac.in");
+      expect(VERIFIED_STUDENT_EMAIL_DOMAINS.iitism).toContain("iitism.ac.in");
+    });
+  });
+
+  describe("INSTITUTION_EMAIL_FORMATS & getInstitutionEmailFormat", () => {
+    it("returns formatted metadata for IIT (ISM) Dhanbad", () => {
+      const ismFormat = getInstitutionEmailFormat("iitism");
+      expect(ismFormat).not.toBeNull();
+      expect(ismFormat?.pattern).toBe("<admission_number>@<branch>.iitism.ac.in");
+      expect(ismFormat?.example).toBe("20je0221@cse.iitism.ac.in");
+      expect(ismFormat?.idType).toContain("Admission Number");
+      expect(ismFormat?.departmentSubdomains).toContain("cse");
+      expect(ismFormat?.departmentSubdomains).toContain("mech");
+      expect(ismFormat?.departmentSubdomains).toContain("pe");
+
+      // Reverse lookup via department subdomain
+      const cseFormat = getInstitutionEmailFormat("cse.iitism.ac.in");
+      expect(cseFormat).not.toBeNull();
+      expect(cseFormat?.example).toBe("20je0221@cse.iitism.ac.in");
+    });
+
+    it("returns formatted metadata for IIT Kharagpur, Madras, and BITS Pilani", () => {
+      const kgpFormat = getInstitutionEmailFormat("iitkgp");
+      expect(kgpFormat?.pattern).toContain("kgpian.iitkgp.ac.in");
+
+      const iitmFormat = getInstitutionEmailFormat("iitm");
+      expect(iitmFormat?.pattern).toContain("smail.iitm.ac.in");
+
+      const bitsFormat = getInstitutionEmailFormat("bitspilani");
+      expect(bitsFormat?.pattern).toContain("bits-pilani.ac.in");
     });
   });
 
@@ -141,6 +180,20 @@ describe("College Student Email Formats & Subdomain Resolution", () => {
       // SSCBS Delhi with @sscbs.du.ac.in
       const sscbsRes = await validateEmailDomainForInstitution("student@sscbs.du.ac.in", "sscbs");
       expect(sscbsRes.valid).toBe(true);
+
+      // IIT (ISM) Dhanbad with department subdomains
+      const ismCseRes = await validateEmailDomainForInstitution("20je0221@cse.iitism.ac.in", "iitism");
+      expect(ismCseRes.valid).toBe(true);
+      expect(ismCseRes.collegeName).toContain("Dhanbad");
+
+      const ismMechRes = await validateEmailDomainForInstitution("20je0570@mech.iitism.ac.in", "iitism");
+      expect(ismMechRes.valid).toBe(true);
+
+      const ismPeRes = await validateEmailDomainForInstitution("20je0139@pe.iitism.ac.in", "iitism");
+      expect(ismPeRes.valid).toBe(true);
+
+      const ismRootRes = await validateEmailDomainForInstitution("20je0221@iitism.ac.in", "iitism");
+      expect(ismRootRes.valid).toBe(true);
     }, 20000);
 
     it("rejects mismatched college email domains", async () => {
@@ -190,6 +243,14 @@ describe("College Student Email Formats & Subdomain Resolution", () => {
       const pictInst = await findInstitutionByDomain("pict.edu");
       expect(pictInst).not.toBeNull();
       expect(pictInst?.slug).toBe("pict");
+
+      const ismInst = await findInstitutionByDomain("cse.iitism.ac.in");
+      expect(ismInst).not.toBeNull();
+      expect(ismInst?.slug).toBe("iitism");
+
+      const ismMechInst = await findInstitutionByDomain("mech.iitism.ac.in");
+      expect(ismMechInst).not.toBeNull();
+      expect(ismMechInst?.slug).toBe("iitism");
     }, 20000);
 
     it("resolves nested subdomains via parent domain hierarchy", async () => {

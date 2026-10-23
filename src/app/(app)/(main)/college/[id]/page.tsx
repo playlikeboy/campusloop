@@ -8,6 +8,10 @@ import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { getShowSeededPosts } from "@/lib/platform-config";
 import { getCachedAuthUser, getCachedInstitution, getCachedUserProfile } from "@/lib/server-cache";
+import {
+  VERIFIED_STUDENT_EMAIL_DOMAINS,
+  getInstitutionEmailFormat,
+} from "@/lib/student-email-domains";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -243,6 +247,15 @@ export default async function MainCollegePage({ params }: PageProps) {
     }
   });
 
+  // Merge verified student domains from curated registry (e.g. branch subdomains for IIT ISM, IIT KGP, etc.)
+  const curatedDomains = VERIFIED_STUDENT_EMAIL_DOMAINS[college.slug?.toLowerCase() || ""] || [];
+  curatedDomains.forEach((d) => {
+    const clean = d.toLowerCase().trim();
+    if (!domainMap.has(clean)) {
+      domainMap.set(clean, { domain: clean, type: "STUDENT_EMAIL", isPrimary: false });
+    }
+  });
+
   if (domainMap.size === 0 && college.website) {
     try {
       const parsed = college.website.startsWith("http")
@@ -258,6 +271,7 @@ export default async function MainCollegePage({ params }: PageProps) {
   }
 
   const allowedDomains = Array.from(domainMap.values());
+  const emailFormatInfo = getInstitutionEmailFormat(college.slug || "");
 
   const formattedAcademics = collegeAcademics.map((item) => ({
     id: item.id,
@@ -350,6 +364,7 @@ export default async function MainCollegePage({ params }: PageProps) {
           description: college.description,
         }}
         allowedDomains={allowedDomains}
+        emailFormatInfo={emailFormatInfo}
         initialPosts={formattedPosts}
         academics={formattedAcademics}
         students={students}

@@ -1,6 +1,6 @@
 import type { GuideEntry } from "../types";
 
-const U = "2026-10-16";
+const U = "2026-10-23";
 
 export const START_AND_SOCIAL: GuideEntry[] = [
   {
@@ -34,6 +34,7 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       { who: "Student whose college isn't listed", scenario: "Requests a hub at /college-request; the team reviews and opens it." },
     ],
     tips: [
+      "Branch and department subdomains (e.g. @cse.iitism.ac.in, @kgpian.iitkgp.ac.in, @smail.iitm.ac.in) are automatically recognized for student verification.",
       "If your email domain is rejected, request your college hub so the domain can be added.",
       "Install the app to your home screen for push notifications (see Install the app).",
     ],

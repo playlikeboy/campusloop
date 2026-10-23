@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
+import type { InstitutionEmailFormat } from "@/lib/student-email-domains";
 import { cn } from "@/lib/utils";
 import { CollegeAcademicsView, type CollegeAcademicResourceItem } from "./college-academics-view";
 import { CollegeClubsView } from "./college-clubs-view";
@@ -62,6 +63,7 @@ interface CollegeHubClientProps {
     description?: string | null;
   };
   allowedDomains: AllowedDomainItem[];
+  emailFormatInfo?: InstitutionEmailFormat | null;
   initialPosts: FeedPost[];
   academics?: CollegeAcademicResourceItem[];
   students: StudentItem[];
@@ -79,6 +81,7 @@ type PostSortOrder = "LATEST" | "TOP_VOTED" | "MOST_DISCUSSED";
 export function CollegeHubClient({
   college,
   allowedDomains,
+  emailFormatInfo,
   initialPosts,
   academics = [],
   students,
@@ -473,6 +476,7 @@ export function CollegeHubClient({
           studentCount={students.length}
           nirfRank={college.nirfRank}
           description={college.description}
+          emailFormat={emailFormatInfo}
           onAskSeniorClick={handleAskSenior}
         />
       )}

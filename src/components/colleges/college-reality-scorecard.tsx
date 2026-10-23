@@ -17,10 +17,13 @@ import {
   ShieldCheck,
   Star,
   Utensils,
+  GraduationCap,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { InstitutionEmailFormat } from "@/lib/student-email-domains";
 import { cn } from "@/lib/utils";
 import type { AllowedDomainItem } from "./college-hero-header";
 
@@ -28,6 +31,7 @@ interface CollegeRealityScorecardProps {
   collegeName: string;
   collegeSlug?: string;
   allowedDomains?: AllowedDomainItem[];
+  emailFormat?: InstitutionEmailFormat | null;
   studentCount: number;
   nirfRank?: number | null;
   description?: string | null;
@@ -46,12 +50,15 @@ export function CollegeRealityScorecard({
   collegeName,
   collegeSlug,
   allowedDomains = [],
+  emailFormat,
   nirfRank,
   description,
   extraData,
 }: CollegeRealityScorecardProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
+  const [copiedExample, setCopiedExample] = useState(false);
+  const [showAllDomains, setShowAllDomains] = useState(false);
 
   const shortName = collegeName.split(",")[0];
 
@@ -61,6 +68,15 @@ export function CollegeRealityScorecard({
       setCopiedDomain(domain);
       toast.success(`Copied @${domain} to clipboard`);
       setTimeout(() => setCopiedDomain(null), 2500);
+    }
+  }
+
+  function handleCopyExample(text: string) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedExample(true);
+      toast.success(`Copied example email '${text}'`);
+      setTimeout(() => setCopiedExample(false), 2500);
     }
   }
 
@@ -187,7 +203,7 @@ export function CollegeRealityScorecard({
       </div>
 
       {/* ─── Allowed Student Email & Verification Protocol Card ─── */}
-      <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs border border-border/40">
+      <div className="rounded-3xl bg-card p-5 space-y-4 shadow-2xs border border-border/40">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
             <ShieldCheck className="size-4 text-emerald-500" /> Student Verification &amp; Allowed Domains
@@ -199,17 +215,69 @@ export function CollegeRealityScorecard({
 
         <p className="text-xs text-muted-foreground leading-relaxed">
           CampusLoop enforces verified college email onboarding to eliminate spam, protect student anonymity,
-          and ensure only genuine students at <strong>{shortName}</strong> can vote in campus polls and join
+          and ensure only genuine students at <strong>{shortName}</strong> can vote in campus polls, earn verified badges, and join
           exclusive batch loops.
         </p>
 
+        {/* Official Email Format Specification */}
+        {emailFormat && (
+          <div className="rounded-2xl bg-muted/40 p-4 border border-border/50 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-[10px] font-black uppercase text-foreground/80 tracking-wider flex items-center gap-1.5">
+                <GraduationCap className="size-3.5 text-primary" /> Official Student Email Format
+              </span>
+              <span className="text-[10px] font-bold text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border/50">
+                {emailFormat.idType}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                  {emailFormat.pattern}
+                </span>
+                <span className="text-xs text-muted-foreground">e.g.</span>
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-card px-2.5 py-1 text-xs font-mono font-semibold text-foreground">
+                  <span>{emailFormat.example}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyExample(emailFormat.example)}
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    title={`Copy example ${emailFormat.example}`}
+                  >
+                    {copiedExample ? (
+                      <Check className="size-3 text-emerald-500" />
+                    ) : (
+                      <Copy className="size-3" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
+                {emailFormat.description}
+              </p>
+            </div>
+          </div>
+        )}
+
         {allowedDomains.length > 0 && (
           <div className="space-y-2 pt-1">
-            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider block">
-              Official Whitelisted Email Domains:
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider block">
+                Official Whitelisted Email Domains ({allowedDomains.length}):
+              </span>
+              {allowedDomains.length > 8 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllDomains((prev) => !prev)}
+                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                >
+                  {showAllDomains ? "Show fewer" : `Show all ${allowedDomains.length}`}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-2">
-              {allowedDomains.map((d) => (
+              {(showAllDomains ? allowedDomains : allowedDomains.slice(0, 8)).map((d) => (
                 <div
                   key={d.domain}
                   className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-bold text-foreground"
@@ -230,6 +298,15 @@ export function CollegeRealityScorecard({
                   </button>
                 </div>
               ))}
+              {!showAllDomains && allowedDomains.length > 8 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllDomains(true)}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-border/80 bg-muted/20 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <span>+{allowedDomains.length - 8} more subdomains</span>
+                </button>
+              )}
             </div>
           </div>
         )}

@@ -1,6 +1,6 @@
 import type { GuideEntry } from "../types";
 
-const U = "2026-10-16";
+const U = "2026-10-23";
 
 export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
