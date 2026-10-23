@@ -10,7 +10,7 @@ interface StreakBadgeProps {
   href?: string;
 }
 
-export function StreakBadge({ className, href = "/feeds" }: StreakBadgeProps) {
+export function StreakBadge({ className, href = "/streaks" }: StreakBadgeProps) {
   const { streak, isLoading } = useStreaks();
 
   if (isLoading || !streak) {
@@ -28,14 +28,15 @@ export function StreakBadge({ className, href = "/feeds" }: StreakBadgeProps) {
   }
 
   const { currentStreak, isSafeToday } = streak;
+  const displayStreak = Math.max(1, currentStreak);
 
   return (
     <Link
       href={href}
       title={
         isSafeToday
-          ? `${currentStreak}-day streak (Safe today)`
-          : `${currentStreak}-day streak (Action needed today)`
+          ? `${displayStreak}-day streak (Safe today)`
+          : `${displayStreak}-day streak (Action needed today)`
       }
       className={cn(
         "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 select-none",
@@ -53,9 +54,9 @@ export function StreakBadge({ className, href = "/feeds" }: StreakBadgeProps) {
             : "fill-amber-500/30 text-amber-500 animate-pulse"
         )}
       />
-      <span>{currentStreak}</span>
+      <span>{displayStreak}</span>
       <span className="hidden sm:inline font-semibold text-[11px] opacity-80">
-        {currentStreak === 1 ? "day" : "days"}
+        {displayStreak === 1 ? "day" : "days"}
       </span>
     </Link>
   );

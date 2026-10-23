@@ -64,24 +64,27 @@ export const MCP_PROMPTS = [
 ];
 
 function getRequiredMcpPermission(toolName: string, category: string): McpPermission {
-  if (category === "Exclusive AI & Intelligence" || toolName === "campusloop_trigger_community_webhook") {
+  if (category === "Exclusive AI & Intelligence" || toolName.includes("trigger_community_webhook")) {
     return "exclusive";
   }
   if (
-    toolName === "campusloop_send_direct_message" ||
-    toolName === "campusloop_list_chats" ||
-    toolName === "campusloop_get_chat_history"
+    toolName.includes("direct_message") ||
+    toolName.includes("list_chats") ||
+    toolName.includes("chat_history")
   ) {
     return "chat";
   }
   if (
-    toolName.startsWith("campusloop_create_") ||
-    toolName.includes("_post_to_") ||
-    toolName.includes("_vote_") ||
-    toolName.includes("_join_leave_") ||
-    toolName === "campusloop_add_comment" ||
-    toolName === "campusloop_upload_academic_note" ||
-    toolName === "campusloop_post_story"
+    toolName.includes("create_") ||
+    toolName.includes("publish_") ||
+    toolName.includes("register_") ||
+    toolName.includes("post_to_") ||
+    toolName.includes("vote_") ||
+    toolName.includes("join_leave_") ||
+    toolName.includes("add_comment") ||
+    toolName.includes("upload_academic_note") ||
+    toolName.includes("post_story") ||
+    toolName.includes("record_streak")
   ) {
     return "write";
   }
@@ -132,10 +135,10 @@ export async function handleMcpJsonRpc(
       }
 
       case "tools/call": {
-        const toolName = String(params.name || "").trim();
+        const rawToolName = String(params.name || "").trim();
         const args = (params.arguments as Record<string, any>) || {};
 
-        if (!toolName) {
+        if (!rawToolName) {
           return {
             jsonrpc: "2.0",
             id,
@@ -143,16 +146,19 @@ export async function handleMcpJsonRpc(
           };
         }
 
-        const tool = CAMPUSLOOP_MCP_TOOLS.find((candidate) => candidate.name === toolName);
-        const executor = MCP_TOOL_EXECUTORS[toolName];
+        const canonicalName = rawToolName.startsWith("campusloop_") ? rawToolName : `campusloop_${rawToolName}`;
+        const tool = CAMPUSLOOP_MCP_TOOLS.find((candidate) => candidate.name === rawToolName || candidate.name === canonicalName);
+        const executor = MCP_TOOL_EXECUTORS[rawToolName] || MCP_TOOL_EXECUTORS[canonicalName];
 
-        if (!tool) {
+        if (!tool || !executor) {
           return {
             jsonrpc: "2.0",
             id,
-            error: { code: -32601, message: `Unknown tool '${toolName}'.` },
+            error: { code: -32601, message: `Unknown tool '${rawToolName}'. Available tools can be listed via tools/list` },
           };
         }
+
+        const toolName = tool.name;
 
         const requiredPermission = getRequiredMcpPermission(toolName, tool.category);
         if (!context.permissions.includes(requiredPermission)) {
@@ -163,16 +169,6 @@ export async function handleMcpJsonRpc(
             error: {
               code: -32003,
               message: `MCP key lacks required permission '${requiredPermission}' for '${toolName}'.`,
-            },
-          };
-        }
-        if (!executor) {
-          return {
-            jsonrpc: "2.0",
-            id,
-            error: {
-              code: -32601,
-              message: `Unknown tool '${toolName}'. Available tools can be listed via tools/list`,
             },
           };
         }

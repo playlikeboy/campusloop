@@ -34,49 +34,70 @@ function Problem({ title, message }: { title: string; message: string }) {
 
 /** OAuth 2.0 / OIDC authorization endpoint with the consent screen. */
 export default async function AuthorizePage({ searchParams }: Props) {
-  const raw = await searchParams;
-  const params = new URLSearchParams(Object.entries(raw).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
-  const query = params.toString();
-  const self = `/oauth/authorize?${query}`;
-
-  const check = await checkAuthorizeRequest(params);
-  if (check.kind === "fatal") return <Problem title="Can't sign you in" message={check.message} />;
-  if (check.kind === "error") redirect(check.redirectTo);
-
-  const user = await getCachedAuthUser().catch(() => null);
-  if (!user) {
-    if (check.prompt === "none") redirect(errorRedirect(check.redirectUri, "login_required", "The user is not signed in to CampusLoop", check.state));
-    redirect(`/sign-in?returnTo=${encodeURIComponent(self)}`);
-  }
-  const profile = await getCachedUserProfile(user.id);
-  if (!profile || !profile.onboardingCompleted) {
-    return <Problem title="Finish setting up CampusLoop" message="Complete your CampusLoop profile first, then come back to this app and sign in again." />;
-  }
-
-  // Skip the screen when the student already agreed to these scopes (consent is asked once per app, ecosystem apps included).
-  const grant = await getActiveGrant(check.client.id, profile.id);
-  const preApproved = Boolean(grant && grantCovers(grant.scopes, check.scopes));
-  if (preApproved && check.prompt !== "consent") {
-    await upsertGrant(check.client.id, profile.id, check.scopes);
-    const code = await createCode({ client: check.client, profileId: profile.id, redirectUri: check.redirectUri, scopes: check.scopes, codeChallenge: check.codeChallenge, nonce: check.nonce });
-    redirect(successRedirect(check.redirectUri, code, check.state));
-  }
-  if (check.prompt === "none") redirect(errorRedirect(check.redirectUri, "consent_required", "The user has not approved this app yet", check.state));
-
-  let redirectHost = check.redirectUri;
   try {
-    redirectHost = new URL(check.redirectUri).host || check.redirectUri;
-  } catch {}
+    const raw = await searchParams;
+    const params = new URLSearchParams(Object.entries(raw).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
+    const query = params.toString();
+    const self = `/oauth/authorize?${query}`;
 
-  return (
-    <ConsentCard
-      client={check.client}
-      scopes={check.scopes}
-      redirectHost={redirectHost}
-      request={query}
-      account={{ displayName: profile.displayName, username: profile.username, avatarUrl: profile.avatarUrl, verified: isCollegeVerifiedUser(profile) }}
-      switchHref={`/logout?returnTo=${encodeURIComponent(self)}`}
-      action={decideAuthorization}
-    />
-  );
+    const check = await checkAuthorizeRequest(params);
+    if (check.kind === "fatal") return <Problem title="Can't sign you in" message={check.message} />;
+    if (check.kind === "error") redirect(check.redirectTo);
+
+    const user = await getCachedAuthUser().catch(() => null);
+    if (!user) {
+      if (check.prompt === "none") redirect(errorRedirect(check.redirectUri, "login_required", "The user is not signed in to CampusLoop", check.state));
+      redirect(`/sign-in?returnTo=${encodeURIComponent(self)}`);
+    }
+    const profile = await getCachedUserProfile(user.id).catch(() => null);
+    if (!profile || !profile.onboardingCompleted) {
+      return <Problem title="Finish setting up CampusLoop" message="Complete your CampusLoop profile first, then come back to this app and sign in again." />;
+    }
+
+    // Skip the screen when the app is first-party or the student already agreed to these scopes.
+    const grant = await getActiveGrant(check.client.id, profile.id);
+    const preApproved = Boolean(
+      (check.client.isFirstParty && check.prompt !== "consent") ||
+      (grant && grantCovers(grant.scopes, check.scopes))
+    );
+    if (preApproved && check.prompt !== "consent") {
+      await upsertGrant(check.client.id, profile.id, check.scopes);
+      const code = await createCode({ client: check.client, profileId: profile.id, redirectUri: check.redirectUri, scopes: check.scopes, codeChallenge: check.codeChallenge, nonce: check.nonce });
+      redirect(successRedirect(check.redirectUri, code, check.state));
+    }
+    if (check.prompt === "none") redirect(errorRedirect(check.redirectUri, "consent_required", "The user has not approved this app yet", check.state));
+
+    let redirectHost = check.redirectUri;
+    try {
+      redirectHost = new URL(check.redirectUri).host || check.redirectUri;
+    } catch {}
+
+    return (
+      <ConsentCard
+        client={check.client}
+        scopes={check.scopes}
+        redirectHost={redirectHost}
+        request={query}
+        account={{
+          displayName: profile.displayName || profile.username || "Student",
+          username: profile.username || "student",
+          avatarUrl: profile.avatarUrl || null,
+          verified: isCollegeVerifiedUser(profile),
+        }}
+        switchHref={`/logout?returnTo=${encodeURIComponent(self)}`}
+        action={decideAuthorization}
+      />
+    );
+  } catch (error: any) {
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw error;
+    }
+    console.error("[OAuth Authorize Error]:", error);
+    return (
+      <Problem
+        title="Can't complete sign in"
+        message="We encountered an unexpected issue while preparing your authentication session. Please try again or return to CampusLoop."
+      />
+    );
+  }
 }

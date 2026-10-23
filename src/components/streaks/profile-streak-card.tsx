@@ -48,6 +48,8 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
   }
 
   const { currentStreak, longestStreak, totalQualifiedDays, isSafeToday } = streak;
+  const displayStreak = Math.max(1, currentStreak);
+  const displayLongest = Math.max(1, longestStreak);
 
   return (
     <div className={cn("rounded-2xl border border-border/40 bg-card/60 p-5 space-y-5", className)}>
@@ -75,14 +77,14 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-border/30 bg-background/60 p-3 text-center space-y-0.5">
           <div className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-            {currentStreak}
+            {displayStreak}
           </div>
           <div className="text-xs text-muted-foreground font-semibold">Active Streak</div>
         </div>
 
         <div className="rounded-xl border border-border/30 bg-background/60 p-3 text-center space-y-0.5">
           <div className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-            {longestStreak}
+            {displayLongest}
           </div>
           <div className="text-xs text-muted-foreground font-semibold">Longest Run</div>
         </div>

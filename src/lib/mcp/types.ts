@@ -53,6 +53,9 @@ export interface McpToolDefinition {
     | "Colleges & Campuses"
     | "Profile & Loop Points"
     | "Stories & Vibes"
+    | "Events & Opportunities"
+    | "Articles & Editorial"
+    | "Streaks & Clout"
     | "Exclusive AI & Intelligence";
   inputSchema: {
     type: "object";

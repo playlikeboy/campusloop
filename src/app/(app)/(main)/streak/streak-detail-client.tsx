@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   Award,
+  Calendar,
   Check,
   ChevronRight,
   Crown,
@@ -102,9 +103,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
   // State-based motivating subtitle
   let stateSubtitle = "Keep your campus loop going.";
-  if (currentStreak === 0) {
-    stateSubtitle = "Start your first streak with one authentic action today.";
-  } else if (isSafeToday) {
+  if (isSafeToday) {
     stateSubtitle = "Today’s streak is safe. No further action needed.";
   } else if (longestStreak > currentStreak && currentStreak === 1) {
     stateSubtitle = `New run started. Your previous best was ${longestStreak} days.`;
@@ -150,9 +149,13 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
           <span>Back</span>
         </button>
 
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-          Campus Loop System
-        </span>
+        <Link
+          href="/streaks"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-3 py-1 text-xs font-bold text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+        >
+          <Calendar className="size-3.5 text-primary" />
+          <span>Annual Heatmap</span>
+        </Link>
       </div>
 
       {/* ─── 1. HEADER: Primary Streak Metric & Motivating State ─── */}

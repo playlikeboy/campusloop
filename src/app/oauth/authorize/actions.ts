@@ -19,7 +19,7 @@ export async function decideAuthorization(formData: FormData) {
 
   if (decision !== "allow") redirect(errorRedirect(check.redirectUri, "access_denied", "The user declined to share their CampusLoop account", check.state));
 
-  const user = await getCachedAuthUser();
+  const user = await getCachedAuthUser().catch(() => null);
   const profile = user ? await getCachedUserProfile(user.id) : null;
   if (!profile) redirect(`/sign-in?returnTo=${encodeURIComponent(`/oauth/authorize?${query}`)}`);
 

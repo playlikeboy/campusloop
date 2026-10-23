@@ -96,7 +96,8 @@ export function calculateCurrentStreakFromDates(
     cursor = getYesterdayDateString(cursor);
   }
 
-  return { currentStreak, isSafeToday };
+  // Never show 0 on CampusLoop: active students start counting from at least 1 today
+  return { currentStreak: Math.max(1, currentStreak), isSafeToday };
 }
 
 /** Longest consecutive run represented by the event journal. */
@@ -112,7 +113,7 @@ export function calculateLongestStreakFromDates(qualifyingDates: string[]): numb
     previous = date;
   }
 
-  return best;
+  return Math.max(1, best);
 }
 
 export interface UserStreakState {
@@ -151,10 +152,10 @@ export async function getUserStreakState(
       .insert(userStreaks)
       .values({
         userId: profileId,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalQualifiedDays: 0,
-        lastQualifiedDate: null,
+        currentStreak: 1,
+        longestStreak: 1,
+        totalQualifiedDays: 1,
+        lastQualifiedDate: todayStr,
       })
       .onConflictDoNothing({ target: userStreaks.userId })
       .returning();
@@ -193,19 +194,19 @@ export async function getUserStreakState(
 
   if (useJournal) {
     const currentFromJournal = calculateCurrentStreakFromDates(qualifyingDates, todayStr);
-    activeStreak = currentFromJournal.currentStreak;
+    activeStreak = Math.max(1, currentFromJournal.currentStreak);
     isSafeToday = currentFromJournal.isSafeToday;
     authoritativeLastDate = qualifyingDates[0] ?? null;
   } else {
     isSafeToday = lastDate === todayStr;
-    activeStreak = streakRow.currentStreak;
-    if (lastDate && lastDate < yesterdayStr && !isSafeToday) activeStreak = 0;
+    activeStreak = Math.max(1, streakRow.currentStreak);
+    if (lastDate && lastDate < yesterdayStr && !isSafeToday) activeStreak = 1;
     authoritativeLastDate = lastDate;
   }
 
   const longestFromJournal = calculateLongestStreakFromDates(qualifyingDates);
-  const longestStreak = Math.max(streakRow.longestStreak, longestFromJournal);
-  const totalQualifiedDays = Math.max(streakRow.totalQualifiedDays, qualifyingDateSet.size);
+  const longestStreak = Math.max(1, streakRow.longestStreak, longestFromJournal, activeStreak);
+  const totalQualifiedDays = Math.max(1, streakRow.totalQualifiedDays, qualifyingDateSet.size);
 
   // 3. Build the weekly tracker and recent calendar from this same date journal.
   const past35Days = getRecentCalendarDays(35, todayStr);
@@ -235,13 +236,13 @@ export async function getUserStreakState(
   const unlockedMilestones = STREAK_MILESTONES.filter((m) => m.days <= longestStreak);
 
   return {
-    currentStreak: activeStreak,
+    currentStreak: Math.max(1, activeStreak),
     longestStreak,
     totalQualifiedDays,
     isSafeToday,
     lastQualifiedDate: authoritativeLastDate,
     weeklyTracker,
-    historyDates: Array.from(completedDates),
+    historyDates: Array.from(new Set([...qualifyingDates, ...(isSafeToday ? [todayStr] : [])])),
     nextMilestone,
     unlockedMilestones,
     todayMission: getTodayDailyMission(new Date()),
@@ -276,8 +277,8 @@ export async function recordStreakActivity(params: {
     return {
       success: false,
       alreadyQualifiedToday: false,
-      currentStreak: 0,
-      longestStreak: 0,
+      currentStreak: 1,
+      longestStreak: 1,
       isSafeToday: false,
       pointsEarned: 0,
     };
@@ -307,8 +308,8 @@ export async function recordStreakActivity(params: {
     return {
       success: false,
       alreadyQualifiedToday: false,
-      currentStreak: 0,
-      longestStreak: 0,
+      currentStreak: 1,
+      longestStreak: 1,
       isSafeToday: false,
       pointsEarned: 0,
     };

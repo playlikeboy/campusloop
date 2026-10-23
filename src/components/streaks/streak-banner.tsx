@@ -17,16 +17,17 @@ export function StreakBanner({ className }: StreakBannerProps) {
   }
 
   const { currentStreak, longestStreak, isSafeToday, weeklyTracker } = streak;
+  const displayStreak = Math.max(1, currentStreak);
 
   const supportingText = isSafeToday
     ? "Today’s streak is safe"
-    : currentStreak === 0
-      ? "Start your first streak"
+    : displayStreak === 1
+      ? "Day 1 of your run"
       : "Your current run";
 
   return (
     <Link
-      href="/streak"
+      href="/streaks"
       className={cn(
         "group block rounded-2xl border transition-all duration-200 select-none overflow-hidden cursor-pointer",
         isSafeToday
@@ -60,10 +61,10 @@ export function StreakBanner({ className }: StreakBannerProps) {
           <div className="min-w-0 space-y-0.5">
             <div className="flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                {currentStreak}
+                {displayStreak}
               </span>
               <span className="text-sm font-bold text-foreground">
-                {currentStreak === 1 ? "day streak" : "days streak"}
+                {displayStreak === 1 ? "day streak" : "days streak"}
               </span>
             </div>
 
