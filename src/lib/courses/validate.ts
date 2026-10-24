@@ -94,7 +94,6 @@ export function validateCourse(raw: unknown, intent: "DRAFT" | "PUBLISHED" = "DR
   const checklist = [
     { label: "Title (at least 8 characters)", done: value.title.length >= 8 },
     { label: "Short subtitle", done: (value.subtitle ?? "").length >= 10 },
-    { label: "Description (at least 100 characters)", done: (value.description ?? "").length >= 100 },
     { label: "At least 2 learning outcomes", done: (value.outcomes ?? []).length >= 2 },
     { label: "At least 3 lectures", done: lectureCount >= 3 },
     { label: "Every lecture complete", done: errors.length === 0 && lectureCount > 0 },

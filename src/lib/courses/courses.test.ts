@@ -57,6 +57,11 @@ describe("course validation", () => {
     expect(validateCourse(good, "PUBLISHED").ok).toBe(true);
   });
 
+  it("allows publishing without a 100-character description", () => {
+    expect(validateCourse({ ...good, description: "Short description" }, "PUBLISHED").ok).toBe(true);
+    expect(validateCourse({ ...good, description: "" }, "PUBLISHED").ok).toBe(true);
+  });
+
   it("explains what is missing", () => {
     const r = validateCourse({ ...good, sections: [{ title: "", lectures: [{ title: "", kind: "VIDEO", videoUrl: "nope" }] }] }, "PUBLISHED");
     expect(r.ok).toBe(false);
