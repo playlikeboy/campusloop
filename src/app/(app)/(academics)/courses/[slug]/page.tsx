@@ -20,8 +20,14 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const d = await getCourseDetail(slug);
-  if (!d || d.course.status !== "PUBLISHED") notFound();
+  if (!d) return {};
   const c = d.course;
+  if (c.status !== "PUBLISHED") {
+    return {
+      title: `${c.title} (Draft) — CampusLoop`,
+      robots: { index: false, follow: false },
+    };
+  }
   const url = `https://campusloop.space/courses/${c.slug}`;
   return {
     title: `${c.title} — Free Course`,

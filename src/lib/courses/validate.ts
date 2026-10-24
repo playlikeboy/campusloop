@@ -46,7 +46,7 @@ export interface ValidationResult {
 
 export function validateCourse(raw: unknown, intent: "DRAFT" | "PUBLISHED" = "DRAFT"): ValidationResult {
   const r = (raw ?? {}) as Record<string, unknown>;
-  const errors: string[] = [];
+  const lectureErrors: string[] = [];
   const sectionsRaw = Array.isArray(r.sections) ? r.sections.slice(0, 50) : [];
   const sections: SectionInput[] = sectionsRaw.map((s: Record<string, unknown>, si: number) => {
     const lectures = (Array.isArray(s.lectures) ? s.lectures.slice(0, 200) : []).map((l: Record<string, unknown>, li: number) => {
@@ -65,13 +65,13 @@ export function validateCourse(raw: unknown, intent: "DRAFT" | "PUBLISHED" = "DR
           .slice(0, 20),
       };
       const where = `Section ${si + 1}, lecture ${li + 1}`;
-      if (!lecture.title) errors.push(`${where}: add a title`);
-      if (kind === "VIDEO" && !parseVideoUrl(lecture.videoUrl ?? "")) errors.push(`${where}: paste a YouTube, Vimeo or .mp4 link`);
-      if (kind === "LINK" && !isHttps(lecture.videoUrl ?? "")) errors.push(`${where}: add an https:// link`);
-      if (kind === "ARTICLE" && !lecture.body) errors.push(`${where}: write the article text`);
+      if (!lecture.title) lectureErrors.push(`${where}: add a title`);
+      if (kind === "VIDEO" && !parseVideoUrl(lecture.videoUrl ?? "")) lectureErrors.push(`${where}: paste a YouTube, Vimeo or .mp4 link`);
+      if (kind === "LINK" && !isHttps(lecture.videoUrl ?? "")) lectureErrors.push(`${where}: add an https:// link`);
+      if (kind === "ARTICLE" && !lecture.body) lectureErrors.push(`${where}: write the article text`);
       return lecture;
     });
-    if (!clean(s.title, 160)) errors.push(`Section ${si + 1}: add a title`);
+    if (!clean(s.title, 160)) lectureErrors.push(`Section ${si + 1}: add a title`);
     return { id: typeof s.id === "string" ? s.id : undefined, title: clean(s.title, 160), lectures };
   });
 
@@ -96,9 +96,14 @@ export function validateCourse(raw: unknown, intent: "DRAFT" | "PUBLISHED" = "DR
     { label: "Short subtitle", done: (value.subtitle ?? "").length >= 10 },
     { label: "At least 2 learning outcomes", done: (value.outcomes ?? []).length >= 2 },
     { label: "At least 3 lectures", done: lectureCount >= 3 },
-    { label: "Every lecture complete", done: errors.length === 0 && lectureCount > 0 },
+    { label: "Every lecture complete", done: lectureErrors.length === 0 && lectureCount > 0 },
   ];
-  if (!value.title) errors.unshift("Add a course title");
-  if (intent === "PUBLISHED") for (const c of checklist) if (!c.done) errors.push(`To publish: ${c.label.toLowerCase()}`);
+
+  const errors: string[] = [];
+  if (!value.title) errors.push("Add a course title");
+  if (intent === "PUBLISHED") {
+    errors.push(...lectureErrors);
+    for (const c of checklist) if (!c.done) errors.push(`To publish: ${c.label.toLowerCase()}`);
+  }
   return { ok: errors.length === 0, errors, checklist, value };
 }

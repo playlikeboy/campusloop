@@ -57,6 +57,7 @@
 		"enabled": true
 	},
 	"upload_source_maps": false,
+	"minify": true,
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

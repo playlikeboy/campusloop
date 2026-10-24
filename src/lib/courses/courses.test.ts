@@ -62,6 +62,18 @@ describe("course validation", () => {
     expect(validateCourse({ ...good, description: "" }, "PUBLISHED").ok).toBe(true);
   });
 
+  it("allows saving drafts even when curriculum or lectures are incomplete", () => {
+    // Brand new course with empty initial lecture
+    const draft = validateCourse({ title: "My Draft Course", sections: [{ title: "Introduction", lectures: [{ title: "", kind: "VIDEO", videoUrl: "" }] }] }, "DRAFT");
+    expect(draft.ok).toBe(true);
+    expect(draft.errors).toHaveLength(0);
+
+    // Course with no title still fails
+    const empty = validateCourse({ title: "" }, "DRAFT");
+    expect(empty.ok).toBe(false);
+    expect(empty.errors).toContain("Add a course title");
+  });
+
   it("explains what is missing", () => {
     const r = validateCourse({ ...good, sections: [{ title: "", lectures: [{ title: "", kind: "VIDEO", videoUrl: "nope" }] }] }, "PUBLISHED");
     expect(r.ok).toBe(false);

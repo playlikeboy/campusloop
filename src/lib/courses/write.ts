@@ -43,21 +43,23 @@ export async function saveCurriculum(courseId: string, input: CourseInput) {
   let position = 0;
 
   for (const [si, s] of input.sections.entries()) {
+    const sectionTitle = s.title.trim() || `Section ${si + 1}`;
     const sectionId = s.id && ownSection.has(s.id) ? s.id : newId("sec");
     keepSections.push(sectionId);
     await db
       .insert(courseSections)
-      .values({ id: sectionId, courseId, title: s.title, position: si })
-      .onConflictDoUpdate({ target: courseSections.id, set: { title: s.title, position: si } });
+      .values({ id: sectionId, courseId, title: sectionTitle, position: si })
+      .onConflictDoUpdate({ target: courseSections.id, set: { title: sectionTitle, position: si } });
 
     for (const l of s.lectures) {
       const lectureId = l.id && ownLecture.has(l.id) ? l.id : newId("lec");
       keepLectures.push(lectureId);
       const video = l.kind === "VIDEO" ? parseVideoUrl(l.videoUrl ?? "") : null;
+      const lectureTitle = l.title.trim() || `Lecture ${position + 1}`;
       const row = {
         courseId,
         sectionId,
-        title: l.title,
+        title: lectureTitle,
         position: position++,
         kind: l.kind,
         videoProvider: video?.provider ?? (l.kind === "LINK" ? "link" : null),

@@ -70,10 +70,14 @@ export function CourseBuilder({ initial, slug }: { initial?: CourseInput; slug?:
       if (!editing) localStorage.removeItem(DRAFT_KEY);
       if (status === "PUBLISHED" && !editing) {
         toast.success("Course published", { description: "It starts in campus feeds and joins the /courses catalog once learners engage." });
+        router.push(`/courses/${r.slug}`);
+      } else if (status === "DRAFT" && !editing) {
+        toast.success("Draft saved");
+        router.push(`/courses/${r.slug}/edit`);
       } else {
         toast.success(status === "PUBLISHED" ? "Course published" : "Draft saved");
+        router.push(`/courses/${r.slug}`);
       }
-      router.push(`/courses/${r.slug}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save");
       setBusy(null);
