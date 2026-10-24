@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Heart, MessageCircle, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Heart, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
 import { LandingCollegeSearch } from "./landing-college-search";
 import { LandingFeedPreview } from "./landing-feed-preview";
 import { LandingStreakSection } from "./landing-streak-section";
@@ -11,6 +11,7 @@ const QUICK_LINKS = [
   { href: "/feeds", icon: MessageCircle, title: "Campus feed", body: "Confessions, polls, and what’s happening today" },
   { href: "/dating", icon: Heart, title: "Campus Match", body: "Meet verified students, on your terms" },
   { href: "/colleges", icon: GraduationCap, title: "College hubs", body: "Your campus space, plus every other one" },
+  { href: "https://opportunities.campusloop.space/", icon: Trophy, title: "Opportunities", body: "Internships, hackathons, scholarships, and fellowships" },
 ];
 
 const FAQS = [

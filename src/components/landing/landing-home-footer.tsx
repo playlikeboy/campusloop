@@ -4,7 +4,7 @@ import { InstagramIcon, LinkedinIcon, XIcon } from "@/components/ui/social-icons
 import styles from "./campusloop-homepage-refresh.module.css";
 
 const COLUMNS = [
-  { title: "Explore", links: [["/feeds", "Campus feed"], ["/academics", "Academic Vault"], ["/communities", "Communities"]] },
+  { title: "Explore", links: [["/feeds", "Campus feed"], ["/academics", "Academic Vault"], ["/communities", "Communities"], ["https://opportunities.campusloop.space/", "Opportunities"]] },
   { title: "Your campus", links: [["/colleges", "College directory"], ["/college-request", "Request a hub"], ["/dating", "Campus Match"]] },
   { title: "Learn", links: [["/guide", "Product guide"], ["/investors", "For investors"], ["/docs", "Engineering docs"], ["/help", "Help & FAQs"]] },
   { title: "About", links: [["/about", "About CampusLoop"], ["/safety", "Student safety"], ["/contact", "Contact"]] },
