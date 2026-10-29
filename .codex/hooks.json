@@ -26,6 +26,17 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/btech1057424/.local/bin/graphify hook-check"
+          }
+        ]
+      }
     ]
   }
 }

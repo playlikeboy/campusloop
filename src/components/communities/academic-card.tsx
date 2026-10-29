@@ -11,6 +11,7 @@ import {
   ExternalLink,
   MessageSquare,
   Share2,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,6 +49,7 @@ export interface AcademicItemData {
   downloadsCount: number;
   viewsCount: number;
   isVerified: boolean;
+  isTrending?: boolean;
   isSaved?: boolean;
   commentsCount?: number;
   recommendationReason?: string;
@@ -475,6 +477,12 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
 
         {/* ── 5. Quality & Community Feedback ── */}
         <div className="flex items-center gap-2 flex-wrap pt-0.5 text-[11px]">
+          {item.isTrending && (
+            <span className="inline-flex items-center gap-1 font-semibold text-amber-500 dark:text-amber-400">
+              <TrendingUp className="size-3.5" />
+              <span>Trending</span>
+            </span>
+          )}
           {item.isVerified && (
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-500 dark:text-emerald-400">
               <CheckCircle2 className="size-3.5" />

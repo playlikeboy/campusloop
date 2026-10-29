@@ -19,6 +19,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AcademicAiStudyBar } from "@/components/academics/academic-ai-study-bar";
@@ -54,6 +55,7 @@ export function AcademicDetailClient({
   currentUserId,
   canonicalUrl,
 }: AcademicDetailClientProps) {
+  const router = useRouter();
   const [resource] = useState(initialResource);
   const effectivePageUrl =
     canonicalUrl || `https://campusloop.space/academics/study-material/${initialResource.slug || initialResource.id}`;
@@ -471,6 +473,9 @@ export function AcademicDetailClient({
             semester={resource.semester || undefined}
             onDownload={handleDownload}
             pageUrl={effectivePageUrl}
+            onOpenPlayer={(attachment) =>
+              router.push(`/academics/study-material/${resource.id}/watch?a=${encodeURIComponent(attachment.id)}`)
+            }
           />
 
           {/* Attached Files & Supplementary Links Tray (Multi-File Notes) */}

@@ -55,7 +55,7 @@ export function AcademicsClient({
   const [selectedResourceType, setSelectedResourceType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [scope, setScope] = useState<"campus" | "global">("campus");
-  const [sortBy, setSortBy] = useState<"for_you" | "latest" | "popular" | "downloads">("for_you");
+  const [sortBy, setSortBy] = useState<"for_you" | "latest" | "popular" | "downloads" | "trending">("for_you");
 
   // Saved Materials State
   const [savedSubTab, setSavedSubTab] = useState<"notes" | "playlists">("notes");
@@ -124,7 +124,7 @@ export function AcademicsClient({
     if (selectedSemester !== "all") params.set("semester", selectedSemester);
     if (searchQuery.trim()) params.set("q", searchQuery.trim());
     params.set("scope", scope);
-    params.set("sort", sortBy);
+    params.set("sort", activeTab === "TRENDING" ? "trending" : sortBy);
     params.set("page", String(pageIndex + 1));
     params.set("limit", "15");
     return `/api/academics?${params.toString()}`;

@@ -6,6 +6,7 @@ import {
   Cpu,
   Download,
   ExternalLink,
+  FileCode2,
   FileText,
   FolderArchive,
   FolderOpen,
@@ -13,7 +14,9 @@ import {
   Layers,
   LayoutGrid,
   List,
+  ListVideo,
   Loader2,
+  Lock,
   Maximize2,
   Minimize2,
   Moon,
@@ -28,6 +31,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { AcademicAttachment } from "@/db/schema/academic-resources";
 import { buildAcademicStudyPrompt, getChatGptStudyUrl, getClaudeStudyUrl } from "@/lib/academics/ai-prompts";
+import { getYoutubeEmbedInfo } from "@/lib/academics/youtube";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -44,6 +48,8 @@ interface AcademicPdfViewerProps {
   onDownload?: () => void;
   className?: string;
   pageUrl?: string;
+  /** When provided, shows an extra "Open Course Player" action for YouTube attachments. */
+  onOpenPlayer?: (attachment: AcademicAttachment, index: number) => void;
 }
 
 export function AcademicPdfViewer({
@@ -58,6 +64,7 @@ export function AcademicPdfViewer({
   onDownload,
   className,
   pageUrl,
+  onOpenPlayer,
 }: AcademicPdfViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -98,15 +105,18 @@ export function AcademicPdfViewer({
   const currentDocTitle = currentAttachment?.title || title;
   const isGoogleDrive = rawUrl.includes("drive.google.com");
 
-  // YouTube Video & Playlist detection:
+  // YouTube Video & Playlist detection (shared helper so the watch page matches exactly):
+  const ytInfo = useMemo(() => getYoutubeEmbedInfo(rawUrl), [rawUrl]);
   const isYoutube = /(?:youtube\.com|youtu\.be)/i.test(rawUrl);
-  const ytVideoMatch = rawUrl.match(
-    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i
-  );
-  const ytPlaylistMatch = rawUrl.match(/[?&]list=([a-zA-Z0-9_-]+)/i);
-  const ytVideoId = ytVideoMatch ? ytVideoMatch[1] : null;
-  const ytPlaylistId = ytPlaylistMatch ? ytPlaylistMatch[1] : null;
-  const isYoutubePlaylist = Boolean(ytPlaylistId);
+  const ytVideoId = ytInfo.videoId;
+  const ytPlaylistId = ytInfo.playlistId;
+  const isYoutubePlaylist = ytInfo.isPlaylist;
+
+  // Static HTML attachment detection (sandboxed, script-free preview):
+  const isHtmlAttachment =
+    currentAttachment?.type === "HTML" ||
+    rawUrl.toLowerCase().includes("/api/files/r2/academic-html/") ||
+    /\.html?($|\?)/i.test(rawUrl.toLowerCase());
 
   // Google Sites & Academic Web Portal detection (Image 3 fix):
   const isGoogleSites = rawUrl.toLowerCase().includes("sites.google.com");
@@ -115,6 +125,7 @@ export function AcademicPdfViewer({
     !isGoogleDrive &&
     !isYoutube &&
     !isGoogleSites &&
+    !isHtmlAttachment &&
     !rawUrl.toLowerCase().includes(".pdf") &&
     !/\.(docx?|pptx?|xlsx?)$/i.test(rawUrl) &&
     !rawUrl.toLowerCase().endsWith(".ms14");
@@ -190,6 +201,12 @@ export function AcademicPdfViewer({
       return rawUrl.replace(/\/view(\?.*)?$/, "/preview").replace(/\/edit(\?.*)?$/, "/preview");
     }
 
+    if (isHtmlAttachment) {
+      // Served inline with CSP `sandbox` by /api/files/r2/[...key] for academic_html uploads;
+      // the consuming <iframe> below also carries sandbox="" as a second layer.
+      return rawUrl;
+    }
+
     if (isGoogleSites || isGenericWebSite) {
       // CRITICAL FIX FOR IMAGE 3: Never pass sites.google.com or web portals through docs.google.com/viewer,
       // as that dumps raw HTML code onto the screen. Use direct portal URL.
@@ -222,6 +239,7 @@ export function AcademicPdfViewer({
     folderViewMode,
     isGoogleDrive,
     driveFileId,
+    isHtmlAttachment,
     isGoogleSites,
     isGenericWebSite,
     viewerEngine,
@@ -433,6 +451,8 @@ export function AcademicPdfViewer({
           <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 bg-muted text-foreground border border-border/50">
             {isYoutube ? (
               <Play className="size-3 fill-current" />
+            ) : isHtmlAttachment ? (
+              <FileCode2 className="size-3" />
             ) : isGoogleSites || isGenericWebSite ? (
               <Globe className="size-3" />
             ) : isDriveFolder ? (
@@ -445,15 +465,17 @@ export function AcademicPdfViewer({
                 ? isYoutubePlaylist
                   ? "Playlist"
                   : "Video"
-                : isGoogleSites
-                  ? "Portal"
-                  : isGenericWebSite
-                    ? "Web"
-                    : isDriveFolder
-                      ? "Drive"
-                      : isGoogleDrive
-                        ? "PDF"
-                        : "PDF"}
+                : isHtmlAttachment
+                  ? "HTML"
+                  : isGoogleSites
+                    ? "Portal"
+                    : isGenericWebSite
+                      ? "Web"
+                      : isDriveFolder
+                        ? "Drive"
+                        : isGoogleDrive
+                          ? "PDF"
+                          : "PDF"}
             </span>
           </span>
           <span className="text-xs font-bold text-foreground truncate max-w-[140px] sm:max-w-xs">
@@ -491,6 +513,23 @@ export function AcademicPdfViewer({
             <Sparkles className="size-3" />
             <span>Claude</span>
           </button>
+
+          {/* Udemy-style Course Player Entry Point (YouTube attachments only) */}
+          {isYoutube && onOpenPlayer && currentAttachment && (
+            <button
+              type="button"
+              onClick={() => {
+                sounds.tap();
+                haptics.medium();
+                onOpenPlayer(currentAttachment, safeIdx);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 border border-rose-500/30 transition-all cursor-pointer"
+              title="Open distraction-free course player with notes"
+            >
+              <ListVideo className="size-3" />
+              <span>Course Player</span>
+            </button>
+          )}
 
           {/* Drive Folder Layout Switcher (Grid vs List) */}
           {isDriveFolder && isRealDriveFolder && (
@@ -641,9 +680,15 @@ export function AcademicPdfViewer({
           <button
             type="button"
             onClick={() => {
-              if (isYoutube || isGoogleSites || isGenericWebSite) {
+              if (isYoutube || isGoogleSites || isGenericWebSite || isHtmlAttachment) {
                 window.open(rawUrl, "_blank", "noopener,noreferrer");
-                toast.success(isYoutube ? "Opening YouTube video!" : "Opening course portal in new tab!");
+                toast.success(
+                  isYoutube
+                    ? "Opening YouTube video!"
+                    : isHtmlAttachment
+                      ? "Opening raw HTML file in a new tab!"
+                      : "Opening course portal in new tab!"
+                );
               } else {
                 handleDownloadClick();
               }
@@ -652,24 +697,30 @@ export function AcademicPdfViewer({
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-xs cursor-pointer transition-all active:scale-95",
               isYoutube
                 ? "bg-rose-600 hover:bg-rose-500 text-white"
-                : isGoogleSites || isGenericWebSite
-                  ? "bg-sky-600 hover:bg-sky-500 text-white"
-                  : isDriveFolder
-                    ? "bg-amber-500 hover:bg-amber-600 text-amber-950"
-                    : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                : isHtmlAttachment
+                  ? "bg-violet-600 hover:bg-violet-500 text-white"
+                  : isGoogleSites || isGenericWebSite
+                    ? "bg-sky-600 hover:bg-sky-500 text-white"
+                    : isDriveFolder
+                      ? "bg-amber-500 hover:bg-amber-600 text-amber-950"
+                      : "bg-indigo-600 hover:bg-indigo-500 text-white"
             )}
             title={
               isYoutube
                 ? "Watch on YouTube (No login required)"
-                : isGoogleSites || isGenericWebSite
-                  ? "Open website in new tab (No login required)"
-                  : isDriveFolder
-                    ? "Open folder in Google Drive (No login required)"
-                    : "Download PDF (No login required)"
+                : isHtmlAttachment
+                  ? "Open raw HTML file in a new tab"
+                  : isGoogleSites || isGenericWebSite
+                    ? "Open website in new tab (No login required)"
+                    : isDriveFolder
+                      ? "Open folder in Google Drive (No login required)"
+                      : "Download PDF (No login required)"
             }
           >
             {isYoutube ? (
               <Play className="size-3.5 fill-current" />
+            ) : isHtmlAttachment ? (
+              <ExternalLink className="size-3.5" />
             ) : isGoogleSites || isGenericWebSite ? (
               <ExternalLink className="size-3.5" />
             ) : isDriveFolder ? (
@@ -680,11 +731,13 @@ export function AcademicPdfViewer({
             <span className="hidden sm:inline">
               {isYoutube
                 ? "Watch on YouTube"
-                : isGoogleSites || isGenericWebSite
-                  ? "Open Portal"
-                  : isDriveFolder
-                    ? "Open Folder"
-                    : "Download"}
+                : isHtmlAttachment
+                  ? "Open Raw File"
+                  : isGoogleSites || isGenericWebSite
+                    ? "Open Portal"
+                    : isDriveFolder
+                      ? "Open Folder"
+                      : "Download"}
             </span>
           </button>
 
@@ -730,6 +783,34 @@ export function AcademicPdfViewer({
               className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-[11px] transition-all shadow-xs"
             >
               <span>Watch on YouTube</span>
+              <ExternalLink className="size-2.5" />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Static HTML Preview Banner (sandboxed, scripts disabled) ─── */}
+      {isHtmlAttachment && (
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-violet-500/10 border-b border-violet-500/20 text-xs text-foreground shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="flex size-6 items-center justify-center rounded-lg bg-violet-500/20 text-violet-400 shrink-0">
+              <Lock className="size-3.5" />
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="font-bold text-xs truncate">Static HTML Preview</p>
+              <p className="text-[10px] text-muted-foreground truncate">
+                Rendered in a sandboxed frame for safety — scripts are disabled.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            <a
+              href={rawUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-black text-[11px] transition-all shadow-xs"
+            >
+              <span>Open Raw File</span>
               <ExternalLink className="size-2.5" />
             </a>
           </div>
@@ -833,8 +914,17 @@ export function AcademicPdfViewer({
               src={embedUrl}
               title={title}
               className={cn("w-full h-full border-0", isYoutube ? "bg-black" : "bg-white")}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              allowFullScreen
+              allow={
+                isHtmlAttachment
+                  ? undefined
+                  : "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              }
+              // Static HTML attachments render in an opaque-origin sandbox with NO tokens —
+              // this disables scripts, forms, popups and top-navigation client-side, as a
+              // second layer on top of the server's CSP `sandbox` header. Never add
+              // "allow-same-origin" here; combined with "allow-scripts" it would defeat the sandbox.
+              sandbox={isHtmlAttachment ? "" : undefined}
+              allowFullScreen={!isHtmlAttachment}
               loading="lazy"
               onLoad={() => setIsLoading(false)}
               onError={() => {

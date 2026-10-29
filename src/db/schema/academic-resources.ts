@@ -24,6 +24,7 @@ export const academicResources = pgTable(
     fileUrl: text("file_url"),
     driveUrl: text("drive_url"),
     attachments: jsonb("attachments").default([]).notNull(),
+    modules: jsonb("modules").default([]).notNull(), // AcademicModule[] — grouped materials; attachments column stays a flattened mirror for back-compat
     tags: jsonb("tags").default([]).notNull(),
     upvotesCount: integer("upvotes_count").default(0).notNull(),
     downvotesCount: integer("downvotes_count").default(0).notNull(),
@@ -110,8 +111,19 @@ export interface AcademicAttachment {
   id: string;
   title: string;
   url: string;
-  type: "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "CODE" | "OTHER";
+  type: "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "HTML" | "CODE" | "OTHER";
   sizeBytes?: number;
   pageCount?: number;
+  /** Also doubles as "notes" shown under the video in the Udemy-style watch page. */
   description?: string;
+  previewImage?: string;
+  previewSiteName?: string;
+}
+
+export interface AcademicModule {
+  id: string;
+  title?: string;
+  description?: string;
+  order: number;
+  attachments: AcademicAttachment[];
 }

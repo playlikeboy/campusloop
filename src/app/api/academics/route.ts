@@ -142,6 +142,10 @@ export async function GET(req: Request) {
       orderByClause = [desc(academicResources.downloadsCount), desc(academicResources.createdAt)];
     } else if (sort === "views") {
       orderByClause = [desc(academicResources.viewsCount), desc(academicResources.createdAt)];
+    } else if (sort === "trending") {
+      // Time-decayed score: fresh, high-engagement uploads rank above old-but-popular ones.
+      const trendingScore = sql<number>`(${academicResources.upvotesCount} * 3 + ${academicResources.viewsCount} + ${academicResources.downloadsCount} * 2) / POWER(EXTRACT(EPOCH FROM (now() - ${academicResources.createdAt})) / 3600 + 2, 1.5)`;
+      orderByClause = [desc(trendingScore)];
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -261,8 +265,11 @@ export async function GET(req: Request) {
       }
     }
 
+    const outputItems =
+      sort === "trending" ? finalItems.slice(0, limit).map((item) => ({ ...item, isTrending: true })) : finalItems.slice(0, limit);
+
     return NextResponse.json({
-      items: finalItems.slice(0, limit),
+      items: outputItems,
       total: Math.max(total, finalItems.length),
       page,
       limit,
@@ -298,8 +305,8 @@ export async function POST(req: Request) {
     const {
       title,
       description,
-      subjectCode,
-      subjectName,
+      subjectCode: rawSubjectCode,
+      subjectName: rawSubjectName,
       branch = "All",
       semester = 1,
       resourceType = "NOTES",
@@ -307,30 +314,59 @@ export async function POST(req: Request) {
       driveUrl: rawDriveUrl,
       fileUrl: rawFileUrl,
       attachments: rawAttachments = [],
+      modules: rawModules,
       tags = [],
     } = body;
 
-    if (!title?.trim() || !subjectCode?.trim() || !subjectName?.trim()) {
-      return NextResponse.json(
-        { error: "Title, Subject Code, and Subject Name are required" },
-        { status: 400 }
-      );
+    // Only the title is required to publish — subject code/name are optional metadata now,
+    // filled with sensible defaults so older consumers that expect them still get a value.
+    if (!title?.trim()) {
+      return NextResponse.json({ error: "A title is required" }, { status: 400 });
+    }
+    const subjectCode = (rawSubjectCode?.trim() || "GENERAL").toUpperCase();
+    const subjectName = rawSubjectName?.trim() || title.trim();
+
+    function sanitizeAttachment(att: any, idx: number) {
+      return {
+        id: att.id || `att-${Date.now()}-${idx}`,
+        title: (att.title || title || `Document ${idx + 1}`).trim(),
+        url: att.url.trim(),
+        type: att.type || (att.url.includes("drive.google.com") ? "DRIVE" : "PDF"),
+        sizeBytes: typeof att.sizeBytes === "number" ? att.sizeBytes : undefined,
+        pageCount: typeof att.pageCount === "number" ? att.pageCount : undefined,
+        description: att.description?.trim() || undefined,
+        previewImage: typeof att.previewImage === "string" ? att.previewImage.trim() || undefined : undefined,
+        previewSiteName:
+          typeof att.previewSiteName === "string" ? att.previewSiteName.trim() || undefined : undefined,
+      };
     }
 
-    // Process attachments
-    const cleanAttachments = Array.isArray(rawAttachments)
-      ? rawAttachments
-          .filter((att) => att && typeof att === "object" && att.url?.trim())
-          .map((att, idx) => ({
-            id: att.id || `att-${Date.now()}-${idx}`,
-            title: (att.title || title || `Document ${idx + 1}`).trim(),
-            url: att.url.trim(),
-            type: att.type || (att.url.includes("drive.google.com") ? "DRIVE" : "PDF"),
-            sizeBytes: typeof att.sizeBytes === "number" ? att.sizeBytes : undefined,
-            pageCount: typeof att.pageCount === "number" ? att.pageCount : undefined,
-            description: att.description?.trim() || undefined,
+    // Module-grouped materials (preferred). Falls back to the legacy flat attachments list
+    // for older/admin callers that never adopted modules.
+    const cleanModules = Array.isArray(rawModules)
+      ? rawModules
+          .map((mod: any, mIdx: number) => ({
+            id: mod?.id || `module-${Date.now()}-${mIdx}`,
+            title: mod?.title?.trim() || undefined,
+            description: mod?.description?.trim() || undefined,
+            order: typeof mod?.order === "number" ? mod.order : mIdx,
+            attachments: Array.isArray(mod?.attachments)
+              ? mod.attachments
+                  .filter((att: any) => att && typeof att === "object" && att.url?.trim())
+                  .map((att: any, idx: number) => sanitizeAttachment(att, idx))
+              : [],
           }))
+          .filter((mod) => mod.attachments.length > 0)
       : [];
+
+    const cleanAttachments =
+      cleanModules.length > 0
+        ? cleanModules.flatMap((mod) => mod.attachments)
+        : Array.isArray(rawAttachments)
+          ? rawAttachments
+              .filter((att) => att && typeof att === "object" && att.url?.trim())
+              .map((att, idx) => sanitizeAttachment(att, idx))
+          : [];
 
     let driveUrl = rawDriveUrl?.trim() || null;
     let fileUrl = rawFileUrl?.trim() || null;
@@ -381,6 +417,7 @@ export async function POST(req: Request) {
         driveUrl,
         fileUrl,
         attachments: cleanAttachments,
+        modules: cleanModules,
         tags: Array.isArray(tags) ? tags : [],
         upvotesCount: 0,
         downvotesCount: 0,

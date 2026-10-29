@@ -6,6 +6,9 @@ import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner
 import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
 import { FeedCourseSpotlight } from "@/components/feed/feed-course-spotlight";
+import { FeedEventSpotlight } from "@/components/feed/feed-event-spotlight";
+import { FeedMarketplaceSpotlight } from "@/components/feed/feed-marketplace-spotlight";
+import { FeedAcademicsSpotlight } from "@/components/feed/feed-academics-spotlight";
 import { FeedEcosystemSpotlight } from "@/components/feed/feed-ecosystem-spotlight";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
@@ -13,6 +16,7 @@ import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
 import { FeedCard } from "@/components/ui/feed-card";
 import {
   InlineCommunitiesWidget,
+  InlineDatingWidget,
   InlineHashtagsWidget,
 } from "@/components/ui/inline-feed-widgets";
 import { RightSidebar } from "@/components/ui/right-sidebar";
@@ -233,11 +237,16 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                     <div ref={trackImpression} data-feed-post-id={post.id}>
                       <FeedCard post={post} currentUserId={profile?.id} />
                     </div>
-                    {/* Few, well-spaced discovery slots; the desktop sidebar already covers follows and tags. */}
-                    {idx === 2 && (
+                    {/* Rich, delightful campus discovery slots interleaved between timeline posts */}
+                    {idx === 1 && (
                       <LocationOptInCard enabled={Boolean(profile?.id)} className="mx-3 my-3" />
                     )}
-                    {idx === 4 && (
+                    {idx === 3 && (
+                      <div className="border-b border-border/40">
+                        <FeedEventSpotlight />
+                      </div>
+                    )}
+                    {idx === 5 && (
                       <div className="border-b border-border/40 lg:hidden">
                         <FeedRecommendedUsers />
                       </div>
@@ -247,17 +256,32 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                         <FeedCourseSpotlight />
                       </div>
                     )}
-                    {idx === 11 && (
+                    {idx === 10 && (
+                      <div className="border-b border-border/40">
+                        <FeedMarketplaceSpotlight />
+                      </div>
+                    )}
+                    {idx === 13 && (
                       <div className="border-b border-border/40 p-4">
                         <InlineCommunitiesWidget />
                       </div>
                     )}
-                    {idx === 15 && (
+                    {idx === 16 && (
+                      <div className="border-b border-border/40">
+                        <FeedAcademicsSpotlight />
+                      </div>
+                    )}
+                    {idx === 19 && (
                       <div className="border-b border-border/40">
                         <FeedEcosystemSpotlight />
                       </div>
                     )}
-                    {idx === 19 && (
+                    {idx === 22 && (
+                      <div className="border-b border-border/40 p-3">
+                        <InlineDatingWidget />
+                      </div>
+                    )}
+                    {idx === 25 && (
                       <div className="border-b border-border/40 p-4 lg:hidden">
                         <InlineHashtagsWidget />
                       </div>

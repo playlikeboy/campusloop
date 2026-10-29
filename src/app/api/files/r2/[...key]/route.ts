@@ -124,6 +124,15 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
     }
 
+    // Academic static HTML preview attachments: a narrow, explicit exception that serves
+    // HTML inline (so it can be embedded in a sandboxed iframe) instead of force-downloading it.
+    // The CSP `sandbox` directive (no tokens) disables script execution, forms, popups and
+    // top-navigation for the document itself — this is the actual security boundary, not the
+    // iframe. Only objects uploaded through the dedicated "academic_html" category qualify.
+    const isAcademicHtmlPreview =
+      contentType.includes("html") &&
+      (obj.customMetadata?.category === "academic_html" || keyParts[0] === "academic-html");
+
     // Prevent Stored XSS: If the object is HTML, SVG, or scriptable, sandboxed CSP and attachment disposition are enforced
     if (
       contentType.includes("html") ||
@@ -131,9 +140,14 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       contentType.includes("javascript") ||
       contentType.includes("xml")
     ) {
-      headers.set("Content-Security-Policy", "default-src 'none'; sandbox");
-      headers.set("Content-Disposition", "attachment");
-      headers.set("X-Frame-Options", "DENY");
+      if (isAcademicHtmlPreview) {
+        headers.set("Content-Security-Policy", "default-src 'none'; sandbox; frame-ancestors 'self'");
+        headers.set("Content-Disposition", "inline");
+      } else {
+        headers.set("Content-Security-Policy", "default-src 'none'; sandbox");
+        headers.set("Content-Disposition", "attachment");
+        headers.set("X-Frame-Options", "DENY");
+      }
     }
 
     // Check if Range was requested and fulfilled

@@ -50,6 +50,7 @@ export const RESOURCE_TYPES = [
 
 export const SORT_OPTIONS = [
   { id: "for_you", label: "Recommended" },
+  { id: "trending", label: "Trending Now" },
   { id: "latest", label: "Latest First" },
   { id: "popular", label: "Most Upvoted" },
   { id: "downloads", label: "Most Downloaded" },

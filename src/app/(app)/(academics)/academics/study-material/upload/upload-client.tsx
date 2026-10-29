@@ -7,7 +7,9 @@ import {
   Bookmark,
   BookOpen,
   Check,
+  ChevronDown,
   FileCode,
+  FileCode2,
   FileQuestion,
   FileSpreadsheet,
   FileText,
@@ -17,8 +19,12 @@ import {
   Layers,
   Link2,
   Loader2,
+  Package,
+  PartyPopper,
   Plus,
   Presentation,
+  Rocket,
+  Share2,
   ShieldCheck,
   Sparkles,
   Tag,
@@ -37,17 +43,38 @@ import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadMediaFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
+import { getYoutubeEmbedInfo, isYoutubeUrl } from "@/lib/academics/youtube";
+
+export type AttachmentType = "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "HTML" | "CODE" | "OTHER";
 
 export interface UploadAttachmentItem {
   id: string;
   title: string;
   url: string;
-  type: "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "CODE" | "OTHER";
+  type: AttachmentType;
   sizeBytes?: number;
   fileName?: string;
   status: "ready" | "uploading" | "error";
   uploadProgress?: number;
   error?: string;
+  /** Shown under the video in the Udemy-style course player. */
+  notes?: string;
+  previewImage?: string;
+  previewSiteName?: string;
+}
+
+export interface UploadModuleItem {
+  id: string;
+  title: string;
+  description: string;
+  attachments: UploadAttachmentItem[];
+}
+
+interface LinkDraft {
+  isOpen: boolean;
+  url: string;
+  title: string;
+  isFetchingPreview: boolean;
 }
 
 const RESOURCE_TYPES = [
@@ -130,15 +157,22 @@ const COMMON_TAG_SUGGESTIONS = [
   "UnitWise",
 ];
 
-function inferAttachmentType(
-  filenameOrUrl: string
-): "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "CODE" | "OTHER" {
+function generateId(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function createEmptyModule(): UploadModuleItem {
+  return { id: generateId("module"), title: "", description: "", attachments: [] };
+}
+
+function inferAttachmentType(filenameOrUrl: string): AttachmentType {
   const lower = filenameOrUrl.toLowerCase();
   if (lower.includes("drive.google.com")) return "DRIVE";
-  if (lower.includes("youtube.com") || lower.includes("youtu.be")) return "VIDEO";
+  if (isYoutubeUrl(lower)) return "VIDEO";
   if (lower.endsWith(".pdf")) return "PDF";
   if (lower.endsWith(".ppt") || lower.endsWith(".pptx")) return "PPT";
   if (lower.endsWith(".doc") || lower.endsWith(".docx")) return "DOCX";
+  if (lower.endsWith(".html") || lower.endsWith(".htm")) return "HTML";
   if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp"))
     return "IMAGE";
   if (lower.endsWith(".xlsx") || lower.endsWith(".xls") || lower.endsWith(".csv")) return "OTHER";
@@ -169,6 +203,8 @@ function getAttachmentIcon(type: string) {
       return FolderOpen;
     case "VIDEO":
       return Video;
+    case "HTML":
+      return FileCode2;
     case "CODE":
       return FileCode;
     default:
@@ -176,46 +212,85 @@ function getAttachmentIcon(type: string) {
   }
 }
 
+async function fetchLinkPreview(url: string): Promise<{ title?: string; image?: string; siteName?: string } | null> {
+  try {
+    const res = await fetch(`/api/embed/preview?url=${encodeURIComponent(url)}`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { title?: string; image?: string; siteName?: string; error?: string };
+    if (data.error) return null;
+    return { title: data.title, image: data.image, siteName: data.siteName };
+  } catch {
+    return null;
+  }
+}
+
 export function UploadAcademicClient() {
   const router = useRouter();
 
-  // Form State
-  const [resourceType, setResourceType] = useState<string>("NOTES");
+  // Core fields
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Materials, module-based (progressive disclosure — most uploads never need a 2nd module)
+  const [modules, setModules] = useState<UploadModuleItem[]>([createEmptyModule()]);
+  const [linkDrafts, setLinkDrafts] = useState<Record<string, LinkDraft>>({});
+
+  // Advanced (optional) fields
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [resourceType, setResourceType] = useState<string>("NOTES");
   const [subjectCode, setSubjectCode] = useState("");
   const [subjectName, setSubjectName] = useState("");
   const [branch, setBranch] = useState("Computer Science");
   const [semester, setSemester] = useState<number>(3);
   const [moduleOrChapter, setModuleOrChapter] = useState("");
-  const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>(["Endsem2024"]);
   const [tagInput, setTagInput] = useState("");
 
-  // Multi-Attachment State
-  const [attachments, setAttachments] = useState<UploadAttachmentItem[]>([]);
-  const [linkInputUrl, setLinkInputUrl] = useState("");
-  const [linkInputTitle, setLinkInputTitle] = useState("");
-  const [isAddingLink, setIsAddingLink] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [published, setPublished] = useState<{ id: string; title: string; points?: number } | null>(null);
 
-  // Auto-generate title helper
-  function handleGenerateTitle() {
-    if (!subjectCode.trim() && !subjectName.trim()) {
-      toast.info("Enter Subject Code or Subject Name first to generate title");
-      return;
-    }
-    sounds.tap();
-    haptics.light();
-    const typeObj = RESOURCE_TYPES.find((r) => r.id === resourceType);
-    const typeLabel = typeObj ? typeObj.label : "Notes";
-    const sub = subjectCode.trim() || subjectName.trim();
-    const semStr = `Semester ${semester}`;
-    const generated = `${sub} ${typeLabel} - ${semStr} ${branch} (${moduleOrChapter ? `Unit ${moduleOrChapter}` : "Complete Syllabus"})`;
-    setTitle(generated);
+  function getLinkDraft(moduleId: string): LinkDraft {
+    return linkDrafts[moduleId] || { isOpen: false, url: "", title: "", isFetchingPreview: false };
+  }
+  function setLinkDraft(moduleId: string, patch: Partial<LinkDraft>) {
+    setLinkDrafts((prev) => ({ ...prev, [moduleId]: { ...getLinkDraft(moduleId), ...patch } }));
   }
 
-  // Handle direct multiple files upload
-  async function handleFilesUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function updateModule(moduleId: string, patch: Partial<UploadModuleItem>) {
+    setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, ...patch } : m)));
+  }
+
+  function addModule() {
+    sounds.tap();
+    haptics.light();
+    setModules((prev) => [...prev, createEmptyModule()]);
+  }
+
+  function removeModule(moduleId: string) {
+    sounds.tap();
+    haptics.light();
+    setModules((prev) => prev.filter((m) => m.id !== moduleId));
+  }
+
+  function moveModule(moduleId: string, dir: "up" | "down") {
+    setModules((prev) => {
+      const idx = prev.findIndex((m) => m.id === moduleId);
+      const targetIdx = dir === "up" ? idx - 1 : idx + 1;
+      if (idx < 0 || targetIdx < 0 || targetIdx >= prev.length) return prev;
+      const copy = [...prev];
+      [copy[idx], copy[targetIdx]] = [copy[targetIdx], copy[idx]];
+      return copy;
+    });
+    sounds.tap();
+    haptics.light();
+  }
+
+  function setModuleAttachments(moduleId: string, updater: (atts: UploadAttachmentItem[]) => UploadAttachmentItem[]) {
+    setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, attachments: updater(m.attachments) } : m)));
+  }
+
+  // Handle direct multiple files upload into a specific module
+  async function handleFilesUpload(moduleId: string, e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
@@ -223,18 +298,19 @@ export function UploadAcademicClient() {
     haptics.medium();
 
     for (const file of files) {
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error(`"${file.name}" exceeds maximum allowed size of 50MB`);
+      const inferredType = inferAttachmentType(file.name);
+      const isHtml = inferredType === "HTML";
+      const sizeLimitBytes = isHtml ? 3 * 1024 * 1024 : 50 * 1024 * 1024;
+      if (file.size > sizeLimitBytes) {
+        toast.error(`"${file.name}" exceeds maximum allowed size of ${isHtml ? "3MB" : "50MB"}`);
         continue;
       }
 
-      const tempId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const tempId = generateId("file");
       const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
-      const inferredType = inferAttachmentType(file.name);
 
-      // Add to attachments in uploading state
-      setAttachments((prev) => [
-        ...prev,
+      setModuleAttachments(moduleId, (atts) => [
+        ...atts,
         {
           id: tempId,
           title: cleanName,
@@ -247,37 +323,33 @@ export function UploadAcademicClient() {
         },
       ]);
 
-      // If overall title is empty, prefill from first file
       if (!title.trim()) {
         setTitle(cleanName);
       }
 
-      // Execute upload
-      uploadMediaFile(file, "document", file.name, (progress) => {
-        setAttachments((prev) =>
-          prev.map((item) => (item.id === tempId ? { ...item, uploadProgress: progress.percent } : item))
+      uploadMediaFile(file, isHtml ? "academic_html" : "document", file.name, (progress) => {
+        setModuleAttachments(moduleId, (atts) =>
+          atts.map((item) => (item.id === tempId ? { ...item, uploadProgress: progress.percent } : item))
         );
       })
         .then((res) => {
           if (res?.url) {
-            setAttachments((prev) =>
-              prev.map((item) =>
+            setModuleAttachments(moduleId, (atts) =>
+              atts.map((item) =>
                 item.id === tempId ? { ...item, url: res.url, status: "ready", uploadProgress: 100 } : item
               )
             );
             toast.success(`Uploaded "${file.name}"!`);
           } else {
-            setAttachments((prev) =>
-              prev.map((item) =>
-                item.id === tempId ? { ...item, status: "error", error: "Upload failed" } : item
-              )
+            setModuleAttachments(moduleId, (atts) =>
+              atts.map((item) => (item.id === tempId ? { ...item, status: "error", error: "Upload failed" } : item))
             );
             toast.error(`Failed to upload "${file.name}"`);
           }
         })
         .catch((err) => {
-          setAttachments((prev) =>
-            prev.map((item) =>
+          setModuleAttachments(moduleId, (atts) =>
+            atts.map((item) =>
               item.id === tempId
                 ? { ...item, status: "error", error: err instanceof Error ? err.message : "Error" }
                 : item
@@ -287,18 +359,17 @@ export function UploadAcademicClient() {
         });
     }
 
-    // Reset input
     e.target.value = "";
   }
 
-  // Handle adding external link / Google Drive
-  function handleAddExternalLink() {
-    const raw = linkInputUrl.trim();
+  // Add external link / Google Drive / YouTube, with automatic preview
+  async function handleAddExternalLink(moduleId: string) {
+    const draft = getLinkDraft(moduleId);
+    const raw = draft.url.trim();
     if (!raw) {
       toast.error("Please enter a link or Google Drive URL");
       return;
     }
-
     if (!raw.startsWith("http://") && !raw.startsWith("https://")) {
       toast.error("Link must start with https:// or http://");
       return;
@@ -315,43 +386,69 @@ export function UploadAcademicClient() {
           ? "YouTube Lecture / Playlist"
           : "External Study Resource";
 
+    const attId = generateId("link");
     const newAtt: UploadAttachmentItem = {
-      id: `link-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      title: linkInputTitle.trim() || defaultTitle,
+      id: attId,
+      title: draft.title.trim() || defaultTitle,
       url: raw,
       type: inferredType,
       status: "ready",
     };
 
-    setAttachments((prev) => [...prev, newAtt]);
-    setLinkInputUrl("");
-    setLinkInputTitle("");
-    setIsAddingLink(false);
+    setModuleAttachments(moduleId, (atts) => [...atts, newAtt]);
+    setLinkDraft(moduleId, { isOpen: false, url: "", title: "" });
     toast.success("Link attached!");
+
+    // Creative feature: automatically fetch a preview for the pasted link.
+    if (inferredType === "VIDEO") {
+      const yt = getYoutubeEmbedInfo(raw);
+      if (yt.thumbnailUrl) {
+        setModuleAttachments(moduleId, (atts) =>
+          atts.map((a) => (a.id === attId ? { ...a, previewImage: yt.thumbnailUrl || undefined } : a))
+        );
+      }
+      return;
+    }
+
+    setLinkDraft(moduleId, { isFetchingPreview: true });
+    const preview = await fetchLinkPreview(raw);
+    setLinkDraft(moduleId, { isFetchingPreview: false });
+    if (preview) {
+      setModuleAttachments(moduleId, (atts) =>
+        atts.map((a) =>
+          a.id === attId
+            ? {
+                ...a,
+                title: a.title === defaultTitle && preview.title ? preview.title : a.title,
+                previewImage: preview.image,
+                previewSiteName: preview.siteName,
+              }
+            : a
+        )
+      );
+    }
   }
 
-  function moveAttachment(idx: number, dir: "up" | "down") {
-    const targetIdx = dir === "up" ? idx - 1 : idx + 1;
-    if (targetIdx < 0 || targetIdx >= attachments.length) return;
+  function moveAttachment(moduleId: string, idx: number, dir: "up" | "down") {
     sounds.tap();
     haptics.light();
-    setAttachments((prev) => {
-      const copy = [...prev];
-      const temp = copy[idx];
-      copy[idx] = copy[targetIdx];
-      copy[targetIdx] = temp;
+    setModuleAttachments(moduleId, (atts) => {
+      const targetIdx = dir === "up" ? idx - 1 : idx + 1;
+      if (targetIdx < 0 || targetIdx >= atts.length) return atts;
+      const copy = [...atts];
+      [copy[idx], copy[targetIdx]] = [copy[targetIdx], copy[idx]];
       return copy;
     });
   }
 
-  function removeAttachment(id: string) {
+  function removeAttachment(moduleId: string, attId: string) {
     sounds.tap();
     haptics.light();
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
+    setModuleAttachments(moduleId, (atts) => atts.filter((a) => a.id !== attId));
   }
 
-  function updateAttachmentTitle(id: string, newTitle: string) {
-    setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, title: newTitle } : a)));
+  function updateAttachmentField(moduleId: string, attId: string, patch: Partial<UploadAttachmentItem>) {
+    setModuleAttachments(moduleId, (atts) => atts.map((a) => (a.id === attId ? { ...a, ...patch } : a)));
   }
 
   function handleAddTag(tagText: string) {
@@ -373,33 +470,41 @@ export function UploadAcademicClient() {
     setTags((prev) => prev.filter((t) => t !== tagToRemove));
   }
 
-  // Form submission to /api/academics
+  function handleGenerateTitle() {
+    if (!subjectCode.trim() && !subjectName.trim()) {
+      toast.info("Add a Subject Code or Subject Name in Advanced details first to auto-generate a title");
+      return;
+    }
+    sounds.tap();
+    haptics.light();
+    const typeObj = RESOURCE_TYPES.find((r) => r.id === resourceType);
+    const typeLabel = typeObj ? typeObj.label : "Notes";
+    const sub = subjectCode.trim() || subjectName.trim();
+    const semStr = `Semester ${semester}`;
+    const generated = `${sub} ${typeLabel} - ${semStr} ${branch} (${moduleOrChapter ? `Unit ${moduleOrChapter}` : "Complete Syllabus"})`;
+    setTitle(generated);
+  }
+
+  // Aggregate attachment stats across all modules
+  const allAttachments = modules.flatMap((m) => m.attachments);
+  const readyAttachmentsCount = allAttachments.filter((a) => a.status === "ready" && a.url).length;
+  const hasUploading = allAttachments.some((a) => a.status === "uploading");
+  const hasTitle = title.trim().length > 0;
+  const isFormValid = hasTitle && readyAttachmentsCount > 0 && !hasUploading;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!title.trim()) {
-      toast.error("Please enter a title for the note / study pack");
+      toast.error("Give your study pack a title first");
       return;
     }
-    if (!subjectCode.trim()) {
-      toast.error("Subject code is required (e.g. CS201, EC304, MA101)");
-      return;
-    }
-    if (!subjectName.trim()) {
-      toast.error("Subject name is required (e.g. Data Structures & Algorithms)");
-      return;
-    }
-
-    const readyAttachments = attachments.filter((a) => a.status === "ready" && a.url);
-    const hasUploading = attachments.some((a) => a.status === "uploading");
-
     if (hasUploading) {
-      toast.info("Please wait for all documents to finish uploading before publishing");
+      toast.info("Please wait for all files to finish uploading before publishing");
       return;
     }
-
-    if (readyAttachments.length === 0) {
-      toast.error("Please attach at least one PDF, PPT, document, or Google Drive link");
+    if (readyAttachmentsCount === 0) {
+      toast.error("Attach at least one file or link to a module before publishing");
       return;
     }
 
@@ -407,35 +512,41 @@ export function UploadAcademicClient() {
     sounds.send();
     haptics.medium();
 
-    try {
-      const firstDrive = readyAttachments.find(
-        (a) => a.type === "DRIVE" || a.url.includes("drive.google.com")
-      );
-      const firstFile = readyAttachments.find(
-        (a) => a.type !== "DRIVE" && !a.url.includes("drive.google.com")
-      );
+    const modulesPayload = modules
+      .map((m, order) => ({
+        id: m.id,
+        title: m.title.trim() || undefined,
+        description: m.description.trim() || undefined,
+        order,
+        attachments: m.attachments
+          .filter((a) => a.status === "ready" && a.url)
+          .map((a) => ({
+            id: a.id,
+            title: a.title,
+            url: a.url,
+            type: a.type,
+            sizeBytes: a.sizeBytes,
+            description: a.notes?.trim() || undefined,
+            previewImage: a.previewImage,
+            previewSiteName: a.previewSiteName,
+          })),
+      }))
+      .filter((m) => m.attachments.length > 0);
 
+    try {
       const res = await fetch("/api/academics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || undefined,
-          subjectCode: subjectCode.trim().toUpperCase(),
-          subjectName: subjectName.trim(),
+          subjectCode: subjectCode.trim() || undefined,
+          subjectName: subjectName.trim() || undefined,
           branch,
           semester,
           resourceType,
           moduleOrChapter: moduleOrChapter.trim() || null,
-          attachments: readyAttachments.map((a) => ({
-            id: a.id,
-            title: a.title,
-            url: a.url,
-            type: a.type,
-            sizeBytes: a.sizeBytes,
-          })),
-          driveUrl: firstDrive?.url || null,
-          fileUrl: firstFile?.url || readyAttachments[0]?.url || null,
+          modules: modulesPayload,
           tags,
         }),
       });
@@ -444,8 +555,17 @@ export function UploadAcademicClient() {
       if (res.ok && json.success) {
         sounds.pop();
         haptics.success();
-        toast.success("Study resource published with all attachments! +20 Loop Points earned");
-        router.push(`/academics/study-material/${json.item?.id || ""}`);
+        setPublished({ id: json.item?.id, title: title.trim(), points: json.item?.uploader?.points });
+
+        // Lightweight milestone toast derived from the (already-existing) points total — no new schema.
+        const points = Number(json.item?.uploader?.points || 0);
+        if (points <= 20) {
+          toast.success("🌱 First Contribution! You just helped future students.");
+        } else if (points <= 180) {
+          toast.success("🔥 Rising Contributor! Keep sharing great notes.");
+        } else {
+          toast.success("🏆 Top Contributor status! Your uploads are shaping the vault.");
+        }
       } else {
         toast.error(json.error || "Failed to publish academic resource");
         setIsSubmitting(false);
@@ -456,16 +576,62 @@ export function UploadAcademicClient() {
     }
   }
 
-  // Validation status
-  const hasTitle = title.trim().length > 0;
-  const hasSubjectCode = subjectCode.trim().length > 0;
-  const hasSubjectName = subjectName.trim().length > 0;
-  const readyAttachmentsCount = attachments.filter((a) => a.status === "ready" && a.url).length;
-  const hasUploading = attachments.some((a) => a.status === "uploading");
-  const isFormValid =
-    hasTitle && hasSubjectCode && hasSubjectName && readyAttachmentsCount > 0 && !hasUploading;
+  function handleShareAndContinue() {
+    if (!published) return;
+    sounds.tap();
+    haptics.light();
+    const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://campusloop.space"}/academics/study-material/${published.id}`;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      navigator
+        .share({ title: published.title, text: `Check out ${published.title} on CampusLoop!`, url: shareUrl })
+        .catch(() => {});
+    } else if (typeof navigator !== "undefined") {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied — share it with your batch!");
+    }
+  }
+
+  function handleContinueToResource() {
+    if (!published) return;
+    router.push(`/academics/study-material/${published.id}`);
+  }
 
   const currentType = RESOURCE_TYPES.find((r) => r.id === resourceType) || RESOURCE_TYPES[0];
+
+  // ─── Post-publish growth panel ───
+  if (published) {
+    return (
+      <div className="mx-auto w-full max-w-lg px-4 pt-16 pb-10 text-center space-y-5">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-primary/10 border border-primary/25 text-primary">
+          <PartyPopper className="size-8" />
+        </div>
+        <div className="space-y-1.5">
+          <h1 className="text-xl font-black text-foreground">You just helped future students!</h1>
+          <p className="text-sm text-muted-foreground">
+            “{published.title}” is live on the Study Vault. Notes shared by top contributors get 5x more
+            views — share yours now and watch it climb the Trending feed.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={handleShareAndContinue}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+          >
+            <Share2 className="size-4" />
+            <span>Share with my batch</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleContinueToResource}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-border/50 hover:bg-muted text-foreground font-bold text-sm transition-all cursor-pointer"
+          >
+            <span>View resource</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl pb-10 px-3 sm:px-5 lg:px-8 pt-2 sm:pt-4">
@@ -492,7 +658,6 @@ export function UploadAcademicClient() {
           </h1>
         </div>
 
-        {/* Clout Reward Badge */}
         <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400">
             <Zap className="size-4 text-amber-400 fill-amber-400 shrink-0" />
@@ -506,442 +671,260 @@ export function UploadAcademicClient() {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* ─── LEFT COLUMN: Multi-Section Creator Studio (8 Columns) ─── */}
+          {/* ─── LEFT COLUMN ─── */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Step 1: Resource Type Selector */}
-            <div className="rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
-                    1
-                  </span>
-                  <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    What are you uploading?
-                  </h2>
-                </div>
-                <span className="text-xs font-bold text-muted-foreground">{currentType.label}</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {RESOURCE_TYPES.map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = resourceType === type.id;
-                  return (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => {
-                        sounds.tap();
-                        haptics.light();
-                        setResourceType(type.id);
-                      }}
-                      className={cn(
-                        "flex flex-col text-left p-3 rounded-xl border transition-all cursor-pointer relative min-h-[92px]",
-                        isSelected
-                          ? "bg-primary/10 border-primary shadow-xs ring-1 ring-primary/40"
-                          : "bg-muted/20 border-border/40 hover:bg-muted/40 hover:border-border/80"
-                      )}
-                    >
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <div
-                          className={cn(
-                            "flex size-8 items-center justify-center rounded-xl border",
-                            type.badgeColor
-                          )}
-                        >
-                          <Icon className="size-4" />
-                        </div>
-                        {isSelected && (
-                          <div className="size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                            <Check className="size-3 stroke-[3]" />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs font-black text-foreground">{type.label}</p>
-                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
-                        {type.desc}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Title */}
+            <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-2">
+              <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                <span>Title</span>
+                <span className="text-[10px] text-muted-foreground uppercase">Required</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. CS201 Complete Course Notes, All PYQs & Revision Slides"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="h-11 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-sm font-bold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+              />
             </div>
 
-            {/* Step 2: Course & Subject Identification */}
-            <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
-                    2
-                  </span>
-                  <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                    Course details
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateTitle}
-                  className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
-                >
-                  <Sparkles className="size-3" />
-                  <span>Generate title</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Subject Code */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span>Subject Code</span>
-                    <span className="text-[10px] text-muted-foreground uppercase">Required</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. CS201, EC304, MA101"
-                    value={subjectCode}
-                    onChange={(e) => setSubjectCode(e.target.value.toUpperCase())}
-                    className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-                  />
-                </div>
-
-                {/* Subject Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span>Subject Name</span>
-                    <span className="text-[10px] text-muted-foreground uppercase">Required</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Data Structures &amp; Algorithms"
-                    value={subjectName}
-                    onChange={(e) => setSubjectName(e.target.value)}
-                    className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Document Title */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                  <span>Note / Study Pack Title</span>
-                  <span className="text-[10px] text-muted-foreground uppercase">Required</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. CS201 Complete Course Notes, All PYQs &amp; Revision Slides"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-bold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                  <span>What’s included?</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Topics, chapters, professor, exam year, important units..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full rounded-2xl border border-border/40 bg-muted/30 p-3.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Step 3: Academic Branch & Semester Scope */}
-            <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
-                  3
-                </span>
-                <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                  Academic details
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Branch */}
-                <div className="space-y-1.5 sm:col-span-1">
-                  <label className="text-xs font-bold text-foreground">Target Branch</label>
-                  <SearchableCombobox
-                    options={BRANCH_OPTIONS}
-                    value={branch}
-                    onChange={(val) => setBranch(val)}
-                    placeholder="Select branch..."
-                    searchPlaceholder="Search branch (e.g. CSE, IT, Mech)..."
-                    clearable={false}
-                  />
-                </div>
-
-                {/* Semester */}
-                <div className="space-y-1.5 sm:col-span-1">
-                  <label className="text-xs font-bold text-foreground">Semester</label>
-                  <SearchableCombobox
-                    options={SEMESTER_OPTIONS}
-                    value={String(semester)}
-                    onChange={(val) => setSemester(parseInt(val, 10) || 1)}
-                    placeholder="Select semester..."
-                    searchPlaceholder="Search semester (1–8)..."
-                    clearable={false}
-                  />
-                </div>
-
-                {/* Module / Chapter */}
-                <div className="space-y-1.5 sm:col-span-1">
-                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span>Module / Unit</span>
-                    <span className="text-[10px] text-muted-foreground">Optional</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Unit 1 to 5, All Modules"
-                    value={moduleOrChapter}
-                    onChange={(e) => setModuleOrChapter(e.target.value)}
-                    className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Step 4: Multi-Attachment Studio (PDF, PPT, DOCX, Drive, Links) */}
+            {/* Materials — modules, on top, where it belongs */}
             <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
-                    4
+                  <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <Package className="size-3.5" />
                   </span>
                   <h2 className="text-sm font-black uppercase tracking-wider text-foreground">Materials</h2>
                 </div>
-
                 <span className="text-xs font-bold text-muted-foreground">
-                  {attachments.length} {attachments.length === 1 ? "document" : "documents"} attached
+                  {readyAttachmentsCount} {readyAttachmentsCount === 1 ? "file" : "files"} ready ·{" "}
+                  {modules.length} {modules.length === 1 ? "module" : "modules"}
                 </span>
               </div>
 
-              {/* Upload Dropzone & Link Controls */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* File Upload Trigger */}
-                <label
-                  htmlFor="multi-academic-files"
-                  className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-border/60 bg-muted/20 hover:bg-muted/40 hover:border-primary/50 transition-all cursor-pointer text-center group"
-                >
-                  <input
-                    id="multi-academic-files"
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.txt"
-                    onChange={handleFilesUpload}
-                    className="hidden"
+              <div className="space-y-4">
+                {modules.map((module, idx) => (
+                  <ModuleEditor
+                    key={module.id}
+                    module={module}
+                    index={idx}
+                    totalModules={modules.length}
+                    linkDraft={getLinkDraft(module.id)}
+                    onUpdateField={(patch) => updateModule(module.id, patch)}
+                    onRemove={() => removeModule(module.id)}
+                    onMoveUp={() => moveModule(module.id, "up")}
+                    onMoveDown={() => moveModule(module.id, "down")}
+                    onFilesUpload={(e) => handleFilesUpload(module.id, e)}
+                    onToggleLinkPanel={() => setLinkDraft(module.id, { isOpen: !getLinkDraft(module.id).isOpen })}
+                    onLinkUrlChange={(url) => setLinkDraft(module.id, { url })}
+                    onLinkTitleChange={(linkTitle) => setLinkDraft(module.id, { title: linkTitle })}
+                    onAddLink={() => handleAddExternalLink(module.id)}
+                    onCancelLink={() => setLinkDraft(module.id, { isOpen: false, url: "", title: "" })}
+                    onRemoveAttachment={(attId) => removeAttachment(module.id, attId)}
+                    onMoveAttachment={(attIdx, dir) => moveAttachment(module.id, attIdx, dir)}
+                    onUpdateAttachment={(attId, patch) => updateAttachmentField(module.id, attId, patch)}
                   />
-                  <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 group-hover:scale-105 transition-transform mb-2">
-                    <UploadCloud className="size-5" />
-                  </div>
-                  <p className="text-xs font-black text-foreground">Add files</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    PDF, PPT, DOCX, images · 50MB each
-                  </p>
-                </label>
-
-                {/* Add External Link Trigger */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setIsAddingLink((prev) => !prev);
-                  }}
-                  className={cn(
-                    "flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer text-center group",
-                    isAddingLink
-                      ? "border-primary bg-primary/5 shadow-xs"
-                      : "border-border/60 bg-muted/20 hover:bg-muted/40 hover:border-primary/50"
-                  )}
-                >
-                  <div className="flex size-11 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:scale-105 transition-transform mb-2">
-                    <Link2 className="size-5" />
-                  </div>
-                  <p className="text-xs font-black text-foreground">Add Drive / Web / YouTube Link</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Google Drive, Docs, YouTube playlists, Notion &amp; web portals
-                  </p>
-                </button>
+                ))}
               </div>
 
-              {/* Expandable Add Link Panel */}
-              {isAddingLink && (
-                <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-foreground flex items-center gap-1.5">
-                      <Link2 className="size-3.5 text-primary" />
-                      <span>Attach External Web or Cloud URL</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingLink(false)}
-                      className="text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      <X className="size-4" />
-                    </button>
-                  </div>
+              <button
+                type="button"
+                onClick={addModule}
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 text-xs font-bold text-muted-foreground hover:text-primary transition-all cursor-pointer"
+              >
+                <Plus className="size-3.5" />
+                <span>Add another module</span>
+              </button>
+            </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-foreground">Resource Link (URL)</label>
-                      <input
-                        type="url"
-                        placeholder="https://drive.google.com/file/d/... or YouTube playlist"
-                        value={linkInputUrl}
-                        onChange={(e) => setLinkInputUrl(e.target.value)}
-                        className="h-9.5 w-full rounded-xl border border-border/40 bg-background px-3 text-xs font-mono text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-foreground">Document Label</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Module 3 Endsem Solved Questions Drive"
-                        value={linkInputTitle}
-                        onChange={(e) => setLinkInputTitle(e.target.value)}
-                        className="h-9.5 w-full rounded-xl border border-border/40 bg-background px-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                      />
-                    </div>
-                  </div>
+            {/* Short description of the whole resource — visible, not hidden */}
+            <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-2">
+              <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                <span>What's included?</span>
+                <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
+              </label>
+              <textarea
+                rows={2}
+                placeholder="A short note about the whole study pack — topics, chapters, professor, exam year..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full rounded-2xl border border-border/40 bg-muted/30 p-3.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
+              />
+            </div>
 
-                  <div className="flex justify-end gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingLink(false)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleAddExternalLink}
-                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-black bg-primary text-primary-foreground hover:opacity-90 shadow-xs transition-all cursor-pointer"
-                    >
-                      <Plus className="size-3.5" />
-                      <span>Attach Link</span>
-                    </button>
-                  </div>
+            {/* Advanced details accordion — course/academic metadata, all optional */}
+            <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.tap();
+                  haptics.light();
+                  setIsAdvancedOpen((v) => !v);
+                }}
+                className="w-full flex items-center justify-between gap-2 p-5 sm:p-6 cursor-pointer"
+              >
+                <div className="text-left">
+                  <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
+                    Advanced details
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Course info, category &amp; tags — all optional
+                  </p>
                 </div>
-              )}
+                <ChevronDown
+                  className={cn(
+                    "size-4 text-muted-foreground transition-transform shrink-0",
+                    isAdvancedOpen && "rotate-180"
+                  )}
+                />
+              </button>
 
-              {/* Attached Items List & Tray */}
-              {attachments.length > 0 && (
-                <div className="space-y-2.5 pt-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
-                    <span>Attached Materials Order</span>
-                    <span>{attachments.length} items</span>
+              {isAdvancedOpen && (
+                <div className="px-5 sm:px-6 pb-6 space-y-5 border-t border-border/30 pt-5">
+                  {/* What are you uploading? */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                      What are you uploading?
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {RESOURCE_TYPES.map((type) => {
+                        const Icon = type.icon;
+                        const isSelected = resourceType === type.id;
+                        return (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => {
+                              sounds.tap();
+                              haptics.light();
+                              setResourceType(type.id);
+                            }}
+                            className={cn(
+                              "flex flex-col text-left p-3 rounded-xl border transition-all cursor-pointer relative min-h-[88px]",
+                              isSelected
+                                ? "bg-primary/10 border-primary shadow-xs ring-1 ring-primary/40"
+                                : "bg-muted/20 border-border/40 hover:bg-muted/40 hover:border-border/80"
+                            )}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <div
+                                className={cn(
+                                  "flex size-8 items-center justify-center rounded-xl border",
+                                  type.badgeColor
+                                )}
+                              >
+                                <Icon className="size-4" />
+                              </div>
+                              {isSelected && (
+                                <div className="size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                                  <Check className="size-3 stroke-[3]" />
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-xs font-black text-foreground">{type.label}</p>
+                            <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
+                              {type.desc}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    {attachments.map((att, idx) => {
-                      const Icon = getAttachmentIcon(att.type);
-                      return (
-                        <div
-                          key={att.id}
-                          className="flex items-center gap-3 p-3 rounded-2xl border border-border/50 bg-background/75 backdrop-blur-sm transition-all shadow-2xs"
-                        >
-                          {/* Order Index & Icon */}
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-[11px] font-mono font-bold text-muted-foreground w-4 text-center">
-                              {idx + 1}
-                            </span>
-                            <div className="flex size-8 items-center justify-center rounded-xl bg-muted/60 text-foreground border border-border/40">
-                              <Icon className="size-4" />
-                            </div>
-                          </div>
+                  {/* Course details */}
+                  <div className="space-y-3 pt-2 border-t border-border/20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                        Course details
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={handleGenerateTitle}
+                        className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                      >
+                        <Sparkles className="size-3" />
+                        <span>Generate title from this</span>
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-foreground">Subject Code</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. CS201, EC304, MA101"
+                          value={subjectCode}
+                          onChange={(e) => setSubjectCode(e.target.value.toUpperCase())}
+                          className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-foreground">Subject Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Data Structures & Algorithms"
+                          value={subjectName}
+                          onChange={(e) => setSubjectName(e.target.value)}
+                          className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-                          {/* Title & Metadata */}
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <input
-                              type="text"
-                              value={att.title}
-                              onChange={(e) => updateAttachmentTitle(att.id, e.target.value)}
-                              placeholder="Document Title"
-                              className="w-full bg-transparent text-xs font-bold text-foreground outline-none focus:underline"
-                            />
-                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
-                              <span className="px-1.5 py-0.2 rounded bg-muted font-mono font-bold uppercase tracking-wider text-foreground">
-                                {att.type}
-                              </span>
-                              {att.sizeBytes && <span>{(att.sizeBytes / (1024 * 1024)).toFixed(2)} MB</span>}
-                              {att.status === "uploading" && (
-                                <span className="text-primary font-bold flex items-center gap-1">
-                                  <Loader2 className="size-2.5 animate-spin" />
-                                  <span>Uploading {att.uploadProgress ?? 0}%</span>
-                                </span>
-                              )}
-                              {att.status === "error" && (
-                                <span className="text-destructive font-bold">
-                                  {att.error || "Upload error"}
-                                </span>
-                              )}
-                              {att.status === "ready" && (
-                                <span className="text-emerald-400 font-bold flex items-center gap-0.5">
-                                  <Check className="size-2.5" />
-                                  <span>Ready</span>
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Reorder and Delete Controls */}
-                          <div className="flex items-center gap-1 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => moveAttachment(idx, "up")}
-                              disabled={idx === 0}
-                              className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
-                              title="Move Up"
-                            >
-                              <ArrowUp className="size-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveAttachment(idx, "down")}
-                              disabled={idx === attachments.length - 1}
-                              className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
-                              title="Move Down"
-                            >
-                              <ArrowDown className="size-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => removeAttachment(att.id)}
-                              className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all cursor-pointer ml-1"
-                              title="Remove Attachment"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  {/* Academic details */}
+                  <div className="space-y-3 pt-2 border-t border-border/20">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                      Academic details
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-1.5 sm:col-span-1">
+                        <label className="text-xs font-bold text-foreground">Target Branch</label>
+                        <SearchableCombobox
+                          options={BRANCH_OPTIONS}
+                          value={branch}
+                          onChange={(val) => setBranch(val)}
+                          placeholder="Select branch..."
+                          searchPlaceholder="Search branch (e.g. CSE, IT, Mech)..."
+                          clearable={false}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-1">
+                        <label className="text-xs font-bold text-foreground">Semester</label>
+                        <SearchableCombobox
+                          options={SEMESTER_OPTIONS}
+                          value={String(semester)}
+                          onChange={(val) => setSemester(parseInt(val, 10) || 1)}
+                          placeholder="Select semester..."
+                          searchPlaceholder="Search semester (1–8)..."
+                          clearable={false}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-1">
+                        <label className="text-xs font-bold text-foreground">Module / Unit</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Unit 1 to 5, All Modules"
+                          value={moduleOrChapter}
+                          onChange={(e) => setModuleOrChapter(e.target.value)}
+                          className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Step 5: Tags & SEO Discovery */}
+            {/* Tags — always visible, clearly optional */}
             <div className="rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 backdrop-blur-sm space-y-4">
               <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black">
-                  5
-                </span>
+                <Tag className="size-3.5 text-muted-foreground" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
-                  Tags &amp; Search Keywords
+                  Tags <span className="text-muted-foreground font-normal normal-case">(optional)</span>
                 </h2>
               </div>
 
-              {/* Tag Input Field */}
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <Tag className="absolute left-3.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -968,7 +951,6 @@ export function UploadAcademicClient() {
                 </button>
               </div>
 
-              {/* Active Tags */}
               <div className="flex flex-wrap items-center gap-1.5">
                 {tags.map((t) => (
                   <span
@@ -987,7 +969,6 @@ export function UploadAcademicClient() {
                 ))}
               </div>
 
-              {/* Suggestions */}
               <div className="space-y-1.5 pt-2 border-t border-border/20">
                 <span className="text-[11px] font-semibold text-muted-foreground">Quick suggestions:</span>
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -1006,9 +987,8 @@ export function UploadAcademicClient() {
             </div>
           </div>
 
-          {/* ─── RIGHT COLUMN: Live Vault Preview & Publish Action (4 Columns) ─── */}
+          {/* ─── RIGHT COLUMN: Live Preview & Publish ─── */}
           <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
-            {/* Live Preview Card */}
             <div className="rounded-3xl border border-border/40 bg-card/75 p-5 backdrop-blur-md shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
@@ -1019,12 +999,10 @@ export function UploadAcademicClient() {
                 </span>
               </div>
 
-              {/* Simulated Card Tile */}
               <div className="rounded-2xl border border-border/50 bg-background/80 p-4 space-y-3 shadow-2xs">
-                {/* Header info */}
                 <div className="flex items-center justify-between gap-2">
                   <span className="px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 font-mono text-[11px] font-black tracking-wider">
-                    {subjectCode.trim() || "CS201"}
+                    {subjectCode.trim() || "General"}
                   </span>
                   <span
                     className={cn(
@@ -1036,64 +1014,50 @@ export function UploadAcademicClient() {
                   </span>
                 </div>
 
-                {/* Title */}
                 <div>
                   <h4 className="text-sm font-black text-foreground line-clamp-2 leading-snug">
                     {title.trim() || "Document Title Preview"}
                   </h4>
-                  <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                    {subjectName.trim() || "Course Name"}
-                  </p>
+                  {subjectName.trim() && (
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">{subjectName.trim()}</p>
+                  )}
                 </div>
 
-                {/* Description snippet */}
                 <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed">
-                  {description.trim() ||
-                    "Curated notes covering core examination topics and syllabus modules."}
+                  {description.trim() || "Curated notes covering core examination topics and syllabus modules."}
                 </p>
 
-                {/* Attached Documents in preview */}
-                {attachments.length > 0 && (
-                  <div className="space-y-1 pt-1.5 border-t border-border/30">
+                {modules.some((m) => m.attachments.length > 0) && (
+                  <div className="space-y-1.5 pt-1.5 border-t border-border/30">
                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Included Documents ({attachments.length})
+                      Modules ({modules.filter((m) => m.attachments.length > 0).length})
                     </span>
                     <div className="space-y-1">
-                      {attachments.slice(0, 3).map((a, i) => {
-                        const Icon = getAttachmentIcon(a.type);
-                        return (
+                      {modules
+                        .filter((m) => m.attachments.length > 0)
+                        .slice(0, 3)
+                        .map((m, i) => (
                           <div
-                            key={a.id}
+                            key={m.id}
                             className="flex items-center gap-1.5 text-[11px] text-foreground font-semibold truncate bg-muted/30 px-2 py-1 rounded-lg"
                           >
-                            <Icon className="size-3 text-muted-foreground shrink-0" />
-                            <span className="truncate">{a.title || `Doc ${i + 1}`}</span>
+                            <Package className="size-3 text-muted-foreground shrink-0" />
+                            <span className="truncate">
+                              {m.title.trim() || `Module ${i + 1}`} · {m.attachments.length}{" "}
+                              {m.attachments.length === 1 ? "file" : "files"}
+                            </span>
                           </div>
-                        );
-                      })}
-                      {attachments.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground">
-                          +{attachments.length - 3} more files
-                        </span>
-                      )}
+                        ))}
                     </div>
                   </div>
                 )}
 
-                {/* Meta details */}
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1 border-t border-border/30">
                   <span>Sem {semester}</span>
                   <span>•</span>
                   <span className="truncate">{branch}</span>
-                  {moduleOrChapter && (
-                    <>
-                      <span>•</span>
-                      <span className="truncate">{moduleOrChapter}</span>
-                    </>
-                  )}
                 </div>
 
-                {/* Tags in preview */}
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-1">
                     {tags.slice(0, 3).map((t) => (
@@ -1101,37 +1065,16 @@ export function UploadAcademicClient() {
                         #{t}
                       </span>
                     ))}
-                    {tags.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground">+{tags.length - 3}</span>
-                    )}
+                    {tags.length > 3 && <span className="text-[10px] text-muted-foreground">+{tags.length - 3}</span>}
                   </div>
                 )}
               </div>
 
-              {/* Pre-Publish Checklist */}
               <div className="space-y-2 pt-2 border-t border-border/30 text-xs">
                 <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
                   Readiness Checklist
                 </span>
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={cn(
-                        "size-4 rounded-full flex items-center justify-center shrink-0 text-[10px]",
-                        hasSubjectCode
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {hasSubjectCode ? <Check className="size-2.5 stroke-[3]" /> : "•"}
-                    </div>
-                    <span
-                      className={hasSubjectCode ? "text-foreground font-semibold" : "text-muted-foreground"}
-                    >
-                      Subject code entered
-                    </span>
-                  </div>
-
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
@@ -1142,7 +1085,7 @@ export function UploadAcademicClient() {
                       {hasTitle ? <Check className="size-2.5 stroke-[3]" /> : "•"}
                     </div>
                     <span className={hasTitle ? "text-foreground font-semibold" : "text-muted-foreground"}>
-                      Document title set
+                      Title set
                     </span>
                   </div>
 
@@ -1163,14 +1106,13 @@ export function UploadAcademicClient() {
                       }
                     >
                       {readyAttachmentsCount > 0
-                        ? `${readyAttachmentsCount} document${readyAttachmentsCount > 1 ? "s" : ""} attached`
-                        : "Attach at least 1 document or link"}
+                        ? `${readyAttachmentsCount} file${readyAttachmentsCount > 1 ? "s" : ""} attached`
+                        : "Attach at least 1 file or link"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Button */}
               <button
                 type="submit"
                 disabled={isSubmitting || !isFormValid}
@@ -1183,13 +1125,12 @@ export function UploadAcademicClient() {
                   </>
                 ) : (
                   <>
-                    <UploadCloud className="size-4" />
+                    <Rocket className="size-4" />
                     <span>Publish to Vault (+20 LP)</span>
                   </>
                 )}
               </button>
 
-              {/* Integrity statement */}
               <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-snug pt-1">
                 <ShieldCheck className="size-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
@@ -1201,6 +1142,291 @@ export function UploadAcademicClient() {
           </div>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ─── Module Editor (one card per module; progressive disclosure for titles/descriptions) ───
+
+interface ModuleEditorProps {
+  module: UploadModuleItem;
+  index: number;
+  totalModules: number;
+  linkDraft: LinkDraft;
+  onUpdateField: (patch: Partial<UploadModuleItem>) => void;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onFilesUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onToggleLinkPanel: () => void;
+  onLinkUrlChange: (url: string) => void;
+  onLinkTitleChange: (title: string) => void;
+  onAddLink: () => void;
+  onCancelLink: () => void;
+  onRemoveAttachment: (attId: string) => void;
+  onMoveAttachment: (idx: number, dir: "up" | "down") => void;
+  onUpdateAttachment: (attId: string, patch: Partial<UploadAttachmentItem>) => void;
+}
+
+function ModuleEditor({
+  module,
+  index,
+  totalModules,
+  linkDraft,
+  onUpdateField,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  onFilesUpload,
+  onToggleLinkPanel,
+  onLinkUrlChange,
+  onLinkTitleChange,
+  onAddLink,
+  onCancelLink,
+  onRemoveAttachment,
+  onMoveAttachment,
+  onUpdateAttachment,
+}: ModuleEditorProps) {
+  const inputId = `module-files-${module.id}`;
+
+  return (
+    <div className="rounded-2xl border border-border/40 bg-muted/10 p-4 space-y-3">
+      {/* Module header */}
+      <div className="flex items-center gap-2">
+        <span className="flex size-6 items-center justify-center rounded-full bg-muted text-[11px] font-black text-muted-foreground shrink-0">
+          {index + 1}
+        </span>
+        <input
+          type="text"
+          placeholder={totalModules > 1 ? `Module ${index + 1} title (optional) e.g. Unit 1 — Arrays` : "Module title (optional)"}
+          value={module.title}
+          onChange={(e) => onUpdateField({ title: e.target.value })}
+          className="flex-1 min-w-0 bg-transparent text-sm font-bold text-foreground placeholder:text-muted-foreground/70 placeholder:font-medium outline-none"
+        />
+        <div className="flex items-center gap-1 shrink-0">
+          {totalModules > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={onMoveUp}
+                disabled={index === 0}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
+                title="Move module up"
+              >
+                <ArrowUp className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={onMoveDown}
+                disabled={index === totalModules - 1}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
+                title="Move module down"
+              >
+                <ArrowDown className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={onRemove}
+                className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all cursor-pointer"
+                title="Remove module"
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {(totalModules > 1 || module.description) && (
+        <input
+          type="text"
+          placeholder="What's in this module? (optional)"
+          value={module.description}
+          onChange={(e) => onUpdateField({ description: e.target.value })}
+          className="w-full bg-transparent text-xs text-muted-foreground placeholder:text-muted-foreground/60 outline-none border-b border-dashed border-border/30 pb-1.5"
+        />
+      )}
+
+      {/* Dropzone & link controls */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <label
+          htmlFor={inputId}
+          className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-border/60 bg-muted/20 hover:bg-muted/40 hover:border-primary/50 transition-all cursor-pointer text-center group"
+        >
+          <input
+            id={inputId}
+            type="file"
+            multiple
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.txt,.html,.htm"
+            onChange={onFilesUpload}
+            className="hidden"
+          />
+          <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 group-hover:scale-105 transition-transform mb-1.5">
+            <UploadCloud className="size-4" />
+          </div>
+          <p className="text-[11px] font-black text-foreground">Add files</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">PDF, PPT, DOCX, HTML, images</p>
+        </label>
+
+        <button
+          type="button"
+          onClick={onToggleLinkPanel}
+          className={cn(
+            "flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed transition-all cursor-pointer text-center group",
+            linkDraft.isOpen
+              ? "border-primary bg-primary/5 shadow-xs"
+              : "border-border/60 bg-muted/20 hover:bg-muted/40 hover:border-primary/50"
+          )}
+        >
+          <div className="flex size-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:scale-105 transition-transform mb-1.5">
+            <Link2 className="size-4" />
+          </div>
+          <p className="text-[11px] font-black text-foreground">Add link</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Drive, Web, YouTube — auto preview</p>
+        </button>
+      </div>
+
+      {linkDraft.isOpen && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <input
+              type="url"
+              placeholder="https://drive.google.com/... or YouTube link"
+              value={linkDraft.url}
+              onChange={(e) => onLinkUrlChange(e.target.value)}
+              className="h-9 w-full rounded-xl border border-border/40 bg-background px-3 text-xs font-mono text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+            />
+            <input
+              type="text"
+              placeholder="Label (optional)"
+              value={linkDraft.title}
+              onChange={(e) => onLinkTitleChange(e.target.value)}
+              className="h-9 w-full rounded-xl border border-border/40 bg-background px-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onCancelLink}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onAddLink}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-black bg-primary text-primary-foreground hover:opacity-90 shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="size-3.5" />
+              <span>Attach Link</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Attachment list */}
+      {module.attachments.length > 0 && (
+        <div className="space-y-1.5 pt-1">
+          {module.attachments.map((att, idx) => {
+            const Icon = getAttachmentIcon(att.type);
+            const isVideo = att.type === "VIDEO";
+            return (
+              <div
+                key={att.id}
+                className="rounded-xl border border-border/50 bg-background/75 backdrop-blur-sm transition-all shadow-2xs overflow-hidden"
+              >
+                <div className="flex items-center gap-2.5 p-2.5">
+                  {att.previewImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={att.previewImage}
+                      alt=""
+                      className="size-9 rounded-lg object-cover border border-border/40 shrink-0"
+                    />
+                  ) : (
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 text-foreground border border-border/40 shrink-0">
+                      <Icon className="size-4" />
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    <input
+                      type="text"
+                      value={att.title}
+                      onChange={(e) => onUpdateAttachment(att.id, { title: e.target.value })}
+                      placeholder="File title"
+                      className="w-full bg-transparent text-xs font-bold text-foreground outline-none focus:underline"
+                    />
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
+                      <span className="px-1.5 py-0.2 rounded bg-muted font-mono font-bold uppercase tracking-wider text-foreground">
+                        {att.type}
+                      </span>
+                      {att.previewSiteName && <span className="truncate">{att.previewSiteName}</span>}
+                      {att.sizeBytes && <span>{(att.sizeBytes / (1024 * 1024)).toFixed(2)} MB</span>}
+                      {att.status === "uploading" && (
+                        <span className="text-primary font-bold flex items-center gap-1">
+                          <Loader2 className="size-2.5 animate-spin" />
+                          <span>Uploading {att.uploadProgress ?? 0}%</span>
+                        </span>
+                      )}
+                      {att.status === "error" && (
+                        <span className="text-destructive font-bold">{att.error || "Upload error"}</span>
+                      )}
+                      {att.status === "ready" && (
+                        <span className="text-emerald-400 font-bold flex items-center gap-0.5">
+                          <Check className="size-2.5" />
+                          <span>Ready</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onMoveAttachment(idx, "up")}
+                      disabled={idx === 0}
+                      className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
+                      title="Move up"
+                    >
+                      <ArrowUp className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onMoveAttachment(idx, "down")}
+                      disabled={idx === module.attachments.length - 1}
+                      className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all cursor-pointer"
+                      title="Move down"
+                    >
+                      <ArrowDown className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveAttachment(att.id)}
+                      className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all cursor-pointer ml-1"
+                      title="Remove"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {isVideo && (
+                  <div className="px-2.5 pb-2.5 -mt-1">
+                    <input
+                      type="text"
+                      placeholder="Notes for this video (shown under the player)"
+                      value={att.notes || ""}
+                      onChange={(e) => onUpdateAttachment(att.id, { notes: e.target.value })}
+                      className="w-full bg-muted/30 rounded-lg px-2.5 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground outline-none border border-border/30 focus:border-primary transition-colors"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, FileText, FolderOpen, GraduationCap, Sparkles } from "lucide-react";
+import { Bookmark, FileText, FolderOpen, GraduationCap, Sparkles, TrendingUp } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ interface AcademicNavTabsProps {
 
 const TABS: AcademicTabItem[] = [
   { id: "for_you", label: "For You", icon: Sparkles },
+  { id: "TRENDING", label: "Trending", icon: TrendingUp },
   { id: "NOTES", label: "Notes", icon: FileText },
   { id: "PYQ", label: "PYQs", icon: GraduationCap },
   { id: "PLAYLISTS", label: "Playlists", icon: FolderOpen },
