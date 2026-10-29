@@ -581,11 +581,12 @@ export function UploadAcademicClient() {
     sounds.tap();
     haptics.light();
     const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://campusloop.space"}/academics/study-material/${published.id}`;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
+    const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+    if (canShare) {
       navigator
         .share({ title: published.title, text: `Check out ${published.title} on CampusLoop!`, url: shareUrl })
         .catch(() => {});
-    } else if (typeof navigator !== "undefined") {
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied — share it with your batch!");
     }

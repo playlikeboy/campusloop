@@ -82,7 +82,7 @@ export function MobileBottomNav({ profile, isViewer }: MobileBottomNavProps) {
             : "grid-cols-3",
         "rounded-[22px] border border-border/50 bg-card/95 p-1",
         "shadow-[0_12px_36px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,255,255,0.06)]",
-        "backdrop-blur-2xl md:hidden select-none"
+        "backdrop-blur-2xl lg:hidden select-none"
       )}
       aria-label="Mobile bottom navigation"
     >

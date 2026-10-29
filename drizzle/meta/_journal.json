@@ -36,6 +36,13 @@
       "when": 1790553600000,
       "tag": "0004_content_query_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793255417822,
+      "tag": "0005_cheerful_the_professor",
+      "breakpoints": true
     }
   ]
 }

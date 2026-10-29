@@ -10,23 +10,23 @@ const SITE_URL = "https://campusloop.space";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { absolute: "CampusLoop: Free Courses, Notes, PYQs and Your College Community" },
+  title: { absolute: "CampusLoop — All of College. One App." },
   description:
-    "Free courses from Harvard CS50, MIT, NPTEL and top Indian teachers, peer notes and solved PYQs, and a verified-students-only campus feed for 1,400+ Indian colleges. Join free with your college email.",
+    "The everything app for your college life: a real campus feed, confessions, communities & clubs, campus match, events, free courses, notes and PYQs — all in one place for 1,400+ Indian colleges. Join free.",
   applicationName: "CampusLoop",
   authors: [{ name: "CampusLoop Team", url: SITE_URL + "/about" }],
-  keywords: ["CampusLoop", "free online courses", "free courses with certificate", "CS50", "NPTEL courses", "DBMS course", "DSA course in Hindi", "college notes", "college PYQs", "verified student network", "college community India", "campus match", "college clubs"],
+  keywords: ["CampusLoop", "college social network India", "campus community app", "college confessions app", "campus match dating", "college clubs and communities", "college events", "verified student network", "free online courses", "college notes and PYQs"],
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   alternates: { canonical: "/", types: { "application/rss+xml": "/feed.xml" } },
   openGraph: {
     title: "CampusLoop: All of college. One app.",
-    description: "Free courses from Harvard, MIT and India's best teachers, notes and PYQs, and a verified-students-only campus feed.",
+    description: "Your real campus feed, confessions, communities, campus match and events — plus free courses, notes and PYQs. Everything about college, in one verified-students app.",
     url: SITE_URL, siteName: "CampusLoop", locale: "en_IN", type: "website",
     images: [{ url: SITE_URL + "/campusloop/marketing/voxel/social-preview.webp", width: 1200, height: 630, alt: "CampusLoop — a connected home for college life" }],
   },
   twitter: {
     card: "summary_large_image", title: "CampusLoop: All of college. One app.",
-    description: "Free courses, notes and PYQs, and your verified campus community in one place.",
+    description: "Your campus feed, confessions, communities, campus match & events — plus free courses, notes and PYQs.",
     creator: "@mycampusloop", images: [SITE_URL + "/campusloop/marketing/voxel/social-preview.webp"],
   },
 };
