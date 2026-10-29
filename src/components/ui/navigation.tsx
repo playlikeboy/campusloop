@@ -31,7 +31,7 @@ import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DesktopSidebar } from "@/components/navigation/desktop-sidebar";
 import { MobileDrawer } from "@/components/navigation/mobile-drawer";
-import { MobileFloatingCreateButton } from "@/components/feed/mobile-floating-create-button";
+import { MobileBottomNav } from "@/components/feed/mobile-bottom-nav";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
@@ -545,8 +545,8 @@ export function Navigation({ profile, collegeName, isViewer, isAdmin, hideHeader
         onOpenSearch={() => setSearchPaletteOpen(true)}
       />
 
-      {/* Mobile create action appears after the reader starts scrolling. */}
-      <MobileFloatingCreateButton isViewer={isViewer} />
+      {/* ─── Mobile Bottom Tab Bar (replaces the desktop sidebar below lg) ─── */}
+      <MobileBottomNav profile={profile} isViewer={isViewer} />
 
       {/* Preview Modals */}
       <CampusUnlockedModal isOpen={showUnlockModal} onClose={() => setShowUnlockModal(false)} />
