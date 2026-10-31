@@ -47,10 +47,6 @@
 		{
 			"pattern": "campusloop.space",
 			"custom_domain": true
-		},
-		{
-			"pattern": "campsy.app",
-			"custom_domain": true
 		}
 	],
 	"observability": {

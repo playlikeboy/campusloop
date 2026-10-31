@@ -87,7 +87,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     // Expected when running outside Cloudflare Worker runtime
   }
 
+  // Email sending domain may live on a different CF account than the worker.
   const accountId =
+    (envVars?.CLOUDFLARE_EMAIL_ACCOUNT_ID as string | undefined) ||
+    process.env.CLOUDFLARE_EMAIL_ACCOUNT_ID ||
     (envVars?.CLOUDFLARE_ACCOUNT_ID as string | undefined) ||
     process.env.CLOUDFLARE_ACCOUNT_ID;
 
