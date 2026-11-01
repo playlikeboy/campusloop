@@ -382,7 +382,7 @@ function getOpenApiSpec(serverUrl = "https://campusloop.space") {
       contact: {
         name: "CampusLoop Academics Team",
         url: "https://campusloop.space/academics",
-        email: "support@mail.campsy.app",
+        email: "support@mail.campusloop.space",
       },
     },
     servers: [

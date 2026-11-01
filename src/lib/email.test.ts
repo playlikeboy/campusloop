@@ -3,11 +3,11 @@ import { normalizeSenderAddress, sendEmail } from "./email";
 import { buildNotificationEmail, buildWelcomeEmail } from "./email-templates";
 
 describe("Cloudflare Email Sending & Templates", () => {
-  it("normalizes sender addresses to @mail.campsy.app", () => {
-    expect(normalizeSenderAddress()).toBe("welcome@mail.campsy.app");
-    expect(normalizeSenderAddress("notifications")).toBe("notifications@mail.campsy.app");
-    expect(normalizeSenderAddress("support@mail.campsy.app")).toBe("support@mail.campsy.app");
-    expect(normalizeSenderAddress("alerts@campusloop.space")).toBe("alerts@mail.campsy.app");
+  it("normalizes sender addresses to @mail.campusloop.space", () => {
+    expect(normalizeSenderAddress()).toBe("welcome@mail.campusloop.space");
+    expect(normalizeSenderAddress("notifications")).toBe("notifications@mail.campusloop.space");
+    expect(normalizeSenderAddress("support@mail.campusloop.space")).toBe("support@mail.campusloop.space");
+    expect(normalizeSenderAddress("alerts@campusloop.space")).toBe("alerts@mail.campusloop.space");
   });
   it("builds notification email with correct subject and snippet", () => {
     const notification = buildNotificationEmail({

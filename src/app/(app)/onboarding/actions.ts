@@ -189,7 +189,7 @@ export async function completeOnboarding(formData: FormData) {
         .where(eq(userProfiles.id, referrerProfile.id));
     }
 
-    // Dispatch welcome email asynchronously via mail.campsy.app
+    // Dispatch welcome email asynchronously via mail.campusloop.space
     try {
       let collegeName = "CampusLoop";
       if (institutionId) {
@@ -208,7 +208,7 @@ export async function completeOnboarding(formData: FormData) {
       runInBackground(
         sendEmail({
           to: email.trim().toLowerCase(),
-          from: "welcome@mail.campsy.app",
+          from: "welcome@mail.campusloop.space",
           fromName: "CampusLoop",
           subject,
           html,

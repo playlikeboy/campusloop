@@ -59,7 +59,7 @@ export async function dispatchNotificationEmail(params: CreateNotificationParams
 
     await sendEmail({
       to: recipient.email,
-      from: "notifications@mail.campsy.app",
+      from: "notifications@mail.campusloop.space",
       fromName: "CampusLoop Notifications",
       subject,
       html,

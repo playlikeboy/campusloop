@@ -68,8 +68,8 @@
 	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
 	 */
 	"vars": {
-		"CLOUDFLARE_EMAIL_FROM": "welcome@mail.campsy.app",
-		"CLOUDFLARE_EMAIL_DOMAIN": "mail.campsy.app",
-		"CLOUDFLARE_REPLY_TO": "support@mail.campsy.app"
+		"CLOUDFLARE_EMAIL_FROM": "welcome@mail.campusloop.space",
+		"CLOUDFLARE_EMAIL_DOMAIN": "mail.campusloop.space",
+		"CLOUDFLARE_REPLY_TO": "support@mail.campusloop.space"
 	}
 }

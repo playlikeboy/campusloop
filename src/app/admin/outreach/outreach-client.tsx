@@ -839,7 +839,7 @@ export function OutreachClient({
                 </div>
                 <div>
                   <span className="text-muted-foreground">From:</span>{" "}
-                  <span className="text-foreground">CampusLoop Team &lt;welcome@mail.campsy.app&gt;</span>
+                  <span className="text-foreground">CampusLoop Team &lt;welcome@mail.campusloop.space&gt;</span>
                 </div>
               </div>
 

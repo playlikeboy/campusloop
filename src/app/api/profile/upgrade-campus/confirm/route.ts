@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       })
       .where(eq(userProfiles.id, profile.id));
 
-    // Dispatch welcome / verification email asynchronously via mail.campsy.app
+    // Dispatch welcome / verification email asynchronously via mail.campusloop.space
     try {
       const { subject, html, text } = buildWelcomeEmail({
         displayName: profile.displayName || profile.username,
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
       runInBackground(
         sendEmail({
           to: email,
-          from: "welcome@mail.campsy.app",
+          from: "welcome@mail.campusloop.space",
           fromName: "CampusLoop",
           subject,
           html,

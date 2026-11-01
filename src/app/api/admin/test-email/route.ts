@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const result = await sendEmail({
       to,
-      from: body.from || (type === "WELCOME" ? "welcome@mail.campsy.app" : "notifications@mail.campsy.app"),
+      from: body.from || (type === "WELCOME" ? "welcome@mail.campusloop.space" : "notifications@mail.campusloop.space"),
       subject: body.subject || emailPayload.subject,
       html: emailPayload.html,
       text: emailPayload.text,
