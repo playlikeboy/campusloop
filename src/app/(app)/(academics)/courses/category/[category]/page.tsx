@@ -15,15 +15,24 @@ type Props = {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const category = categoryFromSlug((await params).category);
   if (!category) notFound();
-  const p = parseCatalogParams(await searchParams, category);
-  const canonical = `https://campusloop.space${catalogHref(p, { page: p.page })}`;
-  const title = `Free ${category} Courses${p.page > 1 ? ` (page ${p.page})` : ""}`;
+  const catalogParams = parseCatalogParams(await searchParams, category);
+  const canonical = `https://campusloop.space${catalogHref(catalogParams, { page: catalogParams.page })}`;
+  const title = `Free ${category} Courses${catalogParams.page > 1 ? ` (page ${catalogParams.page})` : ""}`;
   const description = `Learn ${category.toLowerCase()} with free video courses: track progress lecture by lecture, take notes, ask questions and earn a certificate.`;
+  const hasFilters = Boolean(
+    catalogParams.q ||
+    catalogParams.level ||
+    catalogParams.duration ||
+    catalogParams.source ||
+    catalogParams.lang ||
+    catalogParams.page > 1 ||
+    catalogParams.sort !== "popular"
+  );
   return {
     title,
     description,
     alternates: { canonical },
-    robots: p.q ? { index: false, follow: true } : undefined,
+    robots: hasFilters ? { index: false, follow: true } : undefined,
     openGraph: { title, description, url: canonical, siteName: "CampusLoop", type: "website" },
   };
 }
@@ -31,13 +40,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 export default async function CourseCategoryPage({ params, searchParams }: Props) {
   const category = categoryFromSlug((await params).category);
   if (!category) notFound();
-  const p = parseCatalogParams(await searchParams, category);
-  const [result, categories] = await Promise.all([listCourses(p), listCategoryCounts()]);
-  if (p.page > result.pages) redirect(catalogHref(p, { page: result.pages }));
+  const catalogParams = parseCatalogParams(await searchParams, category);
+  const [result, categories] = await Promise.all([listCourses(catalogParams), listCategoryCounts()]);
+  if (result.pages > 0 && catalogParams.page > result.pages) redirect(catalogHref(catalogParams, { page: result.pages }));
   return (
     <>
       <ItemListJsonLd courses={result.courses} />
-      <CatalogResults params={p} result={result} categories={categories} />
+      <CatalogResults params={catalogParams} result={result} categories={categories} />
     </>
   );
 }

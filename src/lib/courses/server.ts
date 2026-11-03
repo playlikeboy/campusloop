@@ -249,10 +249,26 @@ export interface CourseDetail {
   creator: { username: string; displayName: string; avatarUrl: string | null } | null;
 }
 
-export async function getCourseDetail(slug: string): Promise<CourseDetail | null> {
+const courseDetailCache = new IsolateCache<CourseDetail | null>(300_000, 200);
+
+export function invalidateCourseDetailCache(slug?: string) {
+  if (slug) {
+    courseDetailCache.delete(slug);
+  } else {
+    courseDetailCache.clear();
+  }
+}
+
+async function loadCourseDetail(slug: string): Promise<CourseDetail | null> {
+  const hit = courseDetailCache.get(slug);
+  if (hit !== undefined) return hit;
+
   const db = getDb();
-  const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
-  if (!course) return null;
+  const [course] = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1);
+  if (!course) {
+    courseDetailCache.set(slug, null);
+    return null;
+  }
   const [sections, lectures, creator] = await Promise.all([
     db.select().from(courseSections).where(eq(courseSections.courseId, course.id)).orderBy(asc(courseSections.position)),
     db.select().from(courseLectures).where(eq(courseLectures.courseId, course.id)).orderBy(asc(courseLectures.position)),
@@ -261,13 +277,18 @@ export async function getCourseDetail(slug: string): Promise<CourseDetail | null
           .select({ username: userProfiles.username, displayName: userProfiles.displayName, avatarUrl: userProfiles.avatarUrl })
           .from(userProfiles)
           .where(eq(userProfiles.id, course.creatorId))
+          .limit(1)
           .then((r) => r[0] ?? null)
       : Promise.resolve(null),
   ]);
   const bySection = sections.map((s) => ({ ...s, lectures: lectures.filter((l) => l.sectionId === s.id) }));
   // Curriculum order = section order, then lecture order within the section.
-  return { course, sections: bySection, lectures: bySection.flatMap((s) => s.lectures), creator };
+  const detail: CourseDetail = { course, sections: bySection, lectures: bySection.flatMap((s) => s.lectures), creator };
+  courseDetailCache.set(slug, detail);
+  return detail;
 }
+
+export const getCourseDetail = cache(loadCourseDetail);
 
 export interface ViewerCourseState {
   enrolled: boolean;
@@ -278,18 +299,18 @@ export interface ViewerCourseState {
   myReview: { rating: number; body: string | null } | null;
 }
 
-export async function getViewerState(courseId: string, profileId: string | null | undefined): Promise<ViewerCourseState> {
+async function loadViewerState(courseId: string, profileId: string | null | undefined): Promise<ViewerCourseState> {
   const empty: ViewerCourseState = { enrolled: false, lastLectureId: null, completedIds: [], positions: {}, wishlisted: false, myReview: null };
   if (!profileId) return empty;
   const db = getDb();
-  const [enrollment, progress, wish, review] = await Promise.all([
-    db.query.courseEnrollments.findFirst({ where: and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.profileId, profileId)) }),
+  const [[enrollment], progress, [wish], [review]] = await Promise.all([
+    db.select().from(courseEnrollments).where(and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.profileId, profileId))).limit(1),
     db
       .select({ lectureId: courseLectureProgress.lectureId, completed: courseLectureProgress.completed, positionSec: courseLectureProgress.positionSec })
       .from(courseLectureProgress)
       .where(and(eq(courseLectureProgress.courseId, courseId), eq(courseLectureProgress.profileId, profileId))),
-    db.query.courseWishlist.findFirst({ where: and(eq(courseWishlist.courseId, courseId), eq(courseWishlist.profileId, profileId)) }),
-    db.query.courseReviews.findFirst({ where: and(eq(courseReviews.courseId, courseId), eq(courseReviews.profileId, profileId)) }),
+    db.select({ id: courseWishlist.id }).from(courseWishlist).where(and(eq(courseWishlist.courseId, courseId), eq(courseWishlist.profileId, profileId))).limit(1),
+    db.select({ rating: courseReviews.rating, body: courseReviews.body }).from(courseReviews).where(and(eq(courseReviews.courseId, courseId), eq(courseReviews.profileId, profileId))).limit(1),
   ]);
   return {
     enrolled: Boolean(enrollment),
@@ -300,6 +321,8 @@ export async function getViewerState(courseId: string, profileId: string | null 
     myReview: review ? { rating: review.rating, body: review.body } : null,
   };
 }
+
+export const getViewerState = cache(loadViewerState);
 
 /** Recount denormalised totals after curriculum, enrolment or review changes, then re-check promotion. */
 export async function refreshCourseStats(courseId: string) {

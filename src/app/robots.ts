@@ -42,6 +42,8 @@ export default function robots(): MetadataRoute.Robots {
         "/sitemap",
       ],
       disallow: [
+        "/courses?*",
+        "/courses/category/*?*",
         "/admin",
         "/admin/",
         "/api/",

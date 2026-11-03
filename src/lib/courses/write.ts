@@ -2,7 +2,7 @@ import { and, eq, notInArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { courseLectures, courseSections, courses } from "@/db/schema";
 import { parseVideoUrl, slugifyCourse } from "./format";
-import { refreshCourseStats } from "./server";
+import { invalidateCourseDetailCache, refreshCourseStats } from "./server";
 import type { CourseInput } from "./validate";
 
 const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
@@ -16,7 +16,7 @@ export async function uniqueCourseSlug(title: string, ignoreId?: string): Promis
   const base = slugifyCourse(title);
   for (let i = 0; i < 50; i++) {
     const slug = i === 0 ? base : `${base}-${i + 1}`;
-    const hit = await db.query.courses.findFirst({ where: eq(courses.slug, slug), columns: { id: true } });
+    const [hit] = await db.select({ id: courses.id }).from(courses).where(eq(courses.slug, slug)).limit(1);
     if (RESERVED_SLUGS.has(slug)) continue;
     if (!hit || hit.id === ignoreId) return slug;
   }
@@ -83,6 +83,7 @@ export async function saveCurriculum(courseId: string, input: CourseInput) {
     .delete(courseSections)
     .where(keepSections.length ? and(eq(courseSections.courseId, courseId), notInArray(courseSections.id, keepSections)) : eq(courseSections.courseId, courseId));
   await refreshCourseStats(courseId);
+  invalidateCourseDetailCache();
 }
 
 export function courseColumns(input: CourseInput) {
