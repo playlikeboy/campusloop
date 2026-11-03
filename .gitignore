@@ -56,3 +56,5 @@ next-env.d.ts
 .agents/skills/npm-tools/SKILL.md
 __pycache__/
 .kilo/
+
+graphify-out/
