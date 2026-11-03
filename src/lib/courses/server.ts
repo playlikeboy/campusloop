@@ -1,5 +1,6 @@
 import { and, asc, count, desc, eq, gte, ilike, inArray, lt, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { cache } from "react";
 import { getDb } from "@/db";
 import {
   type Course,
@@ -45,11 +46,17 @@ const DURATION_RANGE: Record<CatalogDuration, [number, number]> = {
   long: [10 * 3600, Number.MAX_SAFE_INTEGER],
 };
 
+const listCoursesCache = new IsolateCache<{ courses: Course[]; total: number; page: number; pages: number }>(60_000, 100);
+
 /**
  * Catalog search. Only catalog-listed courses by default: unlisted community
  * courses are discoverable through feeds until promoted (see promotion.ts).
  */
-export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean; sourceIn?: string[] }) {
+export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean; sourceIn?: string[]; countTotal?: boolean }) {
+  const cacheKey = JSON.stringify(opts);
+  const hit = listCoursesCache.get(cacheKey);
+  if (hit) return hit;
+
   const db = getDb();
   const limit = Math.min(opts.limit ?? CATALOG_PAGE_SIZE, 60);
   const page = Math.max(1, opts.page ?? 1);
@@ -106,7 +113,9 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
             : opts.sort === "trending"
               ? [desc(sql`${courses.trendScore} + ${courses.rankBoost} * 0.5`), desc(courses.createdAt)]
               : popular;
-  const [rows, [{ total }]] = await Promise.all([
+
+  const needTotal = opts.countTotal !== false;
+  const [rows, totalRes] = await Promise.all([
     db
       .select()
       .from(courses)
@@ -114,21 +123,29 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
       .orderBy(...order, asc(courses.id))
       .limit(limit)
       .offset((page - 1) * limit),
-    db.select({ total: count() }).from(courses).where(and(...where)),
+    needTotal ? db.select({ total: count() }).from(courses).where(and(...where)) : Promise.resolve([{ total: 0 }]),
   ]);
-  const n = Number(total);
-  return { courses: rows, total: n, page, pages: Math.max(1, Math.ceil(n / limit)) };
+  const n = needTotal ? Number(totalRes[0]?.total ?? 0) : rows.length;
+  const result = { courses: rows, total: n, page, pages: Math.max(1, Math.ceil(n / limit)) };
+  listCoursesCache.set(cacheKey, result);
+  return result;
 }
+
+const categoryCountsCache = new IsolateCache<{ category: string; count: number }[]>(300_000, 1);
 
 /** Listed course counts per category, for the catalog's category nav. */
 export async function listCategoryCounts() {
+  const hit = categoryCountsCache.get("counts");
+  if (hit) return hit;
   const rows = await getDb()
     .select({ category: courses.category, n: count() })
     .from(courses)
     .where(and(eq(courses.status, "PUBLISHED"), eq(courses.listed, true)))
     .groupBy(courses.category)
     .orderBy(desc(count()));
-  return rows.map((r) => ({ category: r.category, count: Number(r.n) }));
+  const counts = rows.map((r) => ({ category: r.category, count: Number(r.n) }));
+  categoryCountsCache.set("counts", counts);
+  return counts;
 }
 
 const browseCache = new IsolateCache<Awaited<ReturnType<typeof loadBrowseRows>>>(60_000, 4);
@@ -136,13 +153,13 @@ const browseCache = new IsolateCache<Awaited<ReturnType<typeof loadBrowseRows>>>
 async function loadBrowseRows() {
   const cats = await listCategoryCounts();
   const [popular, universities, hindi, rated, fresh, trending, ...byCategory] = await Promise.all([
-    listCourses({ sort: "popular", limit: 12 }),
-    listCourses({ sort: "popular", limit: 12, sourceIn: ["CS50", "UNIVERSITY"] }),
-    listCourses({ sort: "popular", limit: 12, lang: "hindi" }),
-    listCourses({ sort: "rating", limit: 12 }),
-    listCourses({ sort: "newest", limit: 12 }),
-    listCourses({ sort: "trending", limit: 12 }),
-    ...cats.slice(0, 4).map((c) => listCourses({ category: c.category, sort: "popular", limit: 12 })),
+    listCourses({ sort: "popular", limit: 12, countTotal: false }),
+    listCourses({ sort: "popular", limit: 12, sourceIn: ["CS50", "UNIVERSITY"], countTotal: false }),
+    listCourses({ sort: "popular", limit: 12, lang: "hindi", countTotal: false }),
+    listCourses({ sort: "rating", limit: 12, countTotal: false }),
+    listCourses({ sort: "newest", limit: 12, countTotal: false }),
+    listCourses({ sort: "trending", limit: 12, countTotal: false }),
+    ...cats.slice(0, 4).map((c) => listCourses({ category: c.category, sort: "popular", limit: 12, countTotal: false })),
   ]);
   return {
     categories: cats,
