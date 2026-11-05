@@ -10,6 +10,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       disallow: [
+        "/courses?*",
+        "/courses/category/*?*",
         "/admin",
         "/admin-login",
         "/api/",

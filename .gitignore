@@ -59,3 +59,4 @@ __pycache__/
 
 # Hallmark run artefacts (screenshots, records)
 .hallmark/
+graphify-out/

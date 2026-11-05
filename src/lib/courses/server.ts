@@ -1,5 +1,6 @@
 import { and, asc, count, desc, eq, gte, ilike, inArray, lt, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { cache } from "react";
 import { getDb } from "@/db";
 import {
   type Course,
@@ -45,11 +46,17 @@ const DURATION_RANGE: Record<CatalogDuration, [number, number]> = {
   long: [10 * 3600, Number.MAX_SAFE_INTEGER],
 };
 
+const listCoursesCache = new IsolateCache<{ courses: Course[]; total: number; page: number; pages: number }>(60_000, 100);
+
 /**
  * Catalog search. Only catalog-listed courses by default: unlisted community
  * courses are discoverable through feeds until promoted (see promotion.ts).
  */
-export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean; sourceIn?: string[] }) {
+export async function listCourses(opts: Partial<CatalogParams> & { limit?: number; listedOnly?: boolean; sourceIn?: string[]; countTotal?: boolean }) {
+  const cacheKey = JSON.stringify(opts);
+  const hit = listCoursesCache.get(cacheKey);
+  if (hit) return hit;
+
   const db = getDb();
   const limit = Math.min(opts.limit ?? CATALOG_PAGE_SIZE, 60);
   const page = Math.max(1, opts.page ?? 1);
@@ -106,7 +113,9 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
             : opts.sort === "trending"
               ? [desc(sql`${courses.trendScore} + ${courses.rankBoost} * 0.5`), desc(courses.createdAt)]
               : popular;
-  const [rows, [{ total }]] = await Promise.all([
+
+  const needTotal = opts.countTotal !== false;
+  const [rows, totalRes] = await Promise.all([
     db
       .select()
       .from(courses)
@@ -114,21 +123,29 @@ export async function listCourses(opts: Partial<CatalogParams> & { limit?: numbe
       .orderBy(...order, asc(courses.id))
       .limit(limit)
       .offset((page - 1) * limit),
-    db.select({ total: count() }).from(courses).where(and(...where)),
+    needTotal ? db.select({ total: count() }).from(courses).where(and(...where)) : Promise.resolve([{ total: 0 }]),
   ]);
-  const n = Number(total);
-  return { courses: rows, total: n, page, pages: Math.max(1, Math.ceil(n / limit)) };
+  const n = needTotal ? Number(totalRes[0]?.total ?? 0) : rows.length;
+  const result = { courses: rows, total: n, page, pages: Math.max(1, Math.ceil(n / limit)) };
+  listCoursesCache.set(cacheKey, result);
+  return result;
 }
+
+const categoryCountsCache = new IsolateCache<{ category: string; count: number }[]>(300_000, 1);
 
 /** Listed course counts per category, for the catalog's category nav. */
 export async function listCategoryCounts() {
+  const hit = categoryCountsCache.get("counts");
+  if (hit) return hit;
   const rows = await getDb()
     .select({ category: courses.category, n: count() })
     .from(courses)
     .where(and(eq(courses.status, "PUBLISHED"), eq(courses.listed, true)))
     .groupBy(courses.category)
     .orderBy(desc(count()));
-  return rows.map((r) => ({ category: r.category, count: Number(r.n) }));
+  const counts = rows.map((r) => ({ category: r.category, count: Number(r.n) }));
+  categoryCountsCache.set("counts", counts);
+  return counts;
 }
 
 const browseCache = new IsolateCache<Awaited<ReturnType<typeof loadBrowseRows>>>(60_000, 4);
@@ -136,13 +153,13 @@ const browseCache = new IsolateCache<Awaited<ReturnType<typeof loadBrowseRows>>>
 async function loadBrowseRows() {
   const cats = await listCategoryCounts();
   const [popular, universities, hindi, rated, fresh, trending, ...byCategory] = await Promise.all([
-    listCourses({ sort: "popular", limit: 12 }),
-    listCourses({ sort: "popular", limit: 12, sourceIn: ["CS50", "UNIVERSITY"] }),
-    listCourses({ sort: "popular", limit: 12, lang: "hindi" }),
-    listCourses({ sort: "rating", limit: 12 }),
-    listCourses({ sort: "newest", limit: 12 }),
-    listCourses({ sort: "trending", limit: 12 }),
-    ...cats.slice(0, 4).map((c) => listCourses({ category: c.category, sort: "popular", limit: 12 })),
+    listCourses({ sort: "popular", limit: 12, countTotal: false }),
+    listCourses({ sort: "popular", limit: 12, sourceIn: ["CS50", "UNIVERSITY"], countTotal: false }),
+    listCourses({ sort: "popular", limit: 12, lang: "hindi", countTotal: false }),
+    listCourses({ sort: "rating", limit: 12, countTotal: false }),
+    listCourses({ sort: "newest", limit: 12, countTotal: false }),
+    listCourses({ sort: "trending", limit: 12, countTotal: false }),
+    ...cats.slice(0, 4).map((c) => listCourses({ category: c.category, sort: "popular", limit: 12, countTotal: false })),
   ]);
   return {
     categories: cats,
@@ -232,10 +249,26 @@ export interface CourseDetail {
   creator: { username: string; displayName: string; avatarUrl: string | null } | null;
 }
 
-export async function getCourseDetail(slug: string): Promise<CourseDetail | null> {
+const courseDetailCache = new IsolateCache<CourseDetail | null>(300_000, 200);
+
+export function invalidateCourseDetailCache(slug?: string) {
+  if (slug) {
+    courseDetailCache.delete(slug);
+  } else {
+    courseDetailCache.clear();
+  }
+}
+
+async function loadCourseDetail(slug: string): Promise<CourseDetail | null> {
+  const hit = courseDetailCache.get(slug);
+  if (hit !== undefined) return hit;
+
   const db = getDb();
-  const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
-  if (!course) return null;
+  const [course] = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1);
+  if (!course) {
+    courseDetailCache.set(slug, null);
+    return null;
+  }
   const [sections, lectures, creator] = await Promise.all([
     db.select().from(courseSections).where(eq(courseSections.courseId, course.id)).orderBy(asc(courseSections.position)),
     db.select().from(courseLectures).where(eq(courseLectures.courseId, course.id)).orderBy(asc(courseLectures.position)),
@@ -244,13 +277,18 @@ export async function getCourseDetail(slug: string): Promise<CourseDetail | null
           .select({ username: userProfiles.username, displayName: userProfiles.displayName, avatarUrl: userProfiles.avatarUrl })
           .from(userProfiles)
           .where(eq(userProfiles.id, course.creatorId))
+          .limit(1)
           .then((r) => r[0] ?? null)
       : Promise.resolve(null),
   ]);
   const bySection = sections.map((s) => ({ ...s, lectures: lectures.filter((l) => l.sectionId === s.id) }));
   // Curriculum order = section order, then lecture order within the section.
-  return { course, sections: bySection, lectures: bySection.flatMap((s) => s.lectures), creator };
+  const detail: CourseDetail = { course, sections: bySection, lectures: bySection.flatMap((s) => s.lectures), creator };
+  courseDetailCache.set(slug, detail);
+  return detail;
 }
+
+export const getCourseDetail = cache(loadCourseDetail);
 
 export interface ViewerCourseState {
   enrolled: boolean;
@@ -261,18 +299,18 @@ export interface ViewerCourseState {
   myReview: { rating: number; body: string | null } | null;
 }
 
-export async function getViewerState(courseId: string, profileId: string | null | undefined): Promise<ViewerCourseState> {
+async function loadViewerState(courseId: string, profileId: string | null | undefined): Promise<ViewerCourseState> {
   const empty: ViewerCourseState = { enrolled: false, lastLectureId: null, completedIds: [], positions: {}, wishlisted: false, myReview: null };
   if (!profileId) return empty;
   const db = getDb();
-  const [enrollment, progress, wish, review] = await Promise.all([
-    db.query.courseEnrollments.findFirst({ where: and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.profileId, profileId)) }),
+  const [[enrollment], progress, [wish], [review]] = await Promise.all([
+    db.select().from(courseEnrollments).where(and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.profileId, profileId))).limit(1),
     db
       .select({ lectureId: courseLectureProgress.lectureId, completed: courseLectureProgress.completed, positionSec: courseLectureProgress.positionSec })
       .from(courseLectureProgress)
       .where(and(eq(courseLectureProgress.courseId, courseId), eq(courseLectureProgress.profileId, profileId))),
-    db.query.courseWishlist.findFirst({ where: and(eq(courseWishlist.courseId, courseId), eq(courseWishlist.profileId, profileId)) }),
-    db.query.courseReviews.findFirst({ where: and(eq(courseReviews.courseId, courseId), eq(courseReviews.profileId, profileId)) }),
+    db.select({ id: courseWishlist.id }).from(courseWishlist).where(and(eq(courseWishlist.courseId, courseId), eq(courseWishlist.profileId, profileId))).limit(1),
+    db.select({ rating: courseReviews.rating, body: courseReviews.body }).from(courseReviews).where(and(eq(courseReviews.courseId, courseId), eq(courseReviews.profileId, profileId))).limit(1),
   ]);
   return {
     enrolled: Boolean(enrollment),
@@ -283,6 +321,8 @@ export async function getViewerState(courseId: string, profileId: string | null 
     myReview: review ? { rating: review.rating, body: review.body } : null,
   };
 }
+
+export const getViewerState = cache(loadViewerState);
 
 /** Recount denormalised totals after curriculum, enrolment or review changes, then re-check promotion. */
 export async function refreshCourseStats(courseId: string) {
