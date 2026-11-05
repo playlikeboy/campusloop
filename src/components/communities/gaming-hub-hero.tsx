@@ -20,19 +20,10 @@ export function GamingHubHero({ search, onSearchChange }: GamingHubHeroProps) {
 
   return (
     <section className="px-3 pb-5 sm:px-5">
-      <div className="relative isolate overflow-hidden rounded-[28px] bg-[var(--surface)] shadow-sm ring-1 ring-border/70">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-coral/20 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-20 right-1/4 size-52 rounded-full bg-primary/10 blur-3xl"
-        />
-
+      <div className="relative isolate overflow-hidden rounded-xl bg-[var(--surface)] shadow-sm ring-1 ring-border/70">
         <div className="relative grid gap-6 p-4 sm:p-6 md:grid-cols-[minmax(0,1fr)_minmax(250px,0.82fr)] md:items-center md:gap-7">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
               <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
               Campus gaming
             </div>
@@ -100,7 +91,7 @@ export function GamingHubHero({ search, onSearchChange }: GamingHubHeroProps) {
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              <p className="text-xs font-bold text-muted-foreground">
                 Quick search
               </p>
               {search ? (

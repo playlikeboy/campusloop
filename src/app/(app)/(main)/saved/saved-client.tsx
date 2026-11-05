@@ -77,12 +77,12 @@ export function SavedClient() {
           <header className="sticky top-12 lg:top-0 z-30 bg-background/85 px-4 pt-3.5 pb-2 backdrop-blur-xl border-b border-border/30 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="size-9 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-                  <Bookmark className="size-4.5 fill-amber-500 stroke-amber-500" />
+                <div className="size-9 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center text-warning">
+                  <Bookmark className="size-4.5 fill-warning stroke-warning" />
                 </div>
                 <h1 className="text-base font-black tracking-tight text-foreground flex items-center gap-2">
                   Saved Posts Vault
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-muted text-muted-foreground">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-muted text-muted-foreground">
                     {posts.length} {posts.length === 1 ? "Save" : "Saves"}
                   </span>
                 </h1>
@@ -99,7 +99,7 @@ export function SavedClient() {
                   placeholder="Search your saved posts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 rounded-full bg-muted/50 border border-transparent focus:border-border/60 focus:bg-background text-xs font-medium placeholder:text-muted-foreground/60 outline-none transition-all"
+                  className="w-full h-9 pl-9 pr-3 rounded-full bg-muted/50 border border-transparent focus:border-border/60 focus:bg-background text-xs font-medium placeholder:text-muted-foreground/60 outline-none transition-colors"
                 />
               </div>
 
@@ -113,7 +113,7 @@ export function SavedClient() {
                       aria-pressed={isActive}
                       onClick={() => setSelectedCategory(cat.id)}
                       className={cn(
-                        "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer",
+                        "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer",
                         isActive
                           ? "bg-foreground text-background font-black shadow-xs"
                           : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -149,7 +149,7 @@ export function SavedClient() {
               filteredPosts.map((post) => <FeedCard key={post.id} post={{ ...post, isSaved: true }} />)
             ) : (
               <div className="py-20 text-center space-y-4 max-w-sm mx-auto">
-                <div className="size-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mx-auto">
+                <div className="size-16 rounded-3xl bg-warning/10 border border-warning/20 flex items-center justify-center text-warning mx-auto">
                   <Bookmark className="size-7" />
                 </div>
                 <div className="space-y-1">
@@ -196,7 +196,7 @@ export function SavedClient() {
         >
           {/* Quick Categories Filter Card */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Vault Folders</h3>
+            <h3 className="text-xs font-bold text-muted-foreground">Vault Folders</h3>
             <div className="flex flex-col gap-1.5">
               {CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.id;
@@ -206,9 +206,9 @@ export function SavedClient() {
                     type="button"
                     onClick={() => setSelectedCategory(cat.id)}
                     className={cn(
-                      "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer",
                       isActive
-                        ? "border-amber-500/40 bg-amber-500/10 text-amber-500 shadow-2xs font-black"
+                        ? "border-warning/40 bg-warning/10 text-warning shadow-2xs font-black"
                         : "border-border/30 hover:bg-muted/40 text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -226,18 +226,18 @@ export function SavedClient() {
 
           {/* Dedicated Vaults Shortcuts */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Dedicated Vaults</h3>
+            <h3 className="text-xs font-bold text-foreground">Dedicated Vaults</h3>
             <div className="flex flex-col gap-2 pt-1">
               <Link
                 href="/academics/study-material/saved"
-                className="flex items-center justify-between p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground transition-all"
+                className="flex items-center justify-between p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground transition-colors"
               >
                 <span>Academic Notes & PYQs Vault</span>
                 <span className="text-[10px] text-primary">Open →</span>
               </Link>
               <Link
                 href="/articles"
-                className="flex items-center justify-between p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground transition-all"
+                className="flex items-center justify-between p-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground transition-colors"
               >
                 <span>Campus Articles & Essays</span>
                 <span className="text-[10px] text-primary">Browse →</span>

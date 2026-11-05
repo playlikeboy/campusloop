@@ -341,12 +341,10 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
   return (
     <div className="space-y-6 pb-20 select-none">
       {/* ─── Hero Card ─── */}
-      <div className="rounded-[32px] border border-border/60 bg-card p-6 sm:p-8 shadow-2xs relative overflow-hidden space-y-4">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-
+      <div className="rounded-xl border border-border/60 bg-card p-6 sm:p-8 shadow-2xs relative overflow-hidden space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-subtle border border-brand-subtle-border text-brand-text text-xs font-semibold">
               <BrainCircuit className="size-3.5" />
               <span>Model Context Protocol (MCP)</span>
             </div>
@@ -369,7 +367,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                 haptics.light();
                 setShowCreateModal(true);
               }}
-              className="h-11 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-2"
+              className="h-11 px-5 rounded-full bg-brand text-brand-fg text-xs font-bold hover:bg-brand-hover active:scale-95 transition-colors shadow-xs cursor-pointer flex items-center gap-2"
             >
               <Plus className="size-4" />
               <span>Generate API Key</span>
@@ -379,7 +377,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
       </div>
 
       {/* ─── Key Management Card ─── */}
-      <div className="rounded-[32px] border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -427,7 +425,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                   key={k.id}
                   onClick={() => setSelectedKeyId(k.id)}
                   className={cn(
-                    "rounded-2xl border p-4 transition-all cursor-pointer space-y-3 relative",
+                    "rounded-2xl border p-4 transition-colors cursor-pointer space-y-3 relative",
                     isSelected
                       ? "border-primary/50 bg-primary/5 shadow-2xs"
                       : "border-border/60 bg-muted/20 hover:bg-muted/40",
@@ -449,9 +447,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                           <h3 className="text-xs sm:text-sm font-bold text-foreground">{k.name}</h3>
                           <span
                             className={cn(
-                              "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                              "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
                               k.isActive
-                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
+                                ? "bg-success-subtle text-success border-success/25"
                                 : "bg-muted text-muted-foreground border-border/50"
                             )}
                           >
@@ -475,8 +473,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                         onClick={() => handleToggle(k)}
                         className="size-7 rounded-lg border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                         title={k.isActive ? "Pause key" : "Activate key"}
+                        aria-label={k.isActive ? "Pause key" : "Activate key"}
                       >
-                        <Power className={cn("size-3", k.isActive && "text-emerald-500")} />
+                        <Power className={cn("size-3", k.isActive && "text-success")} />
                       </button>
 
                       <button
@@ -484,6 +483,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                         onClick={() => handleRegenerate(k)}
                         className="size-7 rounded-lg border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                         title="Regenerate token"
+                        aria-label="Regenerate token"
                       >
                         <RefreshCw className="size-3" />
                       </button>
@@ -491,8 +491,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                       <button
                         type="button"
                         onClick={() => handleDelete(k)}
-                        className="size-7 rounded-lg border border-border/60 hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground flex items-center justify-center transition-colors cursor-pointer"
+                        className="size-7 rounded-lg border border-border/60 hover:bg-danger-subtle hover:text-danger text-fg-muted flex items-center justify-center transition-colors cursor-pointer"
                         title="Delete key"
+                        aria-label="Delete key"
                       >
                         <Trash2 className="size-3" />
                       </button>
@@ -508,6 +509,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                         onClick={() => toggleTokenVisible(k.id)}
                         className="text-muted-foreground hover:text-foreground ml-2 shrink-0 cursor-pointer"
                         title={isVisible ? "Hide token" : "Reveal token"}
+                        aria-label={isVisible ? "Hide token" : "Reveal token"}
                       >
                         {isVisible ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                       </button>
@@ -516,9 +518,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                     <button
                       type="button"
                       onClick={() => handleCopyKeyString(k.key)}
-                      className="h-8 px-3 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-all shrink-0 cursor-pointer shadow-2xs"
+                      className="h-8 px-3 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-colors shrink-0 cursor-pointer shadow-2xs"
                     >
-                      {isCopied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+                      {isCopied ? <Check className="size-3 text-success" /> : <Copy className="size-3" />}
                       <span>{isCopied ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
@@ -530,7 +532,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
       </div>
 
       {/* ─── 1-Click IDE Configuration Generator ─── */}
-      <div className="rounded-[32px] border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <h2 className="text-sm font-black text-foreground flex items-center gap-2">
@@ -547,9 +549,9 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
           <button
             type="button"
             onClick={handleCopyConfig}
-            className="h-9 px-4 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+            className="h-9 px-4 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
           >
-            {copiedConfig ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+            {copiedConfig ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             <span>{copiedConfig ? "Copied" : "Copy Config Snippet"}</span>
           </button>
         </div>
@@ -571,7 +573,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                 setActiveIdeTab(tab.id as any);
               }}
               className={cn(
-                "py-1.5 px-3.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
+                "py-1.5 px-3.5 rounded-full text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
                 activeIdeTab === tab.id
                   ? "bg-card text-foreground shadow-2xs font-black"
                   : "text-muted-foreground hover:text-foreground"
@@ -583,8 +585,8 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
         </div>
 
         {/* Code Snippet Box */}
-        <div className="p-4 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-xs overflow-x-auto border border-slate-800 space-y-1">
-          <pre className="text-zinc-300 whitespace-pre-wrap break-all leading-relaxed">
+        <div className="p-4 rounded-lg bg-surface-sunken text-fg font-mono text-xs overflow-x-auto border border-border space-y-1">
+          <pre className="text-fg whitespace-pre-wrap break-all leading-relaxed">
             {ideSnippets[activeIdeTab]}
           </pre>
         </div>
@@ -624,7 +626,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
       </div>
 
       {/* ─── Interactive Tool Catalog & Playground ─── */}
-      <div className="rounded-[32px] border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-5">
+      <div className="rounded-xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
@@ -661,13 +663,13 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
               type="button"
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap",
+                "px-3 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap",
                 selectedCategory === cat
                   ? "bg-foreground text-background shadow-2xs"
                   : "bg-muted/40 text-muted-foreground hover:text-foreground"
               )}
             >
-              {cat === "Exclusive AI & Intelligence" ? "✨ Exclusive AI" : cat}
+              {cat === "Exclusive AI & Intelligence" ? "Exclusive AI" : cat}
             </button>
           ))}
         </div>
@@ -681,7 +683,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
               <div
                 key={tool.name}
                 className={cn(
-                  "p-4 rounded-2xl border transition-all space-y-3 flex flex-col justify-between",
+                  "p-4 rounded-2xl border transition-colors space-y-3 flex flex-col justify-between",
                   isExclusive
                     ? "border-primary/40 bg-primary/5 hover:border-primary/70"
                     : "border-border/60 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -692,13 +694,13 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                     <span className="font-mono text-xs font-bold text-foreground">{tool.name}</span>
                     <span
                       className={cn(
-                        "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 border",
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 border",
                         isExclusive
                           ? "bg-primary/20 text-primary border-primary/30"
                           : "bg-muted text-muted-foreground border-border/50"
                       )}
                     >
-                      {isExclusive ? "EXCLUSIVE" : tool.category.split(" ")[0]}
+                      {isExclusive ? "Exclusive" : tool.category.split(" ")[0]}
                     </span>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
@@ -728,8 +730,8 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
 
       {/* ─── In-Browser Tool Playground Modal ─── */}
       {activePlaygroundTool && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm select-none">
-          <div className="w-full max-w-xl rounded-[32px] border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay select-none">
+          <div className="w-full max-w-xl rounded-xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -746,6 +748,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
               <button
                 type="button"
                 onClick={() => setActivePlaygroundTool(null)}
+                aria-label="Close"
                 className="size-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X className="size-4" />
@@ -774,7 +777,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                 type="button"
                 onClick={handleExecutePlaygroundTool}
                 disabled={runningTool}
-                className="h-9 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                className="h-9 px-5 rounded-full bg-brand text-brand-fg text-xs font-bold hover:bg-brand-hover active:scale-95 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
                 {runningTool ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
                 <span>{runningTool ? "Executing..." : "Execute Tool"}</span>
@@ -794,19 +797,19 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                     )}
                     <span
                       className={cn(
-                        "text-[9px] font-black uppercase px-2 py-0.5 rounded-full",
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full",
                         toolExecutionResult.success
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                          : "bg-rose-500/15 text-rose-500"
+                          ? "bg-success-subtle text-success"
+                          : "bg-danger-subtle text-danger"
                       )}
                     >
-                      {toolExecutionResult.success ? "SUCCESS" : "ERROR"}
+                      {toolExecutionResult.success ? "Success" : "Error"}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 max-h-60">
-                  <pre className="whitespace-pre-wrap break-all text-zinc-300">
+                <div className="p-3.5 rounded-lg bg-surface-sunken text-fg font-mono text-[11px] overflow-x-auto border border-border max-h-60">
+                  <pre className="whitespace-pre-wrap break-all text-fg">
                     {JSON.stringify(toolExecutionResult.data, null, 2)}
                   </pre>
                 </div>
@@ -818,8 +821,8 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
 
       {/* ─── Create Key Modal ─── */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm select-none">
-          <div className="w-full max-w-md rounded-[32px] border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay select-none">
+          <div className="w-full max-w-md rounded-xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -830,6 +833,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
+                aria-label="Close"
                 className="size-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X className="size-4" />
@@ -864,7 +868,7 @@ export function DeveloperMcpClient({ initialKeys, studentUsername, collegeName }
                 <button
                   type="submit"
                   disabled={creating}
-                  className="h-10 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="h-10 px-5 rounded-full bg-brand text-brand-fg text-xs font-bold hover:bg-brand-hover active:scale-95 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {creating && <Loader2 className="size-3.5 animate-spin" />}
                   <span>Generate Key</span>

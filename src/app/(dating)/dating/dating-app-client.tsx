@@ -185,8 +185,8 @@ export function DatingAppClient() {
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none min-h-0">
       {/* Matching Paused Notice */}
       {!isMatchingEnabled && (
-        <div className="my-2 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold min-w-0">
+        <div className="my-2 px-3.5 py-2 rounded-2xl bg-warning-subtle border border-warning flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-warning font-semibold min-w-0">
             <EyeOff className="size-4 shrink-0" />
             <span className="truncate">Profile paused &amp; hidden</span>
           </div>
@@ -206,7 +206,7 @@ export function DatingAppClient() {
       {/* ─── Swipe Deck Section ─── */}
       <div className="flex min-h-0 flex-1 flex-col py-1">
         {genderGateRequired ? (
-          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/90 backdrop-blur-xl p-6 text-center shadow-lg">
+          <div className="m-auto w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-card/90 backdrop-blur-sm p-6 text-center shadow-lg">
             <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
               <Heart className="size-6 fill-primary" />
             </div>
@@ -223,7 +223,7 @@ export function DatingAppClient() {
                     key={g}
                     type="button"
                     onClick={() => setSelectedGenderGate(g)}
-                    className={`cursor-pointer rounded-2xl border py-2 text-xs font-bold transition-all ${
+                    className={`cursor-pointer rounded-2xl border py-2 text-xs font-bold transition-colors ${
                       selectedGenderGate === g
                         ? "border-primary bg-primary/15 text-primary font-black shadow-xs ring-1 ring-primary"
                         : "border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground"
@@ -236,7 +236,7 @@ export function DatingAppClient() {
               <button
                 type="submit"
                 disabled={isSavingGender}
-                className="w-full cursor-pointer rounded-full bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-all hover:opacity-95 disabled:opacity-50"
+                className="w-full cursor-pointer rounded-full bg-primary py-2.5 text-xs font-black text-primary-foreground shadow-md shadow-primary/20 transition-[opacity,transform] hover:opacity-95 disabled:opacity-50"
               >
                 {isSavingGender ? "Saving..." : "Start Matching"}
               </button>

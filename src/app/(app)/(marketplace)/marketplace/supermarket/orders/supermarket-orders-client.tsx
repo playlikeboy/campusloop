@@ -41,7 +41,7 @@ export function SupermarketOrdersClient() {
             <ArrowLeft className="size-4.5" />
           </Link>
           <h1 className="text-lg font-black text-foreground tracking-tight flex items-center gap-2">
-            <ShoppingBag className="size-4.5 text-amber-500" />
+            <ShoppingBag className="size-4.5 text-warning" />
             <span>Supermarket &amp; Mart Orders</span>
           </h1>
         </div>
@@ -57,7 +57,7 @@ export function SupermarketOrdersClient() {
                 setFilter(tab);
               }}
               className={cn(
-                "px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer",
+                "px-3 py-1 rounded-lg text-xs font-bold capitalize transition-colors cursor-pointer",
                 filter === tab ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
               )}
             >
@@ -90,11 +90,11 @@ export function SupermarketOrdersClient() {
                   sounds.tap();
                   haptics.light();
                 }}
-                className="block p-4 rounded-2xl border border-border bg-card hover:border-amber-500/40 transition-all shadow-xs space-y-3"
+                className="block p-4 rounded-2xl border border-border bg-card hover:border-warning transition-colors shadow-xs space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black">
+                    <div className="size-10 rounded-xl bg-warning-subtle text-warning flex items-center justify-center font-black">
                       <ShoppingBag className="size-5" />
                     </div>
                     <div>
@@ -107,13 +107,13 @@ export function SupermarketOrdersClient() {
 
                   <span
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
-                      isPacking && "bg-amber-500/15 text-amber-500 border border-amber-500/30",
-                      isPacked && "bg-blue-500/15 text-blue-500 border border-blue-500/30",
+                      "px-2.5 py-1 rounded-full text-xs font-bold",
+                      isPacking && "bg-warning-subtle text-warning border border-warning",
+                      isPacked && "bg-brand-subtle text-brand-text border border-brand",
                       isDispatched &&
-                        "bg-purple-500/15 text-purple-500 border border-purple-500/30 animate-pulse",
-                      isDelivered && "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30",
-                      order.status === "REJECTED" && "bg-rose-500/15 text-rose-500 border border-rose-500/30",
+                        "bg-brand-subtle text-brand-text border border-brand animate-pulse",
+                      isDelivered && "bg-success-subtle text-success border border-success",
+                      order.status === "REJECTED" && "bg-danger-subtle text-danger border border-danger",
                       order.status === "PLACED" && "bg-muted text-foreground border border-border"
                     )}
                   >
@@ -135,7 +135,7 @@ export function SupermarketOrdersClient() {
                   <span className="text-muted-foreground">{formatTimeAgo(new Date(order.createdAt))}</span>
                   <div className="flex items-center gap-1 font-black text-foreground">
                     <span>Total:</span>
-                    <span className="text-sm text-amber-500">₹{order.total}</span>
+                    <span className="text-sm text-warning">₹{order.total}</span>
                   </div>
                 </div>
               </Link>

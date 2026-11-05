@@ -187,7 +187,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-28">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -209,7 +209,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
       <form onSubmit={handlePlaceOrder} className="p-4 space-y-5">
         {/* 1. Fulfillment Mode Selector */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             1. Fulfillment Method
           </label>
           <div className="grid grid-cols-2 gap-2.5">
@@ -221,7 +221,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
                 setFulfillmentType("DELIVERY");
               }}
               className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer",
+                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
                 fulfillmentType === "DELIVERY"
                   ? "bg-foreground text-background border-foreground font-black shadow-xs"
                   : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
@@ -239,7 +239,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
                 setFulfillmentType("PICKUP");
               }}
               className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer",
+                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
                 fulfillmentType === "PICKUP"
                   ? "bg-foreground text-background border-foreground font-black shadow-xs"
                   : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
@@ -253,7 +253,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
 
         {/* 2. Address & Delivery Info */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             {fulfillmentType === "DELIVERY" ? "2. Delivery Address" : "2. Pickup Details"}
           </label>
 
@@ -370,7 +370,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
           {/* Rental Specific Verification Schema */}
           {hasRentalItems && (
             <div className="pt-2 border-t border-border/30 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-500">
+              <div className="flex items-center gap-1.5 text-xs font-black text-warning">
                 <ShieldCheck className="size-4" />
                 <span>Vehicle / Gear Rental Requirements</span>
               </div>
@@ -406,7 +406,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
 
         {/* 3. Payment Method */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             3. Payment Method
           </label>
           <button
@@ -418,7 +418,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
             }}
             aria-pressed={paymentMethod === "RAZORPAY"}
             className={cn(
-              "flex w-full items-center gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+              "flex w-full items-center gap-3 p-3 rounded-2xl border text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               paymentMethod === "RAZORPAY"
                 ? "bg-foreground text-background border-foreground shadow-xs"
                 : "bg-muted/40 text-foreground border-border/40 hover:bg-muted/60"
@@ -447,7 +447,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
                 setPaymentMethod("COD");
               }}
               className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer",
+                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
                 paymentMethod === "COD"
                   ? "bg-foreground text-background border-foreground font-black shadow-xs"
                   : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
@@ -465,7 +465,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
                 setPaymentMethod("UPI");
               }}
               className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer",
+                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
                 paymentMethod === "UPI"
                   ? "bg-foreground text-background border-foreground font-black shadow-xs"
                   : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
@@ -479,7 +479,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
 
         {/* 4. Order Summary Card */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-2.5 shadow-xs">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-bold text-muted-foreground">
             Final Bill Summary
           </h3>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -494,7 +494,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
           </div>
           <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
             <span>Total Payable Amount</span>
-            <span className="text-base text-emerald-500">₹{grandTotal.toLocaleString("en-IN")}</span>
+            <span className="text-base text-success">₹{grandTotal.toLocaleString("en-IN")}</span>
           </div>
         </div>
 
@@ -503,7 +503,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-success hover:bg-success text-black font-black text-sm transition-[opacity,transform] flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

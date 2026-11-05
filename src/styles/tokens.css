@@ -1,0 +1,267 @@
+/* Hallmark · shape: kept (app) · genre: playful · theme: brand · redesign: full
+ * paper: oklch(98.6% 0.004 85) · accent: oklch(55% 0.24 268) · display: Plus Jakarta Sans · body: Plus Jakarta Sans · hero: Stage (/) · nav: edge-aligned wordmark + one action · footer: mast · signature: the verified campus feed, live in the hero
+ * axes: light/geometric-sans/cool · posture: committed · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, one accent (Loop Blue) carries every action; reward yellow and crush pink are fenced to their own surfaces */
+
+/*
+ * CampusLoop Design System v3 — the one source of truth.
+ * Three layers: primitives → semantic → component. Nothing outside this file
+ * declares a colour, a face, a radius or a shadow. Consumers use the Tailwind
+ * utilities mapped in @theme inline (bg-surface, text-fg, border-border …) or
+ * var(--token) in hand-written CSS.
+ */
+
+/* ───────────────────────── 1. Primitives ───────────────────────── */
+:root {
+  /* Warm neutrals */
+  --n-0: #ffffff;
+  --n-25: #fcfbf8;
+  --n-50: #f7f6f2;
+  --n-100: #efede7;
+  --n-200: #e2dfd7;
+  --n-300: #cbc7bd;
+  --n-400: #a29e94;
+  --n-500: #6e6a61;
+  --n-600: #5c5850;
+  --n-700: #45423c;
+  --n-800: #2d2b27;
+  --n-900: #1c1b18;
+  --n-950: #12110f;
+
+  /* Loop Blue — brand, trust, every primary action */
+  --b-50: #eef2ff;
+  --b-100: #dde4ff;
+  --b-200: #bcc9ff;
+  --b-300: #8fa4ff;
+  --b-400: #6680ff;
+  --b-500: #3b5bfd;
+  --b-600: #2a45e0;
+  --b-700: #2236b3;
+  --b-800: #1e2f8c;
+  --b-900: #1c2a6b;
+
+  /* Sunny — rewards, streaks, Loop Points. Dark text on it, always. */
+  --y-100: #fff4d6;
+  --y-300: #ffde85;
+  --y-500: #ffc83d;
+  --y-700: #b7830a;
+  --y-800: #8a6207;
+  --y-900: #3d2c05;
+
+  /* Crush — Campus Match only */
+  --p-100: #ffe3ec;
+  --p-500: #ff5c8a;
+  --p-600: #d6336c;
+  --p-700: #c2255c;
+  --p-900: #4a0d24;
+
+  /* Status */
+  --g-100: #dcfce7;
+  --g-400: #4ade80;
+  --g-600: #15803d;
+  --g-900: #0b3d1f;
+  --r-100: #fee2e2;
+  --r-400: #f87171;
+  --r-600: #dc2626;
+  --r-700: #b91c1c;
+  --r-900: #4c0f0f;
+  --o-100: #fef3c7;
+  --o-400: #fbbf24;
+  --o-700: #b45309;
+  --o-900: #42250a;
+}
+
+/* ───────────────────────── 2. Semantic (light) ───────────────────────── */
+:root {
+  --bg: var(--n-25);
+  --surface: var(--n-0);
+  --surface-muted: var(--n-50);
+  --surface-raised: var(--n-0);
+  --surface-sunken: var(--n-100);
+
+  --fg: var(--n-900);
+  --fg-muted: var(--n-600);
+  --fg-subtle: var(--n-500);
+  --fg-on-brand: var(--n-0);
+
+  --border: var(--n-200);
+  --border-strong: var(--n-300);
+
+  --brand: var(--b-500);
+  --brand-hover: var(--b-600);
+  --brand-fg: var(--n-0);
+  --brand-text: var(--b-600);
+  --brand-subtle: var(--b-50);
+  --brand-subtle-border: var(--b-200);
+
+  --reward: var(--y-500);
+  --reward-fg: var(--n-900);
+  --reward-text: var(--y-800);
+  --reward-subtle: var(--y-100);
+
+  --crush: var(--p-600);
+  --crush-fg: var(--n-0);
+  --crush-text: var(--p-700);
+  --crush-subtle: var(--p-100);
+
+  --success: var(--g-600);
+  --success-fg: var(--n-0);
+  --success-subtle: var(--g-100);
+  --danger: var(--r-700);
+  --danger-fg: var(--n-0);
+  --danger-subtle: var(--r-100);
+  --warning: var(--o-700);
+  --warning-fg: var(--n-0);
+  --warning-subtle: var(--o-100);
+
+  --ring: var(--b-500);
+  --overlay: rgb(28 27 24 / 0.55);
+
+  /* Data viz — five ordered series, brand first */
+  --chart-1: var(--b-500);
+  --chart-2: var(--g-600);
+  --chart-3: var(--y-700);
+  --chart-4: var(--p-600);
+  --chart-5: var(--n-500);
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Depth — a surface uses a border OR a shadow, never both */
+  --shadow-xs: 0 1px 2px 0 rgb(28 27 24 / 0.06);
+  --shadow-sm: 0 2px 8px -2px rgb(28 27 24 / 0.08), 0 1px 2px 0 rgb(28 27 24 / 0.04);
+  --shadow-lg: 0 16px 40px -12px rgb(28 27 24 / 0.18), 0 4px 12px -4px rgb(28 27 24 / 0.08);
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Layout */
+  --container: 1200px;
+  --container-feed: 640px;
+  --container-read: 720px;
+  --container-marketing: 1280px;
+  --gutter: 16px;
+  --nav-mobile-h: 64px;
+  --nav-desktop-w: 256px;
+
+  /* Layers */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+
+  --tracking-display: -0.01em;
+  --tracking-normal: 0;
+
+  /* Marketing display scale (landing only) */
+  --text-display: clamp(2.75rem, 5vw + 1rem, 5rem);
+  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.5rem);
+  --text-section: clamp(1.875rem, 2.2vw + 1rem, 3rem);
+  --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.25rem);
+
+  color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root { --gutter: 24px; }
+}
+@media (min-width: 1024px) {
+  :root { --gutter: 32px; }
+}
+
+/* ───────────────────────── 2b. Semantic (dark) ───────────────────────── */
+.dark {
+  --bg: var(--n-950);
+  --surface: var(--n-900);
+  --surface-muted: var(--n-800);
+  --surface-raised: var(--n-800);
+  --surface-sunken: var(--n-950);
+
+  --fg: var(--n-50);
+  --fg-muted: var(--n-400);
+  --fg-subtle: var(--n-400);
+  --fg-on-brand: var(--n-0);
+
+  --border: var(--n-800);
+  --border-strong: var(--n-700);
+
+  --brand: var(--b-500);
+  --brand-hover: var(--b-600);
+  --brand-fg: var(--n-0);
+  --brand-text: var(--b-300);
+  --brand-subtle: var(--b-900);
+  --brand-subtle-border: var(--b-700);
+
+  --reward: var(--y-500);
+  --reward-fg: var(--n-900);
+  --reward-text: var(--y-300);
+  --reward-subtle: var(--y-900);
+
+  --crush: var(--p-500);
+  --crush-fg: var(--n-950);
+  --crush-text: var(--p-500);
+  --crush-subtle: var(--p-900);
+
+  --success: var(--g-400);
+  --success-fg: var(--n-950);
+  --success-subtle: var(--g-900);
+  --danger: var(--r-400);
+  --danger-fg: var(--n-950);
+  --danger-subtle: var(--r-900);
+  --warning: var(--o-400);
+  --warning-fg: var(--n-950);
+  --warning-subtle: var(--o-900);
+
+  --ring: var(--b-400);
+  --overlay: rgb(0 0 0 / 0.7);
+
+  --chart-1: var(--b-400);
+  --chart-2: var(--g-400);
+  --chart-3: var(--y-300);
+  --chart-4: var(--p-500);
+  --chart-5: var(--n-400);
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 2px 8px -2px rgb(0 0 0 / 0.5), 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 4px 12px -4px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+}
+
+/* ───────────────────────── 3. Component tokens ───────────────────────── */
+:root {
+  --control-h-sm: 36px;
+  --control-h-md: 44px;
+  --control-h-lg: 52px;
+  --control-radius: var(--radius-md);
+  --control-px: 16px;
+
+  --field-bg: var(--surface);
+  --field-border: var(--border);
+  --field-border-focus: var(--brand);
+  --field-placeholder: var(--fg-subtle);
+
+  --card-bg: var(--surface);
+  --card-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-sm);
+  --card-padding: 16px;
+
+  --nav-bg: color-mix(in srgb, var(--surface) 92%, transparent);
+  --nav-border: var(--border);
+  --nav-active: var(--brand-text);
+  --nav-active-bg: var(--brand-subtle);
+
+  --badge-radius: var(--radius-full);
+  --avatar-ring: var(--brand);
+}

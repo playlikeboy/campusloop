@@ -128,7 +128,7 @@ export function CollegeHeroHeader({
             className="flex items-center gap-1.5 text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer bg-muted/40 hover:bg-muted px-3.5 py-1.5 rounded-full shadow-2xs"
           >
             {copiedShare ? (
-              <Check className="size-3.5 text-emerald-500" />
+              <Check className="size-3.5 text-success" />
             ) : (
               <Share2 className="size-3.5" />
             )}
@@ -138,7 +138,7 @@ export function CollegeHeroHeader({
       </div>
 
       {/* ─── Clean College Header Card ─── */}
-      <div className="relative overflow-hidden rounded-3xl bg-card shadow-2xs border border-border/40">
+      <div className="relative overflow-hidden rounded-xl bg-surface border border-border">
         {/* Banner Area */}
         <div className="relative h-36 sm:h-48 w-full bg-muted/30 overflow-hidden">
           {college.bannerUrl && !bannerError ? (
@@ -150,8 +150,8 @@ export function CollegeHeroHeader({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-linear-to-r from-primary/20 via-violet-500/15 to-indigo-500/20 flex items-center justify-center">
-              <span className="text-primary/30 font-black text-2xl tracking-widest uppercase">
+            <div className="w-full h-full bg-brand-subtle flex items-center justify-center">
+              <span className="text-brand-text/40 font-black text-2xl">
                 {college.state || "Campus Hub"}
               </span>
             </div>
@@ -160,12 +160,12 @@ export function CollegeHeroHeader({
           {/* Top-Right Badges */}
           <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
             {isEnrolledHere && (
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-foreground backdrop-blur-md shadow-xs">
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand text-brand-fg shadow-xs">
                 Your Campus
               </span>
             )}
             {college.state && (
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-background/80 text-foreground backdrop-blur-md shadow-xs">
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-surface text-fg shadow-xs">
                 {college.state}
               </span>
             )}
@@ -177,7 +177,7 @@ export function CollegeHeroHeader({
           {/* Logo & Actions Top Row */}
           <div className="flex items-end justify-between -mt-12 sm:-mt-14 gap-3">
             {/* College Logo / Crest */}
-            <div className="size-20 sm:size-24 rounded-2xl bg-card border-4 border-card shadow-xl p-1.5 shrink-0 flex items-center justify-center overflow-hidden z-10">
+            <div className="size-20 sm:size-24 rounded-lg bg-surface border-4 border-surface shadow-lg p-1.5 shrink-0 flex items-center justify-center overflow-hidden z-10">
               {college.logoUrl && !logoError ? (
                 <img
                   src={college.logoUrl}
@@ -198,7 +198,7 @@ export function CollegeHeroHeader({
               <button
                 type="button"
                 onClick={onAskSeniorClick}
-                className="h-9 px-3.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="h-9 px-3.5 rounded-full bg-brand text-brand-fg text-xs font-bold shadow-xs hover:bg-brand-hover transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <MessageSquarePlus className="size-3.5" />
                 <span>Ask Seniors</span>
@@ -254,7 +254,7 @@ export function CollegeHeroHeader({
               {college.nirfRank && (
                 <>
                   <span>•</span>
-                  <span className="text-amber-500 font-bold">NIRF #{college.nirfRank}</span>
+                  <span className="text-fg font-bold">NIRF #{college.nirfRank}</span>
                 </>
               )}
               {college.yearOfEstablishment && (
@@ -278,10 +278,10 @@ export function CollegeHeroHeader({
           )}
 
           {/* ─── Prominent Allowed Student Email Domains Section ─── */}
-          <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-4 space-y-3">
+          <div className="rounded-lg border border-border bg-surface-muted p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                <span className="flex size-7 items-center justify-center rounded-md bg-success-subtle text-success">
                   <ShieldCheck className="size-4" />
                 </span>
                 <div>
@@ -289,7 +289,7 @@ export function CollegeHeroHeader({
                     <h2 className="text-xs font-black tracking-tight text-foreground">
                       Allowed College Email Domains
                     </h2>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success-subtle text-success">
                       Verified Campus Access
                     </span>
                   </div>
@@ -315,7 +315,7 @@ export function CollegeHeroHeader({
                     key={item.domain}
                     className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-3 py-1.5 text-xs font-bold text-foreground shadow-2xs hover:border-primary/50 transition-colors"
                   >
-                    <Mail className="size-3.5 text-emerald-500 shrink-0" />
+                    <Mail className="size-3.5 text-fg-muted shrink-0" />
                     <span className="font-mono text-xs font-bold text-foreground">
                       @{item.domain}
                     </span>
@@ -325,10 +325,11 @@ export function CollegeHeroHeader({
                         type="button"
                         onClick={() => handleCopyDomain(item.domain)}
                         title={`Copy @${item.domain}`}
+                        aria-label={`Copy @${item.domain}`}
                         className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                       >
                         {copiedDomain === item.domain ? (
-                          <Check className="size-3 text-emerald-500" />
+                          <Check className="size-3 text-success" />
                         ) : (
                           <Copy className="size-3" />
                         )}
@@ -370,7 +371,7 @@ export function CollegeHeroHeader({
             )}
             <span>•</span>
             <span className="text-foreground flex items-center gap-1">
-              <Sparkles className="size-3 text-amber-500 inline" />
+              <Sparkles className="size-3 text-reward inline" />
               <strong className="text-foreground font-black">{collectivePoints.toLocaleString()}</strong> LP Clout
             </span>
           </div>

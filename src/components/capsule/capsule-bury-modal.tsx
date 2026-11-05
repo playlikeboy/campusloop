@@ -89,7 +89,7 @@ export function CapsuleBuryModal({
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-500 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5 text-xs font-black text-warning mb-1">
                 <Lock className="size-3.5" />
                 <span>Bury in Time Capsule</span>
               </div>
@@ -126,13 +126,13 @@ export function CapsuleBuryModal({
                     setEntryType(t.id as any);
                   }}
                   className={cn(
-                    "flex sm:flex-col items-center justify-center gap-2 sm:gap-1.5 p-3 rounded-2xl border text-center transition-all cursor-pointer",
+                    "flex sm:flex-col items-center justify-center gap-2 sm:gap-1.5 p-3 rounded-2xl border text-center transition-colors cursor-pointer",
                     isSelected
-                      ? "bg-amber-500/15 border-amber-500/40 text-foreground ring-1 ring-amber-500/30"
+                      ? "bg-warning/15 border-warning/40 text-foreground ring-1 ring-warning/30"
                       : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted/60"
                   )}
                 >
-                  <Icon className={cn("size-4", isSelected ? "text-amber-500" : "")} />
+                  <Icon className={cn("size-4", isSelected ? "text-warning" : "")} />
                   <span className="text-xs font-bold leading-tight">{t.label}</span>
                 </button>
               );
@@ -154,7 +154,7 @@ export function CapsuleBuryModal({
                       ? "e.g. 3 AM Maggi run during End-Sems"
                       : "e.g. A letter to myself before graduating"
                 }
-                className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning"
                 required
               />
             </div>
@@ -169,7 +169,7 @@ export function CapsuleBuryModal({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write honestly. What do you hope will happen? What will you miss most? What were you feeling right at this moment in college?"
                 rows={4}
-                className="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-none leading-relaxed"
+                className="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning resize-none leading-relaxed"
                 required
               />
             </div>
@@ -182,7 +182,7 @@ export function CapsuleBuryModal({
                   value={mediaUrl}
                   onChange={(e) => setMediaUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning"
                 />
               </div>
             )}
@@ -191,9 +191,9 @@ export function CapsuleBuryModal({
             <div className="flex items-center justify-between p-3 rounded-2xl bg-muted/20 border border-border/30">
               <div className="flex items-center gap-2">
                 {isAnonymous ? (
-                  <UserX className="size-4 text-amber-500" />
+                  <UserX className="size-4 text-warning" />
                 ) : (
-                  <UserCheck className="size-4 text-emerald-500" />
+                  <UserCheck className="size-4 text-success" />
                 )}
                 <div>
                   <p className="text-xs font-bold text-foreground">
@@ -215,9 +215,9 @@ export function CapsuleBuryModal({
                   setIsAnonymous(!isAnonymous);
                 }}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-black transition-all cursor-pointer",
+                  "px-3 py-1 rounded-full text-xs font-black transition-colors cursor-pointer",
                   isAnonymous
-                    ? "bg-amber-500 text-white"
+                    ? "bg-warning text-white"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -233,7 +233,7 @@ export function CapsuleBuryModal({
                   value={pseudonym}
                   onChange={(e) => setPseudonym(e.target.value)}
                   placeholder="e.g. midnight_coder_26"
-                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-warning"
                 />
               </div>
             )}
@@ -250,7 +250,7 @@ export function CapsuleBuryModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-amber-500 text-white text-xs font-black hover:bg-amber-600 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-warning text-white text-xs font-black hover:bg-warning transition-transform cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

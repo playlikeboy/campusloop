@@ -67,8 +67,8 @@ const HUB_META: Record<DedicatedHubType, {
     icon: PackageSearch,
     actionLabel: "Report Item",
     createHref: "/lost-and-found/new",
-    badgeColor: "bg-rose-500/15 text-rose-500",
-    gradient: "from-rose-500/15 via-rose-500/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
   marketplace: {
     title: "Buy & Sell Hub",
@@ -77,8 +77,8 @@ const HUB_META: Record<DedicatedHubType, {
     icon: ShoppingBag,
     actionLabel: "Sell Item",
     createHref: "/buy-and-sell/new",
-    badgeColor: "bg-emerald-500/15 text-emerald-500",
-    gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
   gaming: {
     title: "Gaming Arena",
@@ -87,8 +87,8 @@ const HUB_META: Record<DedicatedHubType, {
     icon: Gamepad2,
     actionLabel: "Create Lobby",
     createHref: "/gaming/new",
-    badgeColor: "bg-primary/10 text-primary",
-    gradient: "from-primary/15 via-coral/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
   rideshare: {
     title: "Ride Share Hub",
@@ -97,8 +97,8 @@ const HUB_META: Record<DedicatedHubType, {
     icon: Car,
     actionLabel: "Offer / Request Ride",
     createHref: "/rideshare/new",
-    badgeColor: "bg-sky-500/15 text-sky-500",
-    gradient: "from-sky-500/15 via-sky-500/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
   housing: {
     title: "Housing & Flats Hub",
@@ -107,18 +107,18 @@ const HUB_META: Record<DedicatedHubType, {
     icon: Home,
     actionLabel: "List Room / PG",
     createHref: "/housing/new",
-    badgeColor: "bg-amber-500/15 text-amber-500",
-    gradient: "from-amber-500/15 via-amber-500/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
   academics: {
     title: "Notes & PYQs Hub",
     subtitle: "Semester Papers & Cheat Sheets",
-    description: "Previous year exam question papers, verified professor notes, formula cheat sheets, and placement resources.",
+    description: "Previous year exam question papers, formula cheat sheets, and placement resources.",
     icon: BookOpen,
     actionLabel: "Upload Resource",
     createHref: "/hub/new?type=academics",
-    badgeColor: "bg-indigo-500/15 text-indigo-500",
-    gradient: "from-indigo-500/15 via-indigo-500/5 to-transparent",
+    badgeColor: "bg-brand-subtle text-brand-text",
+    gradient: "bg-brand-subtle",
   },
 };
 
@@ -222,7 +222,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
 
   return (
     <main className={cn("mx-auto min-h-screen w-full bg-background pb-28 text-foreground", hubType === "gaming" ? "max-w-4xl" : "max-w-3xl")}>
-      <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5 sm:py-4">
+      <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
             <Link
@@ -258,8 +258,8 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
         <GamingHubHero search={search} onSearchChange={setSearch} />
       ) : (
         <section className="relative overflow-hidden px-3 pb-4 sm:px-5">
-        <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b", meta.gradient)} />
-        <div className="relative space-y-3 rounded-[28px] bg-card/65 p-4 shadow-sm sm:p-5">
+        <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-36", meta.gradient)} />
+        <div className="relative space-y-3 rounded-xl bg-card/65 p-4 shadow-sm sm:p-5">
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{meta.description}</p>
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -314,7 +314,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
             Loading listings...
           </div>
         ) : error ? (
-          <div className="rounded-[28px] bg-muted/25 px-6 py-16 text-center shadow-2xs" role="alert">
+          <div className="rounded-xl bg-muted/25 px-6 py-16 text-center shadow-2xs" role="alert">
             <h2 className="text-base font-black">{hubType === "gaming" ? "Lobbies aren’t loading right now" : "Couldn’t load this hub"}</h2>
             <p className="mt-2 text-sm text-muted-foreground">Check your connection and try again.</p>
             <button
@@ -338,11 +338,11 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
             ) : null}
           </>
         ) : hubType === "gaming" ? (
-          <div className="rounded-[28px] bg-[var(--surface)] px-5 py-12 text-center shadow-2xs ring-1 ring-border/60 sm:px-8">
+          <div className="rounded-xl bg-[var(--surface)] px-5 py-12 text-center shadow-2xs ring-1 ring-border/60 sm:px-8">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Gamepad2 className="size-7" aria-hidden="true" />
             </div>
-            <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Your next match starts here</p>
+            <p className="mt-4 text-xs font-bold text-primary">Your next match starts here</p>
             <h2 className="mt-2 text-lg font-black tracking-tight text-foreground">
               {urlSearch ? "No lobbies match that search yet" : "Be the first to open a lobby"}
             </h2>
@@ -371,7 +371,7 @@ export function DedicatedHubClient({ hubType, profileId }: Props) {
             </div>
           </div>
         ) : (
-          <div className="rounded-[28px] bg-muted/25 px-6 py-16 text-center shadow-2xs">
+          <div className="rounded-xl bg-muted/25 px-6 py-16 text-center shadow-2xs">
             <div className="mx-auto flex size-14 items-center justify-center rounded-3xl bg-card text-primary shadow-sm">
               <Compass className="size-7" />
             </div>

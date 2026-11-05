@@ -108,7 +108,7 @@ export function CommentPermalinkView({
     ? ""
     : getAvatarUrl(comment.author?.avatarUrl, comment.author?.username ?? "student", comment.author?.displayName);
   const fallback = isAnon ? (
-    <VenetianMask className="size-5 text-purple-400" />
+    <VenetianMask className="size-5 text-brand-text" />
   ) : (
     (comment.author?.displayName?.[0] ?? "S").toUpperCase()
   );
@@ -241,7 +241,7 @@ export function CommentPermalinkView({
   return (
     <div className="space-y-6">
       {/* Highlighted Comment Anchor Card */}
-      <article className="rounded-2xl border-2 border-primary/30 bg-card p-5 sm:p-6 shadow-sm relative overflow-hidden transition-all">
+      <article className="rounded-2xl border-2 border-primary/30 bg-card p-5 sm:p-6 shadow-sm relative overflow-hidden transition-colors">
         {/* Highlighted Top Banner */}
         <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-border/40">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
@@ -257,7 +257,7 @@ export function CommentPermalinkView({
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer border border-border/30"
               title="Copy link to comment"
             >
-              {copied ? <Check className="size-3 text-emerald-500" /> : <Link2 className="size-3" />}
+              {copied ? <Check className="size-3 text-success" /> : <Link2 className="size-3" />}
               <span>{copied ? "Copied" : "Copy Link"}</span>
             </button>
 
@@ -373,7 +373,7 @@ export function CommentPermalinkView({
                 )}
 
                 {!isAnon && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded-full border border-warning/20">
                     <Sparkles className="size-3" />
                     <span>{loopPoints} LP</span>
                   </span>
@@ -395,9 +395,9 @@ export function CommentPermalinkView({
             onClick={handleToggleLike}
             {...likeHandle.handlers}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer",
               liked
-                ? "border-rose-500/30 bg-rose-500/10 text-rose-500"
+                ? "border-danger/30 bg-danger/10 text-danger"
                 : "border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
@@ -408,7 +408,7 @@ export function CommentPermalinkView({
               size={16}
               animateOnHover={false}
               playKey={liked}
-              iconClassName={cn(liked ? "fill-rose-500 text-rose-500" : "")}
+              iconClassName={cn(liked ? "fill-danger text-danger" : "")}
             />
             <span>{likesCount > 0 ? likesCount : "Upvote"}</span>
           </button>
@@ -460,13 +460,13 @@ export function CommentPermalinkView({
                     className={cn(
                       "text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1.5",
                       replyIsAnon
-                        ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                        ? "bg-brand/15 text-brand-text border border-brand-subtle-border/30"
                         : "bg-muted text-muted-foreground border border-border/40"
                     )}
                   >
                     {replyIsAnon ? (
                       <>
-                        <VenetianMask className="size-3 text-purple-500" />
+                        <VenetianMask className="size-3 text-brand-text" />
                         <span>Anonymous</span>
                       </>
                     ) : (
@@ -480,7 +480,7 @@ export function CommentPermalinkView({
                   <button
                     type="submit"
                     disabled={isSubmitting || !replyBody.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shadow-2xs active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-transform cursor-pointer shadow-2xs active:scale-95"
                   >
                     <Send className="size-3.5" />
                     <span>{isSubmitting ? "Posting..." : "Reply"}</span>
@@ -519,7 +519,7 @@ export function CommentPermalinkView({
                     reply.author?.displayName
                   );
               const replyFallback = replyAnon ? (
-                <VenetianMask className="size-4 text-purple-400" />
+                <VenetianMask className="size-4 text-brand-text" />
               ) : (
                 (reply.author?.displayName?.[0] ?? "S").toUpperCase()
               );

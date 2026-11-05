@@ -16,14 +16,14 @@ export async function generateMetadata({ params }: AcademicSlugPageProps): Promi
 
   if (!resource) {
     return {
-      title: "Academic Material Not Found | CampusLoop",
+      title: "Academic Material Not Found",
       description: "The requested college notes or question paper could not be found.",
     };
   }
 
   const canonicalSlug = slug || (resource as any).slug || slugifyAcademicResource(resource) || resource.id;
   const canonicalUrl = `https://campusloop.space/academics/study-material/${canonicalSlug}`;
-  const title = `${resource.title} (${resource.subjectCode}) | Free PDF Download & PYQ | CampusLoop`;
+  const title = `${resource.title} (${resource.subjectCode})`;
   const description =
     resource.description ||
     `Download ${resource.subjectCode} - ${resource.subjectName} verified notes, previous year question papers (PYQs), and lab manuals for ${resource.branch} Semester ${resource.semester} at ${resource.institution?.name || "Indian Universities"}. Direct PDF preview without sign-up.`;
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: AcademicSlugPageProps): Promi
     },
     twitter: {
       card: "summary_large_image",
-      title: `${resource.title} (${resource.subjectCode}) | CampusLoop Academics`,
+      title: `${resource.title} (${resource.subjectCode})`,
       description,
       images: ["https://campusloop.space/og-academics.png"],
     },
@@ -217,19 +217,19 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
         "@type": "ListItem",
         position: 2,
         name: "Academics",
-        item: "https://campusloop.space/app/academics",
+        item: "https://campusloop.space/academics",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: resource.branch,
-        item: `https://campusloop.space/app/academics?branch=${encodeURIComponent(resource.branch)}`,
+        item: `https://campusloop.space/academics?branch=${encodeURIComponent(resource.branch)}`,
       },
       {
         "@type": "ListItem",
         position: 4,
         name: `${resource.subjectCode} - ${resource.subjectName}`,
-        item: `https://campusloop.space/app/academics?subject=${encodeURIComponent(resource.subjectCode)}`,
+        item: `https://campusloop.space/academics?subject=${encodeURIComponent(resource.subjectCode)}`,
       },
       {
         "@type": "ListItem",

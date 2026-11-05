@@ -60,7 +60,7 @@ export default async function AdminSystemPage() {
         icon={Server}
         description="Verify database connections, live service latency, Upstash Redis signaling, and edge environment configuration."
         badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-subtle text-success border border-success/20">
             Systems Operational
           </span>
         }

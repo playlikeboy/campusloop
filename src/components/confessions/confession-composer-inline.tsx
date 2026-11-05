@@ -142,9 +142,9 @@ export function ConfessionComposerInline({
     <div
       ref={containerRef}
       className={cn(
-        "relative rounded-xl border transition-all duration-200",
+        "relative rounded-xl border transition-colors duration-200",
         isExpanded
-          ? "border-purple-500/30 bg-card/80 shadow-md p-3 sm:p-3.5 backdrop-blur-md"
+          ? "border-brand-subtle-border/30 bg-card/80 shadow-md p-3 sm:p-3.5 backdrop-blur-md"
           : "border-border/30 bg-muted/20 hover:bg-muted/35 hover:border-border/50 p-2 sm:p-2.5 cursor-pointer",
         className
       )}
@@ -159,7 +159,7 @@ export function ConfessionComposerInline({
           }}
           className="flex items-center gap-2.5 w-full min-w-0"
         >
-          <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-text border border-brand-subtle-border/20">
             <VenetianMask className="size-4" />
           </div>
 
@@ -169,7 +169,7 @@ export function ConfessionComposerInline({
             </p>
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 select-none mt-0.5">
               <span className="flex items-center gap-1">
-                <Lock className="size-2.5 text-emerald-400/90" />
+                <Lock className="size-2.5 text-success/90" />
                 100% Anonymous
               </span>
               <span>·</span>
@@ -179,7 +179,7 @@ export function ConfessionComposerInline({
 
           <button
             type="button"
-            className="inline-flex h-7 px-3 items-center justify-center rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-semibold transition-all shrink-0 active:scale-95 cursor-pointer"
+            className="inline-flex h-7 px-3 items-center justify-center rounded-full bg-brand/20 hover:bg-brand-hover/30 text-brand-text border border-brand-subtle-border/30 text-xs font-semibold transition-transform shrink-0 active:scale-95 cursor-pointer"
           >
             Whisper
           </button>
@@ -190,15 +190,15 @@ export function ConfessionComposerInline({
           {/* Header & Cryptographic Notice */}
           <div className="flex items-center justify-between border-b border-border/20 pb-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex size-6.5 items-center justify-center rounded-md bg-purple-500/15 text-purple-400 border border-purple-500/25 shrink-0">
+              <div className="flex size-6.5 items-center justify-center rounded-md bg-brand/15 text-brand-text border border-brand-subtle-border/25 shrink-0">
                 <VenetianMask className="size-3.5" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold tracking-tight text-foreground truncate flex items-center gap-1">
-                  Whisper as <span className="text-purple-400">@{activePseudonym}</span>
+                  Whisper as <span className="text-brand-text">@{activePseudonym}</span>
                 </span>
                 <span className="text-[10px] text-muted-foreground flex items-center gap-1 truncate">
-                  <ShieldCheck className="size-2.5 text-emerald-400 shrink-0" />
+                  <ShieldCheck className="size-2.5 text-success shrink-0" />
                   Real identity is cryptographic &amp; never exposed
                 </span>
               </div>
@@ -227,14 +227,14 @@ export function ConfessionComposerInline({
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="What's the secret, hostel lore, or confession you can't tell anyone openly? Drop it here safely..."
-              className="w-full bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none resize-none focus:outline-none selection:bg-purple-500/30 min-h-[75px]"
+              className="w-full bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none resize-none focus:outline-none selection:bg-brand/30 min-h-[75px]"
             />
           </div>
 
           {/* Category Chips Bar */}
           <div className="space-y-1 pt-0.5">
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1">
-              <Sparkles className="size-2.5 text-purple-400" />
+            <label className="text-[10px] font-semibold text-muted-foreground/70 flex items-center gap-1">
+              <Sparkles className="size-2.5 text-brand-text" />
               <span>Topic</span>
             </label>
             <div className="flex flex-wrap gap-1">
@@ -250,9 +250,9 @@ export function ConfessionComposerInline({
                       setSelectedCategory(cat.id);
                     }}
                     className={cn(
-                      "h-6 px-2 rounded-full text-[11px] font-medium transition-all cursor-pointer border select-none shrink-0",
+                      "h-6 px-2 rounded-full text-[11px] font-medium transition-colors cursor-pointer border select-none shrink-0",
                       isSelected
-                        ? "bg-purple-600/25 text-purple-300 border-purple-500/40 font-semibold shadow-2xs"
+                        ? "bg-brand/25 text-brand-text border-brand-subtle-border/40 font-semibold shadow-2xs"
                         : "bg-muted/30 hover:bg-muted/60 text-muted-foreground border-border/25 hover:text-foreground"
                     )}
                   >
@@ -273,7 +273,7 @@ export function ConfessionComposerInline({
                   setPostScope("GLOBAL");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-all cursor-pointer",
+                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer",
                   postScope === "GLOBAL"
                     ? "bg-foreground text-background font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -289,7 +289,7 @@ export function ConfessionComposerInline({
                   setPostScope("CAMPUS");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[130px] truncate",
+                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer max-w-[130px] truncate",
                   postScope === "CAMPUS"
                     ? "bg-foreground text-background font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -316,7 +316,7 @@ export function ConfessionComposerInline({
               <button
                 type="submit"
                 disabled={isSubmitting || !body.trim()}
-                className="h-7 px-3.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1 shadow-xs cursor-pointer"
+                className="h-7 px-3.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-transform active:scale-95 disabled:opacity-50 flex items-center gap-1 shadow-xs cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

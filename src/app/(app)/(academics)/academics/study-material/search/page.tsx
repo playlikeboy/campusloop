@@ -28,13 +28,13 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     description,
     alternates: {
       canonical: q
-        ? `https://campusloop.space/app/academics/search?q=${encodeURIComponent(q)}`
-        : "https://campusloop.space/app/academics/search",
+        ? `https://campusloop.space/academics/study-material/search?q=${encodeURIComponent(q)}`
+        : "https://campusloop.space/academics/study-material/search",
     },
     openGraph: {
-      title: `${title} | CampusLoop Academics`,
+      title: `${title}`,
       description,
-      url: "https://campusloop.space/app/academics/search",
+      url: "https://campusloop.space/academics/study-material/search",
       siteName: "CampusLoop",
       locale: "en_IN",
       type: "website",

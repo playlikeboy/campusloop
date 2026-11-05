@@ -104,16 +104,16 @@ export const DOCS_FEATURES: DocsFeature[] = [
       "Toggle Anonymous Mode: Flip the persona switch on the composer. Your real name, avatar, and handle are instantly decoupled from the draft.",
       "Client-side PII interception: As you type, regex and NER engines automatically scrub phone numbers, emails, and targeted room markers.",
       "Pseudonymous thread anchor: The server assigns a randomized pseudonym (e.g. 'Hostel 3 Resident') unique to that thread, preserving conversational continuity without identity leakage.",
-      "Zero foreign-key architecture: The database schema explicitly omits foreign keys between anonymous post rows and the users table. Even a direct SQL injection or leaked database snapshot cannot deanonymize an author.",
+      "Sealed identity: The link between an anonymous post and its author is encrypted separately from the post row, so feed queries never see it.",
     ],
     proofPoints: [
-      "Zero foreign-key joins: Schema-enforced mathematical privacy.",
+      "Sealed identity: the author link is encrypted separately and every recovery is logged.",
       "Automatic PII sanitization: Phone numbers and emails are scrubbed before reaching the database.",
       "Accountable safety: Severe harassment triggers an automated ban from the verified campus network.",
     ],
     takeaways: [
       "True honesty requires anonymity, but safe anonymity requires institutional entry verification.",
-      "Structural privacy (omitting database relations) is infinitely more reliable than policy promises.",
+      "Encrypting the author link separately, with logged access, is more reliable than policy promises alone.",
       "Client-side sanitization prevents accidental doxxing before data hits the wire.",
     ],
     viralQuote:
@@ -121,7 +121,7 @@ export const DOCS_FEATURES: DocsFeature[] = [
     faq: [
       {
         q: "Can campus administrators or professors find out who wrote a confession?",
-        a: "No. The database row for an anonymous post contains zero foreign keys or user references linking it to the author's profile. Neither faculty, campus admins, nor peer students can deanonymize an author through queries.",
+        a: "Anonymous posts never show your name or profile to anyone on CampusLoop, including classmates, seniors, faculty and college staff. Your identity is encrypted separately and can only be recovered by CampusLoop in response to a lawful order or a serious safety report, and every such access is logged.",
       },
       {
         q: "What happens if someone posts targeted harassment or threats?",
@@ -250,7 +250,7 @@ export const DOCS_FEATURES: DocsFeature[] = [
     problem:
       "The traditional campus crush confession is broken by radical risk asymmetry:\n- The confessor takes 100% of the vulnerability and social risk.\n- The recipient takes 0% of the risk.\n- If the interest isn't mutual, the confessor's vulnerability becomes hostel gossip by breakfast.\n\nBecause the penalty for a false positive is so high, students choose to do nothing. Thousands of mutual connections are lost every semester purely to social game theory.",
     shift:
-      "An identity escrow eliminates the asymmetry by acting as a zero-knowledge matchmaker.\n\nYou declare your crush privately by adding their verified campus handle to your vault.\nThey receive ZERO notifications.\nNo one knows you added them. Not your friends, not the recipient, not even our frontend.\n\nIf and only if that person independently adds YOUR verified handle to their vault, the system detects the bidirectional match and triggers a simultaneous mutual reveal alert to both inboxes.",
+      "A sealed crush list eliminates the asymmetry.\n\nYou declare your crush privately by adding their verified campus handle to your vault.\nThey receive no notification.\nNo one on CampusLoop learns you added them unless they add you too.\n\nIf and only if that person independently adds YOUR verified handle to their vault, the system detects the bidirectional match and triggers a simultaneous mutual reveal alert to both inboxes.",
     howItWorks: [
       "Add up to 5 verified crushes: Search by name or verified handle and lock them into your private vault slots.",
       "Zero notification promise: The recipient receives absolutely no ping, email, or indicator that someone added them.",
@@ -628,56 +628,6 @@ export const DOCS_FEATURES: DocsFeature[] = [
       {
         q: "Does CampusLoop sell student data to advertisers?",
         a: "Never. CampusLoop does not sell student data, personal information, or reading habits to third-party advertisers or data brokers.",
-      },
-    ],
-  },
-  {
-    slug: "design-system",
-    title: "Twitter / X Design System",
-    tagline: "Why we killed the clown UI and rebuilt CampusLoop on pure high-contrast OLED architecture.",
-    category: "Express",
-    readTime: "4 min read",
-    description:
-      "A deep dive into the CampusLoop design system: pure OLED black canvases, Twitter blue (#1D9BF0) tokens, hairline borders, clean profile architecture, and zero-compromise scanability.",
-    keywords: [
-      "CampusLoop design system",
-      "Twitter design system",
-      "X visual architecture",
-      "OLED dark mode",
-      "student profile UX",
-      "clean campus UI",
-    ],
-    hook: "Most campus apps look like a 2012 theme park: clashing rainbow tags, neon purple glow rings, raw emoji spam, and cramped cards where content suffocates.\n\nStudents don't share apps that look like kindergarten projects. They share platforms that look like Bloomberg terminals or Twitter: crisp, authoritative, fast, and relentlessly premium.\n\nHere is why we deleted every clown gradient and unified CampusLoop on the Twitter / X design architecture.",
-    problem:
-      "When digital products lack design discipline, four catastrophic failures happen:\n1. The Joker UI trap: Clustering five uncoordinated badge colors (amber + teal + purple + rose + emerald) on a single profile turns serious student credentials into clip-art noise.\n2. Squished hierarchy: Cramming avatars, bios, and action buttons into cramped flexboxes destroys readability on mobile screens.\n3. The fake-sheen illusion: Adding neon dropshadows and rainbow progress bars gives the illusion of design but screams low credibility to recruiters and founders.\n4. Vanity share paralysis: Students refuse to put an amateur-looking profile URL in their Twitter bio, LinkedIn headline, or resume.",
-    shift:
-      "We rebuilt our entire frontend from first principles around the Twitter / X specification:\n\nFirst, True OLED Black (#000000): Deep black canvases with hairline borders (#2F3336) replace heavy nested cards. Content is the sole hero.\n\nSecond, Signature Twitter Blue (#1D9BF0): We eliminated garish neon purple in favor of verified Twitter blue for badges, links, active tab bars, and progress indicators.\n\nThird, The Full-Width Profile Architecture: Cover banner (3:1), overlapping 96px circular avatar with online status, full-width bio with natural line height, standard metadata row (college, degree, location, joined date), and high-contrast follow buttons.\n\nFourth, Monochromatic Topic Discipline: Interest tags are rendered in subtle neutral tokens that illuminate on hover rather than shouting in rainbow neon.",
-    howItWorks: [
-      "Strict CSS token pipeline: All colors map through CSS custom variables (--primary, --background, --foreground, --border, --muted) in globals.css.",
-      "Twitter action toolbar: High-contrast pill follow button (bg-foreground text-background), circular direct message icon, and subtle secret crush trigger.",
-      "Clean Clout progress: Single-tone #1D9BF0 progress bars replace multi-colored rainbow gradients.",
-      "Zero raw emojis: All iconography is strictly powered by Lucide SVG primitives and custom smooth micro-animations.",
-    ],
-    proofPoints: [
-      "Sub-16ms render times: Eliminating heavy CSS blur filters and gradients cut layout shifts to zero.",
-      "Share-ready profiles: Student profiles at /@username look as authoritative as an executive Twitter profile.",
-      "Zero UI clutter: Maximum screen real estate dedicated to verified student thoughts, notes, and discussions.",
-    ],
-    takeaways: [
-      "Content is the hero. If a border or gradient calls attention to itself, it has failed.",
-      "High-contrast OLED minimalism gives student networks institutional credibility.",
-      "Great design is not adding more colors; it is removing every color until only what matters remains.",
-    ],
-    viralQuote:
-      "Great software looks quiet so the humans using it can be heard. Build with high contrast, hairline dividers, and zero clown colors.",
-    faq: [
-      {
-        q: "Why did you switch from neon purple to Twitter blue (#1D9BF0)?",
-        a: "Twitter blue (#1D9BF0) is the global benchmark for verified digital identity and speed. It provides superior contrast against OLED black canvases without inducing eye strain.",
-      },
-      {
-        q: "Can students still customize their profile appearance?",
-        a: "Yes. Students can upload custom high-resolution cover banners, customize their avatar, write Markdown-rich bios, and link their GitHub, LinkedIn, and personal portfolios.",
       },
     ],
   },

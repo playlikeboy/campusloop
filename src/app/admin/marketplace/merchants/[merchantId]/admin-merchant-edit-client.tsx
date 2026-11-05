@@ -393,21 +393,21 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black text-foreground truncate">{merchant.name}</h1>
+                <h1 className="text-lg font-bold text-foreground truncate">{merchant.name}</h1>
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-black uppercase",
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold",
                     merchant.status === "ACTIVE"
-                      ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
-                      : "bg-rose-500/15 text-rose-500 border border-rose-500/30"
+                      ? "bg-success-subtle text-success border border-success/30"
+                      : "bg-danger-subtle text-danger border border-danger/30"
                   )}
                 >
                   {merchant.status}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground font-medium truncate">
-                {merchant.institution?.name?.split(",")[0] || "BIT Mesra"} · {merchant.categorySlug} · ⭐{" "}
-                {merchant.rating} ({merchant.reviewCount} reviews)
+                {merchant.institution?.name?.split(",")[0] || "BIT Mesra"} · {merchant.categorySlug} ·{" "}
+                <Star className="inline size-3 fill-warning text-warning" aria-hidden="true" /> {merchant.rating} ({merchant.reviewCount} reviews)
               </p>
             </div>
           </div>
@@ -426,7 +426,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           <Link
             href="/merchant-portal/login"
             target="_blank"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-xs font-bold hover:bg-emerald-500/20 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors"
           >
             <KeyRound className="size-3.5" />
             <span>Login as Merchant</span>
@@ -459,9 +459,9 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 setActiveTab(tab.id as any);
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0",
+                "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0",
                 isActive
-                  ? "bg-foreground text-background font-black shadow-xs"
+                  ? "bg-foreground text-background font-bold shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
@@ -477,7 +477,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
         <form onSubmit={handleSaveMerchant} className="space-y-4">
           {/* Visual Assets Preview Card */}
           <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-            <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
               <ImageIcon className="size-3.5 text-primary" />
               <span>Visual Branding (Profile Picture &amp; Cover Banner)</span>
             </h2>
@@ -494,7 +494,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   <img src={logoUrl} alt="Logo Preview" className="size-full object-cover" />
                 </div>
                 <div className="text-white">
-                  <h3 className="text-base font-black leading-tight drop-shadow-sm">
+                  <h3 className="text-base font-bold leading-tight drop-shadow-sm">
                     {name || "Store Name"}
                   </h3>
                   <p className="text-xs text-white/80 font-medium drop-shadow-sm">
@@ -534,7 +534,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           </div>
 
           <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-            <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h2 className="text-xs font-bold text-muted-foreground">
               General Store Details
             </h2>
 
@@ -641,7 +641,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   min="0"
                   value={deliveryFee}
                   onChange={(e) => setDeliveryFee(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                 />
               </div>
 
@@ -652,7 +652,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   min="0"
                   value={minOrderValue}
                   onChange={(e) => setMinOrderValue(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                 />
               </div>
 
@@ -673,7 +673,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="rounded-lg bg-card border border-border px-2 py-1 text-xs font-black uppercase"
+                  className="rounded-lg bg-card border border-border px-2 py-1 text-xs font-bold"
                 >
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="PAUSED">PAUSED</option>
@@ -688,10 +688,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   type="button"
                   onClick={() => setIsOpen((prev) => !prev)}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-black uppercase transition-colors cursor-pointer",
+                    "px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                     isOpen
-                      ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
-                      : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
+                      ? "bg-success-subtle text-success border border-success/30"
+                      : "bg-danger-subtle text-danger border border-danger/30"
                   )}
                 >
                   {isOpen ? "OPEN NOW" : "CLOSED"}
@@ -703,7 +703,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full h-12 rounded-xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {isSaving ? (
               <>
@@ -723,11 +723,11 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       {/* ─── TAB 2: Credentials & Portal Login (Username + Password) ─── */}
       {activeTab === "credentials" && (
         <div className="space-y-5">
-          <div className="p-5 rounded-2xl bg-card border border-emerald-500/30 space-y-4 shadow-xs">
+          <div className="p-5 rounded-2xl bg-card border border-success/30 space-y-4 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-emerald-500" />
-                <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+                <ShieldCheck className="size-4 text-success" />
+                <h2 className="text-xs font-bold text-foreground">
                   Direct Merchant Portal Credentials
                 </h2>
               </div>
@@ -735,7 +735,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <button
                   type="button"
                   onClick={handleCopyCredentials}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-xs font-bold text-foreground cursor-pointer transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-xs font-bold text-foreground cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Copy className="size-3.5" />
                   <span>Copy Credentials</span>
@@ -758,13 +758,13 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
               </div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2">
                 <span className="text-muted-foreground font-medium">Active Username:</span>
-                <span className="font-mono font-black text-foreground bg-card px-2 py-0.5 rounded-md border border-border">
+                <span className="font-mono font-bold text-foreground bg-card px-2 py-0.5 rounded-md border border-border">
                   @{loginUsername || merchant?.loginUsername || merchant?.slug || "arman"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground font-medium">Default Test Password:</span>
-                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                <span className="font-mono font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
                   canteen@password123
                 </span>
               </div>
@@ -802,7 +802,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                           setShowPassword(true);
                           toast.info("Password set to 'canteen@password123'. Click Save to apply!");
                         }}
-                        className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                        className="text-[10px] font-bold text-success hover:underline cursor-pointer"
                       >
                         Set Default (canteen@password123)
                       </button>
@@ -810,7 +810,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                       <button
                         type="button"
                         onClick={handleGeneratePassword}
-                        className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <RefreshCw className="size-2.5" />
                         <span>Random</span>
@@ -853,7 +853,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <button
                   type="submit"
                   disabled={isSavingCredentials}
-                  className="px-5 py-2.5 rounded-xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                  className="px-5 py-2.5 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSavingCredentials ? (
                     <Loader2 className="size-3.5 animate-spin" />
@@ -886,7 +886,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             <button
               type="button"
               onClick={handleOpenAddProduct}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-colors shadow-xs cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Plus className="size-3.5 stroke-2" />
               <span>Add Menu Item</span>
@@ -920,25 +920,25 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-foreground truncate">{p.name}</span>
+                        <span className="text-xs font-bold text-foreground truncate">{p.name}</span>
                         <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                           {p.categoryName}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                        <span className="font-black text-foreground">₹{p.price}</span>
+                        <span className="font-bold text-foreground">₹{p.price}</span>
                         {p.originalPrice && (
                           <span className="line-through text-[11px]">₹{p.originalPrice}</span>
                         )}
                         <span>
                           ·{" "}
                           {p.isAvailable ? (
-                            <span className="inline-flex items-center gap-1 text-emerald-500 font-bold text-[11px]">
-                              <span className="size-1.5 rounded-full bg-emerald-500 inline-block" /> In Stock
+                            <span className="inline-flex items-center gap-1 text-success font-bold text-[11px]">
+                              <span className="size-1.5 rounded-full bg-success inline-block" /> In Stock
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-rose-500 font-bold text-[11px]">
-                              <span className="size-1.5 rounded-full bg-rose-500 inline-block" /> Out of Stock
+                            <span className="inline-flex items-center gap-1 text-danger font-bold text-[11px]">
+                              <span className="size-1.5 rounded-full bg-danger inline-block" /> Out of Stock
                             </span>
                           )}
                         </span>
@@ -953,8 +953,8 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                       className={cn(
                         "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer",
                         p.isAvailable
-                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20"
-                          : "bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20"
+                          ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
+                          : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
                       )}
                     >
                       {p.isAvailable ? "In Stock" : "Out of Stock"}
@@ -970,7 +970,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                     <button
                       type="button"
                       onClick={() => handleDeleteProduct(p)}
-                      className="size-8 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 flex items-center justify-center cursor-pointer"
+                      className="size-8 rounded-lg hover:bg-danger-subtle text-muted-foreground hover:text-danger flex items-center justify-center cursor-pointer"
                       title="Delete Item"
                     >
                       <Trash2 className="size-3.5" />
@@ -996,10 +996,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
               <div key={o.id} className="p-4 flex items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-foreground">
+                    <span className="text-xs font-bold text-foreground">
                       #{o.orderNumber || o.id.slice(0, 8)}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-primary/10 text-primary border border-primary/20">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
                       {o.status}
                     </span>
                   </div>
@@ -1019,23 +1019,23 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           {/* Summary Card */}
           <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="size-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex flex-col items-center justify-center text-amber-500">
-                <span className="text-2xl font-black">{reviewsData?.averageRating || merchant.rating}</span>
+              <div className="size-16 rounded-2xl bg-warning-subtle border border-warning/30 flex flex-col items-center justify-center text-warning">
+                <span className="text-2xl font-bold">{reviewsData?.averageRating || merchant.rating}</span>
                 <span className="text-[10px] font-bold">/ 5.0</span>
               </div>
               <div>
-                <h3 className="text-sm font-black text-foreground">Student Store Rating</h3>
+                <h3 className="text-sm font-bold text-foreground">Student Store Rating</h3>
                 <p className="text-xs text-muted-foreground">
                   Based on {reviewsData?.totalCount || merchant.reviewCount || 0} verified student reviews
                 </p>
-                <div className="flex items-center gap-1 mt-1 text-amber-500">
+                <div className="flex items-center gap-1 mt-1 text-warning">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star
                       key={s}
                       className={cn(
                         "size-3.5",
                         s <= Math.round(Number(reviewsData?.averageRating || merchant.rating))
-                          ? "fill-amber-500 stroke-amber-500"
+                          ? "fill-warning stroke-warning"
                           : "fill-transparent stroke-muted-foreground/40"
                       )}
                     />
@@ -1085,14 +1085,14 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                             @{r.student?.username || "student"}
                           </span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-amber-500">
+                        <div className="flex items-center gap-0.5 text-warning">
                           {[1, 2, 3, 4, 5].map((s) => (
                             <Star
                               key={s}
                               className={cn(
                                 "size-2.5",
                                 s <= r.rating
-                                  ? "fill-amber-500 stroke-amber-500"
+                                  ? "fill-warning stroke-warning"
                                   : "fill-transparent stroke-muted-foreground/30"
                               )}
                             />
@@ -1125,12 +1125,12 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             />
           </div>
           <div>
-            <h3 className="text-base font-black text-foreground">{merchant.name}</h3>
+            <h3 className="text-base font-bold text-foreground">{merchant.name}</h3>
             <p className="text-xs text-muted-foreground">Branded Table Ordering QR Stand</p>
           </div>
           <Link
             href="/merchant-portal/store/qr"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
           >
             <span>Print Official A4 Table Stand</span>
           </Link>
@@ -1139,10 +1139,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
       {/* ─── Add/Edit Product Modal ─── */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-card border border-border rounded-2xl p-5 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="text-sm font-black text-foreground">
+              <h3 className="text-sm font-bold text-foreground">
                 {editingProduct ? "Edit Menu Item" : "Add New Menu Item"}
               </h3>
               <button
@@ -1250,7 +1250,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <button
                   type="submit"
                   disabled={isSubmittingProduct}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmittingProduct && <Loader2 className="size-3 animate-spin" />}
                   <span>{editingProduct ? "Save Item" : "Add Item"}</span>

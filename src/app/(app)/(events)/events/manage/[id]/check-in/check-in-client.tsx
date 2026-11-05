@@ -149,7 +149,7 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
       </div>
 
       {/* ─── Live Admission Progress Banner ─── */}
-      <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-3">
+      <div className="p-4 sm:p-5 rounded-2xl border border-success bg-success-subtle space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-2">
@@ -158,14 +158,14 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
             </div>
           </div>
 
-          <div className="size-12 rounded-full border-2 border-emerald-500/30 flex items-center justify-center font-black text-sm text-emerald-500 bg-background/80">
+          <div className="size-12 rounded-full border-2 border-success flex items-center justify-center font-black text-sm text-success bg-background/80">
             {progressPercent}%
           </div>
         </div>
 
         <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden">
           <div
-            className="h-full bg-emerald-500 transition-all duration-300 rounded-full"
+            className="h-full bg-success transition-colors duration-300 rounded-full"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -179,7 +179,7 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Lookup by student name, @username, or ticket ID..."
-          className="w-full pl-10 pr-9 py-2.5 rounded-2xl border border-border/60 bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 shadow-2xs"
+          className="w-full pl-10 pr-9 py-2.5 rounded-2xl border border-border/60 bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-success shadow-2xs"
           autoFocus
         />
         {search && (
@@ -199,13 +199,13 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
           type="button"
           onClick={() => setViewTab("PENDING")}
           className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
             viewTab === "PENDING"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <Clock className="size-3.5 text-amber-500" />
+          <Clock className="size-3.5 text-warning" />
           <span>Pending Admission ({pendingList.length})</span>
         </button>
 
@@ -213,13 +213,13 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
           type="button"
           onClick={() => setViewTab("CHECKED_IN")}
           className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
             viewTab === "CHECKED_IN"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <CheckCircle2 className="size-3.5 text-emerald-500" />
+          <CheckCircle2 className="size-3.5 text-success" />
           <span>Admitted ({attendedList.length})</span>
         </button>
       </div>
@@ -271,7 +271,7 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
                     type="button"
                     disabled={admittingId === reg.id}
                     onClick={() => handleAdmit(reg.id)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold transition-all cursor-pointer shadow-xs"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-success hover:bg-success active:scale-95 text-white font-bold transition-[opacity,transform] cursor-pointer shadow-xs"
                   >
                     <UserCheck className="size-4" />
                     <span>Admit</span>

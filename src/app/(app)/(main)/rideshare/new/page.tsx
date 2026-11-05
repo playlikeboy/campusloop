@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Offer Campus Ride Share",
   description:
     "Split cab and auto fares to railway stations, airports, and city hubs with verified classmates.",
-  alternates: { canonical: "https://campusloop.space/app/rideshare/new" },
+  alternates: { canonical: "https://campusloop.space/rideshare/new" },
 };
 
 export default async function NewRidesharePage() {

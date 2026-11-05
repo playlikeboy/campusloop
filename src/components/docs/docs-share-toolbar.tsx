@@ -50,7 +50,7 @@ export function DocsShareToolbar({ title, viralQuote, url }: DocsShareToolbarPro
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/60 bg-muted/20 hover:bg-muted/60 text-foreground font-mono text-xs font-semibold transition-colors"
       >
-        <span className="font-bold text-[#1D9BF0]">in</span>
+        <span className="font-bold text-brand-text">in</span>
         <span>Post to LinkedIn</span>
       </a>
 
@@ -61,8 +61,8 @@ export function DocsShareToolbar({ title, viralQuote, url }: DocsShareToolbarPro
       >
         {copied ? (
           <>
-            <Check className="size-3 text-emerald-500" />
-            <span className="text-emerald-500">Quote Copied</span>
+            <Check className="size-3 text-success" />
+            <span className="text-success">Quote Copied</span>
           </>
         ) : (
           <>

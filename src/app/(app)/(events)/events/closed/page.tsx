@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ClosedEventsClient } from "./closed-events-client";
 
 export const metadata: Metadata = {
-  title: "Closed & Past Campus Events | CampusLoop",
+  title: "Closed & Past Campus Events",
   description:
-    "Explore concluded college hackathons, fests, coding competitions, and academic workshops across 1,350+ Indian universities on CampusLoop.",
+    "Explore concluded college hackathons, fests, coding competitions, and academic workshops across Indian universities on CampusLoop.",
   keywords: [
     "Past Campus Events",
     "Closed Hackathons",
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "https://campusloop.space/events/closed" },
   openGraph: {
-    title: "Closed & Past Campus Events | CampusLoop",
+    title: "Closed & Past Campus Events",
     description:
-      "Explore concluded college hackathons, fests, and workshops across 1,350+ Indian universities.",
+      "Explore concluded college hackathons, fests, and workshops across Indian universities.",
     url: "https://campusloop.space/events/closed",
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Closed & Past Campus Events | CampusLoop",
+    title: "Closed & Past Campus Events",
     description:
-      "Explore concluded college hackathons, fests, and workshops across 1,350+ Indian universities.",
+      "Explore concluded college hackathons, fests, and workshops across Indian universities.",
     images: ["https://campusloop.space/og-image.png"],
   },
   robots: { index: true, follow: true },

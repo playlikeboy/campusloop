@@ -1,3 +1,4 @@
+import { MCP_DOCS_TAILWIND } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -840,68 +841,67 @@ function renderDocumentationHtml(origin: string, isAuth: boolean) {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CampusLoop Articles MCP Engine — API & Tools Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  ${MCP_DOCS_TAILWIND}
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    pre { background: #0f172a; color: #f8fafc; border-radius: 0.75rem; padding: 1rem; overflow-x: auto; font-size: 0.85rem; }
+    pre { background: var(--surface-muted); color: var(--fg); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; overflow-x: auto; font-size: 0.85rem; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
+<body class="bg-bg text-fg min-h-screen">
   <div class="max-w-5xl mx-auto px-6 py-12">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
+    <div class="flex items-center justify-between border-b border-border pb-6 mb-8">
       <div>
         <div class="flex items-center gap-3">
-          <span class="px-3 py-1 text-xs font-semibold rounded-full ${isAuth ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border border-amber-500/30"}">
+          <span class="px-3 py-1 text-xs font-semibold rounded-full ${isAuth ? "bg-success-subtle text-success border border-success" : "bg-warning-subtle text-warning border border-warning"}">
             ${isAuth ? "Superpowers Mode (Authenticated)" : "Read-Only Spec Mode"}
           </span>
-          <span class="text-xs text-slate-500">v1.0.0 · JSON-RPC 2.0 / REST / SSE</span>
+          <span class="text-xs text-fg-muted">v1.0.0 · JSON-RPC 2.0 / REST / SSE</span>
         </div>
-        <h1 class="text-3xl font-extrabold mt-2 text-white">CampusLoop Articles MCP Engine</h1>
-        <p class="text-slate-400 text-sm mt-1">Full-stack student journalism, technical long-reads, and placement guide management across 1,350+ Indian colleges.</p>
+        <h1 class="text-3xl font-bold mt-2 text-fg">CampusLoop Articles MCP Engine</h1>
+        <p class="text-fg-muted text-sm mt-1">Full-stack student journalism, technical long-reads, and placement guide management across 1,350+ Indian colleges.</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/mcp/articles/openapi.json" target="_blank" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg transition border border-slate-700">OpenAPI 3.1.0</a>
-        <a href="/articles" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium rounded-lg transition">Visit /articles</a>
+        <a href="/mcp/articles/openapi.json" target="_blank" class="px-4 py-2 bg-surface-muted hover:bg-surface text-xs font-medium rounded-lg transition-colors border border-border">OpenAPI 3.1.0</a>
+        <a href="/articles" class="px-4 py-2 bg-brand hover:bg-brand-hover text-brand-fg text-xs font-medium rounded-lg transition-colors">Visit /articles</a>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Registered MCP Tools</div>
-        <div class="text-3xl font-black text-indigo-400 mt-2">${MCP_ARTICLE_TOOLS.length}</div>
-        <div class="text-xs text-slate-400 mt-1">Articles, categories, tags, links, comments & authors</div>
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <div class="text-xs text-fg-muted font-semibold">Registered MCP Tools</div>
+        <div class="text-3xl font-bold text-brand-text mt-2">${MCP_ARTICLE_TOOLS.length}</div>
+        <div class="text-xs text-fg-muted mt-1">Articles, categories, tags, links, comments & authors</div>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Curated Categories</div>
-        <div class="text-3xl font-black text-emerald-400 mt-2">38</div>
-        <div class="text-xs text-slate-400 mt-1">Tech & Dev, Academics, Career & Lifestyle</div>
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <div class="text-xs text-fg-muted font-semibold">Curated Categories</div>
+        <div class="text-3xl font-bold text-success mt-2">38</div>
+        <div class="text-xs text-fg-muted mt-1">Tech & Dev, Academics, Career & Lifestyle</div>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Authentication</div>
-        <div class="text-3xl font-black text-sky-400 mt-2">${isAuth ? "ACTIVE" : "PROTECTED"}</div>
-        <div class="text-xs text-slate-400 mt-1">Query ?apikey=, Header x-api-key, or Bearer</div>
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <div class="text-xs text-fg-muted font-semibold">Authentication</div>
+        <div class="text-3xl font-bold text-brand-text mt-2">${isAuth ? "ACTIVE" : "PROTECTED"}</div>
+        <div class="text-xs text-fg-muted mt-1">Query ?apikey=, Header x-api-key, or Bearer</div>
       </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-10">
-      <h2 class="text-lg font-bold text-white mb-2">Composio & AI Agent Quick Connection</h2>
-      <p class="text-sm text-slate-400 mb-4">To add this tool to Composio or any MCP client, configure the endpoint and OpenAPI URL:</p>
+    <div class="bg-surface border border-border rounded-xl p-6 mb-10">
+      <h2 class="text-lg font-bold text-fg mb-2">Composio & AI Agent Quick Connection</h2>
+      <p class="text-sm text-fg-muted mb-4">To add this tool to Composio or any MCP client, configure the endpoint and OpenAPI URL:</p>
       <pre><code>Endpoint: ${origin}/mcp/articles?apikey=YOUR_MCP_API_KEY
 OpenAPI Spec: ${origin}/mcp/articles/openapi.json
 Protocol: MCP JSON-RPC 2.0 (2024-11-05) &amp; RESTful OpenAPI</code></pre>
     </div>
 
-    <div class="border-t border-slate-800 pt-8">
-      <h2 class="text-xl font-bold text-white mb-6">Complete MCP Tools Catalog (${MCP_ARTICLE_TOOLS.length} Operations)</h2>
+    <div class="border-t border-border pt-8">
+      <h2 class="text-xl font-bold text-fg mb-6">Complete MCP Tools Catalog (${MCP_ARTICLE_TOOLS.length} Operations)</h2>
       <div class="space-y-4">
         ${MCP_ARTICLE_TOOLS.map(
           (t) => `
-          <div class="bg-slate-900/60 border border-slate-800/80 rounded-lg p-4">
+          <div class="bg-surface border border-border rounded-lg p-4">
             <div class="flex items-center justify-between">
-              <span class="font-mono text-sm font-bold text-indigo-300">${t.name}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">Tool</span>
+              <span class="font-mono text-sm font-bold text-brand-text">${t.name}</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-surface-muted text-fg-muted">Tool</span>
             </div>
-            <p class="text-xs text-slate-400 mt-1">${t.description}</p>
+            <p class="text-xs text-fg-muted mt-1">${t.description}</p>
           </div>`
         ).join("")}
       </div>

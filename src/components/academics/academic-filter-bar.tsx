@@ -147,7 +147,7 @@ export function AcademicFilterBar({
               type="button"
               onClick={() => toggleDropdown("branch")}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-ui cursor-pointer",
                 branch !== "All"
                   ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
                   : "border-border/60 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -189,7 +189,7 @@ export function AcademicFilterBar({
                 type="button"
                 onClick={() => toggleDropdown("semester")}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-ui cursor-pointer",
                   semester !== "all"
                     ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
                     : "border-border/60 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -232,7 +232,7 @@ export function AcademicFilterBar({
                 type="button"
                 onClick={() => toggleDropdown("type")}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-ui cursor-pointer",
                   resourceType !== "all"
                     ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
                     : "border-border/60 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -274,7 +274,7 @@ export function AcademicFilterBar({
               type="button"
               onClick={() => toggleDropdown("sort")}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-ui cursor-pointer",
                 sortBy !== "for_you"
                   ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
                   : "border-border/60 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"

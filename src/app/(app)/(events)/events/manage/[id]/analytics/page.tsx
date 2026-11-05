@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: AnalyticsPageProps): Promise<
     });
 
     if (!event) {
-      return { title: "Event Analytics | CampusLoop" };
+      return { title: "Event Analytics" };
     }
 
     return {
-      title: `Analytics: ${event.title} | CampusLoop Organizer`,
+      title: `Analytics: ${event.title}`,
       description: `Attendee demographics, conversion rates, and campus breakdown for ${event.title}.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Event Analytics | CampusLoop" };
+    return { title: "Event Analytics" };
   }
 }
 

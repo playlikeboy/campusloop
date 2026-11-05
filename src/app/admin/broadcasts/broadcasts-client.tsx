@@ -109,10 +109,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
     INFO: {
       label: "General Info",
       badge: "CAMPUS INFO",
-      border: "border-blue-500/30",
-      bg: "bg-blue-500/10",
-      text: "text-blue-500",
-      accent: "bg-blue-500",
+      border: "border-brand/30",
+      bg: "bg-brand-subtle",
+      text: "text-brand-text",
+      accent: "bg-brand",
       icon: Info,
     },
     ANNOUNCEMENT: {
@@ -127,19 +127,19 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
     WARNING: {
       label: "Advisory",
       badge: "CAMPUS ADVISORY",
-      border: "border-amber-500/30",
-      bg: "bg-amber-500/10",
-      text: "text-amber-500",
-      accent: "bg-amber-500",
+      border: "border-warning/30",
+      bg: "bg-warning-subtle",
+      text: "text-warning",
+      accent: "bg-warning",
       icon: AlertTriangle,
     },
     URGENT: {
       label: "Urgent Alert",
       badge: "URGENT NOTICE",
-      border: "border-rose-500/30",
-      bg: "bg-rose-500/10",
-      text: "text-rose-500",
-      accent: "bg-rose-500",
+      border: "border-danger/30",
+      bg: "bg-danger-subtle",
+      text: "text-danger",
+      accent: "bg-danger",
       icon: ShieldAlert,
     },
   };
@@ -279,7 +279,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             <span>Indexed Campuses</span>
             <Building2 className="size-4 text-primary" />
           </div>
-          <p className="mt-2 text-2xl font-black text-foreground">1,350+</p>
+          <p className="mt-2 text-2xl font-bold text-foreground">1,350+</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">All-India active college hubs</p>
         </div>
 
@@ -288,16 +288,16 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             <span>Total Broadcasts</span>
             <Radio className="size-4 text-primary" />
           </div>
-          <p className="mt-2 text-2xl font-black text-foreground">{broadcastsList.length}</p>
+          <p className="mt-2 text-2xl font-bold text-foreground">{broadcastsList.length}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Dispatched timeline alerts</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
             <span>Active Feed Pinned</span>
-            <CheckCircle2 className="size-4 text-emerald-500" />
+            <CheckCircle2 className="size-4 text-success" />
           </div>
-          <p className="mt-2 text-2xl font-black text-foreground">
+          <p className="mt-2 text-2xl font-bold text-foreground">
             {broadcastsList.filter((b) => (b.status || "PUBLISHED") === "PUBLISHED").length}
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Live on student feeds</p>
@@ -306,9 +306,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
         <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
             <span>Target Reach</span>
-            <Users className="size-4 text-violet-500" />
+            <Users className="size-4 text-brand-text" />
           </div>
-          <p className="mt-2 text-2xl font-black text-foreground">
+          <p className="mt-2 text-2xl font-bold text-foreground">
             {scope === "INDIA" ? "Pan-India" : "Campus Wide"}
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
@@ -333,7 +333,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Scope Selector */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
               <Globe className="size-3.5 text-primary" />
               <span>Broadcast Target Scope</span>
             </label>
@@ -346,7 +346,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   setScope("INDIA");
                 }}
                 className={cn(
-                  "p-3.5 rounded-2xl border text-left transition-all cursor-pointer space-y-1",
+                  "p-3.5 rounded-2xl border text-left transition-colors cursor-pointer space-y-1",
                   scope === "INDIA"
                     ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/30"
                     : "border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -372,7 +372,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   setScope("CAMPUS");
                 }}
                 className={cn(
-                  "p-3.5 rounded-2xl border text-left transition-all cursor-pointer space-y-1",
+                  "p-3.5 rounded-2xl border text-left transition-colors cursor-pointer space-y-1",
                   scope === "CAMPUS"
                     ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/30"
                     : "border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -396,7 +396,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
           {scope === "CAMPUS" && (
             <div className="space-y-1.5 animate-in fade-in-50 duration-150">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
                   <Search className="size-3 text-primary" />
                   <span>Target University / College Hub (Search all 1,350+)</span>
                 </label>
@@ -414,7 +414,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               />
               {selectedInstitutionName && (
                 <div className="flex items-center gap-2 pt-1 text-[11px] text-muted-foreground">
-                  <CheckCircle2 className="size-3 text-emerald-500" />
+                  <CheckCircle2 className="size-3 text-success" />
                   <span>
                     Selected: <strong className="text-foreground">{selectedInstitutionName}</strong>
                   </span>
@@ -425,8 +425,8 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Priority & Style Selector */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Sparkles className="size-3.5 text-amber-500" />
+            <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
+              <Sparkles className="size-3.5 text-warning" />
               <span>Announcement Priority &amp; Style Theme</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -444,7 +444,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       setPriority(key);
                     }}
                     className={cn(
-                      "px-3 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex flex-col items-center gap-1 text-center",
+                      "px-3 py-2.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex flex-col items-center gap-1 text-center",
                       isSelected
                         ? `${conf.bg} ${conf.border} ${conf.text} shadow-xs ring-1 ring-primary/20`
                         : "border-border/30 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -460,7 +460,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Headline */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-[11px] font-bold text-muted-foreground">
               Headline / Announcement Title
             </label>
             <input
@@ -468,13 +468,13 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. End Semester Exams Schedule Announced (Fall 2026)"
-              className="w-full h-11 px-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-all"
+              className="w-full h-11 px-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
             />
           </div>
 
           {/* Message Body */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-[11px] font-bold text-muted-foreground">
               Detailed Announcement Body
             </label>
             <textarea
@@ -482,14 +482,14 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Write the full announcement body. Markdown links and bullet points are supported..."
-              className="w-full p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-all resize-none leading-relaxed"
+              className="w-full p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors resize-none leading-relaxed"
             />
           </div>
 
           {/* Call to Action (CTA) Optional */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
                 <span>Action Button Label</span>
                 <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
               </label>
@@ -498,12 +498,12 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 value={actionLabel}
                 onChange={(e) => setActionLabel(e.target.value)}
                 placeholder="e.g. View Exam Circular"
-                className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-all"
+                className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
                 <span>Action Destination URL</span>
                 <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
               </label>
@@ -514,7 +514,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   value={actionUrl}
                   onChange={(e) => setActionUrl(e.target.value)}
                   placeholder="https://... or /colleges/..."
-                  className="w-full h-10 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-all"
+                  className="w-full h-10 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
                 />
               </div>
             </div>
@@ -522,7 +522,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Optional Banner Image URL */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+            <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <ImageIcon className="size-3 text-primary" />
                 Banner Media Image URL
@@ -534,13 +534,13 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               value={bannerImageUrl}
               onChange={(e) => setBannerImageUrl(e.target.value)}
               placeholder="https://images.unsplash.com/... or uploaded image URL"
-              className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-all"
+              className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
             />
           </div>
 
           {/* Multi-Channel Distribution Options */}
           <div className="p-4 rounded-2xl bg-muted/20 border border-border/40 space-y-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="text-[11px] font-bold text-muted-foreground">
               Delivery Channels
             </p>
             <div className="space-y-2">
@@ -565,7 +565,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   className="size-4 rounded accent-primary cursor-pointer"
                 />
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                  <Radio className="size-3.5 text-amber-500" />
+                  <Radio className="size-3.5 text-warning" />
                   <span>Pin to top banner of the target campus feed</span>
                 </div>
               </label>
@@ -577,7 +577,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             type="button"
             disabled={isPublishing}
             onClick={handlePublish}
-            className="w-full h-12 rounded-2xl bg-foreground text-background text-xs font-black flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-all cursor-pointer shadow-md disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-colors cursor-pointer shadow-md disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Send className={cn("size-4", isPublishing && "animate-spin")} />
             <span>{isPublishing ? "Dispatching Broadcast to Students..." : "Publish Broadcast Now"}</span>
@@ -605,7 +605,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   title="Desktop Feed Preview"
                   onClick={() => setPreviewSurface("DESKTOP_FEED")}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    "p-1.5 rounded-lg transition-colors cursor-pointer",
                     previewSurface === "DESKTOP_FEED"
                       ? "bg-card text-foreground shadow-2xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -618,7 +618,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   title="Mobile Feed Card Preview"
                   onClick={() => setPreviewSurface("MOBILE_CARD")}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    "p-1.5 rounded-lg transition-colors cursor-pointer",
                     previewSurface === "MOBILE_CARD"
                       ? "bg-card text-foreground shadow-2xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -631,7 +631,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   title="Push Notification Preview"
                   onClick={() => setPreviewSurface("PUSH_NOTIFICATION")}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    "p-1.5 rounded-lg transition-colors cursor-pointer",
                     previewSurface === "PUSH_NOTIFICATION"
                       ? "bg-card text-foreground shadow-2xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -651,7 +651,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 </div>
                 <div
                   className={cn(
-                    "p-4 rounded-2xl border transition-all space-y-3 shadow-xs",
+                    "p-4 rounded-2xl border transition-colors space-y-3 shadow-xs",
                     activeConfig.border,
                     activeConfig.bg
                   )}
@@ -659,7 +659,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   <div className="flex items-center justify-between gap-2">
                     <span
                       className={cn(
-                        "text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1",
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1",
                         activeConfig.text,
                         "bg-background/80 border border-border/40"
                       )}
@@ -687,7 +687,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     </div>
                   )}
 
-                  <h4 className="text-sm font-black text-foreground leading-snug">
+                  <h4 className="text-sm font-bold text-foreground leading-snug">
                     {title.trim() || "End Semester Exams Schedule Announced (Fall 2026)"}
                   </h4>
 
@@ -710,13 +710,13 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
             {/* ─── Simulator Surface 2: Mobile Phone Feed Card ─── */}
             {previewSurface === "MOBILE_CARD" && (
-              <div className="mx-auto max-w-[280px] p-3 rounded-[32px] bg-neutral-950 border-4 border-neutral-800 shadow-2xl space-y-3">
+              <div className="mx-auto max-w-[280px] p-3 rounded-xl bg-surface border-4 border-border shadow-2xl space-y-3">
                 {/* Phone Notch */}
-                <div className="w-20 h-3.5 bg-neutral-800 rounded-full mx-auto" />
+                <div className="w-20 h-3.5 bg-surface-muted rounded-full mx-auto" />
 
                 <div
                   className={cn(
-                    "p-3 rounded-2xl border transition-all space-y-2 shadow-xs",
+                    "p-3 rounded-2xl border transition-colors space-y-2 shadow-xs",
                     activeConfig.border,
                     activeConfig.bg
                   )}
@@ -724,7 +724,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   <div className="flex items-center justify-between">
                     <span
                       className={cn(
-                        "text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-1",
+                        "text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1",
                         activeConfig.text,
                         "bg-background/80"
                       )}
@@ -748,7 +748,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     </div>
                   )}
 
-                  <h5 className="text-xs font-black text-foreground leading-snug">
+                  <h5 className="text-xs font-bold text-foreground leading-snug">
                     {title.trim() || "Announcement Headline"}
                   </h5>
 
@@ -768,9 +768,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 </div>
 
                 {/* Simulated Feed Items below */}
-                <div className="p-2.5 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1 opacity-60">
-                  <div className="h-2 w-20 bg-neutral-700 rounded-full" />
-                  <div className="h-2 w-32 bg-neutral-800 rounded-full" />
+                <div className="p-2.5 rounded-xl bg-surface border border-border space-y-1 opacity-60">
+                  <div className="h-2 w-20 bg-surface-muted rounded-full" />
+                  <div className="h-2 w-32 bg-surface-muted rounded-full" />
                 </div>
               </div>
             )}
@@ -788,14 +788,14 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       <div className="size-5 rounded-lg bg-primary/20 flex items-center justify-center">
                         <Radio className="size-3 text-primary" />
                       </div>
-                      <span className="text-[11px] font-black uppercase text-foreground">
+                      <span className="text-[11px] font-bold text-foreground">
                         CampusLoop
                       </span>
                       <span className="text-[10px] text-muted-foreground">· now</span>
                     </div>
                     <span
                       className={cn(
-                        "text-[9px] font-black uppercase px-1.5 py-0.5 rounded",
+                        "text-[9px] font-bold px-1.5 py-0.5 rounded",
                         activeConfig.bg,
                         activeConfig.text
                       )}
@@ -839,7 +839,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
               placeholder="Search dispatched broadcasts..."
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+              className="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
             />
           </div>
         </div>
@@ -847,7 +847,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
+            <span className="text-[11px] font-bold text-muted-foreground mr-1">
               Scope:
             </span>
             {(["ALL", "INDIA", "CAMPUS"] as const).map((sc) => (
@@ -868,7 +868,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
+            <span className="text-[11px] font-bold text-muted-foreground mr-1">
               Status:
             </span>
             {(["ALL", "PUBLISHED", "ARCHIVED"] as const).map((st) => (
@@ -899,7 +899,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-border/30 rounded-2xl border border-border/40 overflow-hidden bg-card/60">
+          <div className="divide-y divide-border/30 rounded-2xl border border-border/40 overflow-hidden bg-surface">
             {filteredBroadcasts.map((item) => {
               const isArchived = item.status === "ARCHIVED";
               const isRetracting = isRetractingId === item.id;
@@ -917,10 +917,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider",
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold",
                           isArchived
                             ? "bg-muted text-muted-foreground"
-                            : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30"
+                            : "bg-success-subtle text-success border border-success/30"
                         )}
                       >
                         {isArchived ? "Archived / Retracted" : "Live Pinned"}
@@ -941,7 +941,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       )}
                     </div>
 
-                    <h4 className="text-sm font-black text-foreground truncate">
+                    <h4 className="text-sm font-bold text-foreground truncate">
                       {item.title || "Untitled Announcement"}
                     </h4>
 
@@ -976,10 +976,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       disabled={isRetracting}
                       onClick={() => handleToggleStatus(item)}
                       className={cn(
-                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border",
+                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border",
                         isArchived
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-                          : "border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
+                          ? "border-success/30 bg-success-subtle text-success hover:bg-success-subtle"
+                          : "border-warning/30 bg-warning-subtle text-warning hover:bg-warning-subtle"
                       )}
                     >
                       {isRetracting ? (
@@ -994,7 +994,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       type="button"
                       disabled={isDeleting}
                       onClick={() => handleDelete(item.id)}
-                      className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 transition-colors cursor-pointer"
+                      className="p-2 rounded-xl bg-danger-subtle hover:bg-danger-subtle text-danger border border-danger/30 transition-colors cursor-pointer"
                       title="Delete Broadcast"
                     >
                       <Trash2 className="size-3.5" />

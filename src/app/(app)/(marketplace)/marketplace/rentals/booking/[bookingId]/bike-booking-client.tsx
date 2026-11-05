@@ -117,7 +117,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-28">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -141,7 +141,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
             type="button"
             disabled={isCancelling}
             onClick={handleCancelBooking}
-            className="text-xs font-semibold text-rose-500 hover:underline cursor-pointer"
+            className="text-xs font-semibold text-danger hover:underline cursor-pointer"
           >
             Cancel
           </button>
@@ -154,24 +154,24 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
           className={cn(
             "p-5 rounded-3xl border space-y-3.5 shadow-xs",
             isCancelled
-              ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
+              ? "bg-danger-subtle border-danger text-danger"
               : booking.status === "COMPLETED"
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                ? "bg-brand-subtle border-brand text-brand-text"
                 : "bg-card border-border/40 text-foreground"
           )}
         >
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+              <span className="text-sm font-bold flex items-center gap-1.5 flex-wrap">
                 {booking.status === "REQUESTED" && (
                   <>
-                    <Clock className="size-4 text-amber-500 shrink-0" />
+                    <Clock className="size-4 text-warning shrink-0" />
                     <span>Awaiting Merchant Confirmation</span>
                   </>
                 )}
                 {booking.status === "CONFIRMED" && (
                   <>
-                    <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+                    <CheckCircle2 className="size-4 text-brand-text shrink-0" />
                     <span>Booking Confirmed</span>
                   </>
                 )}
@@ -189,13 +189,13 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
                 )}
                 {booking.status === "RETURNED" && (
                   <>
-                    <Search className="size-4 text-blue-500 shrink-0" />
+                    <Search className="size-4 text-brand-text shrink-0" />
                     <span>Return Inspected</span>
                   </>
                 )}
                 {booking.status === "COMPLETED" && (
                   <>
-                    <Sparkles className="size-4 text-emerald-500 shrink-0" />
+                    <Sparkles className="size-4 text-brand-text shrink-0" />
                     <span>Trip Completed</span>
                   </>
                 )}
@@ -203,7 +203,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
                 {booking.status === "REJECTED" && <span>Rejected by Merchant</span>}
                 {booking.status === "DISPUTED" && (
                   <>
-                    <AlertTriangle className="size-4 text-amber-500 shrink-0" />
+                    <AlertTriangle className="size-4 text-warning shrink-0" />
                     <span>Deposit Under Dispute</span>
                   </>
                 )}
@@ -219,7 +219,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
           </div>
 
           {booking.cancellationReason && (
-            <p className="text-xs font-semibold text-rose-500 bg-rose-500/15 p-2.5 rounded-xl">
+            <p className="text-xs font-semibold text-danger bg-danger-subtle p-2.5 rounded-xl">
               Reason: {booking.cancellationReason}
             </p>
           )}
@@ -237,18 +237,18 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
                       <div
                         className={cn(
                           "absolute left-3 top-6 w-0.5 h-7",
-                          idx < activeStepNum ? "bg-emerald-500" : "bg-border/50"
+                          idx < activeStepNum ? "bg-brand" : "bg-border/50"
                         )}
                       />
                     )}
 
                     <div
                       className={cn(
-                        "size-6 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-bold transition-all",
+                        "size-6 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-bold transition-colors",
                         isCurrent
-                          ? "bg-emerald-500 text-black ring-4 ring-emerald-500/20 animate-pulse"
+                          ? "bg-brand text-black ring-4 ring-ring animate-pulse"
                           : isPassed
-                            ? "bg-emerald-500 text-black"
+                            ? "bg-brand text-black"
                             : "bg-muted text-muted-foreground border border-border/50"
                       )}
                     >
@@ -279,7 +279,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
 
         {/* ─── Schedule & Pickup Point Card ─── */}
         <div className="p-4 rounded-3xl bg-card border border-border/40 space-y-3 text-xs shadow-xs">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-bold text-muted-foreground">
             Rental Schedule &amp; Pickup
           </h3>
 
@@ -297,7 +297,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
 
           <div className="flex items-center justify-between pt-1">
             <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-rose-500" />
+              <MapPin className="size-4 text-danger" />
               <div>
                 <p className="font-bold text-foreground">Pickup Location</p>
                 <p className="text-[11px] text-muted-foreground">{booking.bike?.pickupLocation}</p>
@@ -307,7 +307,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
             {booking.merchant?.phone && (
               <a
                 href={`tel:${booking.merchant.phone}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-500 font-bold text-xs hover:bg-emerald-500/25 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-subtle text-brand-text font-bold text-xs hover:bg-brand-subtle transition-colors"
               >
                 <Phone className="size-3.5" />
                 <span>Call Store</span>
@@ -318,7 +318,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
 
         {/* ─── Payment & Deposit Breakdown ─── */}
         <div className="p-4 rounded-3xl bg-card border border-border/40 space-y-2.5 text-xs shadow-xs">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-bold text-muted-foreground">
             Payment &amp; Deposit Summary
           </h3>
 
@@ -329,7 +329,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
 
           <div className="flex items-center justify-between text-muted-foreground">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 text-blue-400" />
+              <ShieldCheck className="size-3.5 text-brand-text" />
               <span>Refundable Security Deposit</span>
             </div>
             <span className="text-foreground font-bold">
@@ -339,7 +339,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
 
           <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
             <span>Total Paid / Payable</span>
-            <span className="text-base text-emerald-500">₹{booking.totalAmount.toLocaleString("en-IN")}</span>
+            <span className="text-base text-brand-text">₹{booking.totalAmount.toLocaleString("en-IN")}</span>
           </div>
 
           {/* Deposit Status Badge */}
@@ -347,12 +347,12 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
             <span className="text-muted-foreground">Deposit Refund Status:</span>
             <span
               className={cn(
-                "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+                "px-2.5 py-0.5 rounded-full text-xs font-bold border",
                 booking.depositRefundStatus === "REFUNDED"
-                  ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                  ? "bg-brand-subtle text-brand-text border-brand"
                   : booking.depositRefundStatus === "DISPUTED"
-                    ? "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                    : "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                    ? "bg-danger-subtle text-danger border-danger"
+                    : "bg-brand-subtle text-brand-text border-brand"
               )}
             >
               {booking.depositRefundStatus}

@@ -353,7 +353,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer",
+        "group relative p-4 sm:p-5 transition-colors duration-150 cursor-pointer",
         "border-b border-border/25 hover:bg-muted/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         isHighlighted && "bg-primary/5 ring-1 ring-primary/30"
       )}
@@ -430,7 +430,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             {item.moduleOrChapter && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <span className="text-amber-500 font-medium truncate max-w-[140px]">
+                <span className="text-warning font-medium truncate max-w-[140px]">
                   {item.moduleOrChapter}
                 </span>
               </>
@@ -478,13 +478,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         {/* ── 5. Quality & Community Feedback ── */}
         <div className="flex items-center gap-2 flex-wrap pt-0.5 text-[11px]">
           {item.isTrending && (
-            <span className="inline-flex items-center gap-1 font-semibold text-amber-500 dark:text-amber-400">
+            <span className="inline-flex items-center gap-1 font-semibold text-warning">
               <TrendingUp className="size-3.5" />
               <span>Trending</span>
             </span>
           )}
           {item.isVerified && (
-            <span className="inline-flex items-center gap-1 font-semibold text-emerald-500 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 font-semibold text-success">
               <CheckCircle2 className="size-3.5" />
               <span>Verified</span>
             </span>
@@ -526,8 +526,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                 type="button"
                 onClick={(e) => handleVote(e, "DOWN")}
                 className={cn(
-                  "p-1 rounded-lg hover:text-rose-400 transition-colors cursor-pointer",
-                  userVote === "DOWN" && "text-rose-400 bg-rose-500/10"
+                  "p-1 rounded-lg hover:text-danger transition-colors cursor-pointer",
+                  userVote === "DOWN" && "text-danger bg-danger-subtle"
                 )}
                 title="Report issue"
                 aria-label="Report issue with resource"
@@ -562,9 +562,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
               onClick={handleToggleSave}
               disabled={isSaving}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                 isSaved
-                  ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                  ? "border-warning bg-warning-subtle text-warning"
                   : "border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
               )}
               title={isSaved ? "Saved to locker" : "Save to semester locker"}
@@ -578,7 +578,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             <button
               type="button"
               onClick={handleOpenResource}
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 hover:border-primary/40"
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-colors cursor-pointer border border-primary/20 hover:border-primary/40"
               title="Open document"
               aria-label="Open document"
             >
@@ -608,9 +608,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                   type="button"
                   onClick={() => setIsHelpful(true)}
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1",
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer inline-flex items-center gap-1",
                     isHelpful
-                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                      ? "bg-success-subtle text-success border border-success"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -621,9 +621,9 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                   type="button"
                   onClick={() => setIsHelpful(false)}
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1",
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer inline-flex items-center gap-1",
                     !isHelpful
-                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                      ? "bg-warning-subtle text-warning border border-warning"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -644,7 +644,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
               <button
                 type="submit"
                 disabled={isSubmittingComment || !commentText.trim()}
-                className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shrink-0 shadow-2xs"
+                className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-[opacity,transform] cursor-pointer shrink-0 shadow-2xs"
               >
                 Post
               </button>
@@ -676,7 +676,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                     <span
                       className={cn(
                         "text-[9px] font-black px-1.5 py-0.2 rounded-full",
-                        c.isHelpful ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"
+                        c.isHelpful ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"
                       )}
                     >
                       {c.isHelpful ? "Accurate" : "Errata"}

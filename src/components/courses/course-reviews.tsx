@@ -61,7 +61,7 @@ export function CourseReviews({ slug, compact }: { slug: string; compact?: boole
           <div className="mt-2 flex gap-1" role="radiogroup" aria-label="Your rating">
             {[1, 2, 3, 4, 5].map((i) => (
               <button key={i} type="button" role="radio" aria-checked={current === i} aria-label={`${i} star${i > 1 ? "s" : ""}`} onClick={() => setRating(i)} className="rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
-                <Star className={cn("size-6", i <= current ? "fill-amber-500 text-amber-500" : "text-muted-foreground")} />
+                <Star className={cn("size-6", i <= current ? "fill-reward text-reward" : "text-fg-muted")} />
               </button>
             ))}
           </div>

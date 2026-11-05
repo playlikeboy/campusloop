@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     return { title: "Article Not Found" };
   }
 
-  const title = `${article.title} — By ${article.author?.displayName || `@${article.author?.username}`} | CampusLoop`;
+  const title = `${article.title} — By ${article.author?.displayName || `@${article.author?.username}`}`;
   const description = article.excerpt || article.subtitle || `Read ${article.title} on CampusLoop.`;
   const canonicalUrl = `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`;
   const ogImage = article.coverImageUrl || `${ARTICLES_CANONICAL_HOST}/og-image.png`;
@@ -191,9 +191,25 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: ARTICLES_CANONICAL_HOST },
+      { "@type": "ListItem", position: 2, name: "Articles", item: `${ARTICLES_CANONICAL_HOST}/articles` },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title,
+        item: `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`,
+      },
+    ],
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <ArticleReaderClient
         article={article as any}
         currentProfile={currentProfile as any}

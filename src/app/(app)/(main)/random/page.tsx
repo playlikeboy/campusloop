@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Random Loop",
     description: "You don't know who you'll meet. You know they're part of the Loop.",
-    url: "https://campusloop.space/app/random",
+    url: "https://campusloop.space/random",
   },
 };
 

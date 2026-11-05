@@ -116,7 +116,7 @@ export default async function OnboardingPage() {
         {viewerMode && (
           <div className="mt-5 rounded-2xl border border-border/60 bg-muted/25 p-4">
             <p className="flex items-center gap-1.5 text-[13px] font-black text-foreground">
-              <Lock className="size-3.5 text-amber-500" />
+              <Lock className="size-3.5 text-warning" />
               You&apos;ll need a college email to interact
             </p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">

@@ -140,7 +140,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
             type="button"
             onClick={() => setReasonFilter("ALL")}
             className={cn(
-              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+              "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
               reasonFilter === "ALL"
                 ? "bg-primary text-primary-foreground shadow-2xs"
                 : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -154,7 +154,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
               type="button"
               onClick={() => setReasonFilter(r)}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 reasonFilter === r
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -169,7 +169,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
       {/* Reports List */}
       {filteredReports.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/80 bg-card/40 p-12 text-center space-y-2">
-          <ShieldAlert className="size-8 text-emerald-500 mx-auto" />
+          <ShieldAlert className="size-8 text-success mx-auto" />
           <h3 className="text-sm font-bold text-foreground">No Reports Found</h3>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
             {reports.length === 0
@@ -183,7 +183,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
           <div className="hidden md:block rounded-xl border border-border/60 bg-card/70 overflow-hidden shadow-2xs">
             <div className="w-full overflow-x-auto">
               <table className="w-full text-left text-xs text-muted-foreground">
-                <thead className="bg-muted/50 text-[10px] uppercase font-bold text-foreground border-b border-border/50">
+                <thead className="bg-muted/50 text-[10px] font-bold text-foreground border-b border-border/50">
                   <tr>
                     <th className="px-4 py-3">Reason / Details</th>
                     <th className="px-4 py-3">Reported Content</th>
@@ -196,7 +196,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                     <tr key={report.id} className="hover:bg-muted/20 transition-colors">
                       {/* Reason Column */}
                       <td className="px-4 py-3.5 align-top max-w-[200px]">
-                        <span className="font-bold text-foreground uppercase tracking-wider text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 inline-block">
+                        <span className="font-bold text-foreground text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 inline-block">
                           {report.reason}
                         </span>
                         {report.details && (
@@ -253,7 +253,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                               onClick={() => setRevealPostId(report.postId)}
                               disabled={isLoading}
                               title="Reveal author (strictly audit logged)"
-                              className="size-7 rounded-lg hover:bg-blue-500/15 text-blue-500 flex items-center justify-center transition-colors cursor-pointer"
+                              className="size-7 rounded-lg hover:bg-brand-subtle text-brand-text flex items-center justify-center transition-colors cursor-pointer"
                             >
                               <Eye className="size-3.5" />
                             </button>
@@ -263,7 +263,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                             onClick={() => setKeepPostId(report.postId)}
                             disabled={isLoading}
                             title="Keep post & dismiss report"
-                            className="size-7 rounded-lg hover:bg-emerald-500/15 text-emerald-500 flex items-center justify-center transition-colors cursor-pointer"
+                            className="size-7 rounded-lg hover:bg-success-subtle text-success flex items-center justify-center transition-colors cursor-pointer"
                           >
                             <CheckIcon className="size-3.5" />
                           </button>
@@ -272,7 +272,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                             onClick={() => handleHide(report.postId)}
                             disabled={isLoading}
                             title="Hide post"
-                            className="size-7 rounded-lg hover:bg-amber-500/15 text-amber-500 flex items-center justify-center transition-colors cursor-pointer"
+                            className="size-7 rounded-lg hover:bg-warning-subtle text-warning flex items-center justify-center transition-colors cursor-pointer"
                           >
                             <EyeOff className="size-3.5" />
                           </button>
@@ -311,7 +311,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                 className="rounded-xl border border-border/60 bg-card p-4 shadow-2xs space-y-3"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-foreground uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20">
+                  <span className="font-bold text-foreground text-[10px] px-2 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20">
                     {report.reason}
                   </span>
                   <span className="text-[10px] text-muted-foreground">
@@ -342,7 +342,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                       type="button"
                       onClick={() => setKeepPostId(report.postId)}
                       disabled={isLoading}
-                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1"
+                      className="px-2.5 py-1 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold flex items-center gap-1"
                     >
                       <CheckIcon className="size-3" />
                       <span>Keep</span>
@@ -351,7 +351,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                       type="button"
                       onClick={() => handleHide(report.postId)}
                       disabled={isLoading}
-                      className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1"
+                      className="px-2.5 py-1 rounded-lg bg-warning hover:opacity-90 text-warning-fg text-xs font-bold flex items-center gap-1"
                     >
                       <EyeOff className="size-3" />
                       <span>Hide</span>

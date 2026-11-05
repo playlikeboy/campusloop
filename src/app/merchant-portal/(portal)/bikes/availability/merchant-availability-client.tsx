@@ -103,8 +103,8 @@ export function MerchantAvailabilityClient() {
       {/* ─── Header & Actions ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
-            <Clock className="size-5 text-amber-500" />
+          <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
+            <Clock className="size-5 text-warning" />
             <span>Availability Calendar &amp; Slots</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -119,7 +119,7 @@ export function MerchantAvailabilityClient() {
             haptics.light();
             setShowBlockModal(true);
           }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
         >
           <Lock className="size-3.5" />
           <span>Block Dates / Maintenance</span>
@@ -128,7 +128,7 @@ export function MerchantAvailabilityClient() {
 
       {/* ─── Select Vehicle Dropdown Strip ─── */}
       <div className="p-4 rounded-3xl bg-card border border-border/40 space-y-2 shadow-xs">
-        <label className="text-xs font-bold uppercase text-muted-foreground">Select Fleet Vehicle</label>
+        <label className="text-xs font-bold text-muted-foreground">Select Fleet Vehicle</label>
         <select
           value={currentBikeId}
           onChange={(e) => {
@@ -149,7 +149,7 @@ export function MerchantAvailabilityClient() {
       <div className="space-y-4">
         {/* Active Reservations */}
         <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
             <CalendarCheck2 className="size-4 text-primary" />
             <span>Confirmed &amp; Active Student Bookings ({bookings.length})</span>
           </h2>
@@ -159,12 +159,12 @@ export function MerchantAvailabilityClient() {
               {bookings.map((b) => (
                 <div
                   key={b.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-blue-500/10 border border-blue-500/25 text-xs"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-brand-subtle border border-brand/25 text-xs"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-foreground">#{b.bookingNumber}</span>
-                      <span className="font-semibold text-blue-400">
+                      <span className="font-bold text-foreground">#{b.bookingNumber}</span>
+                      <span className="font-semibold text-brand-text">
                         Student: {b.student?.displayName} (@{b.student?.username})
                       </span>
                     </div>
@@ -185,7 +185,7 @@ export function MerchantAvailabilityClient() {
                     </p>
                   </div>
 
-                  <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-bold text-[10px] uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-brand-subtle text-brand-text font-bold text-[10px]">
                     {b.status}
                   </span>
                 </div>
@@ -193,7 +193,7 @@ export function MerchantAvailabilityClient() {
             </div>
           ) : (
             <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-emerald-500 inline-block shrink-0" />
+              <span className="size-2 rounded-full bg-success inline-block shrink-0" />
               <span>No active bookings overlapping this bike. It is open for new reservations!</span>
             </p>
           )}
@@ -201,8 +201,8 @@ export function MerchantAvailabilityClient() {
 
         {/* Maintenance & Custom Blocks */}
         <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Wrench className="size-4 text-rose-500" />
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+            <Wrench className="size-4 text-danger" />
             <span>Maintenance &amp; Locked Slots ({blocks.length})</span>
           </h2>
 
@@ -211,11 +211,11 @@ export function MerchantAvailabilityClient() {
               {blocks.map((block) => (
                 <div
                   key={block.id}
-                  className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-xs"
+                  className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-danger-subtle border border-danger/25 text-xs"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-rose-500 uppercase">{block.reason}</span>
+                      <span className="font-bold text-danger">{block.reason}</span>
                       {block.notes && <span className="text-muted-foreground">· {block.notes}</span>}
                     </div>
                     <p className="text-muted-foreground text-[11px]">
@@ -236,7 +236,7 @@ export function MerchantAvailabilityClient() {
                   <button
                     type="button"
                     onClick={() => handleDeleteBlock(block.id)}
-                    className="size-7 rounded-full bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 flex items-center justify-center transition-colors cursor-pointer"
+                    className="size-7 rounded-full bg-danger-subtle text-danger hover:bg-danger-subtle flex items-center justify-center transition-colors cursor-pointer"
                     title="Unlock slot"
                   >
                     <Trash2 className="size-3" />
@@ -254,7 +254,7 @@ export function MerchantAvailabilityClient() {
       {showBlockModal && (
         <div
           onClick={() => setShowBlockModal(false)}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay p-0 sm:p-4 animate-in fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -262,7 +262,7 @@ export function MerchantAvailabilityClient() {
           >
             <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
               <div>
-                <h3 className="text-base font-black text-foreground">Block Time Slot</h3>
+                <h3 className="text-base font-bold text-foreground">Block Time Slot</h3>
                 <p className="text-xs text-muted-foreground">
                   Prevent students from booking during servicing
                 </p>
@@ -278,7 +278,7 @@ export function MerchantAvailabilityClient() {
 
             <form onSubmit={handleCreateBlock} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">
+                <label className="text-xs font-bold text-muted-foreground">
                   Reason for Block *
                 </label>
                 <select
@@ -292,7 +292,7 @@ export function MerchantAvailabilityClient() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">
+                <label className="text-xs font-bold text-muted-foreground">
                   Start Date &amp; Time *
                 </label>
                 <input
@@ -305,7 +305,7 @@ export function MerchantAvailabilityClient() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">
+                <label className="text-xs font-bold text-muted-foreground">
                   End Date &amp; Time *
                 </label>
                 <input
@@ -318,7 +318,7 @@ export function MerchantAvailabilityClient() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">Notes (Optional)</label>
+                <label className="text-xs font-bold text-muted-foreground">Notes (Optional)</label>
                 <input
                   type="text"
                   value={blockNotes}
@@ -332,7 +332,7 @@ export function MerchantAvailabilityClient() {
                 <button
                   type="submit"
                   disabled={isSubmittingBlock}
-                  className="w-full h-11 rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full h-11 rounded-2xl bg-danger hover:opacity-90 text-danger-fg font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmittingBlock ? <Loader2 className="size-4 animate-spin" /> : "Confirm & Lock Slot"}
                 </button>

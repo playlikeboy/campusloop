@@ -26,8 +26,8 @@ export function MerchantEarningsClient() {
   return (
     <main className="max-w-4xl mx-auto p-4 space-y-6 select-none pb-24">
       <div>
-        <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
-          <DollarSign className="size-5 text-emerald-500" />
+        <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
+          <DollarSign className="size-5 text-success" />
           <span>Earnings &amp; Settlements</span>
         </h1>
         <p className="text-xs text-muted-foreground mt-0.5">
@@ -45,28 +45,28 @@ export function MerchantEarningsClient() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-bold text-muted-foreground">
               Total Gross Sales
             </p>
-            <p className="text-2xl font-black text-emerald-500">₹{totalGrossSales.toLocaleString("en-IN")}</p>
+            <p className="text-2xl font-bold text-success">₹{totalGrossSales.toLocaleString("en-IN")}</p>
             <p className="text-[10px] text-muted-foreground font-semibold">
               {completedOrders.length} completed orders
             </p>
           </div>
 
           <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-bold text-muted-foreground">
               UPI Payouts (Direct)
             </p>
-            <p className="text-2xl font-black text-foreground">₹{upiSales.toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-emerald-500 font-bold">Instant settlement</p>
+            <p className="text-2xl font-bold text-foreground">₹{upiSales.toLocaleString("en-IN")}</p>
+            <p className="text-[10px] text-success font-bold">Instant settlement</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-bold text-muted-foreground">
               Cash on Delivery (Collected)
             </p>
-            <p className="text-2xl font-black text-foreground">₹{cashSales.toLocaleString("en-IN")}</p>
+            <p className="text-2xl font-bold text-foreground">₹{cashSales.toLocaleString("en-IN")}</p>
             <p className="text-[10px] text-muted-foreground font-semibold">Self-collected at desk</p>
           </div>
         </div>
@@ -75,10 +75,10 @@ export function MerchantEarningsClient() {
       {/* ─── Settlement Breakdown ─── */}
       <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             Settlement Breakdown
           </h2>
-          <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+          <span className="text-[11px] font-bold text-success bg-success-subtle px-2.5 py-0.5 rounded-full border border-success/20">
             0% Platform Fee (Campus Early Access)
           </span>
         </div>
@@ -90,15 +90,15 @@ export function MerchantEarningsClient() {
           </div>
           <div className="flex items-center justify-between text-muted-foreground">
             <span>CampusLoop Facilitation Fee</span>
-            <span className="text-emerald-500 font-bold">₹0</span>
+            <span className="text-success font-bold">₹0</span>
           </div>
           <div className="flex items-center justify-between text-muted-foreground">
             <span>Delivery Fees Collected</span>
             <span className="text-foreground font-bold">₹{totalDeliveryFees.toLocaleString("en-IN")}</span>
           </div>
-          <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
+          <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-bold text-foreground">
             <span>Net Merchant Payout</span>
-            <span className="text-base text-emerald-500">
+            <span className="text-base text-success">
               ₹{(totalGrossSales + totalDeliveryFees).toLocaleString("en-IN")}
             </span>
           </div>

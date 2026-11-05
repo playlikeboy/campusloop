@@ -15,7 +15,7 @@ interface EditPostPageProps {
 export async function generateMetadata({ params }: EditPostPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: "Edit Post | CampusLoop",
+    title: "Edit Post",
     description: "Edit your post on CampusLoop campus social network.",
     robots: {
       index: false,

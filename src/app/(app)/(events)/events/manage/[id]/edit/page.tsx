@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: EditEventPageProps): Promise<
     });
 
     if (!event) {
-      return { title: "Edit Event | CampusLoop" };
+      return { title: "Edit Event" };
     }
 
     return {
-      title: `Edit: ${event.title} | CampusLoop Organizer`,
+      title: `Edit: ${event.title}`,
       description: `Edit schedule, venue, prizes, and registration rules for ${event.title}.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Edit Event | CampusLoop" };
+    return { title: "Edit Event" };
   }
 }
 

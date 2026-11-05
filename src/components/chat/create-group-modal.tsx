@@ -39,31 +39,31 @@ const GROUP_CATEGORIES = [
     id: "STUDY_POD",
     label: "Study Pod",
     icon: BookOpen,
-    color: "text-blue-500 bg-blue-500/10 border-blue-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand",
   },
   {
     id: "PROJECT_TEAM",
     label: "Project / Hackathon",
     icon: Code2,
-    color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
+    color: "text-success bg-success-subtle border-success",
   },
   {
     id: "CAMPUS_CLUB",
     label: "Club & Society",
     icon: Trophy,
-    color: "text-amber-500 bg-amber-500/10 border-amber-500/30",
+    color: "text-warning bg-warning-subtle border-warning",
   },
   {
     id: "HOSTEL_FLAT",
     label: "Hostel & Flat",
     icon: Home,
-    color: "text-purple-500 bg-purple-500/10 border-purple-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand",
   },
   {
     id: "GENERAL_HANG",
     label: "Campus Hangout",
     icon: Coffee,
-    color: "text-pink-500 bg-pink-500/10 border-pink-500/30",
+    color: "text-danger bg-danger-subtle border-danger",
   },
 ] as const;
 
@@ -212,11 +212,11 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-md p-0 sm:p-4 select-none animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4 select-none animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] h-[650px] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
+        className="w-full max-w-lg rounded-t-full sm:rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] h-[650px] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Hidden File Input */}
@@ -345,7 +345,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                         setCategory(cat.id);
                       }}
                       className={cn(
-                        "flex items-center gap-2 p-2.5 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center gap-2 p-2.5 rounded-xl border text-left text-xs font-bold transition-colors cursor-pointer",
                         active
                           ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/40"
                           : "border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
@@ -384,13 +384,13 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                   type="button"
                   onClick={() => setScope("CAMPUS")}
                   className={cn(
-                    "flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+                    "flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer",
                     scope === "CAMPUS"
                       ? "border-primary bg-primary/10 text-primary shadow-xs"
                       : "border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40"
                   )}
                 >
-                  <Lock className="size-3.5 text-blue-500 shrink-0" />
+                  <Lock className="size-3.5 text-brand-text shrink-0" />
                   <div className="text-left">
                     <p className="leading-none">Campus only</p>
                     <p className="text-[10px] text-muted-foreground font-normal mt-0.5">
@@ -403,13 +403,13 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                   type="button"
                   onClick={() => setScope("GLOBAL")}
                   className={cn(
-                    "flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+                    "flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer",
                     scope === "GLOBAL"
                       ? "border-primary bg-primary/10 text-primary shadow-xs"
                       : "border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40"
                   )}
                 >
-                  <Globe className="size-3.5 text-emerald-500 shrink-0" />
+                  <Globe className="size-3.5 text-success shrink-0" />
                   <div className="text-left">
                     <p className="leading-none">Across campuses</p>
                     <p className="text-[10px] text-muted-foreground font-normal mt-0.5">
@@ -482,7 +482,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                       key={user.id}
                       onClick={() => handleToggleMember(user)}
                       className={cn(
-                        "flex items-center justify-between p-2.5 rounded-2xl transition-all cursor-pointer",
+                        "flex items-center justify-between p-2.5 rounded-2xl transition-colors cursor-pointer",
                         isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-muted/40"
                       )}
                     >
@@ -508,7 +508,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
 
                       <div
                         className={cn(
-                          "size-6 rounded-full flex items-center justify-center transition-all shrink-0",
+                          "size-6 rounded-full flex items-center justify-center transition-colors shrink-0",
                           isSelected
                             ? "bg-primary text-primary-foreground shadow-xs scale-105"
                             : "border-2 border-border/80 bg-background"
@@ -559,7 +559,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                   haptics.light();
                   setStep(2);
                 }}
-                className="h-9 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                className="h-9 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
               >
                 Continue to members →
               </button>
@@ -577,7 +577,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUserId, onGroupCreate
                 type="button"
                 disabled={selectedMembers.length === 0 || isCreating}
                 onClick={handleCreateGroup}
-                className="h-9 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 shadow-xs"
+                className="h-9 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 shadow-xs"
               >
                 {isCreating ? (
                   <Loader2 className="size-3.5 animate-spin" />

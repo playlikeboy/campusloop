@@ -82,7 +82,7 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
       sounds.pop();
       haptics.medium();
       setIsRegistered(true);
-      toast.success("Registered for event! +25 Loop Points 🎟️");
+      toast.success("Registered for event! +25 Loop Points");
       mutate(`/api/events/${eventId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to register");
@@ -100,7 +100,7 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
     <Link
       href={`/events/${event.slug || event.id}`}
       onClick={(e) => e.stopPropagation()}
-      className="mt-3 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-all shadow-xs group"
+      className="mt-3 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-colors shadow-xs group"
     >
       {event.bannerUrl && (
         <div className="relative aspect-24/10 w-full overflow-hidden bg-muted/30">
@@ -123,7 +123,7 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
 
       <div className="p-3.5 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-black text-primary uppercase tracking-wide">
+          <span className="text-[11px] font-black text-primary">
             {event.clubName}
           </span>
           <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground">
@@ -175,9 +175,9 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
               size="sm"
               onClick={handleQuickRegister}
               disabled={isRegistering || userRegistered}
-              className={`h-8 px-3.5 text-xs font-black rounded-full shrink-0 transition-all cursor-pointer ${
+              className={`h-8 px-3.5 text-xs font-black rounded-full shrink-0 transition-colors cursor-pointer ${
                 userRegistered
-                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                  ? "bg-success/15 text-success border border-success/30"
                   : "bg-primary text-primary-foreground hover:opacity-90 shadow-2xs"
               }`}
             >

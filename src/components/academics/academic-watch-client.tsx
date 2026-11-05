@@ -172,7 +172,7 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
                         className={cn(
                           "flex size-5 items-center justify-center rounded-full border shrink-0",
                           isWatched
-                            ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                            ? "bg-success-subtle border-success/40 text-success"
                             : "border-border/50 text-muted-foreground"
                         )}
                       >

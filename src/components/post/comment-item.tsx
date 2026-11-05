@@ -105,7 +105,7 @@ export function CommentItem({
   const displayName = isAnon ? "Anonymous Student" : comment.author?.displayName || "Student";
   const handle = isAnon ? comment.pseudonym || "anonymous" : comment.author?.username || "student";
   const fallback: React.ReactNode = isAnon ? (
-    <VenetianMask className="size-4 text-purple-400" />
+    <VenetianMask className="size-4 text-brand-text" />
   ) : (
     (comment.author?.displayName?.[0] ?? "S").toUpperCase()
   );
@@ -169,7 +169,7 @@ export function CommentItem({
     try {
       const res = await pinComment(targetPostId, comment.id);
       setIsPinned(res.isPinned);
-      toast.success(res.isPinned ? "Comment pinned to top 📌" : "Comment unpinned");
+      toast.success(res.isPinned ? "Comment pinned to top" : "Comment unpinned");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to toggle pin state");
     }
@@ -220,8 +220,8 @@ export function CommentItem({
     <div className="relative group select-text" onClick={handleDoubleTap}>
       {/* Pinned indicator banner */}
       {isPinned && depth === 0 && (
-        <div className="flex items-center gap-1.5 px-3 py-1 mb-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-lg w-fit border border-amber-500/20">
-          <Pin className="size-3 fill-amber-500/30 rotate-45 shrink-0" />
+        <div className="flex items-center gap-1.5 px-3 py-1 mb-1 text-[11px] font-semibold text-warning bg-warning/10 rounded-lg w-fit border border-warning/20">
+          <Pin className="size-3 fill-warning/30 rotate-45 shrink-0" />
           <span>Pinned by author</span>
         </div>
       )}
@@ -246,7 +246,7 @@ export function CommentItem({
                 icon={AnimateHeart}
                 animation="beat"
                 size={36}
-                className="fill-rose-500 text-rose-500"
+                className="fill-danger text-danger"
               />
             </div>
           </div>
@@ -342,7 +342,7 @@ export function CommentItem({
                         onClick={handleTogglePin}
                         className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
                       >
-                        <Pin className="size-3.5 text-amber-500 rotate-45" />
+                        <Pin className="size-3.5 text-warning rotate-45" />
                         <span>{isPinned ? "Unpin comment" : "Pin comment to top"}</span>
                       </button>
                     )}
@@ -453,10 +453,10 @@ export function CommentItem({
               {...like.handlers}
               className={cn(
                 "flex items-center gap-1.5 transition-colors cursor-pointer group/like",
-                liked ? "text-rose-500" : "hover:text-rose-500"
+                liked ? "text-danger" : "hover:text-danger"
               )}
             >
-              <div className="size-7 rounded-full group-hover/like:bg-rose-500/10 flex items-center justify-center transition-colors">
+              <div className="size-7 rounded-full group-hover/like:bg-danger/10 flex items-center justify-center transition-colors">
                 <AnimatedIcon
                   ref={like.ref}
                   icon={AnimateHeart}
@@ -467,8 +467,8 @@ export function CommentItem({
                   iconClassName={cn(
                     "transition-colors",
                     liked
-                      ? "fill-rose-500 text-rose-500"
-                      : "text-muted-foreground group-hover/like:text-rose-500"
+                      ? "fill-danger text-danger"
+                      : "text-muted-foreground group-hover/like:text-danger"
                   )}
                 />
               </div>
@@ -525,13 +525,13 @@ export function CommentItem({
                     className={cn(
                       "text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1",
                       replyIsAnon
-                        ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                        ? "bg-brand/15 text-brand-text border border-brand-subtle-border/30"
                         : "bg-muted/60 text-muted-foreground"
                     )}
                   >
                     {replyIsAnon ? (
                       <>
-                        <VenetianMask className="size-3 text-purple-500" />
+                        <VenetianMask className="size-3 text-brand-text" />
                         <span>Anon</span>
                       </>
                     ) : (
@@ -558,7 +558,7 @@ export function CommentItem({
                         haptics.medium();
                         submitReply(comment.id);
                       }}
-                      className="px-3.5 py-1 rounded-full bg-foreground text-background text-xs font-black disabled:opacity-40 hover:opacity-90 transition-all cursor-pointer shadow-2xs active:scale-95"
+                      className="px-3.5 py-1 rounded-full bg-foreground text-background text-xs font-black disabled:opacity-40 hover:opacity-90 transition-transform cursor-pointer shadow-2xs active:scale-95"
                     >
                       Reply
                     </button>

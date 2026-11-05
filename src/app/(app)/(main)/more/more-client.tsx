@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { NavBadge } from "@/components/shells/nav-badge";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { InstagramIcon, LinkedinIcon, XIcon } from "@/components/ui/social-icons";
 import { BETA_HUB_ITEMS, MORE_HUB_SECTIONS } from "@/constants/navigation";
@@ -69,7 +70,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
   return (
     <div className="min-h-screen pb-24 text-foreground select-none max-w-2xl mx-auto px-4 space-y-5 sm:-mt-6 lg:mt-0">
       {/* ─── Sticky Minimal Top Bar ─── */}
-      <div className="sticky top-12 lg:top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-xl border-b border-border/30 -mx-4 px-4">
+      <div className="sticky top-12 lg:top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-sm border-b border-border/30 -mx-4 px-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -87,7 +88,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
       {coreHubsSection && (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
               <Sparkles className="size-3 text-primary" />
               <span>Core Campus Hubs</span>
             </h2>
@@ -100,23 +101,14 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/60 hover:bg-muted/40 hover:border-border transition-all group cursor-pointer shadow-2xs relative overflow-hidden"
+                  className="flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/60 hover:bg-muted/40 hover:border-border transition-colors group cursor-pointer shadow-2xs relative overflow-hidden"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
                       <AnimatedIcon icon={Icon} animation="pop" size={20} />
                     </div>
 
-                    {item.badge && (
-                      <span
-                        className={cn(
-                          "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0",
-                          item.badgeColor || "bg-muted text-muted-foreground border-border/40"
-                        )}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+                    {item.badge && <NavBadge tone={item.badgeTone}>{item.badge}</NavBadge>}
                   </div>
 
                   <div className="mt-3 min-w-0">
@@ -193,16 +185,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                         <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                           {item.label}
                         </p>
-                        {item.badge && (
-                          <span
-                            className={cn(
-                              "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0",
-                              item.badgeColor || "bg-muted text-muted-foreground border-border/40"
-                            )}
-                          >
-                            {item.badge}
-                          </span>
-                        )}
+                        {item.badge && <NavBadge tone={item.badgeTone}>{item.badge}</NavBadge>}
                       </div>
                       {item.desc && (
                         <p className="text-xs text-muted-foreground truncate mt-0.5">{item.desc}</p>
@@ -210,7 +193,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                     </div>
                   </div>
 
-                  <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                  <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-[opacity,transform] shrink-0 ml-2" />
                 </Link>
               );
             })}
@@ -282,16 +265,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                               <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                 {item.label}
                               </p>
-                              {item.badge && (
-                                <span
-                                  className={cn(
-                                    "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0",
-                                    item.badgeColor || "bg-muted text-muted-foreground border-border/40"
-                                  )}
-                                >
-                                  {item.badge}
-                                </span>
-                              )}
+                              {item.badge && <NavBadge tone={item.badgeTone}>{item.badge}</NavBadge>}
                             </div>
                             {item.desc && (
                               <p className="text-xs text-muted-foreground truncate mt-0.5">{item.desc}</p>
@@ -302,7 +276,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
                         {isExternal ? (
                           <ExternalLink className="size-4 text-muted-foreground/50 group-hover:text-foreground shrink-0 ml-2" />
                         ) : (
-                          <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                          <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-[opacity,transform] shrink-0 ml-2" />
                         )}
                       </>
                     );
@@ -337,7 +311,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
       {/* ─── Admin Moderation Console ─── */}
       {isAdmin && (
         <div className="space-y-2">
-          <h2 className="text-xs font-black uppercase tracking-wider text-destructive px-1">
+          <h2 className="text-xs font-bold text-destructive px-1">
             Administration
           </h2>
           <div className="rounded-3xl border border-destructive/30 bg-destructive/5 overflow-hidden shadow-xs">
@@ -366,7 +340,7 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
 
       {/* ─── Official Social Media Channels (Instagram highlighted per AGENTS.md rule 10) ─── */}
       <div className="space-y-2 pt-2">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground px-1">
+        <h2 className="text-xs font-bold text-muted-foreground px-1">
           Official Channels
         </h2>
 
@@ -375,29 +349,29 @@ export function MoreClient({ isAdmin: propIsAdmin }: MoreClientProps) {
             href={SOCIAL_LINKS.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/10 text-pink-400 hover:text-pink-300 transition-all cursor-pointer group shadow-2xs"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-danger bg-danger-subtle hover:bg-danger-subtle text-danger hover:text-danger transition-colors cursor-pointer group shadow-2xs"
           >
             <InstagramIcon className="size-5 transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold mt-1 text-foreground">Instagram</span>
-            <span className="text-[9px] text-pink-400 font-bold">{SOCIAL_LINKS.instagram.handle}</span>
+            <span className="text-[9px] text-danger font-bold">{SOCIAL_LINKS.instagram.handle}</span>
           </a>
 
           <a
             href={SOCIAL_LINKS.linkedin.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 transition-all cursor-pointer group shadow-2xs"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-brand bg-brand-subtle hover:bg-brand-subtle text-brand-text hover:text-brand-text transition-colors cursor-pointer group shadow-2xs"
           >
             <LinkedinIcon className="size-5 transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold mt-1 text-foreground">LinkedIn</span>
-            <span className="text-[9px] text-blue-400 font-bold">{SOCIAL_LINKS.linkedin.handle}</span>
+            <span className="text-[9px] text-brand-text font-bold">{SOCIAL_LINKS.linkedin.handle}</span>
           </a>
 
           <a
             href={SOCIAL_LINKS.x.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-border/50 bg-card hover:bg-muted/40 text-foreground transition-all cursor-pointer group shadow-2xs"
+            className="flex flex-col items-center justify-center p-3 rounded-2xl border border-border/50 bg-card hover:bg-muted/40 text-foreground transition-colors cursor-pointer group shadow-2xs"
           >
             <XIcon className="size-5 transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold mt-1 text-foreground">X (Twitter)</span>

@@ -159,7 +159,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       onTouchStart={handleUserActivity}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative rounded-[16px] overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
+        "relative rounded-lg overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
         isPortrait ? "aspect-[9/16] max-h-[520px]" : "aspect-video max-h-[440px]",
         className
       )}
@@ -211,7 +211,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
               e.stopPropagation();
               retryVideo();
             }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-black transition-transform active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-[11px] font-semibold text-black transition-transform active:scale-95"
           >
             <RefreshCw className="size-3.5" />
             Retry

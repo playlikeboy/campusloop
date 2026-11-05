@@ -159,7 +159,7 @@ export function RedditVideo({
           />
         )}
         <div className="relative z-10 flex flex-col items-center gap-2 max-w-xs">
-          <div className="size-10 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-500">
+          <div className="size-10 rounded-full bg-warning/10 border border-warning/30 flex items-center justify-center text-warning">
             <AlertCircle className="size-5" />
           </div>
           <p className="text-xs text-muted-foreground font-medium">Video format requires Reddit viewer</p>
@@ -167,7 +167,7 @@ export function RedditVideo({
             href={externalPost.canonicalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-warning text-white hover:bg-warning transition-colors shadow-xs"
           >
             <Play className="size-3.5 fill-white" />
             <span>Watch on Reddit</span>
@@ -235,7 +235,7 @@ export function RedditVideo({
         <button
           type="button"
           onClick={toggleMute}
-          className="absolute bottom-2.5 right-2.5 z-20 size-8 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition-all cursor-pointer shadow-md"
+          className="absolute bottom-2.5 right-2.5 z-20 size-8 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer shadow-md"
           aria-label={isMuted ? "Unmute video" : "Mute video"}
         >
           {isMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
@@ -246,7 +246,7 @@ export function RedditVideo({
       {!hasError && isPlaying && (
         <div className="absolute bottom-0 inset-x-0 h-1 bg-white/20 overflow-hidden z-20 pointer-events-none">
           <div
-            className="h-full bg-primary transition-all duration-100 ease-linear"
+            className="h-full bg-primary transition-colors duration-100 ease-linear"
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -195,7 +195,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
   return (
     <div className="space-y-6">
       {/* Header & Create Trigger */}
-      <div className="rounded-[28px] border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               haptics.light();
               setShowCreateModal(true);
             }}
-            className="h-10 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+            className="h-10 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-[opacity,transform] shadow-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
           >
             <Plus className="size-4" />
             <span>Create Webhook</span>
@@ -232,7 +232,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
           <p className="text-xs text-muted-foreground">Loading webhooks...</p>
         </div>
       ) : webhooks.length === 0 ? (
-        <div className="rounded-[28px] border border-dashed border-border/80 p-8 sm:p-12 text-center space-y-3 bg-muted/10">
+        <div className="rounded-xl border border-dashed border-border/80 p-8 sm:p-12 text-center space-y-3 bg-muted/10">
           <div className="size-12 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">
             <Bot className="size-6" />
           </div>
@@ -264,7 +264,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               <div
                 key={wh.id}
                 className={cn(
-                  "rounded-[28px] border border-border/60 bg-card p-5 space-y-4 transition-all shadow-2xs relative",
+                  "rounded-xl border border-border/60 bg-card p-5 space-y-4 transition-colors shadow-2xs relative",
                   !wh.isActive && "opacity-70 bg-muted/10"
                 )}
               >
@@ -294,9 +294,9 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                   <div className="flex items-center gap-2 shrink-0">
                     <span
                       className={cn(
-                        "text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full",
+                        "text-xs font-bold px-2 py-0.5 rounded-full",
                         wh.isActive
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                          ? "bg-success-subtle text-success border border-success"
                           : "bg-muted text-muted-foreground border border-border/50"
                       )}
                     >
@@ -309,7 +309,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                       className="size-8 rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                       title={wh.isActive ? "Pause webhook" : "Activate webhook"}
                     >
-                      <Power className={cn("size-3.5", wh.isActive && "text-emerald-500")} />
+                      <Power className={cn("size-3.5", wh.isActive && "text-success")} />
                     </button>
                   </div>
                 </div>
@@ -331,10 +331,10 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                   <button
                     type="button"
                     onClick={() => handleCopyUrl(wh.token)}
-                    className="h-9 px-3.5 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-all shrink-0 cursor-pointer shadow-2xs"
+                    className="h-9 px-3.5 rounded-xl bg-foreground text-background text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 transition-[opacity,transform] shrink-0 cursor-pointer shadow-2xs"
                   >
                     {isCopied ? (
-                      <Check className="size-3.5 text-emerald-400" />
+                      <Check className="size-3.5 text-success" />
                     ) : (
                       <Copy className="size-3.5" />
                     )}
@@ -382,7 +382,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                     <button
                       type="button"
                       onClick={() => handleDelete(wh)}
-                      className="size-7 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 flex items-center justify-center transition-colors cursor-pointer"
+                      className="size-7 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-subtle flex items-center justify-center transition-colors cursor-pointer"
                       title="Delete webhook"
                     >
                       <Trash2 className="size-3" />
@@ -398,7 +398,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
       {/* ── Create Webhook Modal ── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm select-none">
-          <div className="w-full max-w-md rounded-[32px] border border-border/80 bg-card p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-md rounded-full border border-border/80 bg-card p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -418,7 +418,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground">
-                  Webhook Name <span className="text-rose-500">*</span>
+                  Webhook Name <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -466,7 +466,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                 <button
                   type="submit"
                   disabled={creating || !name.trim()}
-                  className="h-10 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="h-10 px-5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-[opacity,transform] shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {creating && <Loader2 className="size-3.5 animate-spin" />}
                   <span>Create Webhook</span>
@@ -480,7 +480,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
       {/* ── cURL Example Modal ── */}
       {showCurlModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm select-none">
-          <div className="w-full max-w-lg rounded-[32px] border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-lg rounded-full border border-border/80 bg-card p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -502,8 +502,8 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
               Actions, Discord webhooks, and Zapier.
             </p>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 space-y-2">
-              <pre className="whitespace-pre-wrap break-all text-zinc-300">
+            <div className="p-3.5 rounded-2xl bg-surface-muted text-fg font-mono text-[11px] overflow-x-auto border border-border space-y-2">
+              <pre className="whitespace-pre-wrap break-all text-fg-subtle">
                 {`curl -X POST "${getWebhookUrl(showCurlModal.token)}" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -543,7 +543,7 @@ export function CommunityWebhooksManager({ community }: CommunityWebhooksManager
                     toast.success("cURL command copied!");
                   }
                 }}
-                className="h-9 px-4 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                className="h-9 px-4 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-[opacity,transform] cursor-pointer shadow-xs flex items-center gap-1.5"
               >
                 <Copy className="size-3.5" />
                 <span>Copy cURL Command</span>

@@ -36,7 +36,7 @@ export function CommunityPreviewCard({
   return (
     <Link
       href={`/communities/${community.slug || community.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
+      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
     >
       <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
         {community.avatarUrl && <AvatarImage src={community.avatarUrl} alt={community.name} />}
@@ -90,7 +90,7 @@ export function EventPreviewCard({
   return (
     <Link
       href={`/events/${event.slug || event.id}`}
-      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all space-y-2.5"
+      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors space-y-2.5"
     >
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
@@ -136,15 +136,15 @@ export function AcademicPreviewCard({
   return (
     <Link
       href={`/academics/study-material/${resource.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
+      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
     >
-      <div className="size-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/20">
+      <div className="size-10 rounded-xl bg-brand/10 text-brand-text flex items-center justify-center shrink-0 border border-brand-subtle-border/20">
         <GraduationCap className="size-5" />
       </div>
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center justify-between gap-1.5">
-          <span className="text-[10px] font-semibold text-indigo-400 tracking-wider">
+          <span className="text-[10px] font-semibold text-brand-text tracking-wider">
             {resource.subjectCode} · {resource.resourceType}
           </span>
           {resource.downloadsCount !== undefined && (
@@ -181,7 +181,7 @@ export function ArticlePreviewCard({
   return (
     <Link
       href={`/articles/${article.slug}`}
-      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all space-y-2"
+      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors space-y-2"
     >
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
@@ -222,7 +222,7 @@ export function CollegePreviewCard({
   return (
     <Link
       href={college.slug ? `/colleges/${college.slug}` : `/colleges/${college.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
+      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
     >
       <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
         {college.logoUrl && <AvatarImage src={college.logoUrl} alt={college.name} />}
@@ -301,7 +301,7 @@ export function PersonPreviewCard({
   return (
     <Link
       href={`/${person.username}`}
-      className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
+      className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <Avatar className="size-10 rounded-full shrink-0 border border-border/40">
@@ -327,7 +327,7 @@ export function PersonPreviewCard({
         onClick={handleFollowToggle}
         disabled={isPending}
         className={cn(
-          "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer",
+          "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors shrink-0 cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
           isFollowing
             ? "border border-border/60 bg-muted text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
@@ -366,11 +366,11 @@ export function StorePreviewCard({
   return (
     <Link
       href="/marketplace"
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-all"
+      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
     >
       <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
         {store.logoUrl && <AvatarImage src={store.logoUrl} alt={store.name} />}
-        <AvatarFallback className="rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-500">
+        <AvatarFallback className="rounded-xl text-xs font-semibold bg-warning/10 text-warning">
           <ShoppingBag className="size-4" />
         </AvatarFallback>
       </Avatar>

@@ -34,8 +34,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
           onClick={(e) => e.stopPropagation()}
           className={
             isMe
-              ? "font-medium text-emerald-200 hover:text-white underline decoration-emerald-300/40 hover:decoration-white transition-colors select-text inline"
-              : "font-medium text-emerald-400 dark:text-emerald-300 hover:text-emerald-200 underline decoration-emerald-400/40 hover:decoration-emerald-400 transition-colors select-text inline"
+              ? "font-medium text-success-fg hover:text-white underline decoration-success/40 hover:decoration-white transition-colors select-text inline"
+              : "font-medium text-success hover:text-success-fg underline decoration-success/40 hover:decoration-success transition-colors select-text inline"
           }
         >
           {part}
@@ -73,8 +73,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
               onClick={(e) => e.stopPropagation()}
               className={
                 isMe
-                  ? "inline-flex items-center gap-1 font-medium underline decoration-emerald-200/60 hover:decoration-emerald-200 text-emerald-100 hover:text-white break-all transition-colors"
-                  : "inline-flex items-center gap-1 font-medium underline decoration-emerald-400/60 hover:decoration-emerald-400 text-emerald-400 dark:text-emerald-300 hover:text-emerald-200 break-all transition-colors"
+                  ? "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success-fg hover:text-white break-all transition-colors"
+                  : "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success hover:text-success-fg break-all transition-colors"
               }
             >
               <span>{cleanUrl}</span>
@@ -94,8 +94,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
             onClick={(e) => e.stopPropagation()}
             className={
               isMe
-                ? "inline-flex items-center gap-1 font-medium underline decoration-emerald-200/60 hover:decoration-emerald-200 text-emerald-100 hover:text-white break-all transition-colors"
-                : "inline-flex items-center gap-1 font-medium underline decoration-sky-400/60 hover:decoration-sky-400 text-sky-400 hover:text-sky-300 break-all transition-colors"
+                ? "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success-fg hover:text-white break-all transition-colors"
+                : "inline-flex items-center gap-1 font-medium underline decoration-brand/60 hover:decoration-brand text-brand-text hover:text-brand-text break-all transition-colors"
             }
           >
             <span>{cleanUrl}</span>

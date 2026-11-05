@@ -29,7 +29,7 @@ export function StoryAvatarItem({
     >
       <div
         className={cn(
-          "rounded-full transition-all duration-200 group-hover:scale-105 active:scale-95",
+          "rounded-full transition-ui duration-200 group-hover:scale-105 active:scale-95",
           hasUnseen
             ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
             : "ring-1 ring-border/60 ring-offset-2 ring-offset-background opacity-60 group-hover:opacity-100"

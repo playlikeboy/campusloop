@@ -53,6 +53,23 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/api/gifs", methods: "READ", max: 60, windowSec: 60, store: "memory" },
   { prefix: "/api/unsplash", methods: "READ", max: 60, windowSec: 60, store: "memory" },
 
+  // Content creation and social writes. Budgets are per IP per minute and sit
+  // well above human speed while blocking scripted floods (AUDIT.md §1.4).
+  { prefix: "/api/colleges", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
+  { prefix: "/api/communities/hub/create", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
+  { prefix: "/api/dating/crush", methods: "WRITE", max: 10, windowSec: 60, store: "redis" },
+  { prefix: "/api/dating/swipe", methods: "WRITE", max: 90, windowSec: 60, store: "redis" },
+  { prefix: "/api/academics", methods: "WRITE", max: 20, windowSec: 60, store: "redis" },
+  { prefix: "/api/articles", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/stories", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/capsules", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/highlights", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/reels", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+  { prefix: "/api/posts", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+  { prefix: "/api/chat", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+  { prefix: "/api/communities", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+  { prefix: "/api/profile", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+
   // Defaults for every other API route
   { prefix: "/api/", methods: "WRITE", max: 120, windowSec: 60, store: "redis" },
   { prefix: "/api/", methods: "READ", max: 600, windowSec: 60, store: "memory" },

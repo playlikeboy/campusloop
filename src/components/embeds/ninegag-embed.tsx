@@ -41,7 +41,7 @@ export function NineGagEmbed({ gagId, rawUrl, isHome }: NineGagEmbedProps) {
   if (isHome || !gagId) {
     return (
       <div
-        className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-all hover:border-border"
+        className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-ui hover:border-border"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border/30 bg-black/90 px-3.5 py-2 text-white dark:bg-black">
@@ -107,7 +107,7 @@ export function NineGagEmbed({ gagId, rawUrl, isHome }: NineGagEmbedProps) {
   // 2. Specific Gag Embed
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-all"
+      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-ui"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header bar */}

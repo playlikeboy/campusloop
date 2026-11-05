@@ -29,7 +29,7 @@ export function ReadingProgress() {
   return (
     <div
       aria-hidden="true"
-      className="fixed top-14 left-0 h-0.5 bg-primary z-50 transition-all duration-75 pointer-events-none"
+      className="fixed top-14 left-0 h-0.5 bg-primary z-50 transition-ui duration-75 pointer-events-none"
       style={{ width: `${progress}%` }}
     />
   );

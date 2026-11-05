@@ -12,11 +12,11 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 export const metadata: Metadata = {
   title: "Student Communities & Sub-Hubs",
   description:
-    "Browse interest groups, technical societies, and student-created communities across 1,350+ Indian colleges on CampusLoop.",
+    "Browse interest groups, technical societies, and student-created communities across Indian colleges on CampusLoop.",
   keywords: ["Student Communities", "College Sub-Hubs", "Campus Clubs", "Student Groups India", "Coding Clubs"],
   alternates: { canonical: "https://campusloop.space/communities" },
   openGraph: {
-    title: "Student Communities & Sub-Hubs | CampusLoop",
+    title: "Student Communities & Sub-Hubs",
     description: "Browse interest groups and student communities on CampusLoop.",
     url: "https://campusloop.space/communities",
     siteName: "CampusLoop",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Campus Communities, Clubs & Student Hubs | CampusLoop",
+    title: "Campus Communities, Clubs & Student Hubs",
     description: "Explore student-run clubs, technical societies, and campus chapters across India.",
     images: ["https://campusloop.space/og-communities.png"],
   },
@@ -297,7 +297,7 @@ export default async function CommunitiesPage({
         url: "https://campusloop.space/communities",
         name: "Student Communities, Campus Clubs & Technical Societies | CampusLoop",
         description:
-          "Directory of student-created technical clubs, cultural societies, gaming clans, and campus sub-hubs across 1,350+ Indian colleges on CampusLoop.",
+          "Directory of student-created technical clubs, cultural societies, gaming clans, and campus sub-hubs across Indian colleges on CampusLoop.",
         publisher: {
           "@type": "Organization",
           name: "CampusLoop",

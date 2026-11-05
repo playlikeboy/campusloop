@@ -54,7 +54,7 @@ export function AcademicNavTabs({ activeTab, onTabChange, savedCount, className 
               onTabChange(tab.id);
             }}
             className={cn(
-              "group relative inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+              "group relative inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-ui cursor-pointer shrink-0 whitespace-nowrap",
               isSelected
                 ? "bg-foreground text-background shadow-xs font-black"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

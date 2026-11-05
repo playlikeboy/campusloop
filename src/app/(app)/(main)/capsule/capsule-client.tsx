@@ -50,7 +50,7 @@ export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps
       <header className="sticky top-12 lg:top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3.5 space-y-3">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-            <Hourglass className="size-5 text-amber-500" />
+            <Hourglass className="size-5 text-brand-text" />
             <span>Campus Time Capsule</span>
           </h1>
         </div>
@@ -74,7 +74,7 @@ export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps
                 setActiveFilter(f.id);
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0",
+                "px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0",
                 activeFilter === f.id
                   ? "bg-foreground text-background font-black shadow-xs"
                   : "bg-muted/40 hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border/40"
@@ -88,8 +88,8 @@ export function CapsuleClient({ initialCapsules, profileId }: CapsuleClientProps
 
       {/* Intro Feature Banner */}
       <div className="p-4">
-        <div className="rounded-3xl border border-amber-500/30 bg-linear-to-br from-amber-500/10 via-amber-500/5 to-transparent p-5 space-y-2.5">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-500">
+        <div className="rounded-3xl border border-border bg-brand-subtle p-5 space-y-2.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-brand-text">
             <Archive className="size-4" />
             <span>Unique Institutional Vault</span>
           </div>

@@ -12,15 +12,15 @@ export async function generateMetadata({ params }: BranchPageProps): Promise<Met
   const branchInfo = findBranchBySlug(decoded);
   const title = branchInfo ? `${branchInfo.name} Students Hub` : `${decoded.replace(/-/g, " ")} Students Hub`;
   const description = `Connect with verified students enrolled in ${title} across Indian college campuses.`;
-  const url = `https://campusloop.space/app/branch/${decoded}`;
+  const url = `https://campusloop.space/branch/${decoded}`;
 
   return {
-    title: `${title} | CampusLoop`,
+    title: `${title}`,
     description,
     keywords: [title, "branch directory", "engineering departments", "student networking"],
     alternates: { canonical: url },
     openGraph: {
-      title: `${title} | CampusLoop`,
+      title: `${title}`,
       description,
       url,
       siteName: "CampusLoop",
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: BranchPageProps): Promise<Met
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | CampusLoop`,
+      title: `${title}`,
       description,
       images: ["https://campusloop.space/og-image.png"],
     },
@@ -55,7 +55,7 @@ export default async function BranchDirectoryPage({ params }: BranchPageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${title} Student Hub`,
-    url: `https://campusloop.space/app/branch/${decoded}`,
+    url: `https://campusloop.space/branch/${decoded}`,
     description: `Directory of verified students enrolled in ${title}.`,
   };
 

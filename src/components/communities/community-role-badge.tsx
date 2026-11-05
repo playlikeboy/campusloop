@@ -24,11 +24,11 @@ export function CommunityRoleBadge({
       <span
         className={cn(
           "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0 shadow-2xs",
-          "bg-amber-500/10 text-amber-950 dark:text-amber-200 border border-amber-500/50",
+          "bg-warning-subtle text-warning border border-warning",
           className
         )}
       >
-        <Crown className="size-3 text-amber-600 dark:text-amber-400 shrink-0" />
+        <Crown className="size-3 text-warning shrink-0" />
         <span>Admin</span>
       </span>
     );
@@ -39,11 +39,11 @@ export function CommunityRoleBadge({
       <span
         className={cn(
           "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0 shadow-2xs",
-          "bg-sky-500/10 text-sky-950 dark:text-sky-200 border border-sky-500/50",
+          "bg-brand-subtle text-brand-text border border-brand",
           className
         )}
       >
-        <ShieldCheck className="size-3 text-sky-600 dark:text-sky-400 shrink-0" />
+        <ShieldCheck className="size-3 text-brand-text shrink-0" />
         <span>Moderator</span>
       </span>
     );

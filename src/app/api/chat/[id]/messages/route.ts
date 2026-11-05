@@ -1,8 +1,8 @@
 import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { conversations, messages, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { conversations, messages } from "@/db/schema";
+import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { requireConversationParticipant } from "@/lib/chat-auth";
 import { notifyNewMessage } from "@/lib/chat-notifications";
@@ -17,10 +17,9 @@ interface RouteParams {
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const { id } = await params;
     const { searchParams } = new URL(req.url);
@@ -28,13 +27,6 @@ export async function GET(req: Request, { params }: RouteParams) {
     const before = searchParams.get("before"); // ISO date string or timestamp cursor
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     if (!(await requireConversationParticipant(id, profile.id))) {
       return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
@@ -80,20 +72,12 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const { id } = await params;
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     if (!(await requireConversationParticipant(id, profile.id))) {
       return NextResponse.json({ error: "Conversation not found" }, { status: 404 });

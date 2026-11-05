@@ -1,31 +1,29 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { stories, storyHighlights, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { stories, storyHighlights } from "@/db/schema";
+import { parseBefore, parseLimit } from "@/lib/pagination";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
+
+    const { searchParams } = new URL(req.url);
+    const limit = parseLimit(searchParams, 100, 200);
+    const before = parseBefore(searchParams);
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
 
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
-
-    // Fetch all stories created by the user from all time
+    // Newest slice of the user's stories; `?before=` pages further back
     const userStories = await db.query.stories.findMany({
-      where: eq(stories.userId, profile.id),
+      where: and(eq(stories.userId, profile.id), before ? lt(stories.createdAt, before) : undefined),
       orderBy: [desc(stories.createdAt)],
+      limit,
       with: {
         likes: true,
       },
@@ -34,6 +32,7 @@ export async function GET() {
     // Also fetch user's highlights to see which stories are currently highlighted
     const highlights = await db.query.storyHighlights.findMany({
       where: eq(storyHighlights.userId, profile.id),
+      limit: 100,
     });
 
     const highlightedStoryIds = new Set<string>();

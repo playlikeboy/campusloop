@@ -18,7 +18,7 @@ export function PreviewModeBanner() {
 
   return (
     <>
-      <div className="mx-3 sm:mx-0 my-2 sm:my-0 sm:mb-4 flex min-h-8 items-center justify-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-center text-xs font-medium text-amber-700 dark:text-amber-300 backdrop-blur-md flex-wrap">
+      <div className="mx-3 sm:mx-0 my-2 sm:my-0 sm:mb-4 flex min-h-8 items-center justify-center gap-1.5 rounded-xl border border-warning bg-warning-subtle px-3 py-1.5 text-center text-xs font-medium text-warning backdrop-blur-sm flex-wrap">
         <ShieldCheck className="size-3.5 shrink-0" aria-hidden="true" />
         <span>
           You have full access as a guest student ·{" "}
@@ -28,11 +28,11 @@ export function PreviewModeBanner() {
               sounds.tap();
               setIsModalOpen(true);
             }}
-            className="font-bold underline underline-offset-2 hover:text-amber-600 dark:hover:text-amber-200 transition-colors cursor-pointer"
+            className="font-bold underline underline-offset-2 hover:text-warning transition-colors cursor-pointer"
           >
             Verify your college email
           </button>{" "}
-          for a verified ✓ badge &amp; campus match.
+          for a verified badge &amp; campus match.
         </span>
       </div>
 

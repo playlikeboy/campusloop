@@ -4,7 +4,7 @@ import { getCachedAuthUser } from "@/lib/server-cache";
 import { SupermarketOrdersClient } from "./supermarket-orders-client";
 
 export const metadata: Metadata = {
-  title: "Supermarket & Mart Orders | CampusLoop",
+  title: "Supermarket & Mart Orders",
   description: "Track your live campus grocery, snack, and exam stationery orders.",
   robots: { index: false, follow: false },
 };

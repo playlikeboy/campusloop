@@ -167,6 +167,7 @@ export function EventsClient({
     setActiveTab("ALL");
   }
 
+  const [renderedAt] = useState(() => Date.now());
   const pageTitle = isArchive ? (title || "Past events") : activeCategory !== "ALL" ? (CATEGORIES.find((category) => category.id === activeCategory)?.label || title || "Events") : "Events";
   const opportunityCount = rawEvents.filter((event) => {
     const type = String(event.eventType || "").toUpperCase();
@@ -174,7 +175,7 @@ export function EventsClient({
   }).length;
   const nextDeadlineCount = rawEvents.filter((event) => {
     const deadline = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : 0;
-    return deadline > Date.now() && deadline <= Date.now() + 7 * 24 * 60 * 60 * 1000;
+    return deadline > renderedAt && deadline <= renderedAt + 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   return (

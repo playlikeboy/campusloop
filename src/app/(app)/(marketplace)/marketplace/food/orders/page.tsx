@@ -4,7 +4,7 @@ import { getCachedAuthUser } from "@/lib/server-cache";
 import { FoodOrdersClient } from "./food-orders-client";
 
 export const metadata: Metadata = {
-  title: "Food & Canteen Orders | CampusLoop",
+  title: "Food & Canteen Orders",
   description: "Track your live canteen and hostel food delivery orders.",
   robots: { index: false, follow: false },
 };

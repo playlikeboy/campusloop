@@ -31,8 +31,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       displayName: `#${clean}`,
       category: "Food & Canteens",
       iconName: "UtensilsCrossed",
-      gradient: "from-amber-500/20 via-orange-500/15 to-transparent",
-      accentColor: "text-amber-500",
+      gradient: "from-warning-subtle to-transparent",
+      accentColor: "text-warning",
       tagline: "Mess ratings, canteen specials, midnight Maggi & campus food spots.",
       description:
         "The pulse of campus hunger: real student mess reviews, canteen recommendations, late-night food delivery hacks, and must-try joints around college.",
@@ -61,8 +61,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       displayName: `#${clean}`,
       category: "Tech & Open Source",
       iconName: "Code2",
-      gradient: "from-emerald-500/20 via-cyan-500/15 to-transparent",
-      accentColor: "text-emerald-500",
+      gradient: "from-success-subtle to-transparent",
+      accentColor: "text-success",
       tagline: "DSA questions, projects, hackathon teams, and developer banter.",
       description:
         "Everything student devs are building: hackathon project showcases, LeetCode grind survival, tech stack debates, and open-source contributions.",
@@ -89,8 +89,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       displayName: `#${clean}`,
       category: "Careers & Placements",
       iconName: "Briefcase",
-      gradient: "from-blue-500/20 via-indigo-500/15 to-transparent",
-      accentColor: "text-blue-500",
+      gradient: "from-brand-subtle to-transparent",
+      accentColor: "text-brand-text",
       tagline: "Interview experiences, OA tips, compensation insights & company reviews.",
       description:
         "Verified campus placement intelligence: Online Assessment (OA) walkthroughs, GD strategies, interview questions, and placement season advice from seniors.",
@@ -118,8 +118,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       displayName: `#${clean}`,
       category: "Exams & Academics",
       iconName: "BookOpen",
-      gradient: "from-purple-500/20 via-fuchsia-500/15 to-transparent",
-      accentColor: "text-purple-500",
+      gradient: "from-crush-subtle to-transparent",
+      accentColor: "text-crush-text",
       tagline: "PYQs, one-night study survival, question predictions & syllabus notes.",
       description:
         "The semester clutch hub: previous year questions (PYQs), professor expectations, urgent study material links, and end-semester camaraderie.",

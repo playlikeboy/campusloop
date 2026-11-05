@@ -12,9 +12,9 @@ export function cn(...inputs: ClassValue[]) {
 export const NO_IMAGE_AVATAR_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(
   `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <rect width="100" height="100" rx="50" fill="#1e293b"/>
-  <circle cx="50" cy="38" r="18" fill="#64748b"/>
-  <path d="M22 84c0-15.464 12.536-28 28-28s28 12.536 28 28" fill="#64748b"/>
+  <rect width="100" height="100" rx="50" fill="#1e293b"/> <!-- ds-allow: data-URI fallback avatar -->
+  <circle cx="50" cy="38" r="18" fill="#64748b"/> <!-- ds-allow: data-URI fallback avatar -->
+  <path d="M22 84c0-15.464 12.536-28 28-28s28 12.536 28 28" fill="#64748b"/> <!-- ds-allow: data-URI fallback avatar -->
 </svg>
 `.trim()
 )}`;

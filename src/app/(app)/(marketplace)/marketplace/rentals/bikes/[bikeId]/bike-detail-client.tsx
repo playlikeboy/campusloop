@@ -219,11 +219,11 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
         {/* Bike Title & Rating Overlay */}
         <div className="absolute bottom-4 left-4 right-4 z-10 text-white space-y-1">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-black text-[10px] font-black uppercase">
+            <span className="px-2.5 py-0.5 rounded-full bg-brand text-black text-[10px] font-black uppercase">
               {bike.status}
             </span>
-            <span className="flex items-center gap-1 text-xs font-bold text-amber-300">
-              <Star className="size-3.5 fill-amber-300" />
+            <span className="flex items-center gap-1 text-xs font-bold text-warning">
+              <Star className="size-3.5 fill-warning" />
               <span>
                 {bike.rating} ({bike.reviewCount} rentals)
               </span>
@@ -232,7 +232,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
           <h1 className="text-xl font-black tracking-tight">{bike.name}</h1>
           <p className="text-xs text-white/80 flex items-center gap-1.5">
-            <MapPin className="size-3.5 text-rose-400" />
+            <MapPin className="size-3.5 text-danger" />
             <span>
               Pickup: {bike.pickupLocation} · {bike.merchant?.name}
             </span>
@@ -250,13 +250,13 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
           </div>
 
           <div className="p-3 rounded-2xl bg-card border border-border/40 text-center space-y-0.5 shadow-xs">
-            <Gauge className="size-4 text-emerald-500 mx-auto" />
+            <Gauge className="size-4 text-brand-text mx-auto" />
             <p className="text-[10px] font-bold uppercase text-muted-foreground">Mileage / Specs</p>
             <p className="text-xs font-black text-foreground">{bike.specs?.mileage || "45 kmpl"}</p>
           </div>
 
           <div className="p-3 rounded-2xl bg-card border border-border/40 text-center space-y-0.5 shadow-xs">
-            <HardHat className="size-4 text-amber-500 mx-auto" />
+            <HardHat className="size-4 text-warning mx-auto" />
             <p className="text-[10px] font-bold uppercase text-muted-foreground">Helmet</p>
             <p className="text-xs font-black text-foreground">Included Free</p>
           </div>
@@ -264,7 +264,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
         {/* ─── 1. Select Date & Time ─── */}
         <div className="p-4 rounded-3xl bg-card border border-border/40 space-y-3 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
             <Calendar className="size-4 text-primary" />
             <span>1. Select Rental Duration</span>
           </h2>
@@ -297,15 +297,15 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
               className={cn(
                 "p-3 rounded-2xl border text-xs flex items-center gap-2 font-semibold",
                 availability.isAvailableForDates
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
-                  : "bg-rose-500/10 border-rose-500/30 text-rose-500"
+                  ? "bg-brand-subtle border-brand text-brand-text"
+                  : "bg-danger-subtle border-danger text-danger"
               )}
             >
               {availability.isAvailableForDates ? (
                 <>
                   <CheckCircle2 className="size-4 shrink-0" />
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span className="size-2 rounded-full bg-brand animate-pulse shrink-0" />
                     <span>Available for your selected dates ({availability.rentalDays} days)</span>
                   </span>
                 </>
@@ -321,7 +321,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
         {/* ─── 2. Price Breakdown (Clear Distinction: Rental ≠ Deposit) ─── */}
         <div className="p-4 rounded-3xl bg-card border border-border/40 space-y-3 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             2. Transparent Bill Breakdown
           </h2>
 
@@ -337,7 +337,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
             <div className="flex items-center justify-between text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="size-3.5 text-blue-400" />
+                <ShieldCheck className="size-3.5 text-brand-text" />
                 <span>Refundable Security Deposit</span>
               </div>
               <span className="text-foreground font-black">
@@ -345,7 +345,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-400 font-medium leading-relaxed flex items-start gap-1.5">
+            <div className="p-2.5 rounded-xl bg-brand-subtle border border-brand text-[11px] text-brand-text font-medium leading-relaxed flex items-start gap-1.5">
               <Info className="size-3.5 shrink-0 mt-0.5" />
               <span>
                 <strong>Note:</strong> The ₹{bike.securityDeposit} security deposit is held safely during your
@@ -355,7 +355,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
 
             <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
               <span>Total Payable Amount</span>
-              <span className="text-base text-emerald-500">
+              <span className="text-base text-brand-text">
                 ₹
                 {(availability?.totalPayable || bike.dailyPrice + bike.securityDeposit).toLocaleString(
                   "en-IN"
@@ -375,7 +375,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
               haptics.light();
               setShowVerificationModal(true);
             }}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-[opacity,transform] flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
           >
             <ShieldCheck className="size-4" />
             <span>Verify &amp; Request Booking</span>
@@ -412,9 +412,9 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
             <form onSubmit={handleConfirmBooking} className="space-y-4">
               {/* Verification Checklist Badges */}
               <div className="grid grid-cols-3 gap-2">
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-0.5">
-                  <CheckCircle2 className="size-3.5 text-emerald-500 mx-auto" />
-                  <p className="text-[10px] font-bold text-emerald-500">Student ID</p>
+                <div className="p-2.5 rounded-xl bg-brand-subtle border border-brand text-center space-y-0.5">
+                  <CheckCircle2 className="size-3.5 text-brand-text mx-auto" />
+                  <p className="text-[10px] font-bold text-brand-text">Student ID</p>
                   <p className="text-[9px] text-muted-foreground">Verified Student</p>
                 </div>
 
@@ -425,7 +425,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
                 </div>
 
                 <div className="p-2.5 rounded-xl bg-muted/40 border border-border/40 text-center space-y-0.5">
-                  <Lock className="size-3.5 text-amber-500 mx-auto" />
+                  <Lock className="size-3.5 text-warning mx-auto" />
                   <p className="text-[10px] font-bold text-foreground">Aadhaar Last 4</p>
                   <p className="text-[9px] text-muted-foreground">Required</p>
                 </div>
@@ -577,7 +577,7 @@ export function BikeDetailClient({ bikeId, profileId }: BikeDetailClientProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                  className="w-full h-12 rounded-2xl bg-brand hover:bg-brand-hover text-black font-black text-sm transition-[opacity,transform] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

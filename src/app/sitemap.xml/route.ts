@@ -1,39 +1,21 @@
 import { NextResponse } from "next/server";
 
+// Only surfaces that are public, indexable and non-anonymous belong here.
+// Profiles, comments and reels are deliberately absent: profiles are noindex,
+// comments inherit their post's visibility, and /reels redirects to the feed.
+const SITEMAPS = ["static", "colleges", "posts", "communities", "articles", "events", "academics"];
+
 export async function GET() {
+  const entries = SITEMAPS.map(
+    (name) => `
+  <sitemap>
+    <loc>https://campusloop.space/sitemaps/${name}.xml</loc>
+  </sitemap>`
+  ).join("");
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/static.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/colleges.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/posts.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/comments.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/reels.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/communities.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/profiles.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/articles.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/events.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://campusloop.space/sitemaps/academics.xml</loc>
-  </sitemap>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries}
 </sitemapindex>`;
 
   return new NextResponse(xml, {

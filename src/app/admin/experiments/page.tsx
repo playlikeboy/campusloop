@@ -20,13 +20,13 @@ function Verdict({ z, lowerIsBetter, label }: { z: number; lowerIsBetter?: boole
   const significant = Math.abs(z) >= 1.96;
   const better = lowerIsBetter ? z < 0 : z > 0;
   return (
-    <div className="rounded-2xl bg-card/60 p-4 shadow-2xs">
+    <div className="rounded-2xl bg-surface p-4 shadow-2xs">
       <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">z = {z.toFixed(2)}</p>
       <p
         className={cn(
           "mt-1 text-sm font-medium",
-          !significant ? "text-muted-foreground" : better ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+          !significant ? "text-muted-foreground" : better ? "text-success" : "text-destructive"
         )}
       >
         {!significant
@@ -96,7 +96,7 @@ export default async function AdminExperimentsPage({
           Could not load experiment data. Check the database connection on the System Health page.
         </div>
       ) : readout.arms.every((a) => a.impressions === 0) ? (
-        <div className="rounded-2xl bg-card/60 p-8 text-center shadow-2xs">
+        <div className="rounded-2xl bg-surface p-8 text-center shadow-2xs">
           <FlaskConical className="mx-auto size-8 text-muted-foreground" aria-hidden />
           <p className="mt-3 font-semibold text-foreground">No impressions yet</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -110,7 +110,7 @@ export default async function AdminExperimentsPage({
             <Verdict z={readout.longDwellZ} label="Long-read rate, personalized vs control" />
           </div>
 
-          <div className="overflow-x-auto rounded-2xl bg-card/60 shadow-2xs">
+          <div className="overflow-x-auto rounded-2xl bg-surface shadow-2xs">
             <table className="w-full min-w-[520px] text-sm">
               <thead>
                 <tr className="text-left text-xs text-muted-foreground">

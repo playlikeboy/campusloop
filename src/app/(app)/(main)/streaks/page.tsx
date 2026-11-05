@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { StreakHeatmap } from "@/components/streaks/streak-heatmap";
 
 export const metadata: Metadata = {
-  title: "Campus Streaks & Activity Heatmap | CampusLoop",
+  title: "Campus Streaks & Activity Heatmap",
   description:
     "Track your daily campus streak, interactive contribution heatmap, milestone badges, and earned Loop Points on CampusLoop.",
   openGraph: {
-    title: "Campus Streaks & Activity Heatmap | CampusLoop",
+    title: "Campus Streaks & Activity Heatmap",
     description:
       "Track your daily campus streak, interactive contribution heatmap, milestone badges, and earned Loop Points on CampusLoop.",
     url: "https://campusloop.space/streaks",

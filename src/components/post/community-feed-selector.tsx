@@ -239,7 +239,7 @@ export function CommunityFeedSelector({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          "group inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
+          "group inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-ui cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1",
           disabled && "opacity-50 cursor-not-allowed",
           isMainFeed
@@ -330,7 +330,7 @@ export function CommunityFeedSelector({
                   "bg-background/80 border border-border/50 text-foreground",
                   "placeholder:text-muted-foreground/70",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/40",
-                  "transition-all"
+                  "transition-ui"
                 )}
               />
               {searchQuery && (
@@ -481,7 +481,7 @@ export function CommunityFeedSelector({
                 <button
                   type="button"
                   onClick={handleSelectMainFeed}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-ui cursor-pointer shadow-xs"
                 >
                   <Globe className="size-3" />
                   Post to Main Feed

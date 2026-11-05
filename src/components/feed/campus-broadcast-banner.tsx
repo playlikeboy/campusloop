@@ -75,36 +75,36 @@ export function CampusBroadcastBanner({
 
   const priorityStyles = {
     INFO: {
-      border: "border-blue-500/40",
-      bg: "bg-gradient-to-r from-blue-500/10 via-card to-card",
-      badgeBg: "bg-blue-500/20 border-blue-500/30 text-blue-500",
+      border: "border-brand-subtle-border/40",
+      bg: "bg-surface",
+      badgeBg: "bg-brand/20 border-brand-subtle-border/30 text-brand-text",
       icon: Info,
-      label: "CAMPUS INFO",
-      glow: "shadow-[0_0_24px_rgba(59,130,246,0.12)]",
+      label: "Campus info",
+      glow: "",
     },
     ANNOUNCEMENT: {
       border: "border-primary/40",
-      bg: "bg-gradient-to-r from-primary/10 via-card to-card",
+      bg: "bg-surface",
       badgeBg: "bg-primary/20 border-primary/30 text-primary",
       icon: Megaphone,
-      label: "OFFICIAL ANNOUNCEMENT",
-      glow: "shadow-[0_0_24px_rgba(147,51,234,0.12)]",
+      label: "Official announcement",
+      glow: "",
     },
     WARNING: {
-      border: "border-amber-500/40",
-      bg: "bg-gradient-to-r from-amber-500/10 via-card to-card",
-      badgeBg: "bg-amber-500/20 border-amber-500/30 text-amber-500",
+      border: "border-warning/40",
+      bg: "bg-surface",
+      badgeBg: "bg-warning/20 border-warning/30 text-warning",
       icon: AlertTriangle,
-      label: "CAMPUS ADVISORY",
-      glow: "shadow-[0_0_24px_rgba(245,158,11,0.12)]",
+      label: "Campus advisory",
+      glow: "",
     },
     URGENT: {
-      border: "border-rose-500/50",
-      bg: "bg-gradient-to-r from-rose-500/15 via-card to-card",
-      badgeBg: "bg-rose-500/20 border-rose-500/30 text-rose-500",
+      border: "border-danger/50",
+      bg: "bg-surface",
+      badgeBg: "bg-danger/20 border-danger/30 text-danger",
       icon: ShieldAlert,
-      label: "URGENT NOTICE",
-      glow: "shadow-[0_0_28px_rgba(244,63,94,0.18)]",
+      label: "Urgent notice",
+      glow: "",
     },
   };
 
@@ -124,7 +124,7 @@ export function CampusBroadcastBanner({
   return (
     <div
       className={cn(
-        "relative mx-3 sm:mx-4 my-2.5 rounded-2xl border p-4 transition-all duration-300 backdrop-blur-md",
+        "relative mx-3 sm:mx-4 my-2.5 rounded-2xl border p-4 transition-colors duration-300 backdrop-blur-md",
         style.border,
         style.bg,
         style.glow,
@@ -137,7 +137,7 @@ export function CampusBroadcastBanner({
           {/* Priority Pill */}
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black border",
               style.badgeBg
             )}
           >
@@ -205,7 +205,7 @@ export function CampusBroadcastBanner({
               href={broadcast.actionUrl}
               target={broadcast.actionUrl.startsWith("http") ? "_blank" : undefined}
               rel={broadcast.actionUrl.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-colors shadow-xs cursor-pointer"
             >
               <span>{broadcast.actionLabel}</span>
               <ArrowRight className="size-3" />

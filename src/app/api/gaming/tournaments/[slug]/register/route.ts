@@ -4,9 +4,8 @@ import { getDb } from "@/db";
 import {
   gamingTournamentEntries,
   gamingTournaments,
-  userProfiles,
 } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { createNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
@@ -17,19 +16,11 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const tournament = await db.query.gamingTournaments.findFirst({
       where: eq(gamingTournaments.slug, slug),

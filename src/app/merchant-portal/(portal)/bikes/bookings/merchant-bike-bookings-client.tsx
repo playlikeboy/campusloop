@@ -57,8 +57,8 @@ export function MerchantBikeBookingsClient() {
   return (
     <main className="max-w-4xl mx-auto p-4 space-y-5 select-none pb-24">
       <div>
-        <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
-          <CalendarCheck2 className="size-5 text-emerald-500" />
+        <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
+          <CalendarCheck2 className="size-5 text-success" />
           <span>Bike Reservations Pipeline</span>
         </h1>
         <p className="text-xs text-muted-foreground mt-0.5">
@@ -80,7 +80,7 @@ export function MerchantBikeBookingsClient() {
             className={cn(
               "px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-2xs",
               activeTab === tab.id
-                ? "bg-foreground text-background font-black shadow-xs"
+                ? "bg-foreground text-background font-bold shadow-xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground"
             )}
           >
@@ -119,7 +119,7 @@ export function MerchantBikeBookingsClient() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/30 pb-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-sm font-black text-foreground">#{booking.bookingNumber}</span>
+                    <span className="text-sm font-bold text-foreground">#{booking.bookingNumber}</span>
                     <span className="text-xs font-bold text-foreground">
                       · {booking.bike?.name} ({booking.bike?.registrationNumber})
                     </span>
@@ -132,7 +132,7 @@ export function MerchantBikeBookingsClient() {
                     <span className="text-xs font-bold text-muted-foreground">
                       Deposit: ₹{booking.depositAmount}
                     </span>
-                    <span className="text-base font-black text-emerald-500">
+                    <span className="text-base font-bold text-success">
                       ₹{booking.totalAmount.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -141,7 +141,7 @@ export function MerchantBikeBookingsClient() {
                 {/* Timing & Student Information */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-2xl bg-muted/40 space-y-1">
-                    <p className="text-[10px] font-bold uppercase text-muted-foreground">Rental Window</p>
+                    <p className="text-[10px] font-bold text-muted-foreground">Rental Window</p>
                     <p className="font-bold text-foreground">
                       {startDateStr} → {endDateStr}
                     </p>
@@ -151,7 +151,7 @@ export function MerchantBikeBookingsClient() {
                   </div>
 
                   <div className="p-3 rounded-2xl bg-muted/40 space-y-1">
-                    <p className="text-[10px] font-bold uppercase text-muted-foreground">Student Customer</p>
+                    <p className="text-[10px] font-bold text-muted-foreground">Student Customer</p>
                     <p className="font-bold text-foreground">
                       {booking.student?.displayName} (@{booking.student?.username})
                     </p>
@@ -167,7 +167,7 @@ export function MerchantBikeBookingsClient() {
                 {/* Verification Documents Summary */}
                 {booking.documents && (
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1">
-                    <span className="flex items-center gap-1 text-emerald-500 font-bold">
+                    <span className="flex items-center gap-1 text-success font-bold">
                       <ShieldCheck className="size-3.5" />
                       <span>Verified Student</span>
                     </span>
@@ -199,7 +199,7 @@ export function MerchantBikeBookingsClient() {
                           type="button"
                           disabled={actioningId === booking.id}
                           onClick={() => handleAdvanceStatus(booking.id, "CONFIRMED")}
-                          className="px-5 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition-all cursor-pointer shadow-xs"
+                          className="px-5 py-2 rounded-full bg-success hover:opacity-90 text-black font-bold text-xs transition-colors cursor-pointer shadow-xs"
                         >
                           Approve Booking
                         </button>
@@ -210,7 +210,7 @@ export function MerchantBikeBookingsClient() {
                             const reason = prompt("Enter rejection reason:");
                             if (reason) handleAdvanceStatus(booking.id, "REJECTED", reason);
                           }}
-                          className="px-4 py-2 rounded-full bg-rose-500/15 text-rose-500 font-bold text-xs hover:bg-rose-500/25 transition-colors cursor-pointer"
+                          className="px-4 py-2 rounded-full bg-danger-subtle text-danger font-bold text-xs hover:bg-danger-subtle transition-colors cursor-pointer"
                         >
                           Reject
                         </button>
@@ -223,7 +223,7 @@ export function MerchantBikeBookingsClient() {
                         type="button"
                         disabled={actioningId === booking.id}
                         onClick={() => handleAdvanceStatus(booking.id, "READY_FOR_PICKUP")}
-                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-blue-500 hover:bg-blue-400 text-white font-black text-xs transition-all cursor-pointer shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors cursor-pointer shadow-xs"
                       >
                         <KeyRound className="size-3.5" />
                         <span>Mark Ready for Pickup</span>
@@ -234,7 +234,7 @@ export function MerchantBikeBookingsClient() {
                     {booking.status === "READY_FOR_PICKUP" && (
                       <Link
                         href={`/merchant-portal/bikes/bookings/${booking.id}`}
-                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition-all cursor-pointer shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-success hover:opacity-90 text-black font-bold text-xs transition-colors cursor-pointer shadow-xs"
                       >
                         <Bike className="size-3.5" />
                         <span>Start Rental &amp; Handover</span>
@@ -245,7 +245,7 @@ export function MerchantBikeBookingsClient() {
                     {booking.status === "ACTIVE" && (
                       <Link
                         href={`/merchant-portal/bikes/bookings/${booking.id}`}
-                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition-all cursor-pointer shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-warning hover:opacity-90 text-black font-bold text-xs transition-colors cursor-pointer shadow-xs"
                       >
                         <Search className="size-3.5" />
                         <span>Mark Returned &amp; Inspect</span>
@@ -258,7 +258,7 @@ export function MerchantBikeBookingsClient() {
                         type="button"
                         disabled={actioningId === booking.id}
                         onClick={() => handleAdvanceStatus(booking.id, "COMPLETED")}
-                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition-all cursor-pointer shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-success hover:opacity-90 text-black font-bold text-xs transition-colors cursor-pointer shadow-xs"
                       >
                         <CheckCircle2 className="size-3.5" />
                         <span>Complete &amp; Settle Deposit</span>
@@ -266,7 +266,7 @@ export function MerchantBikeBookingsClient() {
                     )}
 
                     {booking.status === "COMPLETED" && (
-                      <span className="text-xs font-black text-emerald-500 flex items-center gap-1">
+                      <span className="text-xs font-bold text-success flex items-center gap-1">
                         <CheckCircle2 className="size-4" />
                         <span>Completed &amp; Deposit Refunded</span>
                       </span>

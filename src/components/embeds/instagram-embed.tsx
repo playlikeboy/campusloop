@@ -12,12 +12,12 @@ interface InstagramEmbedProps {
 export function InstagramEmbed({ embedUrl, rawUrl, id }: InstagramEmbedProps) {
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-all hover:border-border"
+      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-colors hover:border-border"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-border/30 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 px-3.5 py-1.5">
+      <div className="flex items-center justify-between border-b border-border/30 bg-surface-muted px-3.5 py-1.5">
         <div className="flex items-center gap-1.5 text-xs font-black text-foreground">
-          <InstagramIcon className="size-3.5 text-pink-500" />
+          <InstagramIcon className="size-3.5 text-danger" />
           <span>Instagram</span>
           {id && <span className="text-[11px] font-mono text-muted-foreground">#{id}</span>}
         </div>

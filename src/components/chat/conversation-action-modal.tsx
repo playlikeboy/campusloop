@@ -126,9 +126,10 @@ export function ConversationActionModal({
           </div>
 
           <button
+            aria-label="Close"
             type="button"
             onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="size-4" />
           </button>
@@ -176,7 +177,7 @@ export function ConversationActionModal({
               {isPinned ? (
                 <PinOff className="size-4 text-muted-foreground" />
               ) : (
-                <Pin className="size-4 text-amber-500" />
+                <Pin className="size-4 text-warning" />
               )}
               <span>{isPinned ? "Unpin chat" : "Pin chat to top"}</span>
             </button>
@@ -193,7 +194,7 @@ export function ConversationActionModal({
               {isMuted ? (
                 <Bell className="size-4 text-muted-foreground" />
               ) : (
-                <BellOff className="size-4 text-rose-500" />
+                <BellOff className="size-4 text-danger" />
               )}
               <span>{isMuted ? "Unmute notifications" : "Mute notifications"}</span>
             </button>
@@ -230,7 +231,7 @@ export function ConversationActionModal({
               }
               className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
-              <CheckCheck className="size-4 text-sky-400" />
+              <CheckCheck className="size-4 text-brand-text" />
               <span>{hasUnread ? "Mark as read" : "Mark as unread"}</span>
             </button>
 

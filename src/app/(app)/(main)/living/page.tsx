@@ -4,12 +4,12 @@ import { LivingHubClient } from "./living-hub-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Living & Utilities | Campus Services | CampusLoop",
+  title: "Living & Utilities | Campus Services",
   description:
     "Everything you need around campus: student marketplace, verified PGs and flatmates, lost and found recovery, cab pooling, and campus atlas.",
   alternates: { canonical: "https://campusloop.space/living" },
   openGraph: {
-    title: "Living & Utilities | Campus Services | CampusLoop",
+    title: "Living & Utilities | Campus Services",
     description:
       "Buy and sell second-hand gear, find verified housing, recover lost items, pool station rides, and explore campus.",
     url: "https://campusloop.space/living",

@@ -187,7 +187,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Organizer Hub</span>
+              <span className="text-xs font-bold text-primary">Organizer Hub</span>
               <span className="text-muted-foreground/60 text-xs">·</span>
               <span className="text-xs text-muted-foreground">{event.clubName}</span>
             </div>
@@ -246,12 +246,12 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
                   className={cn(
                     "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
                     event.status === "PUBLISHED"
-                      ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                      ? "bg-success-subtle text-success border border-success"
                       : event.status === "COMPLETED"
-                        ? "bg-blue-500/10 text-blue-500 border border-blue-500/20"
+                        ? "bg-brand-subtle text-brand-text border border-brand"
                         : event.status === "CANCELLED"
                           ? "bg-destructive/10 text-destructive border border-destructive/20"
-                          : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          : "bg-warning-subtle text-warning border border-warning"
                   )}
                 >
                   {event.status}
@@ -280,7 +280,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               disabled={isUpdatingStatus || event.status === "PUBLISHED"}
               onClick={() => handleStatusChange("PUBLISHED")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 event.status === "PUBLISHED"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -293,7 +293,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               disabled={isUpdatingStatus || event.status === "COMPLETED"}
               onClick={() => handleStatusChange("COMPLETED")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 event.status === "COMPLETED"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -306,7 +306,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
               disabled={isUpdatingStatus || event.status === "CANCELLED"}
               onClick={() => handleStatusChange("CANCELLED")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 event.status === "CANCELLED"
                   ? "bg-background text-destructive shadow-xs"
                   : "text-muted-foreground hover:text-destructive"
@@ -328,7 +328,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
             </div>
             <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-500 rounded-full"
+                className="h-full bg-primary transition-colors duration-500 rounded-full"
                 style={{ width: `${capacityPercent}%` }}
               />
             </div>
@@ -347,21 +347,21 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500" /> Checked In
+            <CheckCircle2 className="size-3.5 text-success" /> Checked In
           </span>
           <p className="text-2xl font-black text-foreground">{attendedCount}</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <BarChart3 className="size-3.5 text-blue-500" /> Turnout Rate
+            <BarChart3 className="size-3.5 text-brand-text" /> Turnout Rate
           </span>
           <p className="text-2xl font-black text-foreground">{checkInRate}%</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <Clock className="size-3.5 text-amber-500" /> Mode / Venue
+            <Clock className="size-3.5 text-warning" /> Mode / Venue
           </span>
           <p className="text-sm font-bold text-foreground truncate">{event.venue || event.mode}</p>
         </div>
@@ -373,7 +373,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           {/* Card 1: Attendees Roster */}
           <Link
             href={`/events/manage/${slug}/attendees`}
-            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-primary/40 transition-all space-y-2.5 shadow-2xs"
+            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-primary/40 transition-colors space-y-2.5 shadow-2xs"
           >
             <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
               <Users className="size-4.5" />
@@ -386,9 +386,9 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           {/* Card 2: Live Venue Check-In */}
           <Link
             href={`/events/manage/${slug}/check-in`}
-            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-emerald-500/40 transition-all space-y-2.5 shadow-2xs"
+            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-success transition-colors space-y-2.5 shadow-2xs"
           >
-            <div className="size-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 group-hover:scale-105 transition-transform">
+            <div className="size-9 rounded-xl bg-success-subtle text-success flex items-center justify-center border border-success group-hover:scale-105 transition-transform">
               <QrCode className="size-4.5" />
             </div>
             <div>
@@ -399,9 +399,9 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           {/* Card 3: Broadcast Updates */}
           <Link
             href={`/events/manage/${slug}/broadcast`}
-            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-amber-500/40 transition-all space-y-2.5 shadow-2xs"
+            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-warning transition-colors space-y-2.5 shadow-2xs"
           >
-            <div className="size-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20 group-hover:scale-105 transition-transform">
+            <div className="size-9 rounded-xl bg-warning-subtle text-warning flex items-center justify-center border border-warning group-hover:scale-105 transition-transform">
               <Megaphone className="size-4.5" />
             </div>
             <div>
@@ -412,9 +412,9 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           {/* Card 4: Demographics & Analytics */}
           <Link
             href={`/events/manage/${slug}/analytics`}
-            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-blue-500/40 transition-all space-y-2.5 shadow-2xs"
+            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-brand transition-colors space-y-2.5 shadow-2xs"
           >
-            <div className="size-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 group-hover:scale-105 transition-transform">
+            <div className="size-9 rounded-xl bg-brand-subtle text-brand-text flex items-center justify-center border border-brand group-hover:scale-105 transition-transform">
               <BarChart3 className="size-4.5" />
             </div>
             <div>
@@ -425,7 +425,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
           {/* Card 5: Edit Event Form */}
           <Link
             href={`/events/manage/${slug}/edit`}
-            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-foreground/30 transition-all space-y-2.5 shadow-2xs"
+            className="group p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/90 hover:border-foreground/30 transition-colors space-y-2.5 shadow-2xs"
           >
             <div className="size-9 rounded-xl bg-muted text-foreground flex items-center justify-center border border-border/50 group-hover:scale-105 transition-transform">
               <Settings className="size-4.5" />
@@ -484,7 +484,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
                     className={cn(
                       "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
                       reg.status === "ATTENDED"
-                        ? "bg-emerald-500/10 text-emerald-500"
+                        ? "bg-success-subtle text-success"
                         : reg.status === "CANCELLED"
                           ? "bg-destructive/10 text-destructive"
                           : "bg-primary/10 text-primary"
@@ -517,7 +517,7 @@ export function ManageEventClient({ eventId, initialSlug, currentProfile }: Mana
             type="button"
             disabled={isDeleting}
             onClick={handleDeleteEvent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:bg-destructive/90 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:bg-destructive/90 transition-colors cursor-pointer"
           >
             <Trash2 className="size-3.5" />
             <span>{isDeleting ? "Deleting..." : "Delete Event"}</span>

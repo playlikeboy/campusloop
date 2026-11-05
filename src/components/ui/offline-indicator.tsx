@@ -55,14 +55,14 @@ export function OfflineIndicator() {
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           className="fixed top-3 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-neutral-900/95 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 shadow-xl border border-white/10 dark:border-black/10 backdrop-blur-md pointer-events-auto text-xs font-bold">
-            <span className="flex size-2 rounded-full bg-amber-400 animate-pulse" />
-            <WifiOff className="size-3.5 text-amber-400" />
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-raised/95 text-fg shadow-lg backdrop-blur-md pointer-events-auto text-xs font-bold">
+            <span className="flex size-2 rounded-full bg-warning animate-pulse" />
+            <WifiOff className="size-3.5 text-warning" />
             <span>Offline Mode · Viewing cached campus data</span>
             <button
               type="button"
               onClick={handleManualSync}
-              className="ml-1 p-1 hover:opacity-80 transition-opacity cursor-pointer"
+              className="ml-1 p-1 rounded-full hover:opacity-80 transition-opacity cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               title="Try Reconnecting"
             >
               <RefreshCw className="size-3" />
@@ -78,8 +78,8 @@ export function OfflineIndicator() {
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           className="fixed top-3 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-950/95 text-emerald-100 border border-emerald-500/30 shadow-xl backdrop-blur-md pointer-events-auto text-xs font-bold">
-            <Wifi className="size-3.5 text-emerald-400" />
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-success-subtle text-success shadow-lg backdrop-blur-md pointer-events-auto text-xs font-bold">
+            <Wifi className="size-3.5 text-success" />
             <span>Back online · Campus feed synced</span>
           </div>
         </motion.div>

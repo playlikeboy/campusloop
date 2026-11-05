@@ -153,13 +153,13 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
 
       {/* ─── Dynamic Banner (BIT Mesra vs Other Campuses) ─── */}
       {isBitMesraStudent ? (
-        <div className="mx-4 my-2.5 rounded-3xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-orange-500/15 p-4 sm:p-5 relative overflow-hidden shadow-xs">
+        <div className="mx-4 my-2.5 rounded-3xl border border-brand-subtle-border bg-brand-subtle p-4 sm:p-5 relative overflow-hidden shadow-xs">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 relative z-10">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-warning-subtle text-warning text-xs font-bold">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-warning" />
                 </span>
                 <span>LIVE STARTING TODAY · NIGHT CANTEEN</span>
               </div>
@@ -178,7 +178,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                 sounds.tap();
                 haptics.success();
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-foreground text-background text-xs font-black shadow-md hover:opacity-90 transition-all active:scale-95 shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-foreground text-background text-xs font-black shadow-md hover:opacity-90 transition-[opacity,transform] active:scale-95 shrink-0 cursor-pointer"
             >
               <span>Order from Arman&apos;s</span>
               <ChevronRight className="size-3.5" />
@@ -186,10 +186,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
           </div>
         </div>
       ) : (
-        <div className="mx-4 my-2.5 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 p-4 sm:p-5 relative overflow-hidden shadow-xs">
+        <div className="mx-4 my-2.5 rounded-3xl border border-brand-subtle-border bg-brand-subtle p-4 sm:p-5 relative overflow-hidden shadow-xs">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 relative z-10">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-bold">
                 <span className="inline-flex items-center gap-1">
                   <Sparkles className="size-3" /> 1,000+ STUDENT SIGNUPS REQUIRED TO UNLOCK
                 </span>
@@ -212,7 +212,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                 sounds.tap();
                 haptics.success();
               }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold shadow-xs hover:opacity-95 transition-all active:scale-95 shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-danger hover:bg-danger text-white text-xs font-bold shadow-xs hover:opacity-95 transition-[opacity,transform] active:scale-95 shrink-0 cursor-pointer"
             >
               <InstagramIcon className="size-4 fill-white" />
               <span>Invite via Instagram DM</span>
@@ -229,10 +229,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 to-amber-500 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Zomato Style
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">Food &amp; Canteens</h3>
@@ -249,10 +249,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Flipkart Style
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">Supermarket Mart</h3>
@@ -269,10 +269,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-600 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Multi-Depot
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">Bike &amp; EV Rentals</h3>
@@ -289,10 +289,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-600 to-amber-700 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Live Queue
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">Barber &amp; Salon</h3>
@@ -309,10 +309,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Doorstep Drop
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">Laundry &amp; Wash</h3>
@@ -329,10 +329,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
             sounds.tap();
             haptics.light();
           }}
-          className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-cyan-600 to-blue-600 p-3.5 text-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-28"
+          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
         >
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
               Room Delivery
             </span>
             <h3 className="text-sm sm:text-base font-black mt-1">RO Water Supply</h3>
@@ -346,10 +346,10 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
 
       {/* ─── Campus Expansion Banner (Only shown to non-BIT Mesra students) ─── */}
       {!isBitMesraStudent && (
-        <div className="mx-4 my-2 rounded-2xl border border-pink-500/30 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 p-4 relative overflow-hidden">
+        <div className="mx-4 my-2 rounded-2xl border border-brand-subtle-border bg-brand-subtle p-4 relative overflow-hidden">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
             <div className="space-y-0.5">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-400 text-[9px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-subtle text-brand-text text-xs font-bold">
                 <span className="inline-flex items-center gap-1">
                   <Sparkles className="size-3" /> Want this at your campus?
                 </span>
@@ -365,7 +365,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
               href="https://www.instagram.com/campusloop.space/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white text-xs font-black shadow-sm hover:opacity-95 transition-transform active:scale-95 shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-black shadow-sm hover:opacity-95 transition-transform active:scale-95 shrink-0"
             >
               <InstagramIcon className="size-3" />
               <span>DM @campusloop.space</span>
@@ -460,7 +460,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                 <p className="mt-0.5 text-[13px] text-muted-foreground">
                   <span className="font-black text-foreground">₹{b.dailyPrice}</span> / day ·{" "}
                   <span className="inline-flex items-center gap-1">
-                    <Star className="size-3 fill-amber-500 text-amber-500" />
+                    <Star className="size-3 fill-warning text-warning" />
                     {b.rating}
                   </span>
                   {b.securityDeposit ? ` · ₹${b.securityDeposit} deposit` : ""}
@@ -507,7 +507,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                   {/* One plain meta line, rather than five coloured pills. */}
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[13px] text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Star className="size-3 fill-amber-500 text-amber-500" />
+                      <Star className="size-3 fill-warning text-warning" />
                       {store.rating}
                     </span>
                     {store.estimatedPrepTime && (
@@ -537,7 +537,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                   </p>
 
                   {store.offers?.length > 0 && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[13px] font-bold text-emerald-600 dark:text-emerald-400">
+                    <p className="mt-1 inline-flex items-center gap-1 text-[13px] font-bold text-success">
                       <Tag className="size-3 shrink-0" />
                       <span className="truncate">{store.offers[0].title}</span>
                     </p>
@@ -574,7 +574,7 @@ export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: Mar
                   sounds.tap();
                   haptics.success();
                 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-all shadow-sm active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-[opacity,transform] shadow-sm active:scale-95 cursor-pointer"
               >
                 <InstagramIcon className="size-3.5 fill-current" />
                 <span>Invite Us via Instagram DM (1K+ Students)</span>

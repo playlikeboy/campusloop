@@ -45,7 +45,7 @@ export default async function CertificatePage({ params }: Props) {
     <main className="min-h-dvh bg-muted/40 px-4 py-10 print:bg-white print:p-0">
       <div className="mx-auto max-w-3xl space-y-6">
         <article className="relative overflow-hidden rounded-3xl bg-background p-8 text-center shadow-sm sm:p-14 print:rounded-none print:shadow-none" aria-label="Certificate of completion">
-          <div className="pointer-events-none absolute inset-3 rounded-[20px] border-2 border-primary/25" aria-hidden />
+          <div className="pointer-events-none absolute inset-3 rounded-xl border-2 border-primary/25" aria-hidden />
           <div className="relative">
             <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Award className="size-7" aria-hidden />

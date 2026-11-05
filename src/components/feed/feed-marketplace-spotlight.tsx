@@ -55,12 +55,12 @@ export function FeedMarketplaceSpotlight({ className }: { className?: string }) 
     <section className={cn("py-4", className)} aria-label="Campus Marketplace Highlights">
       <div className="mb-3 flex items-center justify-between px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <div className="flex size-7 items-center justify-center rounded-full bg-success/10 text-success">
             <ShoppingBag className="size-3.5" aria-hidden />
           </div>
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-sm font-bold text-foreground">Campus Buy &amp; Sell</h3>
-            <span className="hidden sm:inline-block rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="hidden sm:inline-block rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">
               Verified Students
             </span>
           </div>
@@ -81,7 +81,7 @@ export function FeedMarketplaceSpotlight({ className }: { className?: string }) 
             <Link
               key={item.id}
               href={`/buy-and-sell?q=${encodeURIComponent(item.title)}`}
-              className="group flex w-[230px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/75 border border-border/40 shadow-2xs transition-all hover:border-primary/40 hover:shadow-md"
+              className="group flex w-[230px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/75 border border-border/40 shadow-2xs transition-colors hover:border-primary/40 hover:shadow-md"
             >
               {/* Image / Fallback Header */}
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60">
@@ -93,15 +93,15 @@ export function FeedMarketplaceSpotlight({ className }: { className?: string }) 
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <div className="flex h-full w-full items-center justify-center bg-success/10 text-success">
                     <Icon className="size-8" aria-hidden />
                   </div>
                 )}
-                <span className="absolute left-2.5 top-2.5 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground backdrop-blur-xs">
+                <span className="absolute left-2.5 top-2.5 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-xs">
                   {item.category}
                 </span>
                 {item.condition && (
-                  <span className="absolute right-2.5 top-2.5 rounded-full bg-emerald-500/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                  <span className="absolute right-2.5 top-2.5 rounded-full bg-success/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                     {item.condition.replace(/_/g, " ")}
                   </span>
                 )}

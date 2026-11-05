@@ -7,12 +7,13 @@ import { lostAndFoundItems } from "@/db/schema";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Lost & Found | Campus Recovery System | CampusLoop",
+  robots: { index: true, follow: true },
+  title: "Lost & Found | Campus Recovery System",
   description:
     "Report lost student IDs, keys, earphones, and reclaim found items safely on your college campus.",
   alternates: { canonical: "https://campusloop.space/lost-and-found" },
   openGraph: {
-    title: "Lost & Found | Campus Recovery System | CampusLoop",
+    title: "Lost & Found | Campus Recovery System",
     description: "Report lost student IDs, keys, and reclaim found items safely on your college campus.",
     url: "https://campusloop.space/lost-and-found",
     siteName: "CampusLoop Lost & Found",

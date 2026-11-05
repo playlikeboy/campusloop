@@ -33,23 +33,23 @@ export function ConfirmDialog({
 
   const icons = {
     danger: <Trash2 className="size-5 text-destructive" />,
-    warning: <AlertTriangle className="size-5 text-amber-500" />,
-    info: <Info className="size-5 text-blue-500" />,
-    success: <CheckCircle2 className="size-5 text-emerald-500" />,
+    warning: <AlertTriangle className="size-5 text-warning" />,
+    info: <Info className="size-5 text-brand-text" />,
+    success: <CheckCircle2 className="size-5 text-success" />,
   };
 
   const bgVariants = {
     danger: "bg-destructive/10 text-destructive border-destructive/20",
-    warning: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    info: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    success: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    warning: "bg-warning-subtle text-warning border-warning/20",
+    info: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    success: "bg-success-subtle text-success border-success/20",
   };
 
   const btnVariants = {
-    danger: "bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-destructive/20",
-    warning: "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20",
-    info: "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20",
-    success: "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20",
+    danger: "bg-danger hover:bg-danger/90 text-danger-fg",
+    warning: "bg-warning hover:bg-warning/90 text-warning-fg",
+    info: "bg-brand hover:bg-brand-hover text-brand-fg",
+    success: "bg-success hover:bg-success/90 text-success-fg",
   };
 
   return (
@@ -86,7 +86,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             onClick={onClose}
             aria-label="Close dialog"
-            className="size-9 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer disabled:opacity-50 transition-colors outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background shrink-0"
+            className="size-9 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer disabled:opacity-50 transition-colors outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg shrink-0"
           >
             <X className="size-4" />
           </button>
@@ -99,7 +99,7 @@ export function ConfirmDialog({
             type="button"
             disabled={isLoading}
             onClick={onClose}
-            className="h-9 min-h-[36px] px-4 rounded-xl border border-border/70 bg-muted/30 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="h-9 min-h-[36px] px-4 rounded-xl border border-border/70 bg-muted/30 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             {cancelText}
           </button>
@@ -109,7 +109,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             onClick={onConfirm}
             className={cn(
-              "h-9 min-h-[36px] px-4 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "h-9 min-h-[36px] px-4 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               btnVariants[variant]
             )}
           >

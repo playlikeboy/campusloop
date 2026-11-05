@@ -2,7 +2,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { notifyNewMessage } from "@/lib/chat-notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
@@ -11,19 +11,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     // Find all conversation IDs where the current user is a participant
     const userParticipations = await db.query.conversationParticipants.findMany({
@@ -41,6 +33,8 @@ export async function GET() {
     // Query conversations with participants and recent messages
     const rawConversations = await db.query.conversations.findMany({
       where: inArray(conversations.id, conversationIds),
+      orderBy: [desc(conversations.updatedAt)],
+      limit: 200,
       with: {
         community: true,
         participants: {
@@ -155,19 +149,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;

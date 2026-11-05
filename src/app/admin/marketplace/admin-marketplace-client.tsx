@@ -42,31 +42,31 @@ const CATEGORIES = [
     id: "food",
     label: "Food & Canteens",
     icon: UtensilsCrossed,
-    color: "text-rose-500",
-    bg: "bg-rose-500/10",
+    color: "text-danger",
+    bg: "bg-danger-subtle",
   },
   {
     id: "supermarket",
     label: "Supermarket & Mart",
     icon: ShoppingBag,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
+    color: "text-warning",
+    bg: "bg-warning-subtle",
   },
   {
     id: "rentals",
     label: "Bike & Vehicle Rentals",
     icon: Bike,
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
+    color: "text-success",
+    bg: "bg-success-subtle",
   },
-  { id: "barber", label: "Barber & Salon", icon: Scissors, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { id: "laundry", label: "Laundry & Wash", icon: Shirt, color: "text-purple-500", bg: "bg-purple-500/10" },
+  { id: "barber", label: "Barber & Salon", icon: Scissors, color: "text-brand-text", bg: "bg-brand-subtle" },
+  { id: "laundry", label: "Laundry & Wash", icon: Shirt, color: "text-brand-text", bg: "bg-brand-subtle" },
   {
     id: "water",
     label: "20L Water Can Delivery",
     icon: Droplet,
-    color: "text-cyan-500",
-    bg: "bg-cyan-500/10",
+    color: "text-brand-text",
+    bg: "bg-brand-subtle",
   },
 ] as const;
 
@@ -298,12 +298,12 @@ export function AdminMarketplaceClient() {
       {/* ─── Header & Top Actions ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Store className="size-6 text-primary" />
             <span>Marketplace Executive Console</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            3-Tier Management: Categories ➔ Stores ➔ Products with Plaintext Merchant Credential Management
+            Three tiers: categories, stores and products, with plaintext merchant credential management
           </p>
         </div>
 
@@ -314,7 +314,7 @@ export function AdminMarketplaceClient() {
               sounds.tap();
               haptics.light();
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-opacity shadow-xs"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-opacity shadow-xs"
           >
             <Plus className="size-3.5 stroke-3" />
             <span>Onboard Merchant</span>
@@ -325,31 +325,31 @@ export function AdminMarketplaceClient() {
       {/* ─── Top Metrics Strip ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Registered Stores
           </p>
-          <p className="text-2xl font-black text-foreground">
+          <p className="text-2xl font-bold text-foreground">
             {merchants.length}{" "}
             <span className="text-xs text-muted-foreground font-semibold">({activeStoresCount} Open)</span>
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Catalog Items
           </p>
-          <p className="text-2xl font-black text-foreground">{totalProducts}</p>
+          <p className="text-2xl font-bold text-foreground">{totalProducts}</p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Campus Orders
           </p>
-          <p className="text-2xl font-black text-foreground">{totalOrders}</p>
+          <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Campus GMV (Gross Value)
           </p>
-          <p className="text-2xl font-black text-emerald-500">₹{totalGmv.toLocaleString("en-IN")}</p>
+          <p className="text-2xl font-bold text-success">₹{totalGmv.toLocaleString("en-IN")}</p>
         </div>
       </div>
 
@@ -380,7 +380,7 @@ export function AdminMarketplaceClient() {
                   setSelectedCategory(c.id);
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer border",
                   isActive
                     ? "bg-foreground text-background border-foreground shadow-xs"
                     : "bg-card border-border text-muted-foreground hover:text-foreground"
@@ -422,7 +422,7 @@ export function AdminMarketplaceClient() {
                   <div className="flex items-center gap-2.5">
                     <div
                       className={cn(
-                        "size-8 rounded-xl flex items-center justify-center font-black",
+                        "size-8 rounded-xl flex items-center justify-center font-bold",
                         categoryMeta.bg,
                         categoryMeta.color
                       )}
@@ -430,7 +430,7 @@ export function AdminMarketplaceClient() {
                       <CatIcon className="size-4.5" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-black text-foreground capitalize flex items-center gap-2">
+                      <h2 className="text-sm font-bold text-foreground capitalize flex items-center gap-2">
                         <span>{categoryMeta.label}</span>
                         <span className="text-[11px] font-bold text-muted-foreground">
                           ({storeList.length} stores)
@@ -469,26 +469,26 @@ export function AdminMarketplaceClient() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-black text-foreground">{store.name}</h3>
+                                <h3 className="text-sm font-bold text-foreground">{store.name}</h3>
                                 <button
                                   type="button"
                                   onClick={() => handleToggleStoreStatus(store)}
                                   className={cn(
-                                    "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase transition-all cursor-pointer hover:scale-105 active:scale-95",
+                                    "px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-colors cursor-pointer hover:scale-105 active:scale-95",
                                     store.isOpen
-                                      ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/25"
-                                      : "bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25"
+                                      ? "bg-success-subtle text-success border border-success/30 hover:bg-success-subtle"
+                                      : "bg-danger-subtle text-danger border border-danger/30 hover:bg-danger-subtle"
                                   )}
                                   title={`Click to ${store.isOpen ? "Close" : "Open"} store`}
                                 >
                                   {store.isOpen ? (
                                     <span className="inline-flex items-center gap-1.5">
-                                      <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                      <span className="size-1.5 rounded-full bg-success animate-pulse" />
                                       OPEN
                                     </span>
                                   ) : (
                                     <span className="inline-flex items-center gap-1.5">
-                                      <span className="size-1.5 rounded-full bg-rose-500" />
+                                      <span className="size-1.5 rounded-full bg-danger" />
                                       CLOSED
                                     </span>
                                   )}
@@ -501,8 +501,8 @@ export function AdminMarketplaceClient() {
                                 <span className="text-[11px] font-mono font-bold text-foreground bg-muted px-2 py-0.5 rounded-md">
                                   User: @{store.loginUsername || store.slug}
                                 </span>
-                                <span className="text-[11px] font-bold text-emerald-500 inline-flex items-center gap-0.5">
-                                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                                <span className="text-[11px] font-bold text-success inline-flex items-center gap-0.5">
+                                  <Star className="size-3 fill-warning text-warning" />
                                   {store.rating || "4.7"}
                                 </span>
                               </div>
@@ -524,7 +524,7 @@ export function AdminMarketplaceClient() {
                                 setRevealedPassword(activePass);
                                 setShowPassword(true);
                               }}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors cursor-pointer"
                             >
                               <KeyRound className="size-3.5" />
                               <span>Login &amp; Password</span>
@@ -542,7 +542,7 @@ export function AdminMarketplaceClient() {
 
                             <Link
                               href={`/admin/marketplace/merchants/${store.id}`}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity"
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity"
                             >
                               <Edit2 className="size-3" />
                               <span>Manage</span>
@@ -570,7 +570,7 @@ export function AdminMarketplaceClient() {
                         {isExpanded && (
                           <div className="pt-3 border-t border-border/60 space-y-3 bg-muted/20 -mx-4 -mb-4 p-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                              <h4 className="text-xs font-bold text-muted-foreground">
                                 Product Catalog &amp; Pricing
                               </h4>
                               <button
@@ -585,7 +585,7 @@ export function AdminMarketplaceClient() {
                                   setProdCategory("General");
                                   setProdIsVeg(true);
                                 }}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity cursor-pointer"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                               >
                                 <Plus className="size-3" />
                                 <span>Add Product</span>
@@ -602,7 +602,7 @@ export function AdminMarketplaceClient() {
                                     <div className="min-w-0">
                                       <p className="text-xs font-bold text-foreground truncate">{p.name}</p>
                                       <p className="text-[11px] text-muted-foreground">
-                                        <span className="font-black text-foreground">₹{p.price}</span>
+                                        <span className="font-bold text-foreground">₹{p.price}</span>
                                         {p.originalPrice && (
                                           <span className="line-through ml-1 text-[10px]">
                                             ₹{p.originalPrice}
@@ -619,10 +619,10 @@ export function AdminMarketplaceClient() {
                                           handleToggleProductAvailability(p.id, p.isAvailable ?? true)
                                         }
                                         className={cn(
-                                          "px-2 py-0.5 rounded-md text-[10px] font-black uppercase transition-all cursor-pointer",
+                                          "px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors cursor-pointer",
                                           p.isAvailable !== false
-                                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
-                                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20"
+                                            ? "bg-success-subtle text-success hover:bg-success-subtle"
+                                            : "bg-danger-subtle text-danger hover:bg-danger-subtle"
                                         )}
                                         title={`Click to mark ${p.isAvailable !== false ? "Out of Stock" : "In Stock"}`}
                                       >
@@ -649,7 +649,7 @@ export function AdminMarketplaceClient() {
                                       <button
                                         type="button"
                                         onClick={() => handleDeleteProduct(p.id)}
-                                        className="size-7 rounded-lg hover:bg-rose-500/10 flex items-center justify-center text-rose-500 cursor-pointer"
+                                        className="size-7 rounded-lg hover:bg-danger-subtle flex items-center justify-center text-danger cursor-pointer"
                                       >
                                         <Trash2 className="size-3" />
                                       </button>
@@ -685,12 +685,12 @@ export function AdminMarketplaceClient() {
 
       {/* ─── MODAL 1: Plaintext Credentials & Password Rotation ─── */}
       {credentialModalStore && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-emerald-500" />
-                <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
+                <ShieldCheck className="size-5 text-success" />
+                <h2 className="text-sm font-bold text-foreground">
                   Merchant Access Credentials
                 </h2>
               </div>
@@ -709,22 +709,22 @@ export function AdminMarketplaceClient() {
 
             <div className="space-y-3 bg-muted/40 p-4 rounded-2xl border border-border">
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Store Name</p>
-                <p className="text-sm font-black text-foreground">{credentialModalStore.name}</p>
+                <p className="text-[10px] font-bold text-muted-foreground">Store Name</p>
+                <p className="text-sm font-bold text-foreground">{credentialModalStore.name}</p>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Login Username</p>
+                <p className="text-[10px] font-bold text-muted-foreground">Login Username</p>
                 <p className="text-xs font-mono font-bold text-foreground select-all">
                   {credentialModalStore.loginUsername || credentialModalStore.slug}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Password</p>
+                <p className="text-[10px] font-bold text-muted-foreground">Password</p>
                 {revealedPassword ? (
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-mono font-black text-emerald-600 dark:text-emerald-400 select-all">
+                    <p className="text-sm font-mono font-bold text-success select-all">
                       {showPassword ? revealedPassword : "••••••••••••"}
                     </p>
                     <button
@@ -745,7 +745,7 @@ export function AdminMarketplaceClient() {
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Portal URL</p>
+                <p className="text-[10px] font-bold text-muted-foreground">Portal URL</p>
                 <p className="text-xs font-mono text-muted-foreground truncate select-all">
                   https://campusloop.space/merchant-portal/login
                 </p>
@@ -766,7 +766,7 @@ export function AdminMarketplaceClient() {
               <button
                 type="button"
                 onClick={() => handleCopyWhatsApp(credentialModalStore)}
-                className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-black flex items-center justify-center gap-1.5 hover:opacity-90 cursor-pointer"
+                className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-bold flex items-center justify-center gap-1.5 hover:opacity-90 cursor-pointer"
               >
                 <Share2 className="size-3.5" />
                 <span>WhatsApp Invite</span>
@@ -778,12 +778,12 @@ export function AdminMarketplaceClient() {
 
       {/* ─── MODAL 2: Add / Edit Product Under Store ─── */}
       {productModalStore && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="size-5 text-primary" />
-                <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
+                <h2 className="text-sm font-bold text-foreground">
                   {editingProduct ? "Edit Product" : "Add New Product"}
                 </h2>
               </div>
@@ -822,7 +822,7 @@ export function AdminMarketplaceClient() {
                     value={prodPrice}
                     onChange={(e) => setProdPrice(e.target.value)}
                     placeholder="90"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                   />
                 </div>
 
@@ -855,8 +855,8 @@ export function AdminMarketplaceClient() {
                   type="button"
                   onClick={() => setProdIsVeg((v) => !v)}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer",
-                    prodIsVeg ? "bg-emerald-500/20 text-emerald-500" : "bg-rose-500/20 text-rose-500"
+                    "px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
+                    prodIsVeg ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger"
                   )}
                 >
                   {prodIsVeg ? (
@@ -882,7 +882,7 @@ export function AdminMarketplaceClient() {
                 <button
                   type="submit"
                   disabled={isSavingProduct}
-                  className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSavingProduct ? "Saving..." : "Save Product"}
                 </button>

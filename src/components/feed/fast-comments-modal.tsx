@@ -498,19 +498,19 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] sm:rounded-2xl border-t border-white/10 sm:border sm:border-white/15 bg-zinc-950/98 backdrop-blur-2xl text-zinc-100 shadow-2xl sm:max-w-lg"
+            className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-xl sm:rounded-2xl border-t border-border sm:border sm:border-border bg-surface text-fg sm:max-w-lg"
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             {/* ─── Mobile Drag Indicator ─── */}
             <div className="w-full flex items-center justify-center pt-2.5 pb-1 sm:hidden shrink-0">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="w-10 h-1 rounded-full bg-border" />
             </div>
 
             {/* ─── Minimal Header ─── */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.07] shrink-0">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">Comments</h3>
-                <span className="text-[11px] font-semibold text-zinc-400 bg-white/10 px-2 py-0.5 rounded-full">
+                <h3 className="text-sm sm:text-base font-bold text-fg tracking-tight">Comments</h3>
+                <span className="text-[11px] font-semibold text-fg-subtle bg-surface-muted px-2 py-0.5 rounded-full">
                   {displayCount}
                 </span>
               </div>
@@ -520,17 +520,17 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <button
                   type="button"
                   onClick={() => setSortMode((prev) => (prev === "best" ? "latest" : "best"))}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.06] hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-zinc-300 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-muted hover:bg-surface-muted border border-border text-[11px] font-semibold text-fg-subtle transition-colors cursor-pointer"
                   title="Toggle comment sorting"
                 >
                   {sortMode === "best" ? (
                     <>
-                      <Flame className="size-3 text-amber-400" />
+                      <Flame className="size-3 text-warning" />
                       <span>Top</span>
                     </>
                   ) : (
                     <>
-                      <History className="size-3 text-blue-400" />
+                      <History className="size-3 text-brand-text" />
                       <span>Newest</span>
                     </>
                   )}
@@ -540,7 +540,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="size-8 rounded-full bg-white/[0.06] hover:bg-white/12 text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="size-8 rounded-full bg-surface-muted hover:bg-surface-muted text-fg-subtle hover:text-fg flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close comments"
                 >
                   <X className="size-4" />
@@ -550,8 +550,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
             {/* ─── Ultra-Compact Context Line (Clean & Mobile First) ─── */}
             {cleanSnippet && (
-              <div className="px-4 py-2 border-b border-white/[0.05] bg-white/[0.02] flex items-center gap-2 text-xs text-zinc-400 shrink-0">
-                <span className="font-semibold text-zinc-300 shrink-0">@{authorHandle}:</span>
+              <div className="px-4 py-2 border-b border-border bg-surface-muted flex items-center gap-2 text-xs text-fg-subtle shrink-0">
+                <span className="font-semibold text-fg-subtle shrink-0">@{authorHandle}:</span>
                 <span className="truncate">{cleanSnippet}</span>
               </div>
             )}
@@ -565,21 +565,21 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <div className="space-y-3.5 pt-2">
                   {[1, 2].map((i) => (
                     <div key={i} className="flex gap-3 animate-pulse pt-1">
-                      <div className="size-8 rounded-full bg-zinc-800/80 shrink-0" />
+                      <div className="size-8 rounded-full bg-surface-muted/80 shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 w-28 bg-zinc-800/70 rounded-md" />
-                        <div className="h-3.5 w-3/4 bg-zinc-800/50 rounded-md" />
+                        <div className="h-3 w-28 bg-surface-muted/70 rounded-md" />
+                        <div className="h-3.5 w-3/4 bg-surface-muted/50 rounded-md" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : rootComments.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center py-16 px-4 space-y-2">
-                  <div className="size-11 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-zinc-500">
+                  <div className="size-11 rounded-2xl bg-surface-muted border border-border flex items-center justify-center text-fg-muted">
                     <MessageCircle className="size-5 stroke-1" />
                   </div>
-                  <p className="text-xs font-semibold text-zinc-300">No comments yet</p>
-                  <p className="text-[11px] text-zinc-500 max-w-xs">
+                  <p className="text-xs font-semibold text-fg-subtle">No comments yet</p>
+                  <p className="text-[11px] text-fg-muted max-w-xs">
                     Be the first to share your thoughts with campus!
                   </p>
                 </div>
@@ -604,7 +604,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
                       {/* Nested Replies with Subtle Connector Line */}
                       {visibleReplies.length > 0 && (
-                        <div className="mt-2 pl-3 ml-3 border-l-2 border-white/10 space-y-2.5">
+                        <div className="mt-2 pl-3 ml-3 border-l-2 border-border space-y-2.5">
                           {visibleReplies.map((reply) => (
                             <CommentRowItem
                               key={reply.id}
@@ -624,9 +624,9 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                             <button
                               type="button"
                               onClick={() => toggleExpandReplies(rootComment.id)}
-                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
                             >
-                              <div className="w-4 h-[1.5px] bg-white/20" />
+                              <div className="w-4 h-[1.5px] bg-border" />
                               <span>
                                 View {remainingCount} more {remainingCount === 1 ? "reply" : "replies"}
                               </span>
@@ -637,9 +637,9 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                             <button
                               type="button"
                               onClick={() => toggleExpandReplies(rootComment.id)}
-                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
                             >
-                              <div className="w-4 h-[1.5px] bg-white/20" />
+                              <div className="w-4 h-[1.5px] bg-border" />
                               <span>Hide replies</span>
                             </button>
                           )}
@@ -652,20 +652,20 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             </div>
 
             {/* ─── Bottom Composer Bar (Mobile First & Pinned Above Keyboard) ─── */}
-            <div className="p-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] border-t border-white/[0.08] bg-zinc-950 shrink-0 space-y-2">
+            <div className="p-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] border-t border-border bg-surface shrink-0 space-y-2">
               {/* Replying Context Banner */}
               {replyingTo && (
-                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-950/40 border border-purple-500/20 text-xs">
-                  <span className="text-zinc-400 text-[11px] font-medium flex items-center gap-1.5">
-                    <Reply className="size-3 text-purple-400 shrink-0" />
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-brand-subtle/40 border border-brand-subtle-border/20 text-xs">
+                  <span className="text-fg-subtle text-[11px] font-medium flex items-center gap-1.5">
+                    <Reply className="size-3 text-brand-text shrink-0" />
                     <span>
-                      Replying to <strong className="text-zinc-200">@{replyingTo.handle}</strong>
+                      Replying to <strong className="text-fg">@{replyingTo.handle}</strong>
                     </span>
                   </span>
                   <button
                     type="button"
                     onClick={() => setReplyingTo(null)}
-                    className="size-5 rounded-full hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer"
+                    className="size-5 rounded-full hover:bg-surface-muted flex items-center justify-center text-fg-subtle hover:text-fg cursor-pointer"
                   >
                     <X className="size-3" />
                   </button>
@@ -673,10 +673,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               )}
 
               {!profile ? (
-                <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/[0.06] border border-white/10 w-full">
+                <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-surface-muted border border-border w-full">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-zinc-200">Want to join the conversation?</p>
-                    <p className="text-[11px] text-zinc-400">
+                    <p className="text-xs font-bold text-fg">Want to join the conversation?</p>
+                    <p className="text-[11px] text-fg-subtle">
                       Sign in with your student email to reply and vote.
                     </p>
                   </div>
@@ -690,11 +690,11 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               ) : (
                 <div className="flex items-center gap-2">
                   {/* Current User Avatar */}
-                  <Avatar className="size-8 rounded-full border border-white/15 shrink-0">
+                  <Avatar className="size-8 rounded-full border border-border shrink-0">
                     <AvatarImage src={isAnonymous ? "" : profile?.avatarUrl || ""} />
-                    <AvatarFallback className="text-[10px] font-bold bg-zinc-800 text-zinc-300">
+                    <AvatarFallback className="text-[10px] font-bold bg-surface-muted text-fg-subtle">
                       {isAnonymous ? (
-                        <VenetianMask className="size-4 text-purple-400" />
+                        <VenetianMask className="size-4 text-brand-text" />
                       ) : (
                         profile?.displayName?.[0] || "U"
                       )}
@@ -702,7 +702,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                   </Avatar>
 
                   {/* Input Capsule */}
-                  <div className="relative flex-1 flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] focus-within:border-purple-500/40 focus-within:bg-white/[0.08] px-3.5 py-1.5 transition-colors">
+                  <div className="relative flex-1 flex items-center gap-2 rounded-full border border-border bg-surface-muted focus-within:border-brand-subtle-border/40 focus-within:bg-surface px-3.5 py-1.5 transition-colors">
                     <MentionSuggestions
                       trigger={mentionTrigger}
                       onSelect={handleSelectSuggestion}
@@ -735,7 +735,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       onPaste={handlePaste}
                       onFocus={handleComposerFocus}
                       enterKeyHint="send"
-                      className="flex-1 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-500 outline-none"
+                      className="flex-1 bg-transparent text-sm text-fg placeholder:text-fg-muted outline-none"
                       maxLength={500}
                     />
 
@@ -744,12 +744,12 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploadingImage}
-                      className="text-zinc-400 hover:text-white transition-colors p-1 cursor-pointer disabled:opacity-40"
+                      className="text-fg-subtle hover:text-fg transition-colors p-1 cursor-pointer disabled:opacity-40"
                       title="Attach photo"
                       aria-label="Attach photo"
                     >
                       {isUploadingImage ? (
-                        <Loader2 className="size-4 animate-spin text-purple-400" />
+                        <Loader2 className="size-4 animate-spin text-brand-text" />
                       ) : (
                         <ImageIcon className="size-4" />
                       )}
@@ -765,10 +765,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                         toast.info(next ? "Commenting anonymously" : "Commenting publicly");
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer",
+                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer",
                         isAnonymous
-                          ? "bg-purple-950/80 text-purple-300 border border-purple-500/40"
-                          : "text-zinc-400 hover:text-white"
+                          ? "bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/40"
+                          : "text-fg-subtle hover:text-fg"
                       )}
                       title={isAnonymous ? "Anonymous comment" : "Public comment"}
                     >
@@ -783,7 +783,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                     disabled={!commentText.trim() || isSubmitting}
                     onClick={handleSendComment}
                     className={cn(
-                      "size-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-md",
+                      "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-md",
                       commentText.trim() && !isSubmitting
                         ? "bg-primary text-primary-foreground hover:bg-primary/95 active:scale-90 shadow-primary/25"
                         : "bg-muted text-muted-foreground/50 cursor-not-allowed"
@@ -844,7 +844,7 @@ function CommentRowItem({
       {isAnon ? (
         <div
           className={cn(
-            "rounded-full bg-purple-950/50 border border-purple-500/30 flex items-center justify-center shrink-0 text-purple-300 mt-0.5",
+            "rounded-full bg-brand-subtle/50 border border-brand-subtle-border/30 flex items-center justify-center shrink-0 text-brand-text mt-0.5",
             isReply ? "size-7" : "size-8"
           )}
         >
@@ -854,12 +854,12 @@ function CommentRowItem({
         <Link href={`/@${cHandle}`} onClick={onClose} className="shrink-0 mt-0.5">
           <Avatar
             className={cn(
-              "rounded-full border border-white/10 hover:opacity-90 transition-opacity",
+              "rounded-full border border-border hover:opacity-90 transition-opacity",
               isReply ? "size-7" : "size-8"
             )}
           >
             <AvatarImage src={cAvatar} />
-            <AvatarFallback className="text-[10px] font-bold bg-zinc-800 text-zinc-300">
+            <AvatarFallback className="text-[10px] font-bold bg-surface-muted text-fg-subtle">
               {cDisplayName[0] || "U"}
             </AvatarFallback>
           </Avatar>
@@ -870,35 +870,35 @@ function CommentRowItem({
         <div className="flex items-center justify-between gap-1">
           <div className="flex items-center gap-1.5 flex-wrap">
             {isAnon ? (
-              <span className="text-xs font-semibold text-zinc-200 truncate">{cDisplayName}</span>
+              <span className="text-xs font-semibold text-fg truncate">{cDisplayName}</span>
             ) : (
               <Link
                 href={`/@${cHandle}`}
                 onClick={onClose}
-                className="text-xs font-semibold text-zinc-200 truncate hover:underline hover:text-white transition-colors"
+                className="text-xs font-semibold text-fg truncate hover:underline hover:text-fg transition-colors"
               >
                 {cDisplayName}
               </Link>
             )}
 
             {isCurrentUser && (
-              <span className="text-[9px] font-bold bg-purple-950/80 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded-md">
+              <span className="text-[9px] font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
                 You
               </span>
             )}
             {isOP && !isCurrentUser && (
-              <span className="text-[9px] font-bold bg-indigo-950/80 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.2 rounded-md">
+              <span className="text-[9px] font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
                 Author
               </span>
             )}
 
-            <span className="text-[11px] text-zinc-500">{formatTimeAgo(comment.createdAt)}</span>
+            <span className="text-[11px] text-fg-muted">{formatTimeAgo(comment.createdAt)}</span>
           </div>
 
           {/* Pinned by Author Badge */}
           {comment.isPinned && !isReply && (
-            <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-400 bg-amber-500/10 rounded px-1.5 py-0.5 border border-amber-500/20 w-fit shrink-0">
-              <Pin className="size-2.5 fill-amber-500/30 rotate-45" />
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-warning bg-warning/10 rounded px-1.5 py-0.5 border border-warning/20 w-fit shrink-0">
+              <Pin className="size-2.5 fill-warning/30 rotate-45" />
               <span>Pinned</span>
             </div>
           )}
@@ -906,19 +906,19 @@ function CommentRowItem({
 
         {/* Replying to indicator */}
         {comment.replyToUser && (
-          <div className="text-[11px] text-zinc-400 font-medium">
-            Replying to <span className="text-zinc-200 font-semibold">@{comment.replyToUser.username}</span>
+          <div className="text-[11px] text-fg-subtle font-medium">
+            Replying to <span className="text-fg font-semibold">@{comment.replyToUser.username}</span>
           </div>
         )}
 
         {/* Comment text with embeds disabled so user profiles / post embeds don't inflate inside comments */}
-        <div className="text-[13px] text-zinc-200 leading-relaxed break-words font-normal select-text">
+        <div className="text-[13px] text-fg leading-relaxed break-words font-normal select-text">
           <RichText content={comment.body} disableEmbeds={true} />
         </div>
 
         {/* Attached image preview */}
         {comment.imageUrl && (
-          <div className="mt-1.5 max-w-xs rounded-xl overflow-hidden border border-white/10">
+          <div className="mt-1.5 max-w-xs rounded-xl overflow-hidden border border-border">
             <img
               src={comment.imageUrl}
               alt="Attachment"
@@ -933,19 +933,19 @@ function CommentRowItem({
           <button
             type="button"
             onClick={() => onToggleLike(comment.id)}
-            className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-rose-400 transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-xs font-medium text-fg-subtle hover:text-danger transition-colors cursor-pointer"
           >
             <Heart
               className={cn(
                 "size-3.5 transition-transform active:scale-125",
-                isLiked ? "fill-rose-500 text-rose-500" : "text-zinc-500"
+                isLiked ? "fill-danger text-danger" : "text-fg-muted"
               )}
             />
             {(() => {
               const base = comment.likesCount || 0;
               const count = base + (isLiked && !comment.hasLiked ? 1 : !isLiked && comment.hasLiked ? -1 : 0);
               return count > 0 ? (
-                <span className="tabular-nums text-[11px] text-rose-500 font-bold">{count}</span>
+                <span className="tabular-nums text-[11px] text-danger font-bold">{count}</span>
               ) : null;
             })()}
           </button>
@@ -954,7 +954,7 @@ function CommentRowItem({
             <button
               type="button"
               onClick={() => onReply(comment, cHandle, cDisplayName)}
-              className="text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="text-xs font-medium text-fg-subtle hover:text-fg transition-colors cursor-pointer"
             >
               Reply
             </button>

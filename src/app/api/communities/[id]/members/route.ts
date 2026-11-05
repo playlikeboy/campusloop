@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -107,19 +107,11 @@ export async function GET(request: Request, { params }: RouteProps) {
 export async function PATCH(request: Request, { params }: RouteProps) {
   try {
     const { id: paramId } = await params;
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const comm = await db.query.communities.findFirst({
       where: or(eq(communities.id, paramId), eq(communities.slug, paramId)),
@@ -235,19 +227,11 @@ export async function PATCH(request: Request, { params }: RouteProps) {
 export async function DELETE(request: Request, { params }: RouteProps) {
   try {
     const { id: paramId } = await params;
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const comm = await db.query.communities.findFirst({
       where: or(eq(communities.id, paramId), eq(communities.slug, paramId)),

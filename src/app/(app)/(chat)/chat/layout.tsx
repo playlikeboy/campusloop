@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/ui/navigation";
+import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Messages | CampusLoop",
+    title: "Messages",
     description: "Chat privately with verified students across your campus loop.",
     images: ["https://campusloop.space/og-chat.png"],
   },
@@ -38,18 +38,15 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");
 
+  // The messenger owns its header and scroll regions, so the shell goes full-bleed.
   return (
-    <div className="relative min-h-screen h-[100dvh] bg-background overflow-hidden flex flex-col lg:flex-row">
-      {/* Navigation Header */}
-      <Navigation
-        profile={profile}
-        collegeName={profile.institution?.name ?? "Your College"}
-        isAdmin={profile.role === "ADMIN"}
-        hideHeader
-      />
-
-      {/* Main Messenger Area */}
-      <div className="flex-1 w-full h-full min-h-0 overflow-hidden">{children}</div>
-    </div>
+    <AppShell
+      profile={profile}
+      collegeName={profile.institution?.name ?? "Your College"}
+      isAdmin={profile.role === "ADMIN"}
+      fullBleed
+    >
+      {children}
+    </AppShell>
   );
 }

@@ -77,7 +77,7 @@ export function PostComposerToolbar({
             onClick={onOpenStickerPicker}
             aria-label="Add Sticker"
             title="Add Campus Sticker"
-            className="flex items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer select-none active:scale-95 shrink-0"
+            className="flex items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-warning/10 text-warning hover:bg-warning/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
           >
             <Smile className="size-3" />
             <span>Sticker</span>
@@ -93,7 +93,7 @@ export function PostComposerToolbar({
             onClick={onOpenGifPicker}
             aria-label="Add GIF"
             title="Add Reaction GIF (GIPHY)"
-            className="flex items-center justify-center rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-all cursor-pointer select-none active:scale-95 shrink-0"
+            className="flex items-center justify-center rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
           >
             GIF
           </button>
@@ -121,7 +121,7 @@ function ToolbarChip({
       aria-label={label}
       title={label}
       className={cn(
-        "flex items-center justify-center rounded-xl p-2 transition-all cursor-pointer select-none active:scale-95 shrink-0",
+        "flex items-center justify-center rounded-xl p-2 transition-transform cursor-pointer select-none active:scale-95 shrink-0",
         active
           ? "bg-primary text-primary-foreground font-bold shadow-xs"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"

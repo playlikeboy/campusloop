@@ -1,8 +1,9 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { academicResourceComments, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { academicResourceComments } from "@/db/schema";
+import { pageOf, parseBefore, parseLimit } from "@/lib/pagination";
+import { requireProfile } from "@/lib/require-profile";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +15,18 @@ interface RouteParams {
 export async function GET(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(req.url);
+    const limit = parseLimit(searchParams, 100, 200);
+    const before = parseBefore(searchParams);
     const db = getDb();
 
-    const comments = await db.query.academicResourceComments.findMany({
-      where: eq(academicResourceComments.resourceId, id),
+    const rows = await db.query.academicResourceComments.findMany({
+      where: and(
+        eq(academicResourceComments.resourceId, id),
+        before ? lt(academicResourceComments.createdAt, before) : undefined
+      ),
       orderBy: [desc(academicResourceComments.createdAt)],
+      limit: limit + 1,
       with: {
         author: {
           columns: {
@@ -32,7 +40,9 @@ export async function GET(req: Request, { params }: RouteParams) {
       },
     });
 
-    return NextResponse.json({ comments });
+    const { page: comments, hasMore, nextCursor } = pageOf(rows, limit);
+
+    return NextResponse.json({ comments, hasMore, nextCursor });
   } catch (error) {
     console.error("Error fetching academic comments:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -42,19 +52,11 @@ export async function GET(req: Request, { params }: RouteParams) {
 export async function POST(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;

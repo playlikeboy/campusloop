@@ -76,7 +76,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -118,19 +118,19 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
           className={cn(
             "rounded-3xl border p-5 space-y-3 shadow-xs",
             isRejected
-              ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
+              ? "bg-danger-subtle border-danger text-danger"
               : order.status === "DELIVERED" || order.status === "PICKED_UP"
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                ? "bg-success-subtle border-success text-success"
                 : "bg-card border-border/40 text-foreground"
           )}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-black uppercase tracking-wider">
+              <span className="text-sm font-bold">
                 {isRejected
                   ? "Order Cancelled / Rejected"
                   : order.status === "DELIVERED" || order.status === "PICKED_UP"
-                    ? "Order Completed 🎉"
+                    ? "Order Completed"
                     : "Order in Progress"}
               </span>
             </div>
@@ -138,7 +138,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
           </div>
 
           {order.rejectionReason && (
-            <p className="text-xs font-semibold text-rose-500 bg-rose-500/15 p-2.5 rounded-xl">
+            <p className="text-xs font-semibold text-danger bg-danger-subtle p-2.5 rounded-xl">
               Reason: {order.rejectionReason}
             </p>
           )}
@@ -157,7 +157,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
                       <div
                         className={cn(
                           "absolute left-3 top-6 w-0.5 h-7",
-                          idx < activeStepNum ? "bg-emerald-500" : "bg-border/50"
+                          idx < activeStepNum ? "bg-success" : "bg-border/50"
                         )}
                       />
                     )}
@@ -165,11 +165,11 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
                     {/* Step Icon / Dot */}
                     <div
                       className={cn(
-                        "size-6 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-bold transition-all",
+                        "size-6 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-bold transition-colors",
                         isCurrent
-                          ? "bg-emerald-500 text-black ring-4 ring-emerald-500/20 animate-pulse"
+                          ? "bg-success text-black ring-4 ring-success animate-pulse"
                           : isPassed
-                            ? "bg-emerald-500 text-black"
+                            ? "bg-success text-black"
                             : "bg-muted text-muted-foreground border border-border/50"
                       )}
                     >
@@ -213,7 +213,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
             {order.merchant?.phone && (
               <a
                 href={`tel:${order.merchant.phone}`}
-                className="flex size-9 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 transition-colors cursor-pointer"
+                className="flex size-9 items-center justify-center rounded-full bg-success-subtle text-success hover:bg-success-subtle transition-colors cursor-pointer"
                 title="Call Merchant"
               >
                 <Phone className="size-4" />
@@ -224,7 +224,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
 
         {/* ─── Ordered Items Breakdown ─── */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-bold text-muted-foreground">
             Order Items ({order.items?.length || 0})
           </h3>
 
@@ -236,7 +236,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
                     {item.quantity} × {item.productNameSnapshot}
                   </p>
                   {item.selectedAddons && item.selectedAddons.length > 0 && (
-                    <p className="text-[10px] text-emerald-500 font-medium mt-0.5">
+                    <p className="text-[10px] text-success font-medium mt-0.5">
                       + {item.selectedAddons.map((a: any) => a.name).join(", ")}
                     </p>
                   )}
@@ -260,7 +260,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
                 Total ({order.paymentMethod === "RAZORPAY" ? "Online" : order.paymentMethod}
                 {order.paymentStatus === "PAID" ? " · Paid" : ""})
               </span>
-              <span className="text-base text-emerald-500">₹{order.total.toLocaleString("en-IN")}</span>
+              <span className="text-base text-success">₹{order.total.toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>
@@ -268,12 +268,12 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
         {/* ─── Delivery Details Card ─── */}
         {order.deliveryAddress && (
           <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-2 text-xs shadow-xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-bold text-muted-foreground">
               Fulfillment Details
             </h3>
             {order.deliveryAddress.hostelName && (
               <p className="text-foreground font-semibold flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-rose-500" />
+                <MapPin className="size-3.5 text-danger" />
                 <span>
                   {order.deliveryAddress.hostelName}, Room {order.deliveryAddress.roomNumber}
                 </span>

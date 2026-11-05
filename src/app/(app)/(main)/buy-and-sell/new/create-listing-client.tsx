@@ -232,7 +232,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
             <div
               key={s.step}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
+                "h-1.5 rounded-full transition-colors duration-300",
                 s.step === currentStep
                   ? "w-6 bg-primary"
                   : s.step < currentStep
@@ -268,7 +268,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
                     haptics.light();
                   }}
                   className={cn(
-                    "flex items-start gap-3.5 p-4 rounded-2xl border text-left transition-all",
+                    "flex items-start gap-3.5 p-4 rounded-2xl border text-left transition-colors",
                     isSelected
                       ? "border-primary bg-primary/10 shadow-xs"
                       : "border-border/50 bg-card hover:border-border hover:bg-muted/30"
@@ -312,7 +312,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-foreground block mb-1.5">
                 Item Title *
               </label>
               <input
@@ -327,7 +327,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-foreground block mb-1.5">
                   Selling Price (₹) *
                 </label>
                 <div className="relative">
@@ -345,7 +345,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-muted-foreground block mb-1.5">
                   Original MRP (₹) <span className="font-normal lowercase">optional</span>
                 </label>
                 <div className="relative">
@@ -364,14 +364,14 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
             </div>
 
             {discountPercent ? (
-              <div className="rounded-xl bg-emerald-500/10 p-3 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                ✨ {discountPercent}% discount vs original price!
+              <div className="rounded-xl bg-success-subtle p-3 text-xs font-bold text-success">
+                {discountPercent}% discount vs original price!
               </div>
             ) : null}
 
             {/* Condition Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+              <label className="text-xs font-bold text-foreground block">
                 Condition
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -381,7 +381,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
                     type="button"
                     onClick={() => setCondition(c.id)}
                     className={cn(
-                      "p-3 rounded-xl border text-left transition-all",
+                      "p-3 rounded-xl border text-left transition-colors",
                       condition === c.id
                         ? "border-primary bg-primary/10 shadow-xs"
                         : "border-border/50 bg-card hover:bg-muted/30"
@@ -433,11 +433,11 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-foreground block mb-1.5">
                 Pickup Location *
               </label>
               <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-rose-500" />
+                <MapPin className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-danger" />
                 <input
                   type="text"
                   value={hostelLocation}
@@ -475,7 +475,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-foreground block mb-1.5">
                 Description / Notes <span className="font-normal lowercase text-muted-foreground">(optional)</span>
               </label>
               <textarea
@@ -547,7 +547,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
                   type="button"
                   disabled={isUploadingImage}
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex aspect-square flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-all cursor-pointer"
+                  className="flex aspect-square flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors cursor-pointer"
                 >
                   {isUploadingImage ? (
                     <Loader2 className="size-6 animate-spin text-primary" />
@@ -563,7 +563,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
             </div>
 
             <div className="rounded-xl border border-border/40 bg-muted/20 p-3 text-xs text-muted-foreground">
-              💡 Tip: Take photos in good lighting showing any accessories or proof of purchase.
+              Tip: Take photos in good lighting showing any accessories or proof of purchase.
             </div>
           </div>
 
@@ -629,14 +629,14 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
                   <h3 className="text-base font-bold text-foreground leading-snug">{title}</h3>
 
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 font-semibold text-rose-500">
+                    <span className="inline-flex items-center gap-1 font-semibold text-danger">
                       <MapPin className="size-3" />
                       {hostelLocation}
                     </span>
                     <span>•</span>
                     <span className="font-semibold text-foreground/80">{category}</span>
                     <span>•</span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="font-semibold text-success">
                       {condition.replace("_", " ")}
                     </span>
                   </div>
@@ -659,7 +659,7 @@ export function CreateListingClient({ profileId }: CreateListingClientProps) {
               type="button"
               disabled={isSubmitting}
               onClick={handlePublish}
-              className="font-bold h-11 px-8 gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
+              className="font-bold h-11 px-8 gap-2 bg-success hover:bg-success text-white shadow-sm"
             >
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" />

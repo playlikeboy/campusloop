@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { DocsHubClient } from "@/components/docs/docs-hub-client";
-import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketing/system";
+import { CTABand } from "@/components/marketing/system";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { DOCS_FEATURES } from "@/lib/docs-features";
 
 export const metadata: Metadata = {
-  title: "CampusLoop Engineering Docs — Viral Architecture Teardowns",
+  title: "Engineering Docs · CampusLoop",
   description:
-    "Thirteen deep-dive engineering essays on how CampusLoop works: anonymous confessions, campus feed ranking, secret crush escrow, ungameable polls, student marketplace, and Twitter/X design system architecture.",
+    "Twelve engineering essays on how CampusLoop works: anonymous confessions, campus feed ranking, Secret Crush, polls, the student marketplace and verification.",
   keywords: [
     "CampusLoop docs",
     "CampusLoop architecture",
@@ -18,9 +19,8 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "https://campusloop.space/docs" },
   openGraph: {
-    title: "CampusLoop Engineering Docs — Viral Architecture Teardowns",
-    description:
-      "Thirteen deep-dive engineering essays on campus networks, accountable anonymity, and cryptographic verification.",
+    title: "Engineering Docs · CampusLoop",
+    description: "Twelve engineering essays on campus networks, accountable anonymity and verification.",
     url: "https://campusloop.space/docs",
     siteName: "CampusLoop",
     locale: "en_IN",
@@ -36,9 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CampusLoop Engineering Docs — Viral Architecture Teardowns",
-    description:
-      "Twelve deep-dive engineering essays on campus networks, accountable anonymity, and cryptographic verification.",
+    title: "Engineering Docs · CampusLoop",
+    description: "Twelve engineering essays on campus networks, accountable anonymity and verification.",
     images: ["https://campusloop.space/og-image.png"],
   },
   robots: { index: true, follow: true },
@@ -51,7 +50,7 @@ export default async function DocsHubPage() {
     "@type": "CollectionPage",
     name: "CampusLoop Architecture & Engineering Documentation",
     url: "https://campusloop.space/docs",
-    description: "Thirteen deep-dive engineering essays explaining every CampusLoop subsystem.",
+    description: "Engineering essays explaining each CampusLoop subsystem.",
     publisher: { "@type": "Organization", name: "CampusLoop", url: "https://campusloop.space" },
     mainEntity: {
       "@type": "ItemList",
@@ -67,22 +66,13 @@ export default async function DocsHubPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <MarketingHeader isAuthenticated={!!user} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 pt-24 sm:pt-32 pb-20 space-y-12">
-          {/* Twitter / Grok Publication Heading */}
+      <MarketingShell>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 py-12 sm:py-16 space-y-12">
           <div className="space-y-4 max-w-3xl">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#1D9BF0]">
-              {"CAMPUSLOOP_ENGINEERING // ARCHITECTURAL_ESSAYS"}
-            </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.12]">
-              How CampusLoop works.
-              <br />
-              <span className="text-muted-foreground font-semibold">Zero marketing fluff.</span>
-            </h1>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              Thirteen deep-dive engineering teardowns on campus social networks, game theory of accountable
-              anonymity, ungameable polling math, Twitter/X design architecture, and cryptographic
+            <p className="text-sm font-semibold text-brand-text">Engineering docs</p>
+            <h1 className="text-4xl font-bold tracking-tight text-fg sm:text-5xl">How CampusLoop works.</h1>
+            <p className="text-base text-fg-muted leading-relaxed">
+              Engineering essays on campus social networks, accountable anonymity, polling, the marketplace and
               verification.
             </p>
           </div>
@@ -92,14 +82,13 @@ export default async function DocsHubPage() {
 
         <CTABand
           title="Read the architecture. Now see it live."
-          lede="Every feature detailed here is running on real campuses today, gatekept by university email."
-          primaryHref={user ? "/app" : "/sign-up"}
-          primaryLabel={user ? "Open campus timeline" : "Get verified"}
+          lede="Every feature described here is live at campusloop.space."
+          primaryHref={user ? "/feeds" : "/sign-up"}
+          primaryLabel={user ? "Open your feed" : "Join with college email"}
           secondaryHref="/colleges"
-          secondaryLabel="Explore colleges in viewer mode"
+          secondaryLabel="Find your college"
         />
-        <MarketingFooter />
-      </div>
+      </MarketingShell>
     </>
   );
 }

@@ -12,7 +12,7 @@ interface CodePenEmbedProps {
 export function CodePenEmbed({ embedUrl, penId, author, rawUrl }: CodePenEmbedProps) {
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-all hover:border-border"
+      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-ui hover:border-border"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between border-b border-border/30 bg-muted/40 px-3.5 py-1.5">

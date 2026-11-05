@@ -6,7 +6,7 @@ import { HubCreateClient } from "../../hub/new/hub-create-client";
 export const metadata: Metadata = {
   title: "List Flat / Roommate Opening",
   description: "Post student room vacancies, PG openings, and find verified college flatmates.",
-  alternates: { canonical: "https://campusloop.space/app/housing/new" },
+  alternates: { canonical: "https://campusloop.space/housing/new" },
 };
 
 export default async function NewHousingPage() {

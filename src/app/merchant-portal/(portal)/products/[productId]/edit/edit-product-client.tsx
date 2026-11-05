@@ -257,7 +257,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
           type="button"
           disabled={isDeleting}
           onClick={handleDeleteProduct}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-danger/30 text-danger hover:bg-danger-subtle text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Trash2 className="size-3.5" />
           <span>Delete Item</span>
@@ -270,7 +270,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Package className="size-4 text-primary" />
-              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+              <h2 className="text-xs font-bold text-foreground">
                 Item Photo &amp; Visual Preview
               </h2>
             </div>
@@ -338,7 +338,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
 
         {/* ─── Card 2: Core Details & Pricing ─── */}
         <div className="p-5 sm:p-6 rounded-3xl bg-card border border-border space-y-4 shadow-sm">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             Basic Information &amp; Pricing
           </h2>
 
@@ -403,9 +403,9 @@ export function EditProductClient({ productId }: EditProductClientProps) {
                       setCategoryName(sec);
                     }}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer",
+                      "px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors cursor-pointer",
                       categoryName === sec
-                        ? "bg-foreground text-background font-black"
+                        ? "bg-foreground text-background font-bold"
                         : "bg-muted/60 text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -432,7 +432,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
 
         {/* ─── Card 3: Food Attributes & Availability ─── */}
         <div className="p-5 sm:p-6 rounded-3xl bg-card border border-border space-y-4 shadow-sm">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             Item Attributes &amp; Stock Status
           </h2>
 
@@ -453,10 +453,10 @@ export function EditProductClient({ productId }: EditProductClientProps) {
                   setIsAvailable((prev) => !prev);
                 }}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer",
+                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer",
                   isAvailable
-                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                    : "bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                    ? "bg-success-subtle text-success border border-success/30"
+                    : "bg-danger-subtle text-danger border border-danger/30"
                 )}
               >
                 {isAvailable ? "In Stock" : "Sold Out"}
@@ -479,13 +479,13 @@ export function EditProductClient({ productId }: EditProductClientProps) {
                   setIsVeg((prev) => !prev);
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer border",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border",
                   isVeg
-                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                    : "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                    ? "bg-success-subtle border-success/30 text-success"
+                    : "bg-warning-subtle border-warning/30 text-warning"
                 )}
               >
-                <div className={cn("size-2 rounded-full", isVeg ? "bg-emerald-500" : "bg-amber-500")} />
+                <div className={cn("size-2 rounded-full", isVeg ? "bg-success" : "bg-warning")} />
                 <span>{isVeg ? "Veg" : "Non-Veg"}</span>
               </button>
             </div>
@@ -496,8 +496,8 @@ export function EditProductClient({ productId }: EditProductClientProps) {
         <div className="p-5 sm:p-6 rounded-3xl bg-card border border-border space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Zap className="size-4 text-amber-500" />
-              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+              <Zap className="size-4 text-warning" />
+              <h2 className="text-xs font-bold text-foreground">
                 Item Add-ons &amp; Customizations
               </h2>
             </div>
@@ -518,17 +518,17 @@ export function EditProductClient({ productId }: EditProductClientProps) {
                   className="flex items-center justify-between p-3 rounded-2xl bg-muted/40 border border-border text-xs font-bold"
                 >
                   <div className="flex items-center gap-2">
-                    <Check className="size-3.5 text-emerald-500 stroke-3" />
+                    <Check className="size-3.5 text-success stroke-3" />
                     <span className="text-foreground">{addon.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-black text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono font-bold text-success">
                       +₹{addon.price}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveAddon(index)}
-                      className="size-6 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 flex items-center justify-center cursor-pointer transition-colors"
+                      className="size-6 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-subtle flex items-center justify-center cursor-pointer transition-colors"
                       title="Remove add-on"
                     >
                       <X className="size-3.5" />
@@ -577,7 +577,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
 
           {/* Quick Preset Suggested Addon Chips */}
           <div className="space-y-1.5 pt-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="text-[10px] font-bold text-muted-foreground">
               Quick Suggestions
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -590,14 +590,14 @@ export function EditProductClient({ productId }: EditProductClientProps) {
                     disabled={isAdded}
                     onClick={() => handleAddAddon(sug)}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer",
+                      "px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer",
                       isAdded
                         ? "bg-muted/40 text-muted-foreground/50 border border-transparent cursor-not-allowed"
                         : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border border-border/50"
                     )}
                   >
                     <span>+ {sug.name}</span>
-                    <span className="font-mono text-emerald-600 dark:text-emerald-400">(₹{sug.price})</span>
+                    <span className="font-mono text-success">(₹{sug.price})</span>
                   </button>
                 );
               })}
@@ -610,7 +610,7 @@ export function EditProductClient({ productId }: EditProductClientProps) {
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-xs hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-xs hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-xl cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {isSaving ? (
               <>

@@ -130,7 +130,7 @@ function baseEmailTemplate({
               ${footerText || "You are receiving this because of activity on your verified CampusLoop account."}
             </p>
             <p style="margin: 0;">
-              &copy; ${currentYear} CampusLoop Inc. · The verified student network for higher education in India.
+              &copy; ${currentYear} CampusLoop · The verified student network for higher education in India.
               <br/>
               <a href="https://campusloop.space/safety">Safety</a> · <a href="https://campusloop.space/privacy">Privacy</a> · <a href="https://campusloop.space/contact">Contact</a>
             </p>
@@ -151,7 +151,7 @@ export function buildNotificationEmail({
   actorName,
   type,
   snippet,
-  actionUrl = "https://campusloop.space/app/notifications",
+  actionUrl = "https://campusloop.space/notifications",
 }: {
   recipientName: string;
   actorName: string;
@@ -245,10 +245,10 @@ export function buildWelcomeEmail({
     previewText: `Your student profile at ${collegeName} is verified. Welcome to CampusLoop!`,
     contentHtml,
     actionText: "Open Campus Feed",
-    actionUrl: "https://campusloop.space/app",
+    actionUrl: "https://campusloop.space/feeds",
   });
 
-  const text = `Welcome to CampusLoop, ${displayName}!\n\nYour student profile at ${collegeName} is verified.\n\nOpen your campus feed: https://campusloop.space/app`;
+  const text = `Welcome to CampusLoop, ${displayName}!\n\nYour student profile at ${collegeName} is verified.\n\nOpen your campus feed: https://campusloop.space/feeds`;
 
   return { subject, html, text };
 }

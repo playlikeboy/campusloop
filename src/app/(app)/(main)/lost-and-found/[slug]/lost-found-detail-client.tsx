@@ -75,7 +75,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
         </div>
         <Link
           href="/lost-and-found"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-colors shadow-xs"
         >
           <ArrowLeft className="size-3.5" />
           <span>Return to Lost &amp; Found Hub</span>
@@ -149,7 +149,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col min-h-screen pb-28 border-x border-border/20 bg-background text-foreground select-none">
       {/* ─── Sticky Header ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
@@ -160,10 +160,10 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
             <ArrowLeft className="size-4" />
           </button>
           <div className="min-w-0">
-            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
               <span>{item.category}</span>
               <span>•</span>
-              <span className={isLost ? "text-rose-500 font-bold" : "text-emerald-500 font-bold"}>
+              <span className={isLost ? "text-danger font-bold" : "text-success font-bold"}>
                 {isLost ? "Lost Item" : "Found Item"}
               </span>
             </span>
@@ -173,9 +173,10 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
 
         <div className="flex items-center gap-2 shrink-0">
           <button
+            aria-label="Share recovery link"
             type="button"
             onClick={handleShare}
-            className="flex size-9 items-center justify-center rounded-xl bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex size-9 min-h-11 min-w-11 items-center justify-center rounded-xl bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title="Share recovery link"
           >
             <Share2 className="size-4" />
@@ -205,12 +206,12 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
             <div className="absolute top-3 left-3">
               <span
                 className={cn(
-                  "rounded-xl px-3 py-1 text-xs font-black uppercase tracking-wider backdrop-blur-md shadow-xs",
+                  "rounded-xl px-3 py-1 text-xs font-bold backdrop-blur-sm shadow-xs",
                   item.isResolved
-                    ? "bg-slate-900/80 text-slate-300"
+                    ? "bg-surface-muted text-fg-muted"
                     : isLost
-                    ? "bg-rose-600 text-white"
-                    : "bg-emerald-600 text-white"
+                    ? "bg-danger text-white"
+                    : "bg-success text-white"
                 )}
               >
                 {item.isResolved ? "Resolved & Returned" : isLost ? "Lost Item" : "Found Item"}
@@ -218,7 +219,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
             </div>
             {item.reward && (
               <div className="absolute top-3 right-3">
-                <span className="rounded-xl px-3 py-1 text-xs font-black bg-amber-500 text-slate-950 backdrop-blur-md shadow-xs flex items-center gap-1.5">
+                <span className="rounded-xl px-3 py-1 text-xs font-black bg-warning text-fg backdrop-blur-sm shadow-xs flex items-center gap-1.5">
                   <Gift className="size-3.5" />
                   <span>Reward: {item.reward}</span>
                 </span>
@@ -229,7 +230,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
 
         {/* Status Alert if Resolved */}
         {item.isResolved && (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
+          <div className="rounded-2xl border border-success bg-success-subtle p-4 flex items-center gap-3 text-success">
             <CheckCircle2 className="size-5 shrink-0" />
             <div className="text-xs">
               <p className="font-bold">This item has been successfully resolved and returned!</p>
@@ -244,12 +245,12 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
             {!item.imageUrl && (
               <span
                 className={cn(
-                  "rounded-lg px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border shadow-2xs",
+                  "rounded-lg px-2.5 py-0.5 text-xs font-bold border shadow-2xs",
                   item.isResolved
                     ? "bg-muted text-muted-foreground border-border/50"
                     : isLost
-                    ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30"
-                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                    ? "bg-danger-subtle text-danger border-danger"
+                    : "bg-success-subtle text-success border-success"
                 )}
               >
                 {item.isResolved ? "Resolved" : isLost ? "Lost Item" : "Found Item"}
@@ -273,11 +274,11 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
           {/* Quick Specs Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="flex items-center gap-3 p-3 rounded-2xl border border-border/40 bg-card/60">
-              <div className="size-9 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+              <div className="size-9 rounded-xl bg-danger-subtle text-danger flex items-center justify-center shrink-0">
                 <MapPin className="size-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-bold text-muted-foreground">
                   Location on Campus
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">{item.location}</p>
@@ -289,7 +290,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
                 <Calendar className="size-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-bold text-muted-foreground">
                   Date Reported
                 </p>
                 <p className="text-xs font-bold text-foreground">
@@ -303,7 +304,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
         {/* Item Description */}
         {item.description && (
           <div className="space-y-2 rounded-2xl border border-border/40 bg-card/40 p-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-bold text-muted-foreground">
               Item Details &amp; Description
             </h3>
             <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
@@ -367,8 +368,8 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
                   className={cn(
                     "flex-1 sm:flex-initial h-10 px-5 rounded-full font-black text-xs gap-1.5 shadow-md",
                     isLost
-                      ? "bg-rose-600 hover:bg-rose-500 text-white"
-                      : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                      ? "bg-danger hover:bg-danger text-white"
+                      : "bg-success hover:bg-success text-white"
                   )}
                 >
                   <MessageCircle className="size-4" />
@@ -384,7 +385,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
                   disabled={isUpdatingStatus}
                   className="h-10 px-4 rounded-full font-bold text-xs gap-1.5"
                 >
-                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  <CheckCircle2 className="size-4 text-success" />
                   <span>{item.isResolved ? "Reopen" : "Mark Resolved"}</span>
                 </Button>
               )}
@@ -397,7 +398,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <Sparkles className="size-4 text-amber-500 animate-pulse" />
+                <Sparkles className="size-4 text-warning animate-pulse" />
                 <h3 className="text-sm font-black text-foreground tracking-tight">
                   Smart Similarity Matches &amp; Recovery
                 </h3>
@@ -412,8 +413,8 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
           {potentialMatches.length > 0 && (
             <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
               <div className="flex items-center gap-2">
-                <span className="flex size-2 rounded-full bg-emerald-500 animate-ping" />
-                <h4 className="text-xs font-black text-primary uppercase tracking-wider">
+                <span className="flex size-2 rounded-full bg-success animate-ping" />
+                <h4 className="text-xs font-bold text-primary">
                   High-Probability Matches ({potentialMatches.length})
                 </h4>
               </div>
@@ -422,25 +423,25 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
                   <Link
                     key={m.id}
                     href={`/lost-and-found/${m.slug || m.id}`}
-                    className="p-3.5 rounded-xl border border-border/40 bg-card hover:bg-muted/40 hover:border-primary/50 transition-all space-y-2 block"
+                    className="p-3.5 rounded-xl border border-border/40 bg-card hover:bg-muted/40 hover:border-primary/50 transition-colors space-y-2 block"
                   >
                     <div className="flex items-center justify-between text-[11px] font-bold">
                       <span
                         className={cn(
                           "px-2 py-0.5 rounded-md text-[10px] uppercase font-black",
-                          m.type === "LOST" ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
+                          m.type === "LOST" ? "bg-danger-subtle text-danger" : "bg-success-subtle text-success"
                         )}
                       >
                         {m.type === "LOST" ? "Lost" : "Found"}
                       </span>
-                      <span className="text-amber-500 text-[10px] font-bold">
+                      <span className="text-warning text-[10px] font-bold">
                         {m.similarityScore * 10}% Match
                       </span>
                     </div>
 
                     <p className="text-xs font-black text-foreground line-clamp-1">{m.title}</p>
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <MapPin className="size-3 text-rose-500" />
+                      <MapPin className="size-3 text-danger" />
                       <span className="truncate">{m.location}</span>
                     </p>
                   </Link>
@@ -452,7 +453,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
           {/* Similar Items in Same Category / Reports */}
           {similarReports.length > 0 && (
             <div className="space-y-2.5">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-muted-foreground">
                 Other Similar Reports on Campus
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -460,7 +461,7 @@ export function LostFoundDetailClient({ slug, currentProfileId, userCampusId }: 
                   <Link
                     key={s.id}
                     href={`/lost-and-found/${s.slug || s.id}`}
-                    className="p-3 rounded-xl border border-border/30 bg-card/60 hover:bg-card hover:border-border transition-all block space-y-1.5"
+                    className="p-3 rounded-xl border border-border/30 bg-card/60 hover:bg-card hover:border-border transition-colors block space-y-1.5"
                   >
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold">
                       <span>{s.category}</span>

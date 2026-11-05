@@ -116,22 +116,20 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-md animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-lg rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl space-y-6 text-center overflow-hidden">
         {/* Ambient Glow */}
-        <div className="absolute -top-12 -right-12 size-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 size-48 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
 
         {/* ─── STAGE 2: CELEBRATION MOMENT ─── */}
         {journeyStats ? (
           <div className="space-y-6 py-4 relative z-10 animate-in zoom-in-95 duration-300">
             {/* Emblem */}
-            <div className="mx-auto size-20 rounded-3xl bg-linear-to-tr from-amber-500/20 via-primary/20 to-emerald-500/20 border border-primary/40 flex items-center justify-center shadow-lg">
+            <div className="mx-auto size-20 rounded-3xl bg-brand-subtle border border-brand-subtle-border flex items-center justify-center shadow-lg">
               <GraduationCap className="size-10 text-primary transition-transform duration-300 ease-out" />
             </div>
 
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success-subtle text-success border border-success">
                 <CheckCircle2 className="size-3.5" /> Verification Complete
               </span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
@@ -157,26 +155,26 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
             {/* What's Unlocked Grid */}
             <div className="grid grid-cols-2 gap-2 text-left text-xs text-muted-foreground pt-1">
               <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="size-3.5 text-success shrink-0" />
                 <span className="truncate">Student Feed &amp; Posts</span>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="size-3.5 text-success shrink-0" />
                 <span className="truncate">Campus Match Deck</span>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="size-3.5 text-success shrink-0" />
                 <span className="truncate">Direct Messaging</span>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="size-3.5 text-success shrink-0" />
                 <span className="truncate">Saved Vault Kept</span>
               </div>
             </div>
 
             <Button
               onClick={handleEnterCampus}
-              className="w-full h-12 text-sm font-black rounded-2xl bg-foreground text-background hover:opacity-90 transition-all gap-2 cursor-pointer shadow-lg"
+              className="w-full h-12 text-sm font-black rounded-2xl bg-foreground text-background hover:opacity-90 transition-[opacity,transform] gap-2 cursor-pointer shadow-lg"
             >
               <span>Enter Your Campus</span>
               <ArrowRight className="size-4" />
@@ -186,9 +184,10 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
           /* ─── STAGE 2: WAITING ON THE VERIFICATION LINK ─── */
           <div className="space-y-5 relative z-10">
             <button
+              aria-label="Close"
               type="button"
               onClick={onClose}
-              className="absolute -top-2 -right-2 size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 absolute -top-2 -right-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <X className="size-4" />
             </button>
@@ -236,9 +235,10 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
           /* ─── STAGE 1: EMAIL ENTRY ─── */
           <div className="space-y-5 relative z-10">
             <button
+              aria-label="Close"
               type="button"
               onClick={onClose}
-              className="absolute -top-2 -right-2 size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 absolute -top-2 -right-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <X className="size-4" />
             </button>
@@ -248,7 +248,7 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
             </div>
 
             <div className="space-y-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                 <GraduationCap className="size-3" /> Upgrade to Student Mode
               </span>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
@@ -271,7 +271,7 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
                     value={collegeEmail}
                     onChange={(e) => setCollegeEmail(e.target.value)}
                     placeholder="student@bitmesra.ac.in"
-                    className="w-full h-11 pl-10 pr-4 rounded-2xl bg-muted/40 border border-border/60 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-all"
+                    className="w-full h-11 pl-10 pr-4 rounded-2xl bg-muted/40 border border-border/60 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-colors"
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground">

@@ -165,7 +165,7 @@ export function CrushClient() {
   return (
     <div className="min-h-screen pb-24 text-foreground select-none max-w-2xl mx-auto px-4 pt-3 space-y-4">
       {/* ─── Sticky Minimal Top Header ─── */}
-      <div className="sticky top-12 lg:top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-xl border-b border-border/30 px-1 -mx-4 px-4">
+      <div className="sticky top-12 lg:top-0 z-30 flex items-center justify-between h-14 bg-background/85 backdrop-blur-sm border-b border-border/30 px-1 -mx-4 px-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -177,7 +177,7 @@ export function CrushClient() {
           <div>
             <h1 className="text-base font-black text-foreground tracking-tight flex items-center gap-2">
               <span>Secret Crush Vault</span>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+              <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
                 Safe &amp; Mutual
               </span>
             </h1>
@@ -191,7 +191,7 @@ export function CrushClient() {
           <button
             type="button"
             onClick={() => setShowSearchModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-all cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-[opacity,transform] cursor-pointer shadow-xs active:scale-95"
           >
             <Plus className="size-3.5 stroke-3" />
             <span>Add Crush</span>
@@ -201,15 +201,15 @@ export function CrushClient() {
 
       {/* ─── Anonymous Incoming Alert ─── */}
       {receivedCrushesCount > 0 && (
-        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
-          <Flame className="size-5 shrink-0 animate-pulse text-rose-500 fill-rose-500/20" />
+        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-crush-subtle border border-crush text-crush-text">
+          <Flame className="size-5 shrink-0 animate-pulse text-crush-text fill-crush" />
           <div className="min-w-0">
             <p className="text-xs font-bold leading-tight">
               {receivedCrushesCount === 1
                 ? "1 student on your campus secretly added you!"
                 : `${receivedCrushesCount} students on your campus secretly added you!`}
             </p>
-            <p className="text-[11px] text-rose-500/80">
+            <p className="text-[11px] text-crush-text">
               Fill your slots below to discover if the feeling is mutual.
             </p>
           </div>
@@ -218,11 +218,11 @@ export function CrushClient() {
 
       {/* ─── Loop Points Clout Expansion Banner ─── */}
       {slotProgress && !slotProgress.isExpanded && (
-        <div className="p-4 rounded-3xl bg-linear-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 text-amber-600 dark:text-amber-400 space-y-3">
+        <div className="p-4 rounded-3xl bg-reward-subtle border border-reward text-reward-text space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center">
-                <Zap className="size-4 fill-amber-500" />
+              <div className="size-8 rounded-xl bg-warning-subtle text-warning flex items-center justify-center">
+                <Zap className="size-4 fill-warning" />
               </div>
               <div>
                 <h3 className="text-xs font-black text-foreground">Expand Vault from 5 to 50 Slots</h3>
@@ -231,14 +231,14 @@ export function CrushClient() {
                 </p>
               </div>
             </div>
-            <span className="text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30">
+            <span className="text-xs font-bold bg-warning-subtle text-warning px-2.5 py-1 rounded-full border border-warning">
               {slotProgress.pointsNeeded} LP to 50 slots
             </span>
           </div>
 
-          <div className="w-full h-2 bg-amber-500/20 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-warning-subtle rounded-full overflow-hidden">
             <div
-              className="h-full bg-linear-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
+              className="h-full bg-reward rounded-full transition-colors duration-500"
               style={{ width: `${slotProgress.progressPercent}%` }}
             />
           </div>
@@ -251,13 +251,13 @@ export function CrushClient() {
       )}
 
       {slotProgress?.isExpanded && (
-        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400">
-          <div className="size-8 rounded-xl bg-violet-500/20 text-violet-500 flex items-center justify-center shrink-0">
+        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-brand-subtle border border-brand text-brand-text">
+          <div className="size-8 rounded-xl bg-brand-subtle text-brand-text flex items-center justify-center shrink-0">
             <Crown className="size-4" />
           </div>
           <div>
             <p className="text-xs font-black text-foreground">Vault Expanded to 50 Slots</p>
-            <p className="text-[11px] text-violet-600/80 dark:text-violet-400/80">
+            <p className="text-[11px] text-brand-text">
               Gold Star verified clout unlocked. You have access to the maximum 50 secret crush slots.
             </p>
           </div>
@@ -279,7 +279,7 @@ export function CrushClient() {
               return (
                 <div
                   key={`empty-${slotNumber}`}
-                  className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-border/60 bg-muted/10 hover:bg-muted/20 transition-all"
+                  className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-border/60 bg-muted/10 hover:bg-muted/20 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <span className="flex size-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground text-xs font-black">
@@ -308,10 +308,10 @@ export function CrushClient() {
             return (
               <div
                 key={slot.id}
-                className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-border/50 bg-card hover:border-border transition-all shadow-xs"
+                className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-border/50 bg-card hover:border-border transition-colors shadow-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 text-xs font-black shrink-0">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-crush-subtle text-crush-text text-xs font-black shrink-0">
                     {slotNumber}
                   </span>
 
@@ -343,7 +343,7 @@ export function CrushClient() {
                   {slot.isMutual ? (
                     <Link
                       href={`/chat?userId=${slot.targetId}`}
-                      className="px-3.5 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 shadow-2xs transition-transform active:scale-95"
+                      className="px-3.5 py-1.5 rounded-full bg-success hover:bg-success text-white text-xs font-black flex items-center gap-1.5 shadow-2xs transition-transform active:scale-95"
                     >
                       <MessageSquare className="size-3" />
                       <span>Chat</span>
@@ -359,7 +359,7 @@ export function CrushClient() {
                     type="button"
                     disabled={removingId === slot.id}
                     onClick={() => handleRemoveCrush(slot.id)}
-                    className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer disabled:opacity-50"
+                    className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-crush-text transition-colors cursor-pointer disabled:opacity-50"
                     title="Remove from vault"
                   >
                     {removingId === slot.id ? (
@@ -423,7 +423,7 @@ export function CrushClient() {
                 placeholder="Search classmate name or @username..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full h-10 pl-10 pr-3 rounded-2xl border border-border/60 bg-background text-xs font-semibold placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-all"
+                className="w-full h-10 pl-10 pr-3 rounded-2xl border border-border/60 bg-background text-xs font-semibold placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-colors"
                 autoFocus
               />
             </div>
@@ -455,9 +455,9 @@ export function CrushClient() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleAddCrush(u.id)}
-                      className="px-3.5 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 text-xs font-black shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                      className="px-3.5 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 text-xs font-black shadow-xs active:scale-95 transition-[opacity,transform] flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
                     >
-                      <Heart className="size-3 fill-rose-500 text-rose-500" />
+                      <Heart className="size-3 fill-crush text-crush-text" />
                       <span>Lock In</span>
                     </button>
                   </div>

@@ -253,7 +253,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
                 type="button"
                 onClick={() => handleScopeChange("GLOBAL")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer",
                   scope === "GLOBAL"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -266,7 +266,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
                 type="button"
                 onClick={() => handleScopeChange("CAMPUS")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer",
                   scope === "CAMPUS"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -375,7 +375,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
                     setSelectedGroup(group.id);
                   }}
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border",
+                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-ui cursor-pointer border",
                     isGroupActive
                       ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
                       : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/40"
@@ -394,7 +394,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
               type="button"
               onClick={() => handleCategoryChange("ALL")}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer",
+                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-ui cursor-pointer",
                 selectedCategory === "ALL"
                   ? "bg-primary text-primary-foreground border-primary shadow-xs"
                   : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"
@@ -416,7 +416,7 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
                   type="button"
                   onClick={() => handleCategoryChange(cat.key)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-ui cursor-pointer",
                     isSelected
                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"

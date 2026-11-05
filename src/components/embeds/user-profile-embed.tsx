@@ -88,7 +88,7 @@ export function UserProfileEmbed({ username }: UserProfileEmbedProps) {
     <Link
       href={`/@${profile.username}`}
       onClick={(e) => e.stopPropagation()}
-      className="mt-3 block rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-all p-3.5 shadow-xs group"
+      className="mt-3 block rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-ui p-3.5 shadow-xs group"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -123,7 +123,7 @@ export function UserProfileEmbed({ username }: UserProfileEmbedProps) {
           size="sm"
           onClick={handleToggleFollow}
           disabled={isMutating}
-          className={`h-8 px-3.5 text-xs font-black rounded-full shrink-0 transition-all cursor-pointer ${
+          className={`h-8 px-3.5 text-xs font-black rounded-full shrink-0 transition-ui cursor-pointer ${
             isFollowing
               ? "bg-muted hover:bg-destructive/10 hover:text-destructive text-foreground border border-border/60"
               : "bg-foreground text-background hover:opacity-90 shadow-2xs"

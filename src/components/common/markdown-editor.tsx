@@ -186,7 +186,7 @@ export function MarkdownEditor({
               type="button"
               onClick={() => setTab(t)}
               className={cn(
-                "flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black transition-all",
+                "flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black transition-ui",
                 tab === t
                   ? "bg-background text-foreground shadow-2xs"
                   : "text-muted-foreground hover:text-foreground"

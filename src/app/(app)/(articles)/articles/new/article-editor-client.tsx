@@ -365,13 +365,13 @@ export function ArticleEditorClient({
               )}
               {saveStatus === "saved" && (
                 <span className="flex items-center gap-1 text-muted-foreground">
-                  <Check className="size-3 text-emerald-500" />
+                  <Check className="size-3 text-success" />
                   <span>Saved</span>
                 </span>
               )}
               {saveStatus === "unsaved" && <span className="text-muted-foreground/70">Unsaved changes</span>}
               {saveStatus === "error" && (
-                <span className="flex items-center gap-1 text-amber-500">
+                <span className="flex items-center gap-1 text-warning">
                   <AlertCircle className="size-3" />
                   <span>Draft saved locally</span>
                 </span>
@@ -387,7 +387,7 @@ export function ArticleEditorClient({
               type="button"
               onClick={() => setActiveTab("write")}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
+                "px-3 py-1 rounded-full text-xs font-semibold transition-ui cursor-pointer",
                 activeTab === "write"
                   ? "bg-background text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -399,7 +399,7 @@ export function ArticleEditorClient({
               type="button"
               onClick={() => setActiveTab("preview")}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                "px-3 py-1 rounded-full text-xs font-semibold transition-ui cursor-pointer flex items-center gap-1",
                 activeTab === "preview"
                   ? "bg-background text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"

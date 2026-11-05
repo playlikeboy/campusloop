@@ -171,6 +171,9 @@ export async function GET(req: Request) {
     const list = await db.query.events.findMany({
       where: whereClause,
       orderBy: [desc(events.startDate)],
+      // Sorting and status filtering happen in memory below, so fetch a bounded
+      // superset rather than the whole table.
+      limit: 500,
       with: {
         organizer: {
           columns: {

@@ -260,7 +260,7 @@ export function CampusAiClient() {
       {/* Header Bar */}
       <div className="mb-6 flex items-center justify-between border-b border-border/40 pb-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs font-black text-muted-foreground">
             <Zap className="size-3.5 text-primary" />
             <span>Campus AI</span>
           </div>
@@ -272,14 +272,14 @@ export function CampusAiClient() {
           type="button"
           onClick={toggleLiveTalking}
           className={cn(
-            "flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-black transition-all cursor-pointer shadow-xs",
+            "flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-black transition-colors cursor-pointer shadow-xs",
             isLiveTalkingOpen
               ? "border-primary bg-primary text-primary-foreground animate-pulse"
               : "border-border/70 bg-card hover:bg-muted text-foreground"
           )}
           title="Talk to Campus AI"
         >
-          <Radio className="size-3.5 text-rose-500 animate-pulse" />
+          <Radio className="size-3.5 text-danger animate-pulse" />
           <span>Live Voice</span>
         </button>
       </div>
@@ -293,7 +293,7 @@ export function CampusAiClient() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
               </span>
-              <span className="text-xs font-black uppercase tracking-wider text-foreground">
+              <span className="text-xs font-black text-foreground">
                 Live Talking AI
               </span>
             </div>
@@ -327,9 +327,9 @@ export function CampusAiClient() {
             {/* Visual Speech Pulse Ring */}
             <div
               className={cn(
-                "relative flex size-24 items-center justify-center rounded-full transition-all duration-500",
+                "relative flex size-24 items-center justify-center rounded-full transition-colors duration-500",
                 isListening
-                  ? "bg-rose-500/20 scale-110 shadow-lg shadow-rose-500/30"
+                  ? "bg-danger/20 scale-110 shadow-lg"
                   : isSpeaking
                     ? "bg-primary/20 scale-105 shadow-lg shadow-primary/30"
                     : "bg-muted/60"
@@ -337,9 +337,9 @@ export function CampusAiClient() {
             >
               <div
                 className={cn(
-                  "size-14 rounded-full flex items-center justify-center text-white transition-all",
+                  "size-14 rounded-full flex items-center justify-center text-white transition-colors",
                   isListening
-                    ? "bg-rose-500 animate-pulse"
+                    ? "bg-danger animate-pulse"
                     : isSpeaking
                       ? "bg-primary animate-pulse"
                       : "bg-muted-foreground/30 text-foreground"
@@ -420,7 +420,7 @@ export function CampusAiClient() {
                       setMessage(item.prompt);
                       void ask(item.prompt, item.mode);
                     }}
-                    className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 text-left text-xs sm:text-sm font-semibold transition-all hover:bg-muted/50 cursor-pointer shadow-2xs"
+                    className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 text-left text-xs sm:text-sm font-semibold transition-colors hover:bg-muted/50 cursor-pointer shadow-2xs"
                   >
                     <div className="size-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
                       <Icon className="size-4 text-foreground" />
@@ -450,7 +450,7 @@ export function CampusAiClient() {
                 {/* Source Citations */}
                 {m.sources && m.sources.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-border/40 space-y-1.5">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <div className="text-[10px] font-black text-muted-foreground">
                       Sources & Discussions
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -505,7 +505,7 @@ export function CampusAiClient() {
                     onClick={() => handleFeedback(m.id, "helpful")}
                     className={cn(
                       "size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                      m.feedback === "helpful" && "text-emerald-500 bg-emerald-500/10"
+                      m.feedback === "helpful" && "text-success bg-success/10"
                     )}
                     title="Helpful response"
                   >
@@ -516,7 +516,7 @@ export function CampusAiClient() {
                     onClick={() => handleFeedback(m.id, "unhelpful")}
                     className={cn(
                       "size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                      m.feedback === "unhelpful" && "text-rose-500 bg-rose-500/10"
+                      m.feedback === "unhelpful" && "text-danger bg-danger/10"
                     )}
                     title="Unhelpful"
                   >
@@ -554,9 +554,9 @@ export function CampusAiClient() {
                 }
               }}
               className={cn(
-                "size-10 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0",
+                "size-10 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0",
                 isListening
-                  ? "bg-rose-500 text-white animate-pulse"
+                  ? "bg-danger text-white animate-pulse"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
               )}
               title="Voice Input"

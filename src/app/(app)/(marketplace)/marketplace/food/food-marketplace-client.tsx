@@ -109,9 +109,9 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-20">
       {/* ─── Zomato-Style Header Banner ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-rose-600 via-rose-500 to-amber-500 p-4 sm:p-6 text-white shadow-md">
+      <div className="relative rounded-3xl overflow-hidden bg-brand p-4 sm:p-6 text-brand-fg shadow-md">
         <div className="relative z-10 max-w-lg space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold">
             <Flame className="size-3.5 fill-white" />
             <span>Hostel Express Delivery</span>
           </div>
@@ -126,13 +126,13 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
       </div>
 
       {/* ─── Arman's Night Canteen Live Announcement Banner ─── */}
-      <div className="rounded-3xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-orange-500/15 p-4 sm:p-5 relative overflow-hidden shadow-xs">
+      <div className="rounded-3xl border border-brand-subtle-border bg-brand-subtle p-4 sm:p-5 relative overflow-hidden shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-warning-subtle text-warning text-xs font-bold">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-warning" />
               </span>
               <span>LIVE STARTING TODAY · NIGHT CANTEEN</span>
             </div>
@@ -151,7 +151,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
               sounds.tap();
               haptics.success();
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-foreground text-background text-xs font-black shadow-md hover:opacity-90 transition-all active:scale-95 shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-foreground text-background text-xs font-black shadow-md hover:opacity-90 transition-[opacity,transform] active:scale-95 shrink-0 cursor-pointer"
           >
             <span>Order from Arman&apos;s</span>
             <ChevronRight className="size-3.5" />
@@ -168,7 +168,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search momos, burgers, rolls, or canteens..."
-            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-rose-500 shadow-xs"
+            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-danger shadow-xs"
           />
         </div>
 
@@ -180,19 +180,19 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
             setPureVegOnly((prev) => !prev);
           }}
           className={cn(
-            "flex items-center justify-center gap-2 h-11 px-4 rounded-2xl border text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0",
+            "flex items-center justify-center gap-2 h-11 px-4 rounded-2xl border text-xs font-bold transition-colors cursor-pointer shadow-xs shrink-0",
             pureVegOnly
-              ? "bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+              ? "bg-success-subtle border-success text-success"
               : "bg-card border-border text-muted-foreground hover:text-foreground"
           )}
         >
           <div
             className={cn(
               "size-3 rounded-xs border-2 flex items-center justify-center",
-              pureVegOnly ? "border-emerald-500" : "border-muted-foreground"
+              pureVegOnly ? "border-success" : "border-muted-foreground"
             )}
           >
-            <div className={cn("size-1.5 rounded-full", pureVegOnly ? "bg-emerald-500" : "bg-transparent")} />
+            <div className={cn("size-1.5 rounded-full", pureVegOnly ? "bg-success" : "bg-transparent")} />
           </div>
           <span>Pure Veg</span>
         </button>
@@ -224,9 +224,9 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                 setSelectedTag(tag.id);
               }}
               className={cn(
-                "px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
+                "px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 border",
                 isActive
-                  ? "bg-rose-500 text-white border-rose-500 shadow-sm"
+                  ? "bg-danger text-white border-danger shadow-sm"
                   : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
               )}
             >
@@ -239,7 +239,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
       {/* ─── 1. Campus Canteens & Outlets (Zomato-Style Cards) ─── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-foreground">
             Campus Canteens &amp; Outlets ({filteredStores.length})
           </h2>
           <span className="text-xs text-muted-foreground font-medium">Delivered to Hostel Gates</span>
@@ -269,7 +269,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                     sounds.tap();
                     haptics.light();
                   }}
-                  className="group block rounded-3xl border border-border bg-card hover:border-rose-500/40 hover:shadow-lg transition-all overflow-hidden"
+                  className="group block rounded-3xl border border-border bg-card hover:border-danger hover:shadow-lg transition-colors overflow-hidden"
                 >
                   {/* Store Cover Image with Badges */}
                   <div className="relative h-44 w-full bg-muted overflow-hidden">
@@ -286,26 +286,26 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
 
                     {!store.isOpen && (
                       <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center">
-                        <span className="px-3 py-1 rounded-full bg-rose-600 text-white font-black text-xs uppercase tracking-wider">
+                        <span className="px-3 py-1 rounded-full bg-danger text-white font-bold text-xs">
                           Closed Right Now
                         </span>
                       </div>
                     )}
 
                     {bestOffer && store.isOpen && (
-                      <div className="absolute left-3 bottom-3 flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-600 text-white text-[11px] font-black shadow-md">
+                      <div className="absolute left-3 bottom-3 flex items-center gap-1 px-2.5 py-1 rounded-xl bg-danger text-white text-[11px] font-black shadow-md">
                         <Percent className="size-3" />
                         <span>{bestOffer.title || "Special Campus Offer"}</span>
                       </div>
                     )}
 
-                    <div className="absolute right-3 top-3 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600 text-white text-xs font-black shadow-md">
+                    <div className="absolute right-3 top-3 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-success text-white text-xs font-black shadow-md">
                       <span>{store.rating || "4.8"}</span>
                       <Star className="size-3 fill-white" />
                     </div>
 
-                    <div className="absolute right-3 bottom-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[11px] font-bold">
-                      <Clock className="size-3 text-rose-400" />
+                    <div className="absolute right-3 bottom-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-[11px] font-bold">
+                      <Clock className="size-3 text-danger" />
                       <span>{store.estimatedPrepTime || "15–20 min"}</span>
                     </div>
                   </div>
@@ -314,9 +314,9 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                   <div className="p-4 space-y-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h3 className="text-base font-black text-foreground group-hover:text-rose-500 transition-colors flex items-center gap-1.5">
+                        <h3 className="text-base font-black text-foreground group-hover:text-danger transition-colors flex items-center gap-1.5">
                           <span>{store.name}</span>
-                          <ShieldCheck className="size-3.5 text-rose-500 shrink-0" />
+                          <ShieldCheck className="size-3.5 text-danger shrink-0" />
                         </h3>
                         <p className="text-xs text-muted-foreground line-clamp-1">
                           {store.description || store.address}
@@ -371,8 +371,8 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between px-1 border-t border-border/30 pt-5">
           <div>
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Zap className="size-4 text-amber-500" />
+            <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+              <Zap className="size-4 text-warning" />
               <span>All Dishes &amp; Quick Bites</span>
             </h2>
             <p className="text-[11px] text-muted-foreground">
@@ -405,7 +405,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
               return (
                 <div
                   key={product.id}
-                  className="group rounded-2xl border border-border bg-card hover:border-rose-500/30 hover:shadow-md transition-all p-3 flex flex-col justify-between"
+                  className="group rounded-2xl border border-border bg-card hover:border-danger hover:shadow-md transition-colors p-3 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     {/* Dish Image + Veg Badge */}
@@ -422,20 +422,20 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                         <span
                           className={cn(
                             "size-4 rounded-xs border-2 flex items-center justify-center bg-card/90 shadow-xs",
-                            product.isVeg ? "border-emerald-500" : "border-rose-500"
+                            product.isVeg ? "border-success" : "border-danger"
                           )}
                         >
                           <span
                             className={cn(
                               "size-2 rounded-full",
-                              product.isVeg ? "bg-emerald-500" : "bg-rose-500"
+                              product.isVeg ? "bg-success" : "bg-danger"
                             )}
                           />
                         </span>
                       </div>
 
                       {product.isPopular && (
-                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-warning text-white text-xs font-bold shadow-xs">
                           Bestseller
                         </div>
                       )}
@@ -443,7 +443,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
 
                     {/* Dish Info */}
                     <div>
-                      <h4 className="text-sm font-black text-foreground line-clamp-1 group-hover:text-rose-500 transition-colors">
+                      <h4 className="text-sm font-black text-foreground line-clamp-1 group-hover:text-danger transition-colors">
                         {product.name}
                       </h4>
                       {product.description && (
@@ -460,9 +460,9 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                         sounds.tap();
                         haptics.light();
                       }}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/80 hover:bg-muted text-[10px] font-bold text-foreground/80 hover:text-rose-500 transition-colors border border-border/50 truncate max-w-full"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/80 hover:bg-muted text-[10px] font-bold text-foreground/80 hover:text-danger transition-colors border border-border/50 truncate max-w-full"
                     >
-                      <MapPin className="size-2.5 text-rose-500 shrink-0" />
+                      <MapPin className="size-2.5 text-danger shrink-0" />
                       <span className="truncate">{product.storeName}</span>
                     </Link>
                   </div>
@@ -479,7 +479,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                     </div>
 
                     {qty > 0 ? (
-                      <div className="flex items-center gap-1.5 bg-rose-500 text-white rounded-xl px-1.5 py-0.5 shadow-sm">
+                      <div className="flex items-center gap-1.5 bg-danger text-white rounded-xl px-1.5 py-0.5 shadow-sm">
                         <button
                           type="button"
                           onClick={() => {
@@ -523,7 +523,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                             quantity: 1,
                           });
                         }}
-                        className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500 text-rose-600 dark:text-rose-400 hover:text-white text-xs font-black transition-all cursor-pointer active:scale-95 shadow-2xs"
+                        className="px-3.5 py-1.5 rounded-xl border border-danger bg-danger-subtle hover:bg-danger text-danger hover:text-white text-xs font-black transition-[opacity,transform] cursor-pointer active:scale-95 shadow-2xs"
                       >
                         ADD +
                       </button>
@@ -549,7 +549,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
                 haptics.light();
                 setProductPage((prev) => prev + 1);
               }}
-              className="px-6 py-2.5 rounded-2xl bg-card border border-border hover:bg-muted text-xs font-black text-foreground shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="px-6 py-2.5 rounded-2xl bg-card border border-border hover:bg-muted text-xs font-black text-foreground shadow-xs transition-[opacity,transform] active:scale-95 cursor-pointer"
             >
               Load More Dishes
             </button>
@@ -558,10 +558,10 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
       </div>
 
       {/* ─── Campus Onboarding & Expansion Banner (Instagram Highlighted) ─── */}
-      <div className="rounded-3xl border border-pink-500/30 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 p-5 relative overflow-hidden">
+      <div className="rounded-3xl border border-brand-subtle-border bg-brand-subtle p-5 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-400 text-[10px] font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-subtle text-brand-text text-xs font-bold">
               <span className="inline-flex items-center gap-1">
                 <Sparkles className="size-3" /> Want this at your campus?
               </span>
@@ -578,7 +578,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
             href="https://www.instagram.com/campusloop.space/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
           >
             <InstagramIcon className="size-3.5" />
             <span>DM @campusloop.space</span>
@@ -591,7 +591,7 @@ export function FoodMarketplaceClient({ profileId, collegeName = "Campus Hub" }:
         <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-0 right-0 z-50 p-4 pointer-events-none flex justify-center">
           <Link
             href="/marketplace/checkout"
-            className="pointer-events-auto flex items-center justify-between gap-4 w-full max-w-md px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-amber-500 text-white shadow-xl hover:shadow-2xl transition-all active:scale-95"
+            className="pointer-events-auto flex items-center justify-between gap-4 w-full max-w-md px-5 py-3 rounded-2xl bg-brand hover:bg-brand-hover text-brand-fg shadow-lg transition-[opacity,transform] active:scale-95"
           >
             <div className="flex items-center gap-2.5">
               <div className="size-8 rounded-xl bg-white/20 flex items-center justify-center font-black text-xs">

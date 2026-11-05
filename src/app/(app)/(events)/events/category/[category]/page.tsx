@@ -33,7 +33,7 @@ const CATEGORY_MAP: Record<
   fests: {
     title: "College Fests 2026 | Tech, Cultural & Sports Expos in India",
     headline: "Annual College Fests & Expos",
-    description: "Discover upcoming annual cultural nights, technical fests, concert passes, and campus expos across 1,350+ Indian colleges.",
+    description: "Discover upcoming annual cultural nights, technical fests, concert passes, and campus expos across Indian colleges.",
     keywords: ["college fests India", "cultural fest", "tech fest", "university concert passes"],
     canonicalCategory: "fests",
   },
@@ -72,12 +72,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const config = CATEGORY_MAP[category.toLowerCase()];
 
   if (!config) {
-    return { title: "Campus Opportunities | CampusLoop" };
+    return { title: "Campus Opportunities" };
   }
 
   const canonical = `https://campusloop.space/events/category/${category.toLowerCase()}`;
   return {
-    title: `${config.title} — CampusLoop`,
+    title: `${config.title}`,
     description: config.description,
     alternates: { canonical },
     keywords: config.keywords,

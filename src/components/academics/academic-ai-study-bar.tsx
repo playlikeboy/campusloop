@@ -93,7 +93,7 @@ export function AcademicAiStudyBar({
         <button
           type="button"
           onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer active:scale-95"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer active:scale-95"
           title="Study this material with ChatGPT"
         >
           <ChatGptIcon className="size-3.5" />
@@ -104,7 +104,7 @@ export function AcademicAiStudyBar({
         <button
           type="button"
           onClick={() => handleOpenAi(claudeUrl, "Claude")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition-all cursor-pointer active:scale-95"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer active:scale-95"
           title="Study this material with Claude"
         >
           <ClaudeIcon className="size-3.5" />
@@ -115,10 +115,10 @@ export function AcademicAiStudyBar({
         <button
           type="button"
           onClick={handleCopy}
-          className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+          className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
           title="Copy master study prompt"
         >
-          {copied ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+          {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
         </button>
       </div>
     );
@@ -159,7 +159,7 @@ export function AcademicAiStudyBar({
         <button
           type="button"
           onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-foreground text-background font-bold text-xs sm:text-sm hover:opacity-90 active:scale-98 transition-all cursor-pointer shadow-xs"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-foreground text-background font-bold text-xs sm:text-sm hover:opacity-90 active:scale-98 transition-ui cursor-pointer shadow-xs"
         >
           <ChatGptIcon className="size-4 shrink-0" />
           <span>Study on ChatGPT</span>
@@ -169,7 +169,7 @@ export function AcademicAiStudyBar({
         <button
           type="button"
           onClick={() => handleOpenAi(claudeUrl, "Claude")}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border/50 font-bold text-xs sm:text-sm active:scale-98 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border/50 font-bold text-xs sm:text-sm active:scale-98 transition-ui cursor-pointer"
         >
           <ClaudeIcon className="size-4 shrink-0" />
           <span>Study on Claude</span>
@@ -195,8 +195,8 @@ export function AcademicAiStudyBar({
         >
           {copied ? (
             <>
-              <Check className="size-3.5 text-emerald-400" />
-              <span className="text-emerald-400">Copied</span>
+              <Check className="size-3.5 text-success" />
+              <span className="text-success">Copied</span>
             </>
           ) : (
             <>

@@ -39,7 +39,7 @@ export function DocToc({ sections }: { sections: DocSectionRef[] }) {
   return (
     <nav aria-label="On this page" className="space-y-1.5 p-3 rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-2xs">
       <p className="px-2 pb-2 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground flex items-center gap-1.5">
-        <span className="size-1.5 rounded-full bg-[#22c55e]" />
+        <span className="size-1.5 rounded-full bg-brand" />
         <span>Document Index</span>
       </p>
       {sections.map((section, idx) => {
@@ -53,7 +53,7 @@ export function DocToc({ sections }: { sections: DocSectionRef[] }) {
               haptics.light();
             }}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-ui cursor-pointer",
               isActive
                 ? "bg-primary/10 text-primary border border-primary/20 shadow-xs"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -85,7 +85,7 @@ export function LegalDocHeader({
     <header className="pb-8">
       {eyebrow && (
         <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-4 shadow-2xs">
-          <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+          <span className="size-1.5 rounded-full bg-brand" />
           <span>{eyebrow}</span>
         </div>
       )}
@@ -127,7 +127,7 @@ export function DocSection({
   return (
     <section
       id={id}
-      className="scroll-mt-32 rounded-3xl border border-border/70 bg-card/75 backdrop-blur-sm p-6 sm:p-8 shadow-xs space-y-4 mb-6 transition-all hover:border-primary/30"
+      className="scroll-mt-32 rounded-3xl border border-border/70 bg-card/75 backdrop-blur-sm p-6 sm:p-8 shadow-xs space-y-4 mb-6 transition-ui hover:border-primary/30"
     >
       <div className="flex items-center gap-3 border-b border-border/40 pb-3">
         {number !== undefined && (
@@ -146,11 +146,11 @@ export function DocSection({
   );
 }
 
-/** Cute voxel aside callout card with green/amber highlights. */
+/** Callout aside for notes inside a legal document. */
 export function DocNote({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border-2 border-emerald-500/25 bg-emerald-500/5 p-4 sm:p-5 flex items-start gap-3 text-xs sm:text-sm text-foreground shadow-2xs leading-relaxed">
-      <ShieldAlert className="size-4.5 text-[#16a34a] shrink-0 mt-0.5" />
+    <div className="rounded-lg border border-border bg-surface-muted p-4 sm:p-5 flex items-start gap-3 text-sm text-fg leading-relaxed">
+      <ShieldAlert className="size-4.5 text-brand-text shrink-0 mt-0.5" />
       <div className="flex-1">{children}</div>
     </div>
   );

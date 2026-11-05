@@ -67,7 +67,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       description: snippet,
       images: ["https://campusloop.space/og-image.png"],
     },
-    robots: post.isSeeded || post.status !== "PUBLISHED" ? { index: false, follow: false } : { index: true, follow: true },
+    // Anonymous posts and confessions stay out of search engines regardless of status.
+    robots:
+      post.isSeeded ||
+      post.status !== "PUBLISHED" ||
+      post.isAnonymous ||
+      post.type === "ANONYMOUS" ||
+      post.type === "CONFESSION"
+        ? { index: false, follow: false }
+        : { index: true, follow: true },
   };
 }
 

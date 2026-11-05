@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `c/${comm.name} Settings & Moderation | CampusLoop`,
+    title: `c/${comm.name} Settings & Moderation`,
     description: `Manage privacy, anonymous posting permissions, and guidelines for c/${comm.name}.`,
     robots: { index: false, follow: false },
   };

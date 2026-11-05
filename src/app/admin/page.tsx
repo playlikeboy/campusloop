@@ -29,7 +29,7 @@ function Queue({ title, icon: Icon, count, href, empty, children }: { title: str
         <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">Open <ArrowRight className="size-3.5" aria-hidden /></Link>
       </div>
       {count === 0 ? (
-        <p className="mt-6 mb-2 flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="size-4 text-emerald-500" aria-hidden /> {empty}</p>
+        <p className="mt-6 mb-2 flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="size-4 text-success" aria-hidden /> {empty}</p>
       ) : (
         <ul className="mt-3 divide-y divide-border/40">{children}</ul>
       )}
@@ -45,7 +45,7 @@ export default async function AdminInbox() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">Inbox</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Inbox</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {counts.total === 0 ? "All clear. Nothing is waiting for you." : `${counts.total} item${counts.total === 1 ? "" : "s"} waiting for a decision.`}
           </p>
@@ -61,7 +61,7 @@ export default async function AdminInbox() {
         ].map(([label, value, href], i) => (
           <Link key={String(label)} href={String(href)} className={`p-4 hover:bg-muted/40 ${i % 2 ? "border-l border-border/40" : ""} ${i > 1 ? "border-t border-border/40 sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
             <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
-            <dd className="mt-1 text-2xl font-black tabular-nums text-foreground">{Number(value).toLocaleString("en-IN")}</dd>
+            <dd className="mt-1 text-2xl font-bold tabular-nums text-foreground">{Number(value).toLocaleString("en-IN")}</dd>
           </Link>
         ))}
       </dl>

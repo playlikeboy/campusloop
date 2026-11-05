@@ -2,7 +2,7 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { academicPlaylistItems, academicPlaylists, institutions, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { rejectViewerWrite } from "@/lib/viewer";
 
@@ -146,19 +146,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
@@ -171,6 +163,7 @@ export async function POST(req: Request) {
       semester,
       category = "SEMESTER_PACK",
       visibility = "PUBLIC",
+      // ds-allow: legacy stored default; rendered through playlist-cover.ts themes
       coverGradient = "from-slate-900 to-stone-900",
       tags = [],
       initialResourceIds = [],
@@ -195,6 +188,7 @@ export async function POST(req: Request) {
         semester: !isNaN(sem as number) ? sem : null,
         category: category || "SEMESTER_PACK",
         visibility: visibility || "PUBLIC",
+        // ds-allow: legacy stored default; rendered through playlist-cover.ts themes
         coverGradient: coverGradient || "from-slate-900 to-stone-900",
         tags: Array.isArray(tags) ? tags : [],
         itemsCount: Array.isArray(initialResourceIds) ? initialResourceIds.length : 0,

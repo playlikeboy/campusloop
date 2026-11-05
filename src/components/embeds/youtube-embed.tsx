@@ -40,13 +40,13 @@ export function YouTubeEmbed({ videoId, rawUrl }: YouTubeEmbedProps) {
             loading="lazy"
           />
           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <div className="flex size-14 items-center justify-center rounded-full bg-red-600/90 text-white shadow-xl backdrop-blur-xs transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+            <div className="flex size-14 items-center justify-center rounded-full bg-danger/90 text-white shadow-xl backdrop-blur-xs transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
               <Play className="ml-1 size-6 fill-white text-white" />
             </div>
           </div>
           <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 rounded-md bg-black/75 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-md">
-              <Video className="size-3.5 text-red-500" />
+              <Video className="size-3.5 text-danger" />
               YouTube Video
             </span>
             <a

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `c/${comm.name} Members & Leaders | CampusLoop`,
+    title: `c/${comm.name} Members & Leaders`,
     description: `Browse verified student members, leaders, and moderators in c/${comm.name} on CampusLoop.`,
     alternates: {
       canonical: `https://campusloop.space/communities/${comm.slug || comm.id}/members`,

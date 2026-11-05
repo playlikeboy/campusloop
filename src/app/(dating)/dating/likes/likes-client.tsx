@@ -91,7 +91,7 @@ export function LikesClient() {
             {likes.map((admirer) => (
               <div
                 key={admirer.id}
-                className="relative overflow-hidden rounded-2xl bg-neutral-900 ring-1 ring-white/10 shadow-md group"
+                className="relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/10 shadow-md group"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -118,7 +118,7 @@ export function LikesClient() {
                       type="button"
                       onClick={() => swipe(admirer, "PASS")}
                       aria-label={`Pass on ${admirer.displayName}`}
-                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-md transition-all hover:bg-white/25 active:scale-92 cursor-pointer"
+                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-sm transition-[opacity,transform] hover:bg-white/25 active:scale-92 cursor-pointer"
                     >
                       <X className="size-4" />
                     </button>
@@ -126,7 +126,7 @@ export function LikesClient() {
                       type="button"
                       onClick={() => swipe(admirer, "LIKE")}
                       aria-label={`Match with ${admirer.displayName}`}
-                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-pink-600 text-white shadow-sm transition-all hover:bg-pink-700 active:scale-92 cursor-pointer"
+                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-crush text-white shadow-sm transition-[opacity,transform] hover:bg-crush active:scale-92 cursor-pointer"
                     >
                       <Heart className="size-4 fill-white" />
                     </button>

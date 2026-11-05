@@ -89,7 +89,7 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
                       <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">
                         {user.displayName}
                       </span>
-                      <BadgeCheck className="size-3.5 text-[#1D9BF0] shrink-0" />
+                      <BadgeCheck className="size-3.5 text-brand-text shrink-0" />
                     </div>
                     <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
                     {(user.branch || user.year) && (
@@ -104,7 +104,7 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
                   type="button"
                   onClick={() => handleToggleFollow(user.username, user.id)}
                   disabled={isLoading}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none shrink-0 ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer select-none shrink-0 ${
                     isFollowing
                       ? "bg-muted text-foreground border border-border hover:bg-muted/80"
                       : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95 shadow-xs"

@@ -13,11 +13,11 @@ export function SoundCloudEmbed({ embedUrl, rawUrl }: SoundCloudEmbedProps) {
 
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-all hover:border-border"
+      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-colors hover:border-border"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-border/30 bg-[#ff5500]/10 px-3.5 py-1.5 dark:bg-[#ff5500]/15">
-        <div className="flex items-center gap-1.5 text-xs font-black text-[#ff5500]">
+      <div className="flex items-center justify-between border-b border-border/30 bg-surface-muted px-3.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs font-black text-fg">
           <Music2 className="size-3.5" />
           <span>SoundCloud</span>
         </div>

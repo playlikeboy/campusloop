@@ -4,7 +4,7 @@ import { ArrowLeft, Ghost } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { DrawerLink, DrawerPanel, DrawerSection } from "@/components/navigation/drawer-panel";
-import { ADMIN_NAV_SECTIONS } from "./admin-sidebar";
+import { ADMIN_NAV_SECTIONS } from "@/constants/navigation";
 
 const ALL_ITEMS = ADMIN_NAV_SECTIONS.flatMap((g) => g.items);
 

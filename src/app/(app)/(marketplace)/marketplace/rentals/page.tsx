@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   title: "Campus Bike & Vehicle Rentals | Hourly & Daily Scooters",
   description:
     "Rent verified mountain bicycles, campus gear cycles, and electric scooters with free helmets and zero fuel hassle.",
-  alternates: { canonical: "https://campusloop.space/app/marketplace/rentals" },
+  alternates: { canonical: "https://campusloop.space/marketplace/rentals" },
   openGraph: {
-    title: "Campus Bike Rentals | CampusLoop",
+    title: "Campus Bike Rentals",
     description: "Rent verified cycles and e-scooters for quick intra-campus transit and city rides.",
-    url: "https://campusloop.space/app/marketplace/rentals",
+    url: "https://campusloop.space/marketplace/rentals",
     siteName: "CampusLoop Rentals",
   },
 };

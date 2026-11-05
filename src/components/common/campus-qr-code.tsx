@@ -24,7 +24,9 @@ export async function generateBrandedQrDataUrl({
   size = 720,
   logoUrl = "/logo.png",
   logoSize,
+  // ds-allow: QR canvas export needs fixed scan-safe colours
   darkColor = "#0f172a",
+  // ds-allow: QR canvas export needs fixed scan-safe colours
   lightColor = "#ffffff",
 }: {
   value: string;
@@ -80,6 +82,7 @@ export async function generateBrandedQrDataUrl({
       ctx.fillStyle = lightColor;
       ctx.fill();
 
+      // ds-allow: QR canvas export needs fixed scan-safe colours
       ctx.strokeStyle = "#e2e8f0";
       ctx.lineWidth = Math.max(2, Math.round(size * 0.004));
       ctx.stroke();
@@ -102,7 +105,9 @@ export function CampusQrCode({
   size = 240,
   logoUrl = "/logo.png",
   logoSize,
+  // ds-allow: QR canvas export needs fixed scan-safe colours
   darkColor = "#0f172a",
+  // ds-allow: QR canvas export needs fixed scan-safe colours
   lightColor = "#ffffff",
   className,
   bordered = true,
@@ -167,6 +172,7 @@ export function CampusQrCode({
           ctx.fillStyle = lightColor;
           ctx.fill();
 
+          // ds-allow: QR canvas export needs fixed scan-safe colours
           ctx.strokeStyle = "#e2e8f0";
           ctx.lineWidth = Math.max(1.5, Math.round(size * 0.006));
           ctx.stroke();
@@ -194,7 +200,7 @@ export function CampusQrCode({
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center rounded-2xl bg-white p-2.5 transition-all shadow-xs",
+        "relative inline-flex items-center justify-center rounded-2xl bg-surface p-2.5 transition-colors shadow-xs",
         bordered && "border border-border/60",
         className
       )}

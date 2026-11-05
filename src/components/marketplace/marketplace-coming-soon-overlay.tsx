@@ -29,8 +29,8 @@ const PILLARS = [
     description:
       "Hostel room delivery up to 4 AM. Maggi, chicken rolls, cold coffee, burgers, and midnight snacks from verified campus food stalls.",
     icon: UtensilsCrossed,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10 border-amber-500/20",
+    color: "text-warning",
+    bg: "bg-warning-subtle border-warning",
     tag: "Food & Canteens",
   },
   {
@@ -39,8 +39,8 @@ const PILLARS = [
     description:
       "Midnight instant delivery for stationery, lab manuals, notebooks, phone chargers, toiletries, hygiene kits & energy drinks.",
     icon: Zap,
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10 border-emerald-500/20",
+    color: "text-success",
+    bg: "bg-success-subtle border-success",
     tag: "Quick Commerce",
   },
   {
@@ -49,8 +49,8 @@ const PILLARS = [
     description:
       "Doorstep room pickup, industrial washing, steam pressing, and neat wardrobe folding with live status tracking & zero lost clothes.",
     icon: Shirt,
-    color: "text-purple-500",
-    bg: "bg-purple-500/10 border-purple-500/20",
+    color: "text-brand-text",
+    bg: "bg-brand-subtle border-brand",
     tag: "Laundry & Dry Clean",
   },
   {
@@ -59,8 +59,8 @@ const PILLARS = [
     description:
       "Pre-booked barber slots, bike & electric scooter rentals, hostel room deep cleans, cycle puncture repair & appliance fixes.",
     icon: Scissors,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10 border-blue-500/20",
+    color: "text-brand-text",
+    bg: "bg-brand-subtle border-brand",
     tag: "Salon & Services",
   },
 ];
@@ -72,7 +72,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
     return (
       <aside
         aria-label="Marketplace status announcement"
-        className="fixed bottom-20 sm:bottom-6 inset-x-4 sm:inset-x-auto sm:right-6 z-40 flex items-center justify-between gap-3 px-4 py-2.5 rounded-full border border-primary/30 bg-background/95 backdrop-blur-xl shadow-xl text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200"
+        className="fixed bottom-20 sm:bottom-6 inset-x-4 sm:inset-x-auto sm:right-6 z-40 flex items-center justify-between gap-3 px-4 py-2.5 rounded-full border border-primary/30 bg-background/95 backdrop-blur-sm shadow-xl text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200"
       >
         <div className="flex items-center gap-2">
           <span className="relative flex size-2">
@@ -89,7 +89,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
             haptics.light();
             setIsDismissed(false);
           }}
-          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-bold transition-all cursor-pointer text-[11px]"
+          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-bold transition-colors cursor-pointer text-[11px]"
         >
           <Sparkles className="size-3" />
           <span>View Vision</span>
@@ -103,18 +103,16 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
       role="dialog"
       aria-modal="true"
       aria-labelledby="marketplace-overlay-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6 bg-background/80 backdrop-blur-xl overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6 bg-background/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
     >
       {/* Background glow ambiance */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 sm:w-[600px] h-96 bg-primary/15 rounded-full blur-3xl opacity-60" />
-        <div className="absolute -bottom-32 left-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl opacity-50" />
       </div>
 
-      <div className="relative w-full max-w-2xl rounded-3xl border border-border/60 bg-card/95 shadow-2xl p-5 sm:p-8 backdrop-blur-2xl my-auto space-y-6">
+      <div className="relative w-full max-w-2xl rounded-3xl border border-border/60 bg-card/95 shadow-2xl p-5 sm:p-8 backdrop-blur-sm my-auto space-y-6">
         {/* Top Header Pill & Dismiss Button */}
         <div className="flex items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-[11px] font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold">
             <span className="relative flex size-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full size-2 bg-primary" />
@@ -130,7 +128,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
               haptics.light();
               setIsDismissed(true);
             }}
-            className="flex size-8 items-center justify-center rounded-full border border-border/50 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            className="flex size-8 items-center justify-center rounded-full border border-border/50 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title="Preview Marketplace Background"
             aria-label="Preview background"
           >
@@ -158,7 +156,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
             return (
               <div
                 key={pillar.name}
-                className="group relative rounded-2xl border border-border/50 bg-background/60 hover:bg-background/90 p-4 transition-all duration-200 hover:shadow-xs space-y-2"
+                className="group relative rounded-2xl border border-border/50 bg-background/60 hover:bg-background/90 p-4 transition-colors duration-200 hover:shadow-xs space-y-2"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -200,7 +198,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
                 sounds.tap();
                 haptics.success();
               }}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-black text-xs hover:bg-primary/90 transition-all active:scale-95 shadow-md cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-black text-xs hover:bg-primary/90 transition-[opacity,transform] active:scale-95 shadow-md cursor-pointer"
             >
               <span>Explore Verified Campus Feed</span>
               <ArrowRight className="size-3.5" />
@@ -214,7 +212,7 @@ export function MarketplaceComingSoonOverlay({ collegeName }: MarketplaceComingS
                 sounds.tap();
                 haptics.medium();
               }}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-danger bg-danger-subtle hover:bg-danger-subtle text-danger font-bold text-xs transition-[opacity,transform] active:scale-95 cursor-pointer"
             >
               <InstagramIcon className="size-3.5 fill-current" />
               <span>Partner With Us / DM on Instagram</span>

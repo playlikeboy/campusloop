@@ -77,7 +77,7 @@ export function ConsentCard({ client, scopes, redirectHost, request, account, sw
           </ul>
 
           {!reviewed && (
-            <p className="mt-5 flex gap-2 rounded-2xl bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+            <p className="mt-5 flex gap-2 rounded-lg bg-warning-subtle p-3 text-xs leading-relaxed text-warning">
               <ShieldAlert className="size-4 shrink-0" aria-hidden />
               CampusLoop hasn&apos;t reviewed this app yet. Only continue if you trust {redirectHost}.
             </p>

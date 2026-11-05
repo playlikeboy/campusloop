@@ -8,17 +8,17 @@ import { cn } from "@/lib/utils";
 function getCategoryIcon(id: string) {
   switch (id) {
     case "all":
-      return <Flame className="size-3 text-amber-500" />;
+      return <Flame className="size-3 text-reward-text" />;
     case "campus":
-      return <Coffee className="size-3 text-amber-600 dark:text-amber-400" />;
+      return <Coffee className="size-3 text-warning" />;
     case "exams":
-      return <BookOpen className="size-3 text-blue-500" />;
+      return <BookOpen className="size-3 text-brand-text" />;
     case "coding":
-      return <Code2 className="size-3 text-emerald-500" />;
+      return <Code2 className="size-3 text-success" />;
     case "reactions":
-      return <Smile className="size-3 text-purple-500" />;
+      return <Smile className="size-3 text-brand-text" />;
     case "fest":
-      return <Headphones className="size-3 text-pink-500" />;
+      return <Headphones className="size-3 text-crush-text" />;
     default:
       return <Flame className="size-3" />;
   }
@@ -60,7 +60,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-7 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+            <div className="size-7 rounded-md bg-reward-subtle flex items-center justify-center text-reward-text">
               <Smile className="size-4" />
             </div>
             <div>
@@ -88,7 +88,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
             placeholder="Search stickers (maggi, tea, exam, 75%, pass)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-xl bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-background focus-visible:ring-2 focus-visible:ring-primary/40 transition-all"
+            className="w-full h-9 pl-9 pr-3 rounded-sm border border-border bg-surface text-xs font-semibold text-fg placeholder:text-fg-subtle outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30 transition-colors"
             autoFocus
           />
         </div>
@@ -101,7 +101,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
               className={cn(
-                "px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                "px-2.5 py-1 rounded-md text-[11px] font-bold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
                 selectedCategory === cat.id
                   ? "bg-foreground text-background shadow-xs"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -123,7 +123,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
                 onSelectSticker(sticker);
                 onClose();
               }}
-              className="group flex flex-col items-center justify-between p-2 rounded-2xl bg-muted/30 hover:bg-muted/70 transition-all cursor-pointer active:scale-95 text-center shadow-2xs"
+              className="group flex flex-col items-center justify-between p-2 rounded-2xl bg-muted/30 hover:bg-muted/70 transition-colors cursor-pointer active:scale-95 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               <div className="relative size-16 flex items-center justify-center overflow-hidden">
                 <img

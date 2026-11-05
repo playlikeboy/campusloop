@@ -55,8 +55,8 @@ export function AdminRentalsClient() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <Bike className="size-6 text-emerald-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Bike className="size-6 text-success" />
             <span>Campus Bike Fleet &amp; Rental Management</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -72,9 +72,9 @@ export function AdminRentalsClient() {
               setActiveTab("bookings");
             }}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer",
               activeTab === "bookings"
-                ? "bg-foreground text-background font-black shadow-xs"
+                ? "bg-foreground text-background font-bold shadow-xs"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
@@ -88,9 +88,9 @@ export function AdminRentalsClient() {
               setActiveTab("fleet");
             }}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer",
               activeTab === "fleet"
-                ? "bg-foreground text-background font-black shadow-xs"
+                ? "bg-foreground text-background font-bold shadow-xs"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
@@ -103,7 +103,7 @@ export function AdminRentalsClient() {
       {activeTab === "bookings" && (
         <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
           <div className="p-4 border-b border-border flex items-center justify-between">
-            <h2 className="text-sm font-black text-foreground">Campus Reservations Log</h2>
+            <h2 className="text-sm font-bold text-foreground">Campus Reservations Log</h2>
             <span className="text-xs text-muted-foreground">{bookings.length} reservations recorded</span>
           </div>
 
@@ -115,7 +115,7 @@ export function AdminRentalsClient() {
           ) : (
             <div className="divide-y divide-border overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-muted/40 text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
+                <thead className="bg-muted/40 text-muted-foreground font-bold text-[10px]">
                   <tr>
                     <th className="p-3">Booking #</th>
                     <th className="p-3">Bike / Merchant</th>
@@ -129,7 +129,7 @@ export function AdminRentalsClient() {
                 <tbody className="divide-y divide-border">
                   {bookings.map((b) => (
                     <tr key={b.id} className="hover:bg-muted/20 transition-colors">
-                      <td className="p-3 font-black text-foreground">
+                      <td className="p-3 font-bold text-foreground">
                         <span>#{b.bookingNumber}</span>
                         <p className="text-[10px] text-muted-foreground">{formatTimeAgo(b.createdAt)}</p>
                       </td>
@@ -155,7 +155,7 @@ export function AdminRentalsClient() {
                         </p>
                       </td>
                       <td className="p-3">
-                        <p className="font-black text-emerald-500">₹{b.totalAmount}</p>
+                        <p className="font-bold text-success">₹{b.totalAmount}</p>
                         <p className="text-[10px] text-muted-foreground">
                           Deposit: ₹{b.depositAmount} ({b.depositRefundStatus})
                         </p>
@@ -163,11 +163,11 @@ export function AdminRentalsClient() {
                       <td className="p-3">
                         <span
                           className={cn(
-                            "px-2 py-0.5 rounded-md font-bold text-[10px] uppercase",
+                            "px-2 py-0.5 rounded-md font-bold text-[10px]",
                             b.status === "ACTIVE" || b.status === "CONFIRMED"
-                              ? "bg-emerald-500/15 text-emerald-500"
+                              ? "bg-success-subtle text-success"
                               : b.status === "DISPUTED"
-                                ? "bg-rose-500/15 text-rose-500"
+                                ? "bg-danger-subtle text-danger"
                                 : "bg-muted text-muted-foreground"
                           )}
                         >
@@ -180,14 +180,14 @@ export function AdminRentalsClient() {
                             <button
                               type="button"
                               onClick={() => handleResolveDispute(b.id, "REFUNDED")}
-                              className="px-2.5 py-1 rounded-md bg-emerald-500 text-black font-bold text-[10px]"
+                              className="px-2.5 py-1 rounded-md bg-success text-black font-bold text-[10px]"
                             >
                               Refund Student
                             </button>
                             <button
                               type="button"
                               onClick={() => handleResolveDispute(b.id, "HELD")}
-                              className="px-2.5 py-1 rounded-md bg-rose-500 text-white font-bold text-[10px]"
+                              className="px-2.5 py-1 rounded-md bg-danger text-danger-fg font-bold text-[10px]"
                             >
                               Hold for Damage
                             </button>
@@ -209,13 +209,13 @@ export function AdminRentalsClient() {
       {activeTab === "fleet" && (
         <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
           <div className="p-4 border-b border-border flex items-center justify-between">
-            <h2 className="text-sm font-black text-foreground">Registered Campus Fleet</h2>
+            <h2 className="text-sm font-bold text-foreground">Registered Campus Fleet</h2>
             <span className="text-xs text-muted-foreground">{bikes.length} vehicles</span>
           </div>
 
           <div className="divide-y divide-border overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-muted/40 text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
+              <thead className="bg-muted/40 text-muted-foreground font-bold text-[10px]">
                 <tr>
                   <th className="p-3">Vehicle</th>
                   <th className="p-3">Registration Plate</th>
@@ -228,7 +228,7 @@ export function AdminRentalsClient() {
               <tbody className="divide-y divide-border">
                 {bikes.map((bike) => (
                   <tr key={bike.id} className="hover:bg-muted/20 transition-colors">
-                    <td className="p-3 font-black text-foreground flex items-center gap-2.5">
+                    <td className="p-3 font-bold text-foreground flex items-center gap-2.5">
                       <div className="size-9 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
                         <img src={bike.imageUrl} alt={bike.name} className="size-full object-cover" />
                       </div>
@@ -237,12 +237,12 @@ export function AdminRentalsClient() {
                         <p className="text-[10px] text-muted-foreground">{bike.fuelType}</p>
                       </div>
                     </td>
-                    <td className="p-3 font-bold text-foreground uppercase">{bike.registrationNumber}</td>
+                    <td className="p-3 font-bold text-foreground">{bike.registrationNumber}</td>
                     <td className="p-3 text-muted-foreground">{bike.merchant?.name}</td>
-                    <td className="p-3 font-black text-foreground">₹{bike.dailyPrice}/day</td>
+                    <td className="p-3 font-bold text-foreground">₹{bike.dailyPrice}/day</td>
                     <td className="p-3 font-medium text-muted-foreground">₹{bike.securityDeposit}</td>
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded-md bg-success-subtle text-success font-bold text-[10px]">
                         {bike.status}
                       </span>
                     </td>

@@ -1,194 +1,121 @@
-import { BookOpen, Eye, MessageSquare, Trophy } from "lucide-react";
+import { BookOpen, MessageSquare, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CleanFooter } from "@/components/landing/clean-footer";
-import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 
 export const metadata: Metadata = {
-  title: "CampusLoop for Prospective Students — Campus Preview Mode | CampusLoop",
+  title: "Campus Preview · CampusLoop",
   description:
-    "See what Indian college life is really like before picking a campus. Read-only access to authentic student discussions, hostel reviews, and senior advice at IITs, NITs, BITS, and top universities.",
-  keywords: [
-    "prospective student college life",
-    "authentic college reviews",
-    "campus culture reviews",
-    "IIT confessions",
-    "BITS Pilani campus culture",
-    "hostel food reviews India",
-  ],
-  alternates: {
-    canonical: "https://campusloop.space/aspirants",
-  },
+    "See what college life is like before you pick a campus. Campus Preview lets prospective students read real student discussions, hostel reviews and senior advice without a college email.",
+  keywords: ["prospective student college life", "college reviews", "campus culture", "hostel reviews India", "Campus Preview"],
+  alternates: { canonical: "https://campusloop.space/aspirants" },
   openGraph: {
-    title: "CampusLoop for Prospective Students — Campus Preview Mode",
-    description:
-      "Explore genuine campus culture and senior reviews before admission. Read-only access to 1,350+ verified college loops.",
+    title: "Campus Preview · CampusLoop",
+    description: "Read real campus discussions and senior advice before admission, with any email.",
     url: "https://campusloop.space/aspirants",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
-    images: [
-      {
-        url: "https://campusloop.space/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CampusLoop Prospective Student Viewer Mode",
-      },
-    ],
+    images: [{ url: "https://campusloop.space/opengraph-image.png", width: 1200, height: 630, alt: "CampusLoop Campus Preview" }],
   },
 };
 
-export default async function AspirantsPage() {
-  const user = await hexclaveServerApp.getUser();
+const CARDS = [
+  {
+    icon: BookOpen,
+    title: "Academic reality",
+    body: "How hard mid-sems are, which professors teach well, and whether attendance rules are enforced, before you lock your preference list.",
+  },
+  {
+    icon: MessageSquare,
+    title: "Hostel and mess life",
+    body: "What students say about hostel hygiene, late-night food, Wi-Fi and room allotment.",
+  },
+  {
+    icon: Trophy,
+    title: "Placements and tech culture",
+    body: "Active coding societies, hackathon teams and senior internship advice beyond average-package charts.",
+  },
+];
 
+const STEPS = [
+  {
+    title: "Sign up with any email",
+    body: "A personal email (Gmail, Outlook or similar) opens Campus Preview. You get an account without the verified tick.",
+  },
+  {
+    title: "Follow your target colleges",
+    body: "Pick the campuses you are considering and read their hubs, feeds and Academic Vault.",
+  },
+  {
+    title: "Verify once you are admitted",
+    body: "When your college email arrives, verify it and the same account gets the verified tick and full access, including Campus Match at 18+.",
+  },
+];
+
+export default function AspirantsPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      {/* Accessibility Skip Link */}
-      <a
-        href="#aspirants-main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-primary focus:text-white focus:shadow-xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-      >
-        Skip to prospective student guide content
-      </a>
-
-      <MinimalLandingNavbar isAuthenticated={!!user} />
-
-      <main id="aspirants-main-content" className="flex-1 pt-12 pb-24">
-        <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 space-y-16">
-          {/* ─── Hero Block ─── */}
-          <div className="text-center max-w-3xl mx-auto space-y-5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-3.5 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
-              <Eye className="size-3.5" />
-              Campus Preview Mode
-            </span>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
-              See what college life is{" "}
-              <span className="text-primary font-extrabold">
-                really like
-              </span>{" "}
-              before you get there.
-              <span className="sr-only">
-                {" "}— CampusLoop Preview Mode: Authentic College Reviews, Admissions &amp; Campus Culture in India
-              </span>
+    <MarketingShell>
+      <main id="aspirants-main-content" className="py-12 sm:py-16">
+        <div className="mx-auto w-full max-w-5xl space-y-16 px-4 sm:px-6">
+          <div className="mx-auto max-w-3xl space-y-5 text-center">
+            <p className="text-sm font-semibold text-brand-text">Campus Preview</p>
+            <h1 className="text-4xl font-bold tracking-tight text-fg sm:text-5xl">
+              See what college life is really like before you get there.
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Coaching brochures and marketing websites sell you glossy campus photos. CampusLoop gives
-              prospective students a candid read-only window into student discussions, hostel food reality,
-              and placement truths.
+            <p className="text-base leading-relaxed text-fg-muted sm:text-lg">
+              Brochures sell glossy campus photos. Campus Preview gives prospective students a candid read of
+              student discussions, hostel reality and placement experience, with any email address.
             </p>
-
-            {/* Semantic screen reader and crawler index of prospective student viewer features */}
-            <div className="sr-only" aria-label="Prospective Student College Selection Guide">
-              <h2>CampusLoop Viewer Mode — Authentic College Insights for Prospective Students</h2>
-              <p>
-                CampusLoop provides read-only viewer access for prospective engineering, medical, management, and degree college
-                students exploring Indian campus life and admissions counseling.
-              </p>
-              <ul>
-                <li>Unfiltered hostel, mess food, and campus culture reviews straight from current students</li>
-                <li>Honest placement statistics, average packages, and active societies beyond glossy brochures</li>
-                <li>Attendance reality, professor teaching quality, and semester exam insights across 1,350+ Indian colleges</li>
-                <li>Zero spam: Instant account upgrade to full verified status when you receive your college .ac.in email</li>
-              </ul>
-            </div>
-
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
                 href="/colleges"
-                className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold px-7 py-3 text-xs shadow-xs transition-all hover:shadow-[0_4px_20px_rgba(147,51,234,0.35)]"
+                className="inline-flex h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-brand-fg hover:bg-brand-hover"
               >
-                Browse Dream Campuses &rarr;
+                Browse colleges
               </Link>
               <Link
                 href="/sign-up"
-                className="rounded-full border border-border/80 bg-card hover:bg-muted/60 font-semibold px-6 py-3 text-xs text-foreground"
+                className="inline-flex h-11 items-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted"
               >
-                Create Free Viewer Account
+                Create a free account
               </Link>
             </div>
           </div>
 
-          {/* ─── Reality Cards Comparison ─── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-6 space-y-3 shadow-xs">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <BookOpen className="size-4" />
-              </div>
-              <h3 className="text-base font-bold text-foreground">Authentic Academic Reality</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Learn how difficult mid-sems actually are, which professors teach well, and whether attendance
-                rules are strictly enforced before locking in your college preference list.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-6 space-y-3 shadow-xs">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                <MessageSquare className="size-4" />
-              </div>
-              <h3 className="text-base font-bold text-foreground">Hostel & Mess Life</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Read real student confessions regarding hostel hygiene, late-night canteen options, Wi-Fi
-                speeds, and room allotment policies straight from current batchmates.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#111622] p-6 space-y-3 shadow-xs">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <Trophy className="size-4" />
-              </div>
-              <h3 className="text-base font-bold text-foreground">Placement & Tech Culture</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Discover active coding societies, hackathon squads, and senior internship advice beyond
-                inflated average package marketing charts.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {CARDS.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div key={card.title} className="space-y-3 rounded-lg border border-border bg-surface p-6">
+                  <div className="flex size-9 items-center justify-center rounded-md bg-brand-subtle text-brand-text">
+                    <Icon className="size-4" aria-hidden />
+                  </div>
+                  <h2 className="text-base font-semibold text-fg">{card.title}</h2>
+                  <p className="text-sm leading-relaxed text-fg-muted">{card.body}</p>
+                </div>
+              );
+            })}
           </div>
 
-          {/* ─── How Viewer Mode Works ─── */}
-          <div className="rounded-3xl border border-border/70 bg-zinc-50/50 dark:bg-[#0E131F]/50 p-6 sm:p-10 space-y-6">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground text-center">
-              How Viewer Mode Works
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs leading-relaxed">
-              <div className="space-y-2">
-                <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
-                  Step 01
-                </span>
-                <h4 className="font-bold text-foreground text-sm">Sign Up With Personal Email</h4>
-                <p className="text-muted-foreground">
-                  Aspirants can sign up with any personal email (Gmail/Outlook) to activate read-only Viewer
-                  access.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
-                  Step 02
-                </span>
-                <h4 className="font-bold text-foreground text-sm">Follow Your Dream Campuses</h4>
-                <p className="text-muted-foreground">
-                  Pick your target colleges (IIT Delhi, BITS Pilani, BIT Mesra, NIT Trichy) to read live feeds
-                  and senior tips.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <span className="font-mono text-purple-600 dark:text-purple-400 font-bold text-sm">
-                  Step 03
-                </span>
-                <h4 className="font-bold text-foreground text-sm">Instant Upgrade on Admission</h4>
-                <p className="text-muted-foreground">
-                  Once admission counseling finishes and you get your college .ac.in inbox, your account
-                  upgrades in place to full posting & Match Mode!
-                </p>
-              </div>
-            </div>
+          <div className="space-y-6 rounded-xl border border-border bg-surface p-6 sm:p-10">
+            <h2 className="text-center text-2xl font-bold tracking-tight text-fg">How Campus Preview works</h2>
+            <ol className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {STEPS.map((step, i) => (
+                <li key={step.title} className="space-y-2">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-semibold text-brand-fg">{i + 1}</span>
+                  <h3 className="text-base font-semibold text-fg">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-fg-muted">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+            <p className="text-sm text-fg-muted">
+              Preview accounts do not carry the verified tick. Spaces reserved for verified students, including
+              Campus Match, open after you verify a college email.
+            </p>
           </div>
         </div>
       </main>
-
-      <CleanFooter />
-    </div>
+    </MarketingShell>
   );
 }

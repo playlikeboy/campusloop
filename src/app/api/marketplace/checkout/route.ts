@@ -1,8 +1,8 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { marketplaceOrderItems, marketplaceOrders, merchants, products, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { marketplaceOrderItems, marketplaceOrders, merchants, products } from "@/db/schema";
+import { requireProfile } from "@/lib/require-profile";
 import { withUniqueOrderNumber } from "@/lib/marketplace/order-number";
 import { type CartItemInput, type FulfillmentType, priceMerchantOrder } from "@/lib/marketplace/pricing";
 import { releaseExpiredPaymentHolds } from "@/lib/payments/expire-holds";
@@ -89,19 +89,11 @@ export async function POST(req: Request) {
   let currentProfileId: string | null = null;
 
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     currentProfileId = profile.id;
 

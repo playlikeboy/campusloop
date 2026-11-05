@@ -108,7 +108,7 @@ function Pill({
       type="button"
       onClick={onClick}
       className={cn(
-        "cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-bold transition-all active:scale-95",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-bold transition-[opacity,transform] active:scale-95",
         selected
           ? "bg-foreground font-black text-background"
           : "border border-border/50 bg-muted/30 text-muted-foreground hover:text-foreground"
@@ -284,7 +284,8 @@ export function OnboardingForm({
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!prefersReducedMotion) {
           const confetti = (await import("canvas-confetti")).default;
-          const colors = ["#8fd0e7", "#a7f3d0", "#f9c5d1", "#f6d58b", "#ffffff"];
+          const css = getComputedStyle(document.documentElement);
+          const colors = ["--brand", "--reward", "--crush", "--success", "--surface"].map((v) => css.getPropertyValue(v).trim());
           void confetti({ particleCount: 110, spread: 78, startVelocity: 42, gravity: 0.9, ticks: 180, colors, origin: { x: 0.5, y: 0.68 }, zIndex: 9999 });
           window.setTimeout(() => {
             void confetti({ particleCount: 55, spread: 110, startVelocity: 34, gravity: 0.95, ticks: 150, colors, origin: { x: 0.5, y: 0.72 }, zIndex: 9999 });
@@ -337,7 +338,7 @@ export function OnboardingForm({
             onClick={() => fileInputRef.current?.click()}
             className="relative group cursor-pointer shrink-0"
           >
-            <Avatar className="size-20 border-2 border-primary/30 shadow-md group-hover:border-primary transition-all">
+            <Avatar className="size-20 border-2 border-primary/30 shadow-md group-hover:border-primary transition-colors">
               <AvatarImage src={currentAvatar} className="object-cover" />
               <AvatarFallback className="bg-primary/10 text-xl font-black text-primary">
                 {displayName ? displayName[0].toUpperCase() : "U"}
@@ -353,12 +354,12 @@ export function OnboardingForm({
               <p className="text-[13px] font-bold text-foreground flex items-center gap-1.5">
                 <span>Profile Photo</span>
                 {isRealPhoto ? (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success-subtle text-success border border-success flex items-center gap-1">
                     <Check className="size-2.5" /> Real Photo Verified (+50 LP)
                   </span>
                 ) : (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                    🎁 +50 LP Clout Reward
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-warning-subtle text-warning border border-warning">
+                    +50 LP Clout Reward
                   </span>
                 )}
               </p>
@@ -370,7 +371,7 @@ export function OnboardingForm({
                 type="button"
                 disabled={isUploadingPfp}
                 onClick={() => fileInputRef.current?.click()}
-                className="flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-[opacity,transform] disabled:opacity-60"
               >
                 {isUploadingPfp ? (
                   <Loader2 className="size-3.5 animate-spin" />
@@ -384,8 +385,8 @@ export function OnboardingForm({
             {/* Social Proof & Psychology Text */}
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               {isRealPhoto
-                ? "✨ Great photo! Your profile will be boosted across campus dating, study pods & college feeds."
-                : "💡 Verified profiles with real photos get 3x more friend connections, dating matches, and instant trust on campus."}
+                ? "Great photo! Your profile will be boosted across campus dating, study pods & college feeds."
+                : "Verified profiles with real photos get 3x more friend connections, dating matches, and instant trust on campus."}
             </p>
           </div>
         </div>
@@ -403,7 +404,7 @@ export function OnboardingForm({
               </button>
             ) : (
               <div className="p-3 rounded-2xl bg-muted/20 border border-border/50 space-y-2 animate-in fade-in duration-150">
-                <div className="flex items-start gap-2 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                <div className="flex items-start gap-2 text-[11px] text-warning font-medium">
                   <AlertCircle className="size-3.5 shrink-0 mt-0.5" />
                   <span>
                     Note: Illustrated avatars receive 60% fewer matches and do not unlock the 50 LP verified
@@ -444,7 +445,7 @@ export function OnboardingForm({
                   <AlertCircle className="size-3" /> {nameVal.error}
                 </span>
               ) : nameVal?.isValid ? (
-                <Check className="size-3.5 text-emerald-500" />
+                <Check className="size-3.5 text-success" />
               ) : null
             }
           >
@@ -481,7 +482,7 @@ export function OnboardingForm({
                 "pl-8",
                 usernameStatus.state === "taken" || usernameStatus.state === "invalid"
                   ? "border-destructive"
-                  : usernameStatus.state === "available" && "border-emerald-500/60"
+                  : usernameStatus.state === "available" && "border-success"
               )}
             />
           </div>
@@ -751,7 +752,7 @@ export function OnboardingForm({
       )}
 
       {/* ─── Submit ─── */}
-      <div className="sticky bottom-0 -mx-4 border-t border-border/40 bg-background/90 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-0 -mx-4 border-t border-border/40 bg-background/90 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
         <button
           type="submit"
           disabled={submitDisabled}

@@ -107,7 +107,7 @@ export function MerchantStoreClient() {
     <main className="max-w-2xl mx-auto p-4 space-y-6 select-none pb-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border/40 p-5 rounded-3xl shadow-xs">
         <div>
-          <h1 className="text-xl font-black text-foreground tracking-tight">Store Profile &amp; Settings</h1>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Store Profile &amp; Settings</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Configure business details, delivery radius, and prep timing
           </p>
@@ -127,7 +127,7 @@ export function MerchantStoreClient() {
             <button
               type="button"
               onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Copy className="size-3.5" />
               <span>Copy Link</span>
@@ -139,7 +139,7 @@ export function MerchantStoreClient() {
       <form onSubmit={handleSave} className="space-y-5">
         {/* Basic Store Info */}
         <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
             <Store className="size-4 text-primary" />
             <span>Store Details</span>
           </h2>
@@ -202,8 +202,8 @@ export function MerchantStoreClient() {
 
         {/* Fulfillment & Delivery Rules */}
         <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Truck className="size-4 text-emerald-500" />
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+            <Truck className="size-4 text-success" />
             <span>Fulfillment &amp; Delivery Rules</span>
           </h2>
 
@@ -213,7 +213,7 @@ export function MerchantStoreClient() {
                 type="checkbox"
                 checked={isDeliveryEnabled}
                 onChange={(e) => setIsDeliveryEnabled(e.target.checked)}
-                className="size-4 rounded accent-emerald-500"
+                className="size-4 rounded accent-brand"
               />
               <span className="text-xs font-bold">Delivery Enabled</span>
             </label>
@@ -223,7 +223,7 @@ export function MerchantStoreClient() {
                 type="checkbox"
                 checked={isPickupEnabled}
                 onChange={(e) => setIsPickupEnabled(e.target.checked)}
-                className="size-4 rounded accent-emerald-500"
+                className="size-4 rounded accent-brand"
               />
               <span className="text-xs font-bold">Pickup Enabled</span>
             </label>
@@ -237,7 +237,7 @@ export function MerchantStoreClient() {
                 min="0"
                 value={deliveryFee}
                 onChange={(e) => setDeliveryFee(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
+                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
               />
             </div>
 
@@ -248,7 +248,7 @@ export function MerchantStoreClient() {
                 min="0"
                 value={minOrderValue}
                 onChange={(e) => setMinOrderValue(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
+                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
               />
             </div>
 
@@ -260,7 +260,7 @@ export function MerchantStoreClient() {
                 value={freeDeliveryAbove}
                 onChange={(e) => setFreeDeliveryAbove(e.target.value)}
                 placeholder="299"
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
+                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
               />
             </div>
           </div>
@@ -294,7 +294,7 @@ export function MerchantStoreClient() {
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+          className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           {isSaving ? (
             <>

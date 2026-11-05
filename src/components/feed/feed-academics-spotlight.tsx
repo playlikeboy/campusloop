@@ -30,10 +30,10 @@ interface AcademicItem {
 
 function getResourceTypePill(type: string) {
   const t = String(type || "").toUpperCase();
-  if (t === "PYQ") return { label: "PYQ / Past Paper", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
-  if (t === "CHEAT_SHEET") return { label: "Cheat Sheet", color: "bg-rose-500/15 text-rose-700 dark:text-rose-300" };
-  if (t === "LAB_MANUAL") return { label: "Lab Manual", color: "bg-teal-500/15 text-teal-700 dark:text-teal-300" };
-  return { label: "Lecture Notes", color: "bg-blue-500/15 text-blue-700 dark:text-blue-300" };
+  if (t === "PYQ") return { label: "PYQ / Past Paper", color: "bg-warning/15 text-warning" };
+  if (t === "CHEAT_SHEET") return { label: "Cheat Sheet", color: "bg-danger/15 text-danger" };
+  if (t === "LAB_MANUAL") return { label: "Lab Manual", color: "bg-brand/15 text-brand-text" };
+  return { label: "Lecture Notes", color: "bg-brand/15 text-brand-text" };
 }
 
 export function FeedAcademicsSpotlight({ className }: { className?: string }) {
@@ -53,12 +53,12 @@ export function FeedAcademicsSpotlight({ className }: { className?: string }) {
     <section className={cn("py-4", className)} aria-label="Campus Study Materials">
       <div className="mb-3 flex items-center justify-between px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+          <div className="flex size-7 items-center justify-center rounded-full bg-brand/10 text-brand-text">
             <GraduationCap className="size-3.5" aria-hidden />
           </div>
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-sm font-bold text-foreground">Campus Notes &amp; PYQs</h3>
-            <span className="hidden sm:inline-block rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+            <span className="hidden sm:inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand-text">
               Exam Prep
             </span>
           </div>
@@ -79,12 +79,12 @@ export function FeedAcademicsSpotlight({ className }: { className?: string }) {
             <Link
               key={res.id}
               href={`/academics/${res.id}`}
-              className="group flex w-[260px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/75 border border-border/40 shadow-2xs transition-all hover:border-primary/40 hover:shadow-md"
+              className="group flex w-[260px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/75 border border-border/40 shadow-2xs transition-colors hover:border-primary/40 hover:shadow-md"
             >
               {/* Header */}
               <div className="p-3.5 pb-2">
                 <div className="flex items-center justify-between gap-1.5 text-[10px] font-bold">
-                  <span className={cn("rounded-full px-2 py-0.5 uppercase tracking-wide", pill.color)}>
+                  <span className={cn("rounded-full px-2 py-0.5", pill.color)}>
                     {pill.label}
                   </span>
                   <span className="rounded-full bg-muted/60 px-2 py-0.5 text-muted-foreground">

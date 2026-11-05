@@ -161,7 +161,7 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-brand-text">
               <FolderPlus className="size-4" />
               <span>Save to Study Playlist</span>
             </div>
@@ -197,7 +197,7 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
                       onClick={() => handleToggle(pl)}
                       disabled={isThisUpdating}
                       className={cn(
-                        "w-full flex items-center justify-between p-3 rounded-2xl border text-left transition-all cursor-pointer",
+                        "w-full flex items-center justify-between p-3 rounded-2xl border text-left transition-ui cursor-pointer",
                         isChecked
                           ? "bg-muted border-foreground/30 text-foreground"
                           : "border-border/60 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
@@ -212,7 +212,7 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
 
                       <div
                         className={cn(
-                          "size-5 rounded-md flex items-center justify-center border transition-all shrink-0",
+                          "size-5 rounded-md flex items-center justify-center border transition-ui shrink-0",
                           isChecked
                             ? "bg-foreground border-foreground text-background shadow-xs"
                             : "border-border/80"
@@ -276,7 +276,7 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
               <button
                 type="button"
                 onClick={() => setIsCreatingNew(true)}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-dashed border-border text-foreground hover:bg-muted/40 text-xs font-bold transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-dashed border-border text-foreground hover:bg-muted/40 text-xs font-bold transition-ui cursor-pointer"
               >
                 <Plus className="size-3.5" />
                 <span>Create New Playlist</span>

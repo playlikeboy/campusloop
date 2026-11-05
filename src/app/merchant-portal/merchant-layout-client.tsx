@@ -100,7 +100,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row select-none">
       {/* ─── Top Mobile Merchant Header ─── */}
-      <header className="sticky top-0 z-40 flex h-13 w-full items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl md:hidden">
+      <header className="sticky top-0 z-40 flex h-13 w-full items-center justify-between border-b border-border/30 bg-surface px-4 md:hidden">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
@@ -109,8 +109,8 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           >
             <Menu className="size-5" />
           </button>
-          <span className="text-sm font-black tracking-tight">
-            Campus<span className="text-emerald-500">Merchant</span>
+          <span className="text-sm font-bold tracking-tight">
+            Campus<span className="text-success">Merchant</span>
           </span>
         </div>
 
@@ -125,7 +125,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           <button
             type="button"
             onClick={handleLogout}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-rose-500 transition-colors"
+            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-danger transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title="Log Out"
           >
             <LogOut className="size-4" />
@@ -139,12 +139,12 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           {/* Merchant Brand */}
           <div className="px-3">
             <Link href="/merchant-portal" className="flex items-center gap-2">
-              <div className="size-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
+              <div className="size-8 rounded-xl bg-success-subtle border border-success/30 flex items-center justify-center text-success">
                 <Store className="size-4.5" />
               </div>
               <div>
-                <span className="text-sm font-black tracking-tight text-foreground leading-none block">
-                  Campus<span className="text-emerald-500">Merchant</span>
+                <span className="text-sm font-bold tracking-tight text-foreground leading-none block">
+                  Campus<span className="text-success">Merchant</span>
                 </span>
                 <span className="text-[10px] font-bold text-muted-foreground">Partner Console</span>
               </div>
@@ -155,7 +155,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           <nav className="space-y-1">
             {isRentalStore ? (
               <>
-                <p className="px-3 pb-1 text-[10px] font-black uppercase tracking-widest text-emerald-500 flex items-center gap-1.5">
+                <p className="px-3 pb-1 text-[10px] font-bold text-success flex items-center gap-1.5">
                   <Bike className="size-3.5" />
                   <span>Bike Fleet Rentals</span>
                 </p>
@@ -173,9 +173,9 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                         haptics.light();
                       }}
                       className={cn(
-                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-colors cursor-pointer",
                         isActive
-                          ? "bg-emerald-500 text-black font-black shadow-xs"
+                          ? "bg-success text-black font-bold shadow-xs"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
@@ -187,7 +187,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               </>
             ) : isSupermarketStore ? (
               <>
-                <p className="px-3 pb-1 text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-1.5">
+                <p className="px-3 pb-1 text-[10px] font-bold text-warning flex items-center gap-1.5">
                   <ShoppingBag className="size-3.5" />
                   <span>Supermarket Console</span>
                 </p>
@@ -205,9 +205,9 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                         haptics.light();
                       }}
                       className={cn(
-                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-colors cursor-pointer",
                         isActive
-                          ? "bg-amber-500 text-black font-black shadow-xs"
+                          ? "bg-warning text-black font-bold shadow-xs"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
@@ -219,7 +219,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               </>
             ) : (
               <>
-                <p className="px-3 pb-1 text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+                <p className="px-3 pb-1 text-[10px] font-bold text-primary flex items-center gap-1.5">
                   {merchant?.verticalType === "BARBER" ? (
                     <>
                       <Scissors className="size-3.5" />
@@ -256,9 +256,9 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                         haptics.light();
                       }}
                       className={cn(
-                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                        "flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-colors cursor-pointer",
                         isActive
-                          ? "bg-foreground text-background font-black shadow-xs"
+                          ? "bg-foreground text-background font-bold shadow-xs"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
@@ -278,14 +278,14 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
           {merchant && (
             <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] font-bold text-muted-foreground">
                   Storefront
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success">
+                  <span className="size-1.5 rounded-full bg-success animate-pulse" /> Live
                 </span>
               </div>
-              <p className="text-xs font-black text-foreground truncate">{merchant.name}</p>
+              <p className="text-xs font-bold text-foreground truncate">{merchant.name}</p>
               <div className="flex items-center gap-1.5">
                 <Link
                   href={`/marketplace/store/${merchant.id}`}
@@ -340,7 +340,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
             <button
               type="button"
               onClick={handleLogout}
-              className="size-7 rounded-lg hover:bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+              className="size-7 rounded-lg hover:bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-danger transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               title="Sign Out of Merchant Console"
             >
               <LogOut className="size-3.5" />
@@ -351,12 +351,12 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
 
       {/* ─── Mobile Slide-out Drawer Menu ─── */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex md:hidden">
+        <div className="fixed inset-0 z-50 bg-overlay flex md:hidden">
           <div className="w-4/5 max-w-xs h-full bg-card border-r border-border p-4 flex flex-col justify-between overflow-y-auto">
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-border">
-                <span className="text-sm font-black">
-                  Campus<span className="text-emerald-500">Merchant</span>
+                <span className="text-sm font-bold">
+                  Campus<span className="text-success">Merchant</span>
                 </span>
                 <button
                   type="button"
@@ -371,14 +371,14 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               {merchant && (
                 <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[10px] font-bold text-muted-foreground">
                       Storefront
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-                      <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success">
+                      <span className="size-1.5 rounded-full bg-success animate-pulse" /> Live
                     </span>
                   </div>
-                  <p className="text-xs font-black text-foreground truncate">{merchant.name}</p>
+                  <p className="text-xs font-bold text-foreground truncate">{merchant.name}</p>
                   <div className="flex items-center gap-1.5">
                     <Link
                       href={`/marketplace/store/${merchant.id}`}
@@ -409,7 +409,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               )}
 
               <nav className="space-y-1">
-                <p className="px-2 text-[10px] font-black uppercase text-muted-foreground">General Store</p>
+                <p className="px-2 text-[10px] font-bold text-muted-foreground">General Store</p>
                 {MERCHANT_NAV_ITEMS.map((item) => (
                   <Link
                     key={item.href}
@@ -418,7 +418,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold",
                       pathname === item.href
-                        ? "bg-foreground text-background font-black"
+                        ? "bg-foreground text-background font-bold"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -429,7 +429,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               </nav>
 
               <nav className="space-y-1 pt-2 border-t border-border">
-                <p className="px-2 text-[10px] font-black uppercase text-emerald-500">Bike Rentals</p>
+                <p className="px-2 text-[10px] font-bold text-success">Bike Rentals</p>
                 {BIKE_RENTAL_NAV_ITEMS.map((item) => (
                   <Link
                     key={item.href}
@@ -438,7 +438,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold",
                       pathname === item.href
-                        ? "bg-emerald-500 text-black font-black"
+                        ? "bg-success text-black font-bold"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -453,7 +453,7 @@ export function MerchantLayoutClient({ children, profile, merchant }: MerchantLa
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-500/10 text-rose-500 text-xs font-bold hover:bg-rose-500/20 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-danger-subtle text-danger text-xs font-bold hover:bg-danger-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <LogOut className="size-3.5" />
                 <span>Log Out</span>

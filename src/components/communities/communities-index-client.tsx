@@ -210,7 +210,7 @@ export function CommunitiesIndexClient({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-2">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-primary/10 text-primary">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-primary/10 text-primary">
                 <Compass className="size-3" />
                 Campus Chapters &amp; Squads
               </span>
@@ -252,7 +252,7 @@ export function CommunitiesIndexClient({
                   aria-pressed={active}
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "flex min-w-0 items-center justify-center gap-1.5 h-9 sm:h-8 rounded-full px-1.5 sm:px-4 text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "flex min-w-0 items-center justify-center gap-1.5 h-9 sm:h-8 rounded-full px-1.5 sm:px-4 text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     active
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -377,7 +377,7 @@ export function CommunitiesIndexClient({
             <section className="space-y-3 pt-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <div className="flex size-7 items-center justify-center rounded-lg bg-warning-subtle text-warning">
                     <Flame className="size-4 fill-current" />
                   </div>
                   <div>
@@ -590,7 +590,7 @@ function SpotlightCommunityCard({
   const identifier = community.slug || community.id;
 
   return (
-    <article className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-sm overflow-hidden">
+    <article className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-4 transition-colors hover:border-primary/40 hover:shadow-sm overflow-hidden">
       {/* Cover Header */}
       {community.bannerUrl ? (
         <div className="relative h-28 -mx-4 -mt-4 mb-3 overflow-hidden bg-muted">
@@ -602,7 +602,7 @@ function SpotlightCommunityCard({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-black/30" />
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/90 text-white shadow-xs backdrop-blur-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-warning/90 text-white shadow-xs backdrop-blur-xs">
               <Flame className="size-3 fill-current" />
               #{rank} Trending
             </span>
@@ -622,7 +622,7 @@ function SpotlightCommunityCard({
       ) : (
         <div className="relative h-24 -mx-4 -mt-4 mb-3 overflow-hidden bg-gradient-to-br from-primary/15 via-muted/30 to-secondary/15 p-2.5 flex items-start justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/90 text-white shadow-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-warning/90 text-white shadow-xs">
               <Flame className="size-3 fill-current" />
               #{rank} Trending
             </span>
@@ -705,7 +705,7 @@ function CommunityCard({
   const identifier = community.slug || community.id;
 
   return (
-    <article className="group relative flex flex-col rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-xs">
+    <article className="group relative flex flex-col rounded-2xl border border-border/60 bg-card overflow-hidden transition-colors duration-200 hover:border-primary/40 hover:shadow-xs">
       {/* Top Banner Cover Header */}
       <div className="relative h-24 sm:h-28 w-full overflow-hidden bg-muted/40">
         {community.bannerUrl ? (
@@ -720,7 +720,7 @@ function CommunityCard({
           </>
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/15 via-muted/30 to-secondary/15 flex items-center justify-center">
-            <span className="text-2xl font-black text-muted-foreground/20 select-none uppercase tracking-wider">
+            <span className="text-2xl font-bold text-muted-foreground/20 select-none">
               {community.name.slice(0, 3)}
             </span>
           </div>
@@ -728,7 +728,7 @@ function CommunityCard({
 
         {/* Top Badges inside banner */}
         <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-background/90 text-foreground backdrop-blur-md shadow-2xs border border-border/40">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-background/90 text-foreground backdrop-blur-sm shadow-2xs border border-border/40">
             {community.category}
           </span>
           <div className="flex items-center gap-1">
@@ -739,7 +739,7 @@ function CommunityCard({
               </span>
             ) : null}
             {community.privacy === "PRIVATE" ? (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500 text-white backdrop-blur-xs">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-warning text-white backdrop-blur-xs">
                 <Lock className="size-2.5" /> Private
               </span>
             ) : null}
@@ -868,7 +868,7 @@ function CreateCommunityCallout() {
     <div className="relative mt-8 rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-muted/30 p-6 sm:p-8 overflow-hidden shadow-2xs">
       <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-primary/10 text-primary border border-primary/20">
             <Sparkles className="size-3" />
             Lead Your Campus
           </div>
@@ -881,13 +881,13 @@ function CreateCommunityCallout() {
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1 font-medium">
-              <ShieldCheck className="size-3.5 text-emerald-500" /> Verified Leaders
+              <ShieldCheck className="size-3.5 text-success" /> Verified Leaders
             </span>
             <span className="flex items-center gap-1 font-medium">
-              <Zap className="size-3.5 text-amber-500" /> +100 LP Clout Bonus
+              <Zap className="size-3.5 text-warning" /> +100 LP Clout Bonus
             </span>
             <span className="flex items-center gap-1 font-medium">
-              <Globe className="size-3.5 text-sky-500" /> 1,350+ Campuses
+              <Globe className="size-3.5 text-brand-text" /> 1,350+ Campuses
             </span>
           </div>
         </div>

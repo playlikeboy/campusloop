@@ -1,6 +1,6 @@
 import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
-import { Baloo_2, DM_Mono, Nunito_Sans } from "next/font/google";
+import { JetBrains_Mono, Noto_Sans_Devanagari, Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -9,24 +9,23 @@ import { SWRProvider } from "@/components/providers/swr-provider";
 import { PWAInstallBanner } from "@/components/pwa/pwa-install-banner";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { RouteProgress } from "@/components/ui/route-progress";
+import { SOCIAL_SAME_AS } from "@/constants/social";
 import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
-import "./campusloop-design-system.css";
-import "./mobile-navigation.css";
 
-const nunitoSans = Nunito_Sans({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-jakarta",
   display: "swap",
   weight: ["400", "500", "600", "700"],
 });
-const baloo2 = Baloo_2({
-  subsets: ["latin", "devanagari"],
-  variable: "--font-display",
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-devanagari",
   display: "swap",
-  weight: ["600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
-const dmMono = DM_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono-custom",
   weight: ["400", "500"],
@@ -35,8 +34,10 @@ const dmMono = DM_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFF8ED" },
-    { media: "(prefers-color-scheme: dark)", color: "#1A1615" },
+    // ds-allow: theme-color meta needs literal hex (mirrors --n-25)
+    { media: "(prefers-color-scheme: light)", color: "#FCFBF8" },
+    // ds-allow: theme-color meta needs literal hex (mirrors --n-950)
+    { media: "(prefers-color-scheme: dark)", color: "#12110F" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -48,8 +49,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://campusloop.space"),
   title: {
-    default: "CampusLoop | Your Verified Campus Social Network",
-    template: "%s | CampusLoop",
+    default: "CampusLoop · Verified campus social network for Indian college students",
+    template: "%s · CampusLoop",
   },
   description:
     "Join your real campus. Speak freely. Stay safe. CampusLoop is the verified student-only social network gatekept by college email. Share confessions, drop polls, and connect with students across Indian colleges.",
@@ -164,7 +165,11 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`font-sans antialiased ${nunitoSans.variable} ${baloo2.variable} ${dmMono.variable}`}
+      className={`font-sans antialiased ${jakarta.variable} ${devanagari.variable} ${jetbrainsMono.variable}`}
+      style={{
+        ["--font-body" as string]: "var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
+        ["--font-display" as string]: "var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
+      }}
       suppressHydrationWarning
     >
       <head>
@@ -182,8 +187,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="CampusLoop" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#1A1615" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#FFF8ED" media="(prefers-color-scheme: light)" />
+        {/* ds-allow: theme-color meta needs literal hex */}
+        <meta name="theme-color" content="#12110F" media="(prefers-color-scheme: dark)" />
+        {/* ds-allow: theme-color meta needs literal hex */}
+        <meta name="theme-color" content="#FCFBF8" media="(prefers-color-scheme: light)" />
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <meta name="geo.position" content="20.5937;78.9629" />
@@ -253,41 +260,27 @@ export default function RootLayout({
                 {
                   "@type": "SiteNavigationElement",
                   position: 5,
-                  name: "Campus Match",
-                  description: "Connect with verified students within your campus radius",
-                  url: "https://campusloop.space/dating",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 6,
                   name: "Student Communities",
                   description: "Student-created clubs, technical societies, and hobby spaces",
                   url: "https://campusloop.space/communities",
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  position: 7,
-                  name: "Campus Confessions",
-                  description: "Anonymous confessions and campus thoughts",
-                  url: "https://campusloop.space/confessions",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 8,
-                  name: "Safety & Safety Rules",
+                  position: 6,
+                  name: "Safety Rules",
                   description: "Student privacy, data protection, and content moderation rules",
                   url: "https://campusloop.space/safety",
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  position: 9,
+                  position: 7,
                   name: "Feature Docs",
                   description: "Plain-English explainers for every CampusLoop feature",
                   url: "https://campusloop.space/docs",
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  position: 10,
+                  position: 8,
                   name: "About CampusLoop",
                   description: "Learn more about the verified student ecosystem",
                   url: "https://campusloop.space/about",
@@ -309,7 +302,6 @@ export default function RootLayout({
               applicationCategory: "SocialNetworkingApplication",
               operatingSystem: "All (Web, Android, iOS)",
               browserRequirements: "Requires JavaScript. Requires HTML5.",
-              softwareVersion: "2.0.0",
               offers: {
                 "@type": "Offer",
                 price: "0",
@@ -329,15 +321,12 @@ export default function RootLayout({
               name: "CampusLoop",
               url: "https://campusloop.space",
               logo: "https://campusloop.space/logo.png",
+              founder: { "@type": "Person", name: "Shaswat Raj" },
               areaServed: {
                 "@type": "Country",
                 name: "India",
               },
-              sameAs: [
-                "https://www.instagram.com/campusloop.space/",
-                "https://www.linkedin.com/company/mycampusloop/",
-                "https://x.com/mycampusloop",
-              ],
+              sameAs: SOCIAL_SAME_AS,
               description:
                 "CampusLoop connects college students across India with verified campus conversations, communities, events, and academic resources.",
             }),

@@ -91,7 +91,7 @@ export async function FollowListPageView({
           <BrandLogo href="/" size="sm" />
           <Link
             href="/join?mode=signup"
-            className="rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white hover:opacity-95 shadow-md transition-all"
+            className="rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white hover:opacity-95 shadow-md transition-ui"
           >
             Join Campus
           </Link>

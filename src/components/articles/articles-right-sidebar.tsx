@@ -66,7 +66,7 @@ export function ArticlesRightSidebar() {
           <div className="pt-2">
             <Link
               href="/articles/new"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-ui shadow-xs"
             >
               <PenTool className="size-3.5" />
               <span>Start Writing</span>
@@ -78,7 +78,7 @@ export function ArticlesRightSidebar() {
       {/* ─── Trending Campus Topics ─── */}
       <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3">
         <div className="flex items-center gap-2 text-foreground font-bold text-sm">
-          <Flame className="size-4 text-orange-500" />
+          <Flame className="size-4 text-brand-text" />
           <span>Trending Topics</span>
         </div>
         <div className="flex flex-wrap gap-1.5 pt-1">

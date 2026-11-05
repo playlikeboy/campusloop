@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { InstagramIcon } from "@/components/ui/social-icons";
+import { SOCIAL_LINKS } from "@/constants/social";
 
 interface AuthSplitLayoutProps {
   mode: "sign-in" | "sign-up";
@@ -146,10 +147,10 @@ export function AuthSplitLayout({
         <footer className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <Sparkles className="size-3 text-primary" aria-hidden="true" />
-            <span>1,350+ college hubs</span>
+            <span>Built at BIT Mesra by Shaswat Raj.</span>
           </span>
           <a
-            href="https://www.instagram.com/campusloop.space/"
+            href={SOCIAL_LINKS.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 font-medium transition-colors hover:text-primary"

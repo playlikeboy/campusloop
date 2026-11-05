@@ -82,7 +82,7 @@ export function UnifiedSearchView({
                 onFilterChange(f.id);
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer",
+                "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-ui shrink-0 cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-xs"
@@ -100,7 +100,7 @@ export function UnifiedSearchView({
             type="button"
             onClick={() => setShowMoreDropdown(!showMoreDropdown)}
             className={cn(
-              "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
+              "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-ui cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               isMoreFilterActive
                 ? "bg-primary text-primary-foreground shadow-xs"

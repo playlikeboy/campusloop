@@ -107,7 +107,7 @@ function TopCard({
           x.set(0);
         }
       }}
-      className="absolute inset-0 cursor-grab touch-pan-y select-none overflow-hidden rounded-[1.75rem] bg-neutral-900 shadow-2xl ring-1 ring-white/10 active:cursor-grabbing"
+      className="absolute inset-0 cursor-grab touch-pan-y select-none overflow-hidden rounded-[1.75rem] bg-black shadow-2xl ring-1 ring-white/10 active:cursor-grabbing"
     >
       {/* Full Screen Photo */}
       <AnimatePresence mode="wait" initial={false}>
@@ -144,8 +144,8 @@ function TopCard({
             <div
               key={i}
               className={cn(
-                "h-1 flex-1 rounded-full transition-all duration-300",
-                i === photoIdx ? "bg-white" : "bg-white/30"
+                "h-1 flex-1 rounded-full transition-colors duration-300",
+                i === photoIdx ? "bg-surface" : "bg-white/30"
               )}
             />
           ))}
@@ -155,25 +155,25 @@ function TopCard({
       {/* LIKE / NOPE stamps */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="pointer-events-none absolute left-5 top-12 z-30 -rotate-12 rounded-2xl border-2 border-emerald-400/80 bg-emerald-950/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_24px_rgba(16,185,129,0.35)]"
+        className="pointer-events-none absolute left-5 top-12 z-30 -rotate-12 rounded-2xl border-2 border-success bg-success/80 px-4 py-1.5 backdrop-blur-sm"
       >
-        <span className="text-xl sm:text-2xl font-black tracking-widest text-emerald-300">MATCH</span>
+        <span className="text-xl sm:text-2xl font-black tracking-widest text-success">MATCH</span>
       </motion.div>
       <motion.div
         style={{ opacity: nopeOpacity }}
-        className="pointer-events-none absolute right-5 top-12 z-30 rotate-12 rounded-2xl border-2 border-rose-400/80 bg-rose-950/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_24px_rgba(244,63,94,0.35)]"
+        className="pointer-events-none absolute right-5 top-12 z-30 rotate-12 rounded-2xl border-2 border-crush bg-crush/80 px-4 py-1.5 backdrop-blur-sm"
       >
-        <span className="text-xl sm:text-2xl font-black tracking-widest text-rose-300">PASS</span>
+        <span className="text-xl sm:text-2xl font-black tracking-widest text-crush-text">PASS</span>
       </motion.div>
 
       {/* Top badges */}
       <div className="absolute inset-x-4 top-6 z-20 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md border border-white/15 shadow-xs">
-          <Zap className="size-3 text-amber-400 fill-amber-400" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-sm border border-white/15 shadow-xs">
+          <Zap className="size-3 text-warning fill-warning" />
           {candidate.compatibilityScore}% Match
         </span>
         {candidate.likedYou && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-3 py-1 text-[11px] font-black text-primary-foreground backdrop-blur-md shadow-xs border border-white/20">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-3 py-1 text-[11px] font-black text-primary-foreground backdrop-blur-sm shadow-xs border border-white/20">
             <Heart className="size-3 fill-current" /> Liked You
           </span>
         )}
@@ -192,8 +192,8 @@ function TopCard({
               >
                 {candidate.displayName}
               </Link>
-              <span title="Verified Student" className="shrink-0 text-emerald-400">
-                <ShieldCheck className="size-5 fill-emerald-400/20" />
+              <span title="Verified Student" className="shrink-0 text-success">
+                <ShieldCheck className="size-5 fill-success" />
               </span>
               {candidate.year && (
                 <span className="text-base sm:text-lg font-bold text-white/80 shrink-0 ml-0.5">
@@ -231,7 +231,7 @@ function TopCard({
             {candidate.sharedInterests.slice(0, 4).map((interest) => (
               <span
                 key={interest}
-                className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md"
+                className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm"
               >
                 {interest}
               </span>
@@ -258,7 +258,7 @@ function BackCard({ candidate, depth }: { candidate: Candidate; depth: 1 | 2 }) 
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem] bg-neutral-900 shadow-xl ring-1 ring-white/10"
+      className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem] bg-black shadow-xl ring-1 ring-white/10"
       style={{
         transform: `translateY(${depth * 10}px) scale(${1 - depth * 0.04})`,
         zIndex: -depth,
@@ -337,7 +337,7 @@ export function SwipeActions({
         onClick={handleUndo}
         disabled={!canUndo}
         aria-label="Undo last swipe"
-        className="flex size-11 items-center justify-center rounded-full border border-border/50 bg-card/80 text-muted-foreground shadow-xs transition-all hover:scale-105 hover:bg-muted hover:text-foreground active:scale-90 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+        className="flex size-11 items-center justify-center rounded-full border border-border/50 bg-card/80 text-muted-foreground shadow-xs transition-[opacity,transform] hover:scale-105 hover:bg-muted hover:text-foreground active:scale-90 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
       >
         <AnimatedIcon icon={RotateCcw} animation="spin" size={18} />
       </button>
@@ -346,7 +346,7 @@ export function SwipeActions({
         type="button"
         onClick={handlePass}
         aria-label="Pass"
-        className="flex size-14 items-center justify-center rounded-full border border-border/70 bg-card text-muted-foreground shadow-sm transition-all hover:scale-105 hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5 active:scale-90 cursor-pointer"
+        className="flex size-14 items-center justify-center rounded-full border border-border/70 bg-card text-muted-foreground shadow-sm transition-[opacity,transform] hover:scale-105 hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5 active:scale-90 cursor-pointer"
       >
         <AnimateX size={26} />
       </button>
@@ -355,7 +355,7 @@ export function SwipeActions({
         type="button"
         onClick={handleLike}
         aria-label="Match"
-        className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105 hover:bg-primary/95 active:scale-90 cursor-pointer"
+        className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-[opacity,transform] hover:scale-105 hover:bg-primary/95 active:scale-90 cursor-pointer"
       >
         <AnimatedIcon icon={HeartHandshakeIcon} animation="pop" size={28} className="fill-current" />
       </button>

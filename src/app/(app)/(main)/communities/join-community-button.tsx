@@ -64,7 +64,7 @@ export function JoinCommunityButton({
       disabled={isPending}
       aria-pressed={isMember}
       className={cn(
-        "h-8 px-4 text-xs font-bold rounded-full transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-1.5 active:scale-95",
+        "h-8 px-4 text-xs font-bold rounded-full transition-ui cursor-pointer disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-1.5 active:scale-95",
         isMember
           ? "border border-border/60 bg-transparent text-foreground hover:border-destructive/50 hover:text-destructive hover:bg-destructive/5"
           : "bg-foreground text-background hover:opacity-90 shadow-2xs",

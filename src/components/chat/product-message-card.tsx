@@ -58,37 +58,37 @@ export function ProductMessageCard({ product, isMe }: ProductMessageCardProps) {
     <div
       className={
         isMe
-          ? "my-2 rounded-xl border border-emerald-500/20 bg-emerald-950/40 p-3 text-left space-y-2 select-none shadow-2xs"
-          : "my-2 rounded-xl border border-white/10 bg-[#161619] p-3 text-left space-y-2 select-none shadow-2xs"
+          ? "my-2 rounded-xl border border-brand-subtle-border bg-surface p-3 text-left space-y-2 select-none"
+          : "my-2 rounded-xl border border-border bg-surface p-3 text-left space-y-2 select-none"
       }
     >
-      <div className="flex items-center justify-between gap-2 border-b border-white/8 pb-2">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zinc-400">
-          <ShoppingBag className="size-3.5 text-emerald-400 shrink-0" />
+      <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-fg-subtle">
+          <ShoppingBag className="size-3.5 text-brand-text shrink-0" />
           <span>Marketplace Item</span>
         </div>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand-subtle text-brand-text">
           {product.isAvailableQuestion ? "Inquiry" : "Listing"}
         </span>
       </div>
 
       <div className="space-y-1">
-        <h4 className="text-[13px] sm:text-[13.5px] font-semibold text-zinc-100 leading-snug line-clamp-2">
+        <h4 className="text-[13px] sm:text-[13.5px] font-semibold text-fg leading-snug line-clamp-2">
           {product.title}
         </h4>
         {product.price && (
-          <div className="text-[13px] font-bold text-emerald-400">
+          <div className="text-[13px] font-bold text-fg">
             {product.price}
           </div>
         )}
       </div>
 
       <div className="pt-0.5 flex items-center justify-between gap-2 text-[11px]">
-        <span className="text-zinc-400/80">Campus Buy & Sell</span>
+        <span className="text-fg-subtle">Campus Buy & Sell</span>
         <Link
           href="/communities?tab=marketplace"
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 font-medium text-emerald-400 hover:text-emerald-300 hover:underline transition-colors"
+          className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline transition-colors"
         >
           <span>Marketplace</span>
           <ExternalLink className="size-3" />

@@ -19,6 +19,7 @@ export const academicPlaylists = pgTable(
     semester: integer("semester"),
     category: text("category").default("SEMESTER_PACK").notNull(), // 'SEMESTER_PACK' | 'EXAM_PREP' | 'SUBJECT_BUNDLE' | 'GATE' | 'CUSTOM'
     visibility: text("visibility").default("PUBLIC").notNull(), // 'PUBLIC' | 'UNLISTED' | 'PRIVATE'
+    // ds-allow: legacy stored value; rendered through playlist-cover.ts themes
     coverGradient: text("cover_gradient").default("from-slate-900 to-stone-900").notNull(),
     starsCount: integer("stars_count").default(0).notNull(),
     viewsCount: integer("views_count").default(0).notNull(),

@@ -97,7 +97,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
       <article
         onClick={() => setDetailModalOpen(true)}
         className={cn(
-          "group flex flex-col justify-between rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden transition-all hover:border-[var(--border-strong)] cursor-pointer",
+          "group flex flex-col justify-between rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden transition-colors hover:border-[var(--border-strong)] cursor-pointer",
           variant === "list" && "sm:flex-row sm:items-center"
         )}
       >
@@ -147,7 +147,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
 
           {item.distanceFromCampus ? (
             <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-xs">
-              <MapPin className="size-2.5 text-amber-400 shrink-0" />
+              <MapPin className="size-2.5 text-warning shrink-0" />
               <span>{item.distanceFromCampus}</span>
             </div>
           ) : null}
@@ -171,7 +171,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
             {/* Location & Occupancy line */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1 font-medium">
-                <MapPin className="size-3 text-rose-500 shrink-0" />
+                <MapPin className="size-3 text-danger shrink-0" />
                 <span className="truncate max-w-[160px]">{item.location}</span>
               </span>
               <span>•</span>
@@ -195,7 +195,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
                     key={am}
                     className="inline-flex items-center gap-1 rounded-md bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
                   >
-                    <Check className="size-2.5 text-emerald-500" />
+                    <Check className="size-2.5 text-success" />
                     <span>{am}</span>
                   </span>
                 ))}
@@ -252,7 +252,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
                 type="button"
                 size="sm"
                 onClick={handleContact}
-                className="flex-1 font-bold h-9 text-xs gap-1 bg-amber-600 hover:bg-amber-500 text-white"
+                className="flex-1 font-bold h-9 text-xs gap-1 bg-warning hover:bg-warning text-white"
               >
                 <MessageCircle className="size-3.5" />
                 Contact Owner
@@ -274,7 +274,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
           >
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <div>
-                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                <span className="text-xs font-bold text-warning">
                   {item.occupancyType ? item.occupancyType.replace("_", " ") : "Housing Listing"}
                 </span>
                 <h2 className="text-lg font-black text-foreground">{item.title}</h2>
@@ -339,7 +339,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
             {/* Description */}
             {item.description ? (
               <div className="space-y-1.5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">About the place</h3>
+                <h3 className="text-xs font-bold text-muted-foreground">About the place</h3>
                 <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
                   {item.description}
                 </p>
@@ -349,14 +349,14 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
             {/* Amenities */}
             {amenities.length > 0 ? (
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Amenities</h3>
+                <h3 className="text-xs font-bold text-muted-foreground">Amenities</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {amenities.map((am) => (
                     <div
                       key={am}
                       className="flex items-center gap-2 rounded-xl border border-border/40 bg-card p-2.5 text-xs font-medium text-foreground"
                     >
-                      <Check className="size-3.5 text-emerald-500 shrink-0" />
+                      <Check className="size-3.5 text-success shrink-0" />
                       <span>{am}</span>
                     </div>
                   ))}
@@ -383,7 +383,7 @@ export function HousingCard({ item, currentUserId, variant = "card" }: HousingCa
                 <Button
                   type="button"
                   onClick={handleContact}
-                  className="flex-1 sm:flex-initial font-bold bg-amber-600 hover:bg-amber-500 text-white gap-2 h-10 px-5"
+                  className="flex-1 sm:flex-initial font-bold bg-warning hover:bg-warning text-white gap-2 h-10 px-5"
                 >
                   <MessageCircle className="size-4" />
                   Contact / Get Info

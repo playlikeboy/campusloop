@@ -146,7 +146,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
   if (isError || !streak) {
     return (
       <main className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center px-4 py-12 text-center">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-reward/10 text-reward-text">
           <Flame className="size-7" />
         </div>
         <h1 className="mt-4 text-xl font-black text-foreground">Streaks &amp; Heatmap</h1>
@@ -179,7 +179,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-3 py-1 text-xs font-bold text-foreground shadow-2xs">
-            <Flame className="size-3.5 fill-amber-500 text-amber-500" />
+            <Flame className="size-3.5 fill-reward text-reward-text" />
             <span>Campus Streak Rhythm</span>
           </span>
         </div>
@@ -190,8 +190,8 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                <Flame className="size-6.5 fill-amber-500/25 stroke-[2.2]" />
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-reward/15 text-reward-text">
+                <Flame className="size-6.5 fill-reward/25 stroke-[2.2]" />
               </span>
               <div>
                 <div className="flex items-baseline gap-2">
@@ -214,8 +214,8 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
           {/* Quick Action Button */}
           <div className="flex items-center gap-3">
             {isSafeToday ? (
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-success/30 bg-success/10 px-4 py-2.5 text-xs font-bold text-success">
+                <CheckCircle2 className="size-4 text-success" />
                 <span>Safe for Today</span>
               </div>
             ) : (
@@ -223,7 +223,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
                 type="button"
                 onClick={handleQuickQualify}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/95 active:scale-95 disabled:opacity-60 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-md transition-transform hover:bg-primary/95 active:scale-95 disabled:opacity-60 cursor-pointer"
               >
                 <Zap className="size-4" />
                 <span>{isSubmitting ? "Updating..." : "Complete Today's Loop"}</span>
@@ -236,7 +236,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-border/30">
           <div className="rounded-2xl border border-border/30 bg-background/50 p-3.5">
             <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-              <Flame className="size-3.5 text-amber-500" />
+              <Flame className="size-3.5 text-reward-text" />
               <span>Current</span>
             </div>
             <p className="mt-1 text-2xl font-black text-foreground">{currentStreak}d</p>
@@ -245,7 +245,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
 
           <div className="rounded-2xl border border-border/30 bg-background/50 p-3.5">
             <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-              <Trophy className="size-3.5 text-yellow-500" />
+              <Trophy className="size-3.5 text-reward-text" />
               <span>Personal Best</span>
             </div>
             <p className="mt-1 text-2xl font-black text-foreground">{longestStreak}d</p>
@@ -263,7 +263,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
 
           <div className="rounded-2xl border border-border/30 bg-background/50 p-3.5">
             <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-              <Sparkles className="size-3.5 text-emerald-500" />
+              <Sparkles className="size-3.5 text-success" />
               <span>Loop Status</span>
             </div>
             <p className="mt-1 text-base sm:text-lg font-black text-foreground truncate">
@@ -292,7 +292,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
               type="button"
               onClick={() => setTimeframe("3months")}
               className={cn(
-                "rounded-lg px-3 py-1.5 transition-all cursor-pointer",
+                "rounded-lg px-3 py-1.5 transition-colors cursor-pointer",
                 timeframe === "3months"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -304,7 +304,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
               type="button"
               onClick={() => setTimeframe("6months")}
               className={cn(
-                "rounded-lg px-3 py-1.5 transition-all cursor-pointer",
+                "rounded-lg px-3 py-1.5 transition-colors cursor-pointer",
                 timeframe === "6months"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -316,7 +316,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
               type="button"
               onClick={() => setTimeframe("year")}
               className={cn(
-                "rounded-lg px-3 py-1.5 transition-all cursor-pointer",
+                "rounded-lg px-3 py-1.5 transition-colors cursor-pointer",
                 timeframe === "year"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -369,15 +369,15 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
                           onMouseEnter={() => setHoveredDay(day)}
                           onMouseLeave={() => setHoveredDay(null)}
                           className={cn(
-                            "size-3 sm:size-3.5 rounded-xs transition-all cursor-pointer relative",
+                            "size-3 sm:size-3.5 rounded-xs transition-colors cursor-pointer relative",
                             day.isFuture
                               ? "bg-muted/15 border border-dashed border-border/20 cursor-default"
                               : day.isCompleted
                                 ? day.isToday
-                                  ? "bg-emerald-500 shadow-xs ring-1 ring-emerald-400"
-                                  : "bg-emerald-500/75 dark:bg-emerald-500/80 hover:scale-125 hover:z-10"
+                                  ? "bg-success shadow-xs ring-1 ring-success"
+                                  : "bg-success/75 hover:scale-125 hover:z-10"
                                 : "bg-muted/40 hover:bg-muted/70",
-                            day.isToday && !day.isCompleted && "ring-1 ring-amber-500/80",
+                            day.isToday && !day.isCompleted && "ring-1 ring-reward/80",
                             isHovered && "ring-2 ring-primary z-20 scale-125"
                           )}
                           title={`${day.dateStr}: ${
@@ -404,7 +404,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
                 <span
                   className={
                     hoveredDay.isCompleted
-                      ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                      ? "text-success font-bold"
                       : "text-muted-foreground"
                   }
                 >
@@ -427,9 +427,9 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
             <span>Less</span>
             <div className="flex items-center gap-1">
               <span className="size-2.5 rounded-xs bg-muted/40" />
-              <span className="size-2.5 rounded-xs bg-emerald-500/40" />
-              <span className="size-2.5 rounded-xs bg-emerald-500/75" />
-              <span className="size-2.5 rounded-xs bg-emerald-500" />
+              <span className="size-2.5 rounded-xs bg-success/40" />
+              <span className="size-2.5 rounded-xs bg-success/75" />
+              <span className="size-2.5 rounded-xs bg-success" />
             </div>
             <span>More</span>
           </div>
@@ -449,7 +449,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
           {Object.entries(STREAK_QUALIFYING_EVENTS).slice(0, 6).map(([key, ev]) => (
             <div
               key={key}
-              className="rounded-2xl border border-border/30 bg-background/50 p-4 space-y-1.5 transition-all hover:border-primary/30"
+              className="rounded-2xl border border-border/30 bg-background/50 p-4 space-y-1.5 transition-colors hover:border-primary/30"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground">{ev.label}</span>
@@ -483,9 +483,9 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
               <div
                 key={milestone.days}
                 className={cn(
-                  "rounded-2xl border p-4 space-y-2 transition-all",
+                  "rounded-2xl border p-4 space-y-2 transition-colors",
                   isUnlocked
-                    ? "border-emerald-500/30 bg-emerald-500/[0.04] text-foreground"
+                    ? "border-success/30 bg-success/[0.04] text-foreground"
                     : "border-border/30 bg-background/40 opacity-70"
                 )}
               >
@@ -494,7 +494,7 @@ export function StreakHeatmap({ profileId }: StreakHeatmapProps) {
                     className={cn(
                       "flex size-9 items-center justify-center rounded-xl font-bold",
                       isUnlocked
-                        ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                        ? "bg-success/20 text-success"
                         : "bg-muted text-muted-foreground"
                     )}
                   >

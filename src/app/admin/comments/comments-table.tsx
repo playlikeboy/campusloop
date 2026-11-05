@@ -99,7 +99,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
         </div>
         <button
           type="submit"
-          className="rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary/95 transition-colors cursor-pointer"
+          className="rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary/95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Search
         </button>
@@ -109,7 +109,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
-            <thead className="bg-muted text-xs uppercase text-foreground">
+            <thead className="bg-muted text-xs text-foreground">
               <tr>
                 <th className="px-6 py-4">Author</th>
                 <th className="px-6 py-4">Comment</th>
@@ -127,7 +127,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
                         {c.isAnonymous
                           ? (revealed[c.id]?.displayName ?? (
                               <span className="inline-flex items-center gap-1">
-                                <VenetianMask className="size-3 text-purple-400" />
+                                <VenetianMask className="size-3 text-brand-text" />
                                 <span>Anonymous</span>
                               </span>
                             ))
@@ -154,7 +154,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
                           disabled={actionLoading === c.id}
                           onClick={() => setRevealCommentId(c.id)}
                           title="Reveal author (audit logged)"
-                          className="p-1.5 rounded hover:bg-muted text-blue-500 disabled:opacity-50 transition-colors cursor-pointer"
+                          className="p-1.5 rounded hover:bg-muted text-brand-text disabled:opacity-50 transition-colors cursor-pointer"
                         >
                           <Eye className="h-4 w-4" />
                         </button>

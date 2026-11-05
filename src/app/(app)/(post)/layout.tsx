@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/ui/navigation";
+import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
-  title: "Campus Loop | CampusLoop",
+  title: "Posts",
   description: "Explore student campus loops, confessions, polls, and discussions.",
   robots: { index: true, follow: true },
 };
@@ -14,7 +14,6 @@ export default async function PostLayout({ children }: { children: React.ReactNo
   const user = await getCachedAuthUser();
   const profile = user ? await getCachedUserProfile(user.id) : null;
 
-  // If user is authenticated but hasn't finished onboarding, complete onboarding
   if (user && !profile?.onboardingCompleted) {
     redirect("/onboarding");
   }
@@ -22,19 +21,16 @@ export default async function PostLayout({ children }: { children: React.ReactNo
   const college = profile?.institution;
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
+  // The post deck scrolls itself; the shell goes full-bleed so wheel scroll stays on the deck.
   return (
-    <div className="relative h-screen h-[100dvh] w-full bg-background overflow-hidden flex flex-col lg:flex-row">
-      <Navigation
-        profile={profile || undefined}
-        collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
-        isAdmin={profile?.role === "ADMIN"}
-        isViewer={viewerMode}
-      />
-
-      {/* Main Canvas without RightSidebar so wheel scroll controls the deck 100% */}
-      <div className="flex-1 w-full min-h-0 overflow-hidden relative flex flex-col">
-        <main className="w-full h-full min-h-0 overflow-hidden relative flex flex-col">{children}</main>
-      </div>
-    </div>
+    <AppShell
+      profile={profile || undefined}
+      collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
+      isAdmin={profile?.role === "ADMIN"}
+      isViewer={viewerMode}
+      fullBleed
+    >
+      {children}
+    </AppShell>
   );
 }

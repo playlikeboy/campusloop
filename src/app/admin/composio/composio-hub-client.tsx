@@ -206,8 +206,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-orange-500 uppercase tracking-wider">Reddit API</span>
-            <span className="px-1.5 py-0.2 rounded font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20">
+            <span className="font-bold text-warning">Reddit API</span>
+            <span className="px-1.5 py-0.2 rounded font-bold text-success bg-success-subtle border border-success/20">
               ACTIVE
             </span>
           </div>
@@ -217,8 +217,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
         <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-amber-500 uppercase tracking-wider">Cloudflare CDN</span>
-            <span className="px-1.5 py-0.2 rounded font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20">
+            <span className="font-bold text-warning">Cloudflare CDN</span>
+            <span className="px-1.5 py-0.2 rounded font-bold text-success bg-success-subtle border border-success/20">
               ACTIVE
             </span>
           </div>
@@ -228,8 +228,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
         <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-indigo-500 uppercase tracking-wider">Discord / TG</span>
-            <span className="px-1.5 py-0.2 rounded font-black text-blue-500 bg-blue-500/10 border border-blue-500/20">
+            <span className="font-bold text-brand-text">Discord / TG</span>
+            <span className="px-1.5 py-0.2 rounded font-bold text-brand-text bg-brand-subtle border border-brand/20">
               CONNECTED
             </span>
           </div>
@@ -239,8 +239,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
         <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-emerald-500 uppercase tracking-wider">Data Hub</span>
-            <span className="px-1.5 py-0.2 rounded font-black text-primary bg-primary/10 border border-primary/20">
+            <span className="font-bold text-success">Data Hub</span>
+            <span className="px-1.5 py-0.2 rounded font-bold text-primary bg-primary/10 border border-primary/20">
               READY
             </span>
           </div>
@@ -255,7 +255,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <MessageSquare className="size-4 text-orange-500" />
+              <MessageSquare className="size-4 text-warning" />
               Subreddit Ingestion Pipeline
             </h2>
             <p className="text-xs text-muted-foreground">
@@ -271,7 +271,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
                 type="button"
                 onClick={() => setSubreddit(sub)}
                 className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                   subreddit.toLowerCase() === sub.toLowerCase()
                     ? "bg-primary text-primary-foreground shadow-2xs"
                     : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -286,7 +286,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         {/* Source Inputs Bar (Clean, Compact, Responsive) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
           <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
               Subreddit
             </label>
             <div className="flex items-center rounded-lg bg-muted/40 border border-border/50 px-2.5 py-1.5 focus-within:border-primary transition-colors">
@@ -302,7 +302,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           </div>
 
           <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
               Sort Order
             </label>
             <select
@@ -318,7 +318,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           </div>
 
           <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
               Post Limit
             </label>
             <select
@@ -338,7 +338,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               type="button"
               disabled={isFetchingReddit}
               onClick={handleFetchReddit}
-              className="w-full h-8.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              className="w-full h-8.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <RefreshCw className={cn("size-3.5", isFetchingReddit && "animate-spin")} />
               <span>{isFetchingReddit ? "Fetching..." : "Fetch & Analyze"}</span>
@@ -348,7 +348,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
         {/* Target Campus Hub Picker */}
         <div className="space-y-1 pt-1">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+          <label className="text-[11px] font-bold text-muted-foreground block">
             Target Campus Hub for Curated Ingestion
           </label>
           <div className="max-w-md">
@@ -381,8 +381,8 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                       <span className="font-semibold text-foreground">u/{post.author}</span>
                       <div className="flex items-center gap-2 font-mono text-[10px]">
-                        <span>▲ {post.score}</span>
-                        <span>💬 {post.numComments}</span>
+                        <span className="inline-flex items-center gap-1"><ArrowUpRight className="size-3" aria-hidden="true" />{post.score}</span>
+                        <span className="inline-flex items-center gap-1"><MessageSquare className="size-3" aria-hidden="true" />{post.numComments}</span>
                       </div>
                     </div>
                     <h3 className="text-xs font-bold text-foreground leading-snug line-clamp-2">
@@ -410,7 +410,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
                       type="button"
                       disabled={importingId === post.id}
                       onClick={() => handleImportPost(post)}
-                      className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50 shadow-2xs"
+                      className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-bold hover:opacity-90 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 shadow-2xs"
                     >
                       <ArrowUpRight className="size-3.5" />
                       <span>{importingId === post.id ? "Importing..." : "Import to Hub"}</span>
@@ -429,7 +429,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs space-y-3">
           <div>
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <Cloud className="size-4 text-amber-500" />
+              <Cloud className="size-4 text-warning" />
               Cloudflare Edge CDN Controller
             </h2>
             <p className="text-xs text-muted-foreground">
@@ -440,7 +440,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           <div className="p-3 rounded-lg bg-muted/20 border border-border/40 space-y-1">
             <div className="flex items-center justify-between text-xs font-bold">
               <span>campusloop.space</span>
-              <span className="text-emerald-500 flex items-center gap-1 text-[11px]">
+              <span className="text-success flex items-center gap-1 text-[11px]">
                 <CheckCircle2 className="size-3" /> Proxied
               </span>
             </div>
@@ -451,7 +451,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
           {lastPurgeTime && (
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-emerald-500" />
+              <CheckCircle2 className="size-3.5 text-success" />
               <span>Last cache purge completed at {lastPurgeTime}</span>
             </p>
           )}
@@ -460,7 +460,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             type="button"
             disabled={isPurgingCf}
             onClick={handlePurgeCloudflare}
-            className="w-full h-9 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="w-full h-9 rounded-lg bg-warning hover:opacity-90 text-warning-fg text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <RefreshCw className={cn("size-3.5", isPurgingCf && "animate-spin")} />
             <span>{isPurgingCf ? "Purging Edge CDN..." : "Purge CDN Cache (Global)"}</span>
@@ -484,9 +484,9 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               type="button"
               onClick={() => setAlertChannel("discord")}
               className={cn(
-                "flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex-1 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 alertChannel === "discord"
-                  ? "bg-indigo-600 text-white shadow-2xs"
+                  ? "bg-brand text-brand-fg shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground"
               )}
             >
@@ -496,9 +496,9 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               type="button"
               onClick={() => setAlertChannel("telegram")}
               className={cn(
-                "flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex-1 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 alertChannel === "telegram"
-                  ? "bg-sky-500 text-white shadow-2xs"
+                  ? "bg-brand text-brand-fg shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground"
               )}
             >
@@ -510,7 +510,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             value={alertMessage}
             onChange={(e) => setAlertMessage(e.target.value)}
             rows={2}
-            className="w-full rounded-lg bg-muted/40 border border-border/50 p-2.5 text-xs font-medium text-foreground outline-none focus:border-primary transition-all resize-none"
+            className="w-full rounded-lg bg-muted/40 border border-border/50 p-2.5 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors resize-none"
             placeholder="Enter alert payload..."
           />
 
@@ -518,7 +518,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             type="button"
             disabled={isDispatchingAlert}
             onClick={handleDispatchAlert}
-            className="w-full h-9 rounded-lg bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="w-full h-9 rounded-lg bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Send className={cn("size-3.5", isDispatchingAlert && "animate-pulse")} />
             <span>
@@ -532,7 +532,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <FileSpreadsheet className="size-4 text-emerald-500" />
+            <FileSpreadsheet className="size-4 text-success" />
             Platform Data Export &amp; Telemetry
           </h2>
           <p className="text-xs text-muted-foreground">
@@ -547,7 +547,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               type="button"
               onClick={() => setExportType(type)}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer capitalize",
+                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer capitalize",
                 exportType === type
                   ? "bg-foreground text-background"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground"
@@ -561,7 +561,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             type="button"
             disabled={isExporting}
             onClick={handleExportData}
-            className="px-3.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="px-3.5 py-1 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Download className={cn("size-3.5", isExporting && "animate-pulse")} />
             <span>{isExporting ? "Exporting..." : "Download JSON"}</span>

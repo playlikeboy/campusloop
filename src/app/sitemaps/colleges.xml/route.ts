@@ -6,6 +6,8 @@ import { VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
+const SITEMAP_URL_CAP = 50_000;
+
 export async function GET() {
   try {
     const db = getDb();
@@ -13,20 +15,24 @@ export async function GET() {
       columns: {
         id: true,
         slug: true,
+        createdAt: true,
+        updatedAt: true,
       },
       // The reserved Viewer Hub is internal plumbing for personal-email
       // accounts, not a real campus — it must never be handed to Google.
       where: ne(institutions.slug, VIEWER_INSTITUTION_SLUG),
       orderBy: [desc(institutions.createdAt)],
-      limit: 1500,
+      limit: SITEMAP_URL_CAP,
     });
 
     const urls = list
       .map((item) => {
         const slugOrId = item.slug || item.id;
+        const lastmod = (item.updatedAt ?? item.createdAt ?? new Date()).toISOString();
         return `
   <url>
     <loc>https://campusloop.space/college/${slugOrId}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`;

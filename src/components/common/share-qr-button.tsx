@@ -38,7 +38,7 @@ export function ShareQrButton({
           setIsOpen(true);
         }}
         className={cn(
-          "flex cursor-pointer items-center justify-center gap-1.5 border border-border/60 bg-card text-foreground transition-all hover:bg-muted active:scale-95",
+          "flex cursor-pointer items-center justify-center gap-1.5 border border-border/60 bg-card text-foreground transition-ui hover:bg-muted active:scale-95",
           variant === "icon" ? "size-9 rounded-full" : "h-9 rounded-full px-4 text-xs font-bold",
           className
         )}

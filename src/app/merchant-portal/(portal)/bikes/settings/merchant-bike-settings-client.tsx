@@ -136,7 +136,7 @@ export function MerchantBikeSettingsClient() {
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+          className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-ui flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
         >
           {isSaving ? (
             <Loader2 className="size-4 animate-spin" />

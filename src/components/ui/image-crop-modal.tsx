@@ -231,7 +231,7 @@ export function ImageCropModal({ isOpen, onClose, imageUrl, mode, onCropComplete
       if (!ctx) throw new Error("Canvas context not available");
 
       ctx.imageSmoothingQuality = "high";
-      ctx.fillStyle = "#111111";
+      ctx.fillStyle = "#111111"; // ds-allow: exported bitmap letterbox must not follow the app theme
       ctx.fillRect(0, 0, output.width, output.height);
 
       // The preview frame and the output share an aspect ratio, so a single
@@ -441,7 +441,7 @@ export function ImageCropModal({ isOpen, onClose, imageUrl, mode, onCropComplete
               type="button"
               onClick={handleSaveCrop}
               disabled={busy}
-              className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/90 disabled:opacity-50"
+              className="flex cursor-pointer items-center gap-1.5 rounded-md bg-brand px-5 py-2 text-xs font-bold text-brand-fg transition-colors hover:bg-brand-hover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               {isProcessing ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
               <span>Apply</span>

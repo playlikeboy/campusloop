@@ -96,7 +96,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
               key={item.id}
               href={`/academics/study-material/${item.id}`}
               onClick={() => sounds.tap()}
-              className="group rounded-2xl border border-border/40 bg-card/60 p-3.5 transition-all hover:border-primary/35 hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="group rounded-2xl border border-border/40 bg-card/60 p-3.5 transition-ui hover:border-primary/35 hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className="flex items-start gap-3">
                 <Avatar className="size-9 shrink-0 border border-border/50">
@@ -149,7 +149,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
                   </div>
                 </div>
 
-                <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground/50 transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground/50 transition-ui group-hover:translate-x-0.5 group-hover:text-primary" />
               </div>
             </Link>
           );

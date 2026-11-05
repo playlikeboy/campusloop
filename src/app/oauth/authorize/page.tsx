@@ -33,7 +33,11 @@ function Problem({ title, message }: { title: string; message: string }) {
 }
 
 /** OAuth 2.0 / OIDC authorization endpoint with the consent screen. */
-export default async function AuthorizePage({ searchParams }: Props) {
+type AuthorizeResult =
+  | { kind: "problem"; title: string; message: string }
+  | { kind: "consent"; props: React.ComponentProps<typeof ConsentCard> };
+
+async function resolveAuthorize(searchParams: Props["searchParams"]): Promise<AuthorizeResult> {
   try {
     const raw = await searchParams;
     const params = new URLSearchParams(Object.entries(raw).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
@@ -41,7 +45,7 @@ export default async function AuthorizePage({ searchParams }: Props) {
     const self = `/oauth/authorize?${query}`;
 
     const check = await checkAuthorizeRequest(params);
-    if (check.kind === "fatal") return <Problem title="Can't sign you in" message={check.message} />;
+    if (check.kind === "fatal") return { kind: "problem", title: "Can't sign you in", message: check.message };
     if (check.kind === "error") redirect(check.redirectTo);
 
     const user = await getCachedAuthUser().catch(() => null);
@@ -51,7 +55,7 @@ export default async function AuthorizePage({ searchParams }: Props) {
     }
     const profile = await getCachedUserProfile(user.id).catch(() => null);
     if (!profile || !profile.onboardingCompleted) {
-      return <Problem title="Finish setting up CampusLoop" message="Complete your CampusLoop profile first, then come back to this app and sign in again." />;
+      return { kind: "problem", title: "Finish setting up CampusLoop", message: "Complete your CampusLoop profile first, then come back to this app and sign in again." };
     }
 
     // Skip the screen when the app is first-party or the student already agreed to these scopes.
@@ -72,32 +76,34 @@ export default async function AuthorizePage({ searchParams }: Props) {
       redirectHost = new URL(check.redirectUri).host || check.redirectUri;
     } catch {}
 
-    return (
-      <ConsentCard
-        client={check.client}
-        scopes={check.scopes}
-        redirectHost={redirectHost}
-        request={query}
-        account={{
+    return {
+      kind: "consent",
+      props: {
+        client: check.client,
+        scopes: check.scopes,
+        redirectHost: redirectHost,
+        request: query,
+        account: {
           displayName: profile.displayName || profile.username || "Student",
           username: profile.username || "student",
           avatarUrl: profile.avatarUrl || null,
           verified: isCollegeVerifiedUser(profile),
-        }}
-        switchHref={`/logout?returnTo=${encodeURIComponent(self)}`}
-        action={decideAuthorization}
-      />
-    );
+        },
+        switchHref: `/logout?returnTo=${encodeURIComponent(self)}`,
+        action: decideAuthorization,
+      },
+    };
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
     console.error("[OAuth Authorize Error]:", error);
-    return (
-      <Problem
-        title="Can't complete sign in"
-        message="We encountered an unexpected issue while preparing your authentication session. Please try again or return to CampusLoop."
-      />
-    );
+    return { kind: "problem", title: "Can't complete sign in", message: "We encountered an unexpected issue while preparing your authentication session. Please try again or return to CampusLoop." };
   }
+}
+
+export default async function AuthorizePage({ searchParams }: Props) {
+  const result = await resolveAuthorize(searchParams);
+  if (result.kind === "problem") return <Problem title={result.title} message={result.message} />;
+  return <ConsentCard {...result.props} />;
 }

@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     await channel.sendVerificationEmail({
-      callbackUrl: "https://campusloop.space/app/profile?campus_verified=1",
+      callbackUrl: "https://campusloop.space/profile?campus_verified=1",
     });
 
     return NextResponse.json({

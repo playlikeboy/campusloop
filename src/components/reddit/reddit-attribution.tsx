@@ -23,10 +23,10 @@ export function RedditAttribution({
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        className={`inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-orange-500 transition-colors font-medium group select-none ${className}`}
+        className={`inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-warning transition-colors font-medium group select-none ${className}`}
         title={`View original post on r/${subreddit || "Reddit"}`}
       >
-        <RedditLogoIcon className="size-3.5 text-orange-500 shrink-0" />
+        <RedditLogoIcon className="size-3.5 text-warning shrink-0" />
         <span className="truncate">
           r/{subreddit || "reddit"} {externalAuthor ? `· u/${externalAuthor}` : ""}
         </span>
@@ -41,17 +41,17 @@ export function RedditAttribution({
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => e.stopPropagation()}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/25 hover:bg-orange-500/20 hover:border-orange-500/40 transition-all select-none group w-fit ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-warning/10 text-warning border border-warning/25 hover:bg-warning/20 hover:border-warning/40 transition-colors select-none group w-fit ${className}`}
       title={`Open original post on r/${subreddit || "Reddit"}`}
     >
-      <RedditLogoIcon className="size-3.5 text-orange-500 shrink-0" />
+      <RedditLogoIcon className="size-3.5 text-warning shrink-0" />
       <span className="font-bold">r/{subreddit || "reddit"}</span>
       {externalAuthor && (
         <span className="text-muted-foreground/80 dark:text-muted-foreground truncate max-w-[120px]">
           u/{externalAuthor}
         </span>
       )}
-      <ExternalLink className="size-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+      <ExternalLink className="size-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
     </a>
   );
 }

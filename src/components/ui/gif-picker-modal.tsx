@@ -207,7 +207,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
           <button
             type="button"
             onClick={onClose}
-            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 active:scale-95"
+            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
             aria-label="Close GIF picker"
           >
             <X className="size-5" />
@@ -228,7 +228,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
               value={searchQuery}
               onChange={handleSearchChange}
               aria-label="Search GIFs"
-              className="h-11 w-full rounded-2xl border border-border/60 bg-muted/45 pl-10 pr-11 text-[14px] font-semibold text-foreground outline-none transition-all placeholder:text-muted-foreground/75 focus:border-primary/60 focus:bg-background focus:ring-4 focus:ring-primary/10"
+              className="h-11 w-full rounded-sm border border-border bg-surface pl-10 pr-11 text-[14px] font-semibold text-fg outline-none transition-colors placeholder:text-fg-subtle focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30"
             />
 
             {showRefreshIndicator ? (
@@ -240,7 +240,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Clear GIF search"
               >
                 <X className="size-4" />
@@ -262,7 +262,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
                   aria-selected={selectedTag === tag.id}
                   onClick={() => handleTagClick(tag.id, tag.query)}
                   className={cn(
-                    "shrink-0 cursor-pointer rounded-full px-3.5 py-2 text-[11px] font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-[0.98]",
+                    "shrink-0 cursor-pointer rounded-full px-3.5 py-2 text-[11px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]",
                     selectedTag === tag.id
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "border border-border/50 bg-muted/45 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -305,7 +305,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
               <button
                 type="button"
                 onClick={handleRetry}
-                className="mt-4 inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95"
+                className="mt-4 inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
               >
                 <RefreshCw className="size-3.5" />
                 Try again
@@ -357,7 +357,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
                       onClose();
                     }}
                     aria-label={`Send GIF: ${gif.title}`}
-                    className="group relative mb-2 block w-full break-inside-avoid cursor-pointer overflow-hidden rounded-xl border border-border/40 bg-muted/40 text-left shadow-2xs outline-none transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary/60 active:scale-[0.98]"
+                    className="group relative mb-2 block w-full break-inside-avoid cursor-pointer overflow-hidden rounded-xl border border-border/40 bg-muted/40 text-left shadow-xs outline-none transition-transform hover:-translate-y-0.5 hover:border-brand focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
                     style={{
                       aspectRatio: `${Math.max(gif.width, 1)} / ${Math.max(gif.height, 1)}`,
                     }}
