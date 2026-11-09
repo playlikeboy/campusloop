@@ -1,0 +1,14 @@
+// Standalone config for the YouTube MCP relay. Deploy from THIS folder so the
+// main CampusLoop wrangler.jsonc at the repo root is never used:
+//   cd mcp/youtube/relay
+//   npx wrangler deploy --var APPS_SCRIPT_URL:https://script.google.com/macros/s/XXXX/exec
+{
+  "name": "youtube-mcp-relay",
+  "main": "worker.mjs",
+  "compatibility_date": "2025-06-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "vars": {
+    "APPS_SCRIPT_URL": ""
+  }
+}
