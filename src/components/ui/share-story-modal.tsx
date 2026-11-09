@@ -12,12 +12,16 @@ interface ShareStoryModalProps {
   onClose: () => void;
 }
 
+// Canvas colours come from the live semantic tokens so the exported story
+// matches the app theme. `accent` is the text token that stays legible on `stops`.
 const THEMES = [
-  { id: "dark", name: "Campus Dark", bg: "from-zinc-950 via-black to-zinc-900", accent: "#a170ff" },
-  { id: "purple", name: "Campus Vibe", bg: "from-violet-600 via-purple-600 to-indigo-800", accent: "#ffffff" },
-  { id: "pink", name: "Confession Tea", bg: "from-pink-600 via-rose-600 to-purple-800", accent: "#ffffff" },
-  { id: "cyan", name: "Cyber Campus", bg: "from-cyan-600 via-blue-600 to-indigo-900", accent: "#ffffff" },
+  { id: "dark", name: "Campus Dark", stops: ["--fg", "--fg", "--fg-muted"], accent: "--bg" },
+  { id: "purple", name: "Campus Vibe", stops: ["--brand", "--brand", "--brand-hover"], accent: "--brand-fg" },
+  { id: "pink", name: "Confession Tea", stops: ["--crush", "--crush", "--crush-text"], accent: "--crush-fg" },
+  { id: "cyan", name: "Cyber Campus", stops: ["--reward", "--reward", "--reward-text"], accent: "--reward-fg" },
 ];
+
+const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
@@ -109,35 +113,23 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
     // 1. Draw Background Gradient
     const gradient = ctx.createLinearGradient(0, 0, 1080, 1920);
-    if (selectedTheme.id === "dark") {
-      gradient.addColorStop(0, "#09090b");
-      gradient.addColorStop(0.5, "#000000");
-      gradient.addColorStop(1, "#18181b");
-    } else if (selectedTheme.id === "purple") {
-      gradient.addColorStop(0, "#7c3aed");
-      gradient.addColorStop(0.5, "#a170ff");
-      gradient.addColorStop(1, "#312e81");
-    } else if (selectedTheme.id === "pink") {
-      gradient.addColorStop(0, "#db2777");
-      gradient.addColorStop(0.5, "#e11d48");
-      gradient.addColorStop(1, "#6b21a8");
-    } else {
-      gradient.addColorStop(0, "#0891b2");
-      gradient.addColorStop(0.5, "#2563eb");
-      gradient.addColorStop(1, "#312e81");
-    }
+    selectedTheme.stops.forEach((name, i) => {
+      gradient.addColorStop(i / (selectedTheme.stops.length - 1), token(name));
+    });
+    const onTheme = token(selectedTheme.accent);
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 1080, 1920);
 
     // 2. Draw Top Branding
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = onTheme;
     ctx.font = "bold 52px sans-serif";
     ctx.fillText("CampusLoop", 120, 160);
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.globalAlpha = 0.7;
     ctx.font = "34px sans-serif";
     ctx.fillText("VERIFIED STUDENT NETWORK", 120, 215);
+    ctx.globalAlpha = 1;
 
     // 3. Draw Center Card Container
     const cardX = 90;
@@ -147,8 +139,9 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     const radius = 48;
 
     ctx.save();
-    ctx.fillStyle = "rgba(15, 15, 20, 0.82)";
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = token("--surface");
+    ctx.strokeStyle = token("--border");
     ctx.lineWidth = 4;
 
     ctx.beginPath();
@@ -158,7 +151,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     ctx.restore();
 
     // 4. Draw Post Type Tag / Institution
-    ctx.fillStyle = selectedTheme.id === "dark" ? "#a170ff" : "#ffffff";
+    ctx.fillStyle = token("--brand-text");
     ctx.font = "bold 32px sans-serif";
     const postTypeBadge =
       post.type === "CONFESSION"
@@ -168,17 +161,17 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
           : "CAMPUS PULSE";
     ctx.fillText(postTypeBadge, 140, 420);
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.fillStyle = token("--fg-muted");
     ctx.font = "28px sans-serif";
     ctx.fillText(post.institution?.name || "Verified Campus", 140, 465);
 
     // 5. Draw Author Handle
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = token("--fg");
     ctx.font = "bold 42px sans-serif";
     ctx.fillText(`@${authorHandle}`, 140, 560);
 
     // 6. Draw Post Body Text (Wrapped lines)
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = token("--fg");
     ctx.font = "38px sans-serif";
     const words = post.body.split(" ");
     let line = "";
@@ -207,13 +200,13 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     }
 
     // 7. Draw Footer Call to Action
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = onTheme;
     ctx.font = "bold 44px sans-serif";
     ctx.fillText("Join the tea on CampusLoop", 120, 1680);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
     ctx.font = "34px sans-serif";
-    ctx.fillText("campusloop.space/app", 120, 1735);
+    ctx.fillText("campusloop.space", 120, 1735);
   }, [isOpen, post, selectedTheme, authorHandle]);
 
   function handleDownloadStoryImage() {
@@ -251,9 +244,9 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
               <button
                 key={theme.id}
                 onClick={() => setSelectedTheme(theme)}
-                className={`py-1.5 px-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
+                className={`py-1.5 px-1 rounded-md text-[11px] font-semibold border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
                   selectedTheme.id === theme.id
-                    ? "border-primary bg-primary/10 text-primary shadow-xs"
+                    ? "border-brand bg-brand-subtle text-brand-text"
                     : "border-border/50 bg-muted/20 text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -268,7 +261,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
           <p className="text-[10px] font-semibold text-muted-foreground">9:16 Instagram Story Card</p>
           <canvas
             ref={canvasRef}
-            className="w-44 h-76 rounded-xl shadow-lg border border-white/10 object-contain"
+            className="w-44 h-76 rounded-md shadow-lg object-contain"
           />
         </div>
 
@@ -276,14 +269,14 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
         <div className="grid grid-cols-2 gap-2.5 pt-1">
           <button
             onClick={handleShareWhatsApp}
-            className="py-2.5 min-h-[44px] rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+            className="py-2.5 min-h-[44px] rounded-md bg-success text-success-fg text-xs font-semibold hover:bg-success/90 active:scale-95 transition-colors cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <MessageCircle className="h-4 w-4" /> WhatsApp
           </button>
 
           <button
             onClick={handleNativeShare}
-            className="py-2.5 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+            className="py-2.5 min-h-[44px] rounded-md bg-brand text-brand-fg text-xs font-semibold hover:bg-brand-hover active:scale-95 transition-colors cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Share2 className="h-4 w-4" /> Share via Apps
           </button>
@@ -292,16 +285,16 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
         <div className="grid grid-cols-2 gap-2.5">
           <button
             onClick={handleDownloadStoryImage}
-            className="py-2.5 min-h-[40px] rounded-xl border border-border/70 bg-card text-foreground text-xs font-semibold hover:bg-muted active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="py-2.5 min-h-[40px] rounded-md border border-border bg-surface text-fg text-xs font-semibold hover:bg-surface-muted active:scale-95 transition-colors cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Download className="h-4 w-4" /> Save Image
           </button>
 
           <button
             onClick={handleCopyLink}
-            className="py-2.5 min-h-[40px] rounded-xl border border-border/70 bg-card text-foreground text-xs font-semibold hover:bg-muted active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="py-2.5 min-h-[40px] rounded-md border border-border bg-surface text-fg text-xs font-semibold hover:bg-surface-muted active:scale-95 transition-colors cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied!" : "Copy Link"}
           </button>
         </div>

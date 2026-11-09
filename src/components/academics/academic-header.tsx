@@ -29,7 +29,7 @@ export function AcademicHeader({
               Academics
             </h1>
             {typeof totalCount === "number" && totalCount > 0 && (
-              <span className="hidden xs:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[var(--tint-notes)] text-[#1A4B8C] border border-[#1A4B8C]/15 dark:bg-[#1A2E4C] dark:text-[#90C2FF]">
+              <span className="hidden xs:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-brand-subtle text-brand-text border border-brand-subtle-border">
                 {totalCount.toLocaleString()} study resources
               </span>
             )}
@@ -51,7 +51,7 @@ export function AcademicHeader({
                 onScopeChange("campus");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-ui cursor-pointer flex items-center gap-1.5",
                 scope === "campus"
                   ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs"
                   : "text-[var(--text-secondary)] hover:text-[var(--text)]"
@@ -71,7 +71,7 @@ export function AcademicHeader({
                 onScopeChange("global");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-ui cursor-pointer flex items-center gap-1.5",
                 scope === "global"
                   ? "bg-[var(--surface)] text-[var(--text)] font-semibold border border-[var(--border)] shadow-2xs"
                   : "text-[var(--text-secondary)] hover:text-[var(--text)]"
@@ -79,7 +79,7 @@ export function AcademicHeader({
               title="All Indian engineering colleges"
               aria-label="Filter to all campuses"
             >
-              <Globe className="size-3.5 text-emerald-500" />
+              <Globe className="size-3.5 text-brand-text" />
               <span>All India</span>
             </button>
           </div>
@@ -91,7 +91,7 @@ export function AcademicHeader({
               sounds.tap();
               haptics.success();
             }}
-            className="hidden sm:inline-flex min-h-9 items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 text-xs font-semibold text-white shadow-xs transition-all hover:opacity-95 active:scale-95"
+            className="hidden sm:inline-flex min-h-9 items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 text-xs font-semibold text-white shadow-xs transition-ui hover:opacity-95 active:scale-95"
           >
             <Plus className="size-3.5 stroke-[2.5]" />
             <span>Upload notes</span>
@@ -145,7 +145,7 @@ export function AcademicHeader({
               : "border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-secondary)]"
           )}
         >
-          <Globe className="size-4 text-emerald-500" />
+          <Globe className="size-4 text-brand-text" />
           <span>All India</span>
         </button>
       </div>

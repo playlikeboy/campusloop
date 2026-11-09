@@ -40,13 +40,13 @@ function getContextIcon(actors: FeedSocialActor[]) {
   }
 
   if (likeCount >= commentCount && likeCount >= repostCount && likeCount > 0) {
-    return <Flame className="size-3 text-orange-500 fill-orange-500 shrink-0" />;
+    return <Flame className="size-3 text-reward-text fill-reward shrink-0" />;
   }
   if (repostCount >= commentCount && repostCount > 0) {
-    return <Repeat2 className="size-3 text-emerald-500 shrink-0" strokeWidth={2.5} />;
+    return <Repeat2 className="size-3 text-success shrink-0" strokeWidth={2.5} />;
   }
   if (commentCount > 0) {
-    return <MessageCircle className="size-3 text-sky-500 shrink-0" />;
+    return <MessageCircle className="size-3 text-brand-text shrink-0" />;
   }
   return <Users className="size-3 text-primary shrink-0" />;
 }

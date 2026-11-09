@@ -61,21 +61,6 @@ export function CommunityHeader({
   const identifier = community.slug || community.id;
   const baseUrl = `/communities/${identifier}`;
 
-  function getInitialsGradient(name: string) {
-    const charCodeSum = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const gradients = [
-      "from-emerald-600 to-teal-700",
-      "from-rose-600 to-pink-600",
-      "from-blue-600 to-cyan-600",
-      "from-amber-600 to-orange-600",
-      "from-teal-600 to-emerald-700",
-      "from-red-600 to-rose-700",
-      "from-orange-600 to-amber-600",
-      "from-cyan-600 to-sky-700",
-    ];
-    return gradients[charCodeSum % gradients.length];
-  }
-
   async function handleShareInvite() {
     const shareUrl =
       typeof window !== "undefined"
@@ -98,7 +83,7 @@ export function CommunityHeader({
   return (
     <header className="select-none">
       {/* ─── Sticky Twitter/X Top Navigation Bar ─── */}
-      <div className="sticky top-12 lg:top-0 z-30 bg-background/88 px-3.5 py-2 backdrop-blur-xl border-b border-border/30 flex items-center justify-between">
+      <div className="sticky top-12 lg:top-0 z-30 bg-background/88 px-3.5 py-2 backdrop-blur-sm border-b border-border/30 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
             href="/communities"
@@ -113,9 +98,9 @@ export function CommunityHeader({
                 c/{community.name}
               </h1>
               {community.privacy === "PRIVATE" ? (
-                <Lock className="size-3 text-amber-500 shrink-0" />
+                <Lock className="size-3 text-warning shrink-0" />
               ) : community.privacy === "UNLISTED" ? (
-                <EyeOff className="size-3 text-purple-500 shrink-0" />
+                <EyeOff className="size-3 text-brand-text shrink-0" />
               ) : (
                 <Globe className="size-3 text-muted-foreground shrink-0" />
               )}
@@ -144,9 +129,10 @@ export function CommunityHeader({
           )}
 
           <button
+            aria-label="Share community"
             type="button"
             onClick={handleShareInvite}
-            className="flex size-8 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shadow-2xs"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex size-8 min-h-11 min-w-11 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shadow-2xs"
             title="Share Community"
           >
             {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
@@ -155,7 +141,7 @@ export function CommunityHeader({
       </div>
 
       {/* ─── Hero Banner Area ─── */}
-      <div className="relative h-28 sm:h-40 w-full bg-neutral-900 overflow-hidden">
+      <div className="relative h-28 sm:h-40 w-full bg-surface-muted overflow-hidden">
         {community.bannerUrl ? (
           <img
             src={community.bannerUrl}
@@ -164,25 +150,21 @@ export function CommunityHeader({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-linear-to-r from-neutral-900 via-neutral-950 to-neutral-900 relative">
-            <div
-              className={`w-full h-full bg-linear-to-r ${getInitialsGradient(community.name)} opacity-25`}
-            />
-          </div>
+          <div className="w-full h-full bg-brand" />
         )}
 
         {/* Privacy Badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
           {community.privacy === "PRIVATE" ? (
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-background/90 text-amber-600 dark:text-amber-400 backdrop-blur-md shadow-xs flex items-center gap-1">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-background/90 text-warning backdrop-blur-sm shadow-xs flex items-center gap-1">
               <Lock className="size-3" /> Private
             </span>
           ) : community.privacy === "UNLISTED" ? (
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-purple-600 dark:text-purple-400 backdrop-blur-md shadow-xs flex items-center gap-1">
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-brand-text backdrop-blur-sm shadow-xs flex items-center gap-1">
               <EyeOff className="size-3" /> Secret
             </span>
           ) : (
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-foreground backdrop-blur-md shadow-xs flex items-center gap-1">
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-foreground backdrop-blur-sm shadow-xs flex items-center gap-1">
               <Globe className="size-3" /> Public Hub
             </span>
           )}
@@ -195,15 +177,13 @@ export function CommunityHeader({
           {community.avatarUrl ? (
             <Avatar className="size-20 sm:size-24 rounded-2xl border-4 border-background bg-card shadow-md shrink-0">
               <AvatarImage src={community.avatarUrl} alt={community.name} className="object-cover" />
-              <AvatarFallback className="bg-neutral-800 text-foreground text-2xl font-black">
+              <AvatarFallback className="bg-brand text-brand-fg text-2xl font-black">
                 {community.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ) : (
             <div
-              className={`size-22 sm:size-26 rounded-2xl sm:rounded-3xl border-4 border-background bg-linear-to-br ${getInitialsGradient(
-                community.name
-              )} shadow-xl flex items-center justify-center text-white text-2xl font-black shrink-0 overflow-hidden ring-1 ring-border/20`}
+              className="size-22 sm:size-26 rounded-2xl sm:rounded-3xl border-4 border-background bg-brand text-brand-fg shadow-lg flex items-center justify-center text-2xl font-bold shrink-0 overflow-hidden"
             >
               {community.name.slice(0, 2).toUpperCase()}
             </div>
@@ -218,7 +198,7 @@ export function CommunityHeader({
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-lg sm:text-xl font-black tracking-tight text-foreground">{community.name}</h1>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success bg-success-subtle border border-success px-2 py-0.5 rounded-full">
               <ShieldCheck className="size-3" /> Verified Hub
             </span>
           </div>
@@ -263,7 +243,7 @@ export function CommunityHeader({
       </div>
 
       {/* ─── Twitter/X Sticky Segmented Tabs ─── */}
-      <div className="border-b border-border/30 bg-background/80 backdrop-blur-xl sticky top-[47px] z-30 flex items-center justify-around mt-3">
+      <div className="border-b border-border/30 bg-background/80 backdrop-blur-sm sticky top-[47px] z-30 flex items-center justify-around mt-3">
         <Link
           href={baseUrl}
           className={cn(

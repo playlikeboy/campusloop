@@ -1,9 +1,11 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
+
+const SITEMAP_URL_CAP = 50_000;
 
 export async function GET() {
   try {
@@ -11,20 +13,26 @@ export async function GET() {
     const list = await db.query.communities.findMany({
       columns: {
         id: true,
+        createdAt: true,
+        updatedAt: true,
       },
+      // communities/[id] only indexes PUBLIC communities; the sitemap must match.
+      where: eq(communities.privacy, "PUBLIC"),
       orderBy: [desc(communities.createdAt)],
-      limit: 1500,
+      limit: SITEMAP_URL_CAP,
     });
 
     const urls = list
-      .map(
-        (item) => `
+      .map((item) => {
+        const lastmod = (item.updatedAt ?? item.createdAt ?? new Date()).toISOString();
+        return `
   <url>
     <loc>https://campusloop.space/communities/${item.id}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-  </url>`
-      )
+  </url>`;
+      })
       .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

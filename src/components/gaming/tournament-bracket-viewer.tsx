@@ -140,8 +140,8 @@ export function TournamentBracketViewer({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between pb-1">
-        <h3 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <Trophy className="size-4 text-amber-500" />
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+          <Trophy className="size-4 text-warning" />
           <span>Tournament Bracket Tree</span>
         </h3>
         <span className="text-xs font-semibold text-muted-foreground">
@@ -158,7 +158,7 @@ export function TournamentBracketViewer({
             return (
               <div key={round} className="w-64 flex flex-col justify-around gap-4 shrink-0">
                 <div className="text-center pb-2 border-b border-border/40">
-                  <span className="text-xs font-black uppercase tracking-wider text-primary">
+                  <span className="text-xs font-bold text-primary">
                     {getRoundTitle(round, totalRounds)}
                   </span>
                 </div>
@@ -184,9 +184,9 @@ export function TournamentBracketViewer({
                       <div
                         key={m.id}
                         className={cn(
-                          "rounded-xl border p-3 bg-card/80 transition-all shadow-2xs relative",
+                          "rounded-xl border p-3 bg-card/80 transition-colors shadow-2xs relative",
                           m.status === "CONFIRMED"
-                            ? "border-emerald-500/30"
+                            ? "border-success"
                             : m.status === "READY"
                               ? "border-primary/40 ring-1 ring-primary/20"
                               : "border-border/60"
@@ -194,18 +194,18 @@ export function TournamentBracketViewer({
                       >
                         {/* Match Status Chip */}
                         <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
-                          <span className="font-bold uppercase tracking-wider">
+                          <span className="font-bold">
                             Match #{m.matchNumber}
                           </span>
                           <span
                             className={cn(
-                              "px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[9px]",
+                              "px-1.5 py-0.2 rounded font-bold text-xs",
                               m.status === "CONFIRMED"
-                                ? "bg-emerald-500/10 text-emerald-500"
+                                ? "bg-success-subtle text-success"
                                 : m.status === "REPORTED"
-                                  ? "bg-amber-500/10 text-amber-500"
+                                  ? "bg-warning-subtle text-warning"
                                   : m.status === "READY"
-                                    ? "bg-sky-500/10 text-sky-500"
+                                    ? "bg-brand-subtle text-brand-text"
                                     : "bg-muted text-muted-foreground"
                             )}
                           >
@@ -218,7 +218,7 @@ export function TournamentBracketViewer({
                           className={cn(
                             "flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors",
                             isWinner1
-                              ? "bg-emerald-500/15 text-foreground"
+                              ? "bg-success-subtle text-foreground"
                               : m.entry1
                                 ? "bg-muted/40 text-foreground/90"
                                 : "bg-muted/15 text-muted-foreground/60 italic"
@@ -235,7 +235,7 @@ export function TournamentBracketViewer({
                           className={cn(
                             "mt-1.5 flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors",
                             isWinner2
-                              ? "bg-emerald-500/15 text-foreground"
+                              ? "bg-success-subtle text-foreground"
                               : m.entry2
                                 ? "bg-muted/40 text-foreground/90"
                                 : "bg-muted/15 text-muted-foreground/60 italic"
@@ -255,7 +255,7 @@ export function TournamentBracketViewer({
                                 type="button"
                                 disabled={isSubmitting}
                                 onClick={() => handleConfirmScore(m.id)}
-                                className="inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-emerald-600 transition"
+                                className="inline-flex items-center gap-1 rounded-md bg-success px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-success transition"
                               >
                                 <Check className="size-3" />
                                 <span>Confirm Result</span>

@@ -261,7 +261,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl bg-background pb-28 text-foreground">
       {/* ─── Top Header & Campus Radius Switcher ─── */}
-      <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5 sm:py-4 border-b border-border/20">
+      <header className="sticky top-14 z-30 bg-background/85 px-3 py-3 backdrop-blur-sm sm:px-5 sm:py-4 border-b border-border/20">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full min-w-0 items-center gap-2.5 sm:flex-1">
             <Link
@@ -358,7 +358,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                 type="button"
                 onClick={() => handleTabChange(id as GamingTab)}
                 className={cn(
-                  "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                  "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors cursor-pointer",
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-2xs"
                     : "bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -443,7 +443,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                   type="button"
                   onClick={() => setSelectedMode(m.value)}
                   className={cn(
-                    "shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider transition border",
+                    "shrink-0 rounded-lg px-2 py-0.5 text-xs font-extrabold transition border",
                     active
                       ? "bg-foreground text-background border-foreground"
                       : "bg-muted/30 text-muted-foreground border-border/40 hover:text-foreground"
@@ -457,9 +457,9 @@ export function GamingClient({ profileId }: GamingClientProps) {
 
           {/* Highlighted Shared Lobby (from ?id=) */}
           {highlightedLobby && (
-            <div className="rounded-2xl p-1 bg-gradient-to-r from-primary/30 via-coral/30 to-amber-500/30">
+            <div className="rounded-2xl p-1 bg-brand-subtle">
               <div className="bg-background rounded-xl p-3">
-                <p className="text-[10px] font-black uppercase tracking-wider text-primary mb-2 flex items-center gap-1">
+                <p className="text-xs font-bold text-primary mb-2 flex items-center gap-1">
                   <Flame className="size-3" />
                   <span>Shared Squad Lobby</span>
                 </p>
@@ -582,7 +582,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                         type="button"
                         disabled={generatingBracket}
                         onClick={() => handleGenerateBracket(selectedTournament.slug)}
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-emerald-500 px-3.5 text-xs font-black text-white shadow-xs hover:bg-emerald-600 disabled:opacity-50"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-success px-3.5 text-xs font-black text-white shadow-xs hover:bg-success disabled:opacity-50"
                       >
                         {generatingBracket ? (
                           <Loader2 className="size-3.5 animate-spin" />
@@ -598,7 +598,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
               {/* Tournament Metadata Bar */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-border/40 text-xs">
                 <div className="p-2.5 rounded-xl bg-muted/30">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-bold text-muted-foreground">
                     Prize Recognition
                   </p>
                   <p className="font-bold text-foreground truncate mt-0.5">
@@ -606,7 +606,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                   </p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-muted/30">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-bold text-muted-foreground">
                     Starts At
                   </p>
                   <p className="font-bold text-foreground truncate mt-0.5">
@@ -619,7 +619,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                   </p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-muted/30">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-bold text-muted-foreground">
                     Entries Filled
                   </p>
                   <p className="font-bold text-foreground truncate mt-0.5">
@@ -629,7 +629,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
                   </p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-muted/30">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-bold text-muted-foreground">
                     Status
                   </p>
                   <p className="font-bold text-primary truncate mt-0.5 uppercase">
@@ -677,11 +677,11 @@ export function GamingClient({ profileId }: GamingClientProps) {
                         sounds.tap();
                         haptics.light();
                       }}
-                      className="rounded-2xl border border-border/70 bg-card/60 p-4 transition-all hover:border-primary/40 hover:bg-card/90 cursor-pointer shadow-2xs space-y-3"
+                      className="rounded-2xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-card/90 cursor-pointer shadow-2xs space-y-3"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
+                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
                             {t.gameName}
                           </span>
                           <h3 className="text-sm font-black text-foreground mt-1.5 leading-snug">
@@ -691,11 +691,11 @@ export function GamingClient({ profileId }: GamingClientProps) {
 
                         <span
                           className={cn(
-                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border",
+                            "px-2 py-0.5 rounded-full text-xs font-bold shrink-0 border",
                             t.status === "REGISTRATION_OPEN"
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                              ? "bg-success-subtle text-success border-success"
                               : t.status === "IN_PROGRESS"
-                                ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
+                                ? "bg-warning-subtle text-warning border-warning"
                                 : "bg-muted text-muted-foreground border-border"
                           )}
                         >
@@ -888,7 +888,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
           <div className="flex items-center justify-between p-3.5 rounded-2xl bg-card border border-border/60">
             <div>
               <p className="text-xs font-black text-foreground flex items-center gap-1.5">
-                <Medal className="size-4 text-amber-500" />
+                <Medal className="size-4 text-warning" />
                 <span>Seasonal Campus Rankings · 2026-S1</span>
               </p>
               <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -897,7 +897,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-black text-amber-500 border border-amber-500/20">
+            <span className="shrink-0 rounded-full bg-warning-subtle px-2.5 py-0.5 text-xs font-black text-warning border border-warning">
               Season 1
             </span>
           </div>
@@ -916,11 +916,11 @@ export function GamingClient({ profileId }: GamingClientProps) {
                       className={cn(
                         "size-7 shrink-0 rounded-full flex items-center justify-center text-xs font-black",
                         player.rank === 1
-                          ? "bg-amber-500 text-white shadow-xs"
+                          ? "bg-warning text-white shadow-xs"
                           : player.rank === 2
-                            ? "bg-slate-300 text-slate-800"
+                            ? "bg-surface-muted text-fg"
                             : player.rank === 3
-                              ? "bg-amber-700/80 text-white"
+                              ? "bg-warning/80 text-white"
                               : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -959,7 +959,7 @@ export function GamingClient({ profileId }: GamingClientProps) {
             </div>
           ) : (
             <div className="rounded-3xl border border-dashed border-border/70 bg-card/40 p-8 text-center sm:p-12">
-              <Medal className="mx-auto size-12 text-amber-500/40 mb-3" />
+              <Medal className="mx-auto size-12 text-warning mb-3" />
               <h3 className="text-base font-black text-foreground">
                 Season 1 Leaderboard is Live
               </h3>

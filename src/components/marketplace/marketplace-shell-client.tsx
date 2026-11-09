@@ -36,19 +36,19 @@ const VERTICAL_NAV = [
     name: "Food & Canteen",
     slug: "food",
     icon: UtensilsCrossed,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
+    color: "text-warning",
+    bg: "bg-warning-subtle",
   },
-  { name: "Bike Rentals", slug: "rentals", icon: Bike, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  { name: "Barber & Salon", slug: "barber", icon: Scissors, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { name: "Laundry & Wash", slug: "laundry", icon: Shirt, color: "text-purple-500", bg: "bg-purple-500/10" },
-  { name: "Water Can Refill", slug: "water", icon: Droplet, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+  { name: "Bike Rentals", slug: "rentals", icon: Bike, color: "text-success", bg: "bg-success-subtle" },
+  { name: "Barber & Salon", slug: "barber", icon: Scissors, color: "text-brand-text", bg: "bg-brand-subtle" },
+  { name: "Laundry & Wash", slug: "laundry", icon: Shirt, color: "text-brand-text", bg: "bg-brand-subtle" },
+  { name: "Water Can Refill", slug: "water", icon: Droplet, color: "text-brand-text", bg: "bg-brand-subtle" },
   {
     name: "Supermarket & Mart",
     slug: "essentials",
     icon: ShoppingBag,
-    color: "text-rose-500",
-    bg: "bg-rose-500/10",
+    color: "text-danger",
+    bg: "bg-danger-subtle",
   },
 ];
 
@@ -60,7 +60,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-primary/20 pb-20 md:pb-6">
       {/* ─── Dedicated Marketplace Top Header ─── */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/90 backdrop-blur-xl select-none">
+      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/90 backdrop-blur-sm select-none">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           {/* Left: Feed Back Link + Logo & Campus Market Hub */}
           <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
+              className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
               title="Back to Campus Feed"
             >
               <ArrowLeft className="size-4" />
@@ -95,7 +95,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
               </div>
             </Link>
 
-            <span className="hidden lg:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black border border-emerald-500/20 ml-1">
+            <span className="hidden lg:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success-subtle text-success text-[10px] font-black border border-success ml-1">
               <Zap className="size-3" />
               <span>{profile?.institution?.name?.split(",")[0] || "Campus Hub"}</span>
             </span>
@@ -110,7 +110,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
                 haptics.light();
               }}
               className={cn(
-                "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer",
+                "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-colors cursor-pointer",
                 pathname.startsWith("/marketplace/orders") ||
                   pathname.startsWith("/marketplace/order")
                   ? "border-primary/50 bg-primary/10 text-primary"
@@ -128,7 +128,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
                 sounds.tap();
                 haptics.medium();
               }}
-              className="relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-[opacity,transform] cursor-pointer shadow-xs active:scale-95"
             >
               <ShoppingCart className="size-3.5" />
               <span className="hidden sm:inline">Cart</span>
@@ -160,7 +160,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
             ) : (
               <Link
                 href="/sign-in"
-                className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer"
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer"
               >
                 Sign In
               </Link>
@@ -175,7 +175,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
         <aside className="hidden lg:flex flex-col w-56 shrink-0 space-y-6 sticky top-20 h-fit select-none">
           {/* Vertical Categories */}
           <div className="space-y-1.5">
-            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-2">
+            <span className="text-xs font-bold text-muted-foreground px-2">
               Campus Services
             </span>
             <div className="space-y-1">
@@ -238,7 +238,7 @@ export function MarketplaceShellClient({ children, profile, viewerMode }: Market
       {/* ─── Dedicated Marketplace Mobile Bottom Bar (5 Core Tabs) ─── */}
       <nav
         aria-label="Marketplace navigation"
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none"
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-sm px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none"
       >
         <div className="grid grid-cols-5 items-center">
           <Link

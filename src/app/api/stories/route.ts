@@ -1,8 +1,8 @@
-import { and, eq, gt, inArray } from "drizzle-orm";
+import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { follows, stories, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { follows, stories } from "@/db/schema";
+import { requireProfile } from "@/lib/require-profile";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
 import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { rankAndFilterStories, STORY_AUTHOR_COLUMNS } from "@/lib/stories-ranker";
@@ -12,19 +12,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const now = new Date();
 
@@ -40,6 +32,8 @@ export async function GET() {
     const authorIds = [profile.id, ...userFollows.map((f) => f.followingId)];
     const activeStories = await db.query.stories.findMany({
       where: and(gt(stories.expiresAt, now), inArray(stories.userId, authorIds)),
+      orderBy: [desc(stories.createdAt)],
+      limit: 500,
       with: {
         user: { columns: STORY_AUTHOR_COLUMNS },
       },
@@ -67,19 +61,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
@@ -103,6 +89,7 @@ export async function POST(req: Request) {
       .values({
         userId: profile.id,
         text: text || null,
+        // ds-allow: user-persisted story background class string
         backgroundColor: backgroundColor || "from-stone-900 to-neutral-900",
         mediaUrl: mediaUrl || null,
         expiresAt,

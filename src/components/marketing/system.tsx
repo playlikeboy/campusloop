@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { InstagramIcon, LinkedinIcon, XIcon } from "@/components/ui/social-icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { SOCIAL_LINKS } from "@/constants/socials";
+import { SOCIAL_LINKS } from "@/constants/social";
 import { cn } from "@/lib/utils";
 
 export const BRAND_GRADIENT = "bg-primary";
@@ -45,7 +45,7 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
-          <div className="relative size-8 sm:size-9 shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3 drop-shadow-sm">
+          <div className="relative size-8 sm:size-9 shrink-0 transition-ui duration-300 group-hover:scale-110 group-hover:-rotate-3 drop-shadow-sm">
             <Image
               src="/logo.png"
               alt="CampusLoop Logo"
@@ -64,7 +64,7 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
             <Link
               key={link.href}
               href={link.href}
-              className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all"
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-ui"
             >
               {link.label}
             </Link>
@@ -76,7 +76,7 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
           {isAuthenticated ? (
             <Link
               href="/feeds"
-              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 text-xs font-bold text-white shadow-xs transition-all"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand hover:bg-brand-hover px-4 text-xs font-bold text-brand-fg shadow-xs transition-ui"
             >
               Open app
               <ArrowRight className="size-3.5" />
@@ -85,13 +85,13 @@ export function MarketingHeader({ isAuthenticated = false }: { isAuthenticated?:
             <>
               <Link
                 href="/sign-in"
-                className="hidden sm:inline-flex h-9 items-center px-3.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                className="hidden sm:inline-flex h-9 items-center px-3.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-ui"
               >
                 Sign in
               </Link>
               <Link
                 href="/sign-up"
-                className="inline-flex h-9 items-center gap-1 rounded-full bg-[#22c55e] hover:bg-[#16a34a] px-4 text-xs font-black text-white shadow-xs transition-all"
+                className="inline-flex h-9 items-center gap-1 rounded-full bg-brand hover:bg-brand-hover px-4 text-xs font-black text-brand-fg shadow-xs transition-ui"
               >
                 Join CampusLoop
               </Link>
@@ -165,9 +165,9 @@ export function MarketingFooter() {
               href={SOCIAL_LINKS.instagram.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors hover:border-pink-500/50 hover:bg-pink-500/10 hover:text-pink-500 shadow-2xs"
+              className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors hover:border-border-strong hover:text-fg shadow-2xs"
               aria-label="CampusLoop on Instagram"
-              title="Instagram @campusloop.space"
+              title={`Instagram `}
             >
               <InstagramIcon className="size-4" />
             </a>
@@ -176,9 +176,9 @@ export function MarketingFooter() {
               href={SOCIAL_LINKS.linkedin.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors hover:border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-500 shadow-2xs"
+              className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors hover:border-border-strong hover:text-fg shadow-2xs"
               aria-label="CampusLoop on LinkedIn"
-              title="LinkedIn @mycampusloop"
+              title={`LinkedIn `}
             >
               <LinkedinIcon className="size-4" />
             </a>
@@ -189,7 +189,7 @@ export function MarketingFooter() {
               rel="noopener noreferrer"
               className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors hover:border-foreground/40 hover:bg-foreground/10 hover:text-foreground shadow-2xs"
               aria-label="CampusLoop on X"
-              title="X (Twitter) @mycampusloop"
+              title={`X `}
             >
               <XIcon className="size-3.5" />
               <span className="sr-only">X (Twitter)</span>

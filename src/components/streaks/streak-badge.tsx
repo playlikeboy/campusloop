@@ -39,10 +39,10 @@ export function StreakBadge({ className, href = "/streaks" }: StreakBadgeProps) 
           : `${displayStreak}-day streak (Action needed today)`
       }
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 select-none",
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-transform cursor-pointer active:scale-95 select-none",
         isSafeToday
-          ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-          : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/15",
+          ? "border-success/25 bg-success/10 text-success"
+          : "border-reward/30 bg-reward/10 text-reward-text hover:bg-reward/15",
         className
       )}
     >
@@ -50,8 +50,8 @@ export function StreakBadge({ className, href = "/streaks" }: StreakBadgeProps) 
         className={cn(
           "size-3.5 stroke-[2.2]",
           isSafeToday
-            ? "fill-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-            : "fill-amber-500/30 text-amber-500 animate-pulse"
+            ? "fill-success/30 text-success"
+            : "fill-reward/30 text-reward-text animate-pulse"
         )}
       />
       <span>{displayStreak}</span>

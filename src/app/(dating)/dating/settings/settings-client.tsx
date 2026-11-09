@@ -50,7 +50,7 @@ function Option({
         onClick();
       }}
       className={cn(
-        "flex items-center justify-between rounded-2xl border px-4 py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer active:scale-[0.98]",
+        "flex items-center justify-between rounded-2xl border px-4 py-3 text-xs sm:text-sm font-bold transition-[opacity,transform] cursor-pointer active:scale-[0.98]",
         selected
           ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs ring-1 ring-primary/20"
           : "border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -123,9 +123,9 @@ export function SettingsClient() {
                   type="button"
                   onClick={() => save({ isEnabled: !isEnabled })}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer active:scale-95",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-[opacity,transform] cursor-pointer active:scale-95",
                     isEnabled
-                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                      ? "bg-success-subtle text-success border border-success"
                       : "bg-muted text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -147,7 +147,7 @@ export function SettingsClient() {
             {/* Scope: Campus vs Global */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-bold text-muted-foreground">
                   Discovery Radius
                 </span>
                 {saving && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
@@ -158,7 +158,7 @@ export function SettingsClient() {
                   onClick={() => save({ scope: "CAMPUS" })}
                 >
                   <div className="flex items-center gap-2">
-                    <School className="size-4 text-emerald-600" />
+                    <School className="size-4 text-success" />
                     <span>My College Only</span>
                   </div>
                 </Option>
@@ -167,7 +167,7 @@ export function SettingsClient() {
                   onClick={() => save({ scope: "GLOBAL" })}
                 >
                   <div className="flex items-center gap-2">
-                    <Globe className="size-4 text-blue-600" />
+                    <Globe className="size-4 text-brand-text" />
                     <span>All Colleges (India)</span>
                   </div>
                 </Option>
@@ -177,7 +177,7 @@ export function SettingsClient() {
             {/* Gender Preferences */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-bold text-muted-foreground">
                   Show Me
                 </span>
               </div>
@@ -206,7 +206,7 @@ export function SettingsClient() {
             {/* Sort Strategy */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-bold text-muted-foreground">
                   Deck Priority Algorithm
                 </span>
               </div>
@@ -234,7 +234,7 @@ export function SettingsClient() {
 
             {/* Deck Management Actions */}
             <div className="space-y-2 pt-2">
-              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground px-1">
+              <span className="text-xs font-bold text-muted-foreground px-1">
                 Deck Controls
               </span>
               <div className="space-y-2">
@@ -259,7 +259,7 @@ export function SettingsClient() {
                   className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-card hover:bg-muted/40 transition-colors text-left cursor-pointer active:scale-98"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-xl bg-pink-500/10 text-pink-600">
+                    <div className="flex size-8 items-center justify-center rounded-xl bg-crush-subtle text-crush-text">
                       <User className="size-4" />
                     </div>
                     <div>

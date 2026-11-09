@@ -244,7 +244,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     : post.author?.displayName || "Student";
   const authorHandle = post.isAnonymous ? post.pseudonym || "anonymous" : post.author?.username || "student";
   const avatarFallback: React.ReactNode = post.isAnonymous ? (
-    <VenetianMask className="size-4 text-purple-400" />
+    <VenetianMask className="size-4 text-brand-text" />
   ) : (
     (post.author?.displayName?.[0] ?? "S")
   );
@@ -438,10 +438,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           aria-label={userVote === 1 ? "Unvibe post" : "Vibe post"}
           whileTap={{ scale: 0.88 }}
           className={cn(
-            "h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-all text-xs font-bold cursor-pointer group active:scale-95",
+            "h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-transform text-xs font-bold cursor-pointer group active:scale-95",
             userVote === 1
-              ? "bg-orange-500/15 text-orange-500 border border-orange-500/35 shadow-[0_0_12px_rgba(249,115,22,0.25)]"
-              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-orange-400 border border-border/40"
+              ? "bg-danger/15 text-danger border border-danger/35"
+              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-danger border border-border/40"
           )}
         >
           <motion.div
@@ -458,15 +458,15 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               className={cn(
                 "size-4 sm:size-4.5 transition-colors",
                 userVote === 1
-                  ? "fill-orange-500 text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.7)]"
-                  : "text-foreground/80 group-hover:text-orange-400 fill-none"
+                  ? "fill-danger text-danger"
+                  : "text-foreground/80 group-hover:text-danger fill-none"
               )}
             />
           </motion.div>
           <span
             className={cn(
               "text-xs font-bold tabular-nums transition-colors",
-              userVote === 1 ? "text-orange-400 font-extrabold" : "text-foreground/75"
+              userVote === 1 ? "text-danger font-extrabold" : "text-foreground/75"
             )}
           >
             {votesCount}
@@ -478,7 +478,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => onOpenComments(post)}
           aria-label="Comment on post"
-          className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-all text-xs font-bold cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+          className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-transform text-xs font-bold cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={17} />
           <span className="text-xs font-bold text-foreground/75 tabular-nums">
@@ -492,9 +492,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           onClick={handleInstantRepost}
           aria-label={isReposted ? "Looped post" : "Loop post"}
           className={cn(
-            "size-10 sm:size-11 rounded-full flex items-center justify-center transition-all cursor-pointer border active:scale-95",
+            "size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer border active:scale-95",
             isReposted
-              ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/35 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+              ? "bg-success/15 text-success border-success/35"
               : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40"
           )}
         >
@@ -505,7 +505,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             className={cn(
               "transition-transform duration-300 ease-out",
               repostSpin && "rotate-180 scale-125",
-              isReposted && !repostSpin && "text-emerald-400"
+              isReposted && !repostSpin && "text-success"
             )}
           />
         </button>
@@ -519,9 +519,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           onClick={handleToggleSave}
           aria-label="Save post"
           className={cn(
-            "size-10 sm:size-11 rounded-full flex items-center justify-center transition-all cursor-pointer border active:scale-95",
+            "size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer border active:scale-95",
             isSaved
-              ? "bg-primary/15 text-primary border-primary/35 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+              ? "bg-primary/15 text-primary border-primary/35"
               : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40"
           )}
         >
@@ -538,7 +538,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={handleShare}
           aria-label="Share post"
-          className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-all cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+          className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
         >
           <AnimatedIcon icon={Share2} animation="pop" size={17} />
         </button>
@@ -549,7 +549,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             type="button"
             onClick={() => setShowMoreMenu((prev) => !prev)}
             aria-label="More options"
-            className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-all cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+            className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
           >
             <MoreHorizontal className="size-4.5" />
           </button>
@@ -558,7 +558,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
               <div
-                className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl text-foreground shadow-2xl z-50 py-1.5 animate-in fade-in zoom-in-95"
+                className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl border border-border bg-surface-raised text-fg shadow-lg z-50 py-1.5 animate-in fade-in zoom-in-95"
                 onClick={(e) => e.stopPropagation()}
               >
                 {currentUserId && post.authorId === currentUserId && (
@@ -579,7 +579,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   }}
                   className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-muted/60 transition-colors cursor-pointer flex items-center gap-2"
                 >
-                  <Repeat2 className="size-4 text-emerald-400" />
+                  <Repeat2 className="size-4 text-success" />
                   <span>Quote Repost</span>
                 </button>
                 <button
@@ -590,7 +590,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   }}
                   className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-muted/60 transition-colors cursor-pointer flex items-center gap-2"
                 >
-                  <Share2 className="size-4 text-blue-400" />
+                  <Share2 className="size-4 text-brand-text" />
                   <span>Share Link</span>
                 </button>
                 <button
@@ -599,7 +599,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                     setShowMoreMenu(false);
                     setShowReport(true);
                   }}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-rose-500/15 text-rose-400 transition-colors cursor-pointer flex items-center gap-2 border-t border-border/30 mt-1"
+                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-danger/15 text-danger transition-colors cursor-pointer flex items-center gap-2 border-t border-border/30 mt-1"
                 >
                   <span>Report</span>
                 </button>
@@ -622,17 +622,17 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           aria-label={userVote === 1 ? "Unvibe video" : "Vibe video"}
           whileTap={{ scale: 0.85 }}
           className={cn(
-            "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-lg",
+            "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer shadow-lg",
             userVote === 1
-              ? "border-orange-500/50 text-orange-500 bg-orange-500/25 shadow-[0_0_20px_rgba(249,115,22,0.5)]"
-              : "border-white/20 bg-black/45 text-white/90 hover:text-orange-400 hover:border-orange-500/30"
+              ? "border-danger/50 text-danger bg-danger/25"
+              : "border-white/20 bg-black/45 text-white/90 hover:text-danger hover:border-danger/30"
           )}
         >
           <Flame
             className={cn(
               "size-4.5 sm:size-5 transition-colors",
               userVote === 1
-                ? "fill-orange-500 text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.7)]"
+                ? "fill-danger text-danger"
                 : "fill-none"
             )}
           />
@@ -640,7 +640,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         <span
           className={cn(
             "text-[10px] sm:text-[11px] font-bold tabular-nums drop-shadow-md",
-            userVote === 1 ? "text-orange-400 font-extrabold" : "text-white/80"
+            userVote === 1 ? "text-danger font-extrabold" : "text-white/80"
           )}
         >
           {votesCount}
@@ -668,9 +668,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         onClick={handleInstantRepost}
         aria-label={isReposted ? "Looped" : "Loop video"}
         className={cn(
-          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-lg active:scale-95",
+          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-transform cursor-pointer shadow-lg active:scale-95",
           isReposted
-            ? "border-emerald-500/50 text-emerald-400 bg-emerald-500/25 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+            ? "border-success/50 text-success bg-success/25"
             : "border-white/20 bg-black/45 text-white/90 hover:text-white"
         )}
       >
@@ -681,7 +681,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           className={cn(
             "transition-transform duration-300 ease-out",
             repostSpin && "rotate-180 scale-125",
-            isReposted && !repostSpin && "text-emerald-400"
+            isReposted && !repostSpin && "text-success"
           )}
         />
       </button>
@@ -692,9 +692,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         onClick={handleToggleSave}
         aria-label="Save video"
         className={cn(
-          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-lg active:scale-95",
+          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-transform cursor-pointer shadow-lg active:scale-95",
           isSaved
-            ? "border-primary/50 text-primary bg-primary/25 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+            ? "border-primary/50 text-primary bg-primary/25"
             : "border-white/20 bg-black/45 text-white/90 hover:text-white"
         )}
       >
@@ -731,14 +731,14 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           <>
             <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
             <div
-              className="absolute right-full mr-2 bottom-0 w-44 rounded-2xl border border-white/15 bg-zinc-900/95 backdrop-blur-xl text-white shadow-2xl z-50 py-1.5 animate-in fade-in zoom-in-95"
+              className="absolute right-full mr-2 bottom-0 w-44 rounded-2xl border border-border bg-surface-raised text-fg shadow-lg z-50 py-1.5 animate-in fade-in zoom-in-95"
               onClick={(e) => e.stopPropagation()}
             >
               {currentUserId && post.authorId === currentUserId && (
                 <Link
                   href={`/post/${post.id}/edit`}
                   onClick={() => setShowMoreMenu(false)}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 text-primary"
+                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2 text-primary"
                 >
                   <Edit3 className="size-4" />
                   <span>Edit Post</span>
@@ -750,9 +750,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   setShowMoreMenu(false);
                   setShowRepostModal(true);
                 }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2"
+                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2"
               >
-                <Repeat2 className="size-4 text-emerald-400" />
+                <Repeat2 className="size-4 text-success" />
                 <span>Repost</span>
               </button>
               <button
@@ -761,9 +761,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   setShowMoreMenu(false);
                   handleShare();
                 }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2"
+                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2"
               >
-                <Share2 className="size-4 text-blue-400" />
+                <Share2 className="size-4 text-brand-text" />
                 <span>Share Link</span>
               </button>
               <button
@@ -772,7 +772,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   setShowMoreMenu(false);
                   setShowReport(true);
                 }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-rose-500/20 text-rose-400 transition-colors cursor-pointer flex items-center gap-2 border-t border-white/10 mt-1"
+                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-danger-subtle text-danger transition-colors cursor-pointer flex items-center gap-2 border-t border-border mt-1"
               >
                 <span>Report</span>
               </button>
@@ -861,7 +861,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
               >
                 <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-                  <Flame className="size-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] animate-pulse" />
+                  <Flame className="size-20 fill-danger text-danger animate-pulse" />
                 </div>
               </motion.div>
             )}
@@ -877,8 +877,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
               >
-                <div className="rounded-full bg-emerald-500/25 border border-emerald-400/40 p-6 backdrop-blur-md shadow-[0_0_40px_rgba(16,185,129,0.5)]">
-                  <Repeat2 className="size-20 text-emerald-400 drop-shadow-lg" strokeWidth={2.25} />
+                <div className="rounded-full bg-success/25 border border-success/40 p-6 backdrop-blur-md">
+                  <Repeat2 className="size-20 text-success drop-shadow-lg" strokeWidth={2.25} />
                 </div>
               </motion.div>
             )}
@@ -948,7 +948,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   </Link>
                 )}
                 {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
-                  <BadgeCheck className="size-3.5 text-[#1D9BF0] fill-[#1D9BF0]/20 shrink-0" />
+                  <BadgeCheck className="size-3.5 text-brand-text fill-brand-text/20 shrink-0" />
                 )}
               </div>
 
@@ -957,7 +957,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   type="button"
                   onClick={handleToggleFollowAuthor}
                   className={cn(
-                    "ml-1 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-all cursor-pointer select-none",
+                    "ml-1 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-colors cursor-pointer select-none",
                     isFollowingAuthor
                       ? "bg-white/20 border-white/30 text-white"
                       : "bg-white text-black border-white hover:bg-white/90"
@@ -971,7 +971,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             {/* Caption */}
             {captionText && (
               <div className="text-xs text-white/90 leading-relaxed">
-                <p className={cn("transition-all", !isExpandedCaption && "line-clamp-2")}>{captionText}</p>
+                <p className={cn("transition-colors", !isExpandedCaption && "line-clamp-2")}>{captionText}</p>
                 {captionText.length > 90 && (
                   <button
                     type="button"
@@ -1013,7 +1013,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             {/* Video Progress Scrub Bar */}
             <div className="w-full h-1 bg-white/25 rounded-full overflow-hidden mt-2">
               <div
-                className="h-full bg-primary transition-all duration-100 ease-linear rounded-full"
+                className="h-full bg-primary transition-colors duration-100 ease-linear rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -1044,7 +1044,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
           >
             <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-              <Flame className="size-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] animate-pulse" />
+              <Flame className="size-20 fill-danger text-danger animate-pulse" />
             </div>
           </motion.div>
         )}
@@ -1060,8 +1060,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
           >
-            <div className="rounded-full bg-emerald-500/25 border border-emerald-400/40 p-6 backdrop-blur-md shadow-[0_0_40px_rgba(16,185,129,0.5)]">
-              <Repeat2 className="size-20 text-emerald-400 drop-shadow-lg" strokeWidth={2.25} />
+            <div className="rounded-full bg-success/25 border border-success/40 p-6 backdrop-blur-md">
+              <Repeat2 className="size-20 text-success drop-shadow-lg" strokeWidth={2.25} />
             </div>
           </motion.div>
         )}
@@ -1080,7 +1080,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           >
             <Avatar className="size-10 sm:size-11 border border-white/20 shadow-md">
               {avatarUrl && <AvatarImage src={avatarUrl} alt={authorName} />}
-              <AvatarFallback className="bg-purple-950 text-purple-200 font-black text-xs">
+              <AvatarFallback className="bg-brand-subtle text-brand-text font-black text-xs">
                 {avatarFallback}
               </AvatarFallback>
             </Avatar>
@@ -1102,7 +1102,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 </Link>
               )}
               {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
-                <BadgeCheck className="size-4 text-[#1D9BF0] fill-[#1D9BF0]/20 shrink-0" />
+                <BadgeCheck className="size-4 text-brand-text fill-brand-text/20 shrink-0" />
               )}
             </div>
 
@@ -1137,7 +1137,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
             {post.institution?.name && (
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 mt-0.5 min-w-0">
-                <span className="size-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20 shrink-0" />
+                <span className="size-1.5 rounded-full bg-success ring-2 ring-success/20 shrink-0" />
                 <Link
                   href={`/college/${post.institution.slug || post.institution.id || post.institutionId}`}
                   onClick={(e) => e.stopPropagation()}
@@ -1156,10 +1156,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             type="button"
             onClick={handleToggleFollowAuthor}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs",
+              "px-3.5 py-1.5 rounded-full text-xs font-black transition-colors cursor-pointer shrink-0 shadow-xs",
               isFollowingAuthor
                 ? "bg-white/10 text-white/80 hover:bg-white/15 border border-white/20"
-                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
           >
             {isFollowingAuthor ? "Following" : "Follow"}
@@ -1200,7 +1200,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
         {/* Embedded Repost */}
         {post.repostOf && Boolean(post.repostComment) && post.body?.trim() !== post.repostOf.body?.trim() && (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md p-3.5 text-xs space-y-1.5 shadow-sm">
+          <div className="rounded-2xl border border-border bg-surface-muted p-3.5 text-xs space-y-1.5">
             <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
               <Link
                 href={`/@${post.repostOf.author?.username || "student"}`}
@@ -1242,9 +1242,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 href={`/hashtag/${encodeURIComponent(tag.replace(/^#/, "").toLowerCase())}`}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  "text-xs font-bold px-3 py-1 rounded-full transition-all select-none hover:opacity-90",
+                  "text-xs font-bold px-3 py-1 rounded-full transition-colors select-none hover:opacity-90",
                   idx === 0
-                    ? "bg-purple-950/70 border border-purple-500/40 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.25)] hover:bg-purple-900/80"
+                    ? "bg-brand-subtle/70 border border-brand-subtle-border/40 text-brand-text hover:bg-brand-subtle/80"
                     : "bg-muted/70 border border-border text-foreground/75 hover:bg-muted hover:text-foreground"
                 )}
               >

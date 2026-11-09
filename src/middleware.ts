@@ -79,6 +79,13 @@ async function enforceRateLimit(req: NextRequest): Promise<NextResponse | null> 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // /overview was a duplicate of the pitch deck; one canonical URL for the deck.
+  if (pathname === "/overview" || pathname === "/overview/") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/pitch";
+    return NextResponse.redirect(url, 308);
+  }
+
   // Legacy compatibility only: old /app/* URLs now resolve to their canonical clean route.
   if (pathname === LEGACY_APP_PREFIX || pathname.startsWith(`${LEGACY_APP_PREFIX}/`)) {
     const url = req.nextUrl.clone();

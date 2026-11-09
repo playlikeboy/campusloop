@@ -223,7 +223,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
             onClick={handleSave}
             disabled={isSaving || !isDirty || !body.trim() || isOverLimit}
             size="sm"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2 text-xs rounded-full shadow-md active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2 text-xs rounded-full shadow-md active:scale-95 transition-transform cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
           >
             {isSaving ? (
               <span className="flex items-center gap-1.5">
@@ -246,7 +246,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
         <div className="p-3.5 rounded-2xl border border-border/50 bg-muted/20 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             {post.isAnonymous ? (
-              <div className="flex size-9 items-center justify-center rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/25 shrink-0">
+              <div className="flex size-9 items-center justify-center rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/25 shrink-0">
                 <VenetianMask className="size-4" />
               </div>
             ) : (
@@ -275,25 +275,25 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
 
           <div className="flex items-center gap-1.5 shrink-0">
             {post.type === "CONFESSION" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/20 flex items-center gap-1">
                 <Lock className="size-3" />
                 <span>Confession</span>
               </span>
             )}
             {post.type === "QUESTION" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 flex items-center gap-1">
                 <HelpCircle className="size-3" />
                 <span>Question</span>
               </span>
             )}
             {post.type === "MEME" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 flex items-center gap-1">
                 <Sparkles className="size-3" />
                 <span>Meme</span>
               </span>
             )}
             {post.type === "NORMAL" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/20 flex items-center gap-1">
                 <MessageSquare className="size-3" />
                 <span>Discussion</span>
               </span>
@@ -327,7 +327,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 sounds.tap();
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 activeTab === "write"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -343,7 +343,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 sounds.tap();
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 activeTab === "preview"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -361,7 +361,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               isOverLimit
                 ? "text-destructive font-black"
                 : charRemaining < 150
-                  ? "text-amber-500"
+                  ? "text-warning"
                   : "text-muted-foreground"
             )}
           >
@@ -434,7 +434,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               onKeyDown={handleKeyDown}
               placeholder="What's happening on campus? Write your thoughts, questions, or updates..."
               className={cn(
-                "w-full min-h-[240px] rounded-2xl border bg-muted/15 p-4 text-sm sm:text-base leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none transition-all font-sans",
+                "w-full min-h-[240px] rounded-2xl border bg-muted/15 p-4 text-sm sm:text-base leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none transition-colors font-sans",
                 isOverLimit
                   ? "border-destructive focus:border-destructive ring-1 ring-destructive"
                   : "border-border/60 focus:border-primary"
@@ -481,7 +481,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 sounds.tap();
               }}
               className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer",
+                "flex items-center gap-3 p-3 rounded-xl border text-left transition-colors cursor-pointer",
                 scope === "CAMPUS"
                   ? "border-primary bg-primary/10 text-foreground"
                   : "border-border/40 hover:bg-muted/50 text-muted-foreground"
@@ -510,7 +510,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 sounds.tap();
               }}
               className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer",
+                "flex items-center gap-3 p-3 rounded-xl border text-left transition-colors cursor-pointer",
                 scope === "GLOBAL"
                   ? "border-primary bg-primary/10 text-foreground"
                   : "border-border/40 hover:bg-muted/50 text-muted-foreground"
@@ -545,7 +545,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-2xl space-y-4"
             >
-              <div className="flex items-center gap-2.5 text-amber-500">
+              <div className="flex items-center gap-2.5 text-warning">
                 <AlertCircle className="size-5" />
                 <h3 className="font-bold text-sm text-foreground">Discard unsaved changes?</h3>
               </div>

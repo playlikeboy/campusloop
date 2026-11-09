@@ -34,7 +34,7 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
   const handle = isAnon ? post.pseudonym || "anonymous" : post.author?.username || "student";
   const avatarUrl = isAnon ? "" : getAvatarUrl(post.author?.avatarUrl, post.author?.username ?? "student");
   const fallback = isAnon ? (
-    <VenetianMask className="size-4 text-purple-400" />
+    <VenetianMask className="size-4 text-brand-text" />
   ) : (
     (post.author?.displayName?.[0] ?? "S").toUpperCase()
   );
@@ -108,7 +108,7 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
       <div className="pt-1 flex items-center justify-between">
         <Link
           href={`/post/${post.id}`}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-2xs group"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-2xs group"
         >
           <span>View full discussion ({commentsCount} comments)</span>
           <ArrowRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />

@@ -33,28 +33,39 @@ import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
-  { id: "Tech & Coding", label: "Tech & Coding", icon: Code, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { id: "Cultural & Arts", label: "Cultural & Arts", icon: Music, color: "text-pink-500", bg: "bg-pink-500/10" },
-  { id: "Gaming & Anime", label: "Gaming & Anime", icon: Swords, color: "text-purple-500", bg: "bg-purple-500/10" },
-  { id: "Sports & Fitness", label: "Sports & Fitness", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10" },
-  { id: "Academics & Placements", label: "Academics & Careers", icon: GraduationCap, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  { id: "General", label: "General Campus", icon: Compass, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+  { id: "Tech & Coding", label: "Tech & Coding", icon: Code, color: "text-brand-text", bg: "bg-brand-subtle" },
+  { id: "Cultural & Arts", label: "Cultural & Arts", icon: Music, color: "text-danger", bg: "bg-danger-subtle" },
+  { id: "Gaming & Anime", label: "Gaming & Anime", icon: Swords, color: "text-brand-text", bg: "bg-brand-subtle" },
+  { id: "Sports & Fitness", label: "Sports & Fitness", icon: Flame, color: "text-warning", bg: "bg-warning-subtle" },
+  { id: "Academics & Placements", label: "Academics & Careers", icon: GraduationCap, color: "text-success", bg: "bg-success-subtle" },
+  { id: "General", label: "General Campus", icon: Compass, color: "text-brand-text", bg: "bg-brand-subtle" },
 ] as const;
 
 const AVATAR_PRESETS = [
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-indigo", label: "Indigo", style: "linear-gradient(135deg, #6366f1, #4f46e5)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-violet", label: "Violet", style: "linear-gradient(135deg, #8b5cf6, #7c3aed)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-emerald", label: "Emerald", style: "linear-gradient(135deg, #10b981, #059669)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-rose", label: "Rose", style: "linear-gradient(135deg, #f43f5e, #e11d48)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-amber", label: "Amber", style: "linear-gradient(135deg, #f59e0b, #d97706)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-cyan", label: "Cyan", style: "linear-gradient(135deg, #06b6d4, #0891b2)" },
 ];
 
 const BANNER_PRESETS = [
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-tech", label: "Cosmic", style: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-aurora", label: "Aurora", style: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-sunset", label: "Sunset", style: "linear-gradient(135deg, #ea580c 0%, #dc2626 50%, #9333ea 100%)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-midnight", label: "Midnight", style: "linear-gradient(135deg, #09090b 0%, #1e1b4b 50%, #312e81 100%)" },
+  // ds-allow: user-selectable preset swatch, persisted as the community avatar/banner style
   { id: "preset-ocean", label: "Ocean", style: "linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%)" },
 ];
 
@@ -185,14 +196,14 @@ export function CreateCommunityClient() {
       <div className="flex items-center justify-between pb-4 border-b border-border/30">
         <Link
           href="/communities"
-          className="inline-flex items-center gap-1.5 rounded-full bg-muted/40 px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-full bg-muted/40 px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
         >
           <ArrowLeft className="size-3.5" />
           <span>Back to Communities</span>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-warning bg-warning-subtle px-2.5 py-1 rounded-full border border-warning">
             <Zap className="size-3" />
             +100 LP Founder Bonus
           </span>
@@ -218,12 +229,12 @@ export function CreateCommunityClient() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs">
-              <div className="flex items-center gap-2 font-bold text-amber-700 dark:text-amber-300">
-                <Trophy className="size-4 text-amber-500 shrink-0" />
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-warning bg-warning-subtle p-3 text-xs">
+              <div className="flex items-center gap-2 font-bold text-warning">
+                <Trophy className="size-4 text-warning shrink-0" />
                 <span>Founder Privileges: +100 LP Clout</span>
               </div>
-              <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-black uppercase text-amber-700 dark:text-amber-300">
+              <span className="rounded-full bg-warning-subtle px-2.5 py-0.5 text-[10px] font-black uppercase text-warning">
                 Instant Admin
               </span>
             </div>
@@ -253,7 +264,7 @@ export function CreateCommunityClient() {
                   placeholder="e.g. bit-coders, ai-club, indie-filmmakers"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-border/50 bg-muted/20 pl-8 pr-4 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-all"
+                  className="h-11 w-full rounded-2xl border border-border/50 bg-muted/20 pl-8 pr-4 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-colors"
                 />
               </div>
               <p className="text-[11px] text-muted-foreground pl-1">
@@ -277,7 +288,7 @@ export function CreateCommunityClient() {
                   placeholder={derivedSlug || "your-hub"}
                   value={customSlug}
                   onChange={(e) => setCustomSlug(e.target.value)}
-                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 pl-[210px] pr-4 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-all"
+                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 pl-[210px] pr-4 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-colors"
                 />
               </div>
             </div>
@@ -299,7 +310,7 @@ export function CreateCommunityClient() {
                         setCategory(cat.id);
                       }}
                       className={cn(
-                        "p-3 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between gap-2 active:scale-97",
+                        "p-3 rounded-2xl text-left border transition-[opacity,transform] cursor-pointer flex flex-col justify-between gap-2 active:scale-97",
                         isSelected
                           ? "bg-foreground text-background border-foreground shadow-2xs font-black"
                           : "bg-muted/20 text-muted-foreground border-border/40 hover:bg-muted/40 hover:text-foreground"
@@ -332,7 +343,7 @@ export function CreateCommunityClient() {
                 placeholder="What is this community about? What events, discussions, projects, or meetups will take place here?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3.5 rounded-2xl border border-border/50 bg-muted/20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-all resize-none"
+                className="w-full p-3.5 rounded-2xl border border-border/50 bg-muted/20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-colors resize-none"
               />
               <div className="flex justify-between text-[11px] text-muted-foreground px-1">
                 <span>Helps students discover and join your hub</span>
@@ -364,7 +375,7 @@ export function CreateCommunityClient() {
                     type="button"
                     onClick={() => setAvatarMode("preset")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full font-bold transition-all",
+                      "px-2.5 py-0.5 rounded-full font-bold transition-colors",
                       avatarMode === "preset" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -374,7 +385,7 @@ export function CreateCommunityClient() {
                     type="button"
                     onClick={() => setAvatarMode("custom")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full font-bold transition-all",
+                      "px-2.5 py-0.5 rounded-full font-bold transition-colors",
                       avatarMode === "custom" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -413,7 +424,7 @@ export function CreateCommunityClient() {
                   placeholder="https://example.com/logo.png"
                   value={customAvatarUrl}
                   onChange={(e) => setCustomAvatarUrl(e.target.value)}
-                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 px-3.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-all"
+                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 px-3.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-colors"
                 />
               )}
             </div>
@@ -430,7 +441,7 @@ export function CreateCommunityClient() {
                     type="button"
                     onClick={() => setBannerMode("preset")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full font-bold transition-all",
+                      "px-2.5 py-0.5 rounded-full font-bold transition-colors",
                       bannerMode === "preset" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -440,7 +451,7 @@ export function CreateCommunityClient() {
                     type="button"
                     onClick={() => setBannerMode("custom")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full font-bold transition-all",
+                      "px-2.5 py-0.5 rounded-full font-bold transition-colors",
                       bannerMode === "custom" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -480,7 +491,7 @@ export function CreateCommunityClient() {
                   placeholder="https://example.com/banner.jpg"
                   value={customBannerUrl}
                   onChange={(e) => setCustomBannerUrl(e.target.value)}
-                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 px-3.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-all"
+                  className="h-10 w-full rounded-2xl border border-border/50 bg-muted/20 px-3.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-card transition-colors"
                 />
               )}
             </div>
@@ -506,7 +517,7 @@ export function CreateCommunityClient() {
                   setPrivacy("PUBLIC");
                 }}
                 className={cn(
-                  "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-4 rounded-2xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "PUBLIC"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/50 hover:bg-muted/20"
@@ -518,7 +529,7 @@ export function CreateCommunityClient() {
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-xs font-bold text-foreground">Public Hub</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600">
+                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-success-subtle text-success">
                       Recommended
                     </span>
                   </div>
@@ -536,13 +547,13 @@ export function CreateCommunityClient() {
                   setPrivacy("PRIVATE");
                 }}
                 className={cn(
-                  "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-4 rounded-2xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "PRIVATE"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/50 hover:bg-muted/20"
                 )}
               >
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+                <div className="p-2 rounded-xl bg-warning-subtle text-warning shrink-0">
                   <Lock className="size-4" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
@@ -561,13 +572,13 @@ export function CreateCommunityClient() {
                   setPrivacy("UNLISTED");
                 }}
                 className={cn(
-                  "p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-4 rounded-2xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "UNLISTED"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/50 hover:bg-muted/20"
                 )}
               >
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 shrink-0">
+                <div className="p-2 rounded-xl bg-brand-subtle text-brand-text shrink-0">
                   <EyeOff className="size-4" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
@@ -601,7 +612,7 @@ export function CreateCommunityClient() {
               >
                 <span
                   className={cn(
-                    "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block size-5 transform rounded-full bg-surface shadow-lg ring-0 transition duration-200 ease-in-out",
                     allowAnonymousPosts ? "translate-x-5" : "translate-x-0"
                   )}
                 />
@@ -636,14 +647,14 @@ export function CreateCommunityClient() {
                   className="p-3.5 rounded-2xl bg-muted/20 border border-border/50 space-y-2 relative"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-bold text-muted-foreground">
                       Rule #{idx + 1}
                     </span>
                     {rules.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveRule(idx)}
-                        className="text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+                        className="text-muted-foreground hover:text-danger transition-colors cursor-pointer"
                         title="Remove Rule"
                       >
                         <Trash2 className="size-3.5" />
@@ -675,7 +686,7 @@ export function CreateCommunityClient() {
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="w-full h-12 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-sm hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 active:scale-98"
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-sm hover:opacity-95 transition-[opacity,transform] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 active:scale-98"
           >
             {loading ? (
               <>
@@ -697,7 +708,7 @@ export function CreateCommunityClient() {
             {/* Readiness Checklist Card */}
             <div className="rounded-3xl border border-border/40 bg-card/60 p-5 shadow-2xs backdrop-blur-xs space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                <h3 className="text-xs font-bold text-foreground">
                   Launch Readiness
                 </h3>
                 <span className="text-xs font-black text-primary">{Math.round(checklistPercent)}%</span>
@@ -705,32 +716,32 @@ export function CreateCommunityClient() {
 
               <div className="h-1.5 w-full rounded-full bg-muted/50 overflow-hidden">
                 <div
-                  className="h-full bg-primary rounded-full transition-all duration-300"
+                  className="h-full bg-primary rounded-full transition-colors duration-300"
                   style={{ width: `${checklistPercent}%` }}
                 />
               </div>
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className={cn("size-4", isNameValid ? "text-emerald-500" : "text-muted-foreground/40")} />
+                  <CheckCircle2 className={cn("size-4", isNameValid ? "text-success" : "text-muted-foreground/40")} />
                   <span className={cn(isNameValid ? "text-foreground font-semibold" : "text-muted-foreground")}>
                     Community name specified
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className={cn("size-4", isCategoryValid ? "text-emerald-500" : "text-muted-foreground/40")} />
+                  <CheckCircle2 className={cn("size-4", isCategoryValid ? "text-success" : "text-muted-foreground/40")} />
                   <span className={cn(isCategoryValid ? "text-foreground font-semibold" : "text-muted-foreground")}>
                     Category selected ({category})
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className={cn("size-4", isDescriptionValid ? "text-emerald-500" : "text-muted-foreground/40")} />
+                  <CheckCircle2 className={cn("size-4", isDescriptionValid ? "text-success" : "text-muted-foreground/40")} />
                   <span className={cn(isDescriptionValid ? "text-foreground font-semibold" : "text-muted-foreground")}>
                     About &amp; purpose defined
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className={cn("size-4", isRulesValid ? "text-emerald-500" : "text-muted-foreground/40")} />
+                  <CheckCircle2 className={cn("size-4", isRulesValid ? "text-success" : "text-muted-foreground/40")} />
                   <span className={cn(isRulesValid ? "text-foreground font-semibold" : "text-muted-foreground")}>
                     Guidelines configured ({rules.filter((r) => r.title.trim()).length} rules)
                   </span>
@@ -741,7 +752,7 @@ export function CreateCommunityClient() {
             {/* Live Exploration Card Preview */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-bold text-muted-foreground">
                   Live Card Preview
                 </span>
                 <span className="text-[10px] font-semibold text-primary">Explore Directory</span>
@@ -772,12 +783,12 @@ export function CreateCommunityClient() {
                       {(!customAvatarUrl || avatarMode === "preset") && (name[0] || "C").toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="block text-[10px] font-black uppercase tracking-wider text-primary truncate">
+                      <span className="block text-xs font-bold text-primary truncate">
                         {category}
                       </span>
                       <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                         {privacy === "PRIVATE" ? (
-                          <span className="inline-flex items-center gap-1 text-amber-500">
+                          <span className="inline-flex items-center gap-1 text-warning">
                             <Lock className="size-3" /> Private
                           </span>
                         ) : (
@@ -811,7 +822,7 @@ export function CreateCommunityClient() {
 
                 {/* Footer */}
                 <div className="relative z-10 mt-auto pt-4 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
-                  <span className="flex items-center gap-1 font-bold text-amber-500">
+                  <span className="flex items-center gap-1 font-bold text-warning">
                     <Zap className="size-3" /> 100 LP Clout
                   </span>
                   <span>@you (Founder)</span>

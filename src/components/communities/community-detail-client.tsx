@@ -269,8 +269,8 @@ export function CommunityDetailClient({
           >
             {copiedInvite ? (
               <>
-                <Check className="size-3 text-emerald-500" />
-                <span className="text-emerald-500">Copied!</span>
+                <Check className="size-3 text-success" />
+                <span className="text-success">Copied!</span>
               </>
             ) : (
               <>
@@ -316,9 +316,8 @@ export function CommunityDetailClient({
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/25 to-transparent" />
             </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/15 via-muted/40 to-secondary/15 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-              <span className="text-5xl sm:text-7xl font-black text-muted-foreground/15 uppercase tracking-widest select-none">
+            <div className="w-full h-full bg-brand-subtle flex items-center justify-center relative">
+              <span className="text-5xl sm:text-7xl font-bold text-muted-foreground/15 select-none">
                 {community.name.slice(0, 3)}
               </span>
             </div>
@@ -326,12 +325,12 @@ export function CommunityDetailClient({
 
           {/* Top Banner Tag */}
           <div className="absolute top-3.5 left-4 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-background/90 text-foreground backdrop-blur-md shadow-2xs border border-border/40">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-background/90 text-foreground backdrop-blur-sm shadow-2xs border border-border/40">
               <CategoryIcon className="size-3" />
               {community.category || "General"}
             </span>
             {community.privacy === "PRIVATE" ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-white shadow-2xs">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-warning text-white shadow-2xs">
                 <Lock className="size-3" /> Private Hub
               </span>
             ) : (
@@ -387,7 +386,7 @@ export function CommunityDetailClient({
                 type="button"
                 onClick={handleOpenCommunityChat}
                 disabled={isOpeningChat}
-                className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card px-4 text-xs font-bold text-foreground hover:bg-muted transition-all active:scale-95 cursor-pointer shadow-2xs"
+                className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card px-4 text-xs font-bold text-foreground hover:bg-muted transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs"
                 title={`Open c/${community.name} chat room`}
               >
                 {isOpeningChat ? (
@@ -434,13 +433,13 @@ export function CommunityDetailClient({
               onClick={() => setActiveTab("discussions")}
               className="flex items-center gap-1.5 hover:text-foreground transition cursor-pointer"
             >
-              <MessageSquare className="size-3.5 text-sky-500" />
+              <MessageSquare className="size-3.5 text-brand-text" />
               <span className="font-bold text-foreground">{posts.length}</span>
               <span>{posts.length === 1 ? "discussion" : "discussions"}</span>
             </button>
 
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 text-emerald-500" />
+              <ShieldCheck className="size-3.5 text-success" />
               <span>Verified Campus Community</span>
             </div>
           </div>
@@ -461,7 +460,7 @@ export function CommunityDetailClient({
                 </h2>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
-                Access 45K+ semester handwritten notes, university solved question papers, and lab manuals
+                Access semester handwritten notes, university solved question papers, and lab manuals
                 curated for your syllabus.
               </p>
             </div>
@@ -566,7 +565,7 @@ export function CommunityDetailClient({
               {isMember ? (
                 <div
                   onClick={() => setShowFullComposer(true)}
-                  className="rounded-2xl border border-border/60 bg-card p-3.5 sm:p-4 shadow-2xs transition-all hover:border-primary/40 cursor-pointer group"
+                  className="rounded-2xl border border-border/60 bg-card p-3.5 sm:p-4 shadow-2xs transition-colors hover:border-primary/40 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="size-9 rounded-full ring-2 ring-card bg-muted shrink-0">
@@ -592,13 +591,13 @@ export function CommunityDetailClient({
                   <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-4">
                       <span className="inline-flex items-center gap-1 hover:text-foreground transition">
-                        <ImageIcon className="size-3.5 text-emerald-500" /> Photo
+                        <ImageIcon className="size-3.5 text-success" /> Photo
                       </span>
                       <span className="inline-flex items-center gap-1 hover:text-foreground transition">
-                        <BarChart3 className="size-3.5 text-sky-500" /> Poll
+                        <BarChart3 className="size-3.5 text-brand-text" /> Poll
                       </span>
                       <span className="inline-flex items-center gap-1 hover:text-foreground transition">
-                        <VenetianMask className="size-3.5 text-violet-500" /> Anonymous
+                        <VenetianMask className="size-3.5 text-brand-text" /> Anonymous
                       </span>
                     </div>
                     <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
@@ -711,7 +710,7 @@ export function CommunityDetailClient({
           {activeTab === "rules" && (
             <div className="rounded-2xl border border-border/60 bg-card p-6 space-y-4 shadow-2xs">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-emerald-500" />
+                <ShieldCheck className="size-5 text-success" />
                 <h3 className="text-sm sm:text-base font-bold text-foreground">
                   c/{community.name} Code of Conduct
                 </h3>
@@ -747,7 +746,7 @@ export function CommunityDetailClient({
         <aside className="space-y-4 lg:col-span-4">
           {/* About Hub Card */}
           <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-bold text-muted-foreground">
               About This Hub
             </h3>
             {community.description && (
@@ -790,7 +789,7 @@ export function CommunityDetailClient({
           {/* Moderator Info Card */}
           {community.creator && (
             <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Community Moderator
               </h3>
               <Link
@@ -821,7 +820,7 @@ export function CommunityDetailClient({
           {relatedCommunities.length > 0 && (
             <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-xs font-bold text-muted-foreground">
                   Explore Related Hubs
                 </h3>
                 <Link

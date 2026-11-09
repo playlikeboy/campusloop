@@ -160,7 +160,7 @@ export function UnsplashImagePicker({
                   type="button"
                   onClick={() => handleTopicClick(topic.id)}
                   className={cn(
-                    "px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 border",
+                    "px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1 shrink-0 border",
                     isSelected
                       ? "bg-foreground text-background border-foreground font-black shadow-xs"
                       : "bg-muted/30 text-muted-foreground hover:text-foreground border-border/40"
@@ -197,7 +197,7 @@ export function UnsplashImagePicker({
                       type="button"
                       onClick={() => handlePhotoSelect(photo)}
                       className={cn(
-                        "group relative overflow-hidden rounded-xl border text-left transition-all cursor-pointer",
+                        "group relative overflow-hidden rounded-xl border text-left transition-ui cursor-pointer",
                         orientation === "portrait" ? "aspect-9/16" : "aspect-16/9",
                         isSelected
                           ? "border-primary ring-2 ring-primary/40 shadow-md scale-[0.98]"

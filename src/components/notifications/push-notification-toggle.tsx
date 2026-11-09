@@ -25,15 +25,15 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
     // If subscribed, show a sleek pill that allows sending a test ping
     if (isSubscribed) {
       return (
-        <div className="mx-4 my-2.5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-2.5">
+        <div className="mx-4 my-2.5 flex items-center justify-between gap-3 rounded-2xl border border-success/25 bg-success/5 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success">
               <AnimatedIcon icon={AnimateBellRing} animation="bell" size={14} />
             </span>
             <div className="min-w-0">
               <p className="text-xs font-black text-foreground flex items-center gap-1.5">
                 <span>Browser alerts active</span>
-                <AnimateCheck size={14} className="text-emerald-500" />
+                <AnimateCheck size={14} className="text-success" />
               </p>
               <p className="text-[10px] text-muted-foreground truncate">
                 Instant pings for campus replies, crushes, and chats
@@ -43,10 +43,10 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
           <button
             type="button"
             onClick={sendTestNotification}
-            className="flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-background px-3 text-[11px] font-bold text-foreground hover:bg-muted transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-success/30 bg-background px-3 text-[11px] font-bold text-foreground hover:bg-muted transition-transform active:scale-95 cursor-pointer shadow-2xs"
             title="Send test browser notification"
           >
-            <AnimateSend size={12} className="text-emerald-500" />
+            <AnimateSend size={12} className="text-success" />
             <span>Test Ping</span>
           </button>
         </div>
@@ -92,7 +92,7 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
           type="button"
           onClick={subscribe}
           disabled={isBusy}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-sm transition-all hover:bg-primary/95 active:scale-95 cursor-pointer disabled:opacity-60"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-sm transition-transform hover:bg-primary/95 active:scale-95 cursor-pointer disabled:opacity-60"
         >
           {isBusy ? (
             <Loader2 className="size-3.5 animate-spin" />
@@ -111,7 +111,7 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
         <div
           className={cn(
             "flex size-9 shrink-0 items-center justify-center rounded-xl",
-            isSubscribed ? "bg-emerald-500/15 text-emerald-500" : "bg-muted text-muted-foreground"
+            isSubscribed ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"
           )}
         >
           {isSubscribed ? (
@@ -137,7 +137,7 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
           <button
             type="button"
             onClick={sendTestNotification}
-            className="flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground hover:bg-muted transition-all active:scale-95 cursor-pointer"
+            className="flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground hover:bg-muted transition-transform active:scale-95 cursor-pointer"
           >
             <AnimateSend size={12} className="text-primary" />
             <span>Test</span>
@@ -148,7 +148,7 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
           onClick={isSubscribed ? unsubscribe : subscribe}
           disabled={isBusy || blocked}
           className={cn(
-            "flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-black transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
+            "flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-black transition-transform active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
             isSubscribed
               ? "border border-border bg-card text-foreground hover:bg-muted"
               : "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/95"

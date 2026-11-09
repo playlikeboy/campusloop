@@ -73,7 +73,7 @@ export function HostTournamentDialog({
       <DialogContent className="max-w-lg max-h-[88vh] overflow-y-auto rounded-3xl p-6 bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-            <Trophy className="size-5 text-amber-500" />
+            <Trophy className="size-5 text-warning" />
             <span>Host Campus Tournament</span>
           </DialogTitle>
         </DialogHeader>

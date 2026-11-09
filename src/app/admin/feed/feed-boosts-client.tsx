@@ -249,7 +249,7 @@ export function FeedBoostsClient() {
                     setMultiplier(option.multiplier);
                   }}
                   className={cn(
-                    "rounded-xl border p-3 text-left transition-all cursor-pointer",
+                    "rounded-xl border p-3 text-left transition-ui cursor-pointer",
                     mode === option.mode
                       ? "border-primary bg-primary/10 ring-1 ring-primary"
                       : "border-border/60 hover:border-border"
@@ -284,7 +284,7 @@ export function FeedBoostsClient() {
                   type="button"
                   onClick={() => setDurationHours(duration.hours)}
                   className={cn(
-                    "rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                    "rounded-full border px-3.5 py-1.5 text-xs font-bold transition-ui cursor-pointer",
                     durationHours === duration.hours
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border/60 text-muted-foreground hover:text-foreground"
@@ -307,7 +307,7 @@ export function FeedBoostsClient() {
             type="button"
             onClick={applyBoost}
             disabled={isSaving}
-            className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-black hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-black hover:bg-primary/90 transition-ui cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {isSaving ? <Loader2 className="size-4 animate-spin" /> : <TrendingUp className="size-4" />}
             Apply boost

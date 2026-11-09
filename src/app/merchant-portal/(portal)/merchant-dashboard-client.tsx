@@ -135,7 +135,7 @@ export function MerchantDashboardClient() {
       {/* ─── Top Header & Store Open/Closed Toggle ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/40 p-5 rounded-3xl shadow-xs">
         <div>
-          <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
+          <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
             <span>Good afternoon, {merchant?.name || "Partner"}</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -159,7 +159,7 @@ export function MerchantDashboardClient() {
               <button
                 type="button"
                 onClick={handleCopyStoreLink}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 title="Copy public store link"
               >
                 <Copy className="size-3.5" />
@@ -175,7 +175,7 @@ export function MerchantDashboardClient() {
               toast.info(!audioAlertsEnabled ? "Order sound alerts enabled" : "Order sound alerts muted");
             }}
             className={cn(
-              "flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all cursor-pointer border",
+              "flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-colors cursor-pointer border",
               audioAlertsEnabled
                 ? "bg-muted border-border/60 text-foreground"
                 : "bg-muted/40 border-dashed border-border/40 text-muted-foreground"
@@ -195,22 +195,22 @@ export function MerchantDashboardClient() {
             onClick={handleToggleStoreOpen}
             disabled={updatingStoreOpen}
             className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95",
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-colors cursor-pointer shadow-xs active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               merchant?.isOpen
-                ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/25"
-                : "bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25"
+                ? "bg-success-subtle text-success border border-success/30 hover:bg-success-subtle"
+                : "bg-danger-subtle text-danger border border-danger/30 hover:bg-danger-subtle"
             )}
           >
             <Power className="size-3.5" />
             <span>
               {merchant?.isOpen ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="size-2 rounded-full bg-success animate-pulse" />
                   Store Open
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-rose-500" />
+                  <span className="size-2 rounded-full bg-danger" />
                   Store Closed
                 </span>
               )}
@@ -222,27 +222,27 @@ export function MerchantDashboardClient() {
       {/* ─── Quick Stats Grid ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Today's Revenue
           </p>
-          <p className="text-xl font-black text-foreground">₹{stats.todayRevenue.toLocaleString("en-IN")}</p>
+          <p className="text-xl font-bold text-foreground">₹{stats.todayRevenue.toLocaleString("en-IN")}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Today's Orders
           </p>
-          <p className="text-xl font-black text-foreground">{stats.todayOrdersCount}</p>
+          <p className="text-xl font-bold text-foreground">{stats.todayOrdersCount}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Pending Action
           </p>
           <p
             className={cn(
-              "text-xl font-black",
-              stats.pendingCount > 0 ? "text-amber-500 animate-pulse" : "text-foreground"
+              "text-xl font-bold",
+              stats.pendingCount > 0 ? "text-warning animate-pulse" : "text-foreground"
             )}
           >
             {stats.pendingCount}
@@ -250,20 +250,20 @@ export function MerchantDashboardClient() {
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Avg. Order</p>
-          <p className="text-xl font-black text-foreground">₹{stats.avgOrderValue}</p>
+          <p className="text-[11px] font-bold text-muted-foreground">Avg. Order</p>
+          <p className="text-xl font-bold text-foreground">₹{stats.avgOrderValue}</p>
         </div>
       </div>
 
       {/* ─── PROMINENT INCOMING ORDERS BOARD (PRD Item 22) ─── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Bell className="size-4 text-amber-500 animate-pulse" />
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+            <Bell className="size-4 text-warning animate-pulse" />
             <span>Incoming Live Orders ({incomingOrders.length})</span>
           </h2>
           {incomingOrders.length > 0 && (
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning-subtle text-warning border border-warning/30">
               Needs Instant Action
             </span>
           )}
@@ -274,12 +274,12 @@ export function MerchantDashboardClient() {
             {incomingOrders.map((order) => (
               <div
                 key={order.id}
-                className="p-5 rounded-3xl border-2 border-amber-500/40 bg-amber-500/[0.04] space-y-4 shadow-lg animate-in slide-in-from-top-2"
+                className="p-5 rounded-3xl border-2 border-warning/40 bg-amber-500/[0.04] space-y-4 shadow-lg animate-in slide-in-from-top-2"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/30 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-black text-foreground inline-flex items-center gap-1.5">
-                      <Bell className="size-4 text-amber-500 animate-pulse" />
+                    <span className="text-base font-bold text-foreground inline-flex items-center gap-1.5">
+                      <Bell className="size-4 text-warning animate-pulse" />
                       <span>NEW ORDER #{order.orderNumber}</span>
                     </span>
                     <span className="text-xs font-bold text-muted-foreground">
@@ -290,7 +290,7 @@ export function MerchantDashboardClient() {
                     <span className="px-2.5 py-0.5 rounded-full bg-muted font-bold text-xs">
                       {order.fulfillmentType}
                     </span>
-                    <span className="text-base font-black text-emerald-500">
+                    <span className="text-base font-bold text-success">
                       ₹{order.total.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -298,7 +298,7 @@ export function MerchantDashboardClient() {
 
                 {/* Items in the Order */}
                 <div className="space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-bold text-muted-foreground">
                     Order Items:
                   </p>
                   <div className="space-y-1">
@@ -341,7 +341,7 @@ export function MerchantDashboardClient() {
                     type="button"
                     disabled={actioningOrderId === order.id}
                     onClick={() => handleOrderStatus(order.id, "ACCEPTED")}
-                    className="flex-1 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                    className="flex-1 h-12 rounded-2xl bg-success hover:opacity-90 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                   >
                     {actioningOrderId === order.id ? (
                       <Loader2 className="size-4 animate-spin" />
@@ -360,7 +360,7 @@ export function MerchantDashboardClient() {
                       const reason = prompt("Enter reason for rejection (e.g. Item out of stock):");
                       if (reason) handleOrderStatus(order.id, "REJECTED", reason);
                     }}
-                    className="px-5 h-12 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 font-bold text-xs transition-colors cursor-pointer"
+                    className="px-5 h-12 rounded-2xl bg-danger-subtle hover:bg-danger-subtle text-danger font-bold text-xs transition-colors cursor-pointer"
                   >
                     Reject
                   </button>
@@ -381,7 +381,7 @@ export function MerchantDashboardClient() {
       {/* ─── Recent Active Orders Summary ─── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             Recent Orders ({recentOrders.length})
           </h2>
           <Link href="/merchant-portal/orders" className="text-xs font-bold text-primary hover:underline">
@@ -397,7 +397,7 @@ export function MerchantDashboardClient() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-foreground">#{order.orderNumber}</span>
+                  <span className="font-bold text-foreground">#{order.orderNumber}</span>
                   <span className="text-muted-foreground">· {formatTimeAgo(order.createdAt)}</span>
                 </div>
                 <p className="text-muted-foreground truncate mt-0.5">
@@ -406,15 +406,15 @@ export function MerchantDashboardClient() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <span className="font-black text-foreground">₹{order.total.toLocaleString("en-IN")}</span>
+                <span className="font-bold text-foreground">₹{order.total.toLocaleString("en-IN")}</span>
                 <span
                   className={cn(
-                    "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+                    "px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
                     order.status === "DELIVERED"
-                      ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                      ? "bg-success-subtle text-success border-success/30"
                       : order.status === "REJECTED"
-                        ? "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                        : "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                        ? "bg-danger-subtle text-danger border-danger/30"
+                        : "bg-warning-subtle text-warning border-warning/30"
                   )}
                 >
                   {order.status.replace("_", " ")}

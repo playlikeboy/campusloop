@@ -41,7 +41,7 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search engineering docs — try “anonymous”, “cryptographic”, or “escrow”..."
-            className="h-11 w-full rounded-xl border border-border/60 bg-card pr-4 pl-10 text-xs sm:text-sm font-medium outline-none placeholder:text-muted-foreground focus:border-[#1D9BF0] transition-colors"
+            className="h-11 w-full rounded-xl border border-border bg-surface pr-4 pl-10 text-xs sm:text-sm font-medium outline-none placeholder:text-fg-subtle focus:border-brand transition-colors"
           />
         </label>
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
@@ -51,7 +51,7 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
               type="button"
               onClick={() => setFilter(c)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer",
+                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-mono font-bold transition-colors cursor-pointer",
                 filter === c
                   ? "bg-foreground text-background shadow-xs"
                   : "border border-border/60 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -67,12 +67,12 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
       {!query && filter === "All" && featured && (
         <Link
           href={`/docs/${featured.slug}`}
-          className="group relative block overflow-hidden rounded-2xl border border-border/60 bg-card p-6 sm:p-8 transition-all hover:border-[#1D9BF0]/60 hover:shadow-md"
+          className="group relative block overflow-hidden rounded-2xl border border-border/60 bg-card p-6 sm:p-8 transition-colors hover:border-brand-subtle-border"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#1D9BF0]/30 bg-[#1D9BF0]/10 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-[#1D9BF0]">
-              <Flame className="size-3.5 text-[#1D9BF0]" />
-              <span>{"FEATURED_ESSAY // HIGH_IMPACT"}</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-subtle-border bg-brand-subtle px-3 py-1 font-mono text-xs font-semibold text-brand-text">
+              <Flame className="size-3.5 text-brand-text" />
+              <span>Featured essay</span>
             </span>
             <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground">
               <Clock className="size-3" />
@@ -81,7 +81,7 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
           </div>
 
           <div className="mt-4 space-y-2">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground group-hover:text-[#1D9BF0] transition-colors">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground group-hover:text-brand-text transition-colors">
               {featured.title}: {featured.tagline}
             </h2>
             <p className="line-clamp-2 text-xs sm:text-sm leading-relaxed text-muted-foreground font-normal">
@@ -90,11 +90,11 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
           </div>
 
           <div className="mt-5 flex items-center justify-between border-t border-border/40 pt-4">
-            <span className="font-mono text-xs font-bold text-[#1D9BF0] flex items-center gap-1">
+            <span className="font-mono text-xs font-bold text-brand-text flex items-center gap-1">
               <span>Read the engineering breakdown</span>
               <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
             </span>
-            <span className="font-mono text-[11px] text-muted-foreground uppercase">
+            <span className="font-mono text-[11px] text-fg-muted">
               CampusLoop Architecture Team
             </span>
           </div>
@@ -115,15 +115,15 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
             <Link
               key={f.slug}
               href={`/docs/${f.slug}`}
-              className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 sm:p-6 transition-all hover:border-[#1D9BF0]/50 hover:bg-muted/10 shadow-xs"
+              className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 sm:p-6 transition-colors hover:border-brand-subtle-border"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-lg bg-[#1D9BF0]/10 text-[#1D9BF0]">
+                    <span className="flex size-8 items-center justify-center rounded-lg bg-brand-subtle text-brand-text">
                       <DocsFeatureIcon slug={f.slug} />
                     </span>
-                    <span className="font-mono text-[11px] font-bold text-muted-foreground uppercase">
+                    <span className="font-mono text-[11px] font-bold text-fg-muted">
                       {f.category}
                     </span>
                   </div>
@@ -134,7 +134,7 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
                 </div>
 
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-[#1D9BF0] transition-colors leading-snug">
+                  <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-brand-text transition-colors leading-snug">
                     {f.title}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal">
@@ -144,7 +144,7 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-border/40 pt-3">
-                <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-[#1D9BF0]">
+                <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-brand-text">
                   <span>Read essay</span>
                   <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
                 </span>

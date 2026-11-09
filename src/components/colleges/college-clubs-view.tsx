@@ -12,7 +12,7 @@ const BIT_MESRA_CLUBS = [
     name: "ACM Student Chapter",
     category: "Technical & Competitive Programming",
     icon: Code,
-    color: "from-blue-500/20 to-indigo-500/20 text-blue-500 border-blue-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 140,
     description: "Hosts internal coding contests, ICPC bootcamps, and annual Hack-A-BIT hackathon.",
     tag: "ACM",
@@ -21,7 +21,7 @@ const BIT_MESRA_CLUBS = [
     name: "IEEE Student Branch",
     category: "Hardware & Robotics",
     icon: Zap,
-    color: "from-cyan-500/20 to-blue-500/20 text-cyan-500 border-cyan-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 115,
     description: "Organizes workshops on IoT, Embedded Systems, and AI hardware architecture.",
     tag: "IEEE",
@@ -30,7 +30,7 @@ const BIT_MESRA_CLUBS = [
     name: "Firebolt Racing (BAJA SAE)",
     category: "Motorsport & Engineering",
     icon: Car,
-    color: "from-rose-500/20 to-orange-500/20 text-rose-500 border-rose-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 85,
     description: "Designing, building, and racing custom ATV all-terrain vehicles across national circuits.",
     tag: "Firebolt",
@@ -39,7 +39,7 @@ const BIT_MESRA_CLUBS = [
     name: "Robolution",
     category: "Autonomous Robotics & Drones",
     icon: Rocket,
-    color: "from-sky-500/20 to-blue-500/20 text-sky-600 dark:text-sky-400 border-sky-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 95,
     description: "Competes in Robowars, Line Followers, and autonomous drone racing at IIT Techfests.",
     tag: "Robolution",
@@ -48,7 +48,7 @@ const BIT_MESRA_CLUBS = [
     name: "EDC (Entrepreneurship Cell)",
     category: "Startups & Venture Incubation",
     icon: Zap,
-    color: "from-amber-500/20 to-yellow-500/20 text-amber-500 border-amber-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 130,
 
     description: "Empowers student founders with seed grants, founder AMAs, and E-Summit Ranchi.",
@@ -58,7 +58,7 @@ const BIT_MESRA_CLUBS = [
     name: "Ehsaas & Dhwani (Dramatics & Music)",
     category: "Cultural Arts & Band",
     icon: Music,
-    color: "from-pink-500/20 to-rose-500/20 text-pink-500 border-pink-500/30",
+    color: "bg-brand-subtle text-brand-text border-brand-subtle-border",
     members: 160,
     description:
       "The creative heartbeat of BIT Mesra leading stage plays and BITOTSAV headline performances.",
@@ -95,7 +95,7 @@ export function CollegeClubsView({ collegeName }: CollegeClubsViewProps) {
           const Icon = club.icon;
           return (
             <Link key={idx} href={`/hashtag/${club.tag}`}>
-              <div className="rounded-3xl bg-card p-4 hover:bg-muted/40 transition-all cursor-pointer space-y-2.5 shadow-2xs group">
+              <div className="rounded-3xl bg-card p-4 hover:bg-muted/40 transition-ui cursor-pointer space-y-2.5 shadow-2xs group">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-2xl bg-muted/40 text-primary">

@@ -275,7 +275,7 @@ export function AcademicCourseModal({
                       disabled={isAdded}
                       onClick={() => handleAddCourse(sc)}
                       className={cn(
-                        "px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer border",
+                        "px-2 py-0.5 rounded-full text-[10px] font-semibold transition-ui cursor-pointer border",
                         isAdded
                           ? "opacity-40 border-transparent bg-muted text-muted-foreground cursor-default"
                           : "border-border/50 bg-card hover:bg-muted text-foreground hover:border-primary"
@@ -320,7 +320,7 @@ export function AcademicCourseModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-ui cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
             >
               <Check className="size-3.5" />
               <span>{isSubmitting ? "Saving..." : "Save Academic Focus"}</span>

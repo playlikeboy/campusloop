@@ -82,10 +82,10 @@ export function SupermarketMarketplaceClient({
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6 pb-28">
       {/* ─── Flipkart/Blinkit Style Banner ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-4 sm:p-6 text-white shadow-md">
+      <div className="relative rounded-3xl overflow-hidden bg-brand p-4 sm:p-6 text-brand-fg shadow-md">
         <div className="relative z-10 max-w-lg space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-black uppercase tracking-wider">
-            <Zap className="size-3.5 fill-yellow-300 text-yellow-300" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold">
+            <Zap className="size-3.5 fill-warning text-warning" />
             <span>15-Min Hostel Flash Delivery</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
@@ -107,7 +107,7 @@ export function SupermarketMarketplaceClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search notebooks, snacks, detergents, shampoo..."
-            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-amber-500 shadow-xs"
+            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-warning shadow-xs"
           />
         </div>
 
@@ -139,7 +139,7 @@ export function SupermarketMarketplaceClient({
                 setSelectedAisle(aisle.id);
               }}
               className={cn(
-                "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border",
+                "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 border",
                 isActive
                   ? "bg-foreground text-background border-foreground shadow-sm"
                   : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
@@ -156,7 +156,7 @@ export function SupermarketMarketplaceClient({
       {stores.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-foreground">
               Hostel Partner Marts ({stores.length})
             </h2>
             <span className="text-xs text-muted-foreground font-medium">Inside Campus Perimeter</span>
@@ -171,18 +171,18 @@ export function SupermarketMarketplaceClient({
                   sounds.tap();
                   haptics.light();
                 }}
-                className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-card hover:border-amber-500/40 transition-all shadow-xs group"
+                className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-card hover:border-warning transition-colors shadow-xs group"
               >
                 <div className="size-12 rounded-xl bg-muted overflow-hidden shrink-0 border border-border">
                   <img src={s.logoUrl || s.coverUrl} alt={s.name} className="size-full object-cover" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs font-black text-foreground truncate group-hover:text-amber-500 transition-colors">
+                  <h3 className="text-xs font-black text-foreground truncate group-hover:text-warning transition-colors">
                     {s.name}
                   </h3>
                   <p className="text-[11px] text-muted-foreground truncate">{s.address}</p>
-                  <p className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 mt-0.5">
-                    <Zap className="size-3 fill-emerald-500 text-emerald-500" />
+                  <p className="inline-flex items-center gap-1 text-[10px] font-bold text-success mt-0.5">
+                    <Zap className="size-3 fill-success text-success" />
                     <span>{s.estimatedPrepTime || "15 mins"} delivery</span>
                   </p>
                 </div>
@@ -196,7 +196,7 @@ export function SupermarketMarketplaceClient({
       {/* ─── Flipkart-Style Product Grid ─── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-foreground">
             Daily Products &amp; Groceries ({filteredProducts.length})
           </h2>
           <span className="text-xs text-muted-foreground font-medium">Instant Cart Add</span>
@@ -226,7 +226,7 @@ export function SupermarketMarketplaceClient({
               return (
                 <div
                   key={p.id}
-                  className="rounded-2xl border border-border bg-card p-3 flex flex-col justify-between hover:border-amber-500/40 hover:shadow-md transition-all group"
+                  className="rounded-2xl border border-border bg-card p-3 flex flex-col justify-between hover:border-warning hover:shadow-md transition-colors group"
                 >
                   {/* Product Image & Discount Tag */}
                   <div className="relative h-28 sm:h-32 w-full rounded-xl bg-muted/40 overflow-hidden flex items-center justify-center p-2 mb-2">
@@ -239,7 +239,7 @@ export function SupermarketMarketplaceClient({
                       className="size-full object-contain group-hover:scale-105 transition-transform"
                     />
                     {hasDiscount && (
-                      <span className="absolute left-1.5 top-1.5 px-1.5 py-0.5 rounded-md bg-emerald-600 text-white text-[9px] font-black uppercase">
+                      <span className="absolute left-1.5 top-1.5 px-1.5 py-0.5 rounded-md bg-success text-white text-[9px] font-black uppercase">
                         {discountPercent}% OFF
                       </span>
                     )}
@@ -247,7 +247,7 @@ export function SupermarketMarketplaceClient({
 
                   {/* Product Meta */}
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">
+                    <p className="text-xs font-bold text-muted-foreground">
                       {p.categoryName || "Essentials"}
                     </p>
                     <h3 className="text-xs font-bold text-foreground line-clamp-2 leading-snug">{p.name}</h3>
@@ -313,7 +313,7 @@ export function SupermarketMarketplaceClient({
                           });
                           toast.success(`Added ${p.name} to cart`);
                         }}
-                        className="h-7 px-3 rounded-xl bg-foreground text-background hover:opacity-90 active:scale-95 text-xs font-black transition-all flex items-center gap-1 shadow-xs cursor-pointer"
+                        className="h-7 px-3 rounded-xl bg-foreground text-background hover:opacity-90 active:scale-95 text-xs font-black transition-[opacity,transform] flex items-center gap-1 shadow-xs cursor-pointer"
                       >
                         <Plus className="size-3 stroke-3" />
                         <span>ADD</span>
@@ -344,7 +344,7 @@ export function SupermarketMarketplaceClient({
               sounds.ting();
               haptics.medium();
             }}
-            className="flex items-center justify-between p-3.5 px-5 rounded-2xl bg-foreground text-background shadow-xl hover:opacity-95 active:scale-98 transition-all"
+            className="flex items-center justify-between p-3.5 px-5 rounded-2xl bg-foreground text-background shadow-xl hover:opacity-95 active:scale-98 transition-[opacity,transform]"
           >
             <div className="flex items-center gap-3">
               <div className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xs">

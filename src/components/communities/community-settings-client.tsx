@@ -175,7 +175,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
         <form onSubmit={handleSave} className="space-y-4">
           {/* Identity */}
           <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+            <h2 className="text-xs font-bold text-foreground">
               1. General Details
             </h2>
 
@@ -187,7 +187,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                 maxLength={40}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -200,7 +200,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                     key={cat}
                     onClick={() => setCategory(cat)}
                     className={cn(
-                      "p-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left flex items-center justify-between border",
+                      "p-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer text-left flex items-center justify-between border",
                       category === cat
                         ? "bg-foreground text-background border-foreground font-black shadow-2xs"
                         : "bg-muted/20 text-muted-foreground border-border/50 hover:bg-muted/40 hover:text-foreground"
@@ -220,7 +220,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                 maxLength={300}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-xl border border-border/60 p-3 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
+                className="w-full rounded-xl border border-border/60 p-3 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors resize-none"
               />
             </div>
 
@@ -232,7 +232,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                   placeholder="https://example.com/avatar.png"
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
                 />
               </div>
 
@@ -243,7 +243,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                   placeholder="https://example.com/banner.jpg"
                   value={bannerUrl}
                   onChange={(e) => setBannerUrl(e.target.value)}
-                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+                  className="w-full h-9 px-3 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
                 />
               </div>
             </div>
@@ -251,7 +251,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
 
           {/* Privacy & Permissions */}
           <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+            <h2 className="text-xs font-bold text-foreground">
               2. Privacy &amp; Anonymity
             </h2>
 
@@ -260,7 +260,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
               <div
                 onClick={() => setPrivacy("PUBLIC")}
                 className={cn(
-                  "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-3 rounded-xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "PUBLIC"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/60 hover:bg-muted/20"
@@ -281,13 +281,13 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
               <div
                 onClick={() => setPrivacy("PRIVATE")}
                 className={cn(
-                  "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-3 rounded-xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "PRIVATE"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/60 hover:bg-muted/20"
                 )}
               >
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+                <div className="p-2 rounded-xl bg-warning-subtle text-warning shrink-0">
                   <Lock className="size-4" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
@@ -303,13 +303,13 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
               <div
                 onClick={() => setPrivacy("UNLISTED")}
                 className={cn(
-                  "p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3",
+                  "p-3 rounded-xl border cursor-pointer transition-colors flex items-start gap-3",
                   privacy === "UNLISTED"
                     ? "bg-primary/5 border-primary shadow-2xs"
                     : "bg-muted/10 border-border/60 hover:bg-muted/20"
                 )}
               >
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 shrink-0">
+                <div className="p-2 rounded-xl bg-brand-subtle text-brand-text shrink-0">
                   <EyeOff className="size-4" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
@@ -339,7 +339,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
               >
                 <span
                   className={cn(
-                    "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block size-5 transform rounded-full bg-surface shadow-lg ring-0 transition duration-200 ease-in-out",
                     allowAnonymousPosts ? "translate-x-5" : "translate-x-0"
                   )}
                 />
@@ -350,7 +350,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           {/* Community Rules */}
           <div className="overflow-hidden rounded-xl border border-border/55 bg-card p-4 shadow-2xs sm:p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+              <h2 className="text-xs font-bold text-foreground">
                 3. Guidelines &amp; Rules
               </h2>
               <button
@@ -374,7 +374,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                       <button
                         type="button"
                         onClick={() => handleRemoveRule(idx)}
-                        className="text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+                        className="text-muted-foreground hover:text-danger transition-colors cursor-pointer"
                         title="Remove Rule"
                       >
                         <Trash2 className="size-3.5" />
@@ -405,11 +405,11 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
           {/* Submit Button */}
           <div
             className={cn(
-              "sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] md:bottom-4 z-20 transition-all",
+              "sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] md:bottom-4 z-20 transition-colors",
               isDirty ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
             )}
           >
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/94 p-2.5 shadow-lg backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/94 p-2.5 shadow-lg backdrop-blur-sm">
               <p className="hidden px-2 text-xs font-semibold text-muted-foreground sm:block">
                 Unsaved changes
               </p>

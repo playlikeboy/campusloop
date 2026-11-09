@@ -96,7 +96,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
     <>
       <article
         className={cn(
-          "group flex flex-col justify-between rounded-2xl border border-border/40 bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:border-border/80",
+          "group flex flex-col justify-between rounded-2xl border border-border/40 bg-card overflow-hidden transition-colors duration-200 hover:shadow-md hover:border-border/80",
           resolved && "opacity-75"
         )}
       >
@@ -114,12 +114,12 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
             <div className="absolute top-2.5 left-2.5">
               <span
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-xs",
+                  "rounded-lg px-2 py-0.5 text-xs font-bold backdrop-blur-sm shadow-xs",
                   resolved
-                    ? "bg-slate-900/80 text-slate-300"
+                    ? "bg-surface-muted text-fg-muted"
                     : isLost
-                    ? "bg-rose-600 text-white"
-                    : "bg-emerald-600 text-white"
+                    ? "bg-danger text-white"
+                    : "bg-success text-white"
                 )}
               >
                 {resolved ? "Resolved" : isLost ? "Lost Item" : "Found Item"}
@@ -141,12 +141,12 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
           <div className="flex items-center justify-between border-b border-border/30 px-4 py-3 bg-muted/15">
             <span
               className={cn(
-                "rounded-lg px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border shadow-2xs",
+                "rounded-lg px-2.5 py-0.5 text-xs font-bold border shadow-2xs",
                 resolved
                   ? "bg-muted text-muted-foreground border-border/50"
                   : isLost
-                  ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30"
-                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                  ? "bg-danger-subtle text-danger border-danger"
+                  : "bg-success-subtle text-success border-success"
               )}
             >
               {resolved ? "Resolved" : isLost ? "Lost Item" : "Found Item"}
@@ -182,7 +182,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
             {/* Location & Time specs */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1 font-medium bg-muted/40 px-2 py-0.5 rounded-lg border border-border/30">
-                <MapPin className="size-3 text-rose-500 shrink-0" />
+                <MapPin className="size-3 text-danger shrink-0" />
                 <span className="truncate max-w-[150px]">{item.location}</span>
               </span>
 
@@ -194,7 +194,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
               ) : null}
 
               {item.reward ? (
-                <span className="inline-flex items-center gap-1 font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-lg border border-amber-500/30">
+                <span className="inline-flex items-center gap-1 font-bold bg-warning-subtle text-warning px-2 py-0.5 rounded-lg border border-warning">
                   <Gift className="size-3 shrink-0" />
                   <span>Reward: {item.reward}</span>
                 </span>
@@ -239,8 +239,8 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
                   className={cn(
                     "flex-1 font-bold h-9 text-xs gap-1.5",
                     isLost
-                      ? "bg-rose-600 hover:bg-rose-500 text-white"
-                      : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                      ? "bg-danger hover:bg-danger text-white"
+                      : "bg-success hover:bg-success text-white"
                   )}
                 >
                   <MessageCircle className="size-3.5" />
@@ -281,7 +281,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
           >
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <div>
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                <span className="text-xs font-bold text-primary">
                   Campus Safe Recovery
                 </span>
                 <h2 className="text-base font-black text-foreground">
@@ -300,7 +300,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
             <div className="rounded-xl border border-border/40 bg-muted/20 p-3.5 space-y-1">
               <p className="text-xs font-bold text-foreground">{item.title}</p>
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <MapPin className="size-3 text-rose-500" />
+                <MapPin className="size-3 text-danger" />
                 {item.location}
               </p>
             </div>

@@ -1,26 +1,18 @@
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile: currentProfile } = auth;
 
     const db = getDb();
-    const currentProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!currentProfile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const { searchParams } = new URL(req.url);
     const scope = searchParams.get("scope") || "CAMPUS";
@@ -38,8 +30,27 @@ export async function GET(req: Request) {
       conditions.push(eq(userProfiles.institutionId, currentProfile.institutionId));
     }
 
+    // The response only ever needs birthdays within the next 60 days (at most
+    // three calendar months from now), the requested date, and the requested
+    // month, so restrict the scan to those months instead of every profile.
+    const thisMonth = new Date().getMonth() + 1;
+    const wantedMonths = new Set<number>([thisMonth, (thisMonth % 12) + 1, ((thisMonth + 1) % 12) + 1]);
+    const requestedDateMonth = targetDateParam
+      ? parseInt(targetDateParam.length === 10 ? targetDateParam.substring(5, 7) : targetDateParam.substring(0, 2), 10)
+      : NaN;
+    if (requestedDateMonth >= 1 && requestedDateMonth <= 12) wantedMonths.add(requestedDateMonth);
+    const requestedMonth = targetMonthParam ? parseInt(targetMonthParam, 10) : NaN;
+    if (requestedMonth >= 1 && requestedMonth <= 12) wantedMonths.add(requestedMonth);
+    conditions.push(
+      inArray(
+        sql`lpad(split_part(${userProfiles.dob}, '-', 2), 2, '0')`,
+        Array.from(wantedMonths).map((m) => String(m).padStart(2, "0"))
+      )
+    );
+
     const profiles = await db.query.userProfiles.findMany({
       where: and(...conditions),
+      limit: 2000,
       with: {
         institution: {
           columns: {

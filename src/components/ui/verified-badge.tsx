@@ -28,7 +28,7 @@ export function VerifiedBadge({
       className={cn("inline-flex items-center justify-center shrink-0 select-none", className)}
       {...props}
     >
-      <BadgeCheck className={cn(sizeClasses, "text-[#1D9BF0] fill-[#1D9BF0]/20")} />
+      <BadgeCheck className={cn(sizeClasses, "text-brand fill-brand/20")} />
     </span>
   );
 }

@@ -10,14 +10,15 @@ import { hexclaveServerApp } from "@/hexclave/server";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Developer & MCP Server Portal | CampusLoop",
+  robots: { index: true, follow: true },
+  title: "Developer & MCP Server Portal",
   description:
     "Generate personal Model Context Protocol (MCP) API keys to connect CampusLoop directly to Cursor, Windsurf, Claude Desktop, and AI agents.",
   openGraph: {
-    title: "Developer & MCP Server Portal | CampusLoop",
+    title: "Developer & MCP Server Portal",
     description:
       "Connect your verified campus account to AI agents and IDEs via Model Context Protocol (MCP).",
-    url: "https://campusloop.space/app/developer",
+    url: "https://campusloop.space/developer",
     siteName: "CampusLoop",
   },
 };

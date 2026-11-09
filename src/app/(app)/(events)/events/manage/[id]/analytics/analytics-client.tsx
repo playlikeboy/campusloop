@@ -118,7 +118,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
             <ArrowLeft className="size-4" />
           </Link>
           <div className="min-w-0">
-            <span className="text-[11px] font-bold text-blue-500 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-brand-text block">
               Event Analytics
             </span>
             <h1 className="text-lg font-black text-foreground truncate">{eventTitle}</h1>
@@ -147,15 +147,15 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <UserCheck className="size-3.5 text-emerald-500" /> Attended / Checked-In
+            <UserCheck className="size-3.5 text-success" /> Attended / Checked-In
           </span>
           <p className="text-2xl font-black text-foreground">{attended}</p>
-          <p className="text-[11px] text-emerald-500 font-semibold">{attendanceRate}% turnout</p>
+          <p className="text-[11px] text-success font-semibold">{attendanceRate}% turnout</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-blue-500" /> Pending Confirmed
+            <CheckCircle2 className="size-3.5 text-brand-text" /> Pending Confirmed
           </span>
           <p className="text-2xl font-black text-foreground">{confirmed}</p>
           <p className="text-[11px] text-muted-foreground">Awaiting check-in</p>
@@ -163,7 +163,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <TrendingUp className="size-3.5 text-purple-500" /> Solo vs. Team
+            <TrendingUp className="size-3.5 text-brand-text" /> Solo vs. Team
           </span>
           <p className="text-2xl font-black text-foreground">
             {soloCount} <span className="text-xs text-muted-foreground font-normal">/ {teamCount}</span>
@@ -177,7 +177,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
         <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <PieChart className="size-4 text-purple-500" /> Registration Mode
+              <PieChart className="size-4 text-brand-text" /> Registration Mode
             </h2>
             <span className="text-xs text-muted-foreground">{total} total</span>
           </div>
@@ -192,7 +192,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
               </div>
               <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
                 <div
-                  className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                  className="h-full bg-brand rounded-full transition-colors duration-500"
                   style={{ width: `${soloPercent}%` }}
                 />
               </div>
@@ -207,7 +207,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
               </div>
               <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                  className="h-full bg-brand rounded-full transition-colors duration-500"
                   style={{ width: `${teamPercent}%` }}
                 />
               </div>
@@ -219,7 +219,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
         <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <GraduationCap className="size-4 text-emerald-500" /> Academic Year Demographics
+              <GraduationCap className="size-4 text-success" /> Academic Year Demographics
             </h2>
           </div>
 
@@ -234,7 +234,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-success rounded-full transition-colors duration-500"
                     style={{ width: `${yc.percent}%` }}
                   />
                 </div>
@@ -268,7 +268,7 @@ export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsC
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-500"
+                    className="h-full bg-primary rounded-full transition-colors duration-500"
                     style={{ width: `${col.percent}%` }}
                   />
                 </div>

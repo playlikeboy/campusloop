@@ -131,7 +131,7 @@ export function AdminNewMerchantClient() {
           <ArrowLeft className="size-4.5" />
         </Link>
         <div>
-          <h1 className="text-xl font-black tracking-tight text-foreground">Onboard New Campus Merchant</h1>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">Onboard New Campus Merchant</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Register a verified local business and generate direct portal login credentials
           </p>
@@ -141,8 +141,8 @@ export function AdminNewMerchantClient() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Section 1: Business Information */}
         <div className="p-5 rounded-2xl bg-card border border-border space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Store className="size-4 text-emerald-500" />
+          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+            <Store className="size-4 text-success" />
             <span>1. Business Information &amp; Vertical</span>
           </h2>
 
@@ -226,7 +226,7 @@ export function AdminNewMerchantClient() {
 
         {/* Section 2: Contact & Fulfillment */}
         <div className="p-5 rounded-2xl bg-card border border-border space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-xs font-bold text-muted-foreground">
             2. Campus Location &amp; Contact
           </h2>
 
@@ -302,14 +302,14 @@ export function AdminNewMerchantClient() {
         {/* Section 3: Direct Plaintext Credentials Generator */}
         <div className="p-5 rounded-2xl bg-card border border-primary/30 space-y-3.5 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-primary flex items-center gap-1.5">
               <ShieldCheck className="size-4" />
               <span>3. Direct Portal Login Credentials</span>
             </h2>
             <button
               type="button"
               onClick={handleCopyCredentials}
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20"
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Copy className="size-3" />
               <span>Copy for WhatsApp</span>
@@ -338,7 +338,7 @@ export function AdminNewMerchantClient() {
                 <button
                   type="button"
                   onClick={handleGeneratePassword}
-                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <RefreshCw className="size-2.5" />
                   <span>Regenerate</span>
@@ -355,7 +355,7 @@ export function AdminNewMerchantClient() {
                 <button
                   type="button"
                   onClick={handleGeneratePassword}
-                  className="absolute right-2.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                  className="absolute right-2.5 text-muted-foreground hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   title="Generate Password"
                 >
                   <KeyRound className="size-4" />
@@ -369,7 +369,7 @@ export function AdminNewMerchantClient() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 rounded-xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+          className="w-full h-12 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           {isSubmitting ? (
             <>

@@ -33,7 +33,7 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
             <Link href="/courses/my" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-muted/70 px-4 text-sm font-semibold text-foreground hover:bg-muted">
               <BookMarked className="size-4" aria-hidden /> My learning
             </Link>
-            <Link href="/courses/new" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+            <Link href="/courses/new" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-brand-fg hover:bg-brand-hover">
               <Plus className="size-4" aria-hidden /> Create
             </Link>
           </div>
@@ -78,24 +78,24 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
           href="https://dsaloop.campusloop.space"
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative flex flex-col justify-between rounded-2xl border border-emerald-500/20 bg-linear-to-br from-emerald-500/10 via-card to-card p-5 transition-all hover:border-emerald-500/40 hover:shadow-xs"
+          className="group relative flex flex-col justify-between rounded-xl border border-border bg-surface p-5 transition-colors hover:border-brand-subtle-border"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-2.5 py-0.5 font-mono text-[11px] font-bold text-brand-text border border-brand-subtle-border">
                 <Code2 className="size-3" />
                 <span>Placement &amp; Coding Prep</span>
               </span>
-              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
+              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-text" />
             </div>
-            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-brand-text transition-colors">
               DSALoop by CampusLoop
             </h3>
             <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
               Master coding interviews with patterns, 185+ company-tagged problems (Blind 75, Grind 169) and a 28-chapter system design primer.
             </p>
           </div>
-          <span className="mt-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400 group-hover:underline">
+          <span className="mt-4 text-xs font-semibold text-brand-text group-hover:underline">
             Explore DSALoop &rarr;
           </span>
         </a>
@@ -104,24 +104,24 @@ export function CatalogBrowse({ params, rows, categories, all }: Props) {
           href="https://baby.campusloop.space"
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative flex flex-col justify-between rounded-2xl border border-blue-500/20 bg-linear-to-br from-blue-500/10 via-card to-card p-5 transition-all hover:border-blue-500/40 hover:shadow-xs"
+          className="group relative flex flex-col justify-between rounded-xl border border-border bg-surface p-5 transition-colors hover:border-brand-subtle-border"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2.5 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-2.5 py-0.5 text-[11px] font-bold text-brand-text border border-brand-subtle-border">
                 <Heart className="size-3" />
                 <span>Mindful AI Journal</span>
               </span>
-              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-text" />
             </div>
-            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 className="mt-3 text-base font-bold text-foreground group-hover:text-brand-text transition-colors">
               baby · Calm Thoughts Companion
             </h3>
             <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
               Exam stress or late-night reflections? Meet Kumo, a gentle AI journal that remembers. Private by default, no streaks, no noise.
             </p>
           </div>
-          <span className="mt-4 text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:underline">
+          <span className="mt-4 text-xs font-semibold text-brand-text group-hover:underline">
             Meet baby &amp; Kumo &rarr;
           </span>
         </a>

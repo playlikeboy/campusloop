@@ -4,10 +4,10 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { WaterMarketplaceClient } from "./water-client";
 
 export const metadata: Metadata = {
-  title: "20L Chilled RO Water Can Delivery to Hostel Rooms | CampusLoop",
+  title: "20L Chilled RO Water Can Delivery to Hostel Rooms",
   description:
     "Order 20L chilled RO and mineral drinking water cans delivered directly to your hostel floor and room inside campus.",
-  alternates: { canonical: "https://campusloop.space/app/marketplace/water" },
+  alternates: { canonical: "https://campusloop.space/marketplace/water" },
 };
 
 export default async function WaterMarketplacePage() {

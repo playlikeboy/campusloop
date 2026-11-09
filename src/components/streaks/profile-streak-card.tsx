@@ -56,8 +56,8 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500">
-            <Flame className="size-4.5 fill-amber-500/20 text-amber-500" />
+          <div className="flex size-8 items-center justify-center rounded-lg bg-reward/15 text-reward-text">
+            <Flame className="size-4.5 fill-reward/20 text-reward-text" />
           </div>
           <div>
             <h3 className="text-sm font-black text-foreground">Campus Streak &amp; Milestones</h3>
@@ -66,8 +66,8 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
         </div>
 
         {isSafeToday && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-            <CheckCircle2 className="size-3 text-emerald-600 dark:text-emerald-400" />
+          <span className="inline-flex items-center gap-1 rounded-md bg-success/15 px-2 py-0.5 text-xs font-bold text-success">
+            <CheckCircle2 className="size-3 text-success" />
             <span>Safe Today</span>
           </span>
         )}
@@ -99,7 +99,7 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
 
       {/* ─── Milestones Ladder ─── */}
       <div className="space-y-2.5">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <span className="text-xs font-bold text-muted-foreground">
           Milestone Progression
         </span>
 
@@ -112,7 +112,7 @@ export function ProfileStreakCard({ className, profileId }: ProfileStreakCardPro
               <div
                 key={m.days}
                 className={cn(
-                  "flex items-center gap-2.5 p-2.5 rounded-xl border transition-all select-none",
+                  "flex items-center gap-2.5 p-2.5 rounded-xl border transition-colors select-none",
                   isUnlocked
                     ? "border-primary/25 bg-primary/[0.04] text-foreground"
                     : "border-border/30 bg-muted/20 opacity-60 text-muted-foreground"

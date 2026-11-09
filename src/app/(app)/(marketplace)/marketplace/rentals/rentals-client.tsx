@@ -66,10 +66,10 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6 pb-28 select-none">
       {/* ─── Hero Banner ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-4 sm:p-6 text-white shadow-md">
+      <div className="relative rounded-3xl overflow-hidden bg-brand p-4 sm:p-6 text-brand-fg shadow-md">
         <div className="relative z-10 max-w-lg space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-black uppercase tracking-wider">
-            <Zap className="size-3.5 fill-yellow-300 text-yellow-300" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold">
+            <Zap className="size-3.5 fill-warning text-warning" />
             <span>Instant Campus Mobility Fleet</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
@@ -85,8 +85,8 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
       {/* ─── 1. Rental Hub Depots (2+ Merchants) ─── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <MapPin className="size-4 text-emerald-500" />
+          <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+            <MapPin className="size-4 text-brand-text" />
             <span>Campus Rental Hubs &amp; Depots ({rentalStores.length || 2})</span>
           </h2>
           <span className="text-xs text-muted-foreground font-medium">Verified Student Zero-Deposit</span>
@@ -114,8 +114,8 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                     setSelectedHub((prev) => (prev === store.id ? "all" : store.id));
                   }}
                   className={cn(
-                    "group relative rounded-3xl border p-4 bg-card hover:border-emerald-500/40 hover:shadow-md transition-all cursor-pointer overflow-hidden",
-                    isSelected ? "border-emerald-500 ring-2 ring-emerald-500/20" : "border-border"
+                    "group relative rounded-3xl border p-4 bg-card hover:border-brand hover:shadow-md transition-colors cursor-pointer overflow-hidden",
+                    isSelected ? "border-brand ring-2 ring-ring" : "border-border"
                   )}
                 >
                   <div className="flex items-start gap-3.5">
@@ -132,12 +132,12 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
 
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm font-black text-foreground group-hover:text-emerald-500 transition-colors truncate flex items-center gap-1">
+                        <h3 className="text-sm font-black text-foreground group-hover:text-brand-text transition-colors truncate flex items-center gap-1">
                           <span>{store.name}</span>
-                          <ShieldCheck className="size-3.5 text-emerald-500 shrink-0" />
+                          <ShieldCheck className="size-3.5 text-brand-text shrink-0" />
                         </h3>
-                        <span className="flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                          <Star className="size-3 fill-emerald-500 text-emerald-500" />
+                        <span className="flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-lg bg-brand-subtle text-brand-text">
+                          <Star className="size-3 fill-brand text-brand-text" />
                           <span>{store.rating || "4.9"}</span>
                         </span>
                       </div>
@@ -153,13 +153,13 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                             </>
                           ) : (
                             <>
-                              <Zap className="size-3 fill-amber-500 text-amber-500" />
+                              <Zap className="size-3 fill-warning text-warning" />
                               <span>EV Scooters &amp; Bikes</span>
                             </>
                           )}
                         </span>
                         <span>•</span>
-                        <span className="text-emerald-600 dark:text-emerald-400">
+                        <span className="text-brand-text">
                           {isSelected ? "Showing this hub" : "Click to filter fleet"}
                         </span>
                       </div>
@@ -181,7 +181,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search gear cycles, Ather 450X, Activa 6G, pickup gate..."
-            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-emerald-500 shadow-xs"
+            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-brand shadow-xs"
           />
         </div>
 
@@ -202,7 +202,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                   setFuelFilter(tab.id);
                 }}
                 className={cn(
-                  "inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
+                  "inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
                   fuelFilter === tab.id
                     ? "bg-foreground text-background shadow-xs font-black"
                     : "text-muted-foreground hover:text-foreground"
@@ -231,7 +231,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
       {/* ─── 2. Bike & Vehicle Fleet Grid ─── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-foreground">
             Available Campus Fleet ({filteredBikes.length})
           </h2>
           <span className="text-xs text-muted-foreground font-medium">
@@ -258,7 +258,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
               return (
                 <div
                   key={bike.id}
-                  className="group rounded-3xl border border-border bg-card hover:border-emerald-500/40 hover:shadow-lg transition-all overflow-hidden flex flex-col justify-between"
+                  className="group rounded-3xl border border-border bg-card hover:border-brand hover:shadow-lg transition-colors overflow-hidden flex flex-col justify-between"
                 >
                   <div>
                     {/* Vehicle Image */}
@@ -277,18 +277,18 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                       <div className="absolute left-3 top-3 flex items-center gap-1.5">
                         <span
                           className={cn(
-                            "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md",
-                            isAvailable ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+                            "px-2.5 py-0.5 rounded-full text-xs font-bold shadow-md",
+                            isAvailable ? "bg-brand text-white" : "bg-danger text-white"
                           )}
                         >
                           {isAvailable ? "Available Now" : "Booked"}
                         </span>
 
-                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
                           {isEV ? (
-                            <Zap className="size-2.5 text-yellow-400" />
+                            <Zap className="size-2.5 text-warning" />
                           ) : (
-                            <Fuel className="size-2.5 text-amber-400" />
+                            <Fuel className="size-2.5 text-warning" />
                           )}
                           <span>{isEV ? "Electric" : "Petrol / Gear"}</span>
                         </span>
@@ -297,10 +297,10 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                       {/* Depot Location Overlay */}
                       <div className="absolute left-3 bottom-3 right-3 flex items-center justify-between text-white text-xs font-bold">
                         <div className="flex items-center gap-1 truncate max-w-[70%]">
-                          <MapPin className="size-3 text-emerald-400 shrink-0" />
+                          <MapPin className="size-3 text-brand-text shrink-0" />
                           <span className="truncate text-[11px]">{bike.pickupLocation}</span>
                         </div>
-                        <span className="text-[10px] text-emerald-300 font-mono bg-black/50 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] text-brand-text font-mono bg-black/50 px-1.5 py-0.5 rounded">
                           {bike.registrationNumber}
                         </span>
                       </div>
@@ -310,7 +310,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                     <div className="p-4 space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-base font-black text-foreground group-hover:text-emerald-500 transition-colors">
+                          <h3 className="text-base font-black text-foreground group-hover:text-brand-text transition-colors">
                             {bike.name}
                           </h3>
                           <p className="text-xs text-muted-foreground font-medium">
@@ -329,7 +329,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                           <p className="text-[10px] font-bold text-muted-foreground uppercase">
                             24-Hr Day Pack
                           </p>
-                          <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                          <p className="text-sm font-black text-brand-text">
                             ₹{bike.dailyPrice}/day
                           </p>
                         </div>
@@ -348,9 +348,9 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                         setBookingBike(bike);
                       }}
                       className={cn(
-                        "w-full py-2.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs",
+                        "w-full py-2.5 rounded-2xl text-xs font-black transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs",
                         isAvailable
-                          ? "bg-emerald-600 hover:bg-emerald-500 text-white active:scale-98"
+                          ? "bg-brand hover:bg-brand-hover text-white active:scale-98"
                           : "bg-muted text-muted-foreground cursor-not-allowed"
                       )}
                     >
@@ -385,13 +385,13 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-500">
+                <span className="text-xs font-bold text-brand-text">
                   Instant Campus Booking
                 </span>
                 <h3 className="text-lg font-black text-foreground">{bookingBike.name}</h3>
                 <p className="text-xs text-muted-foreground">{bookingBike.pickupLocation}</p>
               </div>
-              <div className="size-10 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center font-black">
+              <div className="size-10 rounded-2xl bg-brand-subtle text-brand-text flex items-center justify-center font-black">
                 <Bike className="size-5" />
               </div>
             </div>
@@ -406,9 +406,9 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                     type="button"
                     onClick={() => setBookingDurationHours(hrs)}
                     className={cn(
-                      "py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer",
+                      "py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer",
                       bookingDurationHours === hrs
-                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                        ? "bg-brand text-white border-brand shadow-xs"
                         : "bg-muted/50 border-border text-foreground hover:bg-muted"
                     )}
                   >
@@ -430,14 +430,14 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
               </div>
               <div className="flex items-center justify-between font-medium">
                 <span className="text-muted-foreground">Security Deposit</span>
-                <span className="inline-flex items-center gap-1 text-emerald-500 font-bold">
+                <span className="inline-flex items-center gap-1 text-brand-text font-bold">
                   <span>WAIVED (Student Verified)</span>
                   <ShieldCheck className="size-3.5" />
                 </span>
               </div>
               <div className="border-t border-border/40 pt-2 flex items-center justify-between font-black text-sm">
                 <span>Total Due on Pickup</span>
-                <span className="text-emerald-600 dark:text-emerald-400">
+                <span className="text-brand-text">
                   ₹{bookingDurationHours * bookingBike.hourlyPrice}
                 </span>
               </div>
@@ -467,7 +467,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
                     );
                   }, 800);
                 }}
-                className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all cursor-pointer shadow-md"
+                className="flex-1 py-3 rounded-2xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-colors cursor-pointer shadow-md"
               >
                 {isSubmittingBooking ? "Booking..." : "Confirm & Get Key Token"}
               </button>
@@ -477,10 +477,10 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
       )}
 
       {/* ─── Campus Onboarding & Expansion Banner (Instagram Highlighted) ─── */}
-      <div className="rounded-3xl border border-pink-500/30 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 p-5 relative overflow-hidden">
+      <div className="rounded-3xl border border-brand-subtle-border bg-brand-subtle p-5 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-400 text-[10px] font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-subtle text-brand-text text-xs font-bold">
               <Rocket className="size-3" />
               <span>Want this at your campus?</span>
             </div>
@@ -496,7 +496,7 @@ export function BikeRentalsClient({ profileId, collegeName = "Campus Hub" }: Bik
             href="https://www.instagram.com/campusloop.space/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
           >
             <InstagramIcon className="size-3.5" />
             <span>DM @campusloop.space</span>

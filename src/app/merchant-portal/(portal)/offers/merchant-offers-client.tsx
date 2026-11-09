@@ -18,7 +18,7 @@ export function MerchantOffersClient() {
   return (
     <main className="max-w-3xl mx-auto p-4 space-y-6 select-none pb-24">
       <div>
-        <h1 className="text-xl font-black text-foreground tracking-tight">Offers &amp; Student Deals</h1>
+        <h1 className="text-xl font-bold text-foreground tracking-tight">Offers &amp; Student Deals</h1>
         <p className="text-xs text-muted-foreground mt-0.5">
           Attract campus students with limited-time discounts and promo codes
         </p>
@@ -26,19 +26,19 @@ export function MerchantOffersClient() {
 
       {/* ─── Active Deals ─── */}
       <div className="space-y-3">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-          <Flame className="size-4 text-amber-500" />
+        <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+          <Flame className="size-4 text-warning" />
           <span>Active Student Promotions</span>
         </h2>
 
-        <div className="p-4 rounded-3xl bg-emerald-500/10 border border-emerald-500/25 space-y-2">
+        <div className="p-4 rounded-3xl bg-success-subtle border border-success/25 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-emerald-500 bg-emerald-500/20 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md">
               CODE: MOMO20
             </span>
-            <span className="text-xs font-bold text-emerald-500">20% Flat Discount</span>
+            <span className="text-xs font-bold text-success">20% Flat Discount</span>
           </div>
-          <h3 className="text-sm font-black text-foreground">Evening Student Craving Deal</h3>
+          <h3 className="text-sm font-bold text-foreground">Evening Student Craving Deal</h3>
           <p className="text-xs text-muted-foreground">
             Applicable on orders above ₹150 for all verified students on campus.
           </p>

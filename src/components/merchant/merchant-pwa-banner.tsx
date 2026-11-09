@@ -100,17 +100,17 @@ export function MerchantPWAInstallBanner() {
             exit={{ opacity: 0, y: 50, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             aria-label="Install CampusLoop Merchant App"
-            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 rounded-3xl bg-card/95 border border-emerald-500/30 shadow-2xl backdrop-blur-2xl p-4 select-none"
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 rounded-3xl bg-card/95 border border-brand shadow-2xl backdrop-blur-sm p-4 select-none"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="size-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="size-11 rounded-2xl bg-brand-subtle border border-brand text-brand-text flex items-center justify-center shrink-0 shadow-xs">
                   <Store className="size-5" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-black text-foreground flex items-center gap-1.5 truncate">
                     <span>Install Merchant App</span>
-                    <Zap className="size-3 text-emerald-500 shrink-0" />
+                    <Zap className="size-3 text-brand-text shrink-0" />
                   </p>
                   <p className="text-[11px] text-muted-foreground truncate">
                     Live orders, sound alarms &amp; instant menu updates
@@ -122,7 +122,7 @@ export function MerchantPWAInstallBanner() {
                 <button
                   type="button"
                   onClick={handleInstall}
-                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                  className="px-3.5 py-1.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-[opacity,transform] flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                 >
                   <Download className="size-3.5" />
                   <span>Install</span>
@@ -144,7 +144,7 @@ export function MerchantPWAInstallBanner() {
       {/* ─── iOS Safari Instructions Modal for Merchant ─── */}
       <AnimatePresence>
         {showIOSModal && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-md p-4 select-none">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
@@ -153,7 +153,7 @@ export function MerchantPWAInstallBanner() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center font-bold">
+                  <div className="size-8 rounded-xl bg-brand-subtle text-brand-text flex items-center justify-center font-bold">
                     <Store className="size-4.5" />
                   </div>
                   <h3 className="text-sm font-black text-foreground">Install Merchant App on iPhone</h3>
@@ -169,32 +169,31 @@ export function MerchantPWAInstallBanner() {
 
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold text-xs">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-brand-subtle text-brand-text font-bold text-xs">
                     1
                   </div>
                   <p className="text-xs text-foreground font-medium leading-snug">
                     Tap the <strong>Share</strong> button{" "}
-                    <Share className="inline size-3.5 text-emerald-500 mx-0.5" /> at the bottom of Safari.
+                    <Share className="inline size-3.5 text-brand-text mx-0.5" /> at the bottom of Safari.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold text-xs">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-brand-subtle text-brand-text font-bold text-xs">
                     2
                   </div>
                   <p className="text-xs text-foreground font-medium leading-snug">
                     Scroll down and tap <strong>Add to Home Screen</strong>{" "}
-                    <PlusSquare className="inline size-3.5 text-emerald-500 mx-0.5" />.
+                    <PlusSquare className="inline size-3.5 text-brand-text mx-0.5" />.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold text-xs">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-brand-subtle text-brand-text font-bold text-xs">
                     3
                   </div>
                   <p className="text-xs text-foreground font-medium leading-snug">
                     Tap <strong>Add</strong> in the top right. Launch the standalone Merchant Console anytime!
-                    🏪
                   </p>
                 </div>
               </div>
@@ -205,7 +204,7 @@ export function MerchantPWAInstallBanner() {
                   setShowIOSModal(false);
                   setShowBanner(false);
                 }}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
               >
                 Got it!
               </button>

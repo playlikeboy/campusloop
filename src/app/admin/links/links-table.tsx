@@ -116,7 +116,7 @@ export function AdminLinksClient() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Link2 className="size-6 text-primary" />
             Short Links &amp; Referral Analytics
           </h1>
@@ -128,7 +128,7 @@ export function AdminLinksClient() {
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-all cursor-pointer select-none shrink-0"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-colors cursor-pointer select-none shrink-0"
         >
           <Plus className="size-4" />
           Create Short Link
@@ -138,17 +138,17 @@ export function AdminLinksClient() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Links</p>
-          <p className="text-2xl font-black text-foreground mt-1">{data?.totalLinks || 0}</p>
+          <p className="text-xs font-semibold text-muted-foreground">Total Links</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{data?.totalLinks || 0}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <p className="text-xs font-semibold text-muted-foreground">
             Total Clicks Recorded
           </p>
-          <p className="text-2xl font-black text-primary mt-1">{totalClicks}</p>
+          <p className="text-2xl font-bold text-primary mt-1">{totalClicks}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <p className="text-xs font-semibold text-muted-foreground">
             Devices Breakdown
           </p>
           <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
@@ -158,9 +158,9 @@ export function AdminLinksClient() {
                 className="flex items-center gap-1 font-semibold text-foreground"
               >
                 {d.device === "mobile" ? (
-                  <Smartphone className="size-3.5 text-blue-500" />
+                  <Smartphone className="size-3.5 text-brand-text" />
                 ) : (
-                  <Laptop className="size-3.5 text-emerald-500" />
+                  <Laptop className="size-3.5 text-success" />
                 )}
                 {d.count} {d.device}
               </span>
@@ -299,7 +299,7 @@ export function AdminLinksClient() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay">
           <div className="relative w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95">
             <h2 className="text-lg font-bold text-foreground">Create Short Link</h2>
             <p className="text-xs text-muted-foreground mt-1">
@@ -341,7 +341,7 @@ export function AdminLinksClient() {
                 <input
                   type="text"
                   required
-                  placeholder="https://campusloop.space/app/academics or /app/dating"
+                  placeholder="https://campusloop.space/academics or /dating"
                   value={targetUrl}
                   onChange={(e) => setTargetUrl(e.target.value)}
                   className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
@@ -359,7 +359,7 @@ export function AdminLinksClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmitting ? "Creating..." : "Create Link"}
                 </button>

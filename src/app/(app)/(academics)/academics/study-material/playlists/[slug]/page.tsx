@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!playlist) {
     return {
-      title: "Study Playlist | CampusLoop Academics",
+      title: "Study Playlist",
     };
   }
 
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const branchInfo = playlist.branch ? ` (${playlist.branch})` : "";
 
   return {
-    title: `${playlist.title}${branchInfo} | CampusLoop Study Playlists`,
+    title: `${playlist.title}${branchInfo}`,
     description:
       playlist.description ||
       `Curated bundle of ${playlist.itemsCount} exam papers, handwritten notes, and formulas for ${playlist.branch} on CampusLoop.${college}`,

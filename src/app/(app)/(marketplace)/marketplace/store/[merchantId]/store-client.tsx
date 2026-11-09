@@ -284,7 +284,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border/20 bg-background text-foreground select-none pb-44 md:pb-32">
       {/* ─── Top Sticky Bar (Twitter/X style) ─── */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/30 bg-background/85 px-4 py-2.5 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/30 bg-background/85 px-4 py-2.5 backdrop-blur-sm">
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
@@ -316,9 +316,10 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
           </button>
 
           <button
+            aria-label="Share store"
             type="button"
             onClick={handleShareStore}
-            className="size-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title="Share Store"
           >
             <Share2 className="size-3.5" />
@@ -355,14 +356,14 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
         <div className="absolute top-3 right-3">
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider backdrop-blur-md border shadow-xs",
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm border shadow-xs",
               store.isOpen
-                ? "bg-emerald-500/80 text-white border-emerald-400/40"
-                : "bg-rose-500/80 text-white border-rose-400/40"
+                ? "bg-success/80 text-white border-success"
+                : "bg-danger/80 text-white border-danger"
             )}
           >
             <span
-              className={cn("size-1.5 rounded-full", store.isOpen ? "bg-white animate-pulse" : "bg-white/70")}
+              className={cn("size-1.5 rounded-full", store.isOpen ? "bg-surface animate-pulse" : "bg-white/70")}
             />
             <span>{store.isOpen ? "Open Now" : "Currently Closed"}</span>
           </span>
@@ -380,7 +381,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
             {store.phone && (
               <a
                 href={`tel:${store.phone}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-muted/40 hover:bg-muted text-xs font-bold text-foreground transition-all shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-muted/40 hover:bg-muted text-xs font-bold text-foreground transition-colors shadow-2xs"
               >
                 <Phone className="size-3" />
                 <span>Call Store</span>
@@ -389,7 +390,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
 
             <Link
               href="/merchant-portal/store/qr"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-muted/40 hover:bg-muted text-xs font-bold text-foreground transition-all shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-muted/40 hover:bg-muted text-xs font-bold text-foreground transition-colors shadow-2xs"
             >
               <QrCode className="size-3" />
               <span>Table QR</span>
@@ -414,26 +415,26 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
             <span>{store.address}</span>
           </span>
 
-          <span className="flex items-center gap-1 font-bold text-amber-500">
-            <Star className="size-3.5 fill-amber-500" />
+          <span className="flex items-center gap-1 font-bold text-warning">
+            <Star className="size-3.5 fill-warning" />
             <span>{store.rating || "4.8"}</span>
             <span className="text-muted-foreground font-normal">({reviews.length} reviews)</span>
           </span>
 
           <span className="flex items-center gap-1">
-            <Clock className="size-3.5 text-sky-500 shrink-0" />
+            <Clock className="size-3.5 text-brand-text shrink-0" />
             <span>{store.estimatedPrepTime || "15–20 min"}</span>
           </span>
 
           <span className="flex items-center gap-1">
-            <Truck className="size-3.5 text-emerald-500 shrink-0" />
+            <Truck className="size-3.5 text-success shrink-0" />
             <span>₹{store.deliveryFee || 20} Delivery</span>
           </span>
         </div>
       </div>
 
       {/* ─── Twitter/X Style Tab Bar ─── */}
-      <nav className="flex items-center border-b border-border/30 bg-background/95 sticky top-12 z-30 backdrop-blur-md">
+      <nav className="flex items-center border-b border-border/30 bg-background/95 sticky top-12 z-30 backdrop-blur-sm">
         {[
           { id: "menu", label: `Menu (${products.length})` },
           { id: "deals", label: `Deals & Offers (${offers.length})` },
@@ -477,7 +478,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                 value={searchMenuQuery}
                 onChange={(e) => setSearchMenuQuery(e.target.value)}
                 placeholder="Search menu items (e.g. Steam Momos, Thukpa)..."
-                className="w-full h-9 rounded-xl bg-muted/50 border border-transparent focus:border-border/60 pl-9 pr-8 text-xs font-medium placeholder:text-muted-foreground/60 outline-none transition-all"
+                className="w-full h-9 rounded-xl bg-muted/50 border border-transparent focus:border-border/60 pl-9 pr-8 text-xs font-medium placeholder:text-muted-foreground/60 outline-none transition-colors"
               />
               {searchMenuQuery && (
                 <button
@@ -499,7 +500,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   setActiveCategoryTab("all");
                 }}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer",
+                  "px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-colors cursor-pointer",
                   activeCategoryTab === "all"
                     ? "bg-foreground text-background font-black shadow-xs"
                     : "bg-muted/50 text-muted-foreground hover:text-foreground border border-border/40"
@@ -517,7 +518,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                     setActiveCategoryTab(cat);
                   }}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer",
+                    "px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-colors cursor-pointer",
                     activeCategoryTab === cat
                       ? "bg-foreground text-background font-black shadow-xs"
                       : "bg-muted/50 text-muted-foreground hover:text-foreground border border-border/40"
@@ -537,13 +538,13 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   setDietFilter(dietFilter === "veg" ? "all" : "veg");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border transition-all cursor-pointer",
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border transition-colors cursor-pointer",
                   dietFilter === "veg"
-                    ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/40 font-black"
+                    ? "bg-success-subtle text-success border-success font-black"
                     : "bg-muted/30 text-muted-foreground border-border/40"
                 )}
               >
-                <div className="size-2 rounded-full bg-emerald-500" />
+                <div className="size-2 rounded-full bg-success" />
                 <span>Veg Only</span>
               </button>
             </div>
@@ -554,7 +555,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
             {groupedProducts.map((group) => (
               <div key={group.category} className="space-y-1">
                 <div className="px-4 pt-3 pb-1 bg-muted/5">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                  <h3 className="text-xs font-bold text-muted-foreground">
                     {group.category} ({group.items.length})
                   </h3>
                 </div>
@@ -578,20 +579,20 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                             <span
                               className={cn(
                                 "size-3.5 rounded-sm border flex items-center justify-center shrink-0",
-                                product.isVeg ? "border-emerald-500" : "border-rose-500"
+                                product.isVeg ? "border-success" : "border-danger"
                               )}
                               title={product.isVeg ? "Pure Veg" : "Non-Veg"}
                             >
                               <div
                                 className={cn(
                                   "size-1.5 rounded-full",
-                                  product.isVeg ? "bg-emerald-500" : "bg-rose-500"
+                                  product.isVeg ? "bg-success" : "bg-danger"
                                 )}
                               />
                             </span>
                             {product.rating && (
-                              <span className="text-[10px] font-bold text-amber-500 flex items-center gap-0.5">
-                                <Star className="size-2.5 fill-amber-500" />
+                              <span className="text-[10px] font-bold text-warning flex items-center gap-0.5">
+                                <Star className="size-2.5 fill-warning" />
                                 <span>{product.rating}</span>
                               </span>
                             )}
@@ -608,7 +609,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                               </span>
                             )}
                             {discountPercent && (
-                              <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/15 text-emerald-500 text-[10px] font-black">
+                              <span className="px-1.5 py-0.2 rounded-md bg-success-subtle text-success text-[10px] font-black">
                                 {discountPercent}% OFF
                               </span>
                             )}
@@ -639,7 +640,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                             disabled={!store.isOpen || !product.isAvailable}
                             onClick={() => handleOpenProductModal(product)}
                             className={cn(
-                              "mt-[-14px] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer active:scale-95",
+                              "mt-[-14px] px-4 py-1.5 rounded-full text-xs font-bold shadow-sm transition-[opacity,transform] cursor-pointer active:scale-95",
                               store.isOpen && product.isAvailable
                                 ? "bg-foreground text-background hover:opacity-90"
                                 : "bg-muted text-muted-foreground border border-border cursor-not-allowed"
@@ -675,7 +676,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                 className="p-4 rounded-2xl border border-border/40 bg-card space-y-2 shadow-xs"
               >
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-subtle text-success border border-success">
                     {offer.code}
                   </span>
                   <span className="text-xs font-bold text-foreground">
@@ -704,7 +705,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
           <div className="p-5 rounded-3xl border border-border/40 bg-card space-y-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="size-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex flex-col items-center justify-center text-amber-500 shrink-0">
+                <div className="size-16 rounded-2xl bg-warning-subtle border border-warning flex flex-col items-center justify-center text-warning shrink-0">
                   <span className="text-2xl font-black">
                     {reviewsData?.averageRating || store.rating || "4.8"}
                   </span>
@@ -715,14 +716,14 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   <p className="text-xs text-muted-foreground">
                     Based on {reviewsData?.totalCount || store.reviewCount || 0} student orders
                   </p>
-                  <div className="flex items-center gap-1 mt-1 text-amber-500">
+                  <div className="flex items-center gap-1 mt-1 text-warning">
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star
                         key={s}
                         className={cn(
                           "size-3.5",
                           s <= Math.round(Number(reviewsData?.averageRating || store.rating || 5))
-                            ? "fill-amber-500 stroke-amber-500"
+                            ? "fill-warning stroke-warning"
                             : "fill-transparent stroke-muted-foreground/30"
                         )}
                       />
@@ -738,7 +739,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   haptics.light();
                   setIsReviewModalOpen(true);
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                className="px-4 py-2.5 rounded-2xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Star className="size-3.5 fill-current" />
                 <span>{reviewsData?.userReview ? "Update Your Review" : "Rate & Review"}</span>
@@ -766,14 +767,14 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                             <span className="text-xs font-bold text-foreground">{sName}</span>
                             <span className="text-[10px] text-muted-foreground">@{sHandle}</span>
                           </div>
-                          <div className="flex items-center gap-0.5 text-amber-500">
+                          <div className="flex items-center gap-0.5 text-warning">
                             {[1, 2, 3, 4, 5].map((s) => (
                               <Star
                                 key={s}
                                 className={cn(
                                   "size-2.5",
                                   s <= rev.rating
-                                    ? "fill-amber-500 stroke-amber-500"
+                                    ? "fill-warning stroke-warning"
                                     : "fill-transparent stroke-muted-foreground/30"
                                 )}
                               />
@@ -809,7 +810,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
       {activeTab === "about" && (
         <section className="p-4 space-y-4">
           <div className="p-5 rounded-2xl border border-border/40 bg-card space-y-3 shadow-xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-bold text-muted-foreground">
               Store Details
             </h3>
             <div className="space-y-2 text-xs text-foreground/90">
@@ -836,12 +837,12 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
           </div>
 
           <div className="p-5 rounded-2xl border border-border/40 bg-card text-center space-y-3 shadow-xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-bold text-muted-foreground">
               Table QR Stand
             </h3>
-            <div className="size-40 mx-auto bg-white p-3 rounded-2xl border border-border">
+            <div className="size-40 mx-auto bg-surface p-3 rounded-2xl border border-border">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://campusloop.space/app/marketplace/store/${store.id}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://campusloop.space/marketplace/store/${store.id}`}
                 alt="Store QR"
                 className="size-full object-contain"
               />
@@ -863,7 +864,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-foreground text-background shadow-2xl hover:opacity-95 transition-all active:scale-[0.99] cursor-pointer"
+              className="flex items-center justify-between p-3.5 rounded-2xl bg-foreground text-background shadow-2xl hover:opacity-95 transition-[opacity,transform] active:scale-[0.99] cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="size-8 rounded-full bg-background text-foreground flex items-center justify-center font-black text-xs">
@@ -950,7 +951,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   {/* Dynamic Add-ons (Decided exclusively by Merchant / Admin) */}
                   {productAddons.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="text-xs font-bold text-muted-foreground">
                         Popular Add-ons
                       </span>
                       <div className="space-y-1.5">
@@ -1009,7 +1010,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className="w-full py-3.5 rounded-2xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-all cursor-pointer shadow-lg active:scale-98 flex items-center justify-between px-5"
+                    className="w-full py-3.5 rounded-2xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-[opacity,transform] cursor-pointer shadow-lg active:scale-98 flex items-center justify-between px-5"
                   >
                     <span>Add to Cart</span>
                     <span>₹{modalItemTotal.toLocaleString("en-IN")}</span>
@@ -1042,7 +1043,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
 
             <form onSubmit={handleSubmitReview} className="space-y-4">
               <div className="space-y-2 text-center py-2 bg-muted/20 rounded-2xl border border-border/40">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <span className="text-xs font-bold text-muted-foreground block">
                   Select Rating
                 </span>
                 <div className="flex items-center justify-center gap-2">
@@ -1061,14 +1062,14 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                         className={cn(
                           "size-7 transition-colors",
                           star <= reviewRating
-                            ? "fill-amber-500 stroke-amber-500"
+                            ? "fill-warning stroke-warning"
                             : "fill-transparent stroke-muted-foreground/40"
                         )}
                       />
                     </button>
                   ))}
                 </div>
-                <span className="text-xs font-black text-amber-500">
+                <span className="text-xs font-black text-warning">
                   {reviewRating === 5 && "Outstanding!"}
                   {reviewRating === 4 && "Great Experience!"}
                   {reviewRating === 3 && "Average"}
@@ -1099,7 +1100,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
                 <button
                   type="submit"
                   disabled={isSubmittingReview}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingReview && <Loader2 className="size-3.5 animate-spin" />}
                   <span>{reviewsData?.userReview ? "Update Review" : "Submit Review"}</span>
@@ -1117,7 +1118,7 @@ export function StoreClient({ merchantId, profileId }: StoreClientProps) {
         title={store.name}
         subtitle={`${store.categorySlug || "Campus Canteen"} • ${store.locationPin || "Campus Hub"}`}
         badgeText="Campus Store"
-        shortUrl={`https://campusloop.space/app/marketplace/store/${store.id}`}
+        shortUrl={`https://campusloop.space/marketplace/store/${store.id}`}
         avatarUrl={store.logoUrl}
         category="store"
       />

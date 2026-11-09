@@ -308,7 +308,7 @@ export function MessengerView({
                     window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
                   }
                 }}
-                className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-all cursor-pointer active:scale-95 shrink-0"
+                className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-[opacity,transform] cursor-pointer active:scale-95 shrink-0"
                 aria-label="Open navigation menu"
                 title="All Hubs & Navigation"
               >
@@ -336,10 +336,10 @@ export function MessengerView({
                   sounds.pop();
                   haptics.medium();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-warning-subtle text-warning border border-warning hover:bg-warning-subtle text-xs font-black transition-[opacity,transform] cursor-pointer shadow-2xs active:scale-95"
                 title="Discover classmates on Campus Match"
               >
-                <Zap className="size-3.5 fill-amber-500 text-amber-500" />
+                <Zap className="size-3.5 fill-warning text-warning" />
                 <span>Match</span>
               </Link>
 
@@ -350,7 +350,7 @@ export function MessengerView({
                   const input = document.getElementById("chat-search-input");
                   input?.focus();
                 }}
-                className="size-9 rounded-full bg-card border border-border/50 shadow-xs flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="size-9 rounded-full bg-card border border-border/50 shadow-xs flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 title="Search conversations"
               >
                 <Search className="size-4" />
@@ -361,7 +361,7 @@ export function MessengerView({
           {/* Active contacts */}
           {conversations && conversations.length > 0 && (
             <div className="flex items-center justify-between px-0.5 pt-0.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-bold text-muted-foreground">
                 Active now
               </span>
               <span className="text-[10px] text-muted-foreground">Recent chats</span>
@@ -390,7 +390,7 @@ export function MessengerView({
                       <span
                         className={cn(
                           "absolute bottom-0 right-0 size-3 rounded-full border-2 border-background",
-                          isOnlineNow ? "bg-primary" : "bg-amber-400"
+                          isOnlineNow ? "bg-primary" : "bg-warning"
                         )}
                       />
                     </div>
@@ -412,7 +412,7 @@ export function MessengerView({
               placeholder="Search students or groups..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full h-9 pl-9 pr-8 rounded-full border border-border/50 bg-muted/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+              className="w-full h-9 pl-9 pr-8 rounded-full border border-border/50 bg-muted/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
             />
             {searchQuery && (
               <button
@@ -434,7 +434,7 @@ export function MessengerView({
               type="button"
               onClick={() => setActiveFilter("ALL")}
               className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer",
                 activeFilter === "ALL"
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -446,7 +446,7 @@ export function MessengerView({
               type="button"
               onClick={() => setActiveFilter("UNREAD")}
               className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
                 activeFilter === "UNREAD"
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -455,14 +455,14 @@ export function MessengerView({
               <span>Unread</span>
               {conversations &&
                 conversations.filter((c) => (c.unreadCount || 0) > 0 && !c.isArchived).length > 0 && (
-                  <span className="size-1.5 rounded-full bg-amber-400" />
+                  <span className="size-1.5 rounded-full bg-warning" />
                 )}
             </button>
             <button
               type="button"
               onClick={() => setActiveFilter("GROUPS")}
               className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
                 activeFilter === "GROUPS"
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -475,7 +475,7 @@ export function MessengerView({
               type="button"
               onClick={() => setActiveFilter("CAMPUS")}
               className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer",
                 activeFilter === "CAMPUS"
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -487,7 +487,7 @@ export function MessengerView({
               type="button"
               onClick={() => setActiveFilter("ARCHIVED")}
               className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
                 activeFilter === "ARCHIVED"
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -507,7 +507,7 @@ export function MessengerView({
         {/* Search Results Dropdown / Replacement List */}
         {searchQuery.trim() ? (
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
               Search Results
             </p>
             {isSearching ? (
@@ -538,8 +538,9 @@ export function MessengerView({
                     </p>
                   </div>
                   <button
+                    aria-label="Start chat"
                     type="button"
-                    className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-all shrink-0"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-7 min-h-11 min-w-11 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-colors shrink-0"
                   >
                     <Plus className="size-3.5" />
                   </button>
@@ -600,7 +601,7 @@ export function MessengerView({
                       handleSelectConversation(conv.id);
                     }}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-2xl transition-all cursor-pointer group relative",
+                      "flex items-center gap-3 p-3 rounded-2xl transition-colors cursor-pointer group relative",
                       isSelected
                         ? "bg-primary/10 dark:bg-primary/15 shadow-2xs"
                         : "hover:bg-muted/40"
@@ -632,7 +633,7 @@ export function MessengerView({
                           )}
                           {conv.isPinned && (
                             <span title="Pinned chat">
-                              <Pin className="size-2.5 text-amber-500 shrink-0 fill-amber-500" />
+                              <Pin className="size-2.5 text-warning shrink-0 fill-warning" />
                             </span>
                           )}
                           {conv.isMuted && (
@@ -659,7 +660,7 @@ export function MessengerView({
                           {isLastMe &&
                             conv.lastMessage &&
                             (conv.lastMessage.readAt ? (
-                              <CheckCheck className="size-3.5 text-sky-400 shrink-0" />
+                              <CheckCheck className="size-3.5 text-brand-text shrink-0" />
                             ) : (
                               <CheckCheck className="size-3.5 text-muted-foreground shrink-0" />
                             ))}
@@ -689,7 +690,7 @@ export function MessengerView({
                               setActionConv(conv);
                               setShowActionModal(true);
                             }}
-                            className="size-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/80 flex items-center justify-center transition-all opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
+                            className="size-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/80 flex items-center justify-center transition-[opacity,transform] opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
                             title="Chat options"
                           >
                             <MoreVertical className="size-3.5" />

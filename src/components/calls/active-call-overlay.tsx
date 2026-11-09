@@ -161,7 +161,7 @@ export function ActiveCallOverlay({
     haptics.medium();
     const success = await engineRef.current.switchCamera();
     if (success) {
-      toast.info("Camera flipped 🔄");
+      toast.info("Camera flipped");
     }
   }
 
@@ -185,7 +185,7 @@ export function ActiveCallOverlay({
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col justify-between select-none overflow-hidden h-[100dvh] w-full">
       {/* Remote Video Stream (Full Background) */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#0d1117]">
+      <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
         {type === "video" ? (
           // biome-ignore lint/a11y/useMediaCaption: WebRTC live video stream
           <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
@@ -200,7 +200,7 @@ export function ActiveCallOverlay({
             <div className="space-y-1">
               <h2 className="text-xl font-black text-white">{partner.displayName}</h2>
               <p className="text-xs text-muted-foreground">Audio Call · Encrypted P2P</p>
-              <p className="text-sm font-black text-emerald-400 font-mono pt-1">
+              <p className="text-sm font-black text-success font-mono pt-1">
                 {callState === "CONNECTED" ? formatSeconds(callDuration) : callState}
               </p>
             </div>
@@ -218,7 +218,7 @@ export function ActiveCallOverlay({
               className="w-full h-full object-cover scale-x-[-1]"
             />
             {isCameraOff && (
-              <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center text-white/60">
+              <div className="absolute inset-0 bg-black flex items-center justify-center text-white/60">
                 <CameraOff className="size-6" />
               </div>
             )}
@@ -238,7 +238,7 @@ export function ActiveCallOverlay({
           <div>
             <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-black text-white leading-tight">{partner.displayName}</h3>
-              <ShieldCheck className="size-3.5 text-blue-400" />
+              <ShieldCheck className="size-3.5 text-brand-text" />
             </div>
             <p className="text-[11px] text-white/70 font-mono">
               {callState === "CONNECTED" ? formatSeconds(callDuration) : `${callState.toLowerCase()}...`}
@@ -258,14 +258,14 @@ export function ActiveCallOverlay({
 
       {/* Bottom Floating Pill Controls Bar */}
       <div className="relative z-20 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4 flex justify-center">
-        <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/15 px-5 py-3 rounded-full flex items-center gap-3 sm:gap-5 shadow-2xl">
+        <div className="bg-black/90 backdrop-blur-sm border border-white/15 px-5 py-3 rounded-full flex items-center gap-3 sm:gap-5 shadow-2xl">
           {/* Mute Mic */}
           <button
             type="button"
             onClick={handleToggleMic}
             className={cn(
               "size-12 rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer",
-              isMicMuted ? "bg-rose-500 text-white" : "bg-white/15 hover:bg-white/25 text-white"
+              isMicMuted ? "bg-danger text-white" : "bg-white/15 hover:bg-white/25 text-white"
             )}
             title={isMicMuted ? "Unmute microphone" : "Mute microphone"}
             aria-label="Mute microphone"
@@ -281,7 +281,7 @@ export function ActiveCallOverlay({
                 onClick={handleToggleCamera}
                 className={cn(
                   "size-12 rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer",
-                  isCameraOff ? "bg-rose-500 text-white" : "bg-white/15 hover:bg-white/25 text-white"
+                  isCameraOff ? "bg-danger text-white" : "bg-white/15 hover:bg-white/25 text-white"
                 )}
                 title={isCameraOff ? "Turn camera on" : "Turn camera off"}
                 aria-label="Toggle camera"
@@ -306,7 +306,7 @@ export function ActiveCallOverlay({
           <button
             type="button"
             onClick={handleEndCall}
-            className="size-14 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 cursor-pointer"
+            className="size-14 rounded-full bg-danger hover:bg-danger text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 cursor-pointer"
             title="End call"
             aria-label="End call"
           >

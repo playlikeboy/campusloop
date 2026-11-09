@@ -59,7 +59,7 @@ export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHig
             <button
               type="button"
               onClick={() => setShowArchiveModal(true)}
-              className="size-14 sm:size-15 rounded-full border border-dashed border-border/80 hover:border-foreground/80 bg-muted/20 hover:bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer group shadow-2xs active:scale-95"
+              className="size-14 sm:size-15 rounded-full border border-dashed border-border/80 hover:border-foreground/80 bg-muted/20 hover:bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-[opacity,transform] cursor-pointer group shadow-2xs active:scale-95"
               title="Create new Highlight from stories"
             >
               <AnimatePlus size={18} className="transition-transform group-hover:scale-110" />
@@ -80,7 +80,7 @@ export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHig
                 <button
                   type="button"
                   onClick={() => handleOpenHighlight(h)}
-                  className="relative size-14 sm:size-15 rounded-full p-0.5 border border-border/70 hover:border-[#1D9BF0] transition-all group-hover:scale-105 active:scale-95 cursor-pointer bg-card"
+                  className="relative size-14 sm:size-15 rounded-full p-0.5 border border-border/70 hover:border-brand transition-[opacity,transform] group-hover:scale-105 active:scale-95 cursor-pointer bg-card"
                 >
                   <div className="size-full rounded-full bg-muted/40 overflow-hidden flex items-center justify-center">
                     {h.coverUrl ? (

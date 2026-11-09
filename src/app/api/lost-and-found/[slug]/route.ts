@@ -1,8 +1,8 @@
 import { desc, eq, ne, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { lostAndFoundItems, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { lostAndFoundItems } from "@/db/schema";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -235,21 +235,13 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const resolvedParams = await Promise.resolve(params);
     const slug = resolvedParams?.slug;
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const item = await db.query.lostAndFoundItems.findFirst({
       where: or(eq(lostAndFoundItems.slug, slug), eq(lostAndFoundItems.id, slug)),

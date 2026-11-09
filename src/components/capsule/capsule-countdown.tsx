@@ -44,7 +44,7 @@ export function CapsuleCountdown({ targetDate }: CapsuleCountdownProps) {
 
   if (timeLeft.isPast) {
     return (
-      <span className="text-xs font-black text-emerald-500 uppercase tracking-wider bg-emerald-500/15 px-2.5 py-1 rounded-full border border-emerald-500/30">
+      <span className="text-xs font-black text-success bg-success/15 px-2.5 py-1 rounded-full border border-success/30">
         Officially Unlocked!
       </span>
     );
@@ -68,7 +68,7 @@ export function CapsuleCountdown({ targetDate }: CapsuleCountdownProps) {
       </div>
       <span className="text-muted-foreground font-black">:</span>
       <div className="flex flex-col items-center bg-background/80 border border-border/40 px-2 py-1 rounded-lg">
-        <span className="text-sm font-black tabular-nums text-amber-500">
+        <span className="text-sm font-black tabular-nums text-warning">
           {String(timeLeft.seconds).padStart(2, "0")}
         </span>
         <span className="text-[9px] text-muted-foreground uppercase font-sans">Sec</span>

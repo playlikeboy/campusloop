@@ -4,12 +4,12 @@ import { LivingHubClient } from "../living/living-hub-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Campus Living Hub | Student Housing, Marketplace & Services | CampusLoop",
+  title: "Campus Living Hub | Student Housing, Marketplace & Services",
   description:
     "Everything you need around campus: verified student housing without brokers, roommate matching, peer marketplace, lost and found, and cab sharing.",
   alternates: { canonical: "https://campusloop.space/campus" },
   openGraph: {
-    title: "Campus Living Hub | Student Housing, Marketplace & Services | CampusLoop",
+    title: "Campus Living Hub | Student Housing, Marketplace & Services",
     description:
       "Everything you need around campus: verified student housing without brokers, roommate matching, peer marketplace, lost and found, and cab sharing.",
     url: "https://campusloop.space/campus",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Campus Living Hub | Student Housing, Marketplace & Services | CampusLoop",
+    title: "Campus Living Hub | Student Housing, Marketplace & Services",
     description:
       "Everything you need around campus: verified student housing without brokers, roommate matching, peer marketplace, lost and found, and cab sharing.",
     images: ["https://campusloop.space/og-image.png"],

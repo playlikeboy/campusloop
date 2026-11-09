@@ -7,7 +7,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { tag } = await params;
-  const title = `#${tag} Posts & Discussions | CampusLoop`;
+  const title = `#${tag} Posts & Discussions`;
   const description = `Explore trending student confessions, polls, and discussions for #${tag} on CampusLoop.`;
   const url = `https://campusloop.space/hashtag/${encodeURIComponent(tag)}`;
 

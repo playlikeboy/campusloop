@@ -64,10 +64,10 @@ const MAX_CHARS = 2000;
 
 const POST_TYPES: { id: PostType; label: string; icon: React.ElementType; accent: string }[] = [
   { id: "NORMAL", label: "Post", icon: Type, accent: "text-primary" },
-  { id: "MEME", label: "Meme", icon: Zap, accent: "text-amber-500" },
-  { id: "POLL", label: "Poll", icon: BarChart3, accent: "text-blue-500" },
-  { id: "QUESTION", label: "Question", icon: HelpCircle, accent: "text-orange-500" },
-  { id: "CONFESSION", label: "Confession", icon: Lock, accent: "text-pink-500" },
+  { id: "MEME", label: "Meme", icon: Zap, accent: "text-warning" },
+  { id: "POLL", label: "Poll", icon: BarChart3, accent: "text-brand-text" },
+  { id: "QUESTION", label: "Question", icon: HelpCircle, accent: "text-warning" },
+  { id: "CONFESSION", label: "Confession", icon: Lock, accent: "text-danger" },
 ];
 
 // Shown directly in the action bar; everything else lives under "More".
@@ -760,8 +760,8 @@ export function PostComposer({
             label: anonActive ? "Anonymous on" : "Go anonymous",
             icon: VenetianMask,
             color: cn(
-              "hover:bg-violet-500/10",
-              anonActive ? "text-violet-500" : "text-muted-foreground hover:text-violet-500"
+              "hover:bg-brand-hover/10",
+              anonActive ? "text-brand-text" : "text-muted-foreground hover:text-brand-text"
             ),
             onClick: () => {
               if (!isConfession) {
@@ -921,13 +921,13 @@ export function PostComposer({
         <div className="flex items-start gap-3 px-4 pt-4">
           <Avatar
             className={cn(
-              "size-11 shrink-0 border-2 transition-all",
-              anonActive ? "border-violet-500/60 opacity-80 grayscale" : "border-border/50"
+              "size-11 shrink-0 border-2 transition-colors",
+              anonActive ? "border-brand-subtle-border/60 opacity-80 grayscale" : "border-border/50"
             )}
           >
             <AvatarImage src={anonActive ? "" : profile?.avatarUrl || ""} />
             <AvatarFallback className="text-xs font-bold flex items-center justify-center">
-              {anonActive ? <VenetianMask className="size-4 text-violet-400" /> : profile?.displayName?.[0] || "U"}
+              {anonActive ? <VenetianMask className="size-4 text-brand-text" /> : profile?.displayName?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
 
@@ -1011,7 +1011,7 @@ export function PostComposer({
               )}
 
               {anonActive && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2.5 py-1 text-[11px] font-black text-violet-500">
+                <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-black text-brand-text">
                   <VenetianMask className="size-3" /> Anonymous
                 </span>
               )}
@@ -1046,7 +1046,7 @@ export function PostComposer({
         {/* ─── Suggested Meme Category / Aura tags when MEME is selected ─── */}
         {postType === "MEME" && (
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-5 pb-2.5">
-            <span className="text-[11px] font-black text-amber-500 shrink-0">Tags:</span>
+            <span className="text-[11px] font-black text-warning shrink-0">Tags:</span>
             {[
               "#AuraMinus",
               "#AuraPlus",
@@ -1064,7 +1064,7 @@ export function PostComposer({
                     editor.chain().focus().insertContent(` ${tag} `).run();
                   }
                 }}
-                className="shrink-0 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-black text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer"
+                className="shrink-0 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-0.5 text-[11px] font-black text-warning hover:bg-warning/20 transition-colors cursor-pointer"
               >
                 {tag}
               </button>
@@ -1218,7 +1218,7 @@ export function PostComposer({
 
         {/* ─── Anonymity notice ─── */}
         {anonActive && (
-          <div className="mx-4 mb-2 flex items-center gap-2 rounded-2xl bg-violet-500/10 px-3 py-2 text-[11px] font-semibold text-violet-600 dark:text-violet-400">
+          <div className="mx-4 mb-2 flex items-center gap-2 rounded-2xl bg-brand/10 px-3 py-2 text-[11px] font-semibold text-brand-text">
             <VenetianMask className="size-4 shrink-0" />
             {profile?.anonymousUsername ? (
               <span>
@@ -1250,7 +1250,7 @@ export function PostComposer({
                 disabled={action.disabled}
                 onClick={action.onClick}
                 className={cn(
-                  "flex size-9 cursor-pointer items-center justify-center rounded-full transition-all active:scale-90 disabled:cursor-not-allowed disabled:opacity-40",
+                  "flex size-9 cursor-pointer items-center justify-center rounded-full transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-40",
                   action.color
                 )}
               >
@@ -1296,11 +1296,11 @@ export function PostComposer({
                     strokeDasharray={ringCircumference}
                     strokeDashoffset={ringCircumference * (1 - ringProgress)}
                     className={cn(
-                      "transition-all duration-200",
+                      "transition-colors duration-200",
                       overLimit
                         ? "stroke-destructive"
                         : remaining <= 200
-                          ? "stroke-amber-500"
+                          ? "stroke-warning"
                           : "stroke-primary"
                     )}
                   />

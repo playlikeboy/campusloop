@@ -19,6 +19,7 @@ import { AddCollegeModal } from "@/components/colleges/add-college-modal";
 import { AllIndiaCollegePodium, type LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
 import type { CollegeItem } from "@/components/colleges/college-hub-row";
 import { fetcher } from "@/lib/api";
+import { COLLEGE_DIRECTORY_STATES, COLLEGES_PAGE_SIZE } from "@/lib/colleges/directory-shared";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_FILTERS = [
@@ -29,29 +30,16 @@ const CATEGORY_FILTERS = [
   { id: "TRENDING", label: "Trending" },
 ];
 
-const STATES = [
-  "ALL",
-  "Delhi",
-  "Maharashtra",
-  "Karnataka",
-  "Tamil Nadu",
-  "Telangana",
-  "Uttar Pradesh",
-  "West Bengal",
-  "Gujarat",
-  "Rajasthan",
-  "Punjab",
-  "Kerala",
-  "Jharkhand",
-  "Madhya Pradesh",
-  "Odisha",
-  "Bihar",
-  "Assam",
-  "Haryana",
-  "Andhra Pradesh",
-];
+const STATES = ["ALL", ...COLLEGE_DIRECTORY_STATES];
 
-export default function CollegesClient() {
+interface CollegesClientProps {
+  /** Server-rendered first page (page + state only) so college links exist in the initial HTML. */
+  initialColleges?: CollegeItem[];
+  initialTotal?: number;
+  initialTotalPages?: number;
+}
+
+export default function CollegesClient({ initialColleges, initialTotal, initialTotalPages }: CollegesClientProps) {
   const searchParams = useSearchParams();
 
   const initialTab = searchParams.get("tab") === "leaderboard" ? "leaderboard" : "directory";
@@ -65,11 +53,26 @@ export default function CollegesClient() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedState, setSelectedState] = useState(initialState);
   const [page, setPage] = useState(initialPage);
-  const [limit] = useState(24);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [colleges, setColleges] = useState<CollegeItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [limit] = useState(COLLEGES_PAGE_SIZE);
+  const [total, setTotal] = useState(initialTotal ?? 0);
+  const [totalPages, setTotalPages] = useState(initialTotalPages ?? 1);
+  const [colleges, setColleges] = useState<CollegeItem[]>(initialColleges ?? []);
+  const [loading, setLoading] = useState(!initialColleges);
+  // The server already rendered the first page; skip the duplicate fetch on mount.
+  const skipFirstFetch = useRef(Boolean(initialColleges));
+
+  function hrefFor(overrides: { page?: number; category?: string }) {
+    const params = new URLSearchParams();
+    if (activeTab !== "directory") params.set("tab", activeTab);
+    if (search.trim()) params.set("q", search.trim());
+    const nextCategory = overrides.category ?? selectedCategory;
+    if (nextCategory !== "ALL") params.set("category", nextCategory);
+    if (selectedState !== "ALL") params.set("state", selectedState);
+    const nextPage = overrides.page ?? page;
+    if (nextPage > 1) params.set("page", String(nextPage));
+    const query = params.toString();
+    return query ? `/colleges?${query}` : "/colleges";
+  }
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardCollegeItem[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
@@ -106,6 +109,10 @@ export default function CollegesClient() {
 
   // Fetch Directory Colleges
   useEffect(() => {
+    if (skipFirstFetch.current) {
+      skipFirstFetch.current = false;
+      return;
+    }
     let ignore = false;
     async function fetchColleges() {
       setLoading(true);
@@ -209,7 +216,7 @@ export default function CollegesClient() {
       {/* ─── Compact Minimal Header ─── */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 pt-2 border-b border-border/30">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Colleges
           </h1>
           <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted text-muted-foreground">
@@ -227,7 +234,7 @@ export default function CollegesClient() {
                 setPage(1);
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-full transition-all cursor-pointer",
+                "px-3.5 py-1.5 rounded-full transition-colors cursor-pointer",
                 activeTab === "directory"
                   ? "bg-background text-foreground shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -242,7 +249,7 @@ export default function CollegesClient() {
                 setPage(1);
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-full transition-all cursor-pointer",
+                "px-3.5 py-1.5 rounded-full transition-colors cursor-pointer",
                 activeTab === "leaderboard"
                   ? "bg-background text-foreground shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -255,7 +262,7 @@ export default function CollegesClient() {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-all cursor-pointer border border-primary/20 active:scale-95"
+            className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-colors cursor-pointer border border-primary/20 active:scale-95"
           >
             <Plus className="size-3.5" />
             <span className="hidden sm:inline">Request Hub</span>
@@ -317,22 +324,24 @@ export default function CollegesClient() {
           {CATEGORY_FILTERS.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
-              <button
+              <Link
                 key={cat.id}
-                type="button"
-                onClick={() => {
+                href={hrefFor({ category: cat.id, page: 1 })}
+                onClick={(e) => {
+                  e.preventDefault();
                   setSelectedCategory(cat.id);
                   setPage(1);
                 }}
+                aria-current={isSelected ? "page" : undefined}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer",
+                  "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer",
                   isSelected
                     ? "bg-foreground text-background font-bold"
                     : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
                 )}
               >
                 {cat.label}
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -386,7 +395,7 @@ export default function CollegesClient() {
                     <Link
                       key={college.id}
                       href={`/college/${college.slug || college.id}`}
-                      className="group flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/40 hover:bg-card hover:border-border/80 transition-all shadow-2xs"
+                      className="group flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/40 hover:bg-card hover:border-border/80 transition-colors shadow-2xs"
                     >
                       <div className="space-y-3">
                         {/* Top row: crest + NIRF chip */}
@@ -400,12 +409,12 @@ export default function CollegesClient() {
                                 loading="lazy"
                               />
                             ) : (
-                              <span className="text-xs font-black text-primary">{initials}</span>
+                              <span className="text-xs font-bold text-primary">{initials}</span>
                             )}
                           </div>
 
                           {college.nirfRank ? (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-warning-subtle text-warning border border-warning/20">
                               NIRF #{college.nirfRank}
                             </span>
                           ) : college.websiteDomain ? (
@@ -446,15 +455,19 @@ export default function CollegesClient() {
                   </span>
 
                   <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      disabled={page <= 1}
-                      onClick={() => {
+                    {/* Real ?page= anchors so crawlers can walk the directory; JS keeps the in-place flow. */}
+                    <Link
+                      href={hrefFor({ page: Math.max(1, page - 1) })}
+                      aria-disabled={page <= 1}
+                      rel="prev"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (page <= 1) return;
                         setPage((p) => Math.max(1, p - 1));
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
                         page <= 1
                           ? "opacity-40 border-border/30 cursor-not-allowed"
                           : "border-border/60 hover:bg-muted text-foreground"
@@ -462,17 +475,20 @@ export default function CollegesClient() {
                     >
                       <ChevronLeft className="size-3.5" />
                       <span>Prev</span>
-                    </button>
+                    </Link>
 
-                    <button
-                      type="button"
-                      disabled={page >= totalPages}
-                      onClick={() => {
+                    <Link
+                      href={hrefFor({ page: Math.min(totalPages, page + 1) })}
+                      aria-disabled={page >= totalPages}
+                      rel="next"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (page >= totalPages) return;
                         setPage((p) => Math.min(totalPages, p + 1));
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
                         page >= totalPages
                           ? "opacity-40 border-border/30 cursor-not-allowed"
                           : "border-border/60 hover:bg-muted text-foreground"
@@ -480,7 +496,7 @@ export default function CollegesClient() {
                     >
                       <span>Next</span>
                       <ChevronRight className="size-3.5" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -524,7 +540,7 @@ export default function CollegesClient() {
             </div>
           ) : leaderboard.length > 0 ? (
             <div className="space-y-2">
-              <div className="flex items-center justify-between px-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              <div className="flex items-center justify-between px-1 text-xs font-bold text-muted-foreground">
                 <span>Complete Campus Standings</span>
                 <span className="font-mono text-[11px] text-primary">Season 1 Live</span>
               </div>
@@ -543,15 +559,15 @@ export default function CollegesClient() {
                   <Link
                     key={item.id}
                     href={`/college/${item.slug || item.id}`}
-                    className="group flex items-center justify-between p-3.5 rounded-xl border border-border/30 bg-card/30 hover:bg-card hover:border-border/60 transition-all"
+                    className="group flex items-center justify-between p-3.5 rounded-xl border border-border/30 bg-card/30 hover:bg-card hover:border-border/60 transition-colors"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <span
                         className={cn(
-                          "w-6 text-center text-sm font-black tabular-nums shrink-0",
-                          rank === 1 && "text-amber-500",
-                          rank === 2 && "text-slate-400",
-                          rank === 3 && "text-amber-700 dark:text-amber-600",
+                          "w-6 text-center text-sm font-bold tabular-nums shrink-0",
+                          rank === 1 && "text-warning",
+                          rank === 2 && "text-fg-subtle",
+                          rank === 3 && "text-warning",
                           rank > 3 && "text-muted-foreground"
                         )}
                       >
@@ -572,7 +588,7 @@ export default function CollegesClient() {
                             {item.name}
                           </h3>
                           {item.nirfRank && (
-                            <span className="shrink-0 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 rounded">
+                            <span className="shrink-0 text-[10px] font-bold text-warning bg-warning-subtle px-1.5 rounded">
                               NIRF #{item.nirfRank}
                             </span>
                           )}

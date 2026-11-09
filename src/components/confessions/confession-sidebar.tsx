@@ -47,15 +47,15 @@ export function ConfessionSidebar({
   return (
     <aside className={cn("flex flex-col gap-4 select-none", className)}>
       {/* ─── 1. Architectural Anonymity Vault Card ─── */}
-      <div className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/25 via-card/70 to-card/40 p-4.5 space-y-3.5 shadow-2xs backdrop-blur-md">
+      <div className="rounded-2xl border border-border bg-surface p-4.5 space-y-3.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-purple-400">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/35">
+          <div className="flex items-center gap-2 text-brand-text">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-brand/20 text-brand-text border border-brand-subtle-border/35">
               <VenetianMask className="size-4" />
             </div>
             <h2 className="text-sm font-bold text-foreground">Cryptographic Anonymity</h2>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20 flex items-center gap-1">
             <Lock className="size-2.5" /> Sealed
           </span>
         </div>
@@ -71,29 +71,29 @@ export function ConfessionSidebar({
             haptics.light();
             setShowPrivacyDetails((prev) => !prev);
           }}
-          className="w-full flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/15 border border-purple-500/20 text-[11px] font-bold text-purple-300 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-brand/10 hover:bg-brand-hover/15 border border-brand-subtle-border/20 text-[11px] font-bold text-brand-text transition-colors cursor-pointer"
         >
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-purple-400" />
+            <ShieldCheck className="size-3.5 text-brand-text" />
             How Accountable Privacy Works
           </span>
-          <span className="text-[10px] text-purple-400/80 font-mono">
+          <span className="text-[10px] text-brand-text/80 font-mono">
             {showPrivacyDetails ? "Hide" : "Details"}
           </span>
         </button>
 
         {showPrivacyDetails && (
-          <div className="space-y-2 pt-1 border-t border-purple-500/20 text-[11px] text-muted-foreground leading-relaxed animate-in fade-in duration-150">
+          <div className="space-y-2 pt-1 border-t border-brand-subtle-border/20 text-[11px] text-muted-foreground leading-relaxed animate-in fade-in duration-150">
             <div className="flex items-start gap-2">
-              <span className="text-purple-400 font-bold">1.</span>
+              <span className="text-brand-text font-bold">1.</span>
               <span><strong>Zero FK Linkage:</strong> The database row stores only a thread pseudonym. Real author ID is null.</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-400 font-bold">2.</span>
+              <span className="text-brand-text font-bold">2.</span>
               <span><strong>Client-Side PII Filter:</strong> Phone numbers, room numbers, and personal handles are auto-quarantined.</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-400 font-bold">3.</span>
+              <span className="text-brand-text font-bold">3.</span>
               <span><strong>Verified Gate:</strong> Only verified college students can post, eliminating external trolls.</span>
             </div>
           </div>
@@ -103,7 +103,7 @@ export function ConfessionSidebar({
       {/* ─── 2. Scope Quick Switcher ─── */}
       <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] font-bold text-muted-foreground">
             Feed Scope
           </span>
           <span className="text-[10px] text-muted-foreground">1,350+ Hubs</span>
@@ -114,7 +114,7 @@ export function ConfessionSidebar({
             type="button"
             onClick={() => onScopeChange("GLOBAL")}
             className={cn(
-              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
+              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-colors cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
               scope === "GLOBAL"
                 ? "border-primary/50 bg-primary/10 text-primary shadow-2xs font-semibold"
                 : "border-border/40 hover:bg-muted/40 text-muted-foreground"
@@ -131,7 +131,7 @@ export function ConfessionSidebar({
             type="button"
             onClick={() => onScopeChange("CAMPUS")}
             className={cn(
-              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
+              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-colors cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
               scope === "CAMPUS"
                 ? "border-primary/50 bg-primary/10 text-primary shadow-2xs font-semibold"
                 : "border-border/40 hover:bg-muted/40 text-muted-foreground"
@@ -149,8 +149,8 @@ export function ConfessionSidebar({
       {/* ─── 3. Trending Topics Tag Cloud ─── */}
       <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Sparkles className="size-3 text-purple-400" />
+          <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
+            <Sparkles className="size-3 text-brand-text" />
             <span>Popular Whisper Tags</span>
           </span>
         </div>
@@ -168,9 +168,9 @@ export function ConfessionSidebar({
                   onTagSelect?.(isSelected ? "" : item.tag);
                 }}
                 className={cn(
-                  "h-7 px-2.5 rounded-full text-[11px] font-bold transition-all cursor-pointer border flex items-center gap-1",
+                  "h-7 px-2.5 rounded-full text-[11px] font-bold transition-colors cursor-pointer border flex items-center gap-1",
                   isSelected
-                    ? "bg-purple-500 text-white border-purple-400 shadow-xs ring-1 ring-purple-400/40"
+                    ? "bg-brand text-white border-brand-subtle-border shadow-xs ring-1 ring-ring/40"
                     : "bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground border-border/40"
                 )}
               >
@@ -186,21 +186,21 @@ export function ConfessionSidebar({
 
       {/* ─── 4. Community Safe-Harbor Pledge ─── */}
       <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 shadow-2xs text-xs text-muted-foreground">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+        <h3 className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
           <Info className="size-3 text-primary" />
           <span>Community Pledge</span>
         </h3>
         <ul className="space-y-1.5 text-[11px] leading-relaxed">
           <li className="flex items-start gap-1.5">
-            <span className="text-purple-400 font-bold">•</span>
+            <span className="text-brand-text font-bold">•</span>
             <span>No targeted harassment, doxxing, or naming individual peers.</span>
           </li>
           <li className="flex items-start gap-1.5">
-            <span className="text-purple-400 font-bold">•</span>
+            <span className="text-brand-text font-bold">•</span>
             <span>Wholesome secrets, funny hostel sagas, and exam vents welcomed.</span>
           </li>
           <li className="flex items-start gap-1.5">
-            <span className="text-purple-400 font-bold">•</span>
+            <span className="text-brand-text font-bold">•</span>
             <span>Flag toxic content instantly via the card report button.</span>
           </li>
         </ul>

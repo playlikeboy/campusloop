@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Create a Course",
   description: "Build a free course from YouTube, Vimeo or your own videos, articles and links. Learners get progress tracking, notes, Q&A and certificates.",
   alternates: { canonical: "https://campusloop.space/courses/new" },
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
 };
 
 export default async function NewCoursePage() {

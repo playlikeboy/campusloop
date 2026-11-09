@@ -160,7 +160,7 @@ export function ArticleDashboardClient({
 
         <Link
           href="/articles/new"
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 shadow-md shadow-primary/20 transition-all cursor-pointer active:scale-95"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 shadow-md shadow-primary/20 transition-ui cursor-pointer active:scale-95"
         >
           <Plus className="size-3.5" strokeWidth={3} />
           <span>New Article</span>
@@ -181,7 +181,7 @@ export function ArticleDashboardClient({
           <div className="rounded-xl border border-border/40 bg-card/60 p-3.5 space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-bold">Total Upvotes</span>
-              <ThumbsUp className="size-3.5 text-emerald-500" />
+              <ThumbsUp className="size-3.5 text-success" />
             </div>
             <p className="text-2xl font-black text-foreground">{totalUpvotes}</p>
           </div>
@@ -189,7 +189,7 @@ export function ArticleDashboardClient({
           <div className="rounded-xl border border-border/40 bg-card/60 p-3.5 space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-bold">Published</span>
-              <BookOpen className="size-3.5 text-blue-500" />
+              <BookOpen className="size-3.5 text-brand-text" />
             </div>
             <p className="text-2xl font-black text-foreground">{publishedCount}</p>
           </div>
@@ -197,7 +197,7 @@ export function ArticleDashboardClient({
           <div className="rounded-xl border border-border/40 bg-card/60 p-3.5 space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-bold">Drafts</span>
-              <FileEdit className="size-3.5 text-amber-500" />
+              <FileEdit className="size-3.5 text-warning" />
             </div>
             <p className="text-2xl font-black text-foreground">{draftsCount}</p>
           </div>
@@ -205,7 +205,7 @@ export function ArticleDashboardClient({
           <div className="col-span-2 sm:col-span-1 rounded-xl border border-border/40 bg-card/60 p-3.5 space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-bold">Archived</span>
-              <Archive className="size-3.5 text-zinc-500" />
+              <Archive className="size-3.5 text-fg-subtle" />
             </div>
             <p className="text-2xl font-black text-foreground">{archivedCount}</p>
           </div>
@@ -221,7 +221,7 @@ export function ArticleDashboardClient({
                 setActiveTab("published");
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-ui cursor-pointer",
                 activeTab === "published"
                   ? "bg-foreground text-background shadow-xs font-black"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -237,7 +237,7 @@ export function ArticleDashboardClient({
                 setActiveTab("drafts");
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-ui cursor-pointer",
                 activeTab === "drafts"
                   ? "bg-foreground text-background shadow-xs font-black"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -253,7 +253,7 @@ export function ArticleDashboardClient({
                 setActiveTab("archived");
               }}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-ui cursor-pointer",
                 activeTab === "archived"
                   ? "bg-foreground text-background shadow-xs font-black"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -305,12 +305,12 @@ export function ArticleDashboardClient({
                           {item.readingTimeMinutes || 3} min read
                         </span>
                         {item.status === "DRAFT" && (
-                          <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded">
+                          <span className="text-[10px] font-bold text-warning bg-warning-subtle px-2 py-0.5 rounded-sm">
                             Draft
                           </span>
                         )}
                         {item.status === "ARCHIVED" && (
-                          <span className="text-[10px] font-bold text-zinc-500 bg-zinc-500/10 px-2 py-0.5 rounded">
+                          <span className="text-[10px] font-bold text-fg-muted bg-surface-muted px-2 py-0.5 rounded-sm">
                             Archived
                           </span>
                         )}
@@ -397,7 +397,7 @@ export function ArticleDashboardClient({
                         title={item.status === "ARCHIVED" ? "Restore to Published" : "Archive Article"}
                       >
                         {item.status === "ARCHIVED" ? (
-                          <ArchiveRestore className="size-3.5 text-blue-500" />
+                          <ArchiveRestore className="size-3.5 text-brand-text" />
                         ) : (
                           <Archive className="size-3.5" />
                         )}
@@ -429,7 +429,7 @@ export function ArticleDashboardClient({
             </p>
             <Link
               href="/articles/new"
-              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-95 transition-all shadow-sm"
+              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-95 transition-ui shadow-sm"
             >
               Write an Article
             </Link>

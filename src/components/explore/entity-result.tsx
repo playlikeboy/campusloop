@@ -75,7 +75,7 @@ export function EntityResult({ result }: { result: SearchResult }) {
     <Link
       href={result.href}
       className={cn(
-        "group flex items-start gap-3.5 p-3 rounded-xl border border-border/30 bg-muted/15 hover:bg-muted/40 hover:border-border/60 transition-all",
+        "group flex items-start gap-3.5 p-3 rounded-xl border border-border/30 bg-muted/15 hover:bg-muted/40 hover:border-border/60 transition-ui",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       )}
     >

@@ -86,7 +86,7 @@ export function CollegeRealityScorecard({
       score: 4.8,
       votes: "142 student votes",
       icon: Code,
-      color: "text-blue-500",
+      color: "text-brand-text",
       description:
         "Active ACM & IEEE chapters, ICPC regionals participation, and weekly open-source hackathons.",
     },
@@ -95,7 +95,7 @@ export function CollegeRealityScorecard({
       score: 4.9,
       votes: "210 student votes",
       icon: PartyPopper,
-      color: "text-rose-500",
+      color: "text-brand-text",
       description:
         "BITOTSAV & Pantheon are East India's premier college festivals attracting stars and 10k+ crowds.",
     },
@@ -104,7 +104,7 @@ export function CollegeRealityScorecard({
       score: 4.7,
       votes: "185 student votes",
       icon: Briefcase,
-      color: "text-emerald-500",
+      color: "text-brand-text",
       description:
         "High placement rate across CSE/ECE with visits from Microsoft, Google, Atlassian, and top PSUs.",
     },
@@ -113,7 +113,7 @@ export function CollegeRealityScorecard({
       score: 4.5,
       votes: "160 student votes",
       icon: Building2,
-      color: "text-amber-500",
+      color: "text-brand-text",
       description:
         "Sprawling 780-acre green campus, single-room allotments for seniors, and late-night canteen access.",
     },
@@ -122,7 +122,7 @@ export function CollegeRealityScorecard({
       score: 3.8,
       votes: "198 student votes",
       icon: Utensils,
-      color: "text-orange-500",
+      color: "text-brand-text",
       description:
         "Hostel mess is average, but legendary spots like Sharma Ji, C-Shop, and SAR make up for it.",
     },
@@ -150,9 +150,9 @@ export function CollegeRealityScorecard({
   return (
     <div className="space-y-4 select-none animate-in fade-in">
       {/* ─── Institutional Overview & Key Facts ─── */}
-      <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs border border-border/40">
+      <div className="rounded-xl bg-surface p-5 space-y-3 border border-border">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+          <h4 className="text-sm font-bold text-fg flex items-center gap-1.5">
             <Building2 className="size-4 text-primary" /> Campus Facts &amp; Accreditation
           </h4>
           {extraData?.wikipediaUrl && (
@@ -172,26 +172,26 @@ export function CollegeRealityScorecard({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
           {nirfRank && (
-            <div className="rounded-2xl bg-muted/40 p-3">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase block">NIRF Rank</span>
-              <span className="text-sm font-black text-amber-500">#{nirfRank}</span>
+            <div className="rounded-lg bg-surface-muted p-3">
+              <span className="text-xs text-fg-muted font-medium block">NIRF Rank</span>
+              <span className="text-sm font-black text-fg">#{nirfRank}</span>
             </div>
           )}
           {extraData?.campusAcreage && (
-            <div className="rounded-2xl bg-muted/40 p-3">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase block">Campus Area</span>
+            <div className="rounded-lg bg-surface-muted p-3">
+              <span className="text-xs text-fg-muted font-medium block">Campus Area</span>
               <span className="text-sm font-black text-foreground">{extraData.campusAcreage}</span>
             </div>
           )}
           {extraData?.naacGrade && (
-            <div className="rounded-2xl bg-muted/40 p-3">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase block">NAAC Grade</span>
-              <span className="text-sm font-black text-emerald-500">{extraData.naacGrade}</span>
+            <div className="rounded-lg bg-surface-muted p-3">
+              <span className="text-xs text-fg-muted font-medium block">NAAC Grade</span>
+              <span className="text-sm font-black text-fg">{extraData.naacGrade}</span>
             </div>
           )}
           {extraData?.affiliation && (
-            <div className="rounded-2xl bg-muted/40 p-3">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase block">
+            <div className="rounded-lg bg-surface-muted p-3">
+              <span className="text-xs text-fg-muted font-medium block">
                 Accreditation
               </span>
               <span className="text-xs font-bold text-foreground truncate block">
@@ -203,12 +203,12 @@ export function CollegeRealityScorecard({
       </div>
 
       {/* ─── Allowed Student Email & Verification Protocol Card ─── */}
-      <div className="rounded-3xl bg-card p-5 space-y-4 shadow-2xs border border-border/40">
+      <div className="rounded-xl bg-surface p-5 space-y-4 border border-border">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-            <ShieldCheck className="size-4 text-emerald-500" /> Student Verification &amp; Allowed Domains
+          <h4 className="text-sm font-bold text-fg flex items-center gap-1.5">
+            <ShieldCheck className="size-4 text-success" /> Student Verification &amp; Allowed Domains
           </h4>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success-subtle text-success">
             Strict Campus Gate
           </span>
         </div>
@@ -221,9 +221,9 @@ export function CollegeRealityScorecard({
 
         {/* Official Email Format Specification */}
         {emailFormat && (
-          <div className="rounded-2xl bg-muted/40 p-4 border border-border/50 space-y-3">
+          <div className="rounded-lg bg-surface-muted p-4 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <span className="text-[10px] font-black uppercase text-foreground/80 tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
                 <GraduationCap className="size-3.5 text-primary" /> Official Student Email Format
               </span>
               <span className="text-[10px] font-bold text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border/50">
@@ -233,7 +233,7 @@ export function CollegeRealityScorecard({
 
             <div className="space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                <span className="text-[11px] font-mono font-bold text-brand-text bg-brand-subtle px-2.5 py-1 rounded-sm border border-brand-subtle-border">
                   {emailFormat.pattern}
                 </span>
                 <span className="text-xs text-muted-foreground">e.g.</span>
@@ -244,9 +244,10 @@ export function CollegeRealityScorecard({
                     onClick={() => handleCopyExample(emailFormat.example)}
                     className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                     title={`Copy example ${emailFormat.example}`}
+                    aria-label={`Copy example ${emailFormat.example}`}
                   >
                     {copiedExample ? (
-                      <Check className="size-3 text-emerald-500" />
+                      <Check className="size-3 text-success" />
                     ) : (
                       <Copy className="size-3" />
                     )}
@@ -263,7 +264,7 @@ export function CollegeRealityScorecard({
         {allowedDomains.length > 0 && (
           <div className="space-y-2 pt-1">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider block">
+              <span className="text-xs font-semibold text-fg-muted block">
                 Official Whitelisted Email Domains ({allowedDomains.length}):
               </span>
               {allowedDomains.length > 8 && (
@@ -282,16 +283,17 @@ export function CollegeRealityScorecard({
                   key={d.domain}
                   className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-bold text-foreground"
                 >
-                  <Mail className="size-3.5 text-emerald-500" />
+                  <Mail className="size-3.5 text-fg-muted" />
                   <span className="font-mono text-xs">@{d.domain}</span>
                   <button
                     type="button"
                     onClick={() => handleCopy(d.domain)}
                     className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                     title={`Copy @${d.domain}`}
+                    aria-label={`Copy @${d.domain}`}
                   >
                     {copiedDomain === d.domain ? (
-                      <Check className="size-3 text-emerald-500" />
+                      <Check className="size-3 text-success" />
                     ) : (
                       <Copy className="size-3" />
                     )}
@@ -328,7 +330,7 @@ export function CollegeRealityScorecard({
         {RATINGS.map((r, i) => {
           const Icon = r.icon;
           return (
-            <div key={i} className="rounded-3xl bg-card p-4 space-y-2.5 shadow-2xs border border-border/40">
+            <div key={i} className="rounded-xl bg-surface p-4 space-y-2.5 border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={cn("p-2 rounded-xl bg-muted/40", r.color)}>
@@ -340,8 +342,8 @@ export function CollegeRealityScorecard({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full shrink-0 font-black text-xs">
-                  <Star className="size-3.5 fill-amber-500 text-amber-500" />
+                <div className="flex items-center gap-1 bg-surface-muted text-fg px-2.5 py-1 rounded-full shrink-0 font-black text-xs">
+                  <Star className="size-3.5 fill-reward text-reward" />
                   <span>{r.score}</span>
                   <span className="text-[9px] font-bold text-muted-foreground">/5</span>
                 </div>
@@ -356,26 +358,26 @@ export function CollegeRealityScorecard({
       {/* ─── Genuine Pros & Cons Box ─── */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Pros */}
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 space-y-3 shadow-2xs">
-          <h4 className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+        <div className="rounded-xl border border-success/20 bg-success-subtle p-5 space-y-3">
+          <h4 className="text-sm font-bold text-success flex items-center gap-1.5">
             <CheckCircle2 className="size-4" /> Top Student Perks
           </h4>
           <ul className="space-y-2 text-xs text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="text-emerald-500 font-bold">•</span>
+              <span className="text-success font-bold">•</span>
               <span>
                 Rich 65+ year legacy with powerful alumni network in Silicon Valley, top startups, and civil
                 services.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-500 font-bold">•</span>
+              <span className="text-success font-bold">•</span>
               <span>
                 Spacious green 780-acre lush campus with BIT Lake, scenic running tracks, and sports complex.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-500 font-bold">•</span>
+              <span className="text-success font-bold">•</span>
               <span>
                 Epic fest culture — BITOTSAV is one of the most vibrant experiences of college life.
               </span>
@@ -384,23 +386,23 @@ export function CollegeRealityScorecard({
         </div>
 
         {/* Cons */}
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-3 shadow-2xs">
-          <h4 className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+        <div className="rounded-xl border border-warning/20 bg-warning-subtle p-5 space-y-3">
+          <h4 className="text-sm font-bold text-warning flex items-center gap-1.5">
             <AlertTriangle className="size-4" /> Things to Keep in Mind
           </h4>
           <ul className="space-y-2 text-xs text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="text-amber-500 font-bold">•</span>
+              <span className="text-warning font-bold">•</span>
               <span>
                 Located ~16 km from Ranchi city center; reliant on campus shuttles and auto services.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-amber-500 font-bold">•</span>
+              <span className="text-warning font-bold">•</span>
               <span>Academic rigor &amp; 75% attendance rule is strictly enforced by professors.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-amber-500 font-bold">•</span>
+              <span className="text-warning font-bold">•</span>
               <span>First year hostel rooms are shared before transitioning to single occupancy.</span>
             </li>
           </ul>
@@ -408,8 +410,8 @@ export function CollegeRealityScorecard({
       </div>
 
       {/* ─── Frequently Asked Questions for Aspirants ─── */}
-      <div className="rounded-3xl bg-card p-6 space-y-4 shadow-2xs border border-border/40">
-        <h3 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+      <div className="rounded-xl bg-surface p-6 space-y-4 border border-border">
+        <h3 className="text-sm font-bold text-fg flex items-center gap-1.5">
           <HelpCircle className="size-4 text-primary" /> Aspirants FAQ: Direct Answers from Seniors
         </h3>
 
@@ -417,7 +419,7 @@ export function CollegeRealityScorecard({
           {FAQS.map((faq, idx) => (
             <div
               key={idx}
-              className="rounded-2xl border border-border/50 bg-muted/20 overflow-hidden transition-colors"
+              className="rounded-lg border border-border bg-surface-muted overflow-hidden transition-colors"
             >
               <button
                 type="button"

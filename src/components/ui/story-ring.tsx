@@ -79,7 +79,7 @@ export function StoryRing({ users }: StoryRingProps) {
         <button
           type="button"
           onClick={handleCreateStory}
-          className="flex size-14 items-center justify-center rounded-full bg-primary/10 hover:bg-primary/15 text-primary transition-transform active:scale-95 cursor-pointer border border-primary/20 shadow-2xs"
+          className="flex size-14 items-center justify-center rounded-full bg-brand-subtle text-brand-text transition-transform active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           aria-label="Add story"
         >
           <Plus className="size-6 stroke-[2.75]" />
@@ -95,7 +95,7 @@ export function StoryRing({ users }: StoryRingProps) {
           <button
             type="button"
             onClick={() => handleOpenStory(myStoryGroup.stories[0].id)}
-            className="rounded-full ring-2 ring-primary ring-offset-2 ring-offset-background transition-transform active:scale-95 cursor-pointer"
+            className="rounded-full ring-2 ring-brand ring-offset-2 ring-offset-bg transition-transform active:scale-95 cursor-pointer focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
             aria-label="View your story"
           >
             <Avatar className="size-14 border border-background shadow-xs">
@@ -140,7 +140,7 @@ export function StoryRing({ users }: StoryRingProps) {
           <button
             type="button"
             onClick={handleCreateStory}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground cursor-pointer text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-dashed border-border hover:border-brand hover:bg-brand-subtle transition-colors text-fg-muted hover:text-fg cursor-pointer text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Sparkles className="size-3.5 text-primary shrink-0" />
             <span className="hidden sm:inline">No other campus vibes right now · Be the first to share!</span>

@@ -41,33 +41,45 @@ interface StoryCreatorProps {
 }
 
 const GRADIENTS = [
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "brand-warm", class: "bg-linear-to-tr from-violet-600 via-purple-600 to-indigo-700", label: "Campus Loop Vibe" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "orange-rose", class: "bg-linear-to-tr from-orange-500 to-rose-500", label: "Sunset Glow" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "emerald-teal", class: "bg-linear-to-tr from-emerald-500 to-teal-700", label: "Neon Emerald" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "pink-purple", class: "bg-linear-to-tr from-pink-500 to-purple-600", label: "Barbie Magic" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "midnight", class: "bg-linear-to-tr from-neutral-950 to-neutral-900", label: "Midnight Onyx" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "neon-cyan", class: "bg-linear-to-tr from-cyan-500 to-blue-600", label: "Electric Ocean" },
   {
     id: "golden-hour",
+    // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
     class: "bg-linear-to-tr from-amber-300 via-orange-400 to-rose-500",
     label: "Golden Hour",
   },
   {
     id: "cyberpunk",
+    // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
     class: "bg-linear-to-tr from-fuchsia-600 via-purple-600 to-cyan-500",
     label: "Cyberpunk Neon",
   },
   {
     id: "synthwave",
+    // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
     class: "bg-linear-to-tr from-rose-500 via-purple-700 to-indigo-900",
     label: "Retro Synthwave",
   },
   {
     id: "aurora",
+    // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
     class: "bg-linear-to-tr from-teal-400 via-emerald-600 to-indigo-950",
     label: "Northern Lights",
   },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "cherry-velvet", class: "bg-linear-to-tr from-red-600 to-rose-950", label: "Cherry Velvet" },
+  // ds-allow: user-picked story background; class string is persisted on the story and must keep rendering
   { id: "dark-carbon", class: "bg-linear-to-tr from-zinc-900 via-black to-zinc-950", label: "Dark Carbon" },
 ];
 
@@ -214,7 +226,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
     haptics.success();
     setSelectedSong(song);
     setActiveTray("none");
-    toast.success(`Attached "${song.title}" vibe! 🎵`);
+    toast.success(`Attached "${song.title}" vibe!`);
   }
 
   function handleSelectLocation(loc: string) {
@@ -222,7 +234,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
     haptics.success();
     setSelectedLocation(loc);
     setActiveTray("none");
-    toast.success(`Tagged ${loc}! 📍`);
+    toast.success(`Tagged ${loc}!`);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -245,7 +257,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
         }
       });
       setMediaUrl(res.displayUrl || res.url);
-      toast.success("Photo added 📸", { id: "story-img" });
+      toast.success("Photo added", { id: "story-img" });
     } catch (err) {
       setMediaUrl(prevMedia);
       toast.error(err instanceof Error ? err.message : "Failed to upload image", { id: "story-img" });
@@ -309,11 +321,11 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
   }
 
   return (
-    <div className="story-creator-shell fixed inset-0 z-50 flex items-center justify-center bg-black select-none touch-manipulation">
+    <div className="story-creator-shell dark fixed inset-0 z-50 flex items-center justify-center bg-black select-none touch-manipulation">
       {/* 9:16 Responsive Story Canvas */}
       <div
         className={cn(
-          "relative h-full w-full overflow-hidden shadow-2xl flex flex-col justify-between transition-colors duration-300 md:h-[min(92dvh,844px)] md:max-h-[92dvh] md:w-[min(430px,100vw)] md:max-w-[100vw] md:rounded-[28px]",
+          "relative h-full w-full overflow-hidden shadow-2xl flex flex-col justify-between transition-colors duration-300 md:h-[min(92dvh,844px)] md:max-h-[92dvh] md:w-[min(430px,100vw)] md:max-w-[100vw] md:rounded-xl",
           mediaUrl ? "bg-black" : selectedGrad.class
         )}
       >
@@ -432,7 +444,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
               className={cn(
                 "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-90",
                 selectedSong || activeTray === "music"
-                  ? "bg-emerald-500 text-white"
+                  ? "bg-success text-white"
                   : "text-white hover:bg-white/20"
               )}
               title="Add Music Vibe"
@@ -450,7 +462,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
               className={cn(
                 "size-8 rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-90",
                 selectedLocation || activeTray === "location"
-                  ? "bg-sky-500 text-white"
+                  ? "bg-brand text-white"
                   : "text-white hover:bg-white/20"
               )}
               title="Tag Campus Location"
@@ -500,12 +512,12 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
           {selectedLocation && (
             <div className="mb-3 animate-in zoom-in-90 fade-in duration-200">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 text-white border border-white/25 text-xs font-bold shadow-lg backdrop-blur-md">
-                <MapPin className="size-3 text-rose-400" />
+                <MapPin className="size-3 text-brand-text" />
                 <span>{selectedLocation}</span>
                 <button
                   type="button"
                   onClick={() => setSelectedLocation(null)}
-                  className="hover:text-rose-400 ml-0.5 cursor-pointer"
+                  className="hover:text-danger ml-0.5 cursor-pointer"
                 >
                   <X className="size-3" />
                 </button>
@@ -518,9 +530,9 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
             <div className="mb-3 animate-in zoom-in-90 fade-in duration-200">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 text-white border border-white/25 text-xs font-bold shadow-xl backdrop-blur-md">
                 <div className="flex items-end gap-0.5 h-3">
-                  <span className="w-0.5 h-3 bg-emerald-400 animate-pulse" />
-                  <span className="w-0.5 h-2 bg-emerald-400 animate-pulse delay-75" />
-                  <span className="w-0.5 h-3.5 bg-emerald-400 animate-pulse delay-150" />
+                  <span className="w-0.5 h-3 bg-success animate-pulse" />
+                  <span className="w-0.5 h-2 bg-success animate-pulse delay-75" />
+                  <span className="w-0.5 h-3.5 bg-success animate-pulse delay-150" />
                 </div>
                 <span>
                   {selectedSong.title} — {selectedSong.artist}
@@ -528,7 +540,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                 <button
                   type="button"
                   onClick={() => setSelectedSong(null)}
-                  className="hover:text-rose-400 ml-0.5 cursor-pointer"
+                  className="hover:text-danger ml-0.5 cursor-pointer"
                 >
                   <X className="size-3" />
                 </button>
@@ -566,7 +578,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
               maxLength={MAX_CHARS}
               rows={3}
               className={cn(
-                "w-full bg-transparent text-white placeholder:text-white/60 focus:outline-none resize-none drop-shadow-2xl leading-relaxed transition-all",
+                "w-full bg-transparent text-white placeholder:text-white/60 focus:outline-none resize-none drop-shadow-2xl leading-relaxed transition-colors",
                 selectedFont.class,
                 selectedTextSize.class,
                 textAlign === "center" && "text-center",
@@ -614,7 +626,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                       setTextSizeIndex(idx);
                     }}
                     className={cn(
-                      "px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer",
+                      "px-3 py-1 rounded-lg text-xs font-black transition-colors cursor-pointer",
                       textSizeIndex === idx
                         ? "bg-white text-black shadow-xs"
                         : "text-white/70 hover:text-white"
@@ -636,7 +648,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                       setHighlightStyleIndex(idx);
                     }}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                      "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                       highlightStyleIndex === idx
                         ? "bg-white text-black shadow-xs"
                         : "text-white/70 hover:text-white"
@@ -708,7 +720,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
           <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Music2 className="size-3.5 text-emerald-400" />
+                <Music2 className="size-3.5 text-brand-text" />
                 <span>Add Song Vibe</span>
               </p>
             </div>
@@ -720,7 +732,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                 placeholder="Type custom song (e.g. Dil Nu — AP Dhillon)..."
                 value={customSongInput}
                 onChange={(e) => setCustomSongInput(e.target.value)}
-                className="flex-1 h-9 rounded-xl bg-white/10 border border-white/20 px-3 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-emerald-400"
+                className="flex-1 h-9 rounded-xl bg-white/10 border border-white/20 px-3 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-brand"
               />
               <button
                 type="button"
@@ -731,7 +743,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                   }
                 }}
                 disabled={!customSongInput.trim()}
-                className="h-9 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
+                className="h-9 px-3 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Add
               </button>
@@ -739,7 +751,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
 
             {/* Popular Campus Hits */}
             <div className="space-y-1 pt-1">
-              <p className="text-[10px] uppercase tracking-wider font-bold text-white/50">Campus Favorites</p>
+              <p className="text-[10px] font-bold text-white/50">Campus Favorites</p>
               <div className="space-y-1">
                 {POPULAR_SONGS.map((song) => (
                   <button
@@ -748,12 +760,12 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                     className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/10 text-left transition-colors cursor-pointer group"
                   >
                     <div>
-                      <p className="text-xs font-bold group-hover:text-emerald-400 transition-colors">
+                      <p className="text-xs font-bold group-hover:text-brand-text transition-colors">
                         {song.title}
                       </p>
                       <p className="text-[10px] text-white/60">{song.artist}</p>
                     </div>
-                    <Music2 className="size-3.5 text-white/40 group-hover:text-emerald-400" />
+                    <Music2 className="size-3.5 text-white/40 group-hover:text-brand-text" />
                   </button>
                 ))}
               </div>
@@ -766,7 +778,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
           <div className="relative z-30 p-4 bg-black/75 backdrop-blur-2xl animate-in slide-in-from-bottom duration-200 space-y-3 max-h-60 overflow-y-auto text-white">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-rose-400" />
+                <MapPin className="size-3.5 text-brand-text" />
                 <span>Tag Campus Venue</span>
               </p>
             </div>
@@ -778,7 +790,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                 placeholder="Type location (e.g. Lab 4, Nescafe)..."
                 value={customLocationInput}
                 onChange={(e) => setCustomLocationInput(e.target.value)}
-                className="flex-1 h-9 rounded-xl bg-white/10 border border-white/20 px-3 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-rose-400"
+                className="flex-1 h-9 rounded-xl bg-white/10 border border-white/20 px-3 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-brand"
               />
               <button
                 type="button"
@@ -789,7 +801,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
                   }
                 }}
                 disabled={!customLocationInput.trim()}
-                className="h-9 px-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
+                className="h-9 px-3 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Tag
               </button>
@@ -797,15 +809,16 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
 
             {/* Suggested Campus Spots */}
             <div className="space-y-1 pt-1">
-              <p className="text-[10px] uppercase tracking-wider font-bold text-white/50">Campus Spots</p>
+              <p className="text-[10px] font-bold text-white/50">Campus Spots</p>
               <div className="flex flex-wrap gap-1.5">
                 {defaultLocations.map((loc) => (
                   <button
                     key={loc}
                     onClick={() => handleSelectLocation(loc)}
-                    className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer"
                   >
-                    📍 {loc}
+                    <MapPin className="size-3" />
+                    {loc}
                   </button>
                 ))}
               </div>
@@ -834,7 +847,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
             type="button"
             onClick={handleShare}
             disabled={isPosting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black text-xs font-black hover:bg-white/90 active:scale-95 transition-all shadow-lg cursor-pointer disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black text-xs font-black hover:bg-white/90 active:scale-95 transition-transform shadow-lg cursor-pointer disabled:opacity-60"
           >
             {isPosting ? (
               <>

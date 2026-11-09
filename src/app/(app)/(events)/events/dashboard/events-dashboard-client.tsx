@@ -90,7 +90,7 @@ export function EventsDashboardClient({
           </Link>
           <Link
             href="/events/new"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-[opacity,transform] shadow-xs active:scale-95"
           >
             <Plus className="size-4" />
             <span>Host event</span>
@@ -109,21 +109,21 @@ export function EventsDashboardClient({
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <Users className="size-3.5 text-blue-500" /> Registrations
+            <Users className="size-3.5 text-brand-text" /> Registrations
           </span>
           <p className="text-2xl font-black text-foreground">{totalRegistrations}</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500" /> Checked In
+            <CheckCircle2 className="size-3.5 text-success" /> Checked In
           </span>
           <p className="text-2xl font-black text-foreground">{totalCheckedIn}</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-purple-500" /> Host Campus
+            <Sparkles className="size-3.5 text-brand-text" /> Host Campus
           </span>
           <p className="text-sm font-bold text-foreground truncate">
             {profile.institution?.name?.split(",")[0] || "Campus Hub"}
@@ -139,7 +139,7 @@ export function EventsDashboardClient({
             type="button"
             onClick={() => setFilter(tab)}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
+              "px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
               filter === tab
                 ? "bg-foreground text-background"
                 : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
@@ -169,7 +169,7 @@ export function EventsDashboardClient({
             return (
               <div
                 key={ev.id}
-                className="p-4 sm:p-5 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/80 transition-all space-y-4"
+                className="p-4 sm:p-5 rounded-2xl border border-border/40 bg-card/50 hover:bg-card/80 transition-colors space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-3.5 min-w-0">
@@ -194,9 +194,9 @@ export function EventsDashboardClient({
                           className={cn(
                             "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
                             ev.status === "PUBLISHED"
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                              ? "bg-success-subtle text-success"
                               : ev.status === "DRAFT"
-                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                ? "bg-warning-subtle text-warning"
                                 : "bg-muted text-muted-foreground"
                           )}
                         >
@@ -238,7 +238,7 @@ export function EventsDashboardClient({
                 <div className="flex items-center gap-1.5 pt-3 border-t border-border/30 flex-wrap text-xs font-semibold">
                   <Link
                     href={`/events/manage/${ev.slug || ev.id}`}
-                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-2xs"
+                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-colors shadow-2xs"
                   >
                     Manage Hub
                   </Link>
@@ -255,7 +255,7 @@ export function EventsDashboardClient({
                     href={`/events/manage/${ev.slug || ev.id}/check-in`}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border/50 bg-background hover:bg-muted text-foreground transition-colors"
                   >
-                    <QrCode className="size-3.5 text-emerald-500" />
+                    <QrCode className="size-3.5 text-success" />
                     <span>Check-In</span>
                   </Link>
 
@@ -263,7 +263,7 @@ export function EventsDashboardClient({
                     href={`/events/manage/${ev.slug || ev.id}/broadcast`}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border/50 bg-background hover:bg-muted text-foreground transition-colors"
                   >
-                    <Megaphone className="size-3.5 text-amber-500" />
+                    <Megaphone className="size-3.5 text-warning" />
                     <span>Broadcast</span>
                   </Link>
 
@@ -300,7 +300,7 @@ export function EventsDashboardClient({
           </div>
           <Link
             href="/events/new"
-            className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs"
+            className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-colors shadow-xs"
           >
             Host your first campus event →
           </Link>

@@ -246,7 +246,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
   {
     slug: "colleges-directory",
     title: "Colleges directory and campus hubs",
-    summary: "Search 1,350+ Indian colleges, open their hubs, and request new ones.",
+    summary: "Search the 1,350+ colleges in our directory, open their hubs, and request new ones.",
     category: "Campus life",
     audiences: ["Students", "Aspirants", "Investors"],
     routes: [
@@ -268,7 +268,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     faq: [{ q: "How long does a hub request take?", a: "Requests are reviewed by the team; you will be notified when the hub opens." }],
     related: ["getting-started", "aspirant-viewer-mode"],
     keywords: ["Indian colleges list", "college hub"],
-    updated: U,
+    updated: "2026-11-05",
   },
   {
     slug: "gaming",

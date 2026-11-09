@@ -53,7 +53,7 @@ export function CleanFooter() {
           {/* Brand info */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="size-8.5 rounded-2xl bg-canvas/50 border border-border/70 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:-rotate-3 shadow-2xs">
+              <div className="size-8.5 rounded-2xl bg-canvas/50 border border-border/70 flex items-center justify-center transition-ui duration-300 group-hover:scale-105 group-hover:-rotate-3 shadow-2xs">
                 <CuteCatMascot size={30} />
               </div>
               <span className="font-heading text-lg font-bold tracking-tight text-foreground">
@@ -123,7 +123,7 @@ export function CleanFooter() {
                           className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <span>{link.label}</span>
-                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
+                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-ui group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
                         </a>
                       ) : (
                         <Link
@@ -131,7 +131,7 @@ export function CleanFooter() {
                           className="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <span>{link.label}</span>
-                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
+                          <ArrowUpRight className="size-3 opacity-0 -translate-x-1 translate-y-1 transition-ui group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0" />
                         </Link>
                       )}
                     </li>

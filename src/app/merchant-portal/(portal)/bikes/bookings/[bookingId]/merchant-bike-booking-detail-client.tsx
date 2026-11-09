@@ -216,7 +216,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
             <ArrowLeft className="size-4.5" />
           </button>
           <div>
-            <h1 className="text-base font-black text-foreground tracking-tight leading-none">
+            <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
               Booking #{booking.bookingNumber}
             </h1>
             <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
@@ -227,10 +227,10 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
         <span
           className={cn(
-            "px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border",
+            "px-3 py-1 rounded-full text-xs font-bold border",
             booking.status === "CONFIRMED" || booking.status === "ACTIVE"
-              ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
-              : "bg-amber-500/15 text-amber-500 border-amber-500/30"
+              ? "bg-success-subtle text-success border-success/30"
+              : "bg-warning-subtle text-warning border-warning/30"
           )}
         >
           {booking.status}
@@ -239,9 +239,9 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
       {/* ─── Late Return Warning (PRD Item 16) ─── */}
       {isLate && (
-        <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center justify-between font-bold">
+        <div className="p-3.5 rounded-2xl bg-danger-subtle border border-danger/30 text-danger text-xs flex items-center justify-between font-bold">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="size-4 animate-pulse text-rose-500" />
+            <AlertTriangle className="size-4 animate-pulse text-danger" />
             <span>Return is OVERDUE by {lateHours} hour(s)</span>
           </div>
           <span>
@@ -252,7 +252,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
       {/* ─── Customer & Verification Card (PRD Item 13) ─── */}
       <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-3.5 text-xs shadow-xs">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
           <User className="size-4 text-primary" />
           <span>Customer &amp; Identity Verification</span>
         </h2>
@@ -267,7 +267,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
           <a
             href={`tel:${booking.customerPhone}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-500 font-bold hover:bg-emerald-500/25 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success-subtle text-success font-bold hover:bg-success-subtle transition-colors"
           >
             <Phone className="size-3.5" />
             <span>{booking.customerPhone}</span>
@@ -276,23 +276,23 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
         {/* Verification Check Badges */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-border/30">
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-center space-y-0.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500 mx-auto" />
-            <p className="text-[10px] font-bold text-emerald-500">Student ID</p>
+          <div className="p-2.5 rounded-xl bg-success-subtle border border-success/25 text-center space-y-0.5">
+            <CheckCircle2 className="size-3.5 text-success mx-auto" />
+            <p className="text-[10px] font-bold text-success">Student ID</p>
             <p className="text-[9px] text-muted-foreground">Verified</p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-center space-y-0.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500 mx-auto" />
-            <p className="text-[10px] font-bold text-emerald-500">Driving Licence</p>
+          <div className="p-2.5 rounded-xl bg-success-subtle border border-success/25 text-center space-y-0.5">
+            <CheckCircle2 className="size-3.5 text-success mx-auto" />
+            <p className="text-[10px] font-bold text-success">Driving Licence</p>
             <p className="text-[9px] text-muted-foreground truncate">
               {booking.documents?.drivingLicenseNumber}
             </p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-center space-y-0.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500 mx-auto" />
-            <p className="text-[10px] font-bold text-emerald-500">Aadhaar</p>
+          <div className="p-2.5 rounded-xl bg-success-subtle border border-success/25 text-center space-y-0.5">
+            <CheckCircle2 className="size-3.5 text-success mx-auto" />
+            <p className="text-[10px] font-bold text-success">Aadhaar</p>
             <p className="text-[9px] text-muted-foreground">
               {booking.documents?.aadhaarLast4 ? `****${booking.documents.aadhaarLast4}` : "Verified"}
             </p>
@@ -302,8 +302,8 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
       {/* ─── Vehicle & Timing Card ─── */}
       <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-3 text-xs shadow-xs">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-          <Bike className="size-4 text-emerald-500" />
+        <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+          <Bike className="size-4 text-success" />
           <span>Vehicle &amp; Rental Schedule</span>
         </h2>
 
@@ -320,7 +320,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
         <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/30">
           <div>
-            <p className="text-[10px] uppercase font-bold text-muted-foreground">Pickup</p>
+            <p className="text-[10px] font-bold text-muted-foreground">Pickup</p>
             <p className="font-bold text-foreground">
               {new Date(booking.startAt).toLocaleString("en-IN", {
                 month: "short",
@@ -332,7 +332,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
           </div>
 
           <div>
-            <p className="text-[10px] uppercase font-bold text-muted-foreground">Expected Return</p>
+            <p className="text-[10px] font-bold text-muted-foreground">Expected Return</p>
             <p className="font-bold text-foreground">
               {new Date(booking.endAt).toLocaleString("en-IN", {
                 month: "short",
@@ -347,7 +347,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
       {/* ─── Payments & Deposit Card ─── */}
       <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-2.5 text-xs shadow-xs">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-xs font-bold text-muted-foreground">
           Payment Breakdown
         </h2>
 
@@ -361,9 +361,9 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
           <span className="text-foreground font-bold">₹{booking.depositAmount}</span>
         </div>
 
-        <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
+        <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-bold text-foreground">
           <span>Total Collected ({booking.paymentMethod})</span>
-          <span className="text-base text-emerald-500">₹{booking.totalAmount}</span>
+          <span className="text-base text-success">₹{booking.totalAmount}</span>
         </div>
       </div>
 
@@ -377,7 +377,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
               haptics.light();
               setShowHandoverModal(true);
             }}
-            className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+            className="w-full h-12 rounded-2xl bg-success hover:opacity-90 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer"
           >
             <KeyRound className="size-4" />
             <span>Perform Handover Inspection &amp; Start Rental</span>
@@ -392,7 +392,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
               haptics.light();
               setShowReturnModal(true);
             }}
-            className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+            className="w-full h-12 rounded-2xl bg-warning hover:opacity-90 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer"
           >
             <RotateCcw className="size-4" />
             <span>Perform Return Inspection &amp; Settle</span>
@@ -404,7 +404,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
       {showHandoverModal && (
         <div
           onClick={() => setShowHandoverModal(false)}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay p-0 sm:p-4 animate-in fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -412,7 +412,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
           >
             <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
               <div>
-                <h3 className="text-base font-black text-foreground">Pickup Handover Checklist</h3>
+                <h3 className="text-base font-bold text-foreground">Pickup Handover Checklist</h3>
                 <p className="text-xs text-muted-foreground">Verify vehicle condition with student</p>
               </div>
               <button
@@ -426,7 +426,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
             <form onSubmit={handleCompleteHandover} className="space-y-3.5 text-xs">
               <div className="space-y-2">
-                <label className="font-bold uppercase text-muted-foreground block text-[11px]">
+                <label className="font-bold text-muted-foreground block text-[11px]">
                   Condition Checklist
                 </label>
 
@@ -435,7 +435,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     type="checkbox"
                     checked={frontOk}
                     onChange={(e) => setFrontOk(e.target.checked)}
-                    className="size-4 rounded accent-emerald-500"
+                    className="size-4 rounded accent-brand"
                   />
                   <span>Front body, brakes &amp; mirrors OK</span>
                 </label>
@@ -445,7 +445,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     type="checkbox"
                     checked={rearOk}
                     onChange={(e) => setRearOk(e.target.checked)}
-                    className="size-4 rounded accent-emerald-500"
+                    className="size-4 rounded accent-brand"
                   />
                   <span>Rear suspension, mudguard &amp; seat OK</span>
                 </label>
@@ -455,7 +455,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     type="checkbox"
                     checked={tyresOk}
                     onChange={(e) => setTyresOk(e.target.checked)}
-                    className="size-4 rounded accent-emerald-500"
+                    className="size-4 rounded accent-brand"
                   />
                   <span>Tyres pressure &amp; grip OK</span>
                 </label>
@@ -465,7 +465,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     type="checkbox"
                     checked={lightsOk}
                     onChange={(e) => setLightsOk(e.target.checked)}
-                    className="size-4 rounded accent-emerald-500"
+                    className="size-4 rounded accent-brand"
                   />
                   <span>Headlights &amp; indicators working</span>
                 </label>
@@ -473,7 +473,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
               {/* Handover Photos for disputes prevention */}
               <div className="space-y-1.5 pt-1">
-                <label className="font-bold uppercase text-muted-foreground block text-[11px]">
+                <label className="font-bold text-muted-foreground block text-[11px]">
                   Handover Photos (Prevents Damage Disputes)
                 </label>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -509,7 +509,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                 <button
                   type="submit"
                   disabled={isSubmittingHandover}
-                  className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full h-12 rounded-2xl bg-success hover:opacity-90 text-black font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmittingHandover ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -527,7 +527,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
       {showReturnModal && (
         <div
           onClick={() => setShowReturnModal(false)}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay p-0 sm:p-4 animate-in fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -535,7 +535,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
           >
             <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
               <div>
-                <h3 className="text-base font-black text-foreground">Return Vehicle Inspection</h3>
+                <h3 className="text-base font-bold text-foreground">Return Vehicle Inspection</h3>
                 <p className="text-xs text-muted-foreground">Check vehicle condition &amp; process refund</p>
               </div>
               <button
@@ -549,7 +549,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
             <form onSubmit={handleCompleteReturn} className="space-y-3.5 text-xs">
               <div className="space-y-1.5">
-                <label className="font-bold uppercase text-muted-foreground block text-[11px]">
+                <label className="font-bold text-muted-foreground block text-[11px]">
                   Return Condition
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -562,7 +562,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     className={cn(
                       "p-3 rounded-2xl border font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer",
                       !hasDamage
-                        ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-500 font-black"
+                        ? "bg-success-subtle border-success/40 text-success font-bold"
                         : "bg-muted/40 border-border/40 text-muted-foreground"
                     )}
                   >
@@ -579,7 +579,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                     className={cn(
                       "p-3 rounded-2xl border font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer",
                       hasDamage
-                        ? "bg-rose-500/15 border-rose-500/40 text-rose-500 font-black"
+                        ? "bg-danger-subtle border-danger/40 text-danger font-bold"
                         : "bg-muted/40 border-border/40 text-muted-foreground"
                     )}
                   >
@@ -591,8 +591,8 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
 
               {/* If damage detected */}
               {hasDamage && (
-                <div className="space-y-2 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/25">
-                  <p className="text-[11px] font-bold text-rose-500">
+                <div className="space-y-2 p-3 rounded-2xl bg-danger-subtle border border-danger/25">
+                  <p className="text-[11px] font-bold text-danger">
                     Damage Assessment (Flagged for Admin &amp; Student Review)
                   </p>
                   <textarea
@@ -609,7 +609,7 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
                 <button
                   type="submit"
                   disabled={isSubmittingReturn}
-                  className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmittingReturn ? (
                     <Loader2 className="size-4 animate-spin" />

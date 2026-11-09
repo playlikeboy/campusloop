@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   title: "Campus Food & Canteens | Fast Delivery & Night Mess",
   description:
     "Order food from verified college canteens, momo stalls, late-night Maggie spots, and mess menus delivered directly to your hostel room.",
-  alternates: { canonical: "https://campusloop.space/app/marketplace/food" },
+  alternates: { canonical: "https://campusloop.space/marketplace/food" },
   openGraph: {
-    title: "Campus Food & Canteens | CampusLoop",
+    title: "Campus Food & Canteens",
     description: "Order food from verified canteens and late-night food stalls around your campus.",
-    url: "https://campusloop.space/app/marketplace/food",
+    url: "https://campusloop.space/marketplace/food",
     siteName: "CampusLoop Food",
   },
 };

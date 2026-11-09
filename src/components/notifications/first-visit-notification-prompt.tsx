@@ -101,7 +101,7 @@ export function FirstVisitNotificationPrompt() {
               type="button"
               onClick={handleEnable}
               disabled={isBusy}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md hover:bg-primary/95 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md hover:bg-primary/95 transition-ui active:scale-95 cursor-pointer disabled:opacity-50"
             >
               {isBusy ? (
                 <>

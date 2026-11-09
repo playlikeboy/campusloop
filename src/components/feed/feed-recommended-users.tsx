@@ -90,7 +90,7 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
         {users.map((user) => (
           <div
             key={user.id}
-            className="w-48 sm:w-52 snap-start shrink-0 flex flex-col justify-between rounded-2xl border border-border/50 bg-card/90 p-3.5 shadow-2xs hover:border-border transition-all group overflow-hidden"
+            className="w-48 sm:w-52 snap-start shrink-0 flex flex-col justify-between rounded-2xl border border-border/50 bg-card/90 p-3.5 shadow-2xs hover:border-border transition-ui group overflow-hidden"
           >
             {/* Top Row: Avatar & Match Badge */}
             <div className="space-y-2">

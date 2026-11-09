@@ -15,18 +15,18 @@ const STATUS_OPTIONS = [
   {
     value: "AVAILABLE",
     label: "Available",
-    color: "text-emerald-500 bg-emerald-500/15 border-emerald-500/30",
+    color: "text-success bg-success-subtle border-success/30",
   },
   {
     value: "BOOKED",
     label: "Booked (Reserved)",
-    color: "text-blue-400 bg-blue-500/15 border-blue-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand/30",
   },
-  { value: "RENTED", label: "Rented Out", color: "text-amber-500 bg-amber-500/15 border-amber-500/30" },
+  { value: "RENTED", label: "Rented Out", color: "text-warning bg-warning-subtle border-warning/30" },
   {
     value: "MAINTENANCE",
     label: "In Maintenance",
-    color: "text-rose-500 bg-rose-500/15 border-rose-500/30",
+    color: "text-danger bg-danger-subtle border-danger/30",
   },
 ];
 
@@ -123,7 +123,7 @@ export function MerchantFleetClient() {
     <main className="max-w-4xl mx-auto p-4 space-y-5 select-none pb-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
+          <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
             <Gauge className="size-5 text-primary" />
             <span>Fleet Vehicles</span>
           </h1>
@@ -138,7 +138,7 @@ export function MerchantFleetClient() {
             sounds.tap();
             haptics.light();
           }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
         >
           <Plus className="size-3.5 stroke-3" />
           <span>Add New Bike</span>
@@ -182,7 +182,7 @@ export function MerchantFleetClient() {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-foreground text-sm truncate">{bike.name}</h3>
-                      <span className="text-[10px] font-black uppercase bg-muted px-2 py-0.5 rounded-md text-muted-foreground border border-border/40">
+                      <span className="text-[10px] font-bold bg-muted px-2 py-0.5 rounded-md text-muted-foreground border border-border/40">
                         {bike.registrationNumber}
                       </span>
                     </div>
@@ -206,7 +206,7 @@ export function MerchantFleetClient() {
                 <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
                   <span
                     className={cn(
-                      "px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs",
+                      "px-3 py-1 rounded-full text-xs font-bold border shadow-2xs",
                       statusConfig.color
                     )}
                   >
@@ -247,7 +247,7 @@ export function MerchantFleetClient() {
       {editingBike && (
         <div
           onClick={() => setEditingBike(null)}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay p-0 sm:p-4 animate-in fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -255,7 +255,7 @@ export function MerchantFleetClient() {
           >
             <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
               <div>
-                <h3 className="text-base font-black text-foreground">{editingBike.name}</h3>
+                <h3 className="text-base font-bold text-foreground">{editingBike.name}</h3>
                 <p className="text-xs text-muted-foreground">Plate: {editingBike.registrationNumber}</p>
               </div>
               <button
@@ -269,7 +269,7 @@ export function MerchantFleetClient() {
 
             <form onSubmit={handleSaveEdit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">
+                <label className="text-xs font-bold text-muted-foreground">
                   Operational Status *
                 </label>
                 <select
@@ -286,7 +286,7 @@ export function MerchantFleetClient() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase text-muted-foreground">
+                  <label className="text-xs font-bold text-muted-foreground">
                     Daily Price (₹) *
                   </label>
                   <input
@@ -294,32 +294,32 @@ export function MerchantFleetClient() {
                     required
                     value={editDailyPrice}
                     onChange={(e) => setEditDailyPrice(e.target.value)}
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase text-muted-foreground">
+                  <label className="text-xs font-bold text-muted-foreground">
                     Hourly Price (₹)
                   </label>
                   <input
                     type="number"
                     value={editHourlyPrice}
                     onChange={(e) => setEditHourlyPrice(e.target.value)}
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase text-muted-foreground">
+                <label className="text-xs font-bold text-muted-foreground">
                   Security Deposit (₹)
                 </label>
                 <input
                   type="number"
                   value={editDeposit}
                   onChange={(e) => setEditDeposit(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-black text-foreground outline-none"
+                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
                 />
               </div>
 
@@ -327,7 +327,7 @@ export function MerchantFleetClient() {
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="w-full h-11 rounded-2xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full h-11 rounded-2xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isUpdating ? <Loader2 className="size-4 animate-spin" /> : "Save Changes"}
                 </button>

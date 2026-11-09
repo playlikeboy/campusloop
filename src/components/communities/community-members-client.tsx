@@ -93,7 +93,7 @@ export function CommunityMembersClient({
           placeholder={`Search ${activeMembers.length} members in c/${communityName}...`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all shadow-2xs"
+          className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors shadow-2xs"
         />
         {search && (
           <button
@@ -110,10 +110,10 @@ export function CommunityMembersClient({
       {isAdmin && pendingMembers.length > 0 && (
         <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+            <h3 className="text-xs font-bold text-warning flex items-center gap-1.5">
               <Clock className="size-4" /> Pending Join Requests ({pendingMembers.length})
             </h3>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning-subtle text-warning">
               Admin Action Required
             </span>
           </div>
@@ -141,7 +141,7 @@ export function CommunityMembersClient({
                     type="button"
                     disabled={processingId === m.userId}
                     onClick={() => handleApprove(m.userId)}
-                    className="px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                    className="px-3 py-1.5 rounded-full bg-success text-white text-xs font-bold hover:bg-success transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
                     {processingId === m.userId ? (
                       <Loader2 className="size-3.5 animate-spin" />
@@ -169,25 +169,25 @@ export function CommunityMembersClient({
 
       {/* Leadership & Admins */}
       <div className="space-y-2">
-        <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 px-1">
-          <Crown className="size-3.5 text-amber-500" /> Community Leadership
+        <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 px-1">
+          <Crown className="size-3.5 text-warning" /> Community Leadership
         </h3>
 
         <div className="grid gap-2.5 sm:grid-cols-2">
           {admins.map((m) => (
             <Link key={m.id} href={`/@${m.user.username}`}>
-              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
+              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-colors cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                    <AvatarFallback className="text-xs font-bold bg-warning-subtle text-warning">
                       {m.user.displayName[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
                     <p className="text-xs font-extrabold text-foreground truncate flex items-center gap-1">
                       <span>{m.user.displayName}</span>
-                      <Crown className="size-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <Crown className="size-3 text-warning shrink-0" />
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
@@ -204,14 +204,14 @@ export function CommunityMembersClient({
 
       {/* Members Directory */}
       <div className="space-y-2">
-        <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 px-1">
+        <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 px-1">
           <Users className="size-3.5 text-primary" /> Members ({regularMembers.length})
         </h3>
 
         <div className="grid gap-2.5 sm:grid-cols-2">
           {regularMembers.map((m) => (
             <Link key={m.id} href={`/@${m.user.username}`}>
-              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
+              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-colors cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />

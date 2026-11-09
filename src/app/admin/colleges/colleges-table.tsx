@@ -118,7 +118,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
 
       <div className="w-full overflow-x-auto border border-border rounded-2xl bg-card shadow-xs">
         <table className="w-full min-w-[680px] text-left text-sm text-muted-foreground">
-          <thead className="bg-muted/60 text-[11px] font-black uppercase tracking-wider text-foreground border-b border-border">
+          <thead className="bg-muted/60 text-[11px] font-bold text-foreground border-b border-border">
             <tr>
               <th className="px-6 py-3.5">College &amp; Branding</th>
               <th className="px-6 py-3.5">Location &amp; Rank</th>
@@ -146,7 +146,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
 
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-xs text-foreground">{college.name}</span>
+                        <span className="font-bold text-xs text-foreground">{college.name}</span>
                         {college.bannerUrl && (
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20">
                             Banner
@@ -183,7 +183,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                       {college.state || college.country}
                     </span>
                     {college.nirfRank && (
-                      <span className="block text-[10px] text-amber-500 font-bold">
+                      <span className="block text-[10px] text-warning font-bold">
                         NIRF #{college.nirfRank}
                       </span>
                     )}

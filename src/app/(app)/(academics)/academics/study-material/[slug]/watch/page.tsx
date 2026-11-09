@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: WatchPageProps): Promise<Meta
   const { slug } = await params;
   const resource = await resolveAcademicResource(slug);
   if (!resource) {
-    return { title: "Course Player | CampusLoop" };
+    return { title: "Course Player" };
   }
   return {
-    title: `${resource.title} — Course Player | CampusLoop`,
+    title: `${resource.title} — Course Player`,
     robots: { index: false, follow: false },
   };
 }

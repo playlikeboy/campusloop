@@ -70,7 +70,7 @@ export function MerchantProductsClient() {
     <main className="max-w-4xl mx-auto p-4 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-black text-foreground tracking-tight">Products &amp; Menu</h1>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Products &amp; Menu</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Manage your store items, pricing, and stock availability
           </p>
@@ -82,7 +82,7 @@ export function MerchantProductsClient() {
             sounds.tap();
             haptics.light();
           }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
         >
           <Plus className="size-3.5 stroke-3" />
           <span>Add New Product</span>
@@ -136,7 +136,7 @@ export function MerchantProductsClient() {
                   <p className="text-muted-foreground line-clamp-1 text-[11px]">
                     {p.description || "No description provided"}
                   </p>
-                  <p className="text-xs font-black text-foreground">₹{p.price.toLocaleString("en-IN")}</p>
+                  <p className="text-xs font-bold text-foreground">₹{p.price.toLocaleString("en-IN")}</p>
                 </div>
               </div>
 
@@ -149,8 +149,8 @@ export function MerchantProductsClient() {
                   className={cn(
                     "px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer active:scale-95",
                     p.isAvailable
-                      ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/25"
-                      : "bg-rose-500/15 text-rose-500 border-rose-500/30 hover:bg-rose-500/25"
+                      ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
+                      : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
                   )}
                 >
                   {p.isAvailable ? "In Stock" : "Out of Stock"}

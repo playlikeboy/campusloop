@@ -22,12 +22,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!item) {
     return {
-      title: "Item Not Found | Lost & Found | CampusLoop",
+      title: "Item Not Found | Lost & Found",
     };
   }
 
   const prefix = item.type === "LOST" ? "Lost" : "Found";
-  const title = `[${prefix}] ${item.title} — Campus Recovery | CampusLoop`;
+  const title = `[${prefix}] ${item.title} — Campus Recovery`;
   const description =
     item.description ||
     `${prefix} item reported at ${item.location} (${item.institution?.name || "College Campus"}).`;

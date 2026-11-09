@@ -1,3 +1,4 @@
+import { MCP_DOCS_TAILWIND } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -1457,47 +1458,44 @@ function renderMcpEventsDocumentationHtml({
   tools: any[];
 }) {
   return `<!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLoop MCP Events Engine · Developer & AI Agent Docs</title>
   <link rel="icon" href="https://campusloop.space/favicon.ico">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-  </style>
+  ${MCP_DOCS_TAILWIND}
 </head>
-<body class="bg-neutral-950 text-neutral-100 min-h-screen antialiased selection:bg-orange-500 selection:text-white">
+<body class="bg-bg text-fg min-h-screen antialiased">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6">
     <!-- Header -->
-    <header class="border-b border-neutral-800 pb-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <header class="border-b border-border pb-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2 mb-2">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-950 text-orange-400 border border-orange-800">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-subtle text-brand-text border border-brand-subtle-border">
             Model Context Protocol
           </span>
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
             isAuthenticated
-              ? "bg-emerald-950 text-emerald-400 border border-emerald-800"
-              : "bg-neutral-800 text-neutral-400 border border-neutral-700"
+              ? "bg-success-subtle text-success border border-success"
+              : "bg-surface-muted text-fg-muted border border-border"
           }">
             ${isAuthenticated ? "Authenticated · Superpowers Active" : "Public Read-Only Mode"}
           </span>
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+        <h1 class="text-3xl font-bold tracking-tight text-fg flex items-center gap-2">
           CampusLoop Events MCP
         </h1>
-        <p class="text-sm text-neutral-400 mt-1 max-w-2xl">
+        <p class="text-sm text-fg-muted mt-1 max-w-2xl">
           Remote hackathons, virtual workshops, fellowships, and campus opportunities engine.
           Public read access with zero auth, plus authenticated remote CRUD for AI agents and administrators.
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="?format=json" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs font-medium border border-neutral-700 transition">
+        <a href="?format=json" class="px-3 py-1.5 rounded-lg bg-surface-muted hover:bg-surface text-xs font-medium border border-border transition-colors">
           View JSON
         </a>
-        <a href="https://campusloop.space/events" class="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-xs font-medium text-white transition">
+        <a href="https://campusloop.space/events" class="px-3 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-xs font-medium text-brand-fg transition-colors">
           Explore /events
         </a>
       </div>
@@ -1505,21 +1503,21 @@ function renderMcpEventsDocumentationHtml({
 
     <!-- Quick Stats Bar -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-      <div class="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-        <div class="text-xs text-neutral-400 font-medium">Public Opportunities</div>
-        <div class="text-2xl font-bold text-white mt-1">${events.length}</div>
+      <div class="bg-surface border border-border p-4 rounded-xl">
+        <div class="text-xs text-fg-muted font-medium">Public Opportunities</div>
+        <div class="text-2xl font-bold text-fg mt-1">${events.length}</div>
       </div>
-      <div class="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-        <div class="text-xs text-neutral-400 font-medium">Remote / Online</div>
-        <div class="text-2xl font-bold text-orange-400 mt-1">${remoteCount}</div>
+      <div class="bg-surface border border-border p-4 rounded-xl">
+        <div class="text-xs text-fg-muted font-medium">Remote / Online</div>
+        <div class="text-2xl font-bold text-brand-text mt-1">${remoteCount}</div>
       </div>
-      <div class="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-        <div class="text-xs text-neutral-400 font-medium">Available MCP Tools</div>
-        <div class="text-2xl font-bold text-emerald-400 mt-1">${tools.length}</div>
+      <div class="bg-surface border border-border p-4 rounded-xl">
+        <div class="text-xs text-fg-muted font-medium">Available MCP Tools</div>
+        <div class="text-2xl font-bold text-success mt-1">${tools.length}</div>
       </div>
-      <div class="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-        <div class="text-xs text-neutral-400 font-medium">Auth Status</div>
-        <div class="text-sm font-semibold ${isAuthenticated ? "text-emerald-400" : "text-neutral-400"} mt-2 truncate">
+      <div class="bg-surface border border-border p-4 rounded-xl">
+        <div class="text-xs text-fg-muted font-medium">Auth Status</div>
+        <div class="text-sm font-semibold ${isAuthenticated ? "text-success" : "text-fg-muted"} mt-2 truncate">
           ${isAuthenticated ? "API Key Verified" : "Public (No Key)"}
         </div>
       </div>
@@ -1527,43 +1525,43 @@ function renderMcpEventsDocumentationHtml({
 
     <!-- Quick Start Tabs / Cards -->
     <section class="space-y-6 mb-12">
-      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+      <h2 class="text-xl font-bold text-fg flex items-center gap-2">
         <span>Endpoints &amp; Usage</span>
       </h2>
 
       <!-- 1. Authentication Guide -->
-      <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-neutral-200 mb-2">1. Authentication Methods</h3>
-        <p class="text-xs text-neutral-400 mb-3">
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-fg mb-2">1. Authentication Methods</h3>
+        <p class="text-xs text-fg-muted mb-3">
           Reading public events requires <strong>no authentication</strong>. To execute CRUD operations (creating remote hackathons, updating, or deleting), provide the secret API key through any of these methods:
         </p>
         <div class="space-y-2 text-xs">
-          <div class="p-2.5 rounded bg-neutral-950 border border-neutral-800 font-mono text-neutral-300">
-            <strong>Query Parameter:</strong> <span class="text-orange-400">https://campusloop.space/mcp/events?apikey=YOUR_API_KEY</span>
+          <div class="p-2.5 rounded bg-surface-muted border border-border font-mono text-fg">
+            <strong>Query Parameter:</strong> <span class="text-brand-text">https://campusloop.space/mcp/events?apikey=YOUR_API_KEY</span>
           </div>
-          <div class="p-2.5 rounded bg-neutral-950 border border-neutral-800 font-mono text-neutral-300">
-            <strong>HTTP Header:</strong> <span class="text-orange-400">x-api-key: YOUR_API_KEY</span>
+          <div class="p-2.5 rounded bg-surface-muted border border-border font-mono text-fg">
+            <strong>HTTP Header:</strong> <span class="text-brand-text">x-api-key: YOUR_API_KEY</span>
           </div>
-          <div class="p-2.5 rounded bg-neutral-950 border border-neutral-800 font-mono text-neutral-300">
-            <strong>Authorization Header:</strong> <span class="text-orange-400">Authorization: Bearer YOUR_API_KEY</span>
+          <div class="p-2.5 rounded bg-surface-muted border border-border font-mono text-fg">
+            <strong>Authorization Header:</strong> <span class="text-brand-text">Authorization: Bearer YOUR_API_KEY</span>
           </div>
         </div>
       </div>
 
       <!-- 2. cURL REST Examples -->
-      <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-neutral-200 mb-2">2. REST API Examples</h3>
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-fg mb-2">2. REST API Examples</h3>
         <div class="space-y-4">
           <!-- GET example -->
           <div>
-            <div class="text-xs font-semibold text-neutral-400 mb-1">A. Query Remote Opportunities (No Auth Required)</div>
-            <pre class="bg-neutral-950 p-3 rounded-lg border border-neutral-800 text-xs text-neutral-300 overflow-x-auto"><code>curl -s "https://campusloop.space/mcp/events?remote=true&category=HACKATHON"</code></pre>
+            <div class="text-xs font-semibold text-fg-muted mb-1">A. Query Remote Opportunities (No Auth Required)</div>
+            <pre class="bg-surface-muted p-3 rounded-lg border border-border text-xs text-fg overflow-x-auto"><code>curl -s "https://campusloop.space/mcp/events?remote=true&category=HACKATHON"</code></pre>
           </div>
 
           <!-- POST create example -->
           <div>
-            <div class="text-xs font-semibold text-neutral-400 mb-1">B. Create Remote Event / External Opportunity (Requires API Key)</div>
-            <pre class="bg-neutral-950 p-3 rounded-lg border border-neutral-800 text-xs text-neutral-300 overflow-x-auto"><code>curl -X POST "https://campusloop.space/mcp/events?apikey=YOUR_API_KEY" \\
+            <div class="text-xs font-semibold text-fg-muted mb-1">B. Create Remote Event / External Opportunity (Requires API Key)</div>
+            <pre class="bg-surface-muted p-3 rounded-lg border border-border text-xs text-fg overflow-x-auto"><code>curl -X POST "https://campusloop.space/mcp/events?apikey=YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "title": "Global AI Agents Hackathon 2026",
@@ -1584,8 +1582,8 @@ function renderMcpEventsDocumentationHtml({
 
           <!-- PUT update example -->
           <div>
-            <div class="text-xs font-semibold text-neutral-400 mb-1">C. Update Event or Extend Deadline (Requires API Key)</div>
-            <pre class="bg-neutral-950 p-3 rounded-lg border border-neutral-800 text-xs text-neutral-300 overflow-x-auto"><code>curl -X PUT "https://campusloop.space/mcp/events?apikey=YOUR_API_KEY" \\
+            <div class="text-xs font-semibold text-fg-muted mb-1">C. Update Event or Extend Deadline (Requires API Key)</div>
+            <pre class="bg-surface-muted p-3 rounded-lg border border-border text-xs text-fg overflow-x-auto"><code>curl -X PUT "https://campusloop.space/mcp/events?apikey=YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "idOrSlug": "global-ai-agents-hackathon-2026-xyz123",
@@ -1596,19 +1594,19 @@ function renderMcpEventsDocumentationHtml({
 
           <!-- DELETE example -->
           <div>
-            <div class="text-xs font-semibold text-neutral-400 mb-1">D. Delete Event (Requires API Key)</div>
-            <pre class="bg-neutral-950 p-3 rounded-lg border border-neutral-800 text-xs text-neutral-300 overflow-x-auto"><code>curl -X DELETE "https://campusloop.space/mcp/events?id=event_123456&apikey=YOUR_API_KEY"</code></pre>
+            <div class="text-xs font-semibold text-fg-muted mb-1">D. Delete Event (Requires API Key)</div>
+            <pre class="bg-surface-muted p-3 rounded-lg border border-border text-xs text-fg overflow-x-auto"><code>curl -X DELETE "https://campusloop.space/mcp/events?id=event_123456&apikey=YOUR_API_KEY"</code></pre>
           </div>
         </div>
       </div>
 
       <!-- 3. Model Context Protocol (MCP) Config -->
-      <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-neutral-200 mb-2">3. Connect to Claude Desktop, Cursor, or AI Agents</h3>
-        <p class="text-xs text-neutral-400 mb-3">
+      <div class="bg-surface border border-border rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-fg mb-2">3. Connect to Claude Desktop, Cursor, or AI Agents</h3>
+        <p class="text-xs text-fg-muted mb-3">
           Add CampusLoop as an MCP server to your AI coding agents:
         </p>
-        <pre class="bg-neutral-950 p-3 rounded-lg border border-neutral-800 text-xs text-neutral-300 overflow-x-auto"><code>{
+        <pre class="bg-surface-muted p-3 rounded-lg border border-border text-xs text-fg overflow-x-auto"><code>{
   "mcpServers": {
     "campusloop-events": {
       "url": "https://campusloop.space/mcp/events?apikey=YOUR_API_KEY",
@@ -1623,23 +1621,23 @@ function renderMcpEventsDocumentationHtml({
 
     <!-- MCP Tools Directory -->
     <section class="mb-12">
-      <h2 class="text-xl font-bold text-white mb-4">MCP Tool Directory (${tools.length} Tools)</h2>
+      <h2 class="text-xl font-bold text-fg mb-4">MCP Tool Directory (${tools.length} Tools)</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         ${tools
           .map(
             (t) => `
-          <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+          <div class="bg-surface border border-border rounded-xl p-4">
             <div class="flex items-center justify-between mb-1">
-              <code class="text-sm font-bold text-orange-400">${t.name}</code>
-              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+              <code class="text-sm font-bold text-brand-text">${t.name}</code>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded ${
                 ["create_remote_event", "update_event", "delete_event"].includes(t.name)
-                  ? "bg-rose-950 text-rose-400 border border-rose-800"
-                  : "bg-emerald-950 text-emerald-400 border border-emerald-800"
+                  ? "bg-danger-subtle text-danger border border-danger"
+                  : "bg-success-subtle text-success border border-success"
               }">
                 ${["create_remote_event", "update_event", "delete_event"].includes(t.name) ? "Requires Key" : "Public"}
               </span>
             </div>
-            <p class="text-xs text-neutral-300 mt-2">${t.description}</p>
+            <p class="text-xs text-fg mt-2">${t.description}</p>
           </div>
         `
           )
@@ -1649,44 +1647,44 @@ function renderMcpEventsDocumentationHtml({
 
     <!-- Live Opportunities Snapshot -->
     <section>
-      <h2 class="text-xl font-bold text-white mb-4">Active Events Preview (${events.length})</h2>
+      <h2 class="text-xl font-bold text-fg mb-4">Active Events Preview (${events.length})</h2>
       <div class="space-y-3">
         ${
           events.length === 0
-            ? `<div class="p-8 text-center text-neutral-500 bg-neutral-900 rounded-xl border border-neutral-800">
+            ? `<div class="p-8 text-center text-fg-muted bg-surface rounded-xl border border-border">
                 No active events found. Use POST to add the first remote opportunity!
                </div>`
             : events
                 .slice(0, 5)
                 .map(
                   (ev) => `
-          <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="bg-surface border border-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-neutral-800 text-neutral-300 border border-neutral-700">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-surface-muted text-fg border border-border">
                   ${ev.eventType}
                 </span>
-                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                  ev.isRemote ? "bg-orange-950 text-orange-400 border border-orange-800" : "bg-neutral-800 text-neutral-400"
+                <span class="text-xs font-semibold px-2 py-0.5 rounded ${
+                  ev.isRemote ? "bg-brand-subtle text-brand-text border border-brand-subtle-border" : "bg-surface-muted text-fg-muted"
                 }">
                   ${ev.mode}
                 </span>
-                <span class="text-xs text-neutral-400 font-medium">${ev.clubName}</span>
+                <span class="text-xs text-fg-muted font-medium">${ev.clubName}</span>
               </div>
-              <a href="${ev.publicUrl}" target="_blank" class="text-sm font-semibold text-white hover:text-orange-400 transition">
+              <a href="${ev.publicUrl}" target="_blank" class="text-sm font-semibold text-fg hover:text-brand-text transition-colors">
                 ${ev.title}
               </a>
-              ${ev.tagline ? `<p class="text-xs text-neutral-400 mt-0.5">${ev.tagline}</p>` : ""}
+              ${ev.tagline ? `<p class="text-xs text-fg-muted mt-0.5">${ev.tagline}</p>` : ""}
             </div>
             <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
               ${
                 ev.externalUrl
-                  ? `<a href="${ev.externalUrl}" target="_blank" class="px-2.5 py-1 text-xs rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition">
+                  ? `<a href="${ev.externalUrl}" target="_blank" class="px-2.5 py-1 text-xs rounded bg-surface-muted hover:bg-surface text-fg border border-border transition-colors">
                       External Link ↗
                      </a>`
                   : ""
               }
-              <a href="${ev.publicUrl}" target="_blank" class="px-2.5 py-1 text-xs rounded bg-orange-600 hover:bg-orange-500 text-white transition">
+              <a href="${ev.publicUrl}" target="_blank" class="px-2.5 py-1 text-xs rounded bg-brand hover:bg-brand-hover text-brand-fg transition-colors">
                 View Event →
               </a>
             </div>
@@ -1699,8 +1697,8 @@ function renderMcpEventsDocumentationHtml({
     </section>
 
     <!-- Footer -->
-    <footer class="mt-16 pt-8 border-t border-neutral-800 text-center text-xs text-neutral-500">
-      CampusLoop &middot; Verified Student Network &middot; <a href="https://campusloop.space" class="text-neutral-400 hover:underline">campusloop.space</a>
+    <footer class="mt-16 pt-8 border-t border-border text-center text-xs text-fg-muted">
+      CampusLoop &middot; Verified Student Network &middot; <a href="https://campusloop.space" class="text-fg-muted hover:underline">campusloop.space</a>
     </footer>
   </div>
 </body>

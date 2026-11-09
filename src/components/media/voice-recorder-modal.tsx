@@ -74,7 +74,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
           toast.loading(`Saving voice note... ${progress.percent}%`, { id: "voice-upload" });
         }
       });
-      toast.success("Voice note attached! 🎙️", { id: "voice-upload" });
+      toast.success("Voice note attached!", { id: "voice-upload" });
       onAudioRecorded(res.url, recordingTime || 1);
       clearRecording();
       onClose();
@@ -121,25 +121,25 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
                 <motion.div
                   animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
                   transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                  className="absolute inset-0 rounded-full bg-rose-500/20"
+                  className="absolute inset-0 rounded-full bg-danger/20"
                 />
                 <motion.div
                   animate={{
                     scale: 1 + (audioLevel / 100) * 0.4,
                     opacity: 0.3 + (audioLevel / 100) * 0.5,
                   }}
-                  className="absolute inset-2 rounded-full bg-rose-500/30"
+                  className="absolute inset-2 rounded-full bg-danger/30"
                 />
               </>
             )}
 
             <div
               className={cn(
-                "size-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300",
+                "size-20 rounded-full flex items-center justify-center shadow-lg transition-colors duration-300",
                 isRecording
-                  ? "bg-rose-500 text-white shadow-rose-500/30 scale-105"
+                  ? "bg-danger text-danger-fg scale-105"
                   : audioUrl
-                    ? "bg-emerald-500 text-white shadow-emerald-500/30"
+                    ? "bg-success text-success-fg"
                     : "bg-primary/10 text-primary"
               )}
             >
@@ -176,7 +176,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
             <button
               type="button"
               onClick={handleStart}
-              className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-black text-sm shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-black text-sm shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2"
             >
               <Mic className="size-4" />
               <span>Start Recording</span>
@@ -188,7 +188,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
               <button
                 type="button"
                 onClick={handleDiscard}
-                className="size-12 rounded-2xl bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 flex items-center justify-center transition-all cursor-pointer"
+                className="size-12 rounded-2xl bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 flex items-center justify-center transition-colors cursor-pointer"
                 title="Discard"
               >
                 <Trash2 className="size-5" />
@@ -197,7 +197,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
               <button
                 type="button"
                 onClick={handleStop}
-                className="flex-1 py-3 rounded-2xl bg-rose-500 text-white font-black text-sm shadow-md shadow-rose-500/25 hover:bg-rose-600 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-2xl bg-danger text-danger-fg font-black text-sm shadow-sm hover:bg-danger/90 active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2"
               >
                 <StopCircle className="size-5" />
                 <span>Done Recording</span>
@@ -210,7 +210,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
               <button
                 type="button"
                 onClick={clearRecording}
-                className="size-12 rounded-2xl bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all cursor-pointer"
+                className="size-12 rounded-2xl bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                 title="Record Again"
               >
                 <RotateCcw className="size-5" />
@@ -220,7 +220,7 @@ export function VoiceRecorderModal({ isOpen, onClose, onAudioRecorded }: VoiceRe
                 type="button"
                 disabled={isUploading}
                 onClick={handleConfirmAttach}
-                className="flex-1 py-3 rounded-2xl bg-foreground text-background font-black text-sm shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-3 rounded-2xl bg-foreground text-background font-black text-sm shadow-md hover:opacity-90 active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Send className="size-4" />
                 <span>Attach Note</span>

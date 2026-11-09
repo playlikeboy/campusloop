@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
     });
 
     if (!event) {
-      return { title: "Event | CampusLoop" };
+      return { title: "Event" };
     }
 
     const key = event.slug || event.id;

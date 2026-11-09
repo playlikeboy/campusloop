@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = d.course;
   if (c.status !== "PUBLISHED") {
     return {
-      title: `${c.title} (Draft) — CampusLoop`,
+      title: `${c.title} (Draft)`,
       robots: { index: false, follow: false },
     };
   }
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [...c.tags, c.category, "free course", "certificate"],
     alternates: { canonical: url },
     // Unlisted community courses are shareable by link but stay out of search until promoted.
-    robots: c.listed ? undefined : { index: false, follow: true },
+    robots: c.listed ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: { title: c.title, description: c.subtitle ?? c.description.slice(0, 200), url, siteName: "CampusLoop", type: "website", images: c.thumbnailUrl ? [{ url: c.thumbnailUrl }] : undefined },
     twitter: { card: "summary_large_image", title: c.title, images: c.thumbnailUrl ? [c.thumbnailUrl] : undefined },
   };
@@ -77,7 +77,7 @@ export default async function CourseLandingPage({ params }: Props) {
         <nav aria-label="Course navigation" className="mb-6 flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 px-3.5 py-1.5 text-xs font-bold text-foreground transition-all hover:bg-muted hover:text-primary cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 px-3.5 py-1.5 text-xs font-bold text-foreground transition-ui hover:bg-muted hover:text-primary cursor-pointer"
           >
             <ArrowLeft className="size-3.5" aria-hidden />
             <span>Courses</span>

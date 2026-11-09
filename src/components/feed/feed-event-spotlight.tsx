@@ -46,54 +46,54 @@ function getCategoryConfig(eventType: string) {
   const type = String(eventType || "").toUpperCase();
   if (type === "HACKATHON") {
     return {
-      gradient: "from-violet-500/15 via-indigo-500/10 to-cyan-500/10",
-      accent: "text-violet-600 dark:text-violet-400",
-      pill: "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+      tint: "bg-brand-subtle",
+      accent: "text-brand-text",
+      pill: "bg-brand/15 text-brand-text",
       Icon: Rocket,
     };
   }
   if (["CULTURAL", "FEST"].includes(type)) {
     return {
-      gradient: "from-fuchsia-500/15 via-pink-500/10 to-rose-500/10",
-      accent: "text-fuchsia-600 dark:text-fuchsia-400",
-      pill: "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-300",
+      tint: "bg-danger-subtle",
+      accent: "text-danger",
+      pill: "bg-danger/15 text-danger",
       Icon: Palette,
     };
   }
   if (["COMPETITION", "CONTEST"].includes(type)) {
     return {
-      gradient: "from-amber-500/15 via-orange-500/10 to-rose-500/10",
-      accent: "text-amber-600 dark:text-amber-400",
-      pill: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+      tint: "bg-warning-subtle",
+      accent: "text-warning",
+      pill: "bg-warning/15 text-warning",
       Icon: Trophy,
     };
   }
   if (type === "WORKSHOP") {
     return {
-      gradient: "from-teal-500/15 via-emerald-500/10 to-cyan-500/10",
-      accent: "text-teal-600 dark:text-teal-400",
-      pill: "bg-teal-500/15 text-teal-700 dark:text-teal-300",
+      tint: "bg-brand-subtle",
+      accent: "text-brand-text",
+      pill: "bg-brand/15 text-brand-text",
       Icon: Wrench,
     };
   }
   if (type === "SPORTS") {
     return {
-      gradient: "from-emerald-500/15 via-green-500/10 to-lime-500/10",
-      accent: "text-emerald-600 dark:text-emerald-400",
-      pill: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+      tint: "bg-success-subtle",
+      accent: "text-success",
+      pill: "bg-success/15 text-success",
       Icon: Dumbbell,
     };
   }
   if (["SCHOLARSHIP", "FELLOWSHIP"].includes(type)) {
     return {
-      gradient: "from-orange-500/15 via-amber-500/10 to-yellow-500/10",
-      accent: "text-orange-600 dark:text-orange-400",
-      pill: "bg-orange-500/15 text-orange-700 dark:text-orange-300",
+      tint: "bg-warning-subtle",
+      accent: "text-warning",
+      pill: "bg-warning/15 text-warning",
       Icon: GraduationCap,
     };
   }
   return {
-    gradient: "from-primary/15 via-primary/10 to-transparent",
+    tint: "bg-brand-subtle",
     accent: "text-primary",
     pill: "bg-primary/15 text-primary",
     Icon: Sparkles,
@@ -146,11 +146,11 @@ function FeedEventCard({ event }: { event: EventItem }) {
   }
 
   return (
-    <div className="group relative flex w-[285px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/80 border border-border/50 shadow-2xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+    <div className="group relative flex w-[285px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/80 border border-border/50 shadow-2xs transition-colors duration-200 hover:border-primary/40 hover:shadow-md">
       {/* Decorative top banner */}
-      <div className={cn("relative p-3.5 pb-3 bg-gradient-to-br", config.gradient)}>
+      <div className={cn("relative p-3.5 pb-3", config.tint)}>
         <div className="flex items-center justify-between gap-2">
-          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", config.pill)}>
+          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold", config.pill)}>
             <Icon className="size-3" aria-hidden />
             {event.eventType.toLowerCase().replace(/_/g, " ")}
           </span>
@@ -178,7 +178,7 @@ function FeedEventCard({ event }: { event: EventItem }) {
               {formatDate(event.startDate)}
             </span>
             {event.prizesDescription ? (
-              <span className="inline-flex max-w-[140px] items-center gap-1 truncate font-semibold text-amber-600 dark:text-amber-400">
+              <span className="inline-flex max-w-[140px] items-center gap-1 truncate font-semibold text-warning">
                 <Trophy className="size-3 shrink-0" aria-hidden />
                 <span className="truncate">{event.prizesDescription}</span>
               </span>
@@ -195,7 +195,7 @@ function FeedEventCard({ event }: { event: EventItem }) {
           </span>
 
           {registered ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-bold text-success">
               <Check className="size-3.5" aria-hidden /> Joined
             </span>
           ) : (
@@ -203,7 +203,7 @@ function FeedEventCard({ event }: { event: EventItem }) {
               type="button"
               onClick={handleJoin}
               disabled={loading}
-              className="inline-flex items-center gap-1 rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1 rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-primary-foreground shadow-2xs transition-transform hover:bg-primary/90 active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Joining…" : isTeam ? "Details" : "Join"}
               <ArrowRight className="size-3" aria-hidden />
@@ -228,13 +228,13 @@ export function FeedEventSpotlight({ className }: { className?: string }) {
     <section className={cn("py-4", className)} aria-label="Campus Events & Hackathons">
       <div className="mb-3 flex items-center justify-between px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 dark:text-rose-400">
+          <div className="flex size-7 items-center justify-center rounded-full bg-danger/10 text-danger">
             <Sparkles className="size-3.5" aria-hidden />
           </div>
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-sm font-bold text-foreground">Campus Events &amp; Fests</h3>
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400">
-              <span className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
+            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[10px] font-bold text-danger">
+              <span className="size-1.5 rounded-full bg-danger animate-pulse" />
               Live &amp; Upcoming
             </span>
           </div>

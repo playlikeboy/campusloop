@@ -153,7 +153,7 @@ export function PostEmbedRenderer({
                   e.stopPropagation();
                   onDismiss(embed.rawUrl);
                 }}
-                className="absolute right-2 top-4 z-20 flex size-6.5 items-center justify-center rounded-full bg-black/75 text-white backdrop-blur-md transition-all hover:bg-destructive active:scale-95 shadow-md cursor-pointer"
+                className="absolute right-2 top-4 z-20 flex size-6.5 items-center justify-center rounded-full bg-black/75 text-white backdrop-blur-md transition-ui hover:bg-destructive active:scale-95 shadow-md cursor-pointer"
                 title="Remove preview"
                 aria-label="Remove preview"
               >

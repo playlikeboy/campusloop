@@ -146,7 +146,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             </p>
             <Link
               href="/events/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:opacity-90 active:scale-95 transition-all w-full justify-center"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:opacity-90 active:scale-95 transition-ui w-full justify-center"
             >
               <Plus className="size-3.5" />
               <span>Host Event (+25 LP)</span>
@@ -239,7 +239,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                   title="Campus Trends"
                   aria-label="Campus Trends"
                   className={cn(
-                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    "p-1.5 rounded-lg transition-ui cursor-pointer",
                     trendsScope === "CAMPUS"
                       ? "bg-card text-primary shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -257,7 +257,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                   title="Global Trends"
                   aria-label="Global Trends"
                   className={cn(
-                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    "p-1.5 rounded-lg transition-ui cursor-pointer",
                     trendsScope === "GLOBAL"
                       ? "bg-card text-primary shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -313,7 +313,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                   onClick={handleRefreshPeers}
                   disabled={isRefreshingPeers}
                   title="Shuffle suggestions"
-                  className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer active:scale-95"
+                  className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-ui cursor-pointer active:scale-95"
                 >
                   <RotateCw
                     className={cn(
@@ -356,7 +356,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                         type="button"
                         onClick={() => handleFollowToggle(peer)}
                         className={cn(
-                          "rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
+                          "rounded-full px-4 py-1.5 text-xs font-bold transition-ui cursor-pointer shrink-0 active:scale-95",
                           isFollowed
                             ? "border border-border/60 bg-transparent text-foreground hover:border-destructive/40 hover:text-destructive"
                             : "bg-foreground text-background hover:opacity-90"
@@ -398,7 +398,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             href="https://dsaloop.campusloop.space"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all cursor-pointer"
+            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-ui cursor-pointer"
           >
             <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono font-black text-xs shrink-0">
               <Code2 className="size-3.5" />
@@ -421,7 +421,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             href="https://baby.campusloop.space"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-blue-500/40 transition-all cursor-pointer"
+            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-blue-500/40 transition-ui cursor-pointer"
           >
             <div className="flex size-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0">
               <Heart className="size-3.5" />

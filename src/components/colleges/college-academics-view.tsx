@@ -104,7 +104,7 @@ export function CollegeAcademicsView({
         <div className="flex items-center gap-2">
           <Link
             href={`/academics/study-material/upload?college=${collegeSlug}`}
-            className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all flex items-center gap-1.5 shrink-0 shadow-xs"
+            className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-ui flex items-center gap-1.5 shrink-0 shadow-xs"
           >
             <Plus className="size-3.5" />
             <span>Upload Notes (+50 LP)</span>
@@ -129,7 +129,7 @@ export function CollegeAcademicsView({
             placeholder={`Search ${resources.length} study materials in ${shortName} (e.g. CS305, FLAT, Maths)...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all shadow-2xs"
+            className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-ui shadow-2xs"
           />
           {searchQuery && (
             <button
@@ -148,7 +148,7 @@ export function CollegeAcademicsView({
             type="button"
             onClick={() => setSelectedType("ALL")}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
               selectedType === "ALL"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -160,7 +160,7 @@ export function CollegeAcademicsView({
             type="button"
             onClick={() => setSelectedType("NOTES")}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
               selectedType === "NOTES"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -172,7 +172,7 @@ export function CollegeAcademicsView({
             type="button"
             onClick={() => setSelectedType("PYQ")}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
               selectedType === "PYQ"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -184,7 +184,7 @@ export function CollegeAcademicsView({
             type="button"
             onClick={() => setSelectedType("CHEAT_SHEET")}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+              "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
               selectedType === "CHEAT_SHEET"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -199,7 +199,7 @@ export function CollegeAcademicsView({
                 type="button"
                 onClick={() => setSelectedBranch("ALL")}
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
                   selectedBranch === "ALL"
                     ? "bg-foreground text-background font-black"
                     : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -213,7 +213,7 @@ export function CollegeAcademicsView({
                   type="button"
                   onClick={() => setSelectedBranch(b)}
                   className={cn(
-                    "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+                    "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
                     selectedBranch === b
                       ? "bg-foreground text-background font-black"
                       : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -254,7 +254,7 @@ export function CollegeAcademicsView({
                   {item.isVerified && (
                     <span
                       title="Verified Academic Material"
-                      className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0"
+                      className="flex items-center gap-1 text-[10px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-full shrink-0"
                     >
                       <FileCheck2 className="size-3" />
                       Verified
@@ -316,7 +316,7 @@ export function CollegeAcademicsView({
             </p>
             <Link
               href={`/academics/study-material/upload?college=${collegeSlug}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-ui"
             >
               <Plus className="size-3.5" />
               <span>Upload Notes for {shortName}</span>

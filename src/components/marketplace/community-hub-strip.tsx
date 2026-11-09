@@ -34,10 +34,10 @@ export const COMMUNITY_HUBS = [
     tag: "Recovery",
     href: "/lost-and-found",
     icon: PackageSearch,
-    gradient: "from-rose-500/15 via-rose-500/5 to-transparent",
-    border: "border-rose-500/25 group-hover:border-rose-500/50",
-    badgeColor: "bg-rose-500/10 text-rose-500 border-rose-500/20",
-    iconColor: "text-rose-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
   {
     id: "marketplace" as HubTabType,
@@ -46,10 +46,10 @@ export const COMMUNITY_HUBS = [
     tag: "Student P2P",
     href: "/buy-and-sell",
     icon: ShoppingBag,
-    gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
-    border: "border-emerald-500/25 group-hover:border-emerald-500/50",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    iconColor: "text-emerald-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
   {
     id: "gaming" as HubTabType,
@@ -58,10 +58,10 @@ export const COMMUNITY_HUBS = [
     tag: "Lobbies",
     href: "/gaming",
     icon: Gamepad2,
-    gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
-    border: "border-purple-500/25 group-hover:border-purple-500/50",
-    badgeColor: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-    iconColor: "text-purple-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
   {
     id: "rideshare" as HubTabType,
@@ -70,10 +70,10 @@ export const COMMUNITY_HUBS = [
     tag: "Cab Pool",
     href: "/rideshare",
     icon: Car,
-    gradient: "from-sky-500/15 via-sky-500/5 to-transparent",
-    border: "border-sky-500/25 group-hover:border-sky-500/50",
-    badgeColor: "bg-sky-500/10 text-sky-500 border-sky-500/20",
-    iconColor: "text-sky-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
   {
     id: "housing" as HubTabType,
@@ -82,10 +82,10 @@ export const COMMUNITY_HUBS = [
     tag: "Room Finder",
     href: "/housing",
     icon: Home,
-    gradient: "from-amber-500/15 via-amber-500/5 to-transparent",
-    border: "border-amber-500/25 group-hover:border-amber-500/50",
-    badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    iconColor: "text-amber-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
   {
     id: "academics" as HubTabType,
@@ -94,10 +94,10 @@ export const COMMUNITY_HUBS = [
     tag: "Academic Vault",
     href: "/academics",
     icon: BookOpen,
-    gradient: "from-indigo-500/15 via-indigo-500/5 to-transparent",
-    border: "border-indigo-500/25 group-hover:border-indigo-500/50",
-    badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
-    iconColor: "text-indigo-500",
+    gradient: "bg-brand-subtle",
+    border: "group-hover:border-brand-subtle-border",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
+    iconColor: "text-brand-text",
   },
 ];
 
@@ -112,13 +112,13 @@ export function CommunityHubStrip() {
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
         <div className="flex items-center gap-2">
-          <div className="size-6 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+          <div className="size-6 rounded-lg bg-success-subtle text-success flex items-center justify-center">
             <Users2 className="size-3.5" />
           </div>
-          <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+          <h2 className="text-xs font-bold text-foreground">
             Community Campus Utilities
           </h2>
-          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-border/40">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-border/40">
             Community Maintained
           </span>
         </div>
@@ -144,14 +144,14 @@ export function CommunityHubStrip() {
               href={hub.href}
               onClick={handleCardClick}
               className={cn(
-                "group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-200 cursor-pointer overflow-hidden shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] bg-card/85 hover:bg-card border-border/50",
+                "group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl border text-left transition-[opacity,transform] duration-200 cursor-pointer overflow-hidden shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] bg-card/85 hover:bg-card border-border/50",
                 hub.border
               )}
             >
               {/* Card Ambient Gradient */}
               <div
                 className={cn(
-                  "absolute inset-0 bg-linear-to-br transition-opacity duration-300 pointer-events-none opacity-40 group-hover:opacity-100",
+                  "absolute inset-0 transition-opacity duration-300 pointer-events-none opacity-40 group-hover:opacity-100",
                   hub.gradient
                 )}
               />
@@ -167,7 +167,7 @@ export function CommunityHubStrip() {
                   <Icon className="size-4.5 sm:size-5" />
                 </div>
                 <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground group-hover:text-foreground transition-colors">
-                  <span className="text-[10px] uppercase tracking-wide font-black px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground">
                     {hub.tag}
                   </span>
                   <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

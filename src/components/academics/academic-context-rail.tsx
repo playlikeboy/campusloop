@@ -82,7 +82,7 @@ export function AcademicContextRail({
       className="hidden xl:flex flex-col gap-4.5 w-72 shrink-0 select-none sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
     >
       {/* ─── 1. Personalized Context Pill ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-2">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
           <Sparkles className="size-3.5 text-primary" />
           <span>Recommended for You</span>
@@ -94,9 +94,9 @@ export function AcademicContextRail({
       </div>
 
       {/* ─── 2. Popular This Week ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
             <TrendingUp className="size-3.5 text-primary" />
             <span>Popular this week</span>
           </div>
@@ -140,9 +140,9 @@ export function AcademicContextRail({
       </div>
 
       {/* ─── 2b. Top Contributors (leaderboard / gamification) ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-3">
-        <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
-          <Trophy className="size-3.5 text-amber-400" />
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+          <Trophy className="size-3.5 text-reward" />
           <span>Top Contributors</span>
         </div>
 
@@ -181,10 +181,10 @@ export function AcademicContextRail({
       </div>
 
       {/* ─── 3. Curated Study Stacks / Playlists ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
-            <FolderPlus className="size-3.5 text-indigo-400" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+            <FolderPlus className="size-3.5 text-brand-text" />
             <span>Study Playlists</span>
           </div>
           <Link

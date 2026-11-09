@@ -100,7 +100,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
       <section className="p-5 rounded-3xl bg-card border border-border/40 shadow-xs space-y-4">
         <div>
           <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-            <Activity className="h-4 w-4 text-emerald-500" />
+            <Activity className="h-4 w-4 text-success" />
             Live Infrastructure Latency Diagnostics
           </h3>
           <p className="text-xs text-muted-foreground">
@@ -113,17 +113,17 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
           <div className="p-4 rounded-2xl bg-muted/20 border border-border/30 flex flex-col justify-between gap-3 shadow-2xs">
             <div className="space-y-1">
               <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <Database className="h-3.5 w-3.5 text-blue-500" /> Neon Postgres
+                <Database className="h-3.5 w-3.5 text-brand-text" /> Neon Postgres
               </span>
               <p className="text-xs text-muted-foreground">SELECT 1 query roundtrip</p>
-              {dbPingResult && <p className="text-xs font-black text-emerald-500 pt-1">{dbPingResult}</p>}
+              {dbPingResult && <p className="text-xs font-bold text-success pt-1">{dbPingResult}</p>}
             </div>
 
             <button
               type="button"
               disabled={isPingingDb}
               onClick={handlePingDb}
-              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isPingingDb && "animate-spin")} />
               <span>{isPingingDb ? "Pinging..." : "Ping Database"}</span>
@@ -134,7 +134,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
           <div className="p-4 rounded-2xl bg-muted/20 border border-border/30 flex flex-col justify-between gap-3 shadow-2xs">
             <div className="space-y-1">
               <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-500" /> Upstash Redis
+                <Zap className="h-3.5 w-3.5 text-warning" /> Upstash Redis
               </span>
               <p className="text-xs text-muted-foreground">Behavior set ping</p>
               {redisPingResult && (
@@ -146,7 +146,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
               type="button"
               disabled={isPingingRedis}
               onClick={handlePingRedis}
-              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isPingingRedis && "animate-spin")} />
               <span>{isPingingRedis ? "Pinging..." : "Ping Redis"}</span>
@@ -169,7 +169,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
               type="button"
               disabled={isPingingQdrant}
               onClick={handlePingQdrant}
-              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+              className="w-full h-8.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isPingingQdrant && "animate-spin")} />
               <span>{isPingingQdrant ? "Pinging..." : "Ping Qdrant"}</span>
@@ -199,7 +199,7 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold text-foreground">{item.name}</span>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase px-1.5 py-0.5 rounded bg-muted">
+                  <span className="text-[10px] font-semibold text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
                     {item.category}
                   </span>
                 </div>
@@ -210,8 +210,8 @@ export function SystemClient({ envMatrix }: SystemClientProps) {
                 className={cn(
                   "text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 self-start sm:self-center",
                   item.isConfigured
-                    ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
-                    : "text-amber-500 bg-amber-500/10 border border-amber-500/20"
+                    ? "text-success bg-success-subtle border border-success/20"
+                    : "text-warning bg-warning-subtle border border-warning/20"
                 )}
               >
                 {item.isConfigured ? "CONFIGURED" : "FALLBACK ACTIVE"}

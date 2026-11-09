@@ -1,22 +1,10 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DatingFooter } from "@/components/dating/dating-footer";
-import { DatingNavbar } from "@/components/dating/dating-navbar";
 import { PresenceHeartbeat } from "@/components/pwa/presence-heartbeat";
+import { AppShell } from "@/components/shells/app-shell";
+import { MatchSubHeader } from "@/components/shells/match-sub-header";
 import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
-
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
-  ],
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
-};
 
 export const metadata: Metadata = {
   title: "CampusLoop Matching · Campus Vibes",
@@ -74,22 +62,13 @@ export default async function DatingLayout({ children }: { children: React.React
   const collegeName = profile.institution?.name;
 
   return (
-    <div className="dating-isolated-shell min-h-dvh flex flex-col bg-background text-foreground selection:bg-pink-500/20 selection:text-pink-600">
+    <AppShell profile={profile} collegeName={collegeName} isAdmin={profile.role === "ADMIN"}>
       <PresenceHeartbeat />
       <AppPullToRefresh>
-        <div className="relative flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-          {/* Isolated Dating Navbar */}
-          <DatingNavbar profile={profile} collegeName={collegeName} />
-
-          {/* Isolated Dating Main Body */}
-          <main className="flex min-h-0 flex-1 w-full flex-col overflow-hidden pt-14 pb-20 sm:pb-24">
-            {children}
-          </main>
-
-          {/* Isolated Dating Bottom Navigation */}
-          <DatingFooter />
-        </div>
+        <MatchSubHeader collegeName={collegeName} />
+        {/* The swipe deck sizes itself from this column, so it gets a bounded viewport height. */}
+        <div className="flex min-h-[calc(100dvh-14rem)] flex-col">{children}</div>
       </AppPullToRefresh>
-    </div>
+    </AppShell>
   );
 }

@@ -88,7 +88,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
         throw new Error("Failed to vote");
       }
 
-      toast.success(nextVote ? "Upvoted article! 👏" : "Vote removed");
+      toast.success(nextVote ? "Upvoted article!" : "Vote removed");
       mutate(`/api/articles/${slug}`);
     } catch {
       // Revert optimistic
@@ -106,7 +106,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
     <Link
       href={`/articles/${article.slug}`}
       onClick={(e) => e.stopPropagation()}
-      className="mt-2.5 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/15 transition-all shadow-xs group"
+      className="mt-2.5 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/15 transition-colors shadow-xs group"
     >
       {article.coverImageUrl && (
         <div className="relative aspect-24/10 w-full overflow-hidden bg-muted/30">
@@ -118,7 +118,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
           />
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
             <span className="rounded-md bg-black/75 px-2 py-0.5 text-[10px] font-black uppercase text-white backdrop-blur-md flex items-center gap-1">
-              <BookOpen className="size-3 text-sky-400" />
+              <BookOpen className="size-3 text-brand-text" />
               {article.category.replace(/_/g, " ")}
             </span>
           </div>
@@ -163,13 +163,13 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
             variant="ghost"
             onClick={handleToggleVote}
             disabled={isVoting}
-            className={`h-7 px-2.5 text-xs font-bold rounded-full transition-all cursor-pointer ${
+            className={`h-7 px-2.5 text-xs font-bold rounded-full transition-colors cursor-pointer ${
               isUpvoted
-                ? "bg-rose-500/15 text-rose-500 hover:bg-rose-500/20"
+                ? "bg-danger/15 text-danger hover:bg-danger/20"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Heart className={`size-3.5 mr-1 ${isUpvoted ? "fill-rose-500 text-rose-500" : ""}`} />
+            <Heart className={`size-3.5 mr-1 ${isUpvoted ? "fill-danger text-danger" : ""}`} />
             <span>{currentVotes}</span>
           </Button>
 

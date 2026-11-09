@@ -24,7 +24,7 @@ export function UsernameStatusHint({ status, className }: { status: UsernameStat
 
     case "available":
       return (
-        <span className={cn(base, "text-emerald-500")}>
+        <span className={cn(base, "text-success")}>
           <Check className="size-3" />
           {status.isCurrent ? "Your current username" : "Available"}
         </span>

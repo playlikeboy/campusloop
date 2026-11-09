@@ -25,32 +25,32 @@ const ROWS: PreferenceRow[] = [
     key: "messages",
     label: "Direct messages",
     description: "Buzz your phone the moment a classmate DMs you",
-    icon: <Send className="size-3.5 text-sky-500" />,
+    icon: <Send className="size-3.5 text-brand-text" />,
   },
   {
     key: "followedPosts",
     label: "Posts from people you follow",
     description: "Know when your friends and follows drop something new",
-    icon: <Zap className="size-3.5 text-violet-500" />,
+    icon: <Zap className="size-3.5 text-brand-text" />,
   },
   {
     key: "followedPostsFriendsOnly",
     label: "Only from mutual friends",
     description: "Narrow post alerts to people who follow you back",
-    icon: <Users className="size-3.5 text-emerald-500" />,
+    icon: <Users className="size-3.5 text-success" />,
     dependsOn: "followedPosts",
   },
   {
     key: "likes",
     label: "Likes on your posts",
     description: "Upvotes and hearts on what you shared",
-    icon: <Heart className="size-3.5 text-rose-500" />,
+    icon: <Heart className="size-3.5 text-danger" />,
   },
   {
     key: "comments",
     label: "Comments & replies",
     description: "Someone replied to your post or to your comment",
-    icon: <MessageCircle className="size-3.5 text-blue-500" />,
+    icon: <MessageCircle className="size-3.5 text-brand-text" />,
   },
   {
     key: "mentions",
@@ -62,7 +62,7 @@ const ROWS: PreferenceRow[] = [
     key: "reposts",
     label: "Reposts & quotes",
     description: "Your post was carried to another campus feed",
-    icon: <Repeat2 className="size-3.5 text-emerald-500" />,
+    icon: <Repeat2 className="size-3.5 text-success" />,
   },
   {
     key: "follows",
@@ -74,7 +74,7 @@ const ROWS: PreferenceRow[] = [
     key: "matches",
     label: "Matches, crushes & vibes",
     description: "Campus Match, Secret Crush and story interactions",
-    icon: <Zap className="size-3.5 text-amber-500" />,
+    icon: <Zap className="size-3.5 text-warning" />,
   },
 ];
 
@@ -98,7 +98,7 @@ function ToggleRow({
       disabled={disabled}
       onClick={() => onChange(!value)}
       className={cn(
-        "w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all shadow-2xs",
+        "w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-colors shadow-2xs",
         disabled
           ? "border-border/40 bg-muted/10 opacity-50 cursor-not-allowed"
           : "border-border/60 bg-background/50 hover:border-border cursor-pointer active:scale-[0.99]",
@@ -122,7 +122,7 @@ function ToggleRow({
       >
         <span
           className={cn(
-            "absolute top-0.5 size-4 rounded-full bg-background shadow-sm transition-all",
+            "absolute top-0.5 size-4 rounded-full bg-background shadow-sm transition-colors",
             value ? "left-[1.125rem]" : "left-0.5"
           )}
         />

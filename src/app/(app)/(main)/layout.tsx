@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
-import { PreviewModeBanner } from "@/components/preview/preview-mode-banner";
-import { Navigation } from "@/components/ui/navigation";
+import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
@@ -37,18 +36,14 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const viewerMode = profile ? await isViewerProfile(profile) : true;
 
   return (
-    <div className="app-surface relative min-h-screen bg-background text-foreground flex flex-col lg:flex-row">
-      <Navigation
-        profile={profile || undefined}
-        collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
-        isAdmin={profile?.role === "ADMIN"}
-        isViewer={viewerMode}
-      />
-      <div className="flex-1 w-full min-w-0 max-w-7xl mx-auto overflow-x-clip px-0 sm:px-6 lg:px-8 pt-0 sm:pt-6 pb-6">
-        {viewerMode && <PreviewModeBanner />}
-        {children}
-        <FirstVisitNotificationPrompt />
-      </div>
-    </div>
+    <AppShell
+      profile={profile || undefined}
+      collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
+      isAdmin={profile?.role === "ADMIN"}
+      isViewer={viewerMode}
+    >
+      {children}
+      <FirstVisitNotificationPrompt />
+    </AppShell>
   );
 }

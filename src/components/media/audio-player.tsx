@@ -114,7 +114,7 @@ export function AudioPlayer({
     <div
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "rounded-2xl border transition-all select-none no-card-nav",
+        "rounded-2xl border transition-colors select-none no-card-nav",
         compact
           ? isMe
             ? "bg-transparent border-transparent py-1 px-1 min-w-[210px] max-w-xs"
@@ -134,7 +134,7 @@ export function AudioPlayer({
           className={cn(
             "size-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer shadow-xs transition-colors",
             compact && isMe
-              ? "bg-white text-sky-600 hover:bg-white/90"
+              ? "bg-surface text-brand-text hover:bg-white/90"
               : "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
           aria-label={isPlaying ? "Pause audio" : "Play audio"}
@@ -174,10 +174,10 @@ export function AudioPlayer({
                   <div
                     key={idx}
                     className={cn(
-                      "w-[3px] rounded-full transition-all duration-150",
+                      "w-[3px] rounded-full transition-colors duration-150",
                       compact && isMe
                         ? isPassed
-                          ? "bg-white"
+                          ? "bg-surface"
                           : "bg-white/40"
                         : isPassed
                           ? "bg-primary"
@@ -216,7 +216,7 @@ export function AudioPlayer({
           type="button"
           onClick={cycleRate}
           className={cn(
-            "text-[10px] font-black px-2 py-1 rounded-full border transition-all cursor-pointer shrink-0",
+            "text-[10px] font-black px-2 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
             compact && isMe
               ? "bg-white/20 border-white/40 text-white hover:bg-white/30"
               : "bg-muted/80 border-border/60 text-foreground hover:bg-muted"

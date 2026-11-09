@@ -260,7 +260,7 @@ export function MessengerPane({
       navigator.clipboard.writeText(text);
       sounds.tap();
       haptics.light();
-      toast.success("Message copied to clipboard! 📋");
+      toast.success("Message copied to clipboard");
     }
     setOptionsMenuMsg(null);
   }
@@ -614,7 +614,7 @@ export function MessengerPane({
         }
       });
       await sendMessage(`![video:${file.name}](${res.url})`);
-      toast.success("Video sent! 🎥", { id: "chat-video" });
+      toast.success("Video sent!", { id: "chat-video" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send video", { id: "chat-video" });
     } finally {
@@ -634,7 +634,7 @@ export function MessengerPane({
         }
       });
       await sendMessage(`![document:${file.name}:${file.size}](${res.url})`);
-      toast.success("Document sent! 📄", { id: "chat-doc" });
+      toast.success("Document sent!", { id: "chat-doc" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send document", { id: "chat-doc" });
     } finally {
@@ -647,7 +647,7 @@ export function MessengerPane({
     if (!conversationId) return;
     try {
       await sendMessage(`![voice:Voice Note (${duration}s)](${url})`);
-      toast.success("Voice note sent! 🎙️");
+      toast.success("Voice note sent!");
     } catch {
       toast.error("Failed to send voice note");
     }
@@ -669,7 +669,7 @@ export function MessengerPane({
     const imageFile = files.find((f) => f.type.startsWith("image/"));
     if (imageFile) {
       e.preventDefault();
-      toast.info("Sending pasted photo... 🎨");
+      toast.info("Sending pasted photo...");
       sendImageFile(imageFile);
       return;
     }
@@ -677,7 +677,7 @@ export function MessengerPane({
     const videoFile = files.find((f) => f.type.startsWith("video/"));
     if (videoFile) {
       e.preventDefault();
-      toast.info("Sending pasted video... 🎥");
+      toast.info("Sending pasted video...");
       sendVideoFile(videoFile);
       return;
     }
@@ -687,7 +687,7 @@ export function MessengerPane({
     );
     if (docFile) {
       e.preventDefault();
-      toast.info("Sending pasted document... 📄");
+      toast.info("Sending pasted document...");
       sendDocFile(docFile);
       return;
     }
@@ -699,7 +699,7 @@ export function MessengerPane({
         e.preventDefault();
         const file = item.getAsFile();
         if (file) {
-          toast.info("Sending pasted image... 🎨");
+          toast.info("Sending pasted image...");
           sendImageFile(file);
           return;
         }
@@ -848,7 +848,7 @@ export function MessengerPane({
     return (
       <div className="flex h-full flex-col items-center justify-center text-muted-foreground p-6 text-center select-none bg-background">
         <div className="size-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 shadow-sm text-primary">
-          <MessageCircleHeartIcon size={64} duration={1} color="#ffffff" />
+          <MessageCircleHeartIcon size={64} duration={1} color="currentColor" />
         </div>
         <h2 className="text-lg font-black text-foreground">CampusLoop Messenger</h2>
         <p className="text-xs text-muted-foreground max-w-sm mt-1 leading-relaxed">
@@ -884,14 +884,15 @@ export function MessengerPane({
   return (
     <div className="chat-surface flex h-full w-full flex-col select-none overflow-hidden relative">
       {/* ─── Clean Modern Chat Header ─── */}
-      <header className="border-b border-border/40 dark:border-white/8 bg-background/95 dark:bg-[#0D0D11]/95 backdrop-blur-xl px-2.5 sm:px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0 z-30">
+      <header className="border-b border-border bg-surface/95 backdrop-blur-sm px-2.5 sm:px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0 z-30">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             {/* Back Button (visible on mobile to return to chat inbox) */}
             <button
+              aria-label="Back to inbox"
               type="button"
               onClick={onBack}
-              className="md:hidden size-8.5 rounded-full hover:bg-muted dark:hover:bg-white/5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:hidden size-8 min-h-11 min-w-11.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
               title="Back to inbox"
             >
               <ArrowLeft className="size-4.5" strokeWidth={1.8} />
@@ -904,9 +905,9 @@ export function MessengerPane({
               title="View info and shared media"
             >
               <div className="relative shrink-0">
-                <Avatar className="size-10 border border-border/40 dark:border-white/10 shadow-2xs transition-transform group-hover:scale-[1.02]">
+                <Avatar className="size-10 border border-border/40 shadow-2xs transition-transform group-hover:scale-[1.02]">
                   <AvatarImage src={effectiveParticipant.avatarUrl || ""} />
-                  <AvatarFallback className="text-xs font-semibold bg-muted dark:bg-zinc-800 text-muted-foreground dark:text-zinc-200">
+                  <AvatarFallback className="text-xs font-semibold bg-muted text-muted-foreground">
                     {(effectiveParticipant.displayName?.[0] || "S").toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -917,21 +918,21 @@ export function MessengerPane({
 
               {/* Name & Branch / Presence status / Group Member Count */}
               <div className="min-w-0 space-y-0.5">
-                <div className="text-[15px] sm:text-[16px] font-semibold text-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors truncate flex items-center gap-1.5 leading-tight max-w-[46vw] sm:max-w-[28rem]">
+                <div className="text-[15px] sm:text-[16px] font-semibold text-foreground group-hover:text-brand-text transition-colors truncate flex items-center gap-1.5 leading-tight max-w-[46vw] sm:max-w-[28rem]">
                   <span>{effectiveParticipant.displayName}</span>
                   {effectiveParticipant.isGroup || effectiveParticipant.isCommunity ? (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0 uppercase tracking-wider">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text shrink-0">
                       {effectiveParticipant.isCommunity ? "Community" : "Group"}
                     </span>
                   ) : (
-                    <ShieldCheck className="size-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
+                    <ShieldCheck className="size-3.5 text-brand-text shrink-0" />
                   )}
                 </div>
 
                 <div className="text-[12px] sm:text-[12.5px] text-muted-foreground truncate flex items-center gap-1.5 font-normal leading-none mt-0.5">
                   {effectiveParticipant.isGroup ? (
                     <>
-                      <span className="font-semibold text-emerald-500 dark:text-emerald-400 flex items-center gap-1 shrink-0">
+                      <span className="font-semibold text-success flex items-center gap-1 shrink-0">
                         <Users2 className="size-3" />
                         <span>
                           {formatMemberCount(
@@ -953,8 +954,8 @@ export function MessengerPane({
                   ) : (
                     <>
                       {viewerIsOnline ? (
-                        <span className="font-medium text-emerald-500 dark:text-emerald-400 flex items-center gap-1 shrink-0">
-                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-medium text-success flex items-center gap-1 shrink-0">
+                          <span className="size-1.5 rounded-full bg-success animate-pulse" />
                           <span>Online</span>
                         </span>
                       ) : (
@@ -985,8 +986,8 @@ export function MessengerPane({
               type="button"
               onClick={() => setSearchInChat(!searchInChat)}
               className={cn(
-                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-white/5 active:scale-95",
-                searchInChat && "bg-muted dark:bg-white/10 text-foreground"
+                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
+                searchInChat && "bg-muted text-foreground"
               )}
               title="Search in conversation"
               aria-label="Search in conversation"
@@ -998,8 +999,8 @@ export function MessengerPane({
               type="button"
               onClick={() => setShowInfoDrawer(true)}
               className={cn(
-                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-white/5 active:scale-95",
-                showInfoDrawer && "bg-muted dark:bg-white/10 text-foreground"
+                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
+                showInfoDrawer && "bg-muted text-foreground"
               )}
               title={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
               aria-label={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
@@ -1013,8 +1014,8 @@ export function MessengerPane({
                 type="button"
                 onClick={() => setShowChatHeaderMenu((prev) => !prev)}
                 className={cn(
-                  "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-white/5 active:scale-95",
-                  showChatHeaderMenu && "bg-muted dark:bg-white/10 text-foreground"
+                  "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
+                  showChatHeaderMenu && "bg-muted text-foreground"
                 )}
                 title="More options"
                 aria-label="More options"
@@ -1032,11 +1033,11 @@ export function MessengerPane({
                   <div
                     role="menu"
                     aria-label="Chat options"
-                    className="absolute right-0 top-10.5 z-50 w-52 sm:w-56 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl p-1.5 shadow-2xl space-y-0.5 animate-in fade-in zoom-in-95"
+                    className="absolute right-0 top-10.5 z-50 w-52 sm:w-56 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm p-1.5 shadow-2xl space-y-0.5 animate-in fade-in zoom-in-95"
                   >
                     {!effectiveParticipant.isGroup && (
                       <>
-                        <div className="px-3 pt-2 pb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 select-none">
+                        <div className="px-3 pt-2 pb-1 text-xs font-bold text-muted-foreground/70 select-none">
                           Communication
                         </div>
                         <button
@@ -1311,19 +1312,19 @@ export function MessengerPane({
                   <div key={msg.id} className="space-y-1 my-4">
                     {showDateSeparator && (
                       <div className="flex items-center justify-center my-3 select-none">
-                        <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 dark:text-zinc-400 bg-muted/70 dark:bg-zinc-800/80 border border-border/40 dark:border-white/5 rounded-full shadow-2xs backdrop-blur-xs">
+                        <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 bg-muted/70 border border-border/40 rounded-full shadow-2xs backdrop-blur-xs">
                           {formatDateSeparator(msg.createdAt)}
                         </span>
                       </div>
                     )}
 
-                    <div className="w-full max-w-md mx-auto p-4 sm:p-5 rounded-3xl bg-linear-to-tr from-rose-500/15 via-pink-500/10 to-purple-500/15 border border-rose-500/30 text-center space-y-3 shadow-lg backdrop-blur-md animate-in zoom-in-95">
-                      <div className="size-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center mx-auto shadow-md shadow-rose-500/30 animate-pulse">
-                        <Heart className="size-6 fill-white stroke-white" />
+                    <div className="w-full max-w-md mx-auto p-4 sm:p-5 rounded-3xl bg-crush-subtle border border-crush text-center space-y-3 animate-in zoom-in-95">
+                      <div className="size-12 rounded-2xl bg-crush text-crush-fg flex items-center justify-center mx-auto animate-pulse">
+                        <Heart className="size-6 fill-current stroke-current" />
                       </div>
                       <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-black text-rose-500 tracking-tight">
-                          💕 It&apos;s a Secret Crush Match!
+                        <h4 className="text-sm sm:text-base font-black text-crush-text tracking-tight">
+                          It&apos;s a Secret Crush Match!
                         </h4>
                         <p className="text-xs font-bold text-foreground">
                           We both secretly liked each other.
@@ -1332,7 +1333,7 @@ export function MessengerPane({
                           Your identities have been revealed to each other. Break the ice and say hello!
                         </p>
                       </div>
-                      <div className="text-[10px] font-bold text-rose-500/70 pt-1">
+                      <div className="text-[10px] font-bold text-danger pt-1">
                         {formatTime(msg.createdAt)}
                       </div>
                     </div>
@@ -1347,7 +1348,7 @@ export function MessengerPane({
                   {/* Compact Date Separator */}
                   {showDateSeparator && (
                     <div className="flex items-center justify-center my-3 select-none">
-                      <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 dark:text-zinc-400 bg-muted/70 dark:bg-zinc-800/80 border border-border/40 dark:border-white/5 rounded-full shadow-2xs backdrop-blur-xs">
+                      <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 bg-muted/70 border border-border/40 rounded-full shadow-2xs backdrop-blur-xs">
                         {formatDateSeparator(msg.createdAt)}
                       </span>
                     </div>
@@ -1383,7 +1384,7 @@ export function MessengerPane({
                           e.stopPropagation();
                           setActiveReactionMsgId((prev) => (prev === msg.id ? null : msg.id));
                         }}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs"
+                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
                         title="React to message"
                         aria-label="React to message"
                       >
@@ -1393,7 +1394,7 @@ export function MessengerPane({
                       <button
                         type="button"
                         onClick={() => setReplyingTo(msg)}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs"
+                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
                         title="Reply"
                         aria-label="Reply"
                       >
@@ -1406,7 +1407,7 @@ export function MessengerPane({
                           e.stopPropagation();
                           setOptionsMenuMsg(msg);
                         }}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs"
+                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
                         title="Message options"
                         aria-label="Message options"
                       >
@@ -1416,7 +1417,7 @@ export function MessengerPane({
                       <button
                         type="button"
                         onClick={() => setDeleteModalMsg(msg)}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-rose-500/10 hover:text-rose-500 flex items-center justify-center text-muted-foreground transition-all cursor-pointer shadow-2xs"
+                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-danger-subtle hover:text-danger flex items-center justify-center text-muted-foreground transition-colors cursor-pointer shadow-2xs"
                         title="Delete message"
                         aria-label="Delete message"
                       >
@@ -1447,7 +1448,7 @@ export function MessengerPane({
                           if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
                         }}
                         className={cn(
-                          "absolute -top-9 z-30 flex items-center gap-1 bg-card/95 dark:bg-[#1f2c34]/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-border/60 shadow-lg animate-in fade-in zoom-in-95 duration-150 before:absolute before:-bottom-3 before:inset-x-0 before:h-3 before:content-['']",
+                          "absolute -top-9 z-30 flex items-center gap-1 bg-surface-raised px-2.5 py-1 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-150 before:absolute before:-bottom-3 before:inset-x-0 before:h-3 before:content-['']",
                           isMe ? "right-2" : "left-2"
                         )}
                       >
@@ -1480,8 +1481,8 @@ export function MessengerPane({
                           isDirectMedia
                             ? "p-0 bg-transparent border-0"
                             : isMe
-                              ? "chat-bubble-peach text-[#0d281e] dark:text-[#e1fbf0] px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
-                              : "chat-bubble-lilac text-[#18181b] dark:text-[#f4f4f5] px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
+                              ? "chat-bubble-peach px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
+                              : "chat-bubble-lilac px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
                         )}
                       >
                         {/* Group Sender Name */}
@@ -1515,7 +1516,7 @@ export function MessengerPane({
 
                         {/* Content: Video, Voice Memo, Document, Direct Image, or Plain Text */}
                         {isVideo ? (
-                          <div className="my-0.5 w-full max-w-xs sm:max-w-sm overflow-hidden rounded-[16px]">
+                          <div className="my-0.5 w-full max-w-xs sm:max-w-sm overflow-hidden rounded-lg">
                             <VideoPlayer
                               src={
                                 msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] ||
@@ -1563,7 +1564,7 @@ export function MessengerPane({
                               {isMe && (
                                 <span title={msg.readAt ? "Seen" : "Delivered"}>
                                   <CheckCheck
-                                    className={cn("size-3", msg.readAt ? "text-sky-300" : "text-white/80")}
+                                    className={cn("size-3", msg.readAt ? "text-brand-text" : "text-white/80")}
                                   />
                                 </span>
                               )}
@@ -1578,7 +1579,7 @@ export function MessengerPane({
                               className={cn(
                                 "flex items-center justify-end gap-1 text-[10.5px] font-normal select-none mt-1 shrink-0 ml-auto pt-0.5",
                                 isMe
-                                  ? "text-emerald-800/70 dark:text-emerald-300/70"
+                                  ? "text-brand-fg/70"
                                   : "text-muted-foreground/70"
                               )}
                             >
@@ -1588,7 +1589,7 @@ export function MessengerPane({
                                   <Loader2 className="size-2.5 animate-spin opacity-70" />
                                 ) : msg.readAt ? (
                                   <span title="Seen">
-                                    <CheckCheck className="size-3.5 text-sky-400 font-bold" />
+                                    <CheckCheck className="size-3.5 text-brand-text font-bold" />
                                   </span>
                                 ) : (
                                   <span title="Delivered">
@@ -1603,7 +1604,7 @@ export function MessengerPane({
                         {reactions.length > 0 && (
                           <div
                             className={cn(
-                              "absolute -bottom-2.5 flex items-center gap-0.5 bg-card dark:bg-[#1e293b] border border-border/60 rounded-full px-2 py-0.5 shadow-xs text-[11px] cursor-pointer hover:scale-105 transition-transform",
+                              "absolute -bottom-2.5 flex items-center gap-0.5 bg-surface-raised border border-border rounded-full px-2 py-0.5 text-[11px] cursor-pointer hover:scale-105 transition-transform",
                               isMe ? "right-2" : "left-2"
                             )}
                             onClick={(e) => {
@@ -1637,7 +1638,7 @@ export function MessengerPane({
         <button
           type="button"
           onClick={() => scrollToBottom()}
-          className="absolute right-4 bottom-20 z-10 flex min-h-10 items-center gap-2 rounded-full border border-border/60 bg-card/95 px-3.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur-xl transition-all hover:-translate-y-0.5 active:scale-95"
+          className="absolute right-4 bottom-20 z-10 flex min-h-10 items-center gap-2 rounded-full border border-border/60 bg-card/95 px-3.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm transition-[opacity,transform] hover:-translate-y-0.5 active:scale-95"
           aria-label="Jump to latest messages"
         >
           <ArrowDown className="size-4" />
@@ -1669,9 +1670,9 @@ export function MessengerPane({
 
       {/* Mention Autocomplete Popover */}
       {mentionSuggestions.length > 0 && (
-        <div className="border-t border-border/40 bg-card/95 backdrop-blur-md px-3 py-2 shrink-0 z-30 animate-in slide-in-from-bottom-2">
+        <div className="border-t border-border/40 bg-card/95 backdrop-blur-sm px-3 py-2 shrink-0 z-30 animate-in slide-in-from-bottom-2">
           <div className="max-w-4xl mx-auto space-y-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-bold text-muted-foreground">
               Mention Student
             </p>
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
@@ -1696,9 +1697,9 @@ export function MessengerPane({
       )}
 
       {/* ─── Messenger Bottom Input Bar ─── */}
-      <footer className="border-t border-border/40 dark:border-white/8 bg-background/95 dark:bg-[#0D0D11]/95 backdrop-blur-xl px-2 sm:px-3 py-1.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] shrink-0 z-20">
+      <footer className="border-t border-border bg-surface/95 backdrop-blur-sm px-2 sm:px-3 py-1.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] shrink-0 z-20">
         {isUploadingMedia && (
-          <div className="max-w-4xl mx-auto mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 text-xs font-semibold animate-pulse">
+          <div className="max-w-4xl mx-auto mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-subtle text-brand-text text-xs font-semibold animate-pulse">
             <Loader2 className="size-3.5 animate-spin" />
             <span>Sending attachment…</span>
           </div>
@@ -1735,7 +1736,7 @@ export function MessengerPane({
 
         <form
           onSubmit={handleSendSubmit}
-          className="max-w-4xl mx-auto w-full flex items-end gap-1.5 bg-card dark:bg-[#121215] rounded-[22px] p-1.5 pl-2 border border-border/50 dark:border-white/8 focus-within:border-emerald-500/40 dark:focus-within:border-white/20 focus-within:ring-1 focus-within:ring-emerald-500/10 dark:focus-within:ring-white/10 transition-all shadow-2xs relative"
+          className="max-w-4xl mx-auto w-full flex items-end gap-1.5 bg-surface rounded-xl p-1.5 pl-2 border border-border focus-within:border-brand focus-within:ring-1 focus-within:ring-ring transition-colors relative"
         >
           {/* Attachment button & floating options menu */}
           <div className="relative shrink-0">
@@ -1744,8 +1745,8 @@ export function MessengerPane({
               disabled={isUploadingMedia}
               onClick={() => setShowAttachmentMenu((prev) => !prev)}
               className={cn(
-                "flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 dark:hover:bg-white/5 transition-colors cursor-pointer active:scale-95",
-                showAttachmentMenu && "text-emerald-500 dark:text-emerald-400 bg-muted/80 dark:bg-white/10"
+                "flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer active:scale-95",
+                showAttachmentMenu && "text-brand-text bg-surface-muted"
               )}
               title="Attach media or files"
               aria-label="Attach media or files"
@@ -1760,7 +1761,7 @@ export function MessengerPane({
                   onClick={() => setShowAttachmentMenu(false)}
                   aria-hidden="true"
                 />
-                <div className="absolute bottom-12 left-0 z-40 flex items-center gap-1 rounded-2xl border border-border/60 dark:border-white/10 bg-card/95 dark:bg-[#18181B]/95 p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95">
+                <div className="absolute bottom-12 left-0 z-40 flex items-center gap-1 rounded-2xl bg-surface-raised p-1.5 shadow-lg animate-in fade-in zoom-in-95">
                   <button
                     type="button"
                     disabled={isUploadingMedia}
@@ -1768,7 +1769,7 @@ export function MessengerPane({
                       setShowAttachmentMenu(false);
                       fileInputRef.current?.click();
                     }}
-                    className="flex size-9 items-center justify-center rounded-xl text-emerald-500 dark:text-emerald-400 hover:bg-muted dark:hover:bg-white/10 cursor-pointer transition-colors active:scale-95"
+                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-surface-muted cursor-pointer transition-colors active:scale-95"
                     title="Attach photo"
                     aria-label="Attach photo"
                   >
@@ -1781,7 +1782,7 @@ export function MessengerPane({
                       setShowAttachmentMenu(false);
                       videoInputRef.current?.click();
                     }}
-                    className="flex size-9 items-center justify-center rounded-xl text-sky-500 dark:text-sky-400 hover:bg-muted dark:hover:bg-white/10 cursor-pointer transition-colors active:scale-95"
+                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-muted cursor-pointer transition-colors active:scale-95"
                     title="Attach video"
                     aria-label="Attach video"
                   >
@@ -1794,7 +1795,7 @@ export function MessengerPane({
                       setShowAttachmentMenu(false);
                       docInputRef.current?.click();
                     }}
-                    className="flex size-9 items-center justify-center rounded-xl text-indigo-500 dark:text-indigo-400 hover:bg-muted dark:hover:bg-white/10 cursor-pointer transition-colors active:scale-95"
+                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-muted cursor-pointer transition-colors active:scale-95"
                     title="Attach study notes or PDF"
                     aria-label="Attach study notes or PDF"
                   >
@@ -1806,7 +1807,7 @@ export function MessengerPane({
                       setShowAttachmentMenu(false);
                       setShowGifPicker(true);
                     }}
-                    className="flex h-9 px-2.5 items-center justify-center rounded-xl text-[10.5px] font-black text-foreground/80 hover:bg-muted dark:hover:bg-white/10 cursor-pointer border border-border/50 dark:border-white/10 transition-colors active:scale-95"
+                    className="flex h-9 px-2.5 items-center justify-center rounded-xl text-[10.5px] font-black text-foreground/80 hover:bg-muted cursor-pointer border border-border/50 transition-colors active:scale-95"
                     title="Send GIF"
                     aria-label="Send GIF"
                   >
@@ -1818,7 +1819,7 @@ export function MessengerPane({
                       setShowAttachmentMenu(false);
                       setShowStickerPicker(true);
                     }}
-                    className="flex size-9 items-center justify-center rounded-xl text-amber-500 dark:text-amber-400 hover:bg-muted dark:hover:bg-white/10 cursor-pointer transition-colors active:scale-95"
+                    className="flex size-9 items-center justify-center rounded-xl text-warning hover:bg-muted cursor-pointer transition-colors active:scale-95"
                     title="Send sticker or emoji"
                     aria-label="Send sticker or emoji"
                   >
@@ -1847,7 +1848,7 @@ export function MessengerPane({
               type="submit"
               disabled={isSending}
               aria-label="Send message"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-2xs transition-all active:scale-90 cursor-pointer mr-0.5"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand hover:bg-brand-hover text-brand-fg transition-[opacity,transform] active:scale-90 cursor-pointer mr-0.5"
             >
               <AnimateSend size={16} className="text-white" />
             </button>
@@ -1856,7 +1857,7 @@ export function MessengerPane({
               type="button"
               onClick={handleSendVoiceMemo}
               aria-label="Record voice memo"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 dark:hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all cursor-pointer mr-0.5 active:scale-90"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-[opacity,transform] cursor-pointer mr-0.5 active:scale-90"
               title="Record voice note"
             >
               <Mic className="size-4.5" strokeWidth={1.8} />
@@ -1871,7 +1872,7 @@ export function MessengerPane({
           <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-5 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Trash2 className="size-4 text-rose-500" />
+                <Trash2 className="size-4 text-danger" />
                 Delete Message?
               </h3>
               <button
@@ -1888,7 +1889,7 @@ export function MessengerPane({
                 <button
                   type="button"
                   onClick={() => handleDeleteMessage(deleteModalMsg.id, "everyone")}
-                  className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-danger hover:bg-danger text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   Delete for Everyone
                 </button>
@@ -1940,7 +1941,7 @@ export function MessengerPane({
           onClick={() => setOptionsMenuMsg(null)}
         >
           <div
-            className="w-full max-w-xs rounded-3xl border border-border/60 bg-card/95 backdrop-blur-xl p-4 shadow-2xl space-y-3 animate-in zoom-in-95"
+            className="w-full max-w-xs rounded-3xl border border-border/60 bg-card/95 backdrop-blur-sm p-4 shadow-2xl space-y-3 animate-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Quick Emoji Bar */}
@@ -1992,9 +1993,9 @@ export function MessengerPane({
                     setOptionsMenuMsg(null);
                     setDeleteModalMsg(target);
                   }}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-danger hover:bg-danger-subtle transition-colors cursor-pointer"
                 >
-                  <Trash2 className="size-4 text-rose-500" />
+                  <Trash2 className="size-4 text-danger" />
                   <span>Delete Message</span>
                 </button>
               )}

@@ -109,7 +109,7 @@ export default function HashtagFeed() {
       try {
         await navigator.clipboard.writeText(url);
         setCopied(true);
-        toast.success(`Copied link to #${tag}! 🔗`);
+        toast.success(`Copied link to #${tag}!`);
         setTimeout(() => setCopied(false), 2000);
       } catch {
         toast.error("Failed to copy link");
@@ -171,12 +171,12 @@ export default function HashtagFeed() {
             title="Share this topic"
             aria-label="Share topic"
           >
-            {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
           </button>
 
           <Link
             href={`/post/new?tag=${encodeURIComponent(tag)}`}
-            className="h-8 px-3.5 rounded-full bg-foreground text-background hover:opacity-90 font-black text-xs transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+            className="h-8 px-3.5 rounded-full bg-foreground text-background hover:opacity-90 font-black text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
           >
             <Plus className="size-3.5" />
             <span>Post</span>
@@ -251,7 +251,7 @@ export default function HashtagFeed() {
       {/* ─── Related Tags Pill Bar ─── */}
       {theme.relatedTags.length > 0 && (
         <div className="px-4 py-2.5 border-b border-border/20 bg-muted/15 flex items-center gap-1.5 overflow-x-auto no-scrollbar select-none">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60 shrink-0 mr-1 flex items-center gap-1">
+          <span className="text-[10px] font-black text-muted-foreground/60 shrink-0 mr-1 flex items-center gap-1">
             <TrendingUp className="size-3" />
             <span>Related</span>
           </span>
@@ -263,7 +263,7 @@ export default function HashtagFeed() {
                 key={rTag}
                 href={`/hashtag/${encodeURIComponent(cleanRTag)}`}
                 className={cn(
-                  "px-2.5 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer",
+                  "px-2.5 py-1 rounded-full text-xs font-bold transition-colors shrink-0 cursor-pointer",
                   isCurrent
                     ? "bg-foreground text-background font-black shadow-2xs"
                     : "bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border"
@@ -287,7 +287,7 @@ export default function HashtagFeed() {
               setScope("GLOBAL");
             }}
             className={cn(
-              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer",
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer",
               scope === "GLOBAL"
                 ? "bg-card text-foreground shadow-xs font-bold"
                 : "text-muted-foreground hover:text-foreground"
@@ -304,7 +304,7 @@ export default function HashtagFeed() {
               setScope("CAMPUS");
             }}
             className={cn(
-              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer max-w-[100px] sm:max-w-[140px] truncate",
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer max-w-[100px] sm:max-w-[140px] truncate",
               scope === "CAMPUS"
                 ? "bg-card text-foreground shadow-xs font-bold"
                 : "text-muted-foreground hover:text-foreground"
@@ -323,7 +323,7 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("top")}
             className={cn(
-              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "top"
                 ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -337,7 +337,7 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("latest")}
             className={cn(
-              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "latest"
                 ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -351,7 +351,7 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("media")}
             className={cn(
-              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "media"
                 ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -365,7 +365,7 @@ export default function HashtagFeed() {
             type="button"
             onClick={() => setActiveTab("polls")}
             className={cn(
-              "px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+              "px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1",
               activeTab === "polls"
                 ? "bg-foreground text-background font-bold shadow-2xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -381,7 +381,7 @@ export default function HashtagFeed() {
       <div className="hidden sm:block px-4 py-3 bg-muted/20 border-b border-border/20">
         <Link
           href={`/post/new?tag=${encodeURIComponent(tag)}`}
-          className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs group"
+          className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
@@ -452,7 +452,7 @@ export default function HashtagFeed() {
 
             <Link
               href={`/post/new?tag=${encodeURIComponent(tag)}`}
-              className="mt-6 py-2.5 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md hover:bg-primary/90 transition-all cursor-pointer inline-flex items-center gap-1.5"
+              className="mt-6 py-2.5 px-6 rounded-full bg-primary text-primary-foreground text-xs font-black shadow-md hover:bg-primary/90 transition-colors cursor-pointer inline-flex items-center gap-1.5"
             >
               <Plus className="size-4" />
               <span>Create first post for #{theme.tag}</span>

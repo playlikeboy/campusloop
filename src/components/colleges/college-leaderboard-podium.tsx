@@ -94,7 +94,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
             placeholder={`Search ${students.length} verified students in ${collegeName.split(",")[0]}...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all shadow-2xs"
+            className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-ui shadow-2xs"
           />
           {searchQuery && (
             <button
@@ -115,7 +115,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                 type="button"
                 onClick={() => setSelectedBranch("ALL")}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+                  "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
                   selectedBranch === "ALL"
                     ? "bg-foreground text-background font-black"
                     : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -129,7 +129,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                   type="button"
                   onClick={() => setSelectedBranch(b)}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
                     selectedBranch === b
                       ? "bg-foreground text-background font-black"
                       : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -149,7 +149,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                 type="button"
                 onClick={() => setSelectedYear(yr)}
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs",
+                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs",
                   selectedYear === yr
                     ? "bg-foreground text-background font-black"
                     : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -176,7 +176,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
             const tier = getCloutTier(student.points || 0);
             return (
               <Link key={student.id} href={`/@${student.username}`}>
-                <div className="group rounded-2xl bg-card p-3.5 hover:bg-muted/40 transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
+                <div className="group rounded-2xl bg-card p-3.5 hover:bg-muted/40 transition-ui cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="text-xs font-black text-muted-foreground/60 w-5 text-center shrink-0">
                       #{index + 1}

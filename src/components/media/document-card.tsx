@@ -41,20 +41,20 @@ export function DocumentCard({
             : FileText;
 
   const badgeColor = isPdf
-    ? "bg-rose-500/15 text-rose-500 border-rose-500/30"
+    ? "bg-danger/15 text-danger border-danger/30"
     : isDoc
-      ? "bg-blue-500/15 text-blue-500 border-blue-500/30"
+      ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
       : isSheet
-        ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+        ? "bg-success/15 text-success border-success/30"
         : isZip
-          ? "bg-purple-500/15 text-purple-500 border-purple-500/30"
+          ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
           : "bg-primary/15 text-primary border-primary/30";
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "rounded-2xl border transition-all select-none no-card-nav max-w-md",
+        "rounded-2xl border transition-colors select-none no-card-nav max-w-md",
         compact
           ? isMe
             ? "bg-white/10 border-white/20 p-2.5 text-white"

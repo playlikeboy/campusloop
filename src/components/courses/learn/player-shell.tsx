@@ -147,7 +147,7 @@ export function PlayerShell({ data, lectureId, startAt }: { data: CourseDetailRe
         <p className="min-w-0 flex-1 truncate text-sm font-semibold sm:text-base">{course.title}</p>
         <div className="hidden items-center gap-2 sm:flex" title={`${completed.size} of ${total} lectures complete`}>
           <div className="h-1.5 w-28 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Course progress">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded-full bg-primary transition-ui" style={{ width: `${progress}%` }} />
           </div>
           <span className="text-xs font-semibold tabular-nums text-muted-foreground">{progress}%</span>
         </div>

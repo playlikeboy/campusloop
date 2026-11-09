@@ -312,7 +312,7 @@ export function SearchAutocomplete({
           placeholder={placeholder}
           className={cn(
             "w-full pl-10 pr-9 rounded-xl bg-muted/50 border border-border/50 text-foreground placeholder:text-muted-foreground",
-            "focus:border-primary/70 focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 transition-all",
+            "focus:border-primary/70 focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 transition-colors",
             heightClass,
             inputClassName
           )}
@@ -351,8 +351,8 @@ export function SearchAutocomplete({
           {trimmed.length >= 2 && suggestions.length > 0 ? (
             <div className="space-y-1">
               <div className="flex items-center justify-between px-2 pt-1 pb-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Sparkles className="size-3 text-purple-400" />
+                <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="size-3 text-brand-text" />
                   <span>Suggestions</span>
                 </span>
                 <span className="text-[10px] text-muted-foreground/60 font-mono hidden sm:inline">
@@ -371,20 +371,20 @@ export function SearchAutocomplete({
                         return (
                           <Avatar className="size-7 rounded-full border border-border/50 shrink-0">
                             <AvatarImage src={item.imageUrl || ""} />
-                            <AvatarFallback className="text-[10px] font-bold bg-purple-500/15 text-purple-400">
+                            <AvatarFallback className="text-[10px] font-bold bg-brand/15 text-brand-text">
                               {item.title?.[0]?.toUpperCase() || "U"}
                             </AvatarFallback>
                           </Avatar>
                         );
                       case "college":
                         return (
-                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-success/15 text-success border border-success/30">
                             <School className="size-3.5" />
                           </div>
                         );
                       case "community":
                         return (
-                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400 border border-sky-500/30">
+                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand/15 text-brand-text border border-brand-subtle-border/30">
                             <Users className="size-3.5" />
                           </div>
                         );
@@ -396,7 +396,7 @@ export function SearchAutocomplete({
                         );
                       case "academic":
                         return (
-                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-warning/15 text-warning border border-warning/30">
                             <BookOpen className="size-3.5" />
                           </div>
                         );
@@ -415,7 +415,7 @@ export function SearchAutocomplete({
                       onMouseEnter={() => setSelectedIndex(idx)}
                       onClick={() => handleSelect(item)}
                       className={cn(
-                        "group flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl transition-all cursor-pointer select-none",
+                        "group flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl transition-colors cursor-pointer select-none",
                         isSelected
                           ? "bg-primary/12 text-primary font-semibold ring-1 ring-primary/25"
                           : "hover:bg-muted/60 text-foreground"
@@ -444,7 +444,7 @@ export function SearchAutocomplete({
                             e.stopPropagation();
                             handleInsertText(item.text);
                           }}
-                          className="opacity-0 group-hover:opacity-100 flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
+                          className="opacity-0 group-hover:opacity-100 flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
                           title="Autocomplete into search bar"
                           aria-label="Autocomplete into search bar"
                         >
@@ -469,7 +469,7 @@ export function SearchAutocomplete({
               <button
                 type="button"
                 onClick={() => handleFormSubmit()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/15 text-primary hover:bg-primary/25 text-xs font-bold transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/15 text-primary hover:bg-primary/25 text-xs font-bold transition-colors cursor-pointer"
               >
                 <Search className="size-3" />
                 <span>Search all posts &amp; topics for &quot;{trimmed}&quot;</span>
@@ -481,7 +481,7 @@ export function SearchAutocomplete({
           {showRecent && recentSearches.length > 0 && trimmed.length < 2 && (
             <div className="space-y-1.5 px-1">
               <div className="flex items-center justify-between px-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
                   <Clock className="size-3" />
                   <span>Recent Searches</span>
                 </span>
@@ -498,7 +498,7 @@ export function SearchAutocomplete({
                 {recentSearches.map((term) => (
                   <span
                     key={term}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-xs text-foreground/90 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-xs text-foreground/90 transition-colors cursor-pointer"
                     onClick={() => {
                       updateQuery(term);
                       inputRef.current?.focus();
@@ -525,7 +525,7 @@ export function SearchAutocomplete({
           {/* ─── Trending Topics (Shown when empty or short query) ─── */}
           {showTrending && trimmed.length < 2 && (
             <div className="space-y-1.5 px-1 pt-1 border-t border-border/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1.5">
+              <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 px-1.5">
                 <Sparkles className="size-3 text-primary" />
                 <span>Trending Searches</span>
               </span>

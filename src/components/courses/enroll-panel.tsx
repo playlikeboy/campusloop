@@ -58,7 +58,7 @@ export function EnrollPanel({ slug }: { slug: string }) {
         <>
           <div className="mt-3">
             <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full bg-primary transition-ui" style={{ width: `${progress}%` }} />
             </div>
             <p className="mt-1.5 text-sm text-muted-foreground">{progress}% complete · {viewer.completedIds.length}/{lectures.length} lectures</p>
           </div>

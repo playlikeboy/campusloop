@@ -67,7 +67,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
 
       if (!res.ok) throw new Error("Failed to create highlight");
 
-      toast.success(`Highlight "${highlightTitle}" created! ⭐`);
+      toast.success(`Highlight "${highlightTitle}" created!`);
       onHighlightCreated();
     } catch {
       toast.error("Failed to create highlight");
@@ -78,7 +78,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -88,7 +88,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-border/40 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+            <div className="size-8 rounded-xl bg-warning-subtle flex items-center justify-center text-warning">
               <Bookmark className="size-4.5" />
             </div>
             <div>
@@ -104,9 +104,10 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
           </div>
 
           <button
+            aria-label="Close"
             type="button"
             onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="size-4" />
           </button>
@@ -151,7 +152,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
             <button
               type="button"
               onClick={() => setIsHighlightMode(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-2xs"
             >
               <Plus className="size-3.5" />
               <span>Create Highlight</span>
@@ -183,7 +184,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
                       }
                     }}
                     className={cn(
-                      "relative aspect-9/16 rounded-2xl overflow-hidden border transition-all cursor-pointer group shadow-2xs",
+                      "relative aspect-9/16 rounded-2xl overflow-hidden border transition-colors cursor-pointer group shadow-2xs",
                       isSelected
                         ? "border-primary ring-2 ring-primary ring-offset-1"
                         : "border-border/40 hover:border-border"
@@ -215,7 +216,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
                       {isHighlightMode ? (
                         <div
                           className={cn(
-                            "size-5 rounded-full border flex items-center justify-center transition-all",
+                            "size-5 rounded-full border flex items-center justify-center transition-colors",
                             isSelected
                               ? "bg-primary border-primary text-primary-foreground"
                               : "bg-black/40 border-white/60 text-transparent"
@@ -226,7 +227,7 @@ export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: Story
                       ) : (
                         story.likesCount > 0 && (
                           <div className="flex items-center gap-1 bg-black/60 backdrop-blur-xs px-1.5 py-0.5 rounded-full text-[10px] text-white font-bold">
-                            <Heart className="size-3 text-rose-500 fill-rose-500" />
+                            <Heart className="size-3 text-danger fill-danger" />
                             <span>{story.likesCount}</span>
                           </div>
                         )

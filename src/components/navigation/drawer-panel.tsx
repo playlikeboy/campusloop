@@ -64,7 +64,7 @@ export function DrawerPanel({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={onClose}
-            className={cn("fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]", hideFrom)}
+            className={cn("fixed inset-0 z-[var(--z-modal)] bg-overlay", hideFrom)}
             aria-hidden="true"
           />
           <motion.aside
@@ -77,7 +77,7 @@ export function DrawerPanel({
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex w-[86%] max-w-[340px] flex-col bg-background shadow-2xl",
+              "fixed inset-y-0 left-0 z-[var(--z-modal)] flex w-[86%] max-w-sm flex-col bg-surface shadow-lg",
               hideFrom,
               "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
               className
@@ -89,7 +89,7 @@ export function DrawerPanel({
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
-                className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+                className="flex size-11 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Close menu"
               >
                 <X className="size-5" />
@@ -98,7 +98,7 @@ export function DrawerPanel({
             <nav className="flex-1 overflow-y-auto overscroll-contain px-3 pb-4" aria-label={label}>
               {children}
             </nav>
-            {footer && <div className="px-3 pt-2 pb-3 shadow-[0_-1px_0_0_var(--border)]">{footer}</div>}
+            {footer && <div className="border-t border-border px-3 pt-2 pb-3">{footer}</div>}
           </motion.aside>
         </>
       )}
@@ -115,6 +115,7 @@ export function DrawerLink({
   badge,
   onNavigate,
   tone = "default",
+  external,
 }: {
   href: string;
   label: string;
@@ -123,33 +124,38 @@ export function DrawerLink({
   badge?: ReactNode;
   onNavigate?: () => void;
   tone?: "default" | "primary" | "danger";
+  external?: boolean;
 }) {
-  return (
-    <Link
-      href={href}
-      prefetch
-      onClick={onNavigate}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "group relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-        active
-          ? "bg-primary/10 text-primary font-semibold"
-          : tone === "primary"
-            ? "text-primary hover:bg-primary/10"
-            : tone === "danger"
-              ? "text-destructive hover:bg-destructive/10"
-              : "text-foreground hover:bg-muted/70"
-      )}
-    >
-      {active && <span className="absolute inset-y-2.5 left-0 w-[3px] rounded-full bg-primary" aria-hidden />}
-      <Icon
-        className={cn(
-          "size-[18px] shrink-0",
-          active || tone !== "default" ? "" : "text-muted-foreground group-hover:text-foreground"
-        )}
-      />
+  const className = cn(
+    "group relative flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    active
+      ? "bg-brand-subtle text-brand-text"
+      : tone === "primary"
+        ? "text-brand-text hover:bg-brand-subtle"
+        : tone === "danger"
+          ? "text-danger hover:bg-danger-subtle"
+          : "text-fg hover:bg-surface-muted"
+  );
+  const content = (
+    <>
+      {active && <span className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-brand" aria-hidden="true" />}
+      <Icon className={cn("size-5 shrink-0", !active && tone === "default" && "text-fg-muted group-hover:text-fg")} />
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {badge}
+    </>
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" onClick={onNavigate} className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} prefetch onClick={onNavigate} aria-current={active ? "page" : undefined} className={className}>
+      {content}
     </Link>
   );
 }
@@ -157,9 +163,7 @@ export function DrawerLink({
 export function DrawerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-5 first:mt-1">
-      <h3 className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {title}
-      </h3>
+      <h3 className="px-3 pb-1.5 text-xs font-semibold text-fg-subtle">{title}</h3>
       <div className="space-y-0.5">{children}</div>
     </section>
   );

@@ -8,6 +8,7 @@ export default defineConfig({
 	test: {
 		include: ["src/**/*.test.ts"],
 		environment: "node",
+		setupFiles: ["./src/test/setup.ts"],
 		env: {
 			HEXCLAVE_PROJECT_ID: "a0000000-0000-4000-8000-000000000000",
 			HEXCLAVE_SECRET_SERVER_KEY: "test_secret_server_key",

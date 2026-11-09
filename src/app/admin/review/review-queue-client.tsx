@@ -120,20 +120,20 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
   function riskBadge(score: number) {
     if (score >= 70) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-destructive/15 text-destructive border border-destructive/25">
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/25">
           High Risk · {score}
         </span>
       );
     }
     if (score >= 40) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-500 border border-amber-500/25">
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-warning-subtle text-warning border border-warning/25">
           Medium Risk · {score}
         </span>
       );
     }
     return (
-      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-muted text-muted-foreground border border-border/40">
+      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground border border-border/40">
         Low Risk · {score}
       </span>
     );
@@ -156,7 +156,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                 setSelectedIndex(0);
               }}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 riskFilter === filter
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -186,7 +186,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
       {/* Queue Stream */}
       {filteredPosts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/80 bg-card/40 p-12 text-center space-y-2">
-          <CheckCircle2 className="size-8 text-emerald-500 mx-auto" />
+          <CheckCircle2 className="size-8 text-success mx-auto" />
           <h3 className="text-sm font-bold text-foreground">Review Queue is Clear</h3>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
             No posts match the current filter. All student posts have been verified or triaged.
@@ -201,7 +201,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                 key={post.id}
                 onClick={() => setSelectedIndex(index)}
                 className={cn(
-                  "rounded-xl border p-4 sm:p-5 shadow-2xs transition-all space-y-3 cursor-pointer",
+                  "rounded-xl border p-4 sm:p-5 shadow-2xs transition-colors space-y-3 cursor-pointer",
                   isSelected
                     ? "bg-card border-primary/60 ring-1 ring-primary/30"
                     : "bg-card/70 border-border/60 hover:border-border"
@@ -211,7 +211,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     {riskBadge(post.riskScore)}
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-muted text-foreground border border-border/40">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-foreground border border-border/40">
                       {post.type}
                     </span>
                     {post.isAnonymous ? (
@@ -247,7 +247,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         handleApprove(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>Publish</span>
@@ -260,7 +260,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         handleReject(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs font-bold transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs font-bold transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
                     >
                       <XCircle className="size-3.5" />
                       <span>Hide</span>
@@ -273,7 +273,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         setDeleteTargetId(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-muted/50 hover:bg-destructive/15 text-muted-foreground hover:text-destructive border border-border/40 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-muted/50 hover:bg-destructive/15 text-muted-foreground hover:text-destructive border border-border/40 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
                     >
                       <Trash2 className="size-3.5" />
                       <span>Delete</span>

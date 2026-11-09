@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: "Campus Supermarket & Mart | 15-Min Hostel Delivery",
   description:
     "Order snacks, midnight munchies, stationery, exam kits, toiletries, and hostel essentials with instant delivery inside your college campus.",
-  alternates: { canonical: "https://campusloop.space/app/marketplace/supermarket" },
+  alternates: { canonical: "https://campusloop.space/marketplace/supermarket" },
   openGraph: {
-    title: "Campus Supermarket & Daily Mart | CampusLoop",
+    title: "Campus Supermarket & Daily Mart",
     description:
       "Instant groceries, exam stationery, beverages, and dorm essentials delivered to hostel rooms.",
-    url: "https://campusloop.space/app/marketplace/supermarket",
+    url: "https://campusloop.space/marketplace/supermarket",
     siteName: "CampusLoop Mart",
   },
 };

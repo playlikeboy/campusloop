@@ -458,7 +458,7 @@ export function NovelMarkdownEditor({
     <div
       ref={editorContainerRef}
       className={cn(
-        "relative flex flex-col rounded-2xl border border-border/50 bg-card text-foreground shadow-xs transition-all overflow-hidden",
+        "relative flex flex-col rounded-2xl border border-border/50 bg-card text-foreground shadow-xs transition-ui overflow-hidden",
         isFullscreen ? "fixed inset-0 z-50 rounded-none border-none" : "w-full",
         className
       )}
@@ -622,7 +622,7 @@ export function NovelMarkdownEditor({
               type="button"
               onClick={() => setViewMode("visual")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer",
                 viewMode === "visual"
                   ? "bg-background text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -634,7 +634,7 @@ export function NovelMarkdownEditor({
               type="button"
               onClick={() => setViewMode("split")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1",
+                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer flex items-center gap-1",
                 viewMode === "split"
                   ? "bg-background text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -647,7 +647,7 @@ export function NovelMarkdownEditor({
               type="button"
               onClick={() => setViewMode("raw")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer",
                 viewMode === "raw"
                   ? "bg-background text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -664,7 +664,7 @@ export function NovelMarkdownEditor({
             className="p-1.5 rounded-lg bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Copy Markdown"
           >
-            {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
           </button>
 
           {/* Fullscreen Toggle */}

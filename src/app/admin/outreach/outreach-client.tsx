@@ -331,50 +331,50 @@ export function OutreachClient({
     <div className="space-y-6">
       {/* ─── Metric Cards ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
+        <div className="rounded-2xl border border-border/60 bg-surface p-4 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <Users className="size-4 text-blue-500" />
+            <Users className="size-4 text-brand-text" />
             Total Leads
           </div>
-          <p className="mt-2 text-2xl font-black tracking-tight text-foreground">{metrics.total}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{metrics.total}</p>
           <span className="text-[11px] text-muted-foreground">Indexed campus contacts</span>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
+        <div className="rounded-2xl border border-border/60 bg-surface p-4 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <Clock className="size-4 text-amber-500" />
+            <Clock className="size-4 text-warning" />
             Pending Outreach
           </div>
-          <p className="mt-2 text-2xl font-black tracking-tight text-amber-600 dark:text-amber-400">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-warning">
             {metrics.pending}
           </p>
           <span className="text-[11px] text-muted-foreground">Ready to email</span>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
+        <div className="rounded-2xl border border-border/60 bg-surface p-4 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <Send className="size-4 text-primary" />
             Dispatched
           </div>
-          <p className="mt-2 text-2xl font-black tracking-tight text-foreground">{metrics.sent}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{metrics.sent}</p>
           <span className="text-[11px] text-muted-foreground">Emails sent</span>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
+        <div className="rounded-2xl border border-border/60 bg-surface p-4 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <CheckCheck className="size-4 text-indigo-500" />
+            <CheckCheck className="size-4 text-brand-text" />
             Delivered
           </div>
-          <p className="mt-2 text-2xl font-black tracking-tight text-foreground">{metrics.delivered}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{metrics.delivered}</p>
           <span className="text-[11px] text-muted-foreground">Inbox delivery confirmed</span>
         </div>
 
-        <div className="col-span-2 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xs backdrop-blur-xs sm:col-span-1">
+        <div className="col-span-2 rounded-2xl border border-border/60 bg-surface p-4 shadow-2xs sm:col-span-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <MessageSquareText className="size-4 text-emerald-500" />
+            <MessageSquareText className="size-4 text-success" />
             Replied ({metrics.replyRate}%)
           </div>
-          <p className="mt-2 text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-success">
             {metrics.replied}
           </p>
           <span className="text-[11px] text-muted-foreground">Responses received</span>
@@ -410,7 +410,7 @@ export function OutreachClient({
             type="button"
             onClick={() => void refreshData()}
             disabled={isRefreshing}
-            className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/60 px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
             title="Refresh registry"
           >
             <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
@@ -427,7 +427,7 @@ export function OutreachClient({
               placeholder="Search name, email, college..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-border/60 bg-card/60 pl-8 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border/60 bg-surface pl-8 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
             {searchQuery && (
               <button
@@ -445,7 +445,7 @@ export function OutreachClient({
             type="button"
             onClick={() => void handleSendAllPending()}
             disabled={isSendingAll || metrics.pending === 0}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-50"
           >
             {isSendingAll ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -467,11 +467,11 @@ export function OutreachClient({
       </div>
 
       {/* ─── Contacts Table ─── */}
-      <div className="rounded-2xl border border-border/60 bg-card/60 shadow-2xs backdrop-blur-xs overflow-hidden">
+      <div className="rounded-2xl border border-border/60 bg-surface shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-border/40 bg-muted/30 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border/40 bg-muted/30 text-[11px] font-semibold text-muted-foreground">
                 <th className="py-3 px-4">Contact</th>
                 <th className="py-3 px-4">College & Hub</th>
                 <th className="py-3 px-4">Email</th>
@@ -540,22 +540,22 @@ export function OutreachClient({
                       {/* Status Badge */}
                       <td className="py-3.5 px-4">
                         {c.status === "PENDING" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle border border-warning/20 px-2.5 py-0.5 text-[11px] font-bold text-warning">
                             <Clock className="size-3" /> Pending
                           </span>
                         )}
                         {c.status === "SENT" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-subtle border border-brand/20 px-2.5 py-0.5 text-[11px] font-bold text-brand-text">
                             <Send className="size-3" /> Sent
                           </span>
                         )}
                         {c.status === "DELIVERED" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-subtle border border-brand/20 px-2.5 py-0.5 text-[11px] font-bold text-brand-text">
                             <CheckCheck className="size-3" /> Delivered
                           </span>
                         )}
                         {c.status === "REPLIED" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle border border-success/20 px-2.5 py-0.5 text-[11px] font-bold text-success">
                             <MessageSquareText className="size-3" /> Replied
                           </span>
                         )}
@@ -580,7 +580,7 @@ export function OutreachClient({
                           <span className="italic">Not emailed</span>
                         )}
                         {c.repliedAt && (
-                          <div className="text-emerald-600 dark:text-emerald-400 font-medium">
+                          <div className="text-success font-medium">
                             Replied:{" "}
                             {new Date(c.repliedAt).toLocaleDateString("en-IN", {
                               day: "numeric",
@@ -612,7 +612,7 @@ export function OutreachClient({
                             onClick={() => void handleSendSingle(c)}
                             disabled={isSendingThis}
                             className={cn(
-                              "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all cursor-pointer",
+                              "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold transition-colors cursor-pointer",
                               c.status === "PENDING"
                                 ? "bg-primary text-primary-foreground hover:bg-primary/90"
                                 : "border border-border/80 bg-muted/40 text-muted-foreground hover:text-foreground"
@@ -634,7 +634,7 @@ export function OutreachClient({
                             className={cn(
                               "rounded-lg p-1.5 transition-colors cursor-pointer",
                               isReplied
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                ? "bg-success-subtle text-success"
                                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
                             title={isReplied ? "Mark as unreplied" : "Mark as replied"}
@@ -664,7 +664,7 @@ export function OutreachClient({
 
       {/* ─── Add Contact Modal ─── */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-lg rounded-3xl border border-border/70 bg-card p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <h3 className="font-bold text-foreground text-base flex items-center gap-2">
@@ -792,7 +792,7 @@ export function OutreachClient({
                 <button
                   type="submit"
                   disabled={isSubmittingNew}
-                  className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-bold text-primary-foreground shadow-xs hover:bg-primary/90 cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-bold text-primary-foreground shadow-xs hover:bg-primary/90 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isSubmittingNew ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
                   <span>Save Contact</span>
@@ -805,7 +805,7 @@ export function OutreachClient({
 
       {/* ─── Email Preview Modal ─── */}
       {isPreviewModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-2xl max-h-[85vh] flex flex-col rounded-3xl border border-border/70 bg-card shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between border-b border-border/40 p-4 bg-muted/20">
               <div className="flex items-center gap-2">

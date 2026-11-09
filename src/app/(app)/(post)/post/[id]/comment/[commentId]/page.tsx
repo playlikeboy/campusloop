@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: CommentPageProps): Promise<Me
 
   if (!comment || comment.postId !== id || comment.status !== "PUBLISHED") {
     return {
-      title: "Comment | CampusLoop",
+      title: "Comment",
       description: "Explore verified student discussions and comments on CampusLoop.",
       robots: { index: false, follow: false },
     };
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: CommentPageProps): Promise<Me
     : comment.author?.displayName || comment.author?.username || "Student";
 
   const postTitle = post?.title?.trim() || cleanSnippet(post?.body || "", 60) || "Campus Discussion";
-  const title = `"${commentAuthor} on ${postTitle}" | CampusLoop`;
+  const title = `"${commentAuthor} on ${postTitle}"`;
   const description = cleanSnippet(comment.body, 157).slice(0, 160) || "Join the conversation on CampusLoop.";
   const canonicalUrl = `https://campusloop.space/post/${id}/comment/${commentId}`;
 

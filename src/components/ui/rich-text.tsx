@@ -308,7 +308,7 @@ export function RichText({
           <div
             ref={textContainerRef}
             className={cn(
-              "w-full min-w-0 max-w-full whitespace-pre-wrap break-words [overflow-wrap:anywhere] transition-all duration-200",
+              "w-full min-w-0 max-w-full whitespace-pre-wrap break-words [overflow-wrap:anywhere]",
               maxHeight && isClamped && !isExpanded && "overflow-hidden relative"
             )}
             style={maxHeight && isClamped && !isExpanded ? { maxHeight: `${maxHeight}px` } : undefined}
@@ -556,7 +556,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
           src={images[currentIndex].url}
           alt={images[currentIndex].alt}
           data-no-nav="true"
-          className="w-full h-full object-contain transition-all duration-300"
+          className="w-full h-full object-contain transition-opacity duration-300"
           loading="lazy"
         />
 
@@ -598,7 +598,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         type="button"
         aria-label="Previous image"
         onClick={prev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ChevronLeft className="size-4" />
       </button>
@@ -607,7 +607,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         type="button"
         aria-label="Next image"
         onClick={next}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ChevronRight className="size-4" />
       </button>
@@ -616,8 +616,8 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         {images.map((_, idx) => (
           <span
             key={idx}
-            className={`transition-all rounded-full ${
-              idx === currentIndex ? "size-1.5 bg-white scale-125" : "size-1 bg-white/50"
+            className={`size-1.5 rounded-full transition-[opacity,transform] ${
+              idx === currentIndex ? "bg-white scale-125" : "bg-white/50 scale-75"
             }`}
           />
         ))}

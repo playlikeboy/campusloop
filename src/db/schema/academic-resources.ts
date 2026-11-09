@@ -36,6 +36,7 @@ export const academicResources = pgTable(
   },
   (table) => [
     index("academic_resources_inst_created_idx").on(table.institutionId, table.createdAt),
+    index("academic_resources_uploader_created_idx").on(table.uploaderId, table.createdAt),
     index("academic_resources_type_idx").on(table.resourceType),
     index("academic_resources_branch_sem_idx").on(table.branch, table.semester),
   ]

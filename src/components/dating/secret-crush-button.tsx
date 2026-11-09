@@ -53,14 +53,14 @@ export function SecretCrushButton({ targetId, targetName, className, iconOnly }:
         onClick={() => setShowConfirm(true)}
         className={cn(
           iconOnly
-            ? "inline-flex items-center justify-center h-9 w-9 sm:w-10 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0 relative before:absolute before:-inset-1.5 before:content-['']"
-            : "inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0",
+            ? "inline-flex items-center justify-center h-9 w-9 sm:w-10 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs shrink-0 relative before:absolute before:-inset-1.5 before:content-['']"
+            : "inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs font-semibold transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs shrink-0",
           className
         )}
         title={`Secret Crush on ${targetName}`}
         aria-label={`Secret Crush on ${targetName}`}
       >
-        <AnimateHeart size={iconOnly ? 17 : 14} className="text-rose-500 fill-rose-500/20 shrink-0" />
+        <AnimateHeart size={iconOnly ? 17 : 14} className="text-crush-text fill-crush shrink-0" />
         {!iconOnly && <span className="hidden sm:inline">Secret Crush</span>}
       </button>
 

@@ -107,7 +107,7 @@ export function AuthRequiredOverlay() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="campusloop-login-title"
-        className="w-full max-w-md overflow-hidden rounded-[28px] border border-border/70 bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-200 sm:slide-in-from-bottom-0 sm:zoom-in-95"
+        className="w-full max-w-md overflow-hidden rounded-xl border border-border/70 bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-200 sm:slide-in-from-bottom-0 sm:zoom-in-95"
       >
         <div className="relative p-5 sm:p-6">
           <button

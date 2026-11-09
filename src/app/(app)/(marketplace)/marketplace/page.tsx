@@ -14,11 +14,11 @@ export const metadata: Metadata = {
     "Scooter Rentals College",
     "College Laundry Services",
   ],
-  alternates: { canonical: "https://campusloop.space/app/marketplace" },
+  alternates: { canonical: "https://campusloop.space/marketplace" },
   openGraph: {
     title: "Campus Marketplace",
     description: "Shop from verified local businesses, canteens, and services around your college campus.",
-    url: "https://campusloop.space/app/marketplace",
+    url: "https://campusloop.space/marketplace",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

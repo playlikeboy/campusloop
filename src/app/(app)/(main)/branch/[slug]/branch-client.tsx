@@ -77,7 +77,7 @@ export function BranchDirectoryClient() {
             placeholder={`Search ${branchTitle} classmates...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9.5 pl-10 pr-4 rounded-full bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/40 focus:bg-background transition-all"
+            className="w-full h-9.5 pl-10 pr-4 rounded-full bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/40 focus:bg-background transition-ui"
           />
         </div>
       </div>
@@ -126,21 +126,21 @@ export function BranchDirectoryClient() {
           <button
             type="button"
             onClick={() => setSort("CLOUT")}
-            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer ${
               sort === "CLOUT"
                 ? "bg-primary text-primary-foreground shadow-2xs"
                 : "bg-muted/40 text-muted-foreground hover:text-foreground"
             }`}
           >
             <span className="inline-flex items-center gap-1">
-              <Flame className="size-3.5 fill-orange-500 text-orange-500" />
+              <Flame className="size-3.5 fill-reward text-reward" />
               <span>Top Clout</span>
             </span>
           </button>
           <button
             type="button"
             onClick={() => setSort("RECENT")}
-            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer ${
               sort === "RECENT"
                 ? "bg-primary text-primary-foreground shadow-2xs"
                 : "bg-muted/40 text-muted-foreground hover:text-foreground"
@@ -231,8 +231,8 @@ export function BranchDirectoryClient() {
 
                 {/* Clout LP Badge */}
                 <div className="pt-0.5">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-500">
-                    <Flame className="size-3 fill-amber-500 text-amber-500" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-reward-text">
+                    <Flame className="size-3 fill-reward text-reward" />
                     <span>{student.points || 0} LP Clout</span>
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export function BranchDirectoryClient() {
             </div>
             <Link
               href="/profile/edit"
-              className="py-2 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer"
+              className="py-2 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-ui cursor-pointer"
             >
               Add {branchTitle} to Profile
             </Link>

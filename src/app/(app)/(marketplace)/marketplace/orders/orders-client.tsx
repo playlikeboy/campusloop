@@ -33,7 +33,7 @@ export function OrdersClient() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -86,7 +86,7 @@ export function OrdersClient() {
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-border/40 bg-card hover:bg-muted/4 transition-all cursor-pointer group shadow-xs"
+              className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-border/40 bg-card hover:bg-muted/4 transition-colors cursor-pointer group shadow-xs"
             >
               <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div className="size-12 rounded-xl bg-muted border border-border/40 overflow-hidden shrink-0">
@@ -129,12 +129,12 @@ export function OrdersClient() {
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <span
                   className={cn(
-                    "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs",
+                    "px-2.5 py-0.5 rounded-full text-xs font-bold border shadow-2xs",
                     order.status === "DELIVERED" || order.status === "PICKED_UP"
-                      ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                      ? "bg-success-subtle text-success border-success"
                       : order.status === "REJECTED" || order.status === "CANCELLED"
-                        ? "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                        : "bg-amber-500/15 text-amber-500 border-amber-500/30 animate-pulse"
+                        ? "bg-danger-subtle text-danger border-danger"
+                        : "bg-warning-subtle text-warning border-warning animate-pulse"
                   )}
                 >
                   {order.status.replace("_", " ")}

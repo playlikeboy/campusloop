@@ -37,7 +37,7 @@ export function OrderPayNow({
   }
 
   return (
-    <div className="rounded-3xl bg-amber-500/10 p-4 space-y-3">
+    <div className="rounded-3xl bg-warning-subtle p-4 space-y-3">
       <div>
         <p className="text-sm font-black text-foreground">Payment pending</p>
         <p className="text-xs text-muted-foreground mt-0.5">

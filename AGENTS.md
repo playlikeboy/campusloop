@@ -72,10 +72,11 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 - If Redis is unavailable or unconfigured, all endpoints must continue functioning seamlessly with zero disruption.
 
 ### 10. Official Social Media Channels Priority
-- Always prioritize official social media links in the order:
+- The single source is `SOCIAL_LINKS` / `SOCIAL_SAME_AS` in `src/constants/social.ts`. Never hardcode a social URL in a component, footer, JSON-LD `sameAs` or email template; import the constant.
+- Priority order:
   1. **Instagram (Highlighted)**: `https://www.instagram.com/campusloop.space/` (`@campusloop.space`)
-  2. **LinkedIn**: `https://www.linkedin.com/company/mycampusloop/?viewAsMember=true` (`CampusLoop`)
-  3. **X (Twitter)**: `https://x.com/company/mycampusloop/` (`@mycampusloop`)
+  2. **LinkedIn**: `https://www.linkedin.com/company/mycampusloop/` (`CampusLoop`)
+  3. **X**: `https://x.com/mycampusloop` (`@mycampusloop`)
 
 ### 11. Iconography Standard: Zero Raw Emojis & Professionally Creative Form UX
 - **NEVER** use raw emoji characters in UI labels, badges, tabs, buttons, or toast notifications. Emojis look amateurish and inconsistent across platforms.

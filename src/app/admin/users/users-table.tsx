@@ -254,8 +254,8 @@ export function UsersTable({
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-foreground">{analytics.total.toLocaleString()}</span>
-            <span className="text-xs font-semibold text-emerald-500">
+            <span className="text-2xl font-bold text-foreground">{analytics.total.toLocaleString()}</span>
+            <span className="text-xs font-semibold text-success">
               {analytics.active.toLocaleString()} active
             </span>
           </div>
@@ -268,13 +268,13 @@ export function UsersTable({
         <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Live Presence</span>
-            <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+            <div className="flex size-8 items-center justify-center rounded-xl bg-success-subtle text-success">
               <Radio className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="inline-flex items-center gap-1.5 text-2xl font-black text-foreground">
-              <span className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground">
+              <span className="size-2.5 rounded-full bg-success animate-pulse" />
               {analytics.onlineNow}
             </span>
             <span className="text-xs font-semibold text-muted-foreground">online now</span>
@@ -288,15 +288,15 @@ export function UsersTable({
         <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Signup Velocity</span>
-            <div className="flex size-8 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
+            <div className="flex size-8 items-center justify-center rounded-xl bg-brand-subtle text-brand-text">
               <TrendingUp className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-foreground">
+            <span className="text-2xl font-bold text-foreground">
               +{analytics.recent7d.toLocaleString()}
             </span>
-            <span className="text-xs font-semibold text-purple-500">this week</span>
+            <span className="text-xs font-semibold text-brand-text">this week</span>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
             New verified institutional signups (7 days)
@@ -307,15 +307,15 @@ export function UsersTable({
         <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Verified Clout</span>
-            <div className="flex size-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+            <div className="flex size-8 items-center justify-center rounded-xl bg-warning-subtle text-warning">
               <Zap className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-foreground">
+            <span className="text-2xl font-bold text-foreground">
               {analytics.verifiedBadge.toLocaleString()}
             </span>
-            <span className="text-xs font-semibold text-amber-500">Gold Stars</span>
+            <span className="text-xs font-semibold text-warning">Gold Stars</span>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
             ≥150 LP verified badge · Avg {analytics.avgPoints} LP / user
@@ -342,7 +342,7 @@ export function UsersTable({
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shrink-0 shadow-xs"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer shrink-0 shadow-xs"
           >
             <UserPlus className="size-3.5" />
             <span>{showAddForm ? "Close Form" : "Create User"}</span>
@@ -365,7 +365,7 @@ export function UsersTable({
                       params.set("page", "1");
                     })
                   }
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
                     activeRole === tab.value
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -388,7 +388,7 @@ export function UsersTable({
                       params.set("page", "1");
                     })
                   }
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
                     activeStatus === tab.value
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -431,14 +431,14 @@ export function UsersTable({
         >
           <div className="flex items-center justify-between border-b border-border/40 pb-3">
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <Plus className="size-4 text-emerald-500" /> Create Student Account
+              <Plus className="size-4 text-success" /> Create Student Account
             </h3>
             <span className="text-xs text-muted-foreground">Mock user for testing or manual onboarding</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase">Display Name</label>
+              <label className="text-[10px] font-bold text-muted-foreground">Display Name</label>
               <input
                 type="text"
                 required
@@ -450,7 +450,7 @@ export function UsersTable({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase">Username</label>
+              <label className="text-[10px] font-bold text-muted-foreground">Username</label>
               <input
                 type="text"
                 required
@@ -462,7 +462,7 @@ export function UsersTable({
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase">
+              <label className="text-[10px] font-bold text-muted-foreground">
                 College / Institution
               </label>
               <CollegeCombobox
@@ -474,7 +474,7 @@ export function UsersTable({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase">Role</label>
+              <label className="text-[10px] font-bold text-muted-foreground">Role</label>
               <select
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value as UserRow["role"])}
@@ -487,7 +487,7 @@ export function UsersTable({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase">Status</label>
+              <label className="text-[10px] font-bold text-muted-foreground">Status</label>
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value as UserRow["status"])}
@@ -504,14 +504,14 @@ export function UsersTable({
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="rounded-xl border border-border hover:bg-muted text-muted-foreground font-bold text-xs px-4 py-2 cursor-pointer transition-all"
+              className="rounded-xl border border-border hover:bg-muted text-muted-foreground font-bold text-xs px-4 py-2 cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isCreating}
-              className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 font-bold text-xs px-4 py-2 cursor-pointer transition-all disabled:opacity-50"
+              className="rounded-xl bg-success text-success-fg hover:opacity-90 font-bold text-xs px-4 py-2 cursor-pointer transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {isCreating ? "Creating..." : "Save User"}
             </button>
@@ -523,7 +523,7 @@ export function UsersTable({
       <div className="rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[850px] text-left text-xs text-muted-foreground">
-            <thead className="bg-muted/50 border-b border-border/60 text-[11px] font-bold uppercase tracking-wider text-foreground">
+            <thead className="bg-muted/50 border-b border-border/60 text-[11px] font-bold text-foreground">
               <tr>
                 <th className="px-5 py-3.5">Student / User</th>
                 <th className="px-5 py-3.5">Campus</th>
@@ -558,12 +558,12 @@ export function UsersTable({
                           <div className="relative">
                             <Avatar className="size-9 border border-border/50 shrink-0">
                               <AvatarImage src={p.avatarUrl || ""} alt={p.displayName} />
-                              <AvatarFallback className="text-[11px] font-black bg-muted text-foreground">
+                              <AvatarFallback className="text-[11px] font-bold bg-muted text-foreground">
                                 {p.displayName?.[0] || "U"}
                               </AvatarFallback>
                             </Avatar>
                             {online && (
-                              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 border-2 border-card" />
+                              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-success border-2 border-card" />
                             )}
                           </div>
 
@@ -635,10 +635,10 @@ export function UsersTable({
                       <td className="px-5 py-3.5 whitespace-nowrap">
                         {online ? (
                           <span
-                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-success-subtle text-success border border-success/25"
                             title={`Active right now (Last ping: ${exactLastSeenAt || "Just now"})`}
                           >
-                            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="size-1.5 rounded-full bg-success animate-pulse" />
                             Active now
                           </span>
                         ) : p.lastSeenAt ? (
@@ -660,11 +660,11 @@ export function UsersTable({
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border ${
                             (p.points ?? 0) >= 300
-                              ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                              ? "bg-brand-subtle text-brand-text border-brand/30"
                               : (p.points ?? 0) >= 150
-                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                                ? "bg-warning-subtle text-warning border-warning/30"
                                 : (p.points ?? 0) >= 50
-                                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                                  ? "bg-brand-subtle text-brand-text border-brand/30"
                                   : "bg-muted/40 text-muted-foreground border-border/50"
                           }`}
                           title={`Loop Points: ${p.points ?? 0}`}
@@ -696,9 +696,9 @@ export function UsersTable({
                           onChange={(e) => handleStatusChange(p.id, e.target.value as UserRow["status"])}
                           className={`rounded-lg border px-2 py-1 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary cursor-pointer disabled:opacity-50 ${
                             p.status === "ACTIVE"
-                              ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5"
+                              ? "border-success/40 text-success bg-success-subtle"
                               : p.status === "SUSPENDED"
-                                ? "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/5"
+                                ? "border-warning/40 text-warning bg-warning-subtle"
                                 : "border-destructive/40 text-destructive bg-destructive/5"
                           }`}
                         >

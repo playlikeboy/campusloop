@@ -18,9 +18,9 @@ const PAGE_SIZE = 50;
 function actionTone(action: string) {
   if (action.includes("DELETE") || action.includes("BAN"))
     return "text-destructive bg-destructive/10 border-destructive/20";
-  if (action.includes("REVEAL")) return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+  if (action.includes("REVEAL")) return "text-brand-text bg-brand-subtle border-brand/20";
   if (action.includes("PUBLISH") || action.includes("APPROVE"))
-    return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+    return "text-success bg-success-subtle border-success/20";
   return "text-muted-foreground bg-muted border-border/40";
 }
 
@@ -49,7 +49,7 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
       <div className="rounded-xl border border-border/60 bg-card/70 overflow-hidden shadow-2xs">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[550px] text-left text-xs text-muted-foreground">
-            <thead className="bg-muted/50 text-[10px] uppercase font-bold text-foreground border-b border-border/50">
+            <thead className="bg-muted/50 text-[10px] font-bold text-foreground border-b border-border/50">
               <tr>
                 <th className="px-4 py-3">Action</th>
                 <th className="px-4 py-3">Moderator</th>

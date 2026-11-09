@@ -53,7 +53,7 @@ function escapeHtml(text: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/'/g, "&#39;");
 }
 
 export function CodeBlock({
@@ -95,38 +95,33 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        "group relative my-4 overflow-hidden rounded-2xl border border-border/40 bg-[#0d1117] text-[#e6edf3] shadow-lg",
+        "group relative my-4 overflow-hidden rounded-2xl border border-border bg-surface-sunken text-fg",
         className
       )}
     >
       {/* ─── Mac Terminal Header ─── */}
-      <div className="flex h-9 items-center justify-between border-b border-[#30363d] bg-[#161b22] px-3.5 select-none">
+      <div className="flex h-9 items-center justify-between border-b border-border bg-surface-muted px-3.5 select-none">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#ff5f56]" />
-            <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
-            <span className="size-2.5 rounded-full bg-[#27c93f]" />
-          </div>
-          <span className="ml-2 flex items-center gap-1 text-[11px] font-mono font-bold uppercase tracking-wider text-[#8b949e]">
-            <Terminal className="size-3 text-[#8b949e]" />
-            <span>{cleanLang || "CODE"}</span>
+          <span className="flex items-center gap-1 text-[11px] font-mono font-semibold text-fg-muted">
+            <Terminal className="size-3" />
+            <span>{cleanLang || "code"}</span>
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-[#8b949e]">
+          <span className="text-[10px] font-mono text-fg-muted">
             {lines.length} {lines.length === 1 ? "line" : "lines"}
           </span>
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc] transition-colors cursor-pointer"
+            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-fg-muted hover:bg-surface hover:text-fg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title="Copy code"
           >
             {copied ? (
               <>
-                <Check className="size-3 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
+                <Check className="size-3 text-success" />
+                <span className="text-success">Copied</span>
               </>
             ) : (
               <>
@@ -144,7 +139,7 @@ export function CodeBlock({
           <div className="flex gap-4">
             {/* Line Numbers Gutter */}
             <div
-              className="select-none text-right font-mono text-[11px] text-[#484f58] space-y-0"
+              className="select-none text-right font-mono text-[11px] text-fg-subtle space-y-0"
               aria-hidden="true"
             >
               {lines.map((_, i) => (

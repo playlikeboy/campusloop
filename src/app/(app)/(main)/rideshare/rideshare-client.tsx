@@ -128,7 +128,7 @@ export function RideshareClient({ profileId }: Props) {
         {/* Clean Hero Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-5">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-600 dark:text-sky-400">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-3 py-1 text-xs font-bold text-brand-text">
               <Car className="size-3.5" />
               <span>Campus Cab &amp; Auto Pool</span>
             </div>
@@ -140,7 +140,7 @@ export function RideshareClient({ profileId }: Props) {
             </p>
           </div>
 
-          <Button asChild className="font-bold text-xs h-9 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white shadow-xs shrink-0">
+          <Button asChild className="font-bold text-xs h-9 px-4 rounded-xl bg-brand hover:bg-brand-hover text-white shadow-xs shrink-0">
             <Link href="/rideshare/new">
               <Plus className="size-4 mr-1" />
               <span>Offer a Ride</span>
@@ -151,7 +151,7 @@ export function RideshareClient({ profileId }: Props) {
         {/* Value Proposition Strip */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
+            <div className="size-9 rounded-xl bg-brand-subtle text-brand-text flex items-center justify-center shrink-0">
               <ShieldCheck className="size-4" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export function RideshareClient({ profileId }: Props) {
           </div>
 
           <div className="p-3.5 rounded-2xl border border-border/40 bg-card/60 flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+            <div className="size-9 rounded-xl bg-success-subtle text-success flex items-center justify-center shrink-0">
               <Zap className="size-4" />
             </div>
             <div>
@@ -280,7 +280,7 @@ export function RideshareClient({ profileId }: Props) {
                   ? `No rides match "${urlSearch}". Try another destination or start a new cab pool.`
                   : "Heading to the station or airport soon? Start a cab pool and split the fare with batchmates!"}
               </p>
-              <Button asChild size="sm" className="mt-5 font-bold text-xs bg-sky-600 hover:bg-sky-500 text-white">
+              <Button asChild size="sm" className="mt-5 font-bold text-xs bg-brand hover:bg-brand-hover text-white">
                 <Link href="/rideshare/new">
                   <Plus className="size-4 mr-1.5" />
                   Offer a Ride
@@ -291,7 +291,7 @@ export function RideshareClient({ profileId }: Props) {
 
           {isValidating && data ? (
             <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground">
-              <Loader2 className="size-3.5 animate-spin text-sky-500" />
+              <Loader2 className="size-3.5 animate-spin text-brand-text" />
               Syncing campus rides...
             </div>
           ) : null}

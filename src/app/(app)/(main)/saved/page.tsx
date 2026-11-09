@@ -12,11 +12,11 @@ export const metadata: Metadata = {
     "Hostel Guides",
     "Placement Discussions",
   ],
-  alternates: { canonical: "https://campusloop.space/app/saved" },
+  alternates: { canonical: "https://campusloop.space/saved" },
   openGraph: {
     title: "Saved Posts & Bookmarks Vault",
     description: "Your private archive of saved campus posts, hostel insights, and placement realities.",
-    url: "https://campusloop.space/app/saved",
+    url: "https://campusloop.space/saved",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

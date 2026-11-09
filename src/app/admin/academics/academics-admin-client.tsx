@@ -133,28 +133,28 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
           <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
             <BookOpen className="h-3.5 w-3.5 text-primary" /> Total Vault Items
           </p>
-          <p className="text-2xl font-black text-foreground">{totalCount}</p>
+          <p className="text-2xl font-bold text-foreground">{totalCount}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
           <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <ShieldAlert className="h-3.5 w-3.5 text-amber-500" /> Pending Review
+            <ShieldAlert className="h-3.5 w-3.5 text-warning" /> Pending Review
           </p>
-          <p className="text-2xl font-black text-foreground">{pendingCount}</p>
+          <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
           <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" /> Verified Notes
+            <ShieldCheck className="h-3.5 w-3.5 text-success" /> Verified Notes
           </p>
-          <p className="text-2xl font-black text-foreground">{verifiedCount}</p>
+          <p className="text-2xl font-bold text-foreground">{verifiedCount}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
           <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Download className="h-3.5 w-3.5 text-blue-500" /> Vault Downloads
+            <Download className="h-3.5 w-3.5 text-brand-text" /> Vault Downloads
           </p>
-          <p className="text-2xl font-black text-foreground">{totalDownloads}</p>
+          <p className="text-2xl font-bold text-foreground">{totalDownloads}</p>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                 setFilter(tab);
               }}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer",
                 filter === tab
                   ? "bg-foreground text-background shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -193,7 +193,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by title, subject code, branch..."
-            className="w-full h-10 pl-9 pr-4 rounded-full bg-muted/40 border border-border/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-all"
+            className="w-full h-10 pl-9 pr-4 rounded-full bg-muted/40 border border-border/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-colors"
           />
         </div>
       </div>
@@ -218,23 +218,23 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                         {res.resourceType}
                       </span>
                       <span className="text-[10px] font-bold text-muted-foreground">
                         {res.subjectCode} · Sem {res.semester}
                       </span>
                       {res.isVerified ? (
-                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-full flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" /> VERIFIED
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-warning bg-warning-subtle px-2 py-0.5 rounded-full">
                           PENDING
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-black text-foreground leading-snug truncate">{res.title}</h4>
+                    <h4 className="text-sm font-bold text-foreground leading-snug truncate">{res.title}</h4>
                     <p className="text-xs text-muted-foreground">{res.subjectName}</p>
                   </div>
                 </div>
@@ -271,7 +271,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                       href={res.driveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-blue-500 hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1"
                     >
                       <ExternalLink className="h-3 w-3" />
                       <span>Drive Link</span>
@@ -285,10 +285,10 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                     disabled={processingId === res.id}
                     onClick={() => handleToggleVerify(res.id, res.isVerified)}
                     className={cn(
-                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50",
                       res.isVerified
                         ? "bg-muted text-muted-foreground hover:text-foreground"
-                        : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs"
+                        : "bg-success text-success-fg hover:opacity-90 shadow-xs"
                     )}
                   >
                     {res.isVerified ? (

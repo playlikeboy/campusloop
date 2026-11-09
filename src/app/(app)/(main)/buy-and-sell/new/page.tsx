@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   title: "Sell Campus Gear & Books | Buy & Sell Hub",
   description:
     "List textbooks, cycles, coolers, mattresses, and hostel gear for verified peer-to-peer campus trades.",
-  alternates: { canonical: "https://campusloop.space/app/buy-and-sell/new" },
+  alternates: { canonical: "https://campusloop.space/buy-and-sell/new" },
   openGraph: {
     title: "Sell Campus Gear & Books | Buy & Sell Hub",
     description: "List textbooks, cycles, coolers, mattresses, and hostel gear for verified campus trades.",
-    url: "https://campusloop.space/app/buy-and-sell/new",
+    url: "https://campusloop.space/buy-and-sell/new",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: "Sell Campus Gear & Books | Buy & Sell Hub",
     description: "List textbooks, cycles, coolers, mattresses, and hostel gear for verified campus trades.",
   },
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
 };
 
 export default async function NewBuyAndSellPage() {

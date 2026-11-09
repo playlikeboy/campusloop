@@ -355,7 +355,7 @@ export function AcademicsClient({
                       setSavedSubTab("notes");
                     }}
                     className={cn(
-                      "px-3 py-1.5 rounded-full font-bold transition-all cursor-pointer",
+                      "px-3 py-1.5 rounded-full font-bold transition-ui cursor-pointer",
                       savedSubTab === "notes"
                         ? "bg-card text-foreground shadow-xs font-black"
                         : "text-muted-foreground hover:text-foreground"
@@ -370,7 +370,7 @@ export function AcademicsClient({
                       setSavedSubTab("playlists");
                     }}
                     className={cn(
-                      "px-3 py-1.5 rounded-full font-bold transition-all cursor-pointer",
+                      "px-3 py-1.5 rounded-full font-bold transition-ui cursor-pointer",
                       savedSubTab === "playlists"
                         ? "bg-card text-foreground shadow-xs font-black"
                         : "text-muted-foreground hover:text-foreground"
@@ -452,7 +452,7 @@ export function AcademicsClient({
                 <Link
                   href="/academics/study-material/playlists/new"
                   onClick={() => sounds.tap()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-ui cursor-pointer"
                 >
                   <Plus className="size-3.5" />
                   <span>Create Playlist</span>

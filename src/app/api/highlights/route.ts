@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { stories, storyHighlights, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,7 @@ export async function GET(req: Request) {
     const highlights = await db.query.storyHighlights.findMany({
       where: eq(storyHighlights.userId, targetProfileId),
       orderBy: [desc(storyHighlights.createdAt)],
+      limit: 100,
     });
 
     // Populate story previews for each highlight
@@ -88,19 +90,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;

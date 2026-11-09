@@ -235,7 +235,7 @@ export function SavedMaterialsClient() {
               type="button"
               disabled={savingPackSem !== null}
               onClick={() => handleSaveSemesterPack(sem)}
-              className="px-2.5 py-1.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted text-foreground text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+              className="px-2.5 py-1.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted text-foreground text-xs font-semibold transition-ui cursor-pointer disabled:opacity-50 active:scale-95"
               title={`Save all materials for Semester ${sem}`}
             >
               {savingPackSem === sem ? <Loader2 className="size-3 animate-spin mx-auto" /> : `+ Sem ${sem}`}
@@ -256,7 +256,7 @@ export function SavedMaterialsClient() {
                 setSelectedSemester("ALL");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 border",
+                "px-3 py-1.5 rounded-xl text-xs font-black transition-ui cursor-pointer shrink-0 border",
                 selectedSemester === "ALL"
                   ? "bg-foreground text-background border-foreground shadow-xs"
                   : "bg-muted/30 text-muted-foreground border-border/40 hover:text-foreground"
@@ -274,7 +274,7 @@ export function SavedMaterialsClient() {
                   setSelectedSemester(sem);
                 }}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 border",
+                  "px-3 py-1.5 rounded-xl text-xs font-black transition-ui cursor-pointer shrink-0 border",
                   selectedSemester === sem
                     ? "bg-foreground text-background border-foreground shadow-xs"
                     : "bg-muted/30 text-muted-foreground border-border/40 hover:text-foreground"
@@ -311,7 +311,7 @@ export function SavedMaterialsClient() {
                   setSelectedType(type.id);
                 }}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer border shrink-0",
+                  "px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer border shrink-0",
                   isSelected
                     ? "bg-foreground text-background border-foreground shadow-2xs"
                     : "bg-muted/20 text-muted-foreground border-border/40 hover:text-foreground"
@@ -360,7 +360,7 @@ export function SavedMaterialsClient() {
                 {group.items.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 p-3.5 transition-all flex flex-col justify-between space-y-3"
+                    className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 p-3.5 transition-ui flex flex-col justify-between space-y-3"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center justify-between gap-2">
@@ -371,8 +371,9 @@ export function SavedMaterialsClient() {
                         <button
                           type="button"
                           onClick={() => handleRemove(item.id)}
-                          className="size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                          className="size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger-subtle transition-colors cursor-pointer"
                           title="Remove from locker"
+                          aria-label="Remove from locker"
                         >
                           <Trash2 className="size-3.5" />
                         </button>
@@ -395,9 +396,9 @@ export function SavedMaterialsClient() {
                         title={item.title}
                         subjectCode={item.subjectCode}
                         materialUrl={
-                          item.fileUrl || item.driveUrl || `https://campusloop.space/app/academics/${item.id}`
+                          item.fileUrl || item.driveUrl || `https://campusloop.space/academics/study-material/${item.id}`
                         }
-                        pageUrl={`https://campusloop.space/app/academics/${item.id}`}
+                        pageUrl={`https://campusloop.space/academics/study-material/${item.id}`}
                         compact={true}
                       />
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { sanitizeSocialLinks } from "@/lib/social-links";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 
@@ -36,19 +37,11 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile: existingProfile } = auth;
 
     const db = getDb();
-    const existingProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!existingProfile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const body = (await req.json()) as {
       displayName?: string;

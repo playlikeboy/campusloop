@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: BroadcastPageProps): Promise<
     });
 
     if (!event) {
-      return { title: "Broadcast Announcement | CampusLoop" };
+      return { title: "Broadcast Announcement" };
     }
 
     return {
-      title: `Broadcast: ${event.title} | CampusLoop Organizer`,
+      title: `Broadcast: ${event.title}`,
       description: `Send in-app notifications and announcements to all registered attendees of ${event.title}.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Broadcast Announcement | CampusLoop" };
+    return { title: "Broadcast Announcement" };
   }
 }
 

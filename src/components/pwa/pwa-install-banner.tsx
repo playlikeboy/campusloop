@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusSquare, Share, Zap } from "lucide-react";
+import { Check, PlusSquare, Share, Zap } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -189,7 +189,7 @@ export function PWAInstallBanner() {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-20 left-4 right-4 z-40 md:hidden max-w-sm mx-auto select-none"
           >
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card/95 p-3.5 shadow-2xl backdrop-blur-2xl">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card/95 p-3.5 shadow-2xl backdrop-blur-sm">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative size-10 shrink-0 overflow-hidden rounded-xl border border-border shadow-xs">
                   <img src="/logo.png" alt="CampusLoop App" className="size-full object-cover" />
@@ -197,7 +197,7 @@ export function PWAInstallBanner() {
                 <div className="min-w-0">
                   <p className="text-xs font-black text-foreground flex items-center gap-1 truncate">
                     <span>Install CampusLoop</span>
-                    <Zap className="size-3 text-amber-500 shrink-0" />
+                    <Zap className="size-3 text-warning shrink-0" />
                   </p>
                   <p className="text-[10px] text-muted-foreground truncate">
                     Native WebAPK with 0ms fullscreen & push alerts
@@ -216,9 +216,10 @@ export function PWAInstallBanner() {
                 </button>
 
                 <button
+                  aria-label="Dismiss"
                   type="button"
                   onClick={handleDismiss}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
                 >
                   <AnimateX size={14} />
                 </button>
@@ -231,7 +232,7 @@ export function PWAInstallBanner() {
       {/* ─── Android Chrome Instructions Modal (Removes 'Tap to copy URL' bar) ─── */}
       <AnimatePresence>
         {showAndroidModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-md p-4 select-none animate-in fade-in">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 select-none animate-in fade-in">
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
@@ -274,11 +275,11 @@ export function PWAInstallBanner() {
                   </p>
                 </div>
 
-                <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-500 font-bold text-xs">
-                    ✓
+                <div className="flex items-start gap-3 rounded-2xl border border-success bg-success-subtle p-3">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success-subtle text-success">
+                    <Check className="size-3.5" aria-hidden="true" />
                   </div>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold leading-snug">
+                  <p className="text-xs text-success font-semibold leading-snug">
                     Chrome installs CampusLoop as a standalone WebAPK, removing browser notifications and
                     unlocking 0ms speeds!
                   </p>
@@ -291,7 +292,7 @@ export function PWAInstallBanner() {
                   setShowAndroidModal(false);
                   setShowBanner(false);
                 }}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-colors cursor-pointer"
               >
                 Understood!
               </button>
@@ -303,7 +304,7 @@ export function PWAInstallBanner() {
       {/* ─── iOS Safari Instructions Modal ─── */}
       <AnimatePresence>
         {showIOSModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-md p-4 select-none animate-in fade-in">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 select-none animate-in fade-in">
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
@@ -361,7 +362,7 @@ export function PWAInstallBanner() {
                   setShowIOSModal(false);
                   setShowBanner(false);
                 }}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-colors cursor-pointer"
               >
                 Got it!
               </button>

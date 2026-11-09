@@ -159,7 +159,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-28 border-x border-border/20 bg-background text-foreground select-none">
       {/* ─── Sticky Header ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -203,7 +203,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
       <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
         {/* Type Toggle: LOST vs FOUND */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             What are you reporting?
           </label>
           <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-muted/30 border border-border/40">
@@ -215,9 +215,9 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
                 haptics.light();
               }}
               className={cn(
-                "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer",
+                "py-2.5 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-2 cursor-pointer",
                 type === "LOST"
-                  ? "bg-rose-600 text-white shadow-xs"
+                  ? "bg-danger text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -233,9 +233,9 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
                 haptics.light();
               }}
               className={cn(
-                "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer",
+                "py-2.5 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-2 cursor-pointer",
                 type === "FOUND"
-                  ? "bg-emerald-600 text-white shadow-xs"
+                  ? "bg-success text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -248,7 +248,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
         {/* ─── Photo Upload Area ─── */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Item Photo (Recommended)
             </label>
             <span className="text-[10px] text-muted-foreground">
@@ -281,7 +281,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
             <div
               onClick={() => !isUploadingImage && fileInputRef.current?.click()}
               className={cn(
-                "flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/70 rounded-2xl bg-card hover:bg-muted/30 transition-all cursor-pointer group text-center space-y-2",
+                "flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/70 rounded-2xl bg-card hover:bg-muted/30 transition-colors cursor-pointer group text-center space-y-2",
                 isUploadingImage && "opacity-60 cursor-not-allowed"
               )}
             >
@@ -311,7 +311,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
 
         {/* Title Input */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Item Title *
           </label>
           <input
@@ -330,7 +330,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
 
         {/* Category Selection */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Category
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -347,7 +347,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
                     haptics.light();
                   }}
                   className={cn(
-                    "flex flex-col items-start p-3 rounded-xl border text-left transition-all cursor-pointer space-y-1",
+                    "flex flex-col items-start p-3 rounded-xl border text-left transition-colors cursor-pointer space-y-1",
                     isSelected
                       ? "bg-primary/10 border-primary text-primary shadow-2xs font-bold"
                       : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -364,13 +364,13 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
         {/* Campus Location */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Campus Location *
             </label>
             <span className="text-[10px] text-muted-foreground">Be as specific as possible</span>
           </div>
           <div className="relative">
-            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-rose-500" />
+            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-danger" />
             <input
               type="text"
               required
@@ -400,7 +400,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
         {/* Date & Reward Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Date {type === "LOST" ? "Lost" : "Found"}
             </label>
             <input
@@ -413,8 +413,8 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
 
           {type === "LOST" && (
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <Gift className="size-3.5 text-amber-500" />
+              <label className="text-xs font-bold text-muted-foreground flex items-center gap-1">
+                <Gift className="size-3.5 text-warning" />
                 <span>Optional Reward for Finder</span>
               </label>
               <input
@@ -430,7 +430,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
 
         {/* Description & Distinctive Features */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Distinctive Marks &amp; Description
           </label>
           <textarea
@@ -444,7 +444,7 @@ export function NewLostFoundClient({ profileId, defaultCampusName = "Campus" }: 
 
         {/* Contact Info */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Contact Method (Optional override)
           </label>
           <input

@@ -427,14 +427,14 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
             <div className="flex min-w-0 items-center gap-2.5">
               <Link
                 href="/more"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-transform"
                 aria-label="Back to more"
               >
                 <ArrowLeft className="size-4.5" />
               </Link>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <Zap className="size-4.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <Zap className="size-4.5 text-warning fill-warning shrink-0" />
                   <h1 className="truncate text-lg font-black tracking-tight text-foreground">Random Loop</h1>
                 </div>
                 <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
@@ -493,7 +493,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                       setSelectedMode(mode.id);
                     }}
                     className={cn(
-                      "min-h-[108px] rounded-2xl px-3.5 py-3 text-left transition-all cursor-pointer shadow-xs",
+                      "min-h-[108px] rounded-2xl px-3.5 py-3 text-left transition-colors cursor-pointer shadow-xs",
                       selected ? "bg-primary/8 ring-2 ring-primary" : "bg-card hover:bg-muted/50"
                     )}
                     aria-pressed={selected}
@@ -550,7 +550,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                     type="button"
                     onClick={() => handleToggleInterest(chip.id)}
                     className={cn(
-                      "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition-all cursor-pointer",
+                      "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition-colors cursor-pointer",
                       isSelected
                         ? "bg-foreground text-background shadow-xs"
                         : "bg-muted/55 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -589,7 +589,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
             type="button"
             onClick={handleFindSomeone}
             disabled={selectedInterests.length === 0}
-            className="h-12 w-full rounded-2xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/18 transition-all hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-12 w-full rounded-2xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/18 transition-transform hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Zap className="size-4.5" />
             <span>Find Someone</span>
@@ -653,7 +653,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
               {partner?.avatarUrl ? (
                 <AvatarImage src={partner.avatarUrl} alt={partner.displayName} />
               ) : (
-                <AvatarFallback className="font-bold text-xs bg-linear-to-br from-primary/20 to-purple-500/20 text-primary">
+                <AvatarFallback className="font-bold text-xs bg-brand-subtle text-brand-text">
                   {partner?.displayName?.slice(0, 2).toUpperCase() || "AN"}
                 </AvatarFallback>
               )}
@@ -663,7 +663,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 <span className="text-sm font-black text-foreground leading-tight">
                   {partner?.displayName || "Anonymous Student"}
                 </span>
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="size-2 rounded-full bg-success animate-pulse" />
               </div>
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                 <span>{partner?.collegeName?.split(",")[0] || "Campus Student"}</span>
@@ -773,9 +773,9 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 type="button"
                 onClick={() => handleRequestVideo()}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                   session?.myVideoRequested
-                    ? "bg-purple-500/15 text-purple-500 border-purple-500/30"
+                    ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
                     : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
                 )}
                 title="Switch conversation to video with mutual consent"
@@ -790,7 +790,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 type="button"
                 onClick={handleRequestReveal}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                   session?.myReveal
                     ? "bg-primary/15 text-primary border-primary/30"
                     : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
@@ -805,13 +805,13 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
               type="button"
               onClick={handleContinueInMessages}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                 session?.myContinue
-                  ? "bg-rose-500/15 text-rose-500 border-rose-500/30 font-black"
+                  ? "bg-danger/15 text-danger border-danger/30 font-black"
                   : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
               )}
             >
-              <Heart className="size-3 text-rose-500 fill-rose-500 shrink-0" />
+              <Heart className="size-3 text-danger fill-danger shrink-0" />
               <span>{session?.myContinue ? "Keep Talking (Waiting)" : "Keep Talking"}</span>
             </button>
           </div>
@@ -831,7 +831,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           <button
             type="submit"
             disabled={!inputText.trim() || isSending}
-            className="size-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 cursor-pointer shadow-xs"
+            className="size-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 hover:opacity-90 active:scale-95 transition-transform disabled:opacity-40 cursor-pointer shadow-xs"
           >
             {isSending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
           </button>
@@ -858,7 +858,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
 
             <ul className="text-xs text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
-                <ShieldCheck className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
                 <span>Your identity and profile picture remain hidden unless both agree to reveal.</span>
               </li>
               <li className="flex items-start gap-2">
@@ -866,7 +866,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 <span>Sharing phone numbers, emails, and social handles is restricted.</span>
               </li>
               <li className="flex items-start gap-2">
-                <AlertTriangle className="size-4 text-rose-500 shrink-0 mt-0.5" />
+                <AlertTriangle className="size-4 text-danger shrink-0 mt-0.5" />
                 <span>You can disconnect, block, or report at any moment.</span>
               </li>
             </ul>
@@ -892,7 +892,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                 setShowOptionsModal(false);
                 setShowReportModal(true);
               }}
-              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-rose-500 flex items-center gap-2 cursor-pointer"
+              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-danger flex items-center gap-2 cursor-pointer"
             >
               <ShieldAlert className="size-4" />
               <span>Report Student</span>
@@ -911,7 +911,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
                   handleNextPerson();
                 }
               }}
-              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-rose-500 flex items-center gap-2 cursor-pointer"
+              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-danger flex items-center gap-2 cursor-pointer"
             >
               <X className="size-4" />
               <span>Block Student</span>
@@ -961,7 +961,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
               <button
                 type="button"
                 onClick={handleSubmitReport}
-                className="flex-1 h-10 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black cursor-pointer shadow-xs"
+                className="flex-1 h-10 rounded-xl bg-danger hover:bg-danger text-white text-xs font-black cursor-pointer shadow-xs"
               >
                 Submit Report
               </button>
@@ -973,13 +973,13 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
       {/* Video Request Consent Modal */}
       {showVideoConsentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-zinc-900 border border-white/15 max-w-sm w-full p-6 rounded-3xl space-y-4 text-center shadow-2xl">
-            <div className="size-14 rounded-2xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center mx-auto">
+          <div className="bg-surface border border-white/15 max-w-sm w-full p-6 rounded-3xl space-y-4 text-center shadow-2xl">
+            <div className="size-14 rounded-2xl bg-brand/20 border border-brand-subtle-border/30 text-brand-text flex items-center justify-center mx-auto">
               <Video className="size-7" />
             </div>
             <div className="space-y-1">
               <h3 className="text-base font-black text-white">Video Request</h3>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-fg-subtle">
                 {partner?.displayName || "Anonymous Student"} wants to switch this conversation to video.
               </p>
             </div>
@@ -994,7 +994,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
               <button
                 type="button"
                 onClick={() => handleRequestVideo()}
-                className="flex-1 h-11 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black transition-colors shadow-lg cursor-pointer"
+                className="flex-1 h-11 rounded-2xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-colors shadow-lg cursor-pointer"
               >
                 Accept Video
               </button>

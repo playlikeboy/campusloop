@@ -1,31 +1,27 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, lt } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { marketplaceOrders, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { marketplaceOrders } from "@/db/schema";
+import { pageOf, parseBefore, parseLimit } from "@/lib/pagination";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get("filter"); // "active", "completed", "cancelled", "all"
+    const limit = parseLimit(searchParams, 50, 100);
+    const before = parseBefore(searchParams);
 
     const conditions: any[] = [eq(marketplaceOrders.studentId, profile.id)];
+    if (before) conditions.push(lt(marketplaceOrders.createdAt, before));
 
     if (filter === "active") {
       conditions.push(
@@ -44,9 +40,10 @@ export async function GET(req: Request) {
       conditions.push(inArray(marketplaceOrders.status, ["REJECTED", "CANCELLED"]));
     }
 
-    const orders = await db.query.marketplaceOrders.findMany({
+    const rows = await db.query.marketplaceOrders.findMany({
       where: and(...conditions),
       orderBy: [desc(marketplaceOrders.createdAt)],
+      limit: limit + 1,
       with: {
         merchant: {
           columns: {
@@ -63,7 +60,9 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.json({ orders });
+    const { page: orders, hasMore, nextCursor } = pageOf(rows, limit);
+
+    return NextResponse.json({ orders, hasMore, nextCursor });
   } catch (error) {
     console.error("Error fetching student marketplace orders:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

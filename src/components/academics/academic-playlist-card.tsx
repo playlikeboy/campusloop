@@ -4,6 +4,7 @@ import { ArrowRight, ChevronDown, Eye, FolderPlus, Layers, Star } from "lucide-r
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { playlistCoverClass } from "@/components/academics/playlist-cover";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,7 @@ export function AcademicPlaylistCard({
   const isCompact = variant === "compact";
   const playlistHref = `/academics/study-material/playlists/${playlist.slug || playlist.id}`;
   const categoryLabel = CATEGORY_LABELS[playlist.category] || "Study playlist";
-  const gradient = playlist.coverGradient || "from-orange-500/80 via-rose-500/70 to-amber-400/80";
+  const coverClass = playlistCoverClass(playlist.coverGradient);
   const branchLabel = !playlist.branch || playlist.branch === "All" ? "All branches" : playlist.branch;
   const creatorLabel = playlist.creator?.displayName || playlist.creator?.username || "Campus contributor";
 
@@ -112,12 +113,12 @@ export function AcademicPlaylistCard({
   return (
     <article
       className={cn(
-        "group/playlist relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border/40 bg-card transition-all duration-200 hover:border-primary/40 hover:shadow-sm",
+        "group/playlist relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-brand-subtle-border",
         isCompact && "w-[min(82vw,248px)] shrink-0 snap-start",
         className
       )}
     >
-      <div className={cn("h-1.5 w-full bg-linear-to-r", gradient)} />
+      <div className={cn("h-1.5 w-full", coverClass)} />
 
       <div className={cn("flex flex-1 flex-col", isCompact ? "gap-3 p-3.5" : "gap-3.5 p-4")}>
         <div className="flex items-start gap-3">
@@ -126,7 +127,7 @@ export function AcademicPlaylistCard({
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+            <p className="text-xs font-semibold text-fg-muted">
               {categoryLabel}
             </p>
             <p className="mt-1 truncate text-[11px] font-medium text-muted-foreground">
@@ -142,9 +143,9 @@ export function AcademicPlaylistCard({
             aria-pressed={isStarred}
             title={isStarred ? "Remove from saved" : "Save playlist"}
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60",
+              "flex size-9 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60",
               isStarred
-                ? "border-amber-400/60 bg-amber-400/15 text-amber-600 dark:text-amber-300"
+                ? "border-brand-subtle-border bg-brand-subtle text-brand-text"
                 : "border-border/50 bg-background text-muted-foreground hover:border-primary/30 hover:text-foreground"
             )}
           >
@@ -155,7 +156,7 @@ export function AcademicPlaylistCard({
         <Link
           href={playlistHref}
           onClick={() => sounds.tap()}
-          className="group/title rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="group/title rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <h3 className={cn(
             "line-clamp-2 text-[15px] font-extrabold leading-snug tracking-tight text-foreground transition-colors group-hover/playlist:text-primary",
@@ -223,7 +224,7 @@ export function AcademicPlaylistCard({
               <Eye className="size-3" aria-hidden="true" />
               {playlist.viewsCount}
             </span>
-            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-300" title={`${stars} stars`}>
+            <span className="inline-flex items-center gap-1" title={`${stars} stars`}>
               <Star className="size-3" aria-hidden="true" />
               {stars}
             </span>
@@ -233,7 +234,7 @@ export function AcademicPlaylistCard({
         <Link
           href={playlistHref}
           onClick={() => sounds.tap()}
-          className="inline-flex min-h-9 items-center justify-between gap-2 rounded-xl bg-muted/40 px-3 text-xs font-bold text-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="inline-flex min-h-9 items-center justify-between gap-2 rounded-xl bg-muted/40 px-3 text-xs font-bold text-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span>Open playlist</span>
           <ArrowRight className="size-3.5" aria-hidden="true" />

@@ -1,8 +1,8 @@
 import { and, eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { communities, conversationParticipants, conversations, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { communities, conversationParticipants, conversations } from "@/db/schema";
+import { requireProfile } from "@/lib/require-profile";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -10,21 +10,13 @@ interface RouteParams {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const { id } = await params;
     const db = getDb();
 
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     // Find the community by id or slug
     const cleanId = id.trim();

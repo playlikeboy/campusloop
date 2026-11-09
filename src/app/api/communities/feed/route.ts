@@ -9,9 +9,8 @@ import {
   marketplaceItems,
   posts,
   ridesharePools,
-  userProfiles,
 } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { getShowSeededPosts } from "@/lib/platform-config";
 
 export const dynamic = "force-dynamic";
@@ -27,15 +26,11 @@ function textQuery(q: string) {
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
     const { searchParams } = new URL(req.url);
     const tab = searchParams.get("tab") || "all";

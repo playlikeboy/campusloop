@@ -420,11 +420,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-2xl px-3 sm:px-6 py-4 pb-32 text-foreground">
       {/* ─── Mobile-First Top Header ─── */}
-      <div className="sticky top-12 lg:top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-background/95 backdrop-blur-xl border-b border-border/40 flex items-center justify-between gap-3 mb-5">
+      <div className="sticky top-12 lg:top-0 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-background/95 backdrop-blur-sm border-b border-border/40 flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
             href="/feeds"
-            className="flex size-9 items-center justify-center rounded-xl border border-border/50 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0"
+            className="flex size-9 items-center justify-center rounded-xl border border-border/50 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
             title="Back to Feed"
           >
             <ArrowLeft className="size-4" />
@@ -444,7 +444,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             type="button"
             onClick={() => handleSaveSettings()}
             disabled={isSaving}
-            className="flex items-center gap-1.5 h-8.5 px-3.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
+            className="flex items-center gap-1.5 h-8.5 px-3.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-[opacity,transform] shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
           >
             <Check className="size-3.5" />
             <span>{isSaving ? "Saving..." : "Save"}</span>
@@ -460,7 +460,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               <User className="size-4 text-primary" />
               <h2 className="text-sm font-bold text-foreground">Campus Profile</h2>
             </div>
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-semibold">
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success-subtle text-success border border-success text-[11px] font-semibold">
               <ShieldCheck className="size-3 shrink-0" />
               <span>Verified Student</span>
             </div>
@@ -503,7 +503,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 required
                 maxLength={40}
                 placeholder="e.g. Alex Sharma"
-                className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 px-3.5 text-xs font-medium text-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
+                className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 px-3.5 text-xs font-medium text-foreground outline-none transition-colors focus:border-primary/50 focus:bg-background"
               />
             </div>
 
@@ -539,7 +539,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                     }
                     maxLength={24}
                     placeholder="campus_ninja"
-                    className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 pl-7 pr-3 text-xs font-medium text-foreground outline-none transition-all focus:border-primary/50 focus:bg-background"
+                    className="h-10 w-full rounded-xl border border-border/60 bg-muted/30 pl-7 pr-3 text-xs font-medium text-foreground outline-none transition-colors focus:border-primary/50 focus:bg-background"
                   />
                 </div>
               </div>
@@ -555,7 +555,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 onChange={(e) => setBio(e.target.value.slice(0, 280))}
                 rows={3}
                 placeholder="What are you building, studying, or exploring on campus?"
-                className="w-full resize-none rounded-xl border border-border/60 bg-muted/30 p-3 text-xs font-medium text-foreground leading-relaxed outline-none transition-all focus:border-primary/50 focus:bg-background"
+                className="w-full resize-none rounded-xl border border-border/60 bg-muted/30 p-3 text-xs font-medium text-foreground leading-relaxed outline-none transition-colors focus:border-primary/50 focus:bg-background"
               />
             </div>
           </div>
@@ -581,7 +581,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => handleFeedVisibilityChange("ALL")}
                 className={cn(
-                  "p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5",
+                  "p-3 rounded-xl border text-left transition-colors cursor-pointer flex items-start gap-2.5",
                   feedVisibility === "ALL"
                     ? "border-primary/50 bg-primary/10 shadow-xs"
                     : "border-border/60 bg-muted/20 hover:bg-muted/40"
@@ -607,7 +607,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => handleFeedVisibilityChange("NON_ANONYMOUS")}
                 className={cn(
-                  "p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5",
+                  "p-3 rounded-xl border text-left transition-colors cursor-pointer flex items-start gap-2.5",
                   feedVisibility === "NON_ANONYMOUS"
                     ? "border-primary/50 bg-primary/10 shadow-xs"
                     : "border-border/60 bg-muted/20 hover:bg-muted/40"
@@ -644,7 +644,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleScopeChange("GLOBAL")}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
                     defaultScope === "GLOBAL"
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -656,7 +656,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleScopeChange("CAMPUS")}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
                     defaultScope === "CAMPUS"
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -696,7 +696,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                     onClick={() => {
                       sounds.pop();
                     }}
-                    className="px-2 py-1 rounded-lg border border-border/60 hover:bg-muted text-[10px] font-bold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg border border-border/60 hover:bg-muted text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     title="Test audio chime"
                   >
                     Test
@@ -742,7 +742,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                     onClick={() => {
                       haptics.medium();
                     }}
-                    className="px-2 py-1 rounded-lg border border-border/60 hover:bg-muted text-[10px] font-bold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg border border-border/60 hover:bg-muted text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     title="Test vibration pulse"
                   >
                     Test
@@ -821,7 +821,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleAutoplayChange("wifi")}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
                     autoplayMode === "wifi"
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -833,7 +833,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleAutoplayChange("always")}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
                     autoplayMode === "always"
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -845,7 +845,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   type="button"
                   onClick={() => handleAutoplayChange("never")}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
                     autoplayMode === "never"
                       ? "bg-background text-foreground shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -907,7 +907,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => handleDmScopeChange("ALL")}
                 className={cn(
-                  "p-2.5 rounded-xl border text-left transition-all cursor-pointer",
+                  "p-2.5 rounded-xl border text-left transition-colors cursor-pointer",
                   dmScope === "ALL"
                     ? "border-primary/50 bg-primary/10 shadow-xs"
                     : "border-border/60 bg-muted/20 hover:bg-muted/40"
@@ -921,7 +921,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => handleDmScopeChange("VERIFIED")}
                 className={cn(
-                  "p-2.5 rounded-xl border text-left transition-all cursor-pointer",
+                  "p-2.5 rounded-xl border text-left transition-colors cursor-pointer",
                   dmScope === "VERIFIED"
                     ? "border-primary/50 bg-primary/10 shadow-xs"
                     : "border-border/60 bg-muted/20 hover:bg-muted/40"
@@ -935,7 +935,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 type="button"
                 onClick={() => handleDmScopeChange("MUTUAL")}
                 className={cn(
-                  "p-2.5 rounded-xl border text-left transition-all cursor-pointer",
+                  "p-2.5 rounded-xl border text-left transition-colors cursor-pointer",
                   dmScope === "MUTUAL"
                     ? "border-primary/50 bg-primary/10 shadow-xs"
                     : "border-border/60 bg-muted/20 hover:bg-muted/40"
@@ -1045,7 +1045,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               <button
                 type="button"
                 onClick={handleClearCache}
-                className="inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl border border-border/70 hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer shrink-0 active:scale-95"
+                className="inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl border border-border/70 hover:bg-muted text-xs font-bold text-foreground transition-[opacity,transform] cursor-pointer shrink-0 active:scale-95"
               >
                 <Trash2 className="size-3.5 text-muted-foreground" />
                 <span>Clear Cache</span>
@@ -1073,7 +1073,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
 
             <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-colors duration-500"
                 style={{ width: `${rewardProgress * 100}%` }}
               />
             </div>
@@ -1170,7 +1170,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   applyTheme("light");
                 }}
                 className={cn(
-                  "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                  "p-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
                   currentTheme === "light"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
@@ -1186,7 +1186,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   applyTheme("dark");
                 }}
                 className={cn(
-                  "p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1",
+                  "p-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
                   currentTheme === "dark"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
@@ -1202,7 +1202,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   applyTheme("system");
                 }}
                 className={cn(
-                  "px-2 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer",
+                  "px-2 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer",
                   currentTheme === "system"
                     ? "bg-background text-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:text-foreground"
@@ -1231,8 +1231,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 </div>
               </div>
 
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success-subtle text-success border border-success text-[10px] font-semibold">
+                <span className="size-1.5 rounded-full bg-success animate-pulse" />
                 <span>Active Now</span>
               </div>
             </div>
@@ -1244,14 +1244,14 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               <p className="text-xs font-bold text-foreground">Sign Out of CampusLoop</p>
               <p className="text-[10px] text-muted-foreground">Safely end this session on your device.</p>
             </div>
-            <SignOutButton className="inline-flex h-9 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs font-bold px-4 transition-all cursor-pointer active:scale-95 shrink-0" />
+            <SignOutButton className="inline-flex h-9 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs font-bold px-4 transition-[opacity,transform] cursor-pointer active:scale-95 shrink-0" />
           </div>
         </div>
       </div>
 
       {/* ─── Floating Sticky Action Bar for Unsaved Changes ─── */}
       {isDirty && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-24px)] max-w-md rounded-2xl border border-border/70 bg-card/95 p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-24px)] max-w-md rounded-2xl border border-border/70 bg-card/95 p-3 shadow-2xl backdrop-blur-sm flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="min-w-0 pl-1">
             <p className="text-xs font-bold text-foreground">Unsaved Changes</p>
             <p className="text-[10px] text-muted-foreground truncate">Save your updated campus profile.</p>
@@ -1261,7 +1261,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             <button
               type="button"
               onClick={handleDiscardChanges}
-              className="h-8 px-3 rounded-xl border border-border/60 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="h-8 px-3 rounded-xl border border-border/60 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               Discard
             </button>
@@ -1269,7 +1269,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
               type="button"
               onClick={() => handleSaveSettings()}
               disabled={isSaving}
-              className="h-8 px-4 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-60 flex items-center gap-1.5"
+              className="h-8 px-4 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-[opacity,transform] shadow-xs cursor-pointer active:scale-95 disabled:opacity-60 flex items-center gap-1.5"
             >
               <Save className="size-3.5" />
               <span>{isSaving ? "Saving..." : "Save"}</span>

@@ -31,7 +31,7 @@ export async function generateMetadata({ searchParams }: NewPostPageProps): Prom
   if (targetSlug) {
     const cleanSlug = targetSlug.replace(/^c\//, "").trim();
     return {
-      title: `Post in c/${cleanSlug} | CampusLoop`,
+      title: `Post in c/${cleanSlug}`,
       description: `Share discussions, confessions, and questions with the c/${cleanSlug} community on CampusLoop.`,
     };
   }
@@ -48,7 +48,7 @@ export async function generateMetadata({ searchParams }: NewPostPageProps): Prom
   const title = typeTitles[requested] || "New Post";
 
   return {
-    title: `${title} | CampusLoop`,
+    title: `${title}`,
     description: "Share a confession, start a poll, or ask your campus on CampusLoop.",
   };
 }

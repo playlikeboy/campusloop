@@ -20,7 +20,7 @@ export function AcademicEmptyState({
   if (type === "saved_empty") {
     return (
       <div className="py-16 sm:py-20 text-center px-4 space-y-3.5 rounded-2xl border border-dashed border-border/50 bg-card/20 select-none">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 mx-auto">
+        <div className="flex size-12 items-center justify-center rounded-lg bg-brand-subtle text-brand-text mx-auto">
           <Bookmark className="size-6" />
         </div>
         <div className="space-y-1 max-w-sm mx-auto">
@@ -38,7 +38,7 @@ export function AcademicEmptyState({
               sounds.tap();
               onResetFilters();
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-ui cursor-pointer shadow-xs"
           >
             <span>Browse Academic Materials</span>
             <ArrowRight className="size-3.5" />
@@ -69,7 +69,7 @@ export function AcademicEmptyState({
               sounds.tap();
               onRetry();
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted border border-border/60 text-foreground text-xs font-bold hover:bg-muted/80 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted border border-border/60 text-foreground text-xs font-bold hover:bg-muted/80 transition-ui cursor-pointer"
           >
             <RotateCcw className="size-3.5" />
             <span>Try Again</span>
@@ -103,7 +103,7 @@ export function AcademicEmptyState({
               sounds.tap();
               onResetFilters();
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted border border-border/60 text-foreground text-xs font-bold hover:bg-muted/80 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted border border-border/60 text-foreground text-xs font-bold hover:bg-muted/80 transition-ui cursor-pointer"
           >
             <RotateCcw className="size-3" />
             <span>Clear filters</span>
@@ -113,7 +113,7 @@ export function AcademicEmptyState({
         <Link
           href="/academics/study-material/upload"
           onClick={() => sounds.tap()}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-ui cursor-pointer shadow-xs"
         >
           <Plus className="size-3.5" />
           <span>Upload Notes (+20 LP)</span>

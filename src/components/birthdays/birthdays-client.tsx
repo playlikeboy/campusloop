@@ -119,7 +119,7 @@ export function BirthdaysClient() {
 
       if (!res.ok) throw new Error("Failed to update birthday privacy");
 
-      toast.success(newStatus ? "Birthday set to Private 🔒" : "Birthday is now Public to peers 🎉");
+      toast.success(newStatus ? "Birthday set to Private" : "Birthday is now Public to peers");
       mutate();
     } catch (err) {
       mutate((prev) => (prev ? { ...prev, currentUserIsPrivate: !newStatus } : prev), false);
@@ -161,7 +161,7 @@ export function BirthdaysClient() {
           </button>
           <h1 className="text-base font-black tracking-tight text-foreground flex items-center gap-1.5">
             <span>Campus Birthdays</span>
-            <span className="size-1.5 rounded-full bg-pink-500" />
+            <span className="size-1.5 rounded-full bg-danger" />
           </h1>
         </div>
 
@@ -171,7 +171,7 @@ export function BirthdaysClient() {
             type="button"
             onClick={() => setScope("CAMPUS")}
             className={cn(
-              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
+              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer",
               scope === "CAMPUS"
                 ? "bg-card text-foreground shadow-2xs font-black"
                 : "text-muted-foreground hover:text-foreground"
@@ -184,7 +184,7 @@ export function BirthdaysClient() {
             type="button"
             onClick={() => setScope("GLOBAL")}
             className={cn(
-              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
+              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer",
               scope === "GLOBAL"
                 ? "bg-card text-foreground shadow-2xs font-black"
                 : "text-muted-foreground hover:text-foreground"
@@ -202,7 +202,7 @@ export function BirthdaysClient() {
           <div className="rounded-3xl bg-card/60 p-4 space-y-2.5 shadow-2xs border-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="size-9 rounded-full bg-pink-500/10 text-pink-500 flex items-center justify-center shrink-0">
+                <div className="size-9 rounded-full bg-danger/10 text-danger flex items-center justify-center shrink-0">
                   <Cake className="size-4.5" />
                 </div>
                 <div className="min-w-0">
@@ -214,12 +214,12 @@ export function BirthdaysClient() {
                   <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                     {data.currentUserIsPrivate ? (
                       <>
-                        <Lock className="size-2.5 text-amber-500" />
+                        <Lock className="size-2.5 text-warning" />
                         <span>Private · Hidden from campus feed</span>
                       </>
                     ) : (
                       <>
-                        <Unlock className="size-2.5 text-emerald-500" />
+                        <Unlock className="size-2.5 text-success" />
                         <span>Public · Classmates can wish you</span>
                       </>
                     )}
@@ -233,7 +233,7 @@ export function BirthdaysClient() {
                     type="button"
                     disabled={isUpdatingPrivacy}
                     onClick={handleTogglePrivacy}
-                    className="rounded-full border-0 bg-muted/60 hover:bg-muted px-3.5 py-1 text-[11px] font-bold text-foreground transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                    className="rounded-full border-0 bg-muted/60 hover:bg-muted px-3.5 py-1 text-[11px] font-bold text-foreground transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
                     {isUpdatingPrivacy && <Loader2 className="size-3 animate-spin text-primary" />}
                     <span>{data.currentUserIsPrivate ? "Make Public" : "Set Private"}</span>
@@ -241,7 +241,7 @@ export function BirthdaysClient() {
                 ) : (
                   <Link
                     href="/profile/edit"
-                    className="rounded-full bg-primary px-3.5 py-1 text-[11px] font-bold text-white hover:opacity-90 transition-all cursor-pointer flex items-center gap-1 shadow-xs border-0"
+                    className="rounded-full bg-primary px-3.5 py-1 text-[11px] font-bold text-white hover:opacity-90 transition-colors cursor-pointer flex items-center gap-1 shadow-xs border-0"
                   >
                     <Plus className="size-3" />
                     <span>Add DOB</span>
@@ -262,7 +262,7 @@ export function BirthdaysClient() {
               placeholder="Search classmate by name or @handle..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 rounded-full border-0 bg-muted/30 text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:bg-muted/50 outline-none transition-all shadow-2xs"
+              className="w-full pl-9 pr-8 py-2 rounded-full border-0 bg-muted/30 text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:bg-muted/50 outline-none transition-colors shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -285,7 +285,7 @@ export function BirthdaysClient() {
                   type="button"
                   onClick={() => setSelectedMonth(m.value)}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 shadow-2xs",
+                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-2xs",
                     isSelected
                       ? "bg-foreground text-background font-black"
                       : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -309,11 +309,11 @@ export function BirthdaysClient() {
             {!selectedMonth && (
               <section className="space-y-2.5">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                    <PartyPopper className="size-3.5 text-pink-500" />
+                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
+                    <PartyPopper className="size-3.5 text-danger" />
                     <span>Today&apos;s Campus Celebrations</span>
                   </h2>
-                  <span className="text-[10px] font-black text-pink-500 bg-pink-500/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black text-danger bg-danger/10 px-2 py-0.5 rounded-full">
                     {todayList.length} Celebrant{todayList.length === 1 ? "" : "s"}
                   </span>
                 </div>
@@ -326,7 +326,7 @@ export function BirthdaysClient() {
                   </div>
                 ) : (
                   <div className="rounded-3xl bg-card p-6 text-center space-y-2 shadow-2xs">
-                    <div className="size-10 rounded-full bg-pink-500/10 flex items-center justify-center mx-auto text-pink-500">
+                    <div className="size-10 rounded-full bg-danger/10 flex items-center justify-center mx-auto text-danger">
                       <Cake className="size-5" />
                     </div>
                     <p className="text-xs font-bold text-foreground">No campus birthdays today</p>
@@ -344,7 +344,7 @@ export function BirthdaysClient() {
             {selectedMonth && (
               <section className="space-y-2.5">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
                     <Calendar className="size-3.5 text-primary" />
                     <span>
                       Born in {MONTHS.find((m) => m.value === selectedMonth)?.label} ({monthList.length})
@@ -373,8 +373,8 @@ export function BirthdaysClient() {
             {!selectedMonth && (
               <section className="space-y-2.5 pt-2">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                    <Zap className="size-3.5 text-amber-500" />
+                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
+                    <Zap className="size-3.5 text-warning" />
                     <span>Upcoming Celebrations (Next 60 Days)</span>
                   </h2>
                   <span className="text-[10px] font-bold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">

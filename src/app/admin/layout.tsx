@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AdminShell } from "./_components/admin-shell";
+import { AdminShell } from "@/components/shells/admin-shell";
 import { resolveAdminSession } from "./_lib/guard";
 import { getInboxCounts } from "./_lib/inbox";
 

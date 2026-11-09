@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: CheckInPageProps): Promise<Me
     });
 
     if (!event) {
-      return { title: "Venue Check-In | CampusLoop" };
+      return { title: "Venue Check-In" };
     }
 
     return {
-      title: `Venue Check-In: ${event.title} | CampusLoop Organizer`,
+      title: `Venue Check-In: ${event.title}`,
       description: `Rapid admission scanner and check-in desk for ${event.title}.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Venue Check-In | CampusLoop" };
+    return { title: "Venue Check-In" };
   }
 }
 

@@ -103,30 +103,30 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
     switch (game.toLowerCase()) {
       case "valorant":
         return {
-          badge: "bg-rose-500/15 text-rose-500 border-rose-500/30",
-          accent: "text-rose-500",
+          badge: "bg-danger-subtle text-danger border-danger",
+          accent: "text-danger",
         };
       case "chess":
         return {
-          badge: "bg-amber-500/15 text-amber-500 border-amber-500/30",
-          accent: "text-amber-500",
+          badge: "bg-warning-subtle text-warning border-warning",
+          accent: "text-warning",
         };
       case "bgmi":
       case "bgmi / pubg":
         return {
-          badge: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
-          accent: "text-emerald-500",
+          badge: "bg-success-subtle text-success border-success",
+          accent: "text-success",
         };
       case "fifa":
       case "ea sports fc / fifa":
         return {
-          badge: "bg-sky-500/15 text-sky-500 border-sky-500/30",
-          accent: "text-sky-500",
+          badge: "bg-brand-subtle text-brand-text border-brand",
+          accent: "text-brand-text",
         };
       default:
         return {
-          badge: "bg-purple-500/15 text-purple-500 border-purple-500/30",
-          accent: "text-purple-500",
+          badge: "bg-brand-subtle text-brand-text border-brand",
+          accent: "text-brand-text",
         };
     }
   }
@@ -271,7 +271,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
     <div
       id={"gaming-lobby-" + item.id}
       className={cn(
-        "rounded-2xl border border-border/70 bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/90 shadow-2xs scroll-mt-24",
+        "rounded-2xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-primary/30 hover:bg-card/90 shadow-2xs scroll-mt-24",
         highlighted ? "ring-2 ring-primary/40 bg-primary/5" : ""
       )}
     >
@@ -310,7 +310,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
         <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
           <span
             className={cn(
-              "px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider border shadow-2xs flex items-center gap-1",
+              "px-2.5 py-0.5 rounded-full text-xs font-bold border shadow-2xs flex items-center gap-1",
               gameStyle.badge
             )}
           >
@@ -321,14 +321,14 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
           {status !== "OPEN" && (
             <span
               className={cn(
-                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                "px-2 py-0.5 rounded-full text-xs font-bold border",
                 status === "FULL"
-                  ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
+                  ? "bg-warning-subtle text-warning border-warning"
                   : status === "IN_GAME"
-                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                    ? "bg-success-subtle text-success border-success"
                     : status === "COMPLETED"
                       ? "bg-muted text-muted-foreground border-border"
-                      : "bg-rose-500/10 text-rose-500 border-rose-500/30"
+                      : "bg-danger-subtle text-danger border-danger"
               )}
             >
               {status === "IN_GAME" ? "In Match" : status}
@@ -370,7 +370,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
         {item.scheduledAt && (
           <div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground px-2.5 py-1 rounded-xl bg-muted/30 border border-border/30">
-            <Clock className="size-3 text-amber-500 shrink-0" />
+            <Clock className="size-3 text-warning shrink-0" />
             <span>{item.scheduledAt}</span>
           </div>
         )}
@@ -391,7 +391,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
       {/* Roster Squad Members Preview */}
       {rosterPlayers.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-1">
+          <span className="text-xs font-bold text-muted-foreground mr-1">
             Squad:
           </span>
           {rosterPlayers.map((p, idx) => (
@@ -399,7 +399,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               key={p.userId || idx}
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/35 text-[11px] font-medium text-foreground border border-border/40"
             >
-              <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span className="size-1.5 rounded-full bg-success" />
               <span>{p.displayName || p.username}</span>
               {p.role && <span className="text-[9px] text-muted-foreground">({p.role})</span>}
             </span>
@@ -421,8 +421,8 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
         <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
           <div
             className={cn(
-              "h-full rounded-full transition-all duration-500",
-              isFull ? "bg-amber-500" : "bg-primary"
+              "h-full rounded-full transition-colors duration-500",
+              isFull ? "bg-warning" : "bg-primary"
             )}
             style={{ width: `${Math.min(100, (slotsFilled / item.slotsTotal) * 100)}%` }}
           />
@@ -439,7 +439,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               disabled={isSubmitting || (isFull && !joined)}
               onClick={handleJoinLobby}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-60",
+                "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-[opacity,transform] cursor-pointer shadow-xs active:scale-95 disabled:opacity-60",
                 joined
                   ? isHost
                     ? "bg-primary/10 text-primary border border-primary/20"
@@ -472,7 +472,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               type="button"
               disabled={isSubmitting}
               onClick={() => handleHostAction("IN_GAME")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-success-subtle text-success hover:bg-success-subtle border border-success transition-colors cursor-pointer"
             >
               <Play className="size-3" />
               <span>Start Match</span>
@@ -484,7 +484,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               type="button"
               disabled={isSubmitting}
               onClick={() => handleHostAction("COMPLETED")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-500/10 text-sky-500 hover:bg-sky-500/20 border border-sky-500/30 transition-all cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle text-brand-text hover:bg-brand-subtle border border-brand transition-colors cursor-pointer"
             >
               <CheckCircle2 className="size-3" />
               <span>Complete</span>
@@ -496,7 +496,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               type="button"
               disabled={isSubmitting}
               onClick={() => handleHostAction("CANCELLED")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-rose-500 transition-all cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-danger transition-colors cursor-pointer"
             >
               <XCircle className="size-3" />
               <span>Cancel</span>

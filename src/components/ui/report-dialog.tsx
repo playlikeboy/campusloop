@@ -87,7 +87,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
 
         {success ? (
           <div className="py-8 text-center space-y-2">
-            <CheckCircle2 className="size-10 text-emerald-500 mx-auto animate-in zoom-in-75 duration-300 ease-out" />
+            <CheckCircle2 className="size-10 text-success mx-auto animate-in zoom-in-75 duration-300 ease-out" />
             <p className="text-sm font-bold text-foreground">Report Submitted</p>
             <p className="text-xs text-muted-foreground">Our campus safety team will review this shortly.</p>
           </div>
@@ -105,7 +105,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
                   id="report-reason"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-border/70 bg-muted/40 px-3.5 py-2.5 text-xs text-foreground font-semibold shadow-xs outline-none focus:ring-1 focus:ring-primary cursor-pointer pr-9"
+                  className="w-full appearance-none rounded-sm border border-border bg-surface px-3.5 py-2.5 text-xs text-fg font-semibold outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30 cursor-pointer pr-9"
                 >
                   {REPORT_REASONS.map((r) => (
                     <option key={r.value} value={r.value} className="bg-card text-foreground">
@@ -130,7 +130,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
                 onChange={(e) => setDetails(e.target.value)}
                 rows={3}
                 placeholder="Explain the context for moderators..."
-                className="w-full rounded-xl border border-border/70 bg-muted/30 px-3.5 py-2.5 text-xs text-foreground shadow-xs placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                className="w-full rounded-sm border border-border bg-surface px-3.5 py-2.5 text-xs text-fg placeholder:text-fg-subtle outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30 resize-none"
               />
             </div>
 
@@ -151,7 +151,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="rounded-xl bg-destructive px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-destructive/90 transition-all cursor-pointer select-none disabled:opacity-50 flex items-center gap-1.5"
+                className="rounded-md bg-danger px-5 py-2 text-xs font-bold text-danger-fg hover:bg-danger/90 transition-colors cursor-pointer select-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg flex items-center gap-1.5"
               >
                 {isLoading ? (
                   <>

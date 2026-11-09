@@ -343,21 +343,21 @@ export function AcademicPdfViewer({
       <div
         ref={containerRef}
         className={cn(
-          "w-full rounded-3xl border border-indigo-500/30 bg-card overflow-hidden shadow-xs relative transition-all p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4",
+          "w-full rounded-xl border border-border bg-surface overflow-hidden relative p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4",
           className
         )}
       >
         <div className="relative">
-          <div className="flex size-16 sm:size-20 items-center justify-center rounded-3xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 shadow-md">
+          <div className="flex size-16 sm:size-20 items-center justify-center rounded-xl bg-brand-subtle border border-brand-subtle-border text-brand-text">
             <Cpu className="size-8 sm:size-10 animate-pulse" />
           </div>
-          <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-md bg-indigo-600 text-white font-mono font-black text-[10px] tracking-wider shadow-xs">
+          <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-md bg-brand text-brand-fg font-mono font-bold text-[10px] shadow-xs">
             .MS14
           </span>
         </div>
 
         <div className="max-w-md space-y-1.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-subtle text-brand-text border border-brand-subtle-border">
             National Instruments Multisim Circuit Simulation
           </span>
           <h3 className="text-base sm:lg font-black text-foreground">{title}</h3>
@@ -371,7 +371,7 @@ export function AcademicPdfViewer({
           <button
             type="button"
             onClick={handleDownloadClick}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white shadow-md cursor-pointer transition-all active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs cursor-pointer transition-colors active:scale-95"
           >
             <Download className="size-4" />
             <span>Download .ms14 File</span>
@@ -382,7 +382,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
             >
               <ExternalLink className="size-3.5" />
               <span>Direct Link</span>
@@ -397,7 +397,7 @@ export function AcademicPdfViewer({
     <div
       ref={containerRef}
       className={cn(
-        "w-full min-w-0 max-w-full rounded-2xl border border-border/40 bg-card overflow-hidden relative transition-all flex flex-col select-none",
+        "w-full min-w-0 max-w-full rounded-xl border border-border bg-surface overflow-hidden relative flex flex-col select-none",
         isFullscreen
           ? "fixed inset-0 z-50 rounded-none h-screen bg-background"
           : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
@@ -407,7 +407,7 @@ export function AcademicPdfViewer({
       {/* ─── Multi-Document Switcher Bar (if multiple attachments) ─── */}
       {effectiveAttachments.length > 1 && (
         <div className="flex items-center gap-2 overflow-x-auto px-3 sm:px-4 py-2 bg-muted/70 border-b border-border/40 scrollbar-none shrink-0">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground shrink-0 flex items-center gap-1 mr-1">
+          <span className="text-xs font-semibold text-fg-muted shrink-0 flex items-center gap-1 mr-1">
             <Layers className="size-3 text-primary" />
             <span>Files ({effectiveAttachments.length}):</span>
           </span>
@@ -425,7 +425,7 @@ export function AcademicPdfViewer({
                   toast.info(`Switched to: ${att.title || `Document ${idx + 1}`}`);
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer border",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer border",
                   isSelected
                     ? "bg-foreground text-background border-foreground shadow-xs font-black"
                     : "bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground border-border/40"
@@ -445,10 +445,10 @@ export function AcademicPdfViewer({
       )}
 
       {/* ─── Reader Top Control Toolbar ─── */}
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-muted/40 border-b border-border/40 backdrop-blur-md shrink-0 flex-wrap">
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-surface-muted border-b border-border shrink-0 flex-wrap">
         {/* Left: Document info & badges */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 bg-muted text-foreground border border-border/50">
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold shrink-0 bg-surface-muted text-fg border border-border">
             {isYoutube ? (
               <Play className="size-3 fill-current" />
             ) : isHtmlAttachment ? (
@@ -493,7 +493,7 @@ export function AcademicPdfViewer({
               haptics.medium();
               window.open(chatGptUrl, "_blank", "noopener,noreferrer");
             }}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-all cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Study this syllabus on ChatGPT"
           >
             <Bot className="size-3" />
@@ -507,7 +507,7 @@ export function AcademicPdfViewer({
               haptics.medium();
               window.open(claudeUrl, "_blank", "noopener,noreferrer");
             }}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-all cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Study this syllabus on Claude"
           >
             <Sparkles className="size-3" />
@@ -523,7 +523,7 @@ export function AcademicPdfViewer({
                 haptics.medium();
                 onOpenPlayer(currentAttachment, safeIdx);
               }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 border border-rose-500/30 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer"
               title="Open distraction-free course player with notes"
             >
               <ListVideo className="size-3" />
@@ -542,12 +542,13 @@ export function AcademicPdfViewer({
                   toast.info("Switched to Drive Grid view");
                 }}
                 className={cn(
-                  "p-1 rounded-full transition-all cursor-pointer",
+                  "p-1 rounded-full transition-colors cursor-pointer",
                   folderViewMode === "grid"
-                    ? "bg-amber-500/20 text-amber-500 font-bold"
+                    ? "bg-brand-subtle text-brand-text font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Grid layout"
+                aria-label="Grid layout"
               >
                 <LayoutGrid className="size-3.5" />
               </button>
@@ -559,12 +560,13 @@ export function AcademicPdfViewer({
                   toast.info("Switched to Drive List view");
                 }}
                 className={cn(
-                  "p-1 rounded-full transition-all cursor-pointer",
+                  "p-1 rounded-full transition-colors cursor-pointer",
                   folderViewMode === "list"
-                    ? "bg-amber-500/20 text-amber-500 font-bold"
+                    ? "bg-brand-subtle text-brand-text font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 title="List layout"
+                aria-label="List layout"
               >
                 <List className="size-3.5" />
               </button>
@@ -586,19 +588,13 @@ export function AcademicPdfViewer({
                     : "Switched to Google Docs Viewer API"
                 );
               }}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title={
                 viewerEngine === "google"
                   ? "Currently using Google Docs Viewer API. Click to switch to Native View"
                   : "Currently using Native View. Click to switch to Google Docs Viewer API"
               }
             >
-              <span
-                className={cn(
-                  "size-1.5 rounded-full inline-block",
-                  viewerEngine === "google" ? "bg-emerald-400" : "bg-indigo-400"
-                )}
-              />
               <span>{viewerEngine === "google" ? "Cloud View" : "Native View"}</span>
             </button>
           )}
@@ -610,8 +606,9 @@ export function AcademicPdfViewer({
                 type="button"
                 onClick={() => handleZoom("out")}
                 disabled={zoomLevel <= 60}
-                className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all cursor-pointer"
+                className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
                 title="Zoom out"
+                aria-label="Zoom out"
               >
                 <ZoomOut className="size-3.5" />
               </button>
@@ -622,8 +619,9 @@ export function AcademicPdfViewer({
                 type="button"
                 onClick={() => handleZoom("in")}
                 disabled={zoomLevel >= 200}
-                className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all cursor-pointer"
+                className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
                 title="Zoom in"
+                aria-label="Zoom in"
               >
                 <ZoomIn className="size-3.5" />
               </button>
@@ -640,14 +638,15 @@ export function AcademicPdfViewer({
               toast.info(isNightMode ? "Reader night mode off" : "Reader night mode enabled (inverted)");
             }}
             className={cn(
-              "p-1.5 rounded-full border transition-all cursor-pointer",
+              "p-1.5 rounded-full border transition-colors cursor-pointer",
               isNightMode
-                ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/40"
+                ? "bg-brand-subtle text-brand-text border-brand-subtle-border"
                 : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
             title={isNightMode ? "Disable dark reader" : "Enable dark reader for night study"}
+            aria-label={isNightMode ? "Disable dark reader" : "Enable dark reader"}
           >
-            {isNightMode ? <Sun className="size-3.5 text-amber-400" /> : <Moon className="size-3.5" />}
+            {isNightMode ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
           </button>
 
           {/* Rotate Toggle */}
@@ -659,8 +658,9 @@ export function AcademicPdfViewer({
                 haptics.light();
                 setRotation((r) => (r + 90) % 360);
               }}
-              className="hidden sm:flex p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="hidden sm:flex p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title="Rotate 90 degrees"
+              aria-label="Rotate 90 degrees"
             >
               <RotateCw className="size-3.5" />
             </button>
@@ -670,8 +670,9 @@ export function AcademicPdfViewer({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Reader"}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
           </button>
@@ -693,18 +694,7 @@ export function AcademicPdfViewer({
                 handleDownloadClick();
               }
             }}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-xs cursor-pointer transition-all active:scale-95",
-              isYoutube
-                ? "bg-rose-600 hover:bg-rose-500 text-white"
-                : isHtmlAttachment
-                  ? "bg-violet-600 hover:bg-violet-500 text-white"
-                  : isGoogleSites || isGenericWebSite
-                    ? "bg-sky-600 hover:bg-sky-500 text-white"
-                    : isDriveFolder
-                      ? "bg-amber-500 hover:bg-amber-600 text-amber-950"
-                      : "bg-indigo-600 hover:bg-indigo-500 text-white"
-            )}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg shadow-xs cursor-pointer transition-colors active:scale-95"
             title={
               isYoutube
                 ? "Watch on YouTube (No login required)"
@@ -749,8 +739,9 @@ export function AcademicPdfViewer({
                 navigator.clipboard.writeText(isDriveFolder ? cleanDriveFolderUrl : rawUrl);
                 toast.success("Study link copied to clipboard!");
               }}
-              className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title="Copy direct URL"
+              aria-label="Copy direct URL"
             >
               <Copy className="size-3.5" />
             </button>
@@ -760,9 +751,9 @@ export function AcademicPdfViewer({
 
       {/* ─── YouTube Video / Playlist Cinema Banner ─── */}
       {isYoutube && (
-        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-rose-500/10 border-b border-rose-500/20 text-xs text-foreground shrink-0 flex-wrap">
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-brand-subtle border-b border-brand-subtle-border text-xs text-fg shrink-0 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex size-6 items-center justify-center rounded-lg bg-rose-500/20 text-rose-400 shrink-0">
+            <span className="flex size-6 items-center justify-center rounded-md bg-brand/10 text-brand-text shrink-0">
               <Play className="size-3.5 fill-current" />
             </span>
             <div className="min-w-0 leading-tight">
@@ -780,7 +771,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-[11px] transition-all shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
             >
               <span>Watch on YouTube</span>
               <ExternalLink className="size-2.5" />
@@ -791,9 +782,9 @@ export function AcademicPdfViewer({
 
       {/* ─── Static HTML Preview Banner (sandboxed, scripts disabled) ─── */}
       {isHtmlAttachment && (
-        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-violet-500/10 border-b border-violet-500/20 text-xs text-foreground shrink-0 flex-wrap">
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-brand-subtle border-b border-brand-subtle-border text-xs text-fg shrink-0 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex size-6 items-center justify-center rounded-lg bg-violet-500/20 text-violet-400 shrink-0">
+            <span className="flex size-6 items-center justify-center rounded-md bg-brand/10 text-brand-text shrink-0">
               <Lock className="size-3.5" />
             </span>
             <div className="min-w-0 leading-tight">
@@ -808,7 +799,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-black text-[11px] transition-all shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
             >
               <span>Open Raw File</span>
               <ExternalLink className="size-2.5" />
@@ -819,9 +810,9 @@ export function AcademicPdfViewer({
 
       {/* ─── Google Sites & Web Portal Smart Banner (Fix for Image 3) ─── */}
       {(isGoogleSites || isGenericWebSite) && (
-        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-sky-500/10 border-b border-sky-500/20 text-xs text-foreground shrink-0 flex-wrap">
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-brand-subtle border-b border-brand-subtle-border text-xs text-fg shrink-0 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex size-6 items-center justify-center rounded-lg bg-sky-500/20 text-sky-400 shrink-0">
+            <span className="flex size-6 items-center justify-center rounded-md bg-brand/10 text-brand-text shrink-0">
               <Globe className="size-3.5" />
             </span>
             <div className="min-w-0 leading-tight">
@@ -841,7 +832,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-black text-[11px] transition-all shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
             >
               <span>Open Course Portal</span>
               <ExternalLink className="size-2.5" />
@@ -852,9 +843,9 @@ export function AcademicPdfViewer({
 
       {/* ─── Drive Folder Smart Banner ─── */}
       {isDriveFolder && (
-        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-xs text-foreground shrink-0 flex-wrap">
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 bg-brand-subtle border-b border-brand-subtle-border text-xs text-fg shrink-0 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex size-6 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 shrink-0">
+            <span className="flex size-6 items-center justify-center rounded-md bg-brand/10 text-brand-text shrink-0">
               <FolderOpen className="size-3.5" />
             </span>
             <div className="min-w-0 leading-tight">
@@ -870,7 +861,7 @@ export function AcademicPdfViewer({
               href={cleanDriveFolderUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-[11px] transition-all shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
             >
               <span>Open Full Folder</span>
               <ExternalLink className="size-2.5" />
@@ -880,7 +871,7 @@ export function AcademicPdfViewer({
       )}
 
       {/* ─── Viewer Body Canvas ─── */}
-      <div className="flex-1 w-full min-w-0 max-w-full h-full relative overflow-hidden bg-neutral-900/95 flex items-center justify-center">
+      <div className="flex-1 w-full min-w-0 max-w-full h-full relative overflow-hidden bg-surface-sunken flex items-center justify-center">
         {embedUrl ? (
           <div
             className="w-full h-full transition-transform duration-200 origin-center flex items-center justify-center overflow-auto relative"
@@ -890,8 +881,8 @@ export function AcademicPdfViewer({
             }}
           >
             {isLoading && (
-              <div className="absolute inset-0 bg-neutral-950/80 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 transition-opacity duration-300 pointer-events-none">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 shadow-sm">
+              <div className="absolute inset-0 bg-surface/90 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 transition-opacity duration-300 pointer-events-none">
+                <div className="flex size-12 items-center justify-center rounded-lg bg-brand-subtle border border-brand-subtle-border text-brand-text">
                   <Loader2 className="size-6 animate-spin" />
                 </div>
                 <div className="space-y-1">
@@ -913,7 +904,7 @@ export function AcademicPdfViewer({
               key={embedUrl}
               src={embedUrl}
               title={title}
-              className={cn("w-full h-full border-0", isYoutube ? "bg-black" : "bg-white")}
+              className={cn("w-full h-full border-0", isYoutube ? "bg-black" : "bg-surface")}
               allow={
                 isHtmlAttachment
                   ? undefined
@@ -935,11 +926,11 @@ export function AcademicPdfViewer({
           </div>
         ) : isDriveFolder ? (
           <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center space-y-4 max-w-md mx-auto">
-            <div className="flex size-16 sm:size-20 items-center justify-center rounded-3xl bg-amber-500/15 border border-amber-500/30 text-amber-500 shadow-md">
+            <div className="flex size-16 sm:size-20 items-center justify-center rounded-xl bg-brand-subtle border border-brand-subtle-border text-brand-text">
               <FolderOpen className="size-8 sm:size-10" />
             </div>
             <div className="space-y-1">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/25">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-subtle text-brand-text border border-brand-subtle-border">
                 Google Drive Course Collection
               </span>
               <h3 className="text-base sm:text-lg font-black text-foreground">{title}</h3>
@@ -953,7 +944,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-amber-950 shadow-md transition-all active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs transition-colors active:scale-95"
               >
                 <FolderOpen className="size-4" />
                 <span>Open in Google Drive</span>
@@ -965,7 +956,7 @@ export function AcademicPdfViewer({
                   navigator.clipboard.writeText(cleanDriveFolderUrl);
                   toast.success("Drive link copied to clipboard!");
                 }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
               >
                 <Copy className="size-3.5" />
                 <span>Copy Link</span>
@@ -986,7 +977,7 @@ export function AcademicPdfViewer({
             <button
               type="button"
               onClick={handleDownloadClick}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 shadow-md cursor-pointer transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-4" />
               <span>Download &amp; Open Document</span>
@@ -996,7 +987,7 @@ export function AcademicPdfViewer({
 
         {/* Fallback overlay if iframe encounters embedding blockage */}
         {hasIframeError && (
-          <div className="absolute inset-0 bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-3 z-20">
+          <div className="absolute inset-0 bg-bg/95 flex flex-col items-center justify-center p-6 text-center space-y-3 z-20">
             <p className="text-sm font-bold text-foreground">
               {isDriveFolder ? "Google Drive Direct Access" : "Viewer Embed Protected"}
             </p>
@@ -1010,7 +1001,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-amber-950 cursor-pointer shadow-md"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg cursor-pointer shadow-xs"
               >
                 <FolderOpen className="size-4" />
                 <span>Open Full Folder in Google Drive</span>
@@ -1019,7 +1010,7 @@ export function AcademicPdfViewer({
               <button
                 type="button"
                 onClick={handleDownloadClick}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer shadow-md"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover cursor-pointer shadow-xs"
               >
                 <Download className="size-4" />
                 <span>Download PDF</span>
@@ -1031,8 +1022,7 @@ export function AcademicPdfViewer({
 
       {/* ─── Footer Notice ─── */}
       <div className="px-4 py-1.5 bg-muted/20 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="flex items-center gap-1 font-semibold text-primary">
-          <span className="size-1.5 rounded-full bg-primary animate-ping inline-block" />
+        <span className="flex items-center gap-1 font-semibold text-brand-text">
           <span>Public Access: Free reading &amp; download (No sign-in required)</span>
         </span>
         <span className="hidden sm:inline">Press Esc to exit fullscreen</span>

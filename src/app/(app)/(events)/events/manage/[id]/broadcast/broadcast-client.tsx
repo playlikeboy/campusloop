@@ -123,7 +123,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
             <ArrowLeft className="size-4" />
           </Link>
           <div className="min-w-0">
-            <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-warning block">
               In-App Broadcast
             </span>
             <h1 className="text-lg font-black text-foreground truncate">{eventTitle}</h1>
@@ -138,7 +138,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
 
       {/* ─── Quick Templates ─── */}
       <div className="space-y-2">
-        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <label className="text-xs font-bold text-muted-foreground">
           Quick Preset Templates
         </label>
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -167,7 +167,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Schedule Update, Room Change..."
-            className="w-full px-3.5 py-2 rounded-xl border border-border/50 bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            className="w-full px-3.5 py-2 rounded-xl border border-border/50 bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-warning"
           />
         </div>
 
@@ -180,7 +180,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your update clearly for attendees..."
-            className="w-full p-3.5 rounded-xl border border-border/50 bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none"
+            className="w-full p-3.5 rounded-xl border border-border/50 bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-warning resize-none"
             required
           />
         </div>
@@ -193,7 +193,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
           <button
             type="submit"
             disabled={isSending || !message.trim() || activeAttendees === 0}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs transition-all cursor-pointer shadow-xs disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-warning hover:bg-warning active:scale-95 text-black font-bold text-xs transition-[opacity,transform] cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isSending ? (
               <>
@@ -214,7 +214,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
       {sentHistory.length > 0 && (
         <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-3">
           <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-emerald-500" /> Recently Sent Announcements
+            <CheckCircle2 className="size-3.5 text-success" /> Recently Sent Announcements
           </h3>
 
           <div className="space-y-2">
@@ -225,7 +225,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
                   <span className="text-[10px] text-muted-foreground">{item.sentAt}</span>
                 </div>
                 <p className="text-muted-foreground">{item.message}</p>
-                <p className="text-[10px] text-emerald-500 font-semibold">
+                <p className="text-[10px] text-success font-semibold">
                   Delivered to {item.recipientsCount} attendees
                 </p>
               </div>

@@ -9,7 +9,7 @@ import {
   secretCrushes,
   userProfiles,
 } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { createNotification } from "@/lib/notifications";
 
 const MAX_ACTIVE_SLOTS = 5;
@@ -19,19 +19,11 @@ const COOLDOWN_DAYS = 7;
 // GET /api/dating/crush — Fetch user's active secret crushes and count of received crushes
 export async function GET() {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     // 1. Get sent active secret crushes with target profile
     const sentCrushes = await db.query.secretCrushes.findMany({
@@ -49,6 +41,7 @@ export async function GET() {
         },
       },
       orderBy: (sc, { desc }) => [desc(sc.createdAt)],
+      limit: 50,
     });
 
     // 2. Count attempts in rolling 7 days
@@ -96,19 +89,11 @@ export async function GET() {
 // POST /api/dating/crush — Send a Secret Crush
 export async function POST(req: NextRequest) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const body = (await req.json()) as { targetId?: string };
     const { targetId } = body;
@@ -339,19 +324,11 @@ export async function POST(req: NextRequest) {
 // DELETE /api/dating/crush — Remove a secret crush (does NOT restore rolling 7-day attempt)
 export async function DELETE(req: NextRequest) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
 
     const { searchParams } = new URL(req.url);
     const targetId = searchParams.get("targetId");

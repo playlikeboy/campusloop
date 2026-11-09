@@ -96,7 +96,7 @@ export function ContextualLivingNav() {
                   haptics.light();
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 border",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-ui cursor-pointer shrink-0 border",
                   isActive
                     ? "bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-soft-border)] font-semibold shadow-2xs"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] bg-[var(--surface)] border-[var(--border)]"
@@ -117,7 +117,7 @@ export function ContextualLivingNav() {
               sounds.tap();
               haptics.light();
             }}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs active:scale-[0.98] shrink-0"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-ui shadow-xs active:scale-[0.98] shrink-0"
           >
             <Plus className="size-3.5" />
             <span>{currentTab.createLabel || "+ New"}</span>

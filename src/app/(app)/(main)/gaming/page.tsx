@@ -4,6 +4,7 @@ import { GamingClient } from "@/components/gaming/gaming-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
+  robots: { index: true, follow: true },
   title: "Gaming Arena | Campus Esports, Lobbies & Tournaments",
   description: "Find college teammates, scrim lobbies, and host Valorant, BGMI, and Chess campus tournaments.",
   alternates: { canonical: "https://campusloop.space/gaming" },

@@ -6,10 +6,10 @@ export function RatingStars({ value, count, size = "sm" }: { value: number; coun
   const px = size === "md" ? "size-4" : "size-3.5";
   return (
     <span className="inline-flex items-center gap-1" aria-label={`Rated ${value.toFixed(1)} out of 5${count !== undefined ? ` by ${count} learners` : ""}`}>
-      {value > 0 && <span className="text-sm font-bold tabular-nums text-amber-700 dark:text-amber-400">{value.toFixed(1)}</span>}
+      {value > 0 && <span className="text-sm font-bold tabular-nums text-fg">{value.toFixed(1)}</span>}
       <span className="inline-flex" aria-hidden>
         {[1, 2, 3, 4, 5].map((i) => (
-          <Star key={i} className={cn(px, i <= Math.round(value) ? "fill-amber-500 text-amber-500" : "fill-muted text-muted")} />
+          <Star key={i} className={cn(px, i <= Math.round(value) ? "fill-reward text-reward" : "fill-surface-muted text-surface-muted")} />
         ))}
       </span>
       {count !== undefined && <span className="text-xs text-muted-foreground">({count.toLocaleString("en-IN")})</span>}

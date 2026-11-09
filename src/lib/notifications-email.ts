@@ -54,7 +54,7 @@ export async function dispatchNotificationEmail(params: CreateNotificationParams
       actorName: actor.username,
       type: params.type as "MENTION" | "REPLY" | "MATCH",
       snippet: params.previewText || undefined,
-      actionUrl: `https://campusloop.space/app/notifications`,
+      actionUrl: `https://campusloop.space/notifications`,
     });
 
     await sendEmail({

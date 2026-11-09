@@ -125,7 +125,7 @@ export function FeedCardActions({
             {...like.handlers}
             className={cn(
               "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs cursor-pointer group transition-colors hover:bg-muted/70 active:scale-95",
-              isLiked ? "text-orange-500" : "text-muted-foreground hover:text-orange-500"
+              isLiked ? "text-warning" : "text-muted-foreground hover:text-warning"
             )}
             aria-label={isLiked ? `${effectiveVotesCount} Vibes, tap to unvibe` : `Vibe post, currently ${effectiveVotesCount} vibes`}
           >
@@ -147,8 +147,8 @@ export function FeedCardActions({
                 iconClassName={cn(
                   "transition-colors",
                   isLiked
-                    ? "fill-orange-500 text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]"
-                    : "text-muted-foreground group-hover:text-orange-500"
+                    ? "fill-warning text-warning drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]"
+                    : "text-muted-foreground group-hover:text-warning"
                 )}
               />
             </motion.div>
@@ -198,7 +198,7 @@ export function FeedCardActions({
           aria-pressed={hasReposted}
           className={cn(
             "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            hasReposted ? "text-emerald-500 bg-emerald-500/10" : "text-muted-foreground hover:text-emerald-500 hover:bg-muted/50"
+            hasReposted ? "text-success bg-success/10" : "text-muted-foreground hover:text-success hover:bg-muted/50"
           )}
           aria-label={hasReposted ? "Reposted" : "Repost"}
         >
@@ -209,7 +209,7 @@ export function FeedCardActions({
             size={16}
             animateOnHover={false}
             className={cn("transition-transform duration-300 ease-out", repostSpin && "rotate-180 scale-115")}
-            iconClassName={cn(hasReposted && "text-emerald-500")}
+            iconClassName={cn(hasReposted && "text-success")}
           />
         </button>
 
@@ -220,7 +220,7 @@ export function FeedCardActions({
           {...bookmark.handlers}
           className={cn(
             "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            isSaved ? "text-amber-500 bg-amber-500/10" : "text-muted-foreground hover:text-amber-500 hover:bg-muted/50"
+            isSaved ? "text-warning bg-warning/10" : "text-muted-foreground hover:text-warning hover:bg-muted/50"
           )}
           aria-label={isSaved ? "Saved in vault" : "Save post"}
         >
@@ -233,7 +233,7 @@ export function FeedCardActions({
             playKey={isSaved}
             iconClassName={cn(
               "transition-colors",
-              isSaved ? "fill-amber-500 text-amber-500" : "text-muted-foreground hover:text-amber-500"
+              isSaved ? "fill-warning text-warning" : "text-muted-foreground hover:text-warning"
             )}
           />
         </motion.button>

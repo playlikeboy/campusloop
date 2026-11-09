@@ -9,9 +9,10 @@ import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { ArticlesHubClient } from "./articles-hub-client";
 
 export const metadata: Metadata = {
+  robots: { index: true, follow: true },
   title: "Campus Articles & Student Long Reads",
   description:
-    "Read, write, and explore in-depth student articles, placement roadmaps, engineering guides, research, and campus stories from 1,350+ Indian colleges.",
+    "Read, write, and explore in-depth student articles, placement roadmaps, engineering guides, research, and campus stories from Indian colleges.",
   keywords: [
     "CampusLoop Articles",
     "Student Blog",

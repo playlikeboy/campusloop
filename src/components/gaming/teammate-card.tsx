@@ -61,7 +61,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
   }
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-4 transition-all hover:border-primary/40 hover:bg-card/90 shadow-2xs">
+    <div className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-card/90 shadow-2xs">
       <div>
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -98,7 +98,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
             </div>
           </div>
 
-          <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-500 border border-emerald-500/20">
+          <span className="shrink-0 rounded-full bg-success-subtle px-2 py-0.5 text-xs font-bold text-success border border-success">
             LFT
           </span>
         </div>
@@ -136,7 +136,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
           {teammate.platforms.map((plat) => (
             <span
               key={plat}
-              className="inline-flex items-center gap-1 rounded-md bg-muted/30 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border border-border/30"
+              className="inline-flex items-center gap-1 rounded-md bg-muted/30 px-1.5 py-0.5 text-xs font-bold text-muted-foreground border border-border/30"
             >
               {getPlatformIcon(plat)}
               <span>{plat}</span>
@@ -144,12 +144,12 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
           ))}
 
           <span className="inline-flex items-center gap-1 rounded-md bg-muted/30 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground border border-border/30">
-            <Clock className="size-2.5 text-amber-500" />
+            <Clock className="size-2.5 text-warning" />
             <span>{teammate.preferredAvailability.toLowerCase()}</span>
           </span>
 
           <span className="inline-flex items-center gap-1 rounded-md bg-muted/30 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground border border-border/30">
-            <Headphones className="size-2.5 text-purple-500" />
+            <Headphones className="size-2.5 text-brand-text" />
             <span>{teammate.voicePreference.toLowerCase()}</span>
           </span>
         </div>

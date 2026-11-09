@@ -20,16 +20,16 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
         transition={{ duration: 0.25, ease: "easeOut" }}
         className="overflow-hidden"
       >
-        <div className="mx-4 sm:mx-5 mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-3">
+        <div className="mx-4 sm:mx-5 mb-4 rounded-2xl border border-success/20 bg-success/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <BarChart3 className="size-4 text-emerald-500" /> Voting Options
+              <BarChart3 className="size-4 text-success" /> Voting Options
             </span>
             {options.length < 6 && (
               <button
                 type="button"
                 onClick={onAdd}
-                className="flex items-center gap-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-500 transition-all hover:bg-emerald-500/20 active:scale-95 cursor-pointer"
+                className="flex items-center gap-1 rounded-xl border border-success/30 bg-success/10 px-2.5 py-1 text-[10px] font-bold text-success transition-transform hover:bg-success/20 active:scale-95 cursor-pointer"
               >
                 <Plus className="size-3" /> Add Option
               </button>
@@ -45,7 +45,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
                 transition={{ delay: index * 0.03 }}
                 className="flex items-center gap-2"
               >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-xs font-black text-emerald-500 border border-emerald-500/20 shadow-xs">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success/15 text-xs font-black text-success border border-success/20 shadow-xs">
                   {String.fromCharCode(65 + index)}
                 </span>
                 <input
@@ -55,7 +55,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
                   required={index < 2}
                   maxLength={80}
                   onChange={(e) => onChange(index, e.target.value)}
-                  className="h-10 flex-1 rounded-xl border border-border/60 bg-card px-3.5 text-xs font-medium outline-none transition-all placeholder:text-muted-foreground/60 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 shadow-xs"
+                  className="h-10 flex-1 rounded-xl border border-border/60 bg-card px-3.5 text-xs font-medium outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-success/50 focus:ring-1 focus:ring-success/20 shadow-xs"
                 />
                 {options.length > 2 && (
                   <button

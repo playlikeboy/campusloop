@@ -1,30 +1,32 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { posts, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { posts } from "@/db/schema";
+import { parseBefore, parseLimit } from "@/lib/pagination";
+import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
+
+    const { searchParams } = new URL(req.url);
+    const limit = parseLimit(searchParams, 50, 100);
+    const before = parseBefore(searchParams);
 
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const archivedPosts = await db.query.posts.findMany({
-      where: and(eq(posts.authorId, profile.id), eq(posts.status, "ARCHIVED")),
+      where: and(
+        eq(posts.authorId, profile.id),
+        eq(posts.status, "ARCHIVED"),
+        before ? lt(posts.createdAt, before) : undefined
+      ),
       orderBy: [desc(posts.createdAt)],
+      limit,
       with: {
         author: true,
         institution: true,

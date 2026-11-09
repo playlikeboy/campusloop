@@ -31,7 +31,7 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
   }
 
   return (
-    <div className="rounded-3xl border border-border/40 bg-card overflow-hidden shadow-xs hover:border-border/80 transition-all select-none">
+    <div className="rounded-3xl border border-border/40 bg-card overflow-hidden shadow-xs hover:border-border/80 transition-colors select-none">
       {/* Cover Image Banner */}
       <div className="relative h-44 sm:h-52 w-full overflow-hidden bg-muted">
         {capsule.coverImage && (
@@ -43,10 +43,10 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
         <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5">
           <span
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-md flex items-center gap-1.5 backdrop-blur-md",
+              "px-3 py-1 rounded-full text-xs font-black border shadow-md flex items-center gap-1.5 backdrop-blur-md",
               isUnlocked
-                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
-                : "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                ? "bg-success/20 text-success border-success/40"
+                : "bg-warning/20 text-warning border-warning/40"
             )}
           >
             {isUnlocked ? (
@@ -65,7 +65,7 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
 
         {/* Category Pill */}
         <div className="absolute top-3.5 left-3.5 z-10">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-background/80 text-foreground border border-border/40 backdrop-blur-md">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-background/80 text-foreground border border-border/40 backdrop-blur-md">
             {capsule.category.replace("_", " ")}
           </span>
         </div>
@@ -86,9 +86,9 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
         {/* Countdown Ticker or Unlock Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-muted/20 border border-border/30">
           <div className="flex items-center gap-2">
-            <Hourglass className="size-4 text-amber-500 shrink-0" />
+            <Hourglass className="size-4 text-warning shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-muted-foreground block text-[10px] uppercase tracking-wider">
+              <span className="font-bold text-muted-foreground block text-[10px]">
                 {isUnlocked ? "Unlocked Date" : "Unlocks Automatically On"}
               </span>
               <span className="font-black text-foreground">
@@ -120,7 +120,7 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
             <button
               type="button"
               onClick={handleBuryClick}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500 text-white text-xs font-black hover:bg-amber-600 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-warning text-white text-xs font-black hover:bg-warning transition-transform cursor-pointer shadow-xs active:scale-95"
             >
               <Plus className="size-3.5" />
               <span>Bury Memory</span>
@@ -129,9 +129,9 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
             <button
               type="button"
               onClick={handleToggleEntries}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer"
             >
-              <Eye className="size-3.5 text-emerald-500" />
+              <Eye className="size-3.5 text-success" />
               <span>{showEntries ? "Hide Entries" : "View Museum Wall"}</span>
             </button>
           )}
@@ -139,8 +139,8 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
 
         {/* Sealed Vault Private Preview Notice (if locked and user buried a memory) */}
         {!isUnlocked && capsule.entries && capsule.entries.length > 0 && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
-            <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5">
+          <div className="rounded-2xl border border-warning/30 bg-warning/5 p-3 space-y-2">
+            <p className="text-[11px] font-bold text-warning flex items-center gap-1.5">
               <Lock className="size-3" />
               <span>You have buried {capsule.entries.length} memory in this sealed vault:</span>
             </p>
@@ -161,7 +161,7 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
         {/* Unlocked Museum Wall Entries */}
         {isUnlocked && showEntries && capsule.entries && (
           <div className="space-y-3 pt-2 border-t border-border/20">
-            <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h4 className="text-xs font-black text-muted-foreground">
               Buried Legacy & Predictions Revealed
             </h4>
             <div className="space-y-2.5">
@@ -190,7 +190,7 @@ export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
                             </span>
                           </>
                         ) : (
-                          <span className="text-xs font-bold text-amber-500">
+                          <span className="text-xs font-bold text-warning">
                             @{entry.pseudonym || "anonymous_student"}
                           </span>
                         )}

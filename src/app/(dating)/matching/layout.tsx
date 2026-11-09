@@ -3,8 +3,8 @@ import DatingLayout from "../dating/layout";
 
 export const metadata: Metadata = {
   title: {
-    default: "CampusLoop Matching",
-    template: "%s | CampusLoop Matching",
+    default: "Campus Match",
+    template: "%s · CampusLoop",
   },
 };
 
